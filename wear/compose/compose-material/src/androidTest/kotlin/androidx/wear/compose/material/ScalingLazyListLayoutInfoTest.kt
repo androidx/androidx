@@ -44,6 +44,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 public class ScalingLazyListLayoutInfoTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -77,7 +78,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = AutoCenteringParams()
+                autoCentering = AutoCenteringParams(),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -105,7 +106,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f),
                 verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
-                autoCentering = AutoCenteringParams()
+                autoCentering = AutoCenteringParams(),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -138,7 +139,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 autoCentering = AutoCenteringParams(),
-                contentPadding = PaddingValues(all = 0.dp)
+                contentPadding = PaddingValues(all = 0.dp),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -158,7 +159,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 autoCentering = AutoCenteringParams(),
-                contentPadding = PaddingValues(all = 0.dp)
+                contentPadding = PaddingValues(all = 0.dp),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -179,7 +180,7 @@ public class ScalingLazyListLayoutInfoTest {
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 autoCentering = AutoCenteringParams(),
                 contentPadding = PaddingValues(all = 0.dp),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -199,7 +200,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state =
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = AutoCenteringParams(itemIndex = 0)
+                autoCentering = AutoCenteringParams(itemIndex = 0),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -221,7 +222,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -240,7 +241,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 reverseLayout = true,
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -263,7 +264,7 @@ public class ScalingLazyListLayoutInfoTest {
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 reverseLayout = true,
-                autoCentering = AutoCenteringParams(itemIndex = 0)
+                autoCentering = AutoCenteringParams(itemIndex = 0),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -285,7 +286,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -342,7 +343,7 @@ public class ScalingLazyListLayoutInfoTest {
     private fun visibleItemsAreCorrectAfterScrollingPastEndOfItems(
         autoCenterItem: Int,
         localItemSizePx: Int,
-        viewPortSizeEven: Boolean
+        viewPortSizeEven: Boolean,
     ) {
         lateinit var state: ScalingLazyListState
         lateinit var scope: CoroutineScope
@@ -358,7 +359,7 @@ public class ScalingLazyListLayoutInfoTest {
                             state = it
                         },
                     modifier = Modifier.requiredSize(viewportSizePx.toDp()),
-                    autoCentering = AutoCenteringParams(itemIndex = autoCenterItem)
+                    autoCentering = AutoCenteringParams(itemIndex = autoCenterItem),
                 ) {
                     items(5) { Box(Modifier.requiredSize(localItemSizePx.toDp())) }
                 }
@@ -390,7 +391,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp * 5)) }
             }
@@ -465,7 +466,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 reverseLayout = true,
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -486,7 +487,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(2).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 2f + defaultItemSpacingDp * 1f),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -508,7 +509,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(2, -5).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 2f + defaultItemSpacingDp * 1f),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -531,7 +532,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState(2).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 2f + defaultItemSpacingDp * 1f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -554,7 +555,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState(2, -5).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 2f + defaultItemSpacingDp * 1f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -577,7 +578,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 4f + defaultItemSpacingDp * 3f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(15) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:$it")) }
             }
@@ -602,7 +603,7 @@ public class ScalingLazyListLayoutInfoTest {
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                autoCentering = AutoCenteringParams(itemIndex = 0)
+                autoCentering = AutoCenteringParams(itemIndex = 0),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:$it")) }
             }
@@ -639,7 +640,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 4f + defaultItemSpacingDp * 3f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(15) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:$it")) }
             }
@@ -676,7 +677,7 @@ public class ScalingLazyListLayoutInfoTest {
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                autoCentering = AutoCenteringParams(itemIndex = 0)
+                autoCentering = AutoCenteringParams(itemIndex = 0),
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -708,7 +709,7 @@ public class ScalingLazyListLayoutInfoTest {
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
                 reverseLayout = true,
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -742,7 +743,7 @@ public class ScalingLazyListLayoutInfoTest {
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + spacing * 2.5f),
                 verticalArrangement = Arrangement.spacedBy(spacing),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -759,7 +760,7 @@ public class ScalingLazyListLayoutInfoTest {
     @Composable
     fun ObservingFun(
         state: ScalingLazyListState,
-        currentInfo: StableRef<ScalingLazyListLayoutInfo?>
+        currentInfo: StableRef<ScalingLazyListLayoutInfo?>,
     ) {
         currentInfo.value = state.layoutInfo
     }
@@ -772,7 +773,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -801,7 +802,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -827,7 +828,7 @@ public class ScalingLazyListLayoutInfoTest {
     @Composable
     fun ObservingIsScrollInProgressTrueFun(
         state: ScalingLazyListState,
-        currentInfo: StableRef<Boolean?>
+        currentInfo: StableRef<Boolean?>,
     ) {
         // If isScrollInProgress is ever true record it - otherwise leave the value as null
         if (state.isScrollInProgress) {
@@ -844,7 +845,7 @@ public class ScalingLazyListLayoutInfoTest {
             scope = rememberCoroutineScope()
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
             ) {
                 items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -880,7 +881,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = null
+                autoCentering = null,
             ) {
                 items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -940,7 +941,7 @@ public class ScalingLazyListLayoutInfoTest {
         rule.setContent {
             ScalingLazyColumn(
                 Modifier.requiredSize(sizeDp),
-                state = rememberScalingLazyListState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it },
             ) {
                 items(4) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -972,7 +973,7 @@ public class ScalingLazyListLayoutInfoTest {
             ScalingLazyColumn(
                 Modifier.requiredSize(sizeDp),
                 contentPadding = PaddingValues(top = topPaddingDp, bottom = bottomPaddingDp),
-                state = rememberScalingLazyListState().also { state = it }
+                state = rememberScalingLazyListState().also { state = it },
             ) {
                 items(4) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -1003,7 +1004,7 @@ public class ScalingLazyListLayoutInfoTest {
                 Modifier.requiredSize(viewPortSizeDp),
                 state =
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
-                autoCentering = AutoCenteringParams()
+                autoCentering = AutoCenteringParams(),
             ) {
                 items(7) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -1054,7 +1055,7 @@ public class ScalingLazyListLayoutInfoTest {
         startIndex: Int = 0,
         unscaledSize: Int = itemSizePx,
         spacing: Int = defaultItemSpacingPx,
-        anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter
+        anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     ) {
         assertThat(visibleItemsInfo.size).isEqualTo(count)
         var currentIndex = startIndex

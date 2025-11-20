@@ -16,12 +16,11 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import org.jspecify.annotations.Nullable;
 
-public class ParentChildTestActivity extends Activity {
+public class ParentChildTestActivity extends TestActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

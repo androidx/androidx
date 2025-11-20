@@ -84,8 +84,8 @@ import androidx.compose.ui.semantics.semantics
             "androidx.compose.ui.graphics.DefaultAlpha",
             "androidx.compose.ui.Alignment",
             "androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality",
-            "androidx.compose.ui.layout.ContentScale.Fit"
-        )
+            "androidx.compose.ui.layout.ContentScale.Fit",
+        ),
 )
 @NonRestartableComposable
 fun Image(
@@ -95,7 +95,7 @@ fun Image(
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) {
     Image(
         bitmap,
@@ -105,7 +105,7 @@ fun Image(
         contentScale,
         alpha,
         colorFilter,
-        FilterQuality.Low
+        FilterQuality.Low,
     )
 }
 
@@ -153,7 +153,7 @@ fun Image(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    filterQuality: FilterQuality = DefaultFilterQuality
+    filterQuality: FilterQuality = DefaultFilterQuality,
 ) {
     val bitmapPainter = remember(bitmap) { BitmapPainter(bitmap, filterQuality = filterQuality) }
     Image(
@@ -163,7 +163,7 @@ fun Image(
         alignment = alignment,
         contentScale = contentScale,
         alpha = alpha,
-        colorFilter = colorFilter
+        colorFilter = colorFilter,
     )
 }
 
@@ -198,7 +198,7 @@ fun Image(
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) =
     Image(
         painter = rememberVectorPainter(imageVector),
@@ -207,7 +207,7 @@ fun Image(
         alignment = alignment,
         contentScale = contentScale,
         alpha = alpha,
-        colorFilter = colorFilter
+        colorFilter = colorFilter,
     )
 
 /**
@@ -244,7 +244,7 @@ fun Image(
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) {
     val semantics =
         if (contentDescription != null) {
@@ -267,7 +267,7 @@ fun Image(
                 alignment = alignment,
                 contentScale = contentScale,
                 alpha = alpha,
-                colorFilter = colorFilter
+                colorFilter = colorFilter,
             )
     ) { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {}

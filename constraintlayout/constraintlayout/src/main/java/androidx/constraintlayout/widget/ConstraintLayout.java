@@ -25,7 +25,6 @@ import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PAR
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
@@ -33,7 +32,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -603,7 +601,6 @@ public class ConstraintLayout extends ViewGroup {
         init(attrs, defStyleAttr, 0);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ConstraintLayout(@NonNull Context context,
                             @Nullable AttributeSet attrs,
                             int defStyleAttr,

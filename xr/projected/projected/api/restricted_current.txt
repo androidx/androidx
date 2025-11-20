@@ -1,0 +1,123 @@
+// Signature format: 4.0
+package androidx.xr.projected {
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedActivityCompat implements java.lang.AutoCloseable {
+    method public void close();
+    method public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> getProjectedInputEvents();
+    property public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> projectedInputEvents;
+    field public static final androidx.xr.projected.ProjectedActivityCompat.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedActivityCompat.Companion {
+    method public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedContext {
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static android.content.Context createHostDeviceContext(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static android.app.ActivityOptions createProjectedActivityOptions(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static android.content.Context createProjectedDeviceContext(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static String? getProjectedDeviceName(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public static kotlinx.coroutines.flow.Flow<java.lang.Boolean> isProjectedDeviceConnected(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isProjectedDeviceContext(android.content.Context context);
+    field public static final androidx.xr.projected.ProjectedContext INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedDeviceController {
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> getCapabilities();
+    property public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> capabilities;
+    field public static final androidx.xr.projected.ProjectedDeviceController.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDeviceController.Capability {
+    field public static final androidx.xr.projected.ProjectedDeviceController.Capability CAPABILITY_VISUAL_UI;
+    field public static final androidx.xr.projected.ProjectedDeviceController.Capability.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDeviceController.Capability.Companion {
+    property public androidx.xr.projected.ProjectedDeviceController.Capability CAPABILITY_VISUAL_UI;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDeviceController.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+  }
+
+  public final class ProjectedDisplayController implements java.lang.AutoCloseable {
+    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addLayoutParamsFlags(int flags);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(optional java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public void addPresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    method @BytecodeOnly @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.N) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static void addPresentationModeChangedListener$default(androidx.xr.projected.ProjectedDisplayController!, java.util.concurrent.Executor!, java.util.function.Consumer!, int, Object!);
+    method public void close();
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
+    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removeLayoutParamsFlags(int flags);
+    method @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public void removePresentationModeChangedListener(java.util.function.Consumer<androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags> listener);
+    field public static final androidx.xr.projected.ProjectedDisplayController.Companion Companion;
+  }
+
+  public static final class ProjectedDisplayController.Companion {
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @androidx.xr.projected.experimental.ExperimentalProjectedApi public suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDisplayController>);
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDisplayController.PresentationMode {
+    field public static final androidx.xr.projected.ProjectedDisplayController.PresentationMode AUDIO_ON;
+    field public static final androidx.xr.projected.ProjectedDisplayController.PresentationMode.Companion Companion;
+    field public static final androidx.xr.projected.ProjectedDisplayController.PresentationMode VISUALS_ON;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDisplayController.PresentationMode.Companion {
+    property public androidx.xr.projected.ProjectedDisplayController.PresentationMode AUDIO_ON;
+    property public androidx.xr.projected.ProjectedDisplayController.PresentationMode VISUALS_ON;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDisplayController.PresentationModeFlags {
+    method public boolean hasPresentationMode(androidx.xr.projected.ProjectedDisplayController.PresentationMode presentationMode);
+    method public boolean hasPresentationMode(java.util.Set<androidx.xr.projected.ProjectedDisplayController.PresentationMode> presentationModes);
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedInputEvent {
+    method @InaccessibleFromKotlin public androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction getInputAction();
+    property public androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction inputAction;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedInputEvent.ProjectedInputAction {
+    field public static final androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction.Companion Companion;
+    field public static final androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction TOGGLE_APP_CAMERA;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedInputEvent.ProjectedInputAction.Companion {
+    property public androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction TOGGLE_APP_CAMERA;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ProjectedServiceBinding {
+    method public static boolean bind(android.content.Context context, android.content.ServiceConnection serviceConnection);
+    field public static final androidx.xr.projected.ProjectedServiceBinding INSTANCE;
+  }
+
+}
+
+package @SuppressCompatibility androidx.xr.projected.experimental {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalProjectedApi {
+  }
+
+}
+
+package @SuppressCompatibility androidx.xr.projected.permissions {
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedPermissionsRequestParams {
+    ctor public ProjectedPermissionsRequestParams(java.util.List<java.lang.String> permissions, String? rationale);
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getPermissions();
+    method @InaccessibleFromKotlin public String? getRationale();
+    property public java.util.List<java.lang.String> permissions;
+    property public String? rationale;
+  }
+
+  @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedPermissionsResultContract extends androidx.activity.result.contract.ActivityResultContract<java.util.List<? extends androidx.xr.projected.permissions.ProjectedPermissionsRequestParams>,java.util.Map<java.lang.String,? extends java.lang.Boolean>> {
+    ctor public ProjectedPermissionsResultContract();
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public android.content.Intent createIntent(android.content.Context context, java.util.List<androidx.xr.projected.permissions.ProjectedPermissionsRequestParams> input);
+    method public java.util.Map<java.lang.String,java.lang.Boolean> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+}
+

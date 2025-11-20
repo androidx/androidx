@@ -58,7 +58,7 @@ internal fun rememberComposeView(): ComposeView {
                 // defined inside the SpatialElevation via rememberSaveable()
                 setTag(
                     androidx.compose.ui.R.id.compose_view_saveable_id_tag,
-                    "ComposeView:$localId"
+                    "ComposeView:$localId",
                 )
 
                 // Enable children to draw their shadow by not clipping them

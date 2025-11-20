@@ -20,10 +20,10 @@ import androidx.xr.compose.subspace.layout.ParentLayoutParamsAdjustable
 import androidx.xr.compose.subspace.layout.ParentLayoutParamsModifier
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.node.SubspaceModifierElement
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 
 internal class LayoutWeightElement(val weight: Float, val fill: Boolean) :
-    SubspaceModifierElement<LayoutWeightNode>() {
+    SubspaceModifierNodeElement<LayoutWeightNode>() {
     override fun create(): LayoutWeightNode = LayoutWeightNode(weight = weight, fill = fill)
 
     override fun update(node: LayoutWeightNode) {
@@ -61,12 +61,12 @@ internal class RowColumnAlignElement(
     val horizontalSpatialAlignment: SpatialAlignment.Horizontal? = null,
     val verticalSpatialAlignment: SpatialAlignment.Vertical? = null,
     val depthSpatialAlignment: SpatialAlignment.Depth? = null,
-) : SubspaceModifierElement<RowColumnAlignNode>() {
+) : SubspaceModifierNodeElement<RowColumnAlignNode>() {
     override fun create(): RowColumnAlignNode =
         RowColumnAlignNode(
             horizontalSpatialAlignment,
             verticalSpatialAlignment,
-            depthSpatialAlignment
+            depthSpatialAlignment,
         )
 
     override fun update(node: RowColumnAlignNode) {

@@ -33,7 +33,7 @@ class AnnotationRetentionDetectorTest {
             .files(
                 RequiresOptInDetectorTest.ANDROIDX_REQUIRES_OPT_IN_KT,
                 RequiresOptInDetectorTest.ANDROIDX_OPT_IN_KT,
-                *testFiles
+                *testFiles,
             )
             .issues(*AnnotationRetentionDetector.ISSUES.toTypedArray())
             .run()
@@ -87,10 +87,7 @@ annotation class ExperimentalKotlinAnnotationWrongRetention
      */
     @Test
     fun wrongRequiresOptInAnnotation() {
-        val input =
-            arrayOf(
-                ktSample("sample.kotlin.ExperimentalKotlinAnnotationWrongAnnotation"),
-            )
+        val input = arrayOf(ktSample("sample.kotlin.ExperimentalKotlinAnnotationWrongAnnotation"))
 
         val expected =
             """

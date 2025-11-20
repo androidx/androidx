@@ -161,7 +161,7 @@ class TestVMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return View(activity)
     }
@@ -182,7 +182,7 @@ class TestHiltAssistedInjectViewModel
 constructor(
     val savedStateHandle: SavedStateHandle,
     val otherDep: OtherDep,
-    @Assisted val id: String
+    @Assisted val id: String,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {

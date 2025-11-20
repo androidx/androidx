@@ -121,7 +121,7 @@ internal open class Measurer2(
             (measurableLastMeasures?.get(1) ?: 0) == constraintWidget.height,
             constraintWidget.isResolvedHorizontally,
             state.rootIncomingConstraints.maxWidth,
-            widthConstraintsHolder
+            widthConstraintsHolder,
         )
         obtainConstraints(
             measure.verticalBehavior,
@@ -131,7 +131,7 @@ internal open class Measurer2(
             (measurableLastMeasures?.get(0) ?: 0) == constraintWidget.width,
             constraintWidget.isResolvedVertically,
             state.rootIncomingConstraints.maxHeight,
-            heightConstraintsHolder
+            heightConstraintsHolder,
         )
 
         var constraints =
@@ -139,7 +139,7 @@ internal open class Measurer2(
                 widthConstraintsHolder[0],
                 widthConstraintsHolder[1],
                 heightConstraintsHolder[0],
-                heightConstraintsHolder[1]
+                heightConstraintsHolder[1],
             )
 
         if (
@@ -162,12 +162,12 @@ internal open class Measurer2(
             val coercedWidth =
                 result.first.coerceIn(
                     constraintWidget.mMatchConstraintMinWidth.takeIf { it > 0 },
-                    constraintWidget.mMatchConstraintMaxWidth.takeIf { it > 0 }
+                    constraintWidget.mMatchConstraintMaxWidth.takeIf { it > 0 },
                 )
             val coercedHeight =
                 result.second.coerceIn(
                     constraintWidget.mMatchConstraintMinHeight.takeIf { it > 0 },
-                    constraintWidget.mMatchConstraintMaxHeight.takeIf { it > 0 }
+                    constraintWidget.mMatchConstraintMaxHeight.takeIf { it > 0 },
                 )
 
             var remeasure = false
@@ -177,7 +177,7 @@ internal open class Measurer2(
                         minWidth = coercedWidth,
                         minHeight = constraints.minHeight,
                         maxWidth = coercedWidth,
-                        maxHeight = constraints.maxHeight
+                        maxHeight = constraints.maxHeight,
                     )
                 remeasure = true
             }
@@ -187,7 +187,7 @@ internal open class Measurer2(
                         minWidth = constraints.minWidth,
                         minHeight = coercedHeight,
                         maxWidth = constraints.maxWidth,
-                        maxHeight = coercedHeight
+                        maxHeight = coercedHeight,
                     )
                 remeasure = true
             }
@@ -287,7 +287,7 @@ internal open class Measurer2(
         otherDimensionResolved: Boolean,
         currentDimensionResolved: Boolean,
         rootMaxConstraint: Int,
-        outConstraints: IntArray
+        outConstraints: IntArray,
     ): Boolean =
         when (dimensionBehaviour) {
             FIXED -> {
@@ -325,9 +325,6 @@ internal open class Measurer2(
                 outConstraints[0] = rootMaxConstraint
                 outConstraints[1] = rootMaxConstraint
                 false
-            }
-            else -> {
-                error("$dimensionBehaviour is not supported")
             }
         }
 
@@ -451,7 +448,7 @@ internal open class Measurer2(
 
     fun Placeable.PlacementScope.performLayout(
         measurables: List<Measurable>,
-        placeableMap: MutableMap<Measurable, Placeable>
+        placeableMap: MutableMap<Measurable, Placeable>,
     ) {
         placeables = placeableMap
         if (frameCache.isEmpty()) {
@@ -485,7 +482,7 @@ internal open class Measurer2(
      */
     private fun measureWidget(
         constraintWidget: ConstraintWidget,
-        constraints: Constraints
+        constraints: Constraints,
     ): IntIntPair {
         val measurable = constraintWidget.companionWidget
         val widgetId = constraintWidget.stringId
@@ -509,7 +506,7 @@ internal open class Measurer2(
                     widthMode,
                     constraints.maxWidth,
                     heightMode,
-                    constraints.maxHeight
+                    constraints.maxHeight,
                 )
                 IntIntPair(constraintWidget.measuredWidth, constraintWidget.measuredHeight)
             }

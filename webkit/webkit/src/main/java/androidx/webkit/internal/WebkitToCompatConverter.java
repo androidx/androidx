@@ -109,7 +109,6 @@ public class WebkitToCompatConverter {
      * Convert from an {@link InvocationHandler} representing a {@link WebResourceErrorCompat} into
      * a {@link WebResourceError}.
      */
-    @RequiresApi(23)
     public @NonNull WebResourceError convertWebResourceError(
             /* SupportLibWebResourceError */ @NonNull InvocationHandler webResourceError) {
         return (WebResourceError) mImpl.convertWebResourceError(webResourceError);
@@ -151,7 +150,6 @@ public class WebkitToCompatConverter {
      * Convert from an {@link InvocationHandler} representing a {@link WebResourceErrorCompat} into
      * a {@link WebResourceError}.
      */
-    @RequiresApi(23)
     public @NonNull WebMessagePort convertWebMessagePort(
             /* SupportLibWebMessagePort */ @NonNull InvocationHandler webMessagePort) {
         return (WebMessagePort) mImpl.convertWebMessagePort(webMessagePort);

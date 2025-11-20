@@ -92,7 +92,7 @@ class CopyingSurfaceProcessor : SurfaceProcessor, AutoCloseable {
                 val surfaceTexture = SurfaceTexture(glRenderer.textureName)
                 surfaceTexture.setDefaultBufferSize(
                     surfaceRequest.resolution.width,
-                    surfaceRequest.resolution.height
+                    surfaceRequest.resolution.height,
                 )
                 val inputSurface = Surface(surfaceTexture)
                 val inputUseCount = SimpleRefCount {
@@ -143,12 +143,12 @@ class CopyingSurfaceProcessor : SurfaceProcessor, AutoCloseable {
                                             surfaceTexture.getTransformMatrix(textureTransform)
                                             surfaceOutput.updateTransformMatrix(
                                                 surfaceTransform,
-                                                textureTransform
+                                                textureTransform,
                                             )
                                             glRenderer.render(
                                                 surfaceTexture.timestamp,
                                                 surfaceTransform,
-                                                outputSurface
+                                                outputSurface,
                                             )
                                         }
                                 } finally {
@@ -245,7 +245,7 @@ private const val TARGETS =
  */
 fun CoroutineScope.launchCopyEffect(
     targets: Int = TARGETS,
-    onPreLaunch: (CameraEffect) -> Unit
+    onPreLaunch: (CameraEffect) -> Unit,
 ): Job {
     val processor = CopyingSurfaceProcessor()
     val cameraEffect = object : CameraEffect(targets, Runnable::run, processor, {}) {}

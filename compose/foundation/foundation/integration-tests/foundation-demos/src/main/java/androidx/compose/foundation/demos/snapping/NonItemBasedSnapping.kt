@@ -45,7 +45,7 @@ import kotlin.math.abs
 class NonItemBasedSnappingLayoutInfoProvider(
     private val currentOffset: Int,
     layoutSize: Int,
-    thumbSize: Int
+    thumbSize: Int,
 ) : SnapLayoutInfoProvider {
 
     // start, middle, end of the layout
@@ -111,7 +111,7 @@ fun NonItemBasedLayout() {
                 .scrollable(
                     scrollableState,
                     orientation = Orientation.Horizontal,
-                    flingBehavior = fling
+                    flingBehavior = fling,
                 )
                 .onSizeChanged { layoutSize = it.width }
     ) {

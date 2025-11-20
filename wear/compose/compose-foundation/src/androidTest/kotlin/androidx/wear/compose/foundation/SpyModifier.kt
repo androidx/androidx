@@ -32,7 +32,7 @@ internal data class CapturedInfo(
     // Counters
     var measuresCount: Int = 0,
     var layoutsCount: Int = 0,
-    var drawCount: Int = 0
+    var drawCount: Int = 0,
 ) {
     // Captured information
     var lastLayoutInfo: CurvedLayoutInfo? = null
@@ -57,13 +57,13 @@ internal const val FINE_FLOAT_TOLERANCE = 0.001f
 
 internal fun CapturedInfo.checkDimensions(
     expectedAngleDegrees: Float? = null,
-    expectedThicknessPx: Float? = null
+    expectedThicknessPx: Float? = null,
 ) {
     if (expectedAngleDegrees != null) {
         Assert.assertEquals(
             expectedAngleDegrees,
             lastLayoutInfo!!.sweepRadians.toDegrees(),
-            FINE_FLOAT_TOLERANCE
+            FINE_FLOAT_TOLERANCE,
         )
     }
     if (expectedThicknessPx != null) {
@@ -71,14 +71,12 @@ internal fun CapturedInfo.checkDimensions(
     }
 }
 
-internal fun CapturedInfo.checkAngularDimensionsInPx(
-    expectedAngularSizeInPx: Float? = null,
-) {
+internal fun CapturedInfo.checkAngularDimensionsInPx(expectedAngularSizeInPx: Float? = null) {
     if (expectedAngularSizeInPx != null) {
         Assert.assertEquals(
             expectedAngularSizeInPx / lastLayoutInfo!!.measureRadius,
             lastLayoutInfo!!.sweepRadians,
-            FINE_FLOAT_TOLERANCE
+            FINE_FLOAT_TOLERANCE,
         )
     }
 }
@@ -91,7 +89,7 @@ internal fun CapturedInfo.checkParentDimensions(
         Assert.assertEquals(
             expectedAngleDegrees,
             parentSweepRadians.toDegrees(),
-            FINE_FLOAT_TOLERANCE
+            FINE_FLOAT_TOLERANCE,
         )
     }
     if (expectedThicknessPx != null) {
@@ -99,48 +97,46 @@ internal fun CapturedInfo.checkParentDimensions(
     }
 }
 
-internal fun CapturedInfo.checkParentAngularDimensionsInPx(
-    expectedAngularSizeInPx: Float? = null,
-) {
+internal fun CapturedInfo.checkParentAngularDimensionsInPx(expectedAngularSizeInPx: Float? = null) {
     if (expectedAngularSizeInPx != null) {
         Assert.assertEquals(
             expectedAngularSizeInPx / (parentOuterRadius),
             parentSweepRadians,
-            FINE_FLOAT_TOLERANCE
+            FINE_FLOAT_TOLERANCE,
         )
     }
 }
 
 internal fun CapturedInfo.checkPositionOnParent(
     expectedAngularPositionDegrees: Float,
-    expectedRadialPositionPx: Float
+    expectedRadialPositionPx: Float,
 ) {
     Assert.assertEquals(
         expectedAngularPositionDegrees,
         (lastLayoutInfo!!.startAngleRadians - parentStartAngleRadians).toDegrees(),
-        FINE_FLOAT_TOLERANCE
+        FINE_FLOAT_TOLERANCE,
     )
     Assert.assertEquals(
         expectedRadialPositionPx,
         parentOuterRadius - lastLayoutInfo!!.outerRadius,
-        FINE_FLOAT_TOLERANCE
+        FINE_FLOAT_TOLERANCE,
     )
 }
 
 internal fun CapturedInfo.checkPositionRelativeTo(
     target: CapturedInfo,
     expectedAngularPositionDegrees: Float,
-    expectedRadialPositionPx: Float
+    expectedRadialPositionPx: Float,
 ) {
     Assert.assertEquals(
         expectedAngularPositionDegrees,
         lastLayoutInfo!!.startAngleRadians - target.lastLayoutInfo!!.startAngleRadians,
-        FINE_FLOAT_TOLERANCE
+        FINE_FLOAT_TOLERANCE,
     )
     Assert.assertEquals(
         expectedRadialPositionPx,
         target.lastLayoutInfo!!.outerRadius - lastLayoutInfo!!.outerRadius,
-        FINE_FLOAT_TOLERANCE
+        FINE_FLOAT_TOLERANCE,
     )
 }
 
@@ -162,16 +158,13 @@ internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wra
     ): PartialLayoutInfo {
         capturedInfo.parentOuterRadius = parentOuterRadius
         capturedInfo.parentThickness = parentThickness
-        return wrapped.radialPosition(
-            parentOuterRadius,
-            parentThickness,
-        )
+        return wrapped.radialPosition(parentOuterRadius, parentThickness)
     }
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         capturedInfo.parentStartAngleRadians = parentStartAngleRadians
         capturedInfo.parentSweepRadians = parentSweepRadians

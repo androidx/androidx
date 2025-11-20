@@ -275,12 +275,20 @@ internal class SparseArrayCompatTest {
     }
 
     @Test
-    fun valueAt_nullValue() {
+    fun keyAt_outOfBounds() {
         val source = SparseArrayCompat<String>(10)
         assertEquals(0, source.size())
 
-        // Succeeds since it is within initialCapacity of SparseArrayCompat.
-        assertNull(source.valueAt(9))
+        assertFailsWith<IndexOutOfBoundsException> { source.keyAt(10000) }
+    }
+
+    @Test
+    fun keyAt_outOfBoundsWithinAllocatedRange() {
+        val source = SparseArrayCompat<String>(10)
+        assertEquals(0, source.size())
+
+        assertFailsWith<IndexOutOfBoundsException> { source.keyAt(0) }
+        assertFailsWith<IndexOutOfBoundsException> { source.keyAt(9) }
     }
 
     @Test
@@ -289,5 +297,14 @@ internal class SparseArrayCompatTest {
         assertEquals(0, source.size())
 
         assertFailsWith<IndexOutOfBoundsException> { source.valueAt(10000) }
+    }
+
+    @Test
+    fun valueAt_outOfBoundsWithinAllocatedRange() {
+        val source = SparseArrayCompat<String>(10)
+        assertEquals(0, source.size())
+
+        assertFailsWith<IndexOutOfBoundsException> { source.valueAt(0) }
+        assertFailsWith<IndexOutOfBoundsException> { source.valueAt(9) }
     }
 }

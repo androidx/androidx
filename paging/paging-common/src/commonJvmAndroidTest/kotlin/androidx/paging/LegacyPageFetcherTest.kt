@@ -65,7 +65,7 @@ class LegacyPageFetcherTest {
                 prevKey = if (start > 0) start else null,
                 nextKey = if (end < data.size) end else null,
                 itemsBefore = start,
-                itemsAfter = data.size - end
+                itemsAfter = data.size - end,
             )
         }
 
@@ -78,7 +78,7 @@ class LegacyPageFetcherTest {
             prevKey = if (start > 0) start else null,
             nextKey = if (end < data.size) end else null,
             itemsBefore = start,
-            itemsAfter = data.size - end
+            itemsAfter = data.size - end,
         )
 
     private data class Result(val type: LoadType, val pageResult: LoadResult<*, String>)
@@ -123,7 +123,7 @@ class LegacyPageFetcherTest {
     private suspend fun createPager(
         consumer: MockConsumer,
         start: Int = 0,
-        end: Int = 10
+        end: Int = 10,
     ): LegacyPageFetcher<Int, String> {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
         val pagingSource = ImmediateListDataSource(data)
@@ -149,7 +149,7 @@ class LegacyPageFetcherTest {
             testDispatcher,
             testDispatcher,
             consumer,
-            storage as LegacyPageFetcher.KeyProvider<Int>
+            storage as LegacyPageFetcher.KeyProvider<Int>,
         )
     }
 
@@ -172,7 +172,7 @@ class LegacyPageFetcherTest {
             assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
             assertEquals(
                 listOf(StateChange(APPEND, NotLoading(endOfPaginationReached = false))),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -192,7 +192,7 @@ class LegacyPageFetcherTest {
             assertEquals(listOf(Result(PREPEND, rangeResult(2, 4))), consumer.takeResults())
             assertEquals(
                 listOf(StateChange(PREPEND, NotLoading(endOfPaginationReached = false))),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -210,9 +210,9 @@ class LegacyPageFetcherTest {
             assertEquals(
                 listOf(
                     StateChange(APPEND, Loading),
-                    StateChange(APPEND, NotLoading(endOfPaginationReached = false))
+                    StateChange(APPEND, NotLoading(endOfPaginationReached = false)),
                 ),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
 
             pager.tryScheduleAppend()
@@ -223,9 +223,9 @@ class LegacyPageFetcherTest {
             assertEquals(
                 listOf(
                     StateChange(APPEND, Loading),
-                    StateChange(APPEND, NotLoading(endOfPaginationReached = false))
+                    StateChange(APPEND, NotLoading(endOfPaginationReached = false)),
                 ),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -243,9 +243,9 @@ class LegacyPageFetcherTest {
             assertEquals(
                 listOf(
                     StateChange(PREPEND, Loading),
-                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false))
+                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false)),
                 ),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
 
             pager.trySchedulePrepend()
@@ -255,9 +255,9 @@ class LegacyPageFetcherTest {
             assertEquals(
                 listOf(
                     StateChange(PREPEND, Loading),
-                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false))
+                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false)),
                 ),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -274,7 +274,7 @@ class LegacyPageFetcherTest {
             assertEquals(listOf(Result(APPEND, Page.empty<Int, String>())), consumer.takeResults())
             assertEquals(
                 listOf(StateChange(APPEND, NotLoading(endOfPaginationReached = true))),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -291,7 +291,7 @@ class LegacyPageFetcherTest {
             assertEquals(listOf(Result(PREPEND, Page.empty<Int, String>())), consumer.takeResults())
             assertEquals(
                 listOf(StateChange(PREPEND, NotLoading(endOfPaginationReached = true))),
-                consumer.takeStateChanges()
+                consumer.takeStateChanges(),
             )
         }
 
@@ -309,7 +309,7 @@ class LegacyPageFetcherTest {
             assertThat(consumer.takeStateChanges())
                 .containsExactly(
                     StateChange(APPEND, Loading),
-                    StateChange(APPEND, NotLoading.Incomplete)
+                    StateChange(APPEND, NotLoading.Incomplete),
                 )
 
             // now make next append return LoadResult.Invalid
@@ -321,10 +321,7 @@ class LegacyPageFetcherTest {
 
             // the load should return before returning any data
             assertThat(consumer.takeResults()).isEmpty()
-            assertThat(consumer.takeStateChanges())
-                .containsExactly(
-                    StateChange(APPEND, Loading),
-                )
+            assertThat(consumer.takeStateChanges()).containsExactly(StateChange(APPEND, Loading))
 
             // exception handler should invalidate the paging source and result in fetcher to be
             // detached
@@ -346,7 +343,7 @@ class LegacyPageFetcherTest {
             assertThat(consumer.takeStateChanges())
                 .containsExactly(
                     StateChange(PREPEND, Loading),
-                    StateChange(PREPEND, NotLoading.Incomplete)
+                    StateChange(PREPEND, NotLoading.Incomplete),
                 )
 
             // now make next prepend throw error
@@ -358,10 +355,7 @@ class LegacyPageFetcherTest {
 
             // the load should return before returning any data
             assertThat(consumer.takeResults()).isEmpty()
-            assertThat(consumer.takeStateChanges())
-                .containsExactly(
-                    StateChange(PREPEND, Loading),
-                )
+            assertThat(consumer.takeStateChanges()).containsExactly(StateChange(PREPEND, Loading))
 
             // exception handler should invalidate the paging source and result in fetcher to be
             // detached

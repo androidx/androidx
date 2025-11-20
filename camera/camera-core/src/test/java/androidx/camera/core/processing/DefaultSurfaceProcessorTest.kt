@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.os.Build
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceRequest
@@ -30,7 +29,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [DefaultSurfaceProcessor]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class DefaultSurfaceProcessorTest {
 
     @Test

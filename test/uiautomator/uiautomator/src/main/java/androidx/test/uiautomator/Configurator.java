@@ -22,6 +22,10 @@ import android.view.MotionEvent;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Allows you to set key parameters for running UiAutomator tests. The new settings take effect
  * immediately and can be changed at any time during a test run.
@@ -49,6 +53,8 @@ public final class Configurator {
     // Default flags to use when calling Instrumentation.getUiAutomation(int)
     static final int DEFAULT_UIAUTOMATION_FLAGS = 0;
     private int mUiAutomationFlags = DEFAULT_UIAUTOMATION_FLAGS;
+
+    private final List<UiAccessibilityValidator> mUiAccessibilityValidators = new ArrayList<>();
 
     // Default display ID when obtaining a BySelector instance
     private int mDefaultDisplayId = INVALID_DISPLAY;
@@ -246,6 +252,36 @@ public final class Configurator {
      */
     public int getUiAutomationFlags() {
         return mUiAutomationFlags;
+    }
+
+    /**
+     * Adds a validator to be run before important test actions like click(), swipe(), etc.
+     *
+     * <p>The validator can provide custom accessibility checks. The {@link
+     * UiAccessibilityValidator#validate(AccessibilityNodeInfo)} method is called before performing
+     * any action on a UI element via {@link UiObject2}, or the display via {@link UiDevice}, such
+     * as clicking or scrolling.
+     *
+     * @param validator to be invoked during UI actions
+     */
+    public void addUiAccessibilityValidator(@NonNull UiAccessibilityValidator validator) {
+        mUiAccessibilityValidators.add(validator);
+    }
+
+    /**
+     * Removes a validator added via {@link #addUiAccessibilityValidator(UiAccessibilityValidator)}.
+     */
+    public void removeUiAccessibilityValidator(@NonNull UiAccessibilityValidator validator) {
+        mUiAccessibilityValidators.remove(validator);
+    }
+
+    /**
+     * Gets the currently assigned UiAccessibilityValidators.
+     *
+     * @see #addUiAccessibilityValidator(UiAccessibilityValidator)
+     */
+    public @NonNull List<UiAccessibilityValidator> getUiAccessibilityValidators() {
+        return Collections.unmodifiableList(mUiAccessibilityValidators);
     }
 
     /**

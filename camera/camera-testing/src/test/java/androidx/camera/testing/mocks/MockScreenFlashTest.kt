@@ -17,7 +17,6 @@
 package androidx.camera.testing.mocks
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlashListener
 import androidx.camera.testing.impl.mocks.MockScreenFlash
@@ -34,7 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class MockScreenFlashTest {
     private val dummyListener = ScreenFlashListener {
         // no-op
@@ -57,14 +56,7 @@ class MockScreenFlashTest {
         )
         mMockScreenFlash.clear()
 
-        assertThat(mMockScreenFlash.screenFlashEvents)
-            .isEqualTo(
-                listOf(
-                    CLEAR,
-                    APPLY,
-                    CLEAR,
-                )
-            )
+        assertThat(mMockScreenFlash.screenFlashEvents).isEqualTo(listOf(CLEAR, APPLY, CLEAR))
     }
 
     @Test
@@ -106,7 +98,7 @@ class MockScreenFlashTest {
                     }
                     mMockScreenFlash.clear()
                 },
-                "test thread"
+                "test thread",
             )
             .start()
 

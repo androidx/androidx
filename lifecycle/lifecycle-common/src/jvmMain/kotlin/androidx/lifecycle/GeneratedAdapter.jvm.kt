@@ -32,6 +32,6 @@ public interface GeneratedAdapter {
         source: LifecycleOwner,
         event: Lifecycle.Event,
         onAny: Boolean,
-        logger: MethodCallsLogger?
+        logger: MethodCallsLogger?,
     )
 }

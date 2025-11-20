@@ -65,7 +65,7 @@ class AnimationVerifier(private val viewPager: ViewPager2) {
         assertThat(
             "Couldn't get hold of an animated frame, so can't verify if it worked",
             recordAnimationLatch.await(timeout, timeoutUnit),
-            equalTo(true)
+            equalTo(true),
         )
     }
 

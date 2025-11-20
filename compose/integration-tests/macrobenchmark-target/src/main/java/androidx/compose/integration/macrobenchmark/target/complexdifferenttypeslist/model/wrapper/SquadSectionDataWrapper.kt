@@ -25,5 +25,5 @@ import androidx.compose.integration.macrobenchmark.target.complexdifferenttypesl
  */
 data class SquadSectionDataWrapper(
     val sectionHeader: SectionHeaderUiModel,
-    val playersList: List<SquadPlayerUiModel>
+    val playersList: List<SquadPlayerUiModel>,
 )

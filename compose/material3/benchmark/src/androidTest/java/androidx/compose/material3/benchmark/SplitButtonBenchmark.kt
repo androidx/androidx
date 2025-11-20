@@ -100,9 +100,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
             SplitButtonType.Filled ->
                 SplitButtonLayout(
                     leadingButton = {
-                        SplitButtonDefaults.LeadingButton(
-                            onClick = { /* Do Nothing */ },
-                        ) {
+                        SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
                         }
                     },
@@ -113,14 +111,12 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                         ) {
                             trailingContent()
                         }
-                    }
+                    },
                 )
             SplitButtonType.Tonal ->
                 SplitButtonLayout(
                     leadingButton = {
-                        SplitButtonDefaults.TonalLeadingButton(
-                            onClick = { /* Do Nothing */ },
-                        ) {
+                        SplitButtonDefaults.TonalLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
                         }
                     },
@@ -131,14 +127,12 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                         ) {
                             trailingContent()
                         }
-                    }
+                    },
                 )
             SplitButtonType.Elevated ->
                 SplitButtonLayout(
                     leadingButton = {
-                        SplitButtonDefaults.ElevatedLeadingButton(
-                            onClick = { /* Do Nothing */ },
-                        ) {
+                        SplitButtonDefaults.ElevatedLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
                         }
                     },
@@ -149,14 +143,12 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                         ) {
                             trailingContent()
                         }
-                    }
+                    },
                 )
             SplitButtonType.Outlined ->
                 SplitButtonLayout(
                     leadingButton = {
-                        SplitButtonDefaults.OutlinedLeadingButton(
-                            onClick = { /* Do Nothing */ },
-                        ) {
+                        SplitButtonDefaults.OutlinedLeadingButton(onClick = { /* Do Nothing */ }) {
                             leadingContent()
                         }
                     },
@@ -167,7 +159,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
                         ) {
                             trailingContent()
                         }
-                    }
+                    },
                 )
         }
     }
@@ -184,10 +176,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) :
 
 @Composable
 private fun leadingContent() {
-    Icon(
-        Icons.Outlined.Edit,
-        contentDescription = "Localized description",
-    )
+    Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
     Text("My Button")
 }

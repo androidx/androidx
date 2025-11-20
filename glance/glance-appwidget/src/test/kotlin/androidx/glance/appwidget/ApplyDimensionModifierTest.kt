@@ -55,6 +55,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ApplyDimensionModifierTest {
 
     private lateinit var fakeCoroutineScope: TestScope
@@ -311,7 +312,7 @@ class ApplyDimensionModifierTest {
                     GlanceModifier.wrapContentWidth().fillMaxHeight(),
                     GlanceModifier.fillMaxWidth().wrapContentHeight(),
                     GlanceModifier.width(100.dp).wrapContentHeight(),
-                    GlanceModifier.wrapContentWidth().height(100.dp)
+                    GlanceModifier.wrapContentWidth().height(100.dp),
                 )
                 .forEach { sizeModifier ->
                     val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
@@ -332,7 +333,7 @@ class ApplyDimensionModifierTest {
                     GlanceModifier.fillMaxSize(),
                     GlanceModifier.width(100.dp).height(100.dp),
                     GlanceModifier.fillMaxWidth().height(100.dp),
-                    GlanceModifier.width(100.dp).fillMaxHeight()
+                    GlanceModifier.width(100.dp).fillMaxHeight(),
                 )
                 .forEach { sizeModifier ->
                     val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Crop)
@@ -353,7 +354,7 @@ class ApplyDimensionModifierTest {
                     GlanceModifier.fillMaxSize(),
                     GlanceModifier.width(100.dp).height(100.dp),
                     GlanceModifier.fillMaxWidth().height(100.dp),
-                    GlanceModifier.width(100.dp).fillMaxHeight()
+                    GlanceModifier.width(100.dp).fillMaxHeight(),
                 )
                 .forEach { sizeModifier ->
                     val imageView =
@@ -370,7 +371,7 @@ class ApplyDimensionModifierTest {
                     GlanceModifier.fillMaxSize(),
                     GlanceModifier.width(100.dp).fillMaxHeight(),
                     GlanceModifier.fillMaxWidth().height(100.dp),
-                    GlanceModifier.width(100.dp).height(100.dp)
+                    GlanceModifier.width(100.dp).height(100.dp),
                 )
                 .forEach { sizeModifier ->
                     val imageView = getSizedAndTranslatedImageView(sizeModifier, ContentScale.Fit)
@@ -380,7 +381,7 @@ class ApplyDimensionModifierTest {
 
     private suspend fun getSizedAndTranslatedImageView(
         modifier: GlanceModifier,
-        contentScale: ContentScale
+        contentScale: ContentScale,
     ): ImageView? {
         val rv =
             context.runAndTranslate {
@@ -388,7 +389,7 @@ class ApplyDimensionModifierTest {
                     provider = ImageProvider(resId = R.drawable.glance_button_outline),
                     contentDescription = "TEST",
                     modifier = modifier,
-                    contentScale = contentScale
+                    contentScale = contentScale,
                 )
             }
 

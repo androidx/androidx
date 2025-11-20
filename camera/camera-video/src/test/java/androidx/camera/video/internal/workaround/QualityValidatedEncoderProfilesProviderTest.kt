@@ -20,7 +20,6 @@ import android.media.CamcorderProfile.QUALITY_1080P
 import android.media.CamcorderProfile.QUALITY_2160P
 import android.media.CamcorderProfile.QUALITY_480P
 import android.media.CamcorderProfile.QUALITY_720P
-import android.os.Build
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -45,7 +44,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class QualityValidatedEncoderProfilesProviderTest {
 
     private val defaultProvider =
@@ -54,7 +53,7 @@ class QualityValidatedEncoderProfilesProviderTest {
                 QUALITY_2160P to PROFILES_2160P,
                 QUALITY_1080P to PROFILES_1080P,
                 QUALITY_720P to PROFILES_720P,
-                QUALITY_480P to PROFILES_480P
+                QUALITY_480P to PROFILES_480P,
             )
         )
     private val cameraInfo = FakeCameraInfoInternal()
@@ -98,7 +97,7 @@ class QualityValidatedEncoderProfilesProviderTest {
         val quirks =
             createFakeQuirks(
                 unsupportedQualities = setOf(UHD, HD), // 2160P, 720P
-                canBeWorkaround = true
+                canBeWorkaround = true,
             )
         val provider = QualityValidatedEncoderProfilesProvider(defaultProvider, cameraInfo, quirks)
 
@@ -126,19 +125,19 @@ class QualityValidatedEncoderProfilesProviderTest {
 
     private fun createFakeQuirks(
         unsupportedQualities: Set<Quality> = emptySet(),
-        canBeWorkaround: Boolean = false
+        canBeWorkaround: Boolean = false,
     ): Quirks {
         return Quirks(listOf(FakeQuirk(unsupportedQualities, canBeWorkaround)))
     }
 
     class FakeQuirk(
         private val unsupportedQualities: Set<Quality> = emptySet(),
-        private val canBeWorkaround: Boolean = false
+        private val canBeWorkaround: Boolean = false,
     ) : VideoQualityQuirk, SurfaceProcessingQuirk {
 
         override fun isProblematicVideoQuality(
             cameraInfo: CameraInfoInternal,
-            quality: Quality
+            quality: Quality,
         ): Boolean {
             return unsupportedQualities.contains(quality)
         }

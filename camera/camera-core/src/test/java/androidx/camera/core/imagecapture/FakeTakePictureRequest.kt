@@ -147,6 +147,6 @@ class FakeTakePictureRequest() : TakePictureRequest() {
 
     enum class Type {
         IN_MEMORY,
-        ON_DISK
+        ON_DISK,
     }
 }

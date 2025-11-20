@@ -40,7 +40,7 @@ internal class SimpleActor<T>(
      *
      * Must *not* throw an exception (other than CancellationException if scope is cancelled).
      */
-    private val consumeMessage: suspend (T) -> Unit
+    private val consumeMessage: suspend (T) -> Unit,
 ) {
     private val messageQueue = Channel<T>(capacity = UNLIMITED)
 

@@ -18,6 +18,7 @@ package androidx.camera.media3.effect
 import android.annotation.SuppressLint
 import android.content.Context
 import android.opengl.Matrix
+import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceOutput
@@ -31,7 +32,7 @@ import androidx.media3.common.C
 import androidx.media3.common.ColorInfo
 import androidx.media3.common.DebugViewProvider
 import androidx.media3.common.Effect
-import androidx.media3.common.FrameInfo
+import androidx.media3.common.Format
 import androidx.media3.common.SurfaceInfo
 import androidx.media3.common.VideoFrameProcessingException
 import androidx.media3.common.VideoFrameProcessor
@@ -78,8 +79,9 @@ internal class Media3SurfaceProcessor(
     private var connectedOutput: SurfaceOutput? = null
     private var connectedProcessor: DefaultVideoFrameProcessor? = null
 
+    private val lock = Any()
     // The active processors. A processor remains active until the input/output are closed.
-    private val activeProcessors: MutableSet<DefaultVideoFrameProcessor> = HashSet()
+    @GuardedBy("lock") private val activeProcessors = mutableListOf<DefaultVideoFrameProcessor>()
     private var isReleased = false
 
     @MainThread
@@ -135,9 +137,11 @@ internal class Media3SurfaceProcessor(
     private fun disconnectProcessor(processor: DefaultVideoFrameProcessor?) {
         checkMainThread()
         Log.d(TAG, "disconnectProcessor: $processor")
-        if (processor != null && activeProcessors.contains(processor)) {
-            activeProcessors.remove(processor)
-            processor.release()
+        synchronized(lock) {
+            if (processor != null && activeProcessors.contains(processor)) {
+                activeProcessors.remove(processor)
+                processor.release()
+            }
         }
     }
 
@@ -184,7 +188,7 @@ internal class Media3SurfaceProcessor(
     private fun configureProcessor(
         input: SurfaceRequest,
         output: SurfaceOutput,
-        processor: DefaultVideoFrameProcessor
+        processor: DefaultVideoFrameProcessor,
     ) {
         // Gets user configured transformation from CameraX Effects API, and build a media3 effect
         // that applies that transformation.
@@ -195,17 +199,17 @@ internal class Media3SurfaceProcessor(
         val cameraXTransformEffect =
             CameraXGlTransformation(cameraXTransform, Size(output.size.width, output.size.height))
         // Configure the processor's input format
-        val frameInfo =
-            FrameInfo.Builder(
-                    createColorInfo(input.dynamicRange),
-                    input.resolution.width,
-                    input.resolution.height
-                )
+        val format =
+            Format.Builder()
+                .setColorInfo(createColorInfo(input.dynamicRange))
+                .setWidth(input.resolution.width)
+                .setHeight(input.resolution.height)
                 .build()
         processor.registerInputStream(
             VideoFrameProcessor.INPUT_TYPE_SURFACE_AUTOMATIC_FRAME_REGISTRATION,
+            format,
             listOf(cameraXTransformEffect, *effects.toTypedArray()),
-            frameInfo
+            0,
         )
     }
 
@@ -217,19 +221,19 @@ internal class Media3SurfaceProcessor(
             object : VideoFrameProcessor.Listener {
                 override fun onInputStreamRegistered(
                     inputType: Int,
-                    effects: MutableList<Effect>,
-                    frameInfo: FrameInfo
-                ) {}
-
-                override fun onOutputSizeChanged(width: Int, height: Int) {}
-
-                override fun onOutputFrameAvailableForRendering(presentationTimeUs: Long) {}
+                    format: Format,
+                    effects: List<Effect>,
+                ) {
+                    synchronized(lock) {
+                        if (activeProcessors.isNotEmpty()) {
+                            activeProcessors.last().registerInputFrame()
+                        }
+                    }
+                }
 
                 override fun onError(exception: VideoFrameProcessingException) {
                     listenerExecutor.execute { errorListener.accept(exception) }
                 }
-
-                override fun onEnded() {}
             }
         val newProcessor =
             DefaultVideoFrameProcessor.Factory.Builder()
@@ -240,11 +244,11 @@ internal class Media3SurfaceProcessor(
                     createColorInfo(input.dynamicRange),
                     /*renderFramesAutomatically=*/ true,
                     directExecutor(),
-                    wrappingListener
+                    wrappingListener,
                 )
         Log.d(TAG, "Created processor $newProcessor")
         configureProcessor(input, output, newProcessor)
-        activeProcessors.add(newProcessor)
+        synchronized(lock) { activeProcessors.add(newProcessor) }
         // Prove input service when ready
         newProcessor.setOnInputSurfaceReadyListener {
             input.provideSurface(newProcessor.inputSurface, mainThreadExecutor()) {
@@ -271,7 +275,7 @@ internal class Media3SurfaceProcessor(
                 outputSurface,
                 output.size.width,
                 output.size.height,
-                /* orientationDegrees= */ 0
+                /* orientationDegrees= */ 0,
             )
         )
         connectedOutput = output

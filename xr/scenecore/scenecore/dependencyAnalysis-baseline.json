@@ -1,0 +1,108 @@
+{
+  "projectPath": ":xr:scenecore:scenecore",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.activity:activity",
+        "resolvedVersion": "1.9.3"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation-experimental",
+        "resolvedVersion": "1.4.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appcompat:appcompat",
+        "resolvedVersion": "1.2.0"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.13.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.8.7"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-runtime",
+        "resolvedVersion": "2.8.7"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test.ext:truth",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test.ext:truth",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:core",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.mockito:mockito-android",
+        "resolvedVersion": "5.8.0"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.mockito:mockito-core",
+        "resolvedVersion": "5.8.0"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadows-framework",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":xr:xr-stubs"
+      },
+      "fromConfiguration": "testImplementation"
+    }
+  ]
+}

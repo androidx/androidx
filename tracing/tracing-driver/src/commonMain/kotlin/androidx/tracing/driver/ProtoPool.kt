@@ -17,113 +17,34 @@
 package androidx.tracing.driver
 
 import androidx.annotation.RestrictTo
-import perfetto.protos.MutableCounterDescriptor
-import perfetto.protos.MutableProcessDescriptor
-import perfetto.protos.MutableThreadDescriptor
-import perfetto.protos.MutableTracePacket
-import perfetto.protos.MutableTrackDescriptor
-import perfetto.protos.MutableTrackEvent
 
-// This is 4 * the total number of outstanding requests that can be emitted by a track.
-private const val TRACK_EVENT_POOL_SIZE = 2048
-private const val TRACE_PACKET_POOL_SIZE = 2048
-private const val TRACK_DESCRIPTOR_POOL_SIZE = 256
-private const val PROCESS_DESCRIPTOR_POOL_SIZE = 2
-private const val THREAD_DESCRIPTOR_POOL_SIZE = 4
-private const val COUNTER_DESCRIPTOR_POOL_SIZE = 4
 // The size of the array
-// This would mean that each pool can queue up to 32 * 32 trace packets
-
+// This would mean that each pool can queue up to 32 * 256 trace packets
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val TRACE_PACKET_BUFFER_SIZE: Int = 32
 // The size of the pool
-private const val TRACE_PACKET_POOL_ARRAY_POOL_SIZE = 32
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public const val TRACE_PACKET_POOL_ARRAY_POOL_SIZE: Int = 256
 
-internal const val INVALID_INT = -1
-internal const val INVALID_LONG = -1L
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val DEFAULT_INT: Int = 0
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val DEFAULT_LONG: Long = 0L
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val DEFAULT_STRING: String = ""
 
 /** The uber proto pool that knows how to create all the necessary protos. */
+@PublishedApi
 internal class ProtoPool(internal val isDebug: Boolean) {
-
-    internal val tracePacketPool: Pool<PooledTracePacket> =
-        Pool(size = TRACE_PACKET_POOL_SIZE, isDebug = isDebug) { pool ->
-            PooledTracePacket(
-                owner = pool,
-                tracePacket = MutableTracePacket(timestamp = INVALID_LONG),
-            )
-        }
-
     internal val tracePacketArrayPool: Pool<PooledTracePacketArray> =
         Pool(size = TRACE_PACKET_POOL_ARRAY_POOL_SIZE, isDebug = isDebug) { pool ->
             PooledTracePacketArray(
                 owner = pool,
-                pooledTracePacketArray = arrayOfNulls(TRACE_PACKET_BUFFER_SIZE)
+                packets = Array(TRACE_PACKET_BUFFER_SIZE) { TraceEvent() },
+                fillCount = 0,
             )
         }
 
-    internal val trackDescriptorPool =
-        Pool<PooledTrackDescriptor>(size = TRACK_DESCRIPTOR_POOL_SIZE, isDebug = isDebug) { pool ->
-            PooledTrackDescriptor(owner = pool, trackDescriptor = MutableTrackDescriptor())
-        }
-
-    internal val processDescriptorPool =
-        Pool<PooledProcessDescriptor>(size = PROCESS_DESCRIPTOR_POOL_SIZE, isDebug = isDebug) { pool
-            ->
-            PooledProcessDescriptor(
-                owner = pool,
-                processDescriptor = MutableProcessDescriptor(pid = INVALID_INT),
-            )
-        }
-
-    internal val threadDescriptorPool =
-        Pool<PooledThreadDescriptor>(size = THREAD_DESCRIPTOR_POOL_SIZE, isDebug = isDebug) { pool
-            ->
-            PooledThreadDescriptor(
-                owner = pool,
-                threadDescriptor = MutableThreadDescriptor(pid = INVALID_INT, tid = INVALID_INT),
-            )
-        }
-
-    internal val counterDescriptorPool =
-        Pool<PooledCounterDescriptor>(size = COUNTER_DESCRIPTOR_POOL_SIZE, isDebug = isDebug) { pool
-            ->
-            PooledCounterDescriptor(owner = pool, counterDescriptor = MutableCounterDescriptor())
-        }
-
-    internal val trackEventPool =
-        Pool<PooledTrackEvent>(TRACK_EVENT_POOL_SIZE, isDebug = isDebug) { pool ->
-            PooledTrackEvent(owner = pool, trackEvent = MutableTrackEvent())
-        }
-
-    fun obtainTracePacket(): PooledTracePacket {
-        val packet = tracePacketPool.obtain()
-        // Always update time when dealing with recycled packets
-        // This is only being done because `timestamp` is now a required field to avoid boxing.
-        packet.tracePacket.timestamp = nanoTime()
-        return packet
-    }
-
-    fun obtainTracePacketArray(): PooledTracePacketArray {
+    fun obtainTracePacketArray(): PooledTracePacketArray? {
         return tracePacketArrayPool.obtain()
-    }
-
-    fun obtainTrackDescriptor(): PooledTrackDescriptor {
-        return trackDescriptorPool.obtain()
-    }
-
-    fun obtainProcessDescriptor(): PooledProcessDescriptor {
-        return processDescriptorPool.obtain()
-    }
-
-    fun obtainThreadDescriptor(): PooledThreadDescriptor {
-        return threadDescriptorPool.obtain()
-    }
-
-    fun obtainCounterDescriptor(): PooledCounterDescriptor {
-        return counterDescriptorPool.obtain()
-    }
-
-    fun obtainTrackEvent(): PooledTrackEvent {
-        return trackEventPool.obtain()
     }
 
     // Debug only
@@ -132,14 +53,6 @@ internal class ProtoPool(internal val isDebug: Boolean) {
             return 0L
         }
 
-        var count = 0L
-        count += tracePacketPool.count()
-        count += tracePacketArrayPool.count()
-        count += trackDescriptorPool.count()
-        count += processDescriptorPool.count()
-        count += threadDescriptorPool.count()
-        count += counterDescriptorPool.count()
-        count += trackEventPool.count()
-        return count
+        return tracePacketArrayPool.count()
     }
 }

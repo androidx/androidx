@@ -25,5 +25,5 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-class AppSetIdManagerApi31Ext9Impl(context: Context) :
+public class AppSetIdManagerApi31Ext9Impl(context: Context) :
     AppSetIdManagerImplCommon(android.adservices.appsetid.AppSetIdManager.get(context))

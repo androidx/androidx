@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Path
 
 actual val WindowInsets.Companion.captionBar: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
@@ -46,6 +47,9 @@ actual val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
 actual val WindowInsets.Companion.waterfall: WindowInsets
+    @Composable get() = implementedInJetBrainsFork()
+
+actual val WindowInsets.Companion.cutoutPath: Path?
     @Composable get() = implementedInJetBrainsFork()
 
 actual val WindowInsets.Companion.safeDrawing: WindowInsets

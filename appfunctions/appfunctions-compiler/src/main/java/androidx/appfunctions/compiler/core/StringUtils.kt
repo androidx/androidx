@@ -29,3 +29,13 @@ fun String.fromCamelCaseToScreamingSnakeCase(): String {
     val camelRegex = "(?<=[a-zA-Z])[A-Z]".toRegex()
     return camelRegex.replace(this) { "_${it.value}" }.uppercase()
 }
+
+/** Transforms any string to a pascal case string, removing all separators (".", "/", "_", "-"). */
+fun String.toPascalCase(): String {
+    if (this.isEmpty()) return ""
+
+    val separatorsRegex = Regex("[._/-]+|\\s+") // Matches separators and spaces
+    val words = split(separatorsRegex).filter { it.isNotEmpty() }
+
+    return words.joinToString("") { word -> word.lowercase().replaceFirstChar { it.uppercase() } }
+}

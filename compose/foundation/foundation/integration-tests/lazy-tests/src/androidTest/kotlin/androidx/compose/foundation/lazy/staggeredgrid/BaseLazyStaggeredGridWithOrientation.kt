@@ -68,7 +68,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
             crossAxisArrangement,
             reverseLayout,
             overscrollEffect,
-            content
+            content,
         )
     }
 
@@ -106,7 +106,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
                 state = state,
                 reverseLayout = reverseLayout,
                 overscrollEffect = overscrollEffect,
-                content = content
+                content = content,
             )
         } else {
             LazyHorizontalStaggeredGrid(
@@ -118,7 +118,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
                 state = state,
                 reverseLayout = reverseLayout,
                 overscrollEffect = overscrollEffect,
-                content = content
+                content = content,
             )
         }
     }

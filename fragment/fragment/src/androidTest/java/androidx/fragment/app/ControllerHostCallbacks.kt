@@ -31,7 +31,7 @@ import java.io.PrintWriter
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.startupFragmentController(
     viewModelStore: ViewModelStore,
-    savedState: Parcelable? = null
+    savedState: Parcelable? = null,
 ): FragmentController {
     lateinit var fc: FragmentController
     runOnUiThreadRethrow {
@@ -52,7 +52,7 @@ fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.startupFragmentCon
 fun FragmentController.restart(
     @Suppress("DEPRECATION") rule: androidx.test.rule.ActivityTestRule<out FragmentActivity>,
     viewModelStore: ViewModelStore,
-    destroyNonConfig: Boolean = true
+    destroyNonConfig: Boolean = true,
 ): FragmentController {
     var savedState: Parcelable? = null
     rule.runOnUiThreadRethrow { savedState = shutdown(viewModelStore, destroyNonConfig) }
@@ -61,7 +61,7 @@ fun FragmentController.restart(
 
 fun FragmentController.shutdown(
     viewModelStore: ViewModelStore,
-    destroyNonConfig: Boolean = true
+    destroyNonConfig: Boolean = true,
 ): Parcelable? {
     dispatchPause()
     @Suppress("DEPRECATION") val savedState = saveAllState()
@@ -75,7 +75,7 @@ fun FragmentController.shutdown(
 
 class ControllerHostCallbacks(
     private val fragmentActivity: FragmentActivity,
-    private val vmStore: ViewModelStore
+    private val vmStore: ViewModelStore,
 ) : FragmentHostCallback<FragmentActivity>(fragmentActivity), ViewModelStoreOwner {
 
     override val viewModelStore: ViewModelStore = vmStore
@@ -84,7 +84,7 @@ class ControllerHostCallbacks(
         prefix: String,
         fd: FileDescriptor?,
         writer: PrintWriter,
-        args: Array<String>?
+        args: Array<String>?,
     ) {}
 
     override fun onShouldSaveFragmentState(fragment: Fragment): Boolean {
@@ -111,7 +111,7 @@ class ControllerHostCallbacks(
         fragment: Fragment,
         intent: Intent,
         requestCode: Int,
-        options: Bundle?
+        options: Bundle?,
     ) {
         fragmentActivity.startActivityFromFragment(fragment, intent, requestCode, options)
     }
@@ -127,7 +127,7 @@ class ControllerHostCallbacks(
     override fun onRequestPermissionsFromFragment(
         fragment: Fragment,
         permissions: Array<String>,
-        requestCode: Int
+        requestCode: Int,
     ) {
         throw UnsupportedOperationException()
     }

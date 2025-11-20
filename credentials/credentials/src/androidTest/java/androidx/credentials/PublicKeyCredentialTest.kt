@@ -45,7 +45,7 @@ class PublicKeyCredentialTest {
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             PublicKeyCredential("")
         }
@@ -55,7 +55,7 @@ class PublicKeyCredentialTest {
     fun constructor_invalidJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected invalid Json to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             PublicKeyCredential("invalid")
         }
@@ -80,7 +80,7 @@ class PublicKeyCredentialTest {
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON,
-            jsonExpected
+            jsonExpected,
         )
 
         val publicKeyCredential = PublicKeyCredential(jsonExpected)

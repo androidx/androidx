@@ -56,7 +56,7 @@ class ServiceFactoryFileGenerator(private val generateStubs: Boolean = false) {
                 addStatement(
                     "return %T(%T.Stub.asInterface(binder))",
                     service.clientProxyNameSpec(),
-                    service.aidlInterfaceNameSpec()
+                    service.aidlInterfaceNameSpec(),
                 )
             }
         }

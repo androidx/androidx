@@ -38,7 +38,7 @@ class TextToggleTextTestCase(
     private val textLength: Int,
     private val textNumber: Int,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : ComposeTestCase, ToggleableTestCase {
 
     private val texts =

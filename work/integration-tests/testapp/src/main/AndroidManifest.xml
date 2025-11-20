@@ -59,14 +59,12 @@
         <service
             android:name="androidx.work.multiprocess.RemoteWorkerService"
             android:exported="false"
-            android:process=":worker1"
-            tools:ignore="MissingServiceExportedEqualsTrue" />
+            android:process=":worker1" />
 
         <service
             android:name=".RemoteWorkerService2"
             android:exported="false"
-            android:process=":worker2"
-            tools:ignore="MissingServiceExportedEqualsTrue" />
+            android:process=":worker2" />
 
         <service
             android:name=".RemoteService"

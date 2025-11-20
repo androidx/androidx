@@ -21,7 +21,6 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import androidx.test.filters.MediumTest
-import java.util.ArrayList
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,7 +34,7 @@ private const val size = 500
 class LinearLayoutManagerFindReferenceChildTest(
     private val config: Config,
     private val addExtraLayoutSpace: Boolean,
-    private val childOffset: Int
+    private val childOffset: Int,
 ) : BaseLinearLayoutManagerTest() {
 
     companion object {
@@ -52,7 +51,7 @@ class LinearLayoutManagerFindReferenceChildTest(
                                         mItemCount = Config.DEFAULT_ITEM_COUNT
                                     },
                                     addExtraLayoutSpace,
-                                    childOffset
+                                    childOffset,
                                 )
                             }
                         }
@@ -112,7 +111,7 @@ class LinearLayoutManagerFindReferenceChildTest(
 
         override fun calculateExtraLayoutSpace(
             state: RecyclerView.State,
-            extraLayoutSpace: IntArray
+            extraLayoutSpace: IntArray,
         ) {
             if (!addExtraLayoutSpace) {
                 super.calculateExtraLayoutSpace(state, extraLayoutSpace)
@@ -126,14 +125,14 @@ class LinearLayoutManagerFindReferenceChildTest(
             recycler: RecyclerView.Recycler?,
             state: RecyclerView.State?,
             layoutFromEnd: Boolean,
-            traverseChildrenInReverseOrder: Boolean
+            traverseChildrenInReverseOrder: Boolean,
         ): View {
             val referenceChild =
                 super.findReferenceChild(
                     recycler,
                     state,
                     layoutFromEnd,
-                    traverseChildrenInReverseOrder
+                    traverseChildrenInReverseOrder,
                 )
             recordedReferenceChildren.add(getPosition(referenceChild))
             return referenceChild

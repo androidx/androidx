@@ -18,6 +18,8 @@ package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -53,6 +55,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -66,7 +70,9 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
 import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitCheckboxButtonTokens
+import androidx.wear.compose.materialcore.SelectionStage
 import androidx.wear.compose.materialcore.animateSelectionColor
+import androidx.wear.compose.materialcore.isLayoutDirectionRtl
 
 /**
  * The Wear Material [CheckboxButton] offers three slots and a specific layout for an icon, a label,
@@ -102,6 +108,8 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *   emitting [Interaction]s for this button's "toggleable" tap area. You can use this to change the
  *   button's appearance or preview the button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
+ * @param transformation Transformation to be used when button appears inside a container that needs
+ *   to dynamically change its content separately from the background.
  * @param icon An optional slot for providing an icon to indicate the purpose of the button. The
  *   contents are expected to be a horizontally and vertically center aligned icon of size 24.dp.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -119,9 +127,10 @@ public fun CheckboxButton(
     colors: CheckboxButtonColors = CheckboxButtonDefaults.checkboxButtonColors(),
     contentPadding: PaddingValues = CheckboxButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
+    transformation: SurfaceTransformation? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    label: @Composable RowScope.() -> Unit
+    label: @Composable RowScope.() -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -143,7 +152,7 @@ public fun CheckboxButton(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 3,
                     ),
-                content = label
+                content = label,
             ),
         toggleControl = {
             Checkbox(
@@ -154,15 +163,15 @@ public fun CheckboxButton(
                 },
                 checkmarkColor = { enabled, checked ->
                     colors.checkmarkColor(enabled = enabled, checked = checked)
-                }
+                },
             )
         },
         selectionControl = null,
-        modifier = modifier.defaultMinSize(minHeight = MIN_HEIGHT).height(IntrinsicSize.Min),
+        modifier = modifier.defaultMinSize(minHeight = MIN_HEIGHT),
         icon =
             provideNullableScopeContent(
                 contentColor = colors.iconColor(enabled = enabled, checked),
-                content = icon
+                content = icon,
             ),
         secondaryLabel =
             provideNullableScopeContent(
@@ -174,13 +183,17 @@ public fun CheckboxButton(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                     ),
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         background = { isEnabled, isChecked ->
             val backgroundColor =
                 colors.containerColor(enabled = isEnabled, checked = isChecked).value
 
-            Modifier.background(backgroundColor)
+            Modifier.surface(
+                transformation = transformation,
+                painter = ColorPainter(backgroundColor),
+                shape = shape,
+            )
         },
         enabled = enabled,
         interactionSource = interactionSource,
@@ -191,7 +204,7 @@ public fun CheckboxButton(
         labelSpacerSize = CheckboxButtonDefaults.LabelSpacerSize,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = ripple()
+        ripple = ripple(),
     )
 }
 
@@ -243,6 +256,8 @@ public fun CheckboxButton(
  *   and emitting [Interaction]s for this button's main body "clickable" tap area. You can use this
  *   to change the button's appearance or preview the button in different states. Note that if
  *   `null` is provided, interactions will still happen internally.
+ * @param transformation Transformation to be used when button appears inside a container that needs
+ *   to dynamically change its content separately from the background.
  * @param containerClickLabel Optional click label on the main body of the button for accessibility.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
@@ -263,10 +278,11 @@ public fun SplitCheckboxButton(
     colors: SplitCheckboxButtonColors = CheckboxButtonDefaults.splitCheckboxButtonColors(),
     toggleInteractionSource: MutableInteractionSource? = null,
     containerInteractionSource: MutableInteractionSource? = null,
+    transformation: SurfaceTransformation? = null,
     containerClickLabel: String? = null,
     contentPadding: PaddingValues = CheckboxButtonDefaults.ContentPadding,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    label: @Composable RowScope.() -> Unit
+    label: @Composable RowScope.() -> Unit,
 ) {
     val containerColor = colors.containerColor(enabled, checked).value
     Row(
@@ -276,7 +292,13 @@ public fun SplitCheckboxButton(
                 .defaultMinSize(minHeight = MIN_HEIGHT)
                 .height(IntrinsicSize.Min)
                 .width(IntrinsicSize.Max)
-                .clip(shape = shape)
+                .graphicsLayer {
+                    clip = true
+                    this.shape = shape
+
+                    val transformation = transformation ?: return@graphicsLayer
+                    with(transformation) { applyContainerTransformation() }
+                },
     ) {
         Row(
             modifier =
@@ -306,7 +328,7 @@ public fun SplitCheckboxButton(
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 3,
                             ),
-                        content = label
+                        content = label,
                     ),
                 secondaryLabel =
                     provideNullableScopeContent(
@@ -319,7 +341,7 @@ public fun SplitCheckboxButton(
                                 maxLines = 2,
                                 textAlign = TextAlign.Start,
                             ),
-                        content = secondaryLabel
+                        content = secondaryLabel,
                     ),
             )
         }
@@ -343,7 +365,7 @@ public fun SplitCheckboxButton(
                             onCheckedChange(it)
                         },
                         indication = ripple(),
-                        interactionSource = toggleInteractionSource
+                        interactionSource = toggleInteractionSource,
                     )
                     .fillMaxHeight()
                     .clip(SPLIT_SECTIONS_SHAPE)
@@ -356,7 +378,7 @@ public fun SplitCheckboxButton(
                     }
                     .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding)
+                    .padding(contentPadding),
         ) {
             Checkbox(
                 checked = checked,
@@ -372,7 +394,7 @@ public fun SplitCheckboxButton(
                 },
                 checkmarkColor = { enabled, checked ->
                     colors.checkmarkColor(enabled = enabled, checked = checked)
-                }
+                },
             )
         }
     }
@@ -457,7 +479,7 @@ public object CheckboxButtonDefaults {
         disabledUncheckedContentColor: Color = Color.Unspecified,
         disabledUncheckedSecondaryContentColor: Color = Color.Unspecified,
         disabledUncheckedIconColor: Color = Color.Unspecified,
-        disabledUncheckedBoxColor: Color = Color.Unspecified
+        disabledUncheckedBoxColor: Color = Color.Unspecified,
     ): CheckboxButtonColors =
         MaterialTheme.colorScheme.defaultCheckboxButtonColors.copy(
             checkedContainerColor = checkedContainerColor,
@@ -481,7 +503,7 @@ public object CheckboxButtonDefaults {
             disabledUncheckedContentColor = disabledUncheckedContentColor,
             disabledUncheckedSecondaryContentColor = disabledUncheckedSecondaryContentColor,
             disabledUncheckedIconColor = disabledUncheckedIconColor,
-            disabledUncheckedBoxColor = disabledUncheckedBoxColor
+            disabledUncheckedBoxColor = disabledUncheckedBoxColor,
         )
 
     /** Creates a [SplitCheckboxButtonColors] for use in a [SplitCheckboxButton]. */
@@ -559,7 +581,7 @@ public object CheckboxButtonDefaults {
         disabledUncheckedContentColor: Color = Color.Unspecified,
         disabledUncheckedSecondaryContentColor: Color = Color.Unspecified,
         disabledUncheckedSplitContainerColor: Color = Color.Unspecified,
-        disabledUncheckedBoxColor: Color = Color.Unspecified
+        disabledUncheckedBoxColor: Color = Color.Unspecified,
     ): SplitCheckboxButtonColors =
         MaterialTheme.colorScheme.defaultSplitCheckboxButtonColors.copy(
             checkedContainerColor = checkedContainerColor,
@@ -586,7 +608,7 @@ public object CheckboxButtonDefaults {
             disabledUncheckedBoxColor = disabledUncheckedBoxColor,
         )
 
-    internal val LabelSpacerSize = 2.dp
+    internal val LabelSpacerSize = 1.dp
     private val HorizontalPadding = 14.dp
     private val VerticalPadding = 8.dp
 
@@ -596,7 +618,7 @@ public object CheckboxButtonDefaults {
             start = HorizontalPadding,
             top = VerticalPadding,
             end = HorizontalPadding,
-            bottom = VerticalPadding
+            bottom = VerticalPadding,
         )
 
     private val ColorScheme.defaultCheckboxButtonColors: CheckboxButtonColors
@@ -678,7 +700,7 @@ public object CheckboxButtonDefaults {
                             fromToken(CheckboxButtonTokens.DisabledUncheckedBoxColor)
                                 .toDisabledColor(
                                     disabledAlpha = CheckboxButtonTokens.DisabledUncheckedBoxOpacity
-                                )
+                                ),
                     )
                     .also { defaultCheckboxButtonColorsCached = it }
         }
@@ -780,7 +802,7 @@ public object CheckboxButtonDefaults {
                                 .toDisabledColor(
                                     disabledAlpha =
                                         SplitCheckboxButtonTokens.DisabledUncheckedBoxOpacity
-                                )
+                                ),
                     )
                     .also { defaultSplitCheckboxButtonColorsCached = it }
         }
@@ -930,7 +952,7 @@ public class CheckboxButtonColors(
             uncheckedColor = uncheckedContainerColor,
             disabledCheckedColor = disabledCheckedContainerColor,
             disabledUncheckedColor = disabledUncheckedContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -948,7 +970,7 @@ public class CheckboxButtonColors(
             uncheckedColor = uncheckedContentColor,
             disabledCheckedColor = disabledCheckedContentColor,
             disabledUncheckedColor = disabledUncheckedContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -966,7 +988,7 @@ public class CheckboxButtonColors(
             uncheckedColor = uncheckedSecondaryContentColor,
             disabledCheckedColor = disabledCheckedSecondaryContentColor,
             disabledUncheckedColor = disabledUncheckedSecondaryContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -985,7 +1007,7 @@ public class CheckboxButtonColors(
             uncheckedColor = uncheckedIconColor,
             disabledCheckedColor = disabledCheckedIconColor,
             disabledUncheckedColor = disabledUncheckedIconColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1004,7 +1026,7 @@ public class CheckboxButtonColors(
             uncheckedColor = uncheckedBoxColor,
             disabledCheckedColor = disabledCheckedBoxColor,
             disabledUncheckedColor = disabledUncheckedBoxColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1023,7 +1045,7 @@ public class CheckboxButtonColors(
             uncheckedColor = Color.Transparent,
             disabledCheckedColor = disabledCheckedCheckmarkColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -1272,7 +1294,7 @@ public class SplitCheckboxButtonColors(
                     this.disabledUncheckedSplitContainerColor
                 },
             disabledUncheckedBoxColor =
-                disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor }
+                disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
         )
 
     /**
@@ -1291,7 +1313,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = uncheckedContainerColor,
             disabledCheckedColor = disabledCheckedContainerColor,
             disabledUncheckedColor = disabledUncheckedContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1310,7 +1332,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = uncheckedContentColor,
             disabledCheckedColor = disabledCheckedContentColor,
             disabledUncheckedColor = disabledUncheckedContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1329,7 +1351,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = uncheckedSecondaryContentColor,
             disabledCheckedColor = disabledCheckedSecondaryContentColor,
             disabledUncheckedColor = disabledUncheckedSecondaryContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1348,7 +1370,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = uncheckedSplitContainerColor,
             disabledCheckedColor = disabledCheckedSplitContainerColor,
             disabledUncheckedColor = disabledUncheckedSplitContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1367,7 +1389,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = uncheckedBoxColor,
             disabledCheckedColor = disabledCheckedBoxColor,
             disabledUncheckedColor = disabledUncheckedBoxColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1386,7 +1408,7 @@ public class SplitCheckboxButtonColors(
             uncheckedColor = Color.Transparent,
             disabledCheckedColor = disabledCheckedCheckmarkColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -1462,23 +1484,47 @@ private fun Checkbox(
     boxColor: @Composable (enabled: Boolean, selected: Boolean) -> State<Color>,
     checkmarkColor: @Composable (enabled: Boolean, selected: Boolean) -> State<Color>,
     modifier: Modifier = Modifier,
-) =
-    androidx.wear.compose.materialcore.Checkbox(
-        checked = checked,
-        modifier = modifier,
-        boxColor = boxColor,
-        checkmarkColor = checkmarkColor,
-        enabled = enabled,
-        onCheckedChange = null,
-        interactionSource = null,
-        drawBox = { drawScope, color, progress, isRtl ->
-            drawScope.drawBox(color = color, progress = progress, isRtl = isRtl)
-        },
-        progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
-        width = CHECKBOX_WIDTH,
-        height = CHECKBOX_HEIGHT,
-        ripple = ripple()
+) {
+    val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
+    val transition = updateTransition(targetState, label = "checkboxTransition")
+    val progress =
+        transition.animateFloat(
+            transitionSpec = { PROGRESS_ANIMATION_SPEC },
+            label = "checkboxTransition",
+        ) {
+            when (it) {
+                SelectionStage.Unchecked -> 0f
+                SelectionStage.Checked -> 1f
+            }
+        }
+    val isRtl = isLayoutDirectionRtl()
+    val startXOffset = if (isRtl) 0.dp else CHECKBOX_WIDTH - CHECKBOX_HEIGHT
+
+    // For Checkbox, the color and alpha animations have the same duration and easing,
+    // so we don't need to explicitly animate alpha.
+    val boxColorState = boxColor(enabled, checked)
+    val checkmarkColorState = checkmarkColor(enabled, checked)
+
+    Box(
+        modifier =
+            modifier
+                .semantics { this.role = Role.Checkbox }
+                .height(CHECKBOX_HEIGHT)
+                .width(CHECKBOX_WIDTH)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawBox(boxColorState.value, progress.value, isRtl)
+                        animateTick(
+                            enabled = enabled,
+                            checked = checked,
+                            checkmarkColorState.value,
+                            progress.value,
+                            startXOffset = startXOffset,
+                        )
+                    }
+                }
     )
+}
 
 private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     // Centering vertically.
@@ -1496,12 +1542,12 @@ private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
         topLeft =
             Offset(
                 topCornerPx + halfStrokeWidthPx + startXOffsetPx,
-                topCornerPx + halfStrokeWidthPx
+                topCornerPx + halfStrokeWidthPx,
             ),
         size = Size(checkboxSizePx - strokeWidthPx, checkboxSizePx - strokeWidthPx),
         cornerRadius = CornerRadius(radiusPx - halfStrokeWidthPx),
         alpha = 1 - progress,
-        style = Stroke(strokeWidthPx)
+        style = Stroke(strokeWidthPx),
     )
 
     // Fills the box.
@@ -1511,14 +1557,14 @@ private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
         size = Size(checkboxSizePx, checkboxSizePx),
         cornerRadius = CornerRadius(radiusPx),
         alpha = progress,
-        style = Fill
+        style = Fill,
     )
 }
 
 @Composable
 private fun RowScope.Labels(
     label: @Composable RowScope.() -> Unit,
-    secondaryLabel: @Composable (RowScope.() -> Unit)?
+    secondaryLabel: @Composable (RowScope.() -> Unit)?,
 ) {
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)

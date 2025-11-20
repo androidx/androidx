@@ -72,7 +72,7 @@ private fun Item(keyboardType: KeyboardType) {
 private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
-    text: String = ""
+    text: String = "",
 ) {
     val state = remember { TextFieldState(text) }
     BasicTextField(
@@ -93,7 +93,7 @@ private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
         BasicTextField(
             modifier = demoTextFieldModifiers.focusRequester(focusRequester),
             state = state,
-            keyboardOptions = KeyboardOptions(showKeyboardOnFocus = showKeyboardOnFocus)
+            keyboardOptions = KeyboardOptions(showKeyboardOnFocus = showKeyboardOnFocus),
         )
         Button(onClick = { focusRequester.requestFocus() }) {
             BasicText("Focus me", style = LocalTextStyle.current)
@@ -110,7 +110,7 @@ private fun HintLocaleDemo(localeList: LocaleList) {
         BasicTextField(
             modifier = demoTextFieldModifiers,
             state = state,
-            keyboardOptions = KeyboardOptions(hintLocales = localeList)
+            keyboardOptions = KeyboardOptions(hintLocales = localeList),
         )
     }
 }

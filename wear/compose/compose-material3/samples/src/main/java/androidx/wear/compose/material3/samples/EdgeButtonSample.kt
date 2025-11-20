@@ -17,6 +17,8 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -64,7 +67,7 @@ fun EdgeButtonSample() {
             EdgeButtonSize.ExtraSmall,
             EdgeButtonSize.Small,
             EdgeButtonSize.Medium,
-            EdgeButtonSize.Large
+            EdgeButtonSize.Large,
         )
     val sizeNames = listOf("XS", "S", "M", "L")
     var size by remember { mutableIntStateOf(0) }
@@ -73,7 +76,7 @@ fun EdgeButtonSample() {
         Column(
             Modifier.align(Alignment.TopCenter).fillMaxSize().padding(top = 0.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row { Spacer(modifier = Modifier.height(16.dp)) }
@@ -82,26 +85,23 @@ fun EdgeButtonSample() {
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(sizeNames.size) {
                         TextButton(
                             onClick = { size = it },
-                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize)
+                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize),
                         ) {
                             Text(sizeNames[it])
                         }
                     }
                 }
             }
-            EdgeButton(
-                onClick = { /* Do something */ },
-                buttonSize = sizes[size],
-            ) {
+            EdgeButton(onClick = { /* Do something */ }, buttonSize = sizes[size]) {
                 Icon(
                     Icons.Filled.Check,
                     contentDescription = "Check icon",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
             }
         }
@@ -121,7 +121,7 @@ fun EdgeButtonListSample() {
             "Filled Variant" to ButtonDefaults.filledVariantButtonColors(),
             "Filled Tonal" to ButtonDefaults.filledTonalButtonColors(),
             "Outlined" to ButtonDefaults.outlinedButtonColors(),
-            "Disabled" to ButtonDefaults.buttonColors()
+            "Disabled" to ButtonDefaults.buttonColors(),
         )
     var selectedColor by remember { mutableIntStateOf(0) }
     val types = listOf("Icon only" to 0, "Text only" to 1)
@@ -132,6 +132,15 @@ fun EdgeButtonListSample() {
         contentPadding = PaddingValues(horizontal = horizontalPadding, vertical = verticalPadding),
         edgeButton = {
             EdgeButton(
+                modifier =
+                    Modifier.scrollable(
+                        state,
+                        orientation = Orientation.Vertical,
+                        reverseDirection = true,
+                        // An overscroll effect should be applied to the EdgeButton for proper
+                        // scrolling behavior.
+                        overscrollEffect = rememberOverscrollEffect(),
+                    ),
                 onClick = {},
                 buttonSize = EdgeButtonSize.Medium,
                 colors = colors[selectedColor].second,
@@ -139,7 +148,7 @@ fun EdgeButtonListSample() {
                     if (colors[selectedColor].first == "Outlined")
                         ButtonDefaults.outlinedButtonBorder(true)
                     else null,
-                enabled = colors[selectedColor].first != "Disabled"
+                enabled = colors[selectedColor].first != "Disabled",
             ) {
                 if (selectedType == 0) {
                     // Remove extra spacing around the icon so it integrates better into the scroll.
@@ -155,7 +164,7 @@ fun EdgeButtonListSample() {
             modifier = Modifier.fillMaxSize().selectableGroup(),
             autoCentering = null,
             contentPadding = contentPadding,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item { Text("Color") }
             items(colors.size) { ix ->
@@ -163,7 +172,7 @@ fun EdgeButtonListSample() {
                     label = { Text(colors[ix].first) },
                     selected = selectedColor == ix,
                     onSelect = { selectedColor = ix },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             item { Text("Type") }
@@ -172,7 +181,7 @@ fun EdgeButtonListSample() {
                     label = { Text(types[ix].first) },
                     selected = selectedType == ix,
                     onSelect = { selectedType = ix },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }

@@ -77,7 +77,7 @@ abstract class UpdateResourceApiTask : DefaultTask() {
                 inputApi,
                 outputApi.resourceFile,
                 permitOverwriting,
-                logger
+                logger,
             )
         }
     }

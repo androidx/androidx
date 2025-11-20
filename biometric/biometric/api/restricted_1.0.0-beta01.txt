@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.biometric {
 
   public class BiometricManager {
@@ -11,10 +11,10 @@ package androidx.biometric {
   }
 
   public class BiometricPrompt {
-    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     ctor public BiometricPrompt(androidx.fragment.app.Fragment, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
-    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
+    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
+    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void cancelAuthentication();
     field public static final int ERROR_CANCELED = 5; // 0x5
     field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc

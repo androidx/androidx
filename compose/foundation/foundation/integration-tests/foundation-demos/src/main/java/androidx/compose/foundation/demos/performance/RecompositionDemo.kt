@@ -115,7 +115,7 @@ fun NoRippleBoxElement() {
         modifier =
             Modifier.fillMaxWidth().height(50.dp).background(Color.Blue).clickable(
                 interactionSource = interactionSource,
-                indication = null
+                indication = null,
             ) {
                 scope.launch {
                     delay(InitialDelay)
@@ -148,7 +148,7 @@ fun ButtonElement() {
                 }
                 iteration = 0
             }
-        }
+        },
     ) {
         Text(text = "Button")
     }

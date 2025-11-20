@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
@@ -42,7 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnScrollTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private val lazyListTag = "LazyList"
 
@@ -63,17 +64,12 @@ class TransformingLazyColumnScrollTest {
         spacingPx: Int = 0,
         containerSizePx: Int = itemSizePx * 3,
         scrollBlock: suspend () -> Unit,
-        assertBlock: () -> Unit
+        assertBlock: () -> Unit,
     ) {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
             scope = rememberCoroutineScope()
-            with(rule.density) {
-                TestContent(
-                    spacingPx.toDp(),
-                    containerSizePx.toDp(),
-                )
-            }
+            with(rule.density) { TestContent(spacingPx.toDp(), containerSizePx.toDp()) }
         }
         runBlocking { withContext(Dispatchers.Main + AutoTestFrameClock()) { scrollBlock() } }
         rule.runOnIdle { assertBlock() }
@@ -82,7 +78,7 @@ class TransformingLazyColumnScrollTest {
     @Test
     fun setupWorks() =
         testScroll(scrollBlock = {}) {
-            assertThat(state.anchorItemIndex).isEqualTo(0)
+            assertThat(state.anchorItemIndex).isEqualTo(1)
             assertThat(state.anchorItemScrollOffset).isEqualTo(0)
         }
 
@@ -96,40 +92,37 @@ class TransformingLazyColumnScrollTest {
     @Test
     fun scrollToItemWithOffset() =
         testScroll(scrollBlock = { state.scrollToItem(3, 10) }) {
-            assertThat(state.anchorItemIndex).isEqualTo(3)
-            assertThat(state.anchorItemScrollOffset).isEqualTo(10)
-        }
-
-    @Test
-    fun scrollToItemWithNegativeOffset() =
-        testScroll(scrollBlock = { state.scrollToItem(3, -10) }) {
             assertThat(state.layoutInfo.visibleItems.firstOrNull()?.index).isEqualTo(2)
             val item3Offset = state.layoutInfo.visibleItems.first { it.index == 3 }.offset
             assertThat(item3Offset).isEqualTo(itemSizePx - 10)
         }
 
     @Test
+    fun scrollToItemWithNegativeOffset() =
+        testScroll(scrollBlock = { state.scrollToItem(3, -10) }) {
+            assertThat(state.anchorItemIndex).isEqualTo(3)
+            assertThat(state.anchorItemScrollOffset).isEqualTo(-10)
+        }
+
+    @Test
     fun scrollToItemWithOffsetLargerThanAvailableSize() =
         testScroll(scrollBlock = { state.scrollToItem(itemsCount - 1, -10) }) {
-            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 1)
+            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 2) // last item feels the space
             assertThat(state.anchorItemScrollOffset).isEqualTo(0) // not 10
         }
 
     @Test
     fun scrollToItemWithIndexLargerThanItemsCount() =
         testScroll(scrollBlock = { state.scrollToItem(itemsCount + 2) }) {
-            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 1)
+            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 2) // last item feels the space
         }
 
     @Composable
-    private fun TestContent(
-        spacingDp: Dp,
-        containerSizeDp: Dp,
-    ) =
+    private fun TestContent(spacingDp: Dp, containerSizeDp: Dp) =
         TransformingLazyColumn(
             Modifier.height(containerSizeDp).testTag(lazyListTag),
             state,
-            verticalArrangement = Arrangement.spacedBy(spacingDp)
+            verticalArrangement = Arrangement.spacedBy(spacingDp),
         ) {
             items(itemsCount) { Spacer(modifier = Modifier.height(itemSizeDp)) }
         }

@@ -19,12 +19,10 @@ import android.content.Context;
 import android.transition.Slide;
 import android.util.AttributeSet;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  */
-@RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SlideNoPropagation extends Slide {
 

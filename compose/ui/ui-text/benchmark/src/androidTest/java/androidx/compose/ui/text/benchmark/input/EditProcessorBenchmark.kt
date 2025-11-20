@@ -65,18 +65,18 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
                     TestScenario(listOf(CommitTextCommand("Android", 1)), "Insert a text"),
                     TestScenario(
                         listOf(SetComposingTextCommand("Android", 1)),
-                        "Insert composition"
+                        "Insert composition",
                     ),
                     TestScenario(listOf(SetComposingRegionCommand(0, 1)), "Set composition"),
                     TestScenario(listOf(DeleteSurroundingTextCommand(0, 1)), "Delete text"),
                     TestScenario(
                         listOf(DeleteSurroundingTextInCodePointsCommand(0, 1)),
-                        "Delete text in code points"
+                        "Delete text in code points",
                     ),
                     TestScenario(listOf(SetSelectionCommand(0, 1)), "Set selection"),
                     TestScenario(listOf(BackspaceCommand()), "Backspace"),
-                    TestScenario(listOf(MoveCursorCommand(1)), "Cursor movement")
-                )
+                    TestScenario(listOf(MoveCursorCommand(1)), "Cursor movement"),
+                ),
             )
     }
 
@@ -89,7 +89,7 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
                 EditProcessor().apply {
                     reset(
                         TextFieldValue(text = initText.text, selection = TextRange(5)),
-                        null // text input service, not used.
+                        null, // text input service, not used.
                     )
                 }
             }

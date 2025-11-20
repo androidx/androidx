@@ -22,7 +22,7 @@ import androidx.compose.runtime.Stable
 
 @ComposeCompilerApi
 @Stable
-actual interface ComposableLambda :
+public actual interface ComposableLambda :
     Function2<Composer, Int, Any?>,
     Function3<Any?, Composer, Int, Any?>,
     Function4<Any?, Any?, Composer, Int, Any?>,
@@ -47,7 +47,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function14<
         Any?,
@@ -64,7 +64,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function15<
         Any?,
@@ -82,7 +82,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function16<
         Any?,
@@ -101,7 +101,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function17<
         Any?,
@@ -121,7 +121,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function18<
         Any?,
@@ -142,7 +142,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function19<
         Any?,
@@ -164,7 +164,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function20<
         Any?,
@@ -187,7 +187,7 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >,
     Function21<
         Any?,
@@ -211,5 +211,5 @@ actual interface ComposableLambda :
         Composer,
         Int,
         Int,
-        Any?
+        Any?,
     >

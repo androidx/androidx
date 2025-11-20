@@ -49,6 +49,7 @@ public final class LibraryBuildInfoFile {
     public String projectZipPath;
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
+    public ArrayList<Dependency> allDependencies;
     public ArrayList<Dependency> dependencyConstraints;
     public Boolean shouldPublishDocs;
     public Boolean isKmp;
@@ -56,6 +57,7 @@ public final class LibraryBuildInfoFile {
     public ArrayList<Check> checks;
     public Set<String> kmpChildren;
     public Set<String> testModuleNames;
+    public Set<String> gradlePluginIds;
 
     /**
      * @property isTipOfTree boolean that specifies whether the dependency is tip-of-tree

@@ -34,7 +34,7 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
         val Saver =
             Saver<SelectionRegistrarImpl, Long>(
                 save = { it.incrementId.get() },
-                restore = { SelectionRegistrarImpl(it) }
+                restore = { SelectionRegistrarImpl(it) },
             )
     }
 
@@ -174,13 +174,13 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
         adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
+        isInTouchMode: Boolean,
     ) {
         onSelectionUpdateStartCallback?.invoke(
             isInTouchMode,
             layoutCoordinates,
             startPosition,
-            adjustment
+            adjustment,
         )
     }
 
@@ -194,7 +194,7 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
         previousPosition: Offset,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
+        isInTouchMode: Boolean,
     ): Boolean {
         return onSelectionUpdateCallback?.invoke(
             isInTouchMode,
@@ -202,7 +202,7 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
             newPosition,
             previousPosition,
             isStartHandle,
-            adjustment
+            adjustment,
         ) ?: true
     }
 

@@ -78,6 +78,7 @@ public class WebMessageCompatActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_message_compat);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.web_message_compat_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.POST_WEB_MESSAGE)) {

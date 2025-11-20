@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.ui.core
 
@@ -21,10 +22,21 @@ package androidx.privacysandbox.ui.core
  * [SandboxedUiAdapter.Session]. Many [SessionObserver]s may be created for the same
  * [SandboxedUiAdapter.Session].
  */
-fun interface SessionObserverFactory {
+@Deprecated("This library is no longer supported.")
+public interface SessionObserverFactory {
+    /**
+     * The set of signals that should be collected for each [SandboxedUiAdapter.Session]. This set
+     * of signals is defined by [SandboxedUiAdapterSignalOptions].
+     *
+     * The set of signals that are supported by the client will be sent in the
+     * [SessionObserverContext] object in [SessionObserver.onSessionOpened].
+     */
+    public val signalOptions: Set<String>
+        get() = setOf()
+
     /**
      * Called if a new [SandboxedUiAdapter.Session] has been opened by the [SandboxedUiAdapter] that
      * this factory is registered to. This will not be called for sessions that are already open.
      */
-    fun create(): SessionObserver
+    public fun create(): SessionObserver
 }

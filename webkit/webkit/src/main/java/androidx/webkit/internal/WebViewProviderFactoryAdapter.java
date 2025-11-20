@@ -27,6 +27,7 @@ import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
+import org.chromium.support_lib_boundary.WebViewBuilderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
@@ -46,9 +47,19 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for creating a new support library version of
-     * {@link android.webkit.WebViewProvider} - the class used to implement
-     * {@link androidx.webkit.WebViewCompat}.
+     * Adapter method for fetching the support library class representing the WebViewBuilder
+     * implementation details.
+     */
+    @Override
+    public @NonNull WebViewBuilderBoundaryInterface getWebViewBuilder() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebViewBuilderBoundaryInterface.class, mImpl.getWebViewBuilder());
+    }
+
+    /**
+     * Adapter method for creating a new support library version of {@link
+     * android.webkit.WebViewProvider} - the class used to implement {@link
+     * androidx.webkit.WebViewCompat}.
      */
     @Override
     public @NonNull WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview) {
@@ -57,9 +68,9 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for creating a new support library version of
-     * {@link androidx.webkit.internal.WebkitToCompatConverter}, which converts android.webkit
-     * classes into their corresponding support library classes.
+     * Adapter method for creating a new support library version of {@link
+     * androidx.webkit.internal.WebkitToCompatConverter}, which converts android.webkit classes into
+     * their corresponding support library classes.
      */
     @Override
     public @NonNull WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
@@ -68,8 +79,8 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing
-     * {@link android.webkit.WebViewFactoryProvider#Statics}.
+     * Adapter method for fetching the support library class representing {@link
+     * android.webkit.WebViewFactoryProvider#Statics}.
      */
     @Override
     public @NonNull StaticsBoundaryInterface getStatics() {
@@ -77,17 +88,15 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                 StaticsBoundaryInterface.class, mImpl.getStatics());
     }
 
-    /**
-     * Adapter method for fetching the features supported by the current WebView APK.
-     */
+    /** Adapter method for fetching the features supported by the current WebView APK. */
     @Override
     public String @NonNull [] getWebViewFeatures() {
         return mImpl.getSupportedFeatures();
     }
 
     /**
-     * Adapter method for fetching the support library class representing
-     * {@link android.webkit.ServiceWorkerController}.
+     * Adapter method for fetching the support library class representing {@link
+     * android.webkit.ServiceWorkerController}.
      */
     @Override
     public @NonNull ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {
@@ -96,8 +105,8 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing
-     * {@link android.webkit.TracingController}.
+     * Adapter method for fetching the support library class representing {@link
+     * android.webkit.TracingController}.
      */
     @Override
     public @NonNull TracingControllerBoundaryInterface getTracingController() {
@@ -106,8 +115,8 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing
-     * {@link android.webkit.ProxyController}.
+     * Adapter method for fetching the support library class representing {@link
+     * android.webkit.ProxyController}.
      */
     @Override
     public @NonNull ProxyControllerBoundaryInterface getProxyController() {
@@ -116,8 +125,8 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing Drag drop
-     * Image implementation.
+     * Adapter method for fetching the support library class representing Drag drop Image
+     * implementation.
      */
     @Override
     public @NonNull DropDataContentProviderBoundaryInterface getDropDataProvider() {
@@ -131,6 +140,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
                 ProfileStoreBoundaryInterface.class, mImpl.getProfileStore());
     }
 
+    @WebViewCompat.ExperimentalAsyncStartUp
     @Override
     public void startUpWebView(
             @NonNull WebViewStartUpConfig config,

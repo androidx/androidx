@@ -366,15 +366,7 @@ public final class RemoteInput {
     // This is on purpose.
     @SuppressWarnings({"NullableCollection", "deprecation"})
     public static @Nullable Bundle getResultsFromIntent(@NonNull Intent intent) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return Api20Impl.getResultsFromIntent(intent);
-        } else {
-            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
-            if (clipDataIntent == null) {
-                return null;
-            }
-            return clipDataIntent.getExtras().getParcelable(RemoteInput.EXTRA_RESULTS_DATA);
-        }
+        return android.app.RemoteInput.getResultsFromIntent(intent);
     }
 
     /**
@@ -392,8 +384,8 @@ public final class RemoteInput {
     public static void addResultsToIntent(RemoteInput @NonNull [] remoteInputs,
             @NonNull Intent intent, @NonNull Bundle results) {
         if (Build.VERSION.SDK_INT >= 26) {
-            Api20Impl.addResultsToIntent(fromCompat(remoteInputs), intent, results);
-        } else if (Build.VERSION.SDK_INT >= 20) {
+            android.app.RemoteInput.addResultsToIntent(fromCompat(remoteInputs), intent, results);
+        } else {
             // Implementations of RemoteInput#addResultsToIntent prior to SDK 26 don't actually add
             // results, they wipe out old results and insert the new one. Work around that by
             // preserving old results.
@@ -415,7 +407,8 @@ public final class RemoteInput {
                                 intent, input.getResultKey());
                 RemoteInput[] arr = new RemoteInput[1];
                 arr[0] = input;
-                Api20Impl.addResultsToIntent(fromCompat(arr), intent, existingTextResults);
+                android.app.RemoteInput.addResultsToIntent(
+                        fromCompat(arr), intent, existingTextResults);
                 if (existingDataResults != null) {
                     RemoteInput.addDataResultToIntent(input, intent, existingDataResults);
                 }
@@ -423,24 +416,6 @@ public final class RemoteInput {
 
             // Now restore the results source.
             setResultsSource(intent, resultsSource);
-        } else {
-            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
-            if (clipDataIntent == null) {
-                clipDataIntent = new Intent();  // First time we've added a result.
-            }
-            Bundle resultsBundle = clipDataIntent.getBundleExtra(RemoteInput.EXTRA_RESULTS_DATA);
-            if (resultsBundle == null) {
-                resultsBundle = new Bundle();
-            }
-            for (RemoteInput remoteInput : remoteInputs) {
-                Object result = results.get(remoteInput.getResultKey());
-                if (result instanceof CharSequence) {
-                    resultsBundle.putCharSequence(
-                            remoteInput.getResultKey(), (CharSequence) result);
-                }
-            }
-            clipDataIntent.putExtra(RemoteInput.EXTRA_RESULTS_DATA, resultsBundle);
-            intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
         }
     }
 
@@ -533,7 +508,6 @@ public final class RemoteInput {
         return EXTRA_DATA_TYPE_RESULTS_DATA + mimeType;
     }
 
-    @RequiresApi(20)
     static android.app.RemoteInput[] fromCompat(RemoteInput[] srcArray) {
         if (srcArray == null) {
             return null;
@@ -545,12 +519,10 @@ public final class RemoteInput {
         return result;
     }
 
-    @RequiresApi(20)
     static android.app.RemoteInput fromCompat(RemoteInput src) {
         return Api20Impl.fromCompat(src);
     }
 
-    @RequiresApi(20)
     static RemoteInput fromPlatform(android.app.RemoteInput src) {
         return Api20Impl.fromPlatform(src);
     }
@@ -596,19 +568,9 @@ public final class RemoteInput {
         }
     }
 
-    @RequiresApi(20)
     static class Api20Impl {
         private Api20Impl() {
             // This class is not instantiable.
-        }
-
-        static Bundle getResultsFromIntent(Intent intent) {
-            return android.app.RemoteInput.getResultsFromIntent(intent);
-        }
-
-        static void addResultsToIntent(Object remoteInputs, Intent intent, Bundle results) {
-            android.app.RemoteInput.addResultsToIntent((android.app.RemoteInput[]) remoteInputs,
-                    intent, results);
         }
 
         static RemoteInput fromPlatform(Object srcObj) {

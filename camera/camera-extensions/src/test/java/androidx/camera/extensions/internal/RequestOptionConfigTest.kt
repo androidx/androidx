@@ -17,7 +17,6 @@
 package androidx.camera.extensions.internal
 
 import android.hardware.camera2.CaptureRequest
-import android.os.Build
 import androidx.camera.core.impl.Config.Option
 import androidx.camera.core.impl.MutableOptionsBundle
 import com.google.common.truth.Truth.assertThat
@@ -30,8 +29,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(
-    minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+    sdk = [Config.ALL_SDKS],
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal"),
 )
 class RequestOptionConfigTest {
     @Test
@@ -40,7 +39,7 @@ class RequestOptionConfigTest {
             RequestOptionConfig.Builder()
                 .setCaptureRequestOption(
                     CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_AUTO
+                    CaptureRequest.CONTROL_AF_MODE_AUTO,
                 )
                 .setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, 90)
                 .build()
@@ -65,15 +64,15 @@ class RequestOptionConfigTest {
         val mutableOptionConfig = MutableOptionsBundle.create()
         mutableOptionConfig.insertOption(
             Option.create("NonCaptureOption", String::class.java, null),
-            "value1"
+            "value1",
         )
         mutableOptionConfig.insertOption(
             Option.create("NonCaptureOption2", Integer::class.java, null),
-            99
+            99,
         )
         mutableOptionConfig.insertOption(
             RequestOptionConfig.createOptionFromKey(CaptureRequest.CONTROL_AF_MODE),
-            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
         )
 
         val requestOptionConfig =

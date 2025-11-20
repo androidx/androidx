@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
@@ -25,8 +26,9 @@ import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmName
 
@@ -301,7 +303,7 @@ internal constructor(
         end: Int,
         text: CharSequence,
         textStart: Int = 0,
-        textEnd: Int = text.length
+        textEnd: Int = text.length,
     ) {
         requirePrecondition(start <= end) { "Expected start=$start <= end=$end" }
         requirePrecondition(textStart <= textEnd) {
@@ -450,12 +452,14 @@ internal constructor(
         composition: TextRange? = this.composition,
         composingAnnotations: List<PlacedAnnotation>? =
             this.composingAnnotations?.asMutableList()?.takeIf { it.isNotEmpty() },
+        outputAnnotations: List<PlacedAnnotation>? = null,
     ): TextFieldCharSequence =
         TextFieldCharSequence(
             text = buffer.toString(),
             selection = selection,
             composition = composition,
-            composingAnnotations = composingAnnotations
+            composingAnnotations = composingAnnotations,
+            outputAnnotations = outputAnnotations,
         )
 
     private fun requireValidIndex(index: Int, startExclusive: Boolean, endExclusive: Boolean) {
@@ -468,6 +472,51 @@ internal constructor(
     private fun requireValidRange(range: TextRange) {
         val validRange = TextRange(0, length)
         requirePrecondition(range in validRange) { "Expected $range to be in $validRange" }
+    }
+
+    // TODO(135556699): Remove this when [TextFieldBuffer.addStyle] is supported by all
+    //  TextFieldBuffer instances when multi styled editing is implemented.
+    // Context; b/424167352
+    internal var canCallAddStyle: Boolean = offsetMappingCalculator != null
+
+    internal var outputTransformationAnnotations: MutableList<PlacedAnnotation>? = null
+
+    internal fun addAnnotation(annotation: AnnotatedString.Annotation, start: Int, end: Int) {
+        checkPrecondition(canCallAddStyle) {
+            "You can add styling to a [TextFieldBuffer] only from an [OutputTransformation]."
+        }
+        if (outputTransformationAnnotations == null) {
+            outputTransformationAnnotations = mutableListOf()
+        }
+        outputTransformationAnnotations?.add(AnnotatedString.Range(annotation, start, end))
+    }
+
+    /**
+     * Adds the given [spanStyle] to the text between [start] and [end] on this buffer.
+     *
+     * Caution: You should only use this function from an [OutputTransformation]. Styling is not yet
+     * supported by [InputTransformation] or [TextFieldState]. Any added styling by
+     * [OutputTransformation] will be presented to the user without being part of the state.
+     *
+     * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
+     * Please call this function after text content is finalized.
+     */
+    fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
+        addAnnotation(spanStyle, start, end)
+    }
+
+    /**
+     * Adds the given [paragraphStyle] to the text between [start] and [end] on this buffer.
+     *
+     * Caution: You should only use this function from an [OutputTransformation]. Styling is not yet
+     * supported by [InputTransformation] or [TextFieldState]. Any added styling by
+     * [OutputTransformation] will be presented to the user without being part of the state.
+     *
+     * Also, the added styling is not tracked by this [TextFieldBuffer] if further edits are made.
+     * Please call this function after text content is finalized.
+     */
+    fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
+        addAnnotation(paragraphStyle, start, end)
     }
 
     /**
@@ -527,7 +576,7 @@ internal fun adjustTextRange(
     originalRange: TextRange,
     replaceStart: Int,
     replaceEnd: Int,
-    insertedTextLength: Int
+    insertedTextLength: Int,
 ): TextRange {
     var selStart = originalRange.min
     var selEnd = originalRange.max
@@ -661,7 +710,7 @@ inline fun ChangeList.forEachChangeReversed(
 internal inline fun findCommonPrefixAndSuffix(
     a: CharSequence,
     b: CharSequence,
-    onFound: (aPrefixStart: Int, aSuffixStart: Int, bPrefixStart: Int, bSuffixStart: Int) -> Unit
+    onFound: (aPrefixStart: Int, aSuffixStart: Int, bPrefixStart: Int, bSuffixStart: Int) -> Unit,
 ) {
     var aStart = 0
     var aEnd = a.length

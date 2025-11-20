@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.location" android:required="true" />
+
+    <application android:label="JXR ARCore Projected Tests">
+        <activity
+            android:name="androidx.xr.arcore.projected.testapp.ProjectedTestAppActivity"
+            android:exported="true"
+            android:label="Geospatial and Tracking testcase"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".tiltgesture.TiltGestureTrackingActivity"
+            android:configChanges="uiMode"
+            android:label="TiltGesture testcase"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+            <category android:name="com.google.android.glasses.CATEGORY_GLASSES_LAUNCHER" />
+        </intent-filter>
+    </activity>
+        <meta-data android:name="com.google.android.ar.API_KEY" android:value="AIzaSyAMIem9luEMnV2-bkzZuL0n9pZf1E7FuP8"
+          tools:ignore="MetadataTagInsideApplicationTag" />
+    </application>
+</manifest>
+

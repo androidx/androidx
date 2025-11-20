@@ -45,7 +45,7 @@ fun CardSample() {
 fun ClickableCardSample() {
     Card(
         onClick = { /* Do something */ },
-        modifier = Modifier.size(width = 180.dp, height = 100.dp)
+        modifier = Modifier.size(width = 180.dp, height = 100.dp),
     ) {
         Box(Modifier.fillMaxSize()) { Text("Clickable", Modifier.align(Alignment.Center)) }
     }
@@ -66,7 +66,7 @@ fun ElevatedCardSample() {
 fun ClickableElevatedCardSample() {
     ElevatedCard(
         onClick = { /* Do something */ },
-        modifier = Modifier.size(width = 180.dp, height = 100.dp)
+        modifier = Modifier.size(width = 180.dp, height = 100.dp),
     ) {
         Box(Modifier.fillMaxSize()) { Text("Clickable", Modifier.align(Alignment.Center)) }
     }
@@ -87,7 +87,7 @@ fun OutlinedCardSample() {
 fun ClickableOutlinedCardSample() {
     OutlinedCard(
         onClick = { /* Do something */ },
-        modifier = Modifier.size(width = 180.dp, height = 100.dp)
+        modifier = Modifier.size(width = 180.dp, height = 100.dp),
     ) {
         Box(Modifier.fillMaxSize()) { Text("Clickable", Modifier.align(Alignment.Center)) }
     }

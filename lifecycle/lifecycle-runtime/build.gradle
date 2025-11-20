@@ -12,24 +12,41 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("androidx.baselineprofile")
 }
+
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        namespace = "androidx.lifecycle.runtime"
+        withJava()
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        androidResources.enable = true
+        // Needed for api tasks and docs generation
+        sourceSets {
+            androidMain {
+                kotlin.srcDirs += 'src/androidMain/java'
+            }
+        }
+    }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-common"))
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 
@@ -43,46 +60,51 @@ androidXMultiplatform {
             }
         }
 
-        jvmCommonMain {
+        jvmMain {
             dependsOn(commonMain)
             dependencies {
                 api("androidx.arch.core:core-common:2.2.0")
             }
         }
 
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
         desktopMain {
-            dependsOn(jvmCommonMain)
+            dependsOn(jvmMain)
         }
 
         desktopTest {
-            dependsOn(commonTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.kotlinCoroutinesSwing)
             }
         }
 
         androidMain {
-            dependsOn(jvmCommonMain)
+            dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                implementation(project(":core:core-viewtree"))
+                api(libs.jspecify)
+                implementation("androidx.core:core-viewtree:1.0.0")
                 implementation("androidx.arch.core:core-runtime:2.2.0")
                 implementation("androidx.profileinstaller:profileinstaller:1.4.0")
             }
         }
 
-        androidUnitTest {
-            dependsOn(commonTest)
+        androidHostTest {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
             }
         }
 
-        androidInstrumentedTest {
-            dependsOn(commonTest)
+        androidDeviceTest {
+            dependsOn(jvmTest)
             dependencies {
-                implementation(project(":core:core-viewtree"))
+                implementation("androidx.core:core-viewtree:1.0.0")
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(libs.testExtJunit)
@@ -92,12 +114,16 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmCommonMain {
+        nonJvmMain {
             dependsOn(commonMain)
         }
 
+        nonJvmTest {
+            dependsOn(commonTest)
+        }
+
         nativeMain {
-            dependsOn(nonJvmCommonMain)
+            dependsOn(nonJvmMain)
 
             // Required for WeakReference usage
             languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
@@ -105,6 +131,18 @@ androidXMultiplatform {
 
         nativeTest {
             dependsOn(commonTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            }
         }
 
         targets.configureEach { target ->
@@ -118,27 +156,25 @@ androidXMultiplatform {
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
                 }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
 }
 
 dependencies {
-    api(libs.jspecify)
     lintPublish(project(":lifecycle:lifecycle-runtime-lint"))
-}
 
-android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 2.9.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.5") {
+            because "prevents symbols duplication"
+        }
     }
-
-    // Include `*.java` files into the build
-    sourceSets["main"].java.srcDir("src/androidMain/java")
-    sourceSets["test"].java.srcDir("src/androidUnitTest/kotlin")
-    namespace = "androidx.lifecycle.runtime"
-    // TODO(b/345531033)
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {

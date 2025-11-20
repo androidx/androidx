@@ -15,6 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.kilograms
@@ -32,9 +34,17 @@ public class LeanBodyMassRecord(
     override val metadata: Metadata,
 ) : InstantaneousRecord {
 
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        mass.requireNotLess(other = mass.zero(), name = "mass")
-        mass.requireNotMore(other = MAX_MASS, name = "mass")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            mass.requireNotLess(other = mass.zero(), name = "mass")
+            mass.requireNotMore(other = MAX_MASS, name = "mass")
+        }
     }
 
     /*

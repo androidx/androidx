@@ -61,14 +61,14 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
             TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     textBenchmarkRule.widthDp,
-                    instrumentationContext.resources.displayMetrics
+                    instrumentationContext.resources.displayMetrics,
                 )
                 .roundToInt()
         fontSize =
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 textBenchmarkRule.fontSizeSp,
-                instrumentationContext.resources.displayMetrics
+                instrumentationContext.resources.displayMetrics,
             )
     }
 
@@ -98,7 +98,7 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
                         Layout.Alignment.ALIGN_NORMAL,
                         1.0f,
                         0f,
-                        true
+                        true,
                     )
                 }
             }
@@ -128,7 +128,7 @@ class FrameworkTextLayoutBenchmark(private val textLength: Int) {
                     1.0f,
                     0f,
                     metrics,
-                    true
+                    true,
                 )
             }
         }

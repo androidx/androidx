@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -394,6 +395,7 @@ public class FontsContractCompat {
         private final int mTtcIndex;
         private final int mWeight;
         private final boolean mItalic;
+        private final String mVariationSettings;
         private final int mResultCode;
 
         /**
@@ -418,11 +420,7 @@ public class FontsContractCompat {
                 boolean italic,
                 int resultCode
         ) {
-            mUri = Preconditions.checkNotNull(uri);
-            mTtcIndex = ttcIndex;
-            mWeight = weight;
-            mItalic = italic;
-            mResultCode = resultCode;
+            this(uri, ttcIndex, weight, italic, null, resultCode);
         }
 
         @SuppressWarnings("deprecation")
@@ -434,6 +432,39 @@ public class FontsContractCompat {
                 int resultCode
         ) {
             return new FontInfo(uri, ttcIndex, weight, italic, resultCode);
+        }
+
+        @RestrictTo(LIBRARY)
+        public FontInfo(
+                @NonNull Uri uri,
+                @IntRange(from = 0) int ttcIndex,
+                @IntRange(from = 1, to = 1000) int weight,
+                boolean italic,
+                @Nullable String variationSettings,
+                int resultCode
+        ) {
+            mUri = Preconditions.checkNotNull(uri);
+            mTtcIndex = ttcIndex;
+            mWeight = weight;
+            mItalic = italic;
+            mVariationSettings = variationSettings;
+            mResultCode = resultCode;
+        }
+
+        @RestrictTo(LIBRARY)
+        public FontInfo(
+                @NonNull String systemFont,
+                @Nullable String variationSettings
+        ) {
+            mUri = new Uri.Builder()
+                    .scheme("systemfont")
+                    .authority(systemFont)
+                    .build();
+            mTtcIndex = 0;
+            mWeight = 400;
+            mItalic = false;
+            mVariationSettings = variationSettings;
+            mResultCode = Columns.RESULT_CODE_OK;
         }
 
         /**
@@ -462,6 +493,21 @@ public class FontsContractCompat {
          */
         public boolean isItalic() {
             return mItalic;
+        }
+
+        @RestrictTo(LIBRARY)
+        public @Nullable String getVariationSettings() {
+            return mVariationSettings;
+        }
+
+        @RestrictTo(LIBRARY)
+        public @Nullable String getSystemFont() {
+            return isSystemFont() ? mUri.getAuthority() : null;
+        }
+
+        @RestrictTo(LIBRARY)
+        public boolean isSystemFont() {
+            return Objects.equals(mUri.getScheme(), "systemfont");
         }
 
         /**

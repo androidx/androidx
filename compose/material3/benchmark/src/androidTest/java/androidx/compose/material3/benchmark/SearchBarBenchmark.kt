@@ -108,5 +108,5 @@ internal class SearchBarTestCase(private val type: SearchBarType) :
 
 enum class SearchBarType {
     FullScreen,
-    Docked
+    Docked,
 }

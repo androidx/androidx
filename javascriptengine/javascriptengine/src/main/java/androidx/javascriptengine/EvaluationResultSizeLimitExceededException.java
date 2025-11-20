@@ -16,7 +16,7 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Indicates that a JavaScriptIsolate's evaluation failed due to it returning an oversized result.

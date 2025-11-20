@@ -44,6 +44,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.LayoutElementBuilders.Spacer;
+import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Corner;
@@ -299,8 +300,9 @@ public class Chip implements LayoutElement {
                                             .build())
                             .setSemantics(
                                     new Semantics.Builder()
-                                        .setContentDescription(getCorrectContentDescription())
-                                        .build());
+                                            .setContentDescription(getCorrectContentDescription())
+                                            .setRole(ModifiersBuilders.SEMANTICS_ROLE_BUTTON)
+                                            .build());
 
             Box.Builder visible =
                     new Box.Builder()
@@ -320,9 +322,9 @@ public class Chip implements LayoutElement {
                             .setWidth(resolveMinTappableWidth())
                             .setHeight(dp(resolveMinTappableHeight()))
                             .setModifiers(
-                                new Modifiers.Builder()
-                                    .setMetadata(getCorrectMetadataTag())
-                                    .build())
+                                    new Modifiers.Builder()
+                                            .setMetadata(getCorrectMetadataTag())
+                                            .build())
                             .addContent(visible.build())
                             .build();
 
@@ -445,11 +447,13 @@ public class Chip implements LayoutElement {
     /** Returns content description of this Chip. */
     public @Nullable StringProp getContentDescription() {
         // Semantics are applied to the visible view.
-        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
-        if (semantics == null) {
-            return null;
-        }
-        return semantics.getContentDescription();
+        return getSemantics().getContentDescription();
+    }
+
+    /** Returns semantics of this Chip. */
+    @NonNull
+    Semantics getSemantics() {
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics());
     }
 
     /** Returns custom content from this Chip if it has been added. Otherwise, it returns null. */

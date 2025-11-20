@@ -75,11 +75,22 @@ internal interface GraphProcessor {
      *
      * This method will throw a checked exception if no repeating request has been configured.
      */
-    fun submit(parameters: Map<*, Any?>): Boolean
+    fun trigger(parameters: Map<*, Any?>): Boolean
+
+    /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
+    fun updateGraphParameters(parameters: Map<*, Any?>)
+
+    /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
+    fun update3AParameters(parameters: Map<*, Any?>)
 
     /**
-     * Indicates that internal parameters may have changed, and that the repeating request should be
-     * updated as soon as possible.
+     * Update [androidx.camera.camera2.pipe.RequestListeners] changes to current repeating request.
+     */
+    fun updateRequestListeners(listeners: List<Request.Listener>)
+
+    /**
+     * Indicates that internal state may have changed, and that the repeating request may need to be
+     * re-issued.
      */
     fun invalidate()
 
@@ -94,9 +105,6 @@ internal interface GraphProcessor {
      * [GraphProcessor] is closed will immediately be aborted.
      */
     fun close()
-
-    /** Update [CameraGraph.Parameters] changes to current repeating request. */
-    fun updateParameters(parameters: Map<*, Any?>)
 }
 
 /** The graph processor handles *cross-session* state, such as the most recent repeating request. */
@@ -107,11 +115,12 @@ constructor(
     threads: Threads,
     private val cameraGraphId: CameraGraphId,
     private val cameraGraphConfig: CameraGraph.Config,
-    graphState3A: GraphState3A,
     graphListener3A: Listener3A,
     @ForCameraGraph graphListeners: List<@JvmSuppressWildcards Request.Listener>,
+    camera2Quirks: Camera2Quirks,
 ) : GraphProcessor, GraphListener {
     private val graphLoop: GraphLoop
+    private val externalStateGraphListeners = cameraGraphConfig.graphStateListeners
 
     init {
         val defaultParameters = cameraGraphConfig.defaultParameters
@@ -128,7 +137,7 @@ constructor(
         }
 
         val requestsUntilActive =
-            Camera2Quirks.getRepeatingRequestFrameCountForCapture(cameraGraphConfig.flags)
+            camera2Quirks.getRepeatingRequestFrameCountForCapture(cameraGraphConfig.flags)
 
         val captureLimiter =
             if (requestsUntilActive != 0) {
@@ -142,11 +151,10 @@ constructor(
                 cameraGraphId = cameraGraphId,
                 defaultParameters = defaultParameters,
                 requiredParameters = requiredParameters,
-                graphListeners = graphListeners + listOfNotNull(captureLimiter),
-                graphState3A = if (ignore3AState) null else graphState3A,
+                requiredListeners = graphListeners + listOfNotNull(captureLimiter),
                 listeners = listOfNotNull(graphListener3A, captureLimiter),
-                shutdownScope = threads.globalScope,
-                dispatcher = threads.lightweightDispatcher
+                shutdownScope = threads.cameraPipeScope,
+                dispatcher = threads.lightweightDispatcher,
             )
 
         captureLimiter?.graphLoop = graphLoop
@@ -165,23 +173,36 @@ constructor(
     override fun onGraphStarting() {
         debug { "$this onGraphStarting" }
         _graphState.value = GraphStateStarting
+        for (listener in externalStateGraphListeners) {
+            listener.onGraphStarting()
+        }
     }
 
     override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
         debug { "$this onGraphStarted" }
         _graphState.value = GraphStateStarted
         graphLoop.requestProcessor = requestProcessor
+        for (listener in externalStateGraphListeners) {
+            listener.onGraphStarted()
+        }
     }
 
     override fun onGraphStopping() {
         debug { "$this onGraphStopping" }
         _graphState.value = GraphStateStopping
+        graphLoop.requestProcessor = null
+        for (listener in externalStateGraphListeners) {
+            listener.onGraphStopping()
+        }
     }
 
     override fun onGraphStopped(requestProcessor: GraphRequestProcessor?) {
         debug { "$this onGraphStopped" }
         _graphState.value = GraphStateStopped
         graphLoop.requestProcessor = null
+        for (listener in externalStateGraphListeners) {
+            listener.onGraphStopped()
+        }
     }
 
     override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
@@ -197,6 +218,9 @@ constructor(
             } else {
                 graphStateError
             }
+        }
+        for (listener in externalStateGraphListeners) {
+            listener.onGraphError(graphStateError)
         }
     }
 
@@ -216,12 +240,23 @@ constructor(
     }
 
     /**
-     * Submit a request to the camera using only the current repeating request. If we don't have the
-     * current repeating request, and there are no repeating requests queued, this will return
-     * false. Otherwise, the method tries to submit the provided [parameters] and suspends until it
-     * finishes.
+     * Submit a one time request to the camera using the most recent repeating request.
+     *
+     * If a repeating request is not currently set, this method will return false and fail.
      */
-    override fun submit(parameters: Map<*, Any?>): Boolean = graphLoop.submit(parameters)
+    override fun trigger(parameters: Map<*, Any?>): Boolean = graphLoop.trigger(parameters)
+
+    override fun updateGraphParameters(parameters: Map<*, Any?>) {
+        graphLoop.graphParameters = parameters
+    }
+
+    override fun update3AParameters(parameters: Map<*, Any?>) {
+        graphLoop.graph3AParameters = parameters
+    }
+
+    override fun updateRequestListeners(listeners: List<Request.Listener>) {
+        graphLoop.requestListeners = listeners
+    }
 
     override fun invalidate() {
         graphLoop.invalidate()
@@ -236,8 +271,4 @@ constructor(
     }
 
     override fun toString(): String = "GraphProcessor(cameraGraph: $cameraGraphId)"
-
-    override fun updateParameters(parameters: Map<*, Any?>) {
-        graphLoop.graphParameters = parameters
-    }
 }

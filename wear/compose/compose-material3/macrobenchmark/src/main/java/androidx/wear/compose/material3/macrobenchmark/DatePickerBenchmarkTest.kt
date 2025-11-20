@@ -31,5 +31,5 @@ class DatePickerBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = DatePickerBenchmark,
-        actionSuffix = "DATE_PICKER_ACTIVITY"
+        actionSuffix = "DATE_PICKER_ACTIVITY",
     )

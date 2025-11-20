@@ -16,10 +16,8 @@
 
 package androidx.privacysandbox.ui.provider.impl
 
-import android.os.Build
 import android.os.Looper
 import android.os.MessageQueue.IdleHandler
-import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.core.util.Supplier
 import org.jetbrains.annotations.TestOnly
@@ -36,12 +34,11 @@ import org.jetbrains.annotations.TestOnly
  * @param errorHandler Handler for error during creation/initialization. Called only once.
  * @param errorObject Return value for [demandObject] in case of creation/initialization errors.
  */
-@RequiresApi(Build.VERSION_CODES.M)
 internal class DeferredObjectHolder<BaseClass : Any, ImplementationClass : BaseClass>(
     private val objectFactory: Supplier<ImplementationClass>,
     private val objectInit: Consumer<ImplementationClass>,
     private val errorHandler: Consumer<Throwable>,
-    private val errorObject: BaseClass
+    private val errorObject: BaseClass,
 ) : ObjectHolder<BaseClass> {
 
     private lateinit var impl: ImplementationClass

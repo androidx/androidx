@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.onEach
 internal class CallIconExtensionImpl(
     val mContext: Context,
     val mCoroutineContext: CoroutineContext,
-    val mInitialCallIcon: Uri
+    val mInitialCallIcon: Uri,
 ) : CallIconExtension {
 
     companion object {
@@ -111,7 +111,7 @@ internal class CallIconExtensionImpl(
         coroutineScope: CoroutineScope,
         remoteActions: Set<Int>,
         remoteName: String,
-        binder: CallIconStateListenerRemote
+        binder: CallIconStateListenerRemote,
     ) {
         Log.d(TAG, "onCreateCallIconExtension: actions=$remoteActions")
         val urisToRevoke = mutableSetOf<Uri>()
@@ -132,7 +132,7 @@ internal class CallIconExtensionImpl(
                     mContext.revokeUriPermission(
                         remoteName,
                         uriSent,
-                        FLAG_GRANT_READ_URI_PERMISSION
+                        FLAG_GRANT_READ_URI_PERMISSION,
                     )
                 }
             }

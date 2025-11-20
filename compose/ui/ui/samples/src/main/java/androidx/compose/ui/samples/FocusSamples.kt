@@ -95,7 +95,7 @@ fun CaptureFocusSample() {
         modifier =
             Modifier.border(2.dp, borderColor).focusRequester(focusRequester).onFocusChanged {
                 borderColor = if (it.isCaptured) Red else Transparent
-            }
+            },
     )
 }
 

@@ -30,7 +30,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 
 import androidx.core.content.FileProvider.SimplePathStrategy;
@@ -477,12 +476,10 @@ public class FileProviderTest {
                 buildPath(externalCacheDirs[0], "foo", "bar"));
         assertEquals("content://moocow/test_external_cache/foo/bar", actual.toString());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            File[] externalMediaDirs = mContext.getExternalMediaDirs();
-            actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
-                    buildPath(externalMediaDirs[0], "foo", "bar"));
-            assertEquals("content://moocow/test_external_media/foo/bar", actual.toString());
-        }
+        File[] externalMediaDirs = mContext.getExternalMediaDirs();
+        actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
+                buildPath(externalMediaDirs[0], "foo", "bar"));
+        assertEquals("content://moocow/test_external_media/foo/bar", actual.toString());
     }
 
     @Test

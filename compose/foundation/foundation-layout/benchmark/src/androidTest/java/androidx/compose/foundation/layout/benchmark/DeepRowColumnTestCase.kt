@@ -132,7 +132,7 @@ private fun ColumnScope.DeepTree(
     useAlign: Boolean,
     depth: Int,
     breadth: Int,
-    id: Int = 0
+    id: Int = 0,
 ) {
     Row(
         modifier = modifierFor(id, useWeight, useAlign),
@@ -140,10 +140,7 @@ private fun ColumnScope.DeepTree(
         verticalAlignment = vertAlignmentFor(id),
     ) {
         if (depth == 0) {
-            Terminal(
-                style = id % 3,
-                modifier = terminalModifierFor(id, useWeight),
-            )
+            Terminal(style = id % 3, modifier = terminalModifierFor(id, useWeight))
         } else {
             repeat(breadth) { DeepTree(useWeight, useAlign, depth - 1, breadth, it) }
         }
@@ -157,7 +154,7 @@ private fun RowScope.DeepTree(
     useAlign: Boolean,
     depth: Int,
     breadth: Int,
-    id: Int = 0
+    id: Int = 0,
 ) {
     Column(
         modifier = modifierFor(id, useWeight, useAlign),
@@ -165,10 +162,7 @@ private fun RowScope.DeepTree(
         horizontalAlignment = horizAlignmentFor(id),
     ) {
         if (depth == 0) {
-            Terminal(
-                style = id % 3,
-                modifier = terminalModifierFor(id, useWeight),
-            )
+            Terminal(style = id % 3, modifier = terminalModifierFor(id, useWeight))
         } else {
             repeat(breadth) { DeepTree(useWeight, useAlign, depth - 1, breadth, it) }
         }

@@ -19,6 +19,12 @@ package androidx.wear.compose.material3.macrobenchmark
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
+internal fun pressHome() {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val device = UiDevice.getInstance(instrumentation)
+    device.pressHome()
+}
+
 internal fun disableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device = UiDevice.getInstance(instrumentation)

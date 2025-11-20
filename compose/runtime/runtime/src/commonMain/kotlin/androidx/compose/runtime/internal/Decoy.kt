@@ -27,7 +27,7 @@ import androidx.compose.runtime.ExperimentalComposeApi
  */
 @Suppress("unused")
 @ComposeCompilerApi
-fun illegalDecoyCallException(fName: String): Nothing =
+public fun illegalDecoyCallException(fName: String): Nothing =
     throw IllegalStateException("Function $fName should have been replaced by compiler.")
 
 /**
@@ -40,7 +40,7 @@ fun illegalDecoyCallException(fName: String): Nothing =
 @Suppress("unused")
 @ExperimentalComposeApi
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-annotation class Decoy(val targetName: String, vararg val signature: String)
+public annotation class Decoy(val targetName: String, vararg val signature: String)
 
 /**
  * With decoys enabled, indicates composable implementation function created by compiler plugin.
@@ -51,7 +51,7 @@ annotation class Decoy(val targetName: String, vararg val signature: String)
 @Suppress("unused")
 @ExperimentalComposeApi
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CONSTRUCTOR)
-annotation class DecoyImplementation(val name: String, val id: Long)
+public annotation class DecoyImplementation(val name: String, val id: Long)
 
 /**
  * Complements [DecoyImplementation] with extra information about default values for parameters.

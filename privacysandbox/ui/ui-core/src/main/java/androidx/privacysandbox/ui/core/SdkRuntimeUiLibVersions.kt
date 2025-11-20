@@ -18,9 +18,19 @@ package androidx.privacysandbox.ui.core
 
 import androidx.annotation.RestrictTo
 
-object SdkRuntimeUiLibVersions {
-    var clientVersion: Int = -1
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) set
+/**
+ * List of all supported internal API versions (Client-Core communication).
+ *
+ * NEVER REMOVE / MODIFY RELEASED VERSIONS: That could break compatibility of client library built
+ * with previous/future library version.
+ */
+// TODO(b/406975359): Add min_supported_version
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class SdkRuntimeUiLibVersions(public val apiLevel: Int) {
 
-    const val apiVersion: Int = 1
+    V1(apiLevel = 1);
+
+    public companion object {
+        public val CURRENT_VERSION: SdkRuntimeUiLibVersions = values().maxBy { v -> v.apiLevel }
+    }
 }

@@ -16,8 +16,10 @@
 
 package androidx.glance.wear.tiles
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /** Time interval of the glance tile UI being generated. */
-public val LocalTimeInterval =
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
+public val LocalTimeInterval: ProvidableCompositionLocal<TimeInterval?> =
     staticCompositionLocalOf<TimeInterval?> { error("No default time interval") }

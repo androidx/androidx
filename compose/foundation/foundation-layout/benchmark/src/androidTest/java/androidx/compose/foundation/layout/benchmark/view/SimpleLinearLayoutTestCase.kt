@@ -37,7 +37,7 @@ class SimpleLinearLayoutTestCase(private val subLayouts: Int, private val number
         mainLayout.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
 
         repeat(subLayouts) {
@@ -46,7 +46,7 @@ class SimpleLinearLayoutTestCase(private val subLayouts: Int, private val number
             row.layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
 
             repeat(numberOfBoxes) {
@@ -55,7 +55,7 @@ class SimpleLinearLayoutTestCase(private val subLayouts: Int, private val number
                 box.layoutParams =
                     LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                     )
                 row.addView(box)
             }

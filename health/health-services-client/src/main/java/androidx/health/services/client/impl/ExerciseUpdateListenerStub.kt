@@ -36,7 +36,7 @@ internal class ExerciseUpdateListenerStub
 internal constructor(
     private val listener: ExerciseUpdateCallback,
     private val executor: Executor,
-    private val requestedDataTypesProvider: () -> Set<DataType<*, *>>
+    private val requestedDataTypesProvider: () -> Set<DataType<*, *>>,
 ) : IExerciseUpdateListener.Stub() {
 
     public val listenerKey: ListenerKey = ListenerKey(listener)
@@ -96,7 +96,7 @@ internal constructor(
         public fun create(
             listener: ExerciseUpdateCallback,
             executor: Executor,
-            requestedDataTypesProvider: () -> Set<DataType<*, *>>
+            requestedDataTypesProvider: () -> Set<DataType<*, *>>,
         ): ExerciseUpdateListenerStub {
             synchronized(listenerLock) {
                 // Each client can only have one listener at a time, if a new

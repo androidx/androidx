@@ -275,7 +275,7 @@ public interface SupportSQLiteDatabase : Closeable {
      */
     public fun execPerConnectionSQL(
         sql: String,
-        @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?
+        @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?,
     ) {
         throw UnsupportedOperationException()
     }
@@ -408,7 +408,7 @@ public interface SupportSQLiteDatabase : Closeable {
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<out Any?>?
+        whereArgs: Array<out Any?>?,
     ): Int
 
     /**

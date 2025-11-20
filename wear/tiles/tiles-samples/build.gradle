@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
 }
@@ -30,7 +31,6 @@ android {
     defaultConfig {
         applicationId = "androidx.wear.tiles.samples"
         minSdk = 30
-        targetSdk = 35
     }
 
     buildTypes {
@@ -50,7 +50,6 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-material3"))
     implementation(project(":wear:protolayout:protolayout-expression"))
     implementation(project(":wear:tiles:tiles"))
-    implementation(libs.kotlinStdlib)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.wear.compose:compose-material:1.2.1")
@@ -65,4 +64,5 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code and demo for Tiles using ProtoLayout."
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

@@ -16,14 +16,12 @@
 
 package androidx.fragment.app
 
-import android.os.Build
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
@@ -34,7 +32,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentSharedElementTransitionTest {
 
     @get:Rule val rule = DetectLeaksAfterTestSuccess()

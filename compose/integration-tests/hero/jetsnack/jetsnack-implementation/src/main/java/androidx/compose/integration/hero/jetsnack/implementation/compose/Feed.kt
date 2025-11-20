@@ -61,7 +61,7 @@ private fun Feed(
 private fun SnackCollectionList(
     snackCollections: List<SnackCollection>,
     onSnackClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) =
     trace("SnackCollectionList") {
         Box(modifier) {
@@ -82,7 +82,7 @@ private fun SnackCollectionList(
                         snackCollection = snackCollection,
                         onSnackClick = onSnackClick,
                         index = index,
-                        modifier = Modifier.testTag("snack_collection")
+                        modifier = Modifier.testTag("snack_collection"),
                     )
                 }
             }

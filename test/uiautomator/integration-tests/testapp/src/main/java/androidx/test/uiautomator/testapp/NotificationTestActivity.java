@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -30,7 +29,7 @@ import androidx.core.app.NotificationManagerCompat;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class NotificationTestActivity extends Activity {
+public class NotificationTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

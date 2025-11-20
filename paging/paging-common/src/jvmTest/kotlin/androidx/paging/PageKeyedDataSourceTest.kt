@@ -47,7 +47,7 @@ class PageKeyedDataSourceTest {
 
         override fun loadInitial(
             params: LoadInitialParams<String>,
-            callback: LoadInitialCallback<String, Item>
+            callback: LoadInitialCallback<String, Item>,
         ) {
             if (error) {
                 error = false
@@ -114,13 +114,13 @@ class PageKeyedDataSourceTest {
     @Suppress("DEPRECATION")
     private fun performLoadInitial(
         invalidateDataSource: Boolean = false,
-        callbackInvoker: (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit
+        callbackInvoker: (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit,
     ) {
         val dataSource =
             object : PageKeyedDataSource<String, String>() {
                 override fun loadInitial(
                     params: LoadInitialParams<String>,
-                    callback: LoadInitialCallback<String, String>
+                    callback: LoadInitialCallback<String, String>,
                 ) {
                     if (invalidateDataSource) {
                         // invalidate data source so it's invalid when onResult() called
@@ -131,14 +131,14 @@ class PageKeyedDataSourceTest {
 
                 override fun loadBefore(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     fail("loadBefore not expected")
                 }
 
                 override fun loadAfter(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     fail("loadAfter not expected")
                 }
@@ -216,14 +216,14 @@ class PageKeyedDataSourceTest {
             object : PageKeyedDataSource<String, String>() {
                 override fun loadInitial(
                     params: LoadInitialParams<String>,
-                    callback: LoadInitialCallback<String, String>
+                    callback: LoadInitialCallback<String, String>,
                 ) {
                     callback.onResult(listOf("B"), "a", "c")
                 }
 
                 override fun loadBefore(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     assertEquals("a", params.key)
                     callback.onResult(listOf("A"), null)
@@ -231,7 +231,7 @@ class PageKeyedDataSourceTest {
 
                 override fun loadAfter(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     assertEquals("c", params.key)
                     callback.onResult(listOf("C"), null)
@@ -272,7 +272,7 @@ class PageKeyedDataSourceTest {
             object : PageKeyedDataSource<String, String>() {
                 override fun loadInitial(
                     params: LoadInitialParams<String>,
-                    callback: LoadInitialCallback<String, String>
+                    callback: LoadInitialCallback<String, String>,
                 ) {
                     // just the one load, but boundary callbacks should still be triggered
                     callback.onResult(listOf("B"), null, null)
@@ -280,14 +280,14 @@ class PageKeyedDataSourceTest {
 
                 override fun loadBefore(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     fail("loadBefore not expected")
                 }
 
                 override fun loadAfter(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String, String>
+                    callback: LoadCallback<String, String>,
                 ) {
                     fail("loadBefore not expected")
                 }
@@ -341,7 +341,7 @@ class PageKeyedDataSourceTest {
 
         override fun loadInitial(
             params: LoadInitialParams<K>,
-            callback: LoadInitialCallback<K, B>
+            callback: LoadInitialCallback<K, B>,
         ) {
             source.loadInitial(
                 params,
@@ -351,21 +351,21 @@ class PageKeyedDataSourceTest {
                         position: Int,
                         totalCount: Int,
                         previousPageKey: K?,
-                        nextPageKey: K?
+                        nextPageKey: K?,
                     ) {
                         callback.onResult(
                             convert(data),
                             position,
                             totalCount,
                             previousPageKey,
-                            nextPageKey
+                            nextPageKey,
                         )
                     }
 
                     override fun onResult(data: List<A>, previousPageKey: K?, nextPageKey: K?) {
                         callback.onResult(convert(data), previousPageKey, nextPageKey)
                     }
-                }
+                },
             )
         }
 
@@ -376,7 +376,7 @@ class PageKeyedDataSourceTest {
                     override fun onResult(data: List<A>, adjacentPageKey: K?) {
                         callback.onResult(convert(data), adjacentPageKey)
                     }
-                }
+                },
             )
         }
 
@@ -387,7 +387,7 @@ class PageKeyedDataSourceTest {
                     override fun onResult(data: List<A>, adjacentPageKey: K?) {
                         callback.onResult(convert(data), adjacentPageKey)
                     }
-                }
+                },
             )
         }
 
@@ -423,7 +423,7 @@ class PageKeyedDataSourceTest {
             .onResult(
                 expectedInitial.data.map { it.toString() },
                 expectedInitial.prev,
-                expectedInitial.next
+                expectedInitial.next,
             )
         verifyNoMoreInteractions(loadInitialCallback)
 

@@ -17,7 +17,7 @@
 package androidx.appsearch.app;
 
 import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcelable.Creator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +32,6 @@ import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.Objects;
-
 /**
  * An identifier to represent a blob in AppSearch.
  *
@@ -55,17 +54,16 @@ import java.util.Objects;
  * @see GenericDocument.Builder#setPropertyBlobHandle
  */
 @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to Platform.
+//  Do not switch until this is resolved.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 @SafeParcelable.Class(creator = "AppSearchBlobHandleCreator")
-@ExperimentalAppSearchApi
 public final class AppSearchBlobHandle extends AbstractSafeParcelable {
     /** The length of the SHA-256 digest in bytes. SHA-256 produces a 256-bit (32-byte) digest. */
     private static final int SHA_256_DIGEST_BYTE_LENGTH = 32;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public static final Parcelable.Creator<AppSearchBlobHandle> CREATOR =
+    public static final @NonNull Creator<AppSearchBlobHandle> CREATOR =
             new AppSearchBlobHandleCreator();
     @Field(id = 1, getter = "getSha256Digest")
     private final @NonNull byte[] mSha256Digest;
@@ -142,12 +140,18 @@ public final class AppSearchBlobHandle extends AbstractSafeParcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AppSearchBlobHandle)) return false;
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AppSearchBlobHandle)) {
+            return false;
+        }
 
         AppSearchBlobHandle that = (AppSearchBlobHandle) o;
-        if (!Arrays.equals(mSha256Digest, that.mSha256Digest)) return false;
+        if (!Arrays.equals(mSha256Digest, that.mSha256Digest)) {
+            return false;
+        }
         return mPackageName.equals(that.mPackageName) && mDatabaseName.equals(that.mDatabaseName)
                 && mNamespace.equals(that.mNamespace);
     }

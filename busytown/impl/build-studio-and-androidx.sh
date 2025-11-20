@@ -68,6 +68,27 @@ function zipStudio() {
   cd -
 }
 
+# An optional file in studio-main will overwrite the Gradle version used in Androidx for early test purposes.
+function maybeUpdateWrapper() {
+  local optional_androidx_wrapper="$TOOLS_DIR/gradle/wrapper/gradle-wrapper-androidx.properties"
+  local androidx_gradle_wrapper="$ANDROIDX_DIR/frameworks/support/gradle/wrapper/gradle-wrapper.properties"
+  local playground_gradle_wrapper="$ANDROIDX_DIR/frameworks/support/playground-common/gradle/wrapper/gradle-wrapper.properties"
+  if [ ! -f "$optional_androidx_wrapper" ]; then
+    return 0
+  else
+    if cp "$optional_androidx_wrapper" "$androidx_gradle_wrapper" && cp "$optional_androidx_wrapper" "$playground_gradle_wrapper"; then
+      # The playground wrapper is one directory deeper than the main wrapper, so add a '../' to the relative distribution url
+      sed -i "s/distributionUrl=\.\.\//distributionUrl=\.\.\/\.\.\//g" "$playground_gradle_wrapper"
+      echo "Notice: gradle-wrapper.properties overwritten with test version from: $optional_androidx_wrapper "
+      return 0
+    else
+      echo "Error: Failed to copy content from '$optional_androidx_wrapper' to '$androidx_gradle_wrapper'."
+      return 1
+    fi
+  fi
+}
+
+maybeUpdateWrapper
 buildStudio
 zipStudio
 

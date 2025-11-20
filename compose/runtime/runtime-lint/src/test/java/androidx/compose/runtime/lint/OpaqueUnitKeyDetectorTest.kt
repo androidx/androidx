@@ -48,7 +48,7 @@ class OpaqueUnitKeyDetectorTest : LintDetectorTest() {
                         val x = remember(Unit) { listOf(1, 2, 3) }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -73,7 +73,7 @@ class OpaqueUnitKeyDetectorTest : LintDetectorTest() {
                         val x = remember(unitProperty) { listOf(1, 2, 3) }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -114,7 +114,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `remember`'s argume
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -156,7 +156,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
                     @Composable
                     fun AnotherComposable() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -195,7 +195,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -245,7 +245,7 @@ Fix for src/test/test.kt line 7: Move expression outside of `remember`'s argumen
                     fun doSomething() {}
                     fun doSomethingElse() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -258,21 +258,14 @@ src/test/test.kt:9: Warning: Implicitly passing Unit as argument to key1 [Opaque
             )
             .expectFixDiffs(
                 """
-Fix for src/test/test.kt line 8: Move expression outside of `remember`'s arguments and pass `Unit` explicitly:
+Fix for src/test/test.kt line 9: Move expression outside of `remember`'s arguments and pass `Unit` explicitly:
 @@ -8 +8
 -                         val x = remember(
 -                             if (condition) {
--                                 doSomething()
--                             } else {
--                                 doSomethingElse()
--                             }
 +                         if (condition) {
-+     doSomething()
-+ }else {
-+     doSomethingElse()
-+ }
+@@ -14 +13
 + val x = remember(
-+                             kotlin.Unit
++                             Unit
                 """
             )
     }
@@ -302,7 +295,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
 
                     fun doSomething() {}
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -327,7 +320,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -371,7 +364,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
                         val x by produceState("123", Unit) { /* Do nothing. */ }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -397,7 +390,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
                         val x by produceState("123", unitProperty) { /* Do nothing. */ }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -439,7 +432,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `produceState`'s ar
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -482,7 +475,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `produceState`'s arg
                     @Composable
                     fun AnotherComposable() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -522,7 +515,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `produceState`'s arg
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -574,7 +567,7 @@ Fix for src/test/test.kt line 7: Move expression outside of `produceState`'s arg
                     fun doSomething() {}
                     fun doSomethingElse() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -590,18 +583,13 @@ src/test/test.kt:10: Warning: Implicitly passing Unit as argument to key1 [Opaqu
 Fix for src/test/test.kt line 10: Move expression outside of `produceState`'s arguments and pass `Unit` explicitly:
 @@ -8 +8
 -                         val x by produceState(
-+                         if (condition) {
-+     doSomething()
-+ }else {
-+     doSomethingElse()
-+ }
-+ val x by produceState(
+-                             initialValue = "123",
 -                             if (condition) {
--                                 doSomething()
--                             } else {
--                                 doSomethingElse()
--                             }
-+                             kotlin.Unit
++                         if (condition) {
+@@ -15 +13
++ val x by produceState(
++                             initialValue = "123",
++                             Unit
                 """
             )
     }
@@ -633,7 +621,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `produceState`'s ar
 
                     fun doSomething() {}
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -659,7 +647,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `produceState`'s ar
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -707,7 +695,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `produceState`'s arg
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -737,7 +725,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `produceState`'s arg
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -783,7 +771,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `DisposableEffect`'
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -830,7 +818,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
                     @Composable
                     fun AnotherComposable() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -874,7 +862,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -930,7 +918,7 @@ Fix for src/test/test.kt line 7: Move expression outside of `DisposableEffect`'s
                     fun doSomething() {}
                     fun doSomethingElse() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -947,17 +935,10 @@ Fix for src/test/test.kt line 9: Move expression outside of `DisposableEffect`'s
 @@ -8 +8
 -                         DisposableEffect(
 -                             if (condition) {
--                                 doSomething()
--                             } else {
--                                 doSomethingElse()
--                             }
 +                         if (condition) {
-+     doSomething()
-+ }else {
-+     doSomethingElse()
-+ }
+@@ -14 +13
 + DisposableEffect(
-+                             kotlin.Unit
++                             Unit
                 """
             )
     }
@@ -992,7 +973,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `DisposableEffect`'s
 
                     fun doSomething() {}
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -1022,7 +1003,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `DisposableEffect`'s
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1068,7 +1049,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -1096,7 +1077,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1140,7 +1121,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `LaunchedEffect`'s 
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1185,7 +1166,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
                     @Composable
                     fun AnotherComposable() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1227,7 +1208,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1281,7 +1262,7 @@ Fix for src/test/test.kt line 7: Move expression outside of `LaunchedEffect`'s a
                     fun doSomething() {}
                     fun doSomethingElse() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1298,17 +1279,10 @@ Fix for src/test/test.kt line 9: Move expression outside of `LaunchedEffect`'s a
 @@ -8 +8
 -                         LaunchedEffect(
 -                             if (condition) {
--                                 doSomething()
--                             } else {
--                                 doSomethingElse()
--                             }
 +                         if (condition) {
-+     doSomething()
-+ }else {
-+     doSomethingElse()
-+ }
+@@ -14 +13
 + LaunchedEffect(
-+                             kotlin.Unit
++                             Unit
                 """
             )
     }
@@ -1341,7 +1315,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `LaunchedEffect`'s a
 
                     fun doSomething() {}
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -1369,7 +1343,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `LaunchedEffect`'s a
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1415,7 +1389,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -1443,7 +1417,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
                         }
                     }
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1487,7 +1461,7 @@ Fix for src/test/test.kt line 10: Move expression outside of `key`'s arguments a
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1532,7 +1506,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `key`'s arguments an
                     @Composable
                     fun AnotherComposable() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1574,7 +1548,7 @@ Fix for src/test/test.kt line 8: Move expression outside of `key`'s arguments an
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1628,7 +1602,7 @@ Fix for src/test/test.kt line 7: Move expression outside of `key`'s arguments an
                     fun doSomething() {}
                     fun doSomethingElse() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(
@@ -1645,17 +1619,10 @@ Fix for src/test/test.kt line 9: Move expression outside of `key`'s arguments an
 @@ -8 +8
 -                         key(
 -                             if (condition) {
--                                 doSomething()
--                             } else {
--                                 doSomethingElse()
--                             }
 +                         if (condition) {
-+     doSomething()
-+ }else {
-+     doSomethingElse()
-+ }
+@@ -14 +13
 + key(
-+                             kotlin.Unit
++                             Unit
                 """
             )
     }
@@ -1688,7 +1655,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `key`'s arguments an
 
                     fun doSomething() {}
                     """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -1716,7 +1683,7 @@ Fix for src/test/test.kt line 9: Move expression outside of `key`'s arguments an
 
                     fun produceUnit() {}
                     """
-                )
+                ),
             )
             .run()
             .expect(

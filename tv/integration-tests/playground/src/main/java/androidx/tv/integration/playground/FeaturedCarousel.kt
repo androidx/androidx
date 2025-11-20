@@ -81,7 +81,7 @@ fun FeaturedCarouselContent() {
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 Column(
                     modifier = Modifier.focusRestorer().focusGroup(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     repeat(3) {
                         key(it) {
@@ -101,7 +101,7 @@ fun FeaturedCarouselContent() {
 
                 Column(
                     modifier = Modifier.focusRestorer().focusGroup(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     repeat(3) {
                         key(it) {
@@ -154,7 +154,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             )
         },
         contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
     ) { itemIndex ->
         Box(
             modifier =
@@ -167,7 +167,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
                     Modifier.padding(start = 50.dp, top = 100.dp)
                         .animateEnterExit(
                             enter = slideInVertically(animationSpec = tween(1000)),
-                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                            exit = slideOutHorizontally(animationSpec = tween(1000)),
                         )
             ) {
                 Text(text = "This is sample text content.", color = Color.Yellow)
@@ -205,7 +205,7 @@ internal fun Modifier.carouselItemSemantics(itemIndex: Int, contentDescription: 
                     rowIndex = 0,
                     rowSpan = 1,
                     columnIndex = itemIndex,
-                    columnSpan = 1
+                    columnSpan = 1,
                 )
         }
         .then(
@@ -228,9 +228,9 @@ private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Play") 
                 .border(
                     width = 2.dp,
                     color = if (isFocused) Color.Red else Color.Transparent,
-                    shape = RoundedCornerShape(50)
+                    shape = RoundedCornerShape(50),
                 )
-                .padding(vertical = 2.dp, horizontal = 5.dp)
+                .padding(vertical = 2.dp, horizontal = 5.dp),
     ) {
         Text(text = text)
     }

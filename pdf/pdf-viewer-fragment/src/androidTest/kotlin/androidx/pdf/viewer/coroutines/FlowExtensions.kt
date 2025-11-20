@@ -32,7 +32,7 @@ internal suspend fun <T> Flow<T>.toListDuring(durationInMillis: Long): List<T> =
 
 internal suspend fun <T> Flow<T>.collectTill(
     result: MutableList<T>,
-    predicate: suspend (value: T) -> Boolean
+    predicate: suspend (value: T) -> Boolean,
 ) {
     collect { value ->
         result.add(value)

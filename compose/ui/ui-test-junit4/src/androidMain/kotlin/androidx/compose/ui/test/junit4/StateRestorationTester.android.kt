@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -97,7 +100,7 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
         private var savedMap: Map<String, List<Any?>> = emptyMap()
 
         fun saveStateAndDisposeChildren() {
-            savedMap = currentRegistry.performSave()
+            savedMap = platformEncodeDecode(currentRegistry.performSave())
             shouldEmitChildren = false
         }
 
@@ -105,7 +108,7 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
             currentRegistry =
                 SaveableStateRegistry(
                     restoredValues = savedMap,
-                    canBeSaved = { original.canBeSaved(it) }
+                    canBeSaved = { original.canBeSaved(it) },
                 )
             shouldEmitChildren = true
         }
@@ -118,5 +121,72 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
         override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
 
         override fun performSave() = currentRegistry.performSave()
+    }
+}
+
+internal fun platformEncodeDecode(savedState: Map<String, List<Any?>>): Map<String, List<Any?>> {
+    // Instrumentation tests can involve multiple class loaders, potentially leading to
+    // `ClassNotFoundException` during state unmarshalling. This function addresses
+    // this by constructing a `CompositeClassLoader` that combines the class loader
+    // of `StateRestorationTester` with those found within the `savedState` map.
+    //
+    // The `savedState.values.flatten()` operation attempts to gather all relevant
+    // class loaders. However, due to potential nested lists within the saved state,
+    // class loaders of deeply nested instances may be overlooked. This could result in
+    // class-loading failures in those specific, less common scenarios.
+    val parentLoader = StateRestorationTester::class.java.classLoader
+    val childLoaders = savedState.values.flatten().mapNotNull { it?.javaClass?.classLoader }
+    val compositeClassLoader = CompositeClassLoader(parentLoader, childLoaders)
+
+    // Convert `Map` to `Bundle`.
+    val inBundle = Bundle().apply { classLoader = compositeClassLoader }
+    for ((key, value) in savedState) {
+        @Suppress("UNCHECKED_CAST") val list = ArrayList(value) as ArrayList<Parcelable?>
+        inBundle.putParcelableArrayList(key, list)
+    }
+
+    // Serialize a `Bundle` object into a `ByteArray`.
+    val inParcel = Parcel.obtain()
+    inParcel.writeBundle(inBundle)
+    val bytes = inParcel.marshall()
+    inParcel.recycle()
+
+    // Deserialize a `ByteArray` back into a `SavedState` object.
+    val outParcel = Parcel.obtain()
+    outParcel.unmarshall(bytes, 0, bytes.size)
+    outParcel.setDataPosition(0)
+    val outBundle = outParcel.readBundle(compositeClassLoader)!!
+    outParcel.recycle()
+
+    // Check the serialized data size is within 1 MB to prevent excessively large state objects.
+    check(bytes.size <= 1024 * 1024) { "Bundle exceeds maximum size (1 MB): ${bytes.size} bytes." }
+
+    // Convert `Bundle` to `Map`.
+    return outBundle.keySet().associateWith { key ->
+        @Suppress("DEPRECATION") outBundle.getParcelableArrayList<Parcelable?>(key)!!
+    }
+}
+
+/**
+ * A composite [ClassLoader] that delegates class loading to a set of provided class loaders. If a
+ * class cannot be found in any of the specified loaders, it falls back to the [parentLoader]
+ * loader.
+ */
+private class CompositeClassLoader(
+    parentLoader: ClassLoader?,
+    childLoaders: Iterable<ClassLoader>,
+) : ClassLoader(parentLoader) {
+
+    private val loaders = childLoaders.toSet() // Remove duplicates.
+
+    override fun loadClass(name: String?): Class<*>? {
+        for (loader in loaders) {
+            try {
+                return loader.loadClass(name)
+            } catch (_: ClassNotFoundException) {
+                // Ignore and try the next loader.
+            }
+        }
+        return super.loadClass(name)
     }
 }

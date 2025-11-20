@@ -55,6 +55,7 @@ public class FakeCameraMetadata(
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
+    override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
     public val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     private val extensions: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
@@ -104,7 +105,7 @@ public class FakeCameraExtensionMetadata(
     private val postviewSizes: Map<Int, Map<Size, Set<Size>>> = emptyMap(),
     override val isRedacted: Boolean = false,
     override val isPostviewSupported: Boolean = false,
-    override val isCaptureProgressSupported: Boolean = false
+    override val isCaptureProgressSupported: Boolean = false,
 ) : FakeMetadata(metadata), CameraExtensionMetadata {
     override fun getOutputSizes(imageFormat: Int): Set<Size> {
         return captureOutputSizes[imageFormat] ?: emptySet()

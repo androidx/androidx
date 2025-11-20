@@ -59,9 +59,7 @@ import org.junit.runners.Parameterized
  * They are aimed to ensure that integration between camera-core and camera-testing work seamlessly.
  */
 @RunWith(Parameterized::class)
-class ImageCaptureTest(
-    @CameraSelector.LensFacing private val lensFacing: Int,
-) {
+class ImageCaptureTest(@CameraSelector.LensFacing private val lensFacing: Int) {
     @get:Rule val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
 
     @get:Rule
@@ -73,7 +71,7 @@ class ImageCaptureTest(
     val storagePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
         )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -102,7 +100,7 @@ class ImageCaptureTest(
         assumeFalse(
             "This emulator fails to create a bitmap from an android.media.Image instance" +
                 ", the emulator is known to have various issues and generally ignored in our tests",
-            IgnoreProblematicDeviceRule.isPixel2Api26Emulator
+            IgnoreProblematicDeviceRule.isPixel2Api26Emulator,
         )
 
         val callback = FakeOnImageCapturedCallback(closeImageOnSuccess = false)
@@ -125,7 +123,7 @@ class ImageCaptureTest(
         imageCapture.takePicture(
             ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
             CameraXExecutors.directExecutor(),
-            callback
+            callback,
         )
         cameraControl.submitCaptureResult(successfulResult())
 
@@ -143,7 +141,7 @@ class ImageCaptureTest(
         imageCapture.takePicture(
             createMediaStoreOutputOptions(),
             CameraXExecutors.directExecutor(),
-            callback
+            callback,
         )
         cameraControl.submitCaptureResult(successfulResult())
 
@@ -174,7 +172,7 @@ class ImageCaptureTest(
                     cameraProvider = ProcessCameraProvider.getInstance(context).get()
                     latch.countDown()
                 },
-                CameraXExecutors.directExecutor()
+                CameraXExecutors.directExecutor(),
             )
 
         Truth.assertWithMessage("ProcessCameraProvider.getInstance timed out!")
@@ -203,7 +201,7 @@ class ImageCaptureTest(
         return ImageCapture.OutputFileOptions.Builder(
                 context.contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
             .build()
     }
@@ -221,7 +219,7 @@ class ImageCaptureTest(
                     projection,
                     selection,
                     selectionArgs,
-                    null
+                    null,
                 )
 
         return query?.use { cursor -> cursor.count } ?: 0

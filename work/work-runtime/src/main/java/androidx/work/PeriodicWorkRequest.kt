@@ -16,8 +16,8 @@
 package androidx.work
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_INTERVAL_MILLIS
 import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -49,11 +49,11 @@ import kotlin.reflect.KClass
  *
  * Periodic work cannot be part of a chain or graph of work.
  */
-class PeriodicWorkRequest internal constructor(builder: Builder) :
+public class PeriodicWorkRequest internal constructor(builder: Builder) :
     WorkRequest(builder.id, builder.workSpec, builder.tags) {
 
     /** Builder for [PeriodicWorkRequest]s. */
-    class Builder : WorkRequest.Builder<Builder, PeriodicWorkRequest> {
+    public class Builder : WorkRequest.Builder<Builder, PeriodicWorkRequest> {
 
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
@@ -68,10 +68,10 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
          * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
          */
-        constructor(
+        public constructor(
             workerClass: Class<out ListenableWorker?>,
             repeatInterval: Long,
-            repeatIntervalTimeUnit: TimeUnit
+            repeatIntervalTimeUnit: TimeUnit,
         ) : super(workerClass) {
             workSpec.setPeriodic(repeatIntervalTimeUnit.toMillis(repeatInterval))
         }
@@ -89,10 +89,10 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
          * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
          */
-        constructor(
+        public constructor(
             workerClass: KClass<out ListenableWorker>,
             repeatInterval: Long,
-            repeatIntervalTimeUnit: TimeUnit
+            repeatIntervalTimeUnit: TimeUnit,
         ) : super(workerClass.java) {
             workSpec.setPeriodic(repeatIntervalTimeUnit.toMillis(repeatInterval))
         }
@@ -110,9 +110,9 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * @param repeatInterval The repeat interval
          */
         @RequiresApi(26)
-        constructor(
+        public constructor(
             workerClass: Class<out ListenableWorker>,
-            repeatInterval: Duration
+            repeatInterval: Duration,
         ) : super(workerClass) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat())
         }
@@ -130,9 +130,9 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * @param repeatInterval The repeat interval
          */
         @RequiresApi(26)
-        constructor(
+        public constructor(
             workerClass: KClass<out ListenableWorker>,
-            repeatInterval: Duration
+            repeatInterval: Duration,
         ) : super(workerClass.java) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat())
         }
@@ -158,16 +158,16 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          *   repeats from the end of the `repeatInterval`
          * @param flexIntervalTimeUnit The [TimeUnit] for `flexInterval`
          */
-        constructor(
+        public constructor(
             workerClass: Class<out ListenableWorker?>,
             repeatInterval: Long,
             repeatIntervalTimeUnit: TimeUnit,
             flexInterval: Long,
-            flexIntervalTimeUnit: TimeUnit
+            flexIntervalTimeUnit: TimeUnit,
         ) : super(workerClass) {
             workSpec.setPeriodic(
                 repeatIntervalTimeUnit.toMillis(repeatInterval),
-                flexIntervalTimeUnit.toMillis(flexInterval)
+                flexIntervalTimeUnit.toMillis(flexInterval),
             )
         }
 
@@ -192,16 +192,16 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          *   repeats from the end of the `repeatInterval`
          * @param flexIntervalTimeUnit The [TimeUnit] for `flexInterval`
          */
-        constructor(
+        public constructor(
             workerClass: KClass<out ListenableWorker>,
             repeatInterval: Long,
             repeatIntervalTimeUnit: TimeUnit,
             flexInterval: Long,
-            flexIntervalTimeUnit: TimeUnit
+            flexIntervalTimeUnit: TimeUnit,
         ) : super(workerClass.java) {
             workSpec.setPeriodic(
                 repeatIntervalTimeUnit.toMillis(repeatInterval),
-                flexIntervalTimeUnit.toMillis(flexInterval)
+                flexIntervalTimeUnit.toMillis(flexInterval),
             )
         }
 
@@ -225,10 +225,10 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          *   `repeatInterval`
          */
         @RequiresApi(26)
-        constructor(
+        public constructor(
             workerClass: Class<out ListenableWorker?>,
             repeatInterval: Duration,
-            flexInterval: Duration
+            flexInterval: Duration,
         ) : super(workerClass) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
         }
@@ -253,10 +253,10 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          *   `repeatInterval`
          */
         @RequiresApi(26)
-        constructor(
+        public constructor(
             workerClass: KClass<out ListenableWorker>,
             repeatInterval: Duration,
-            flexInterval: Duration
+            flexInterval: Duration,
         ) : super(workerClass.java) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
         }
@@ -299,7 +299,7 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * @param nextScheduleTimeOverrideMillis The time, in [System.currentTimeMillis] time, to
          *   schedule this work next. If this is in the past, work may run immediately.
          */
-        fun setNextScheduleTimeOverride(nextScheduleTimeOverrideMillis: Long): Builder {
+        public fun setNextScheduleTimeOverride(nextScheduleTimeOverrideMillis: Long): Builder {
             require(nextScheduleTimeOverrideMillis != Long.MAX_VALUE) {
                 "Cannot set Long.MAX_VALUE as the schedule override time"
             }
@@ -321,7 +321,7 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
          * Override may be cleared while a Worker is running. The worker will schedule the next run
          * based on its result type and interval.
          */
-        fun clearNextScheduleTimeOverride(): Builder {
+        public fun clearNextScheduleTimeOverride(): Builder {
             workSpec.nextScheduleTimeOverride = Long.MAX_VALUE
             // Clearing an override increments the generation.
             workSpec.nextScheduleTimeOverrideGeneration = 1
@@ -329,11 +329,7 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
         }
 
         override fun buildInternal(): PeriodicWorkRequest {
-            require(
-                !(backoffCriteriaSet &&
-                    Build.VERSION.SDK_INT >= 23 &&
-                    workSpec.constraints.requiresDeviceIdle())
-            ) {
+            require(!(backoffCriteriaSet && workSpec.constraints.requiresDeviceIdle())) {
                 "Cannot set backoff criteria on an idle mode job"
             }
             require(!workSpec.expedited) { "PeriodicWorkRequests cannot be expedited" }
@@ -344,26 +340,26 @@ class PeriodicWorkRequest internal constructor(builder: Builder) :
             get() = this
     }
 
-    companion object {
+    public companion object {
         /** The minimum interval duration for [PeriodicWorkRequest] (in milliseconds). */
         @SuppressLint("MinMaxConstant")
-        const val MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L // 15 minutes.
+        public const val MIN_PERIODIC_INTERVAL_MILLIS: Long = 15 * 60 * 1000L // 15 minutes.
 
         /** The minimum flex duration for [PeriodicWorkRequest] (in milliseconds). */
         @SuppressLint("MinMaxConstant")
-        const val MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L // 5 minutes.
+        public const val MIN_PERIODIC_FLEX_MILLIS: Long = 5 * 60 * 1000L // 5 minutes.
     }
 }
 
 /**
  * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
  *
- * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
- * @param repeatIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
+ * @param repeatIntervalTimeUnit @see [PeriodicWorkRequest.Builder]
  */
 public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatInterval: Long,
-    repeatIntervalTimeUnit: TimeUnit
+    repeatIntervalTimeUnit: TimeUnit,
 ): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, repeatIntervalTimeUnit)
 }
@@ -371,7 +367,7 @@ public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
 /**
  * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
  *
- * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
  */
 @RequiresApi(26)
 public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
@@ -383,16 +379,16 @@ public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
 /**
  * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
  *
- * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
- * @param repeatIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
- * @param flexTimeInterval @see [androidx.work.PeriodicWorkRequest.Builder]
- * @param flexTimeIntervalUnit @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
+ * @param repeatIntervalTimeUnit @see [PeriodicWorkRequest.Builder]
+ * @param flexTimeInterval @see [PeriodicWorkRequest.Builder]
+ * @param flexTimeIntervalUnit @see [PeriodicWorkRequest.Builder]
  */
 public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatInterval: Long,
     repeatIntervalTimeUnit: TimeUnit,
     flexTimeInterval: Long,
-    flexTimeIntervalUnit: TimeUnit
+    flexTimeIntervalUnit: TimeUnit,
 ): PeriodicWorkRequest.Builder {
 
     return PeriodicWorkRequest.Builder(
@@ -400,20 +396,20 @@ public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
         repeatInterval,
         repeatIntervalTimeUnit,
         flexTimeInterval,
-        flexTimeIntervalUnit
+        flexTimeIntervalUnit,
     )
 }
 
 /**
  * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
  *
- * @param repeatInterval @see [androidx.work.PeriodicWorkRequest.Builder]
- * @param flexTimeInterval @see [androidx.work.PeriodicWorkRequest.Builder]
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
+ * @param flexTimeInterval @see [PeriodicWorkRequest.Builder]
  */
 @RequiresApi(26)
 public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatInterval: Duration,
-    flexTimeInterval: Duration
+    flexTimeInterval: Duration,
 ): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, flexTimeInterval)
 }

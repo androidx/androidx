@@ -19,9 +19,9 @@ import androidx.fragment.app.Fragment
 
 /** Root class for all FragmentStrictMode violations. */
 @SuppressWarnings("ExceptionName")
-abstract class Violation
+public abstract class Violation
 internal constructor(
     /** Gets the [Fragment] causing the Violation. */
-    val fragment: Fragment,
-    violationMessage: String? = null
+    public val fragment: Fragment,
+    violationMessage: String? = null,
 ) : RuntimeException(violationMessage)

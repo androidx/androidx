@@ -33,16 +33,16 @@ class ParticipantExtensionProvider : PreviewParameterProvider<ParticipantExtensi
                         false,
                         isHandRaised = false,
                         isSelf = true,
-                        onKickParticipant = { CallControlResult.Success() }
+                        onKickParticipant = { CallControlResult.Success() },
                     ),
                     ParticipantUiState(
                         "Betty Lapone",
                         true,
                         isHandRaised = true,
                         isSelf = false,
-                        onKickParticipant = { CallControlResult.Success() }
-                    )
-                )
+                        onKickParticipant = { CallControlResult.Success() },
+                    ),
+                ),
             )
         )
 }
@@ -52,7 +52,7 @@ data class ParticipantExtensionUiState(
     val isRaiseHandSupported: Boolean,
     val isKickParticipantSupported: Boolean,
     val onRaiseHandStateChanged: suspend (Boolean) -> Unit,
-    val participants: List<ParticipantUiState>
+    val participants: List<ParticipantUiState>,
 )
 
 /** UI state and actions associated with a participant */

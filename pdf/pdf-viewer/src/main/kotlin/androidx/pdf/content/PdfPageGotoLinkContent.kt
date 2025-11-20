@@ -17,21 +17,17 @@
 package androidx.pdf.content
 
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 
 /**
  * Represents the content associated with a goto link on a page in the PDF document. Goto Link is an
  * internal navigation link which directs the user to a different location within the same pdf
  * document
  *
- * @param bounds: Bounds which envelop the goto link
- * @param destination: Destination where the goto link is directing
+ * @param bounds: A list of rectangles defining the clickable area of the link.
+ * @param destination: [Destination] where the goto link is directing.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PdfPageGotoLinkContent(
-    public val bounds: List<RectF>,
-    public val destination: Destination
-) {
+public class PdfPageGotoLinkContent(bounds: List<RectF>, public val destination: Destination) :
+    PdfPageContent(bounds) {
     /**
      * Creates a new instance of PdfPageGotoLinkContent.Destination using the page number, x
      * coordinate, and y coordinate of the destination where goto link is directing, and the zoom
@@ -48,6 +44,6 @@ public class PdfPageGotoLinkContent(
         public val pageNumber: Int,
         public val xCoordinate: Float,
         public val yCoordinate: Float,
-        public val zoom: Float
+        public val zoom: Float,
     )
 }

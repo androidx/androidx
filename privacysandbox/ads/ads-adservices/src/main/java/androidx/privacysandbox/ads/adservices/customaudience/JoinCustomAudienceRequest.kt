@@ -21,7 +21,8 @@ package androidx.privacysandbox.ads.adservices.customaudience
  *
  * @param customAudience the custom audience to join.
  */
-class JoinCustomAudienceRequest public constructor(val customAudience: CustomAudience) {
+public class JoinCustomAudienceRequest
+public constructor(public val customAudience: CustomAudience) {
     /** Checks whether two [JoinCustomAudienceRequest] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

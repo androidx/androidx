@@ -61,7 +61,7 @@ class CompositionLocalNamingDetectorTest : LintDetectorTest() {
                 }
             """
                 ),
-                Stubs.CompositionLocal
+                Stubs.CompositionLocal,
             )
             .run()
             .expect(
@@ -103,7 +103,7 @@ src/androidx/compose/runtime/foo/Test.kt:16: Warning: CompositionLocal propertie
                 }
             """
                 ),
-                Stubs.CompositionLocal
+                Stubs.CompositionLocal,
             )
             .run()
             .expectClean()

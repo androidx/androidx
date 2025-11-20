@@ -33,6 +33,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -49,6 +52,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,7 +61,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PickerTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var itemSizePx: Int = 20
     private var itemSizeDp: Dp = Dp.Infinity
@@ -78,7 +82,7 @@ class PickerTest {
             Picker(
                 modifier = Modifier.testTag(TEST_TAG),
                 state = rememberPickerState(1),
-                contentDescription = CONTENT_DESCRIPTION,
+                contentDescription = { CONTENT_DESCRIPTION },
             ) {
                 Box(modifier = Modifier.size(20.dp))
             }
@@ -94,7 +98,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -116,7 +120,7 @@ class PickerTest {
             state =
                 rememberPickerState(
                     initialNumberOfOptions = 10,
-                    initiallySelectedIndex = startValue
+                    initiallySelectedIndex = startValue,
                 )
         }
 
@@ -130,7 +134,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -143,7 +147,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, bottom),
                 end = Offset(centerX, bottom - itemSizePx * 16), // 3 loops + 1 element
-                endVelocity = NOT_A_FLING_SPEED
+                endVelocity = NOT_A_FLING_SPEED,
             )
         }
 
@@ -159,7 +163,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(numberOfOptions).also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -172,7 +176,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, top),
                 end = Offset(centerX, top + itemSizePx * 16), // 3 loops + 1 element
-                endVelocity = NOT_A_FLING_SPEED
+                endVelocity = NOT_A_FLING_SPEED,
             )
         }
 
@@ -208,11 +212,11 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
-                    verticalSpacing = separationDp * separationSign
+                    verticalSpacing = separationDp * separationSign,
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -233,9 +237,9 @@ class PickerTest {
                         bottom -
                             5 -
                             scrollOffset -
-                            (itemSizePx + separationPx * separationSign) * itemsToScroll
+                            (itemSizePx + separationPx * separationSign) * itemsToScroll,
                     ),
-                endVelocity = NOT_A_FLING_SPEED
+                endVelocity = NOT_A_FLING_SPEED,
             )
         }
 
@@ -329,7 +333,7 @@ class PickerTest {
             state =
                 rememberPickerState(
                     initialNumberOfOptions = totalOptions,
-                    initiallySelectedIndex = initialOption
+                    initiallySelectedIndex = initialOption,
                 )
             SimplePicker(state)
         }
@@ -379,10 +383,10 @@ class PickerTest {
                     state =
                         rememberPickerState(
                                 initialNumberOfOptions = 28,
-                                initiallySelectedIndex = initialOption
+                                initiallySelectedIndex = initialOption,
                             )
                             .also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -409,10 +413,10 @@ class PickerTest {
                     state =
                         rememberPickerState(
                                 initialNumberOfOptions = 25,
-                                initiallySelectedIndex = initialOption
+                                initiallySelectedIndex = initialOption,
                             )
                             .also { state = it },
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -439,10 +443,7 @@ class PickerTest {
             state = rememberPickerState(20)
             LaunchedEffect(state) { state.scrollToOption(targetIndex) }
 
-            Picker(
-                state = state,
-                contentDescription = CONTENT_DESCRIPTION,
-            ) {
+            Picker(state = state, contentDescription = { CONTENT_DESCRIPTION }) {
                 Box(Modifier.requiredSize(itemSizeDp))
             }
         }
@@ -458,10 +459,7 @@ class PickerTest {
         val targetIndex = 5
         rule.setContent {
             state = rememberPickerState(20, initiallySelectedIndex = targetIndex)
-            Picker(
-                state = state,
-                contentDescription = CONTENT_DESCRIPTION,
-            ) {
+            Picker(state = state, contentDescription = { CONTENT_DESCRIPTION }) {
                 Box(Modifier.requiredSize(itemSizeDp))
             }
         }
@@ -476,7 +474,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, top),
             end = Offset(centerX, top + itemSizePx / 2),
-            endVelocity = NOT_A_FLING_SPEED
+            endVelocity = NOT_A_FLING_SPEED,
         )
     }
 
@@ -485,7 +483,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, bottom),
             end = Offset(centerX, bottom - itemSizePx / 2),
-            endVelocity = NOT_A_FLING_SPEED
+            endVelocity = NOT_A_FLING_SPEED,
         )
     }
 
@@ -495,7 +493,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, top),
                 end = Offset(centerX, top + itemSizePx / 2),
-                endVelocity = NOT_A_FLING_SPEED
+                endVelocity = NOT_A_FLING_SPEED,
             )
         }
 
@@ -504,7 +502,7 @@ class PickerTest {
         swipeWithVelocity(
             start = Offset(centerX, top),
             end = Offset(centerX, top + 300),
-            endVelocity = DO_FLING_SPEED
+            endVelocity = DO_FLING_SPEED,
         )
     }
 
@@ -514,7 +512,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, bottom),
                 end = Offset(centerX, bottom - 300),
-                endVelocity = DO_FLING_SPEED
+                endVelocity = DO_FLING_SPEED,
             )
         }
 
@@ -528,8 +526,8 @@ class PickerTest {
                     state = rememberPickerState(5),
                     readOnly = true,
                     readOnlyLabel = { Text(text = labelText) },
-                    contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3)
+                    contentDescription = { CONTENT_DESCRIPTION },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -550,8 +548,8 @@ class PickerTest {
                     state = rememberPickerState(5),
                     readOnly = false,
                     readOnlyLabel = { Text(text = labelText) },
-                    contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3)
+                    contentDescription = { CONTENT_DESCRIPTION },
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -575,11 +573,11 @@ class PickerTest {
                     state =
                         rememberPickerState(
                                 initialNumberOfOptions = 5,
-                                initiallySelectedIndex = initialOption
+                                initiallySelectedIndex = initialOption,
                             )
                             .also { state = it },
                     readOnly = readOnly.value,
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -604,11 +602,11 @@ class PickerTest {
                     state =
                         rememberPickerState(
                                 initialNumberOfOptions = 5,
-                                initiallySelectedIndex = initialOption
+                                initiallySelectedIndex = initialOption,
                             )
                             .also { state = it },
                     readOnly = true,
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -621,7 +619,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, bottom),
                 end = Offset(centerX, bottom - itemSizePx * 16), // 3 loops + 1 element
-                endVelocity = NOT_A_FLING_SPEED
+                endVelocity = NOT_A_FLING_SPEED,
             )
         }
 
@@ -645,7 +643,7 @@ class PickerTest {
             swipeWithVelocity(
                 start = Offset(centerX, top),
                 end = Offset(centerX, top + 300),
-                endVelocity = DO_FLING_SPEED
+                endVelocity = DO_FLING_SPEED,
             )
         }
         rule.waitForIdle()
@@ -674,7 +672,7 @@ class PickerTest {
             val pickerState =
                 rememberPickerState(
                     initialNumberOfOptions = numberOfOptions,
-                    initiallySelectedIndex = selectedOption.value
+                    initiallySelectedIndex = selectedOption.value,
                 )
             Text(text = "${pickerState.selectedOptionIndex}")
         }
@@ -685,6 +683,19 @@ class PickerTest {
         rule.waitForIdle()
 
         rule.onNodeWithText("2").assertExists()
+    }
+
+    @Test
+    fun picker_roleIsValuePicker() {
+        rule.setContentWithTheme {
+            Picker(state = rememberPickerState(1), contentDescription = { CONTENT_DESCRIPTION }) {
+                Box(modifier = Modifier.size(20.dp))
+            }
+        }
+
+        rule
+            .onNode(expectValue(SemanticsProperties.Role, Role.ValuePicker), useUnmergedTree = true)
+            .assertExists()
     }
 
     private fun animateScrollTo(
@@ -700,7 +711,7 @@ class PickerTest {
             state =
                 rememberPickerState(
                     initialNumberOfOptions = totalOptions,
-                    initiallySelectedIndex = initialOption
+                    initiallySelectedIndex = initialOption,
                 )
             SimplePicker(state)
         }
@@ -716,10 +727,7 @@ class PickerTest {
     @Composable
     private fun SimplePicker(state: PickerState) {
         WithTouchSlop(0f) {
-            Picker(
-                state = state,
-                contentDescription = CONTENT_DESCRIPTION,
-            ) {
+            Picker(state = state, contentDescription = { CONTENT_DESCRIPTION }) {
                 Box(Modifier.requiredSize(itemSizeDp))
             }
         }
@@ -762,7 +770,7 @@ class PickerTest {
                             .onGloballyPositioned { pickerLayoutCoordinates = it },
                     verticalSpacing = separationDp * separationSign,
                     readOnly = readOnly.value,
-                    contentDescription = CONTENT_DESCRIPTION,
+                    contentDescription = { CONTENT_DESCRIPTION },
                 ) { optionIndex ->
                     Box(
                         Modifier.requiredSize(itemSizeDp).onGloballyPositioned {

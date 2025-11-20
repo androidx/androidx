@@ -27,31 +27,6 @@ import androidx.annotation.RestrictTo.Scope;
 public final class TypographyTokens {
 
     /**
-     * ArcMedium is for arc headers and titles. Arc is for text along a curved path on the screen,
-     * reserved for short header text strings at the very top or bottom of the screen like page
-     * titles.
-     */
-    public static final TextStyle ARC_MEDIUM =
-            new TextStyle(
-                    /* fontFamily= */ TypeScaleTokens.ARC_MEDIUM_FONT_FAMILY,
-                    /* size= */ TypeScaleTokens.ARC_MEDIUM_SIZE,
-                    /* lineHeight= */ TypeScaleTokens.ARC_MEDIUM_LINE_HEIGHT,
-                    /* letterSpacing= */ TypeScaleTokens.ARC_MEDIUM_TRACKING,
-                    /* fontSettings= */ VariableFontSettingsTokens.ARC_MEDIUM_VARIATION_SETTINGS);
-
-    /**
-     * ArcSmall is for limited arc strings of text. Arc is for text along a curved path on the
-     * screen, reserved for short curved text strings at the bottom of the screen.
-     */
-    public static final TextStyle ARC_SMALL =
-            new TextStyle(
-                    /* fontFamily= */ TypeScaleTokens.ARC_SMALL_FONT_FAMILY,
-                    /* size= */ TypeScaleTokens.ARC_SMALL_SIZE,
-                    /* lineHeight= */ TypeScaleTokens.ARC_SMALL_LINE_HEIGHT,
-                    /* letterSpacing= */ TypeScaleTokens.ARC_SMALL_TRACKING,
-                    /* fontSettings= */ VariableFontSettingsTokens.ARC_SMALL_VARIATION_SETTINGS);
-
-    /**
      * BodyExtraSmall is the smallest body. Body texts are typically used for long-form writing as
      * it works well for small text sizes. For longer sections of text, a serif or sans serif
      * typeface is recommended.

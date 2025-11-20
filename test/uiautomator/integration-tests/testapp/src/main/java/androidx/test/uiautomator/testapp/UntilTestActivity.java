@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * {@link Activity} for testing {@link androidx.test.uiautomator.Until} functionality. Contains
  * a series of buttons and views that fulfill specific conditions.
  */
-public class UntilTestActivity extends Activity {
+public class UntilTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

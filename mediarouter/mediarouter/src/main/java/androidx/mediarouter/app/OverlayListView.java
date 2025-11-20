@@ -82,7 +82,7 @@ final class OverlayListView extends ListView {
     @Override
     public void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        if (mOverlayObjects.size() > 0) {
+        if (!mOverlayObjects.isEmpty()) {
             Iterator<OverlayObject> it = mOverlayObjects.iterator();
             while (it.hasNext()) {
                 OverlayObject object = it.next();
@@ -103,7 +103,7 @@ final class OverlayListView extends ListView {
     public static class OverlayObject {
         private BitmapDrawable mBitmap;
         private float mCurrentAlpha = 1.0f;
-        private Rect mCurrentBounds;
+        private final Rect mCurrentBounds;
         private Interpolator mInterpolator;
         private long mDuration;
         private Rect mStartRect;

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-./gradlew webkit:integration-tests:instrumentation:connectedAndroidTest \
+./gradlew \
   -Pandroid.testInstrumentationRunnerArguments.webview-version=factory \
+  webkit:integration-tests:instrumentation:connectedAndroidTest \
+  webkit:integration-tests:testapp:connectedAndroidTest \
   webkit:chips-enabled-integration-tests:instrumentation:connectedAndroidTest

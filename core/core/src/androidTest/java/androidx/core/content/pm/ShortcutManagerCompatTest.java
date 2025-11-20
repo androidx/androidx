@@ -499,7 +499,6 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
     @SmallTest
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testShortcutInfoListenerServiceDiscovery() {
         ShortcutManagerCompat.setShortcutInfoChangeListeners(null);
         // Initialize the listener.

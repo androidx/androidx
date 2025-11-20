@@ -31,7 +31,7 @@ internal class JankStatsApi31Impl(jankStats: JankStats, view: View, window: Wind
     override fun getFrameData(
         startTime: Long,
         expectedDuration: Long,
-        frameMetrics: FrameMetrics
+        frameMetrics: FrameMetrics,
     ): FrameDataApi31 {
         val uiDuration =
             frameMetrics.getMetric(FrameMetrics.UNKNOWN_DELAY_DURATION) +

@@ -54,7 +54,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.room.testing.MigrationTestHelper;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -75,7 +74,6 @@ import androidx.work.impl.Migration_7_8;
 import androidx.work.impl.Migration_8_9;
 import androidx.work.impl.RescheduleMigration;
 import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.WorkMigration9To10;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
@@ -279,13 +277,8 @@ public class WorkDatabaseMigrationTest {
         cursor.moveToNext();
         assertThat(cursor.getString(cursor.getColumnIndex("id")),
                 is(periodicWorkSpecId));
-        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
-                    is(0L));
-        } else {
-            assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
-                    is(WorkSpec.SCHEDULE_NOT_REQUESTED_YET));
-        }
+        assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
+                is(0L));
         database.close();
     }
 

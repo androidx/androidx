@@ -99,7 +99,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
             Text(
                 text = "Fix header, LocalSize: ${localSize.width}x${localSize.height}",
                 modifier =
-                    GlanceModifier.fillMaxWidth().padding(16.dp).background(Color(0x0a000000))
+                    GlanceModifier.fillMaxWidth().padding(16.dp).background(Color(0x0a000000)),
             )
             val width = localSize.width
             when {
@@ -123,25 +123,25 @@ class ScrollableAppWidget : GlanceAppWidget() {
             item {
                 Text(
                     text = "${localSize.width}x${localSize.height}",
-                    modifier = GlanceModifier.padding(10.dp)
+                    modifier = GlanceModifier.padding(10.dp),
                 )
             }
             item {
                 SectionHeading(
                     title = "Activities",
-                    description = "Click the buttons to open activities"
+                    description = "Click the buttons to open activities",
                 )
             }
 
             itemsIndexed(
                 listOf(
                     GlanceAppWidgetDemoActivity::class.java,
-                    ListClickDestinationActivity::class.java
+                    ListClickDestinationActivity::class.java,
                 )
             ) { index, activityClass ->
                 Row(
                     GlanceModifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+                    horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
                 ) {
                     Button(
                         text = "Activity ${index + 1}",
@@ -157,7 +157,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
                                     // buried in the stack.
                                     flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                                 }
-                            )
+                            ),
                     )
                 }
             }
@@ -165,7 +165,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
             item {
                 SectionHeading(
                     title = "Callbacks",
-                    description = "Click the list items to invoke a callback"
+                    description = "Click the list items to invoke a callback",
                 )
             }
 
@@ -175,7 +175,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
                     modifier =
                         GlanceModifier.fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .clickable { Log.i(TAG, "Click from list item $index") }
+                            .clickable { Log.i(TAG, "Click from list item $index") },
                 )
             }
             item {
@@ -191,12 +191,12 @@ class ScrollableAppWidget : GlanceAppWidget() {
                     Image(
                         provider = ImageProvider(R.drawable.compose),
                         contentDescription = "Compose logo",
-                        modifier = GlanceModifier.size(20.dp)
+                        modifier = GlanceModifier.size(20.dp),
                     )
                     Spacer(modifier = GlanceModifier.width(5.dp))
                     Text(
                         text = "Item with click on parent row",
-                        modifier = GlanceModifier.fillMaxWidth()
+                        modifier = GlanceModifier.fillMaxWidth(),
                     )
                 }
             }
@@ -214,12 +214,12 @@ class ScrollableAppWidget : GlanceAppWidget() {
                     Image(
                         provider = ImageProvider(R.drawable.compose),
                         contentDescription = "Compose logo",
-                        modifier = GlanceModifier.size(20.dp)
+                        modifier = GlanceModifier.size(20.dp),
                     )
                     Spacer(modifier = GlanceModifier.width(5.dp))
                     Text(
                         text = "Item with click on parent row with contentDescription set",
-                        modifier = GlanceModifier.fillMaxWidth()
+                        modifier = GlanceModifier.fillMaxWidth(),
                     )
                 }
             }
@@ -229,7 +229,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
                 CheckBox(
                     checked = checked,
                     onCheckedChange = { checked = !checked },
-                    text = "Checkbox"
+                    text = "Checkbox",
                 )
             }
         }
@@ -246,13 +246,13 @@ class ScrollableAppWidget : GlanceAppWidget() {
                         fontSize = 16.sp,
                         textDecoration = TextDecoration.Underline,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
+                        textAlign = TextAlign.Center,
+                    ),
             )
             Text(
                 text = description,
                 style = TextStyle(fontSize = 12.sp),
-                modifier = GlanceModifier.fillMaxWidth().padding(16.dp)
+                modifier = GlanceModifier.fillMaxWidth().padding(16.dp),
             )
         }
     }

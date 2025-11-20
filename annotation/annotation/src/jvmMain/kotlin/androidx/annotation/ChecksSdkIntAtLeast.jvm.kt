@@ -59,7 +59,7 @@ package androidx.annotation
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.FIELD
+    AnnotationTarget.FIELD,
 )
 public annotation class ChecksSdkIntAtLeast(
     /** The API level is at least the given level */
@@ -75,5 +75,5 @@ public annotation class ChecksSdkIntAtLeast(
     val lambda: Int = -1,
 
     /** The associated Extension SDK id, or 0 if the Android platform */
-    val extension: Int = 0
+    val extension: Int = 0,
 )

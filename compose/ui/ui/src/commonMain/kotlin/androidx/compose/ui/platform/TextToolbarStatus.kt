@@ -21,5 +21,5 @@ enum class TextToolbarStatus {
     /** The [TextToolbar] is shown. */
     Shown,
     /** The [TextToolbar] is hidden. */
-    Hidden
+    Hidden,
 }

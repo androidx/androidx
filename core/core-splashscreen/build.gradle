@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -35,19 +35,22 @@ android {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.appcompat:appcompat-resources:1.7.0")
 
-    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.hamcrestCore)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":appcompat:appcompat"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
 }
 
 androidx {
@@ -57,4 +60,5 @@ androidx {
     inceptionYear = "2021"
     description = "This library provides the compatibility APIs for SplashScreen " +
             "and helper method to enable a splashscreen on devices prior Android 12"
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

@@ -22,18 +22,20 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.ui.tooling"
+        androidResources.enable = true
+    }
     jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -41,7 +43,6 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui-tooling-preview"))
                 api(project(":compose:ui:ui"))
@@ -82,7 +83,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -102,7 +103,7 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(commonTest)
             dependencies {
             }
@@ -118,12 +119,4 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:animation:animation:animation-samples"))
     // samples(project(":compose:animation:animation-core:animation-core-samples")) TODO(b/318840087)
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.tooling"
-    // TODO(b/345531033)
-    experimentalProperties["android.lint.useK2Uast"] = false
 }

@@ -70,7 +70,7 @@ class CancellationQueryTest {
 class CountingDelegatingExecutorService(val executor: Executor) : Executor {
     enum class Event {
         STARTED,
-        FINISHED
+        FINISHED,
     }
 
     private val channel = Channel<Event>(Channel.UNLIMITED)

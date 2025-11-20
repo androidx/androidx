@@ -58,7 +58,7 @@ public open class DynamicNavHostFragment : NavHostFragment() {
                 requireContext(),
                 navigatorProvider,
                 navHostController.navInflater,
-                installManager
+                installManager,
             )
     }
 
@@ -81,7 +81,7 @@ public open class DynamicNavHostFragment : NavHostFragment() {
         @JvmOverloads
         public fun create(
             @NavigationRes graphResId: Int,
-            startDestinationArgs: Bundle? = null
+            startDestinationArgs: Bundle? = null,
         ): DynamicNavHostFragment {
             return DynamicNavHostFragment().apply {
                 arguments =

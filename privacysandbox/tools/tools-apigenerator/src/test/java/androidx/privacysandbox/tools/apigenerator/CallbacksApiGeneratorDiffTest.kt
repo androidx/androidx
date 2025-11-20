@@ -29,6 +29,8 @@ class CallbacksApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
             "com/sdkwithcallbacks/ISdkService.java",
             "com/sdkwithcallbacks/ParcelableResponse.java",
             "com/sdkwithcallbacks/ParcelableMyEnum.java",
+            "com/sdkwithcallbacks/IMySharedUiInterface.java",
+            "com/sdkwithcallbacks/IMySharedUiInterfaceCoreLibInfoAndBinderWrapper.java",
             "com/sdkwithcallbacks/IMyUiInterface.java",
             "com/sdkwithcallbacks/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java",
             "com/sdkwithcallbacks/PrivacySandboxThrowableParcel.java",

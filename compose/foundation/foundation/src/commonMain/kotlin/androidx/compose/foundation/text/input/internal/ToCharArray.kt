@@ -31,5 +31,5 @@ internal expect fun CharSequence.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 )

@@ -18,6 +18,8 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusProperties.Companion.UnsetFocusRect
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
@@ -123,10 +125,7 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusEnterSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
     @set:Deprecated("Use onEnter instead", ReplaceWith("onEnter"))
     var enter: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
@@ -165,10 +164,7 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusExitSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
     @set:Deprecated("Use onExit instead", ReplaceWith("onExit"))
     var exit: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
@@ -192,6 +188,26 @@ interface FocusProperties {
     var onExit: FocusEnterExitScope.() -> Unit
         get() = {}
         set(_) {}
+
+    /**
+     * Sets the focus area for the associated focus target to which these [FocusProperties] are
+     * applied on.
+     *
+     * If you simply ignore and do not set this value, [UnsetFocusRect] will be used. Or
+     * alternatively you can set this value to [UnsetFocusRect] to prevent other [FocusProperties]
+     * nodes in the chain from customizing the focus area.
+     */
+    var focusRect: Rect
+        get() = UnsetFocusRect
+        set(_) {}
+
+    companion object {
+
+        /**
+         * Denotes that the bounds of the associated focus target should be used as the focus area.
+         */
+        val UnsetFocusRect = Rect(Float.NaN, Float.NaN, Float.NaN, Float.NaN)
+    }
 }
 
 /**
@@ -229,7 +245,7 @@ sealed interface FocusEnterExitScope {
 }
 
 internal class CancelIndicatingFocusBoundaryScope(
-    override val requestedFocusDirection: FocusDirection,
+    override val requestedFocusDirection: FocusDirection
 ) : FocusEnterExitScope {
     var isCanceled = false
         private set
@@ -251,6 +267,7 @@ internal class FocusPropertiesImpl : FocusProperties {
     override var end: FocusRequester = FocusRequester.Default
     override var onEnter: FocusEnterExitScope.() -> Unit = {}
     override var onExit: FocusEnterExitScope.() -> Unit = {}
+    override var focusRect: Rect = UnsetFocusRect
 }
 
 /**
@@ -276,9 +293,8 @@ private data class FocusPropertiesElement(val scope: FocusPropertiesScope) :
     }
 }
 
-private class FocusPropertiesNode(
-    var focusPropertiesScope: FocusPropertiesScope,
-) : FocusPropertiesModifierNode, Modifier.Node() {
+private class FocusPropertiesNode(var focusPropertiesScope: FocusPropertiesScope) :
+    FocusPropertiesModifierNode, Modifier.Node() {
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusPropertiesScope.apply(focusProperties)

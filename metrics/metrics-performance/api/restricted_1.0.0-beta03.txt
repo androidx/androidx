@@ -1,0 +1,76 @@
+// Signature format: 4.0
+package androidx.metrics.performance {
+
+  public class FrameData {
+    ctor public FrameData(long frameStartNanos, long frameDurationUiNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public androidx.metrics.performance.FrameData copy();
+    method public final long getFrameDurationUiNanos();
+    method public final long getFrameStartNanos();
+    method public final java.util.List<androidx.metrics.performance.StateInfo> getStates();
+    method public final boolean isJank();
+    property public final long frameDurationUiNanos;
+    property public final long frameStartNanos;
+    property public final boolean isJank;
+    property public final java.util.List<androidx.metrics.performance.StateInfo> states;
+  }
+
+  public class FrameDataApi24 extends androidx.metrics.performance.FrameData {
+    ctor public FrameDataApi24(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public final long getFrameDurationCpuNanos();
+    property public final long frameDurationCpuNanos;
+  }
+
+  public final class FrameDataApi31 extends androidx.metrics.performance.FrameDataApi24 {
+    ctor public FrameDataApi31(long frameStartNanos, long frameDurationUiNanos, long frameDurationCpuNanos, long frameDurationTotalNanos, long frameOverrunNanos, boolean isJank, java.util.List<androidx.metrics.performance.StateInfo> states);
+    method public long getFrameDurationTotalNanos();
+    method public long getFrameOverrunNanos();
+    property public long frameDurationTotalNanos;
+    property public long frameOverrunNanos;
+  }
+
+  public final class JankStats {
+    method @UiThread public static androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
+    method public float getJankHeuristicMultiplier();
+    method public boolean isTrackingEnabled();
+    method public void setJankHeuristicMultiplier(float);
+    method @UiThread public void setTrackingEnabled(boolean);
+    property public boolean isTrackingEnabled;
+    property public float jankHeuristicMultiplier;
+    field public static final androidx.metrics.performance.JankStats.Companion Companion;
+  }
+
+  public static final class JankStats.Companion {
+    method @UiThread public androidx.metrics.performance.JankStats createAndTrack(android.view.Window window, androidx.metrics.performance.JankStats.OnFrameListener frameListener);
+  }
+
+  public static fun interface JankStats.OnFrameListener {
+    method public void onFrame(androidx.metrics.performance.FrameData volatileFrameData);
+  }
+
+  public final class PerformanceMetricsState {
+    method @UiThread public static androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
+    method public void putSingleFrameState(String key, String value);
+    method public void putState(String key, String value);
+    method public void removeState(String key);
+    field public static final androidx.metrics.performance.PerformanceMetricsState.Companion Companion;
+  }
+
+  public static final class PerformanceMetricsState.Companion {
+    method @UiThread public androidx.metrics.performance.PerformanceMetricsState.Holder getHolderForHierarchy(android.view.View view);
+  }
+
+  public static final class PerformanceMetricsState.Holder {
+    method public androidx.metrics.performance.PerformanceMetricsState? getState();
+    property public androidx.metrics.performance.PerformanceMetricsState? state;
+  }
+
+  public final class StateInfo {
+    ctor public StateInfo(String key, String value);
+    method public String getKey();
+    method public String getValue();
+    property public String key;
+    property public String value;
+  }
+
+}
+

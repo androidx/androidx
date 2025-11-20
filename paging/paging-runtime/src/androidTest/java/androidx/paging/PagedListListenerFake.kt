@@ -26,6 +26,6 @@ class PagedListListenerFake<T : Any> : AsyncPagedListDiffer.PagedListListener<T>
 
     data class OnCurrentListChangedEvent<T : Any>(
         val previousList: PagedList<T>?,
-        val currentList: PagedList<T>?
+        val currentList: PagedList<T>?,
     )
 }

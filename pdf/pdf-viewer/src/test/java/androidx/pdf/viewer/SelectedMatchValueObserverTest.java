@@ -28,17 +28,17 @@ import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.widget.ZoomView;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SelectedMatchValueObserverTest {
     private final PaginatedView mMockPaginatedView = mock(PaginatedView.class);
     private final PaginationModel mMockPaginationModel = mock(PaginationModel.class);
@@ -84,7 +84,6 @@ public class SelectedMatchValueObserverTest {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         displayMetrics.density = 1f;
         mContext.getResources().getDisplayMetrics().setTo(displayMetrics);
-        PdfViewer.setScreenForTest(mContext);
 
         SelectedMatchValueObserver selectedMatchValueObserver = new SelectedMatchValueObserver(
                 mMockPaginatedView, mMockPageViewFactory, mMockZoomView,

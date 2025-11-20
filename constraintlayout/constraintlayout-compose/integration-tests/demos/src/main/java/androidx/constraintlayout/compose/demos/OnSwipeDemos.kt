@@ -157,7 +157,7 @@ fun SimpleOnSwipe() {
             progress =
                 animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f, tween(1000)).value,
             motionScene = MotionScene(content = motionSceneContent),
-            debugFlags = debugFlags.value
+            debugFlags = debugFlags.value,
         ) {
             Box(
                 modifier =
@@ -208,7 +208,7 @@ fun MultiSwipeDsl() {
 private data class SimpleSwipeConfig(
     val mode: SwipeMode,
     val endWidth: Int,
-    val touchUp: SwipeTouchUp
+    val touchUp: SwipeTouchUp,
 )
 
 @Composable
@@ -264,11 +264,11 @@ private fun SimpleSwipeDsl(config: SimpleSwipeConfig) {
                             direction = SwipeDirection.Right,
                             side = SwipeSide.Left,
                             mode = mode,
-                            onTouchUp = touchUp
+                            onTouchUp = touchUp,
                         )
                 }
             },
-        progress = 0f
+        progress = 0f,
     ) {
         val progress = customFloat("title", "mValue")
         val textBackColor = customColor("title", "back")
@@ -276,7 +276,7 @@ private fun SimpleSwipeDsl(config: SimpleSwipeConfig) {
         Text(
             text = "$titleText  $progress",
             modifier = Modifier.layoutId("title").background(textBackColor),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Box(
             modifier =

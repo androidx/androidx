@@ -33,7 +33,7 @@ internal class DateTimeFormatterAsFormat(private val realFormatter: DateTimeForm
     override fun format(
         obj: Any,
         stringBuffer: StringBuffer,
-        fieldPosition: FieldPosition
+        fieldPosition: FieldPosition,
     ): StringBuffer {
         val result =
             when (obj) {

@@ -24,22 +24,18 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class EdgeButtonTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
         rule.setContentWithTheme {
-            EdgeButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Text("Test")
-            }
+            EdgeButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("Test") }
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -97,7 +93,7 @@ class EdgeButtonTest {
             EdgeButton(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }

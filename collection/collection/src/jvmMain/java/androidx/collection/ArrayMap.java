@@ -16,9 +16,10 @@
 
 package androidx.collection;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.internal.ContainerHelpersKt;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.AbstractSet;
@@ -331,9 +332,8 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return ArrayMap.this.size();
         }
 
-        @NonNull
         @Override
-        public Object[] toArray() {
+        public Object @NonNull [] toArray() {
             final int N = ArrayMap.this.size();
             Object[] result = new Object[N];
             for (int i = 0; i < N; i++) {
@@ -342,10 +342,9 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return result;
         }
 
-        @NonNull
         @Override
         @SuppressWarnings("unchecked")
-        public <T> T[] toArray(@NonNull T[] array) {
+        public <T> T @NonNull[] toArray(T @NonNull [] array) {
             final int mySize = size();
             if (array.length < mySize) {
                 array = (T[]) Array.newInstance(array.getClass().getComponentType(), mySize);
@@ -466,9 +465,8 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return ArrayMap.this.size();
         }
 
-        @NonNull
         @Override
-        public Object[] toArray() {
+        public Object @NonNull [] toArray() {
             final int N = ArrayMap.this.size();
             Object[] result = new Object[N];
             for (int i = 0; i < N; i++) {
@@ -477,10 +475,9 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
             return result;
         }
 
-        @NonNull
         @Override
         @SuppressWarnings("unchecked")
-        public <T> T[] toArray(@NonNull T[] array) {
+        public <T> T @NonNull [] toArray(T @NonNull [] array) {
             final int mySize = size();
             if (array.length < mySize) {
                 array = (T[]) Array.newInstance(array.getClass().getComponentType(), mySize);

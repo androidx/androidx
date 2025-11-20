@@ -65,6 +65,6 @@ internal fun MutableBox.transform(transform: Matrix, destination: MutableBox = t
     }
     destination.populateFromTwoPoints(
         ImmutableVec(newXMin, newYMin),
-        ImmutableVec(newXMax, newYMax)
+        ImmutableVec(newXMax, newYMax),
     )
 }

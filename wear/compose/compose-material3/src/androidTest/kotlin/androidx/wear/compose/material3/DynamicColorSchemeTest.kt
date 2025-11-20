@@ -17,19 +17,20 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class DynamicColorSchemeTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun should_fallback_to_default_if_dynamic_colors_not_enabled() {
         val expected =
             ColorScheme(primary = Color.Red, secondary = Color.Green, tertiary = Color.Blue)

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
-import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -41,7 +40,7 @@ import org.robolectric.annotation.Config
 @Suppress("deprecation")
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraDeviceWrapperTest {
     private val cameraId = CameraId("0")
     private val cameraMetadata = FakeCameraMetadata(cameraId = cameraId)
@@ -74,6 +73,7 @@ class CameraDeviceWrapperTest {
     @Test
     fun testCaptureSessionGetsFinalizedWhenDeviceClosed() =
         testScope.runTest {
+            androidCameraDevice.onDeviceClosing()
             androidCameraDevice.onDeviceClosed()
             advanceUntilIdle()
 

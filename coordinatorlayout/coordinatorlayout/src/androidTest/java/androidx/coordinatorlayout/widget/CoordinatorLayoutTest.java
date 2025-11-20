@@ -91,7 +91,7 @@ public class CoordinatorLayoutTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 34) // b/384972523: Failing on SDK 35
+    @SdkSuppress(maxSdkVersion = 34) // b/384972523: Failing on SDK 35
     public void testSetFitSystemWindows() throws Throwable {
         // Skip this test on Android TV
         PackageManager manager = mActivityTestRule.getActivity().getPackageManager();

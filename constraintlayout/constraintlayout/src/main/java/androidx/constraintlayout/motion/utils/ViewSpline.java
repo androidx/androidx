@@ -15,7 +15,6 @@
  */
 package androidx.constraintlayout.motion.utils;
 
-import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -102,9 +101,7 @@ public abstract class ViewSpline extends SplineSet {
     static class ElevationSet extends ViewSpline {
         @Override
         public void setProperty(View view, float t) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setElevation(get(t));
-            }
+            view.setElevation(get(t));
         }
     }
 
@@ -198,9 +195,7 @@ public abstract class ViewSpline extends SplineSet {
     static class TranslationZset extends ViewSpline {
         @Override
         public void setProperty(View view, float t) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setTranslationZ(get(t));
-            }
+            view.setTranslationZ(get(t));
         }
     }
 

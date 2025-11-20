@@ -50,7 +50,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
     testImplementation(project(":car:app:app-testing"))
@@ -59,19 +58,17 @@ dependencies {
 android {
     defaultConfig {
         minSdk = 29
+        consumerProguardFiles("proguard-rules.pro")
     }
     buildFeatures {
         aidl = true
     }
     buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-
         stableAidl {
             version = 1
         }
     }
     useLibrary 'android.car'
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.car.app.automotive"
 }
 
@@ -80,4 +77,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Automotive OS specific functionality to build navigation, parking, and charging apps for cars"
+    enableRobolectric()
 }

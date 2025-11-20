@@ -21,7 +21,6 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okio.Path
@@ -46,7 +45,6 @@ expect object PreferenceDataStoreFactory {
      *   preferences_pb.
      * @return a new DataStore instance with the provided configuration
      */
-    @JvmOverloads
     public fun create(
         storage: Storage<Preferences>,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
@@ -75,7 +73,6 @@ expect object PreferenceDataStoreFactory {
      *   preferences_pb. File will be created if it doesn't exist.
      * @return a new DataStore instance with the provided configuration
      */
-    @JvmOverloads
     public fun createWithPath(
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),

@@ -64,7 +64,7 @@ fun TabRowScope.Tab(
     enabled: Boolean = true,
     colors: TabColors = TabDefaults.pillIndicatorTabColors(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
         selected = selected,
@@ -81,10 +81,7 @@ fun TabRowScope.Tab(
                     this.role = Role.Tab
                 },
         colors =
-            colors.toSelectableSurfaceColors(
-                doesTabRowHaveFocus = hasFocus,
-                enabled = enabled,
-            ),
+            colors.toSelectableSurfaceColors(doesTabRowHaveFocus = hasFocus, enabled = enabled),
         enabled = enabled,
         scale = SelectableSurfaceScale.None,
         shape = SelectableSurfaceDefaults.shape(shape = RectangleShape),
@@ -93,7 +90,7 @@ fun TabRowScope.Tab(
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            content = content
+            content = content,
         )
     }
 }
@@ -222,10 +219,7 @@ object TabDefaults {
 }
 
 @Composable
-internal fun TabColors.toSelectableSurfaceColors(
-    doesTabRowHaveFocus: Boolean,
-    enabled: Boolean,
-) =
+internal fun TabColors.toSelectableSurfaceColors(doesTabRowHaveFocus: Boolean, enabled: Boolean) =
     SelectableSurfaceDefaults.colors(
         contentColor = if (doesTabRowHaveFocus) contentColor else inactiveContentColor,
         selectedContentColor = if (enabled) selectedContentColor else disabledSelectedContentColor,

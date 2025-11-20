@@ -18,11 +18,14 @@ package androidx.sqlite {
 
   public interface SQLiteConnection extends java.lang.AutoCloseable {
     method public void close();
+    method public default boolean inTransaction();
     method public androidx.sqlite.SQLiteStatement prepare(String sql);
   }
 
   public interface SQLiteDriver {
+    method @InaccessibleFromKotlin public default boolean hasConnectionPool();
     method public androidx.sqlite.SQLiteConnection open(String fileName);
+    property public default boolean hasConnectionPool;
   }
 
   public interface SQLiteStatement extends java.lang.AutoCloseable {
@@ -52,6 +55,8 @@ package androidx.sqlite {
     method public boolean step();
   }
 
+  public typealias SQLiteException = android.database.SQLException;
+
 }
 
 package androidx.sqlite.db {
@@ -61,8 +66,8 @@ package androidx.sqlite.db {
     ctor public SimpleSQLiteQuery(String query, Object?[]? bindArgs);
     method public static void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object?[]? bindArgs);
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
-    method public int getArgCount();
-    method public String getSql();
+    method @InaccessibleFromKotlin public int getArgCount();
+    method @InaccessibleFromKotlin public String getSql();
     property public int argCount;
     property public String sql;
     field public static final androidx.sqlite.db.SimpleSQLiteQuery.Companion Companion;
@@ -87,19 +92,19 @@ package androidx.sqlite.db {
     method public default void execPerConnectionSQL(String sql, Object?[]? bindArgs);
     method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public void execSQL(String sql) throws android.database.SQLException;
     method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public void execSQL(String sql, Object?[] bindArgs) throws android.database.SQLException;
-    method public java.util.List<android.util.Pair<java.lang.String,java.lang.String>>? getAttachedDbs();
-    method public long getMaximumSize();
-    method public long getPageSize();
-    method public String? getPath();
-    method public int getVersion();
+    method @InaccessibleFromKotlin public java.util.List<android.util.Pair<java.lang.String,java.lang.String>>? getAttachedDbs();
+    method @InaccessibleFromKotlin public long getMaximumSize();
+    method @InaccessibleFromKotlin public long getPageSize();
+    method @InaccessibleFromKotlin public String? getPath();
+    method @InaccessibleFromKotlin public int getVersion();
     method public boolean inTransaction();
     method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public long insert(String table, int conflictAlgorithm, android.content.ContentValues values) throws android.database.SQLException;
-    method public boolean isDatabaseIntegrityOk();
-    method public boolean isDbLockedByCurrentThread();
-    method public default boolean isExecPerConnectionSQLSupported();
-    method public boolean isOpen();
-    method public boolean isReadOnly();
-    method public boolean isWriteAheadLoggingEnabled();
+    method @InaccessibleFromKotlin public boolean isDatabaseIntegrityOk();
+    method @InaccessibleFromKotlin public boolean isDbLockedByCurrentThread();
+    method @InaccessibleFromKotlin public default boolean isExecPerConnectionSQLSupported();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    method @InaccessibleFromKotlin public boolean isReadOnly();
+    method @InaccessibleFromKotlin public boolean isWriteAheadLoggingEnabled();
     method public boolean needUpgrade(int newVersion);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, android.os.CancellationSignal? cancellationSignal);
@@ -109,9 +114,9 @@ package androidx.sqlite.db {
     method public void setLocale(java.util.Locale locale);
     method public void setMaxSqlCacheSize(int cacheSize);
     method public long setMaximumSize(long numBytes);
-    method public void setPageSize(long);
+    method @InaccessibleFromKotlin public void setPageSize(long);
     method public void setTransactionSuccessful();
-    method public void setVersion(int);
+    method @InaccessibleFromKotlin public void setVersion(int);
     method public int update(String table, int conflictAlgorithm, android.content.ContentValues values, String? whereClause, Object?[]? whereArgs);
     method public boolean yieldIfContendedSafely();
     method public boolean yieldIfContendedSafely(long sleepAfterYieldDelayMillis);
@@ -130,9 +135,9 @@ package androidx.sqlite.db {
 
   public interface SupportSQLiteOpenHelper extends java.io.Closeable {
     method public void close();
-    method public String? getDatabaseName();
-    method public androidx.sqlite.db.SupportSQLiteDatabase getReadableDatabase();
-    method public androidx.sqlite.db.SupportSQLiteDatabase getWritableDatabase();
+    method @InaccessibleFromKotlin public String? getDatabaseName();
+    method @InaccessibleFromKotlin public androidx.sqlite.db.SupportSQLiteDatabase getReadableDatabase();
+    method @InaccessibleFromKotlin public androidx.sqlite.db.SupportSQLiteDatabase getWritableDatabase();
     method public void setWriteAheadLoggingEnabled(boolean enabled);
     property public abstract String? databaseName;
     property public abstract androidx.sqlite.db.SupportSQLiteDatabase readableDatabase;
@@ -153,6 +158,7 @@ package androidx.sqlite.db {
 
   public static final class SupportSQLiteOpenHelper.Configuration {
     ctor public SupportSQLiteOpenHelper.Configuration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback, optional boolean useNoBackupDirectory, optional boolean allowDataLossOnRecovery);
+    ctor @BytecodeOnly public SupportSQLiteOpenHelper.Configuration(android.content.Context!, String!, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback!, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
     property public boolean allowDataLossOnRecovery;
     property public androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
@@ -194,8 +200,8 @@ package androidx.sqlite.db {
 
   public interface SupportSQLiteQuery {
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
-    method public int getArgCount();
-    method public String getSql();
+    method @InaccessibleFromKotlin public int getArgCount();
+    method @InaccessibleFromKotlin public String getSql();
     property public abstract int argCount;
     property public abstract String sql;
   }

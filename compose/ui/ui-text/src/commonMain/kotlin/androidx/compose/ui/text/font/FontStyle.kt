@@ -25,7 +25,7 @@ package androidx.compose.ui.text.font
 value class FontStyle
 @Deprecated(
     "Please use FontStyle.Normal or FontStyle.Italic",
-    replaceWith = ReplaceWith("FontStyle.")
+    replaceWith = ReplaceWith("FontStyle."),
 )
 constructor(val value: Int) {
 

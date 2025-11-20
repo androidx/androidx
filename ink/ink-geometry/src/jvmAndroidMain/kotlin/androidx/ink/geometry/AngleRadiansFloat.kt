@@ -22,10 +22,13 @@ import kotlin.annotation.Retention
 import kotlin.annotation.Target
 
 /**
- * A signed angle in radians. A positive value represents rotation from the positive x-axis to the
- * positive y-axis. [Angle] class manages the conversion of angle values in degrees and radians with
- * [Angle.radiansToDegrees] and [Angle.degreesToRadians]. Most of Strokes API requires angle values
- * in radians.
+ * A signed angle in radians. A positive value represents rotation in the direction from the
+ * positive x-axis towards the positive y-axis.
+ *
+ * Ink generally provides and accepts angle values in degrees. This annotation can be used to
+ * distinguish float angle values that are in radians instead. The [Angle] class provides the
+ * conversion methods [Angle.radiansToDegrees] and [Angle.degreesToRadians], which can be used to
+ * convert to and from the radian values used by trigonometric functions.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)

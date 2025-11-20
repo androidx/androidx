@@ -24,20 +24,17 @@ import static android.media.EncoderProfiles.VideoProfile.HDR_NONE;
 
 import static androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10;
 import static androidx.camera.core.impl.EncoderProfilesProxy.getVideoCodecMimeType;
-import static androidx.camera.video.internal.config.VideoConfigUtil.toVideoEncoderConfig;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaRecorder;
 import android.util.Rational;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -65,18 +62,17 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
     private static final String TAG = "BackupHdrProfileEncoderProfilesProvider";
 
     private final EncoderProfilesProvider mEncoderProfilesProvider;
-    private final Function<VideoEncoderConfig, VideoEncoderInfo> mVideoEncoderInfoFinder;
+    private final VideoEncoderInfo.Finder mVideoEncoderInfoFinder;
     private final Map<Integer, EncoderProfilesProxy> mEncoderProfilesCache = new HashMap<>();
 
     /**
      * Creates a BackupHdrProfileEncoderProfilesProvider.
      *
      * @param provider               the {@link EncoderProfilesProvider}.
-     * @param videoEncoderInfoFinder a {@link Function} to find a VideoEncoderInfo from a
-     *                               VideoEncoderConfig.
+     * @param videoEncoderInfoFinder a {@link VideoEncoderInfo.Finder} to find a VideoEncoderInfo.
      */
     public BackupHdrProfileEncoderProfilesProvider(@NonNull EncoderProfilesProvider provider,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         mEncoderProfilesProvider = provider;
         mVideoEncoderInfoFinder = videoEncoderInfoFinder;
     }
@@ -243,18 +239,17 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
      */
     @VisibleForTesting
     static @Nullable VideoProfileProxy validateOrAdapt(@Nullable VideoProfileProxy profile,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         if (profile == null) {
             return null;
         }
-        VideoEncoderConfig videoEncoderConfig = toVideoEncoderConfig(profile);
-        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.apply(videoEncoderConfig);
+        VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.find(profile.getMediaType());
         if (videoEncoderInfo == null
                 || !videoEncoderInfo.isSizeSupportedAllowSwapping(profile.getWidth(),
                 profile.getHeight())) {
             return null;
         }
-        int baseBitrate = videoEncoderConfig.getBitrate();
+        int baseBitrate = profile.getBitrate();
         int newBitrate = videoEncoderInfo.getSupportedBitrateRange().clamp(baseBitrate);
         return newBitrate == baseBitrate ? profile : modifyBitrate(profile, newBitrate);
     }

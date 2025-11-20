@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-@RequiresApi(21)
 class ViewUtilsApi21 extends ViewUtilsApi19 {
 
     /**

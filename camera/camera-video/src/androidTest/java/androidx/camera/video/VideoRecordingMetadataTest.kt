@@ -29,10 +29,10 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraTaskTrackingExecutor
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -52,13 +52,14 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class VideoRecordingMetadataTest(
     private val implName: String,
     private var cameraSelector: CameraSelector,
@@ -68,9 +69,7 @@ class VideoRecordingMetadataTest(
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName.contains(CameraPipeConfig::class.simpleName!!),
-        )
+        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
 
     @get:Rule
     val cameraRule =
@@ -82,7 +81,11 @@ class VideoRecordingMetadataTest(
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
-    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    // Chain rule to not run WakelockEmptyActivityRule when the test is ignored.
+    @get:Rule
+    val skipAndWakelockRule: TestRule =
+        RuleChain.outerRule(IgnoreVideoRecordingProblematicDeviceRule())
+            .around(WakelockEmptyActivityRule())
 
     companion object {
         private const val TAG = "VideoRecordingMetadataTest"
@@ -105,6 +108,14 @@ class VideoRecordingMetadataTest(
                     /*forceEnableStreamSharing=*/ false,
                 ),
                 arrayOf(
+                    "external+" + Camera2Config::class.simpleName,
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
+                    Camera2Config.defaultConfig(),
+                    /*forceEnableStreamSharing=*/ false,
+                ),
+                arrayOf(
                     "back+" + Camera2Config::class.simpleName + "+streamSharing",
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     Camera2Config.defaultConfig(),
@@ -113,6 +124,14 @@ class VideoRecordingMetadataTest(
                 arrayOf(
                     "front+" + Camera2Config::class.simpleName + "+streamSharing",
                     CameraSelector.DEFAULT_FRONT_CAMERA,
+                    Camera2Config.defaultConfig(),
+                    /*forceEnableStreamSharing=*/ true,
+                ),
+                arrayOf(
+                    "external+" + Camera2Config::class.simpleName + "+streamSharing",
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
                     Camera2Config.defaultConfig(),
                     /*forceEnableStreamSharing=*/ true,
                 ),
@@ -129,6 +148,14 @@ class VideoRecordingMetadataTest(
                     /*forceEnableStreamSharing=*/ false,
                 ),
                 arrayOf(
+                    "external+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
+                    CameraPipeConfig.defaultConfig(),
+                    /*forceEnableStreamSharing=*/ false,
+                ),
+                arrayOf(
                     "back+" + CameraPipeConfig::class.simpleName + "+streamSharing",
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     CameraPipeConfig.defaultConfig(),
@@ -137,6 +164,14 @@ class VideoRecordingMetadataTest(
                 arrayOf(
                     "front+" + CameraPipeConfig::class.simpleName + "+streamSharing",
                     CameraSelector.DEFAULT_FRONT_CAMERA,
+                    CameraPipeConfig.defaultConfig(),
+                    /*forceEnableStreamSharing=*/ true,
+                ),
+                arrayOf(
+                    "external+" + CameraPipeConfig::class.simpleName + "+streamSharing",
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
                     CameraPipeConfig.defaultConfig(),
                     /*forceEnableStreamSharing=*/ true,
                 ),
@@ -157,7 +192,6 @@ class VideoRecordingMetadataTest(
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        skipVideoRecordingTestIfNotSupportedByEmulator()
 
         val cameraExecutor = CameraTaskTrackingExecutor()
         val cameraXConfig =
@@ -166,7 +200,7 @@ class VideoRecordingMetadataTest(
         cameraProvider =
             ProcessCameraProviderWrapper(
                 ProcessCameraProvider.getInstance(context).get(),
-                forceEnableStreamSharing
+                forceEnableStreamSharing,
             )
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
@@ -228,7 +262,7 @@ class VideoRecordingMetadataTest(
             // Verify. SDR video is not expected to have BT2020 color standard.
             verifyVideoColorStandard(
                 unexpectedColorStandard = MediaFormat.COLOR_STANDARD_BT2020,
-                file = result.file
+                file = result.file,
             )
 
             instrumentation.runOnMainSync { cameraProvider.unbindAll() }
@@ -257,7 +291,7 @@ class VideoRecordingMetadataTest(
             // Verify. SDR video is not expected to have BT2020 color standard.
             verifyVideoColorStandard(
                 unexpectedColorStandard = MediaFormat.COLOR_STANDARD_BT2020,
-                file = result.file
+                file = result.file,
             )
 
             instrumentation.runOnMainSync { cameraProvider.unbindAll() }

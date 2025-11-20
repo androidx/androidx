@@ -88,7 +88,7 @@ class ListDetailPaneScaffoldBenchmark {
                     .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping state transitions
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -110,7 +110,7 @@ class ListDetailPaneScaffoldBenchmark {
                     .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping state transitions
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -132,7 +132,7 @@ class ListDetailPaneScaffoldBenchmark {
                     .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping animations
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -154,7 +154,7 @@ class ListDetailPaneScaffoldBenchmark {
                     .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping animations
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -173,11 +173,11 @@ internal open class ListDetailPaneScaffoldTestCase(animated: Boolean = false) :
                 calculateThreePaneScaffoldValue(
                     maxHorizontalPartitions = currentScaffoldDirective.maxHorizontalPartitions,
                     adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
-                    currentDestination = currentDestination
+                    currentDestination = currentDestination,
                 ),
             listPane = { TestPane(Color.Red) },
             detailPane = { TestPane(Color.Yellow) },
-            extraPane = { TestPane(Color.Blue) }
+            extraPane = { TestPane(Color.Blue) },
         )
     }
 }

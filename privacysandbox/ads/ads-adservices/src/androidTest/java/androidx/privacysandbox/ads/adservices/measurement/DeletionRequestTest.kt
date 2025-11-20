@@ -59,12 +59,12 @@ class DeletionRequestTest {
                 Instant.MIN,
                 Instant.MAX,
                 listOf(Uri.parse("www.abc.com")),
-                listOf(Uri.parse("www.xyz.com"))
+                listOf(Uri.parse("www.xyz.com")),
             )
         val deletionRequest2 =
             DeletionRequest.Builder(
                     deletionMode = DeletionRequest.DELETION_MODE_ALL,
-                    matchBehavior = DeletionRequest.MATCH_BEHAVIOR_DELETE
+                    matchBehavior = DeletionRequest.MATCH_BEHAVIOR_DELETE,
                 )
                 .setDomainUris(listOf(Uri.parse("www.abc.com")))
                 .setOriginUris(listOf(Uri.parse("www.xyz.com")))

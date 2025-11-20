@@ -54,7 +54,7 @@ class LocalesConfigChangesTestCase() {
             expectedLocales =
                 LocalesUpdateActivity.overlayCustomAndSystemLocales(
                     CUSTOM_LOCALE_LIST,
-                    systemLocales
+                    systemLocales,
                 )
         }
     }
@@ -98,6 +98,49 @@ class LocalesConfigChangesTestCase() {
         // Assert that the onConfigurationChange was called with a new correct config.
         scenario.onActivity {
             val lastConfig = it.lastConfigurationChangeAndClear
+            assertConfigurationLocalesEquals(systemLocales, lastConfig!!)
+        }
+    }
+
+    @Test
+    fun testViewOnConfigurationChangeCalledWhileStarted() {
+        scenario.moveToState(Lifecycle.State.RESUMED)
+
+        // Set locales to CUSTOM_LOCALE_LIST.
+        scenario.onActivity { setLocales(CUSTOM_LOCALE_LIST) }
+        // Assert that the onConfigurationChange was called with a new correct config.
+        scenario.onActivity {
+            val lastConfig = it.lastViewConfigurationChangeAndClear
+            assertConfigurationLocalesEquals(expectedLocales, lastConfig!!)
+        }
+
+        // Set locales back to system locales.
+        scenario.onActivity { setLocales(LocaleListCompat.getEmptyLocaleList()) }
+        // Assert that the onConfigurationChange was called with a new correct config.
+        scenario.onActivity {
+            val lastConfig = it.lastViewConfigurationChangeAndClear
+            assertConfigurationLocalesEquals(systemLocales, lastConfig!!)
+        }
+    }
+
+    @Test
+    fun testViewOnConfigurationChangeCalledWhileStopped() {
+        scenario.moveToState(Lifecycle.State.RESUMED)
+        scenario.moveToState(Lifecycle.State.CREATED)
+
+        // Set locales to CUSTOM_LOCALE_LIST.
+        scenario.onActivity { setLocales(CUSTOM_LOCALE_LIST) }
+        // Assert that the onConfigurationChange was called with a new correct config.
+        scenario.onActivity {
+            val lastConfig = it.lastViewConfigurationChangeAndClear
+            assertConfigurationLocalesEquals(expectedLocales, lastConfig!!)
+        }
+
+        // Set locales back to system locales.
+        scenario.onActivity { setLocales(LocaleListCompat.getEmptyLocaleList()) }
+        // Assert that the onConfigurationChange was called with a new correct config.
+        scenario.onActivity {
+            val lastConfig = it.lastViewConfigurationChangeAndClear
             assertConfigurationLocalesEquals(systemLocales, lastConfig!!)
         }
     }

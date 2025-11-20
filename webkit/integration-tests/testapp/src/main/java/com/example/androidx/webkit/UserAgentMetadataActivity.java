@@ -40,7 +40,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 
 /**
- * Demo activity to demonstrate the behaviour of overriding user-agent metadata APIs.
+ * Demo activity to demonstrate the behavior of overriding user-agent metadata APIs.
  */
 public class UserAgentMetadataActivity extends AppCompatActivity {
 
@@ -83,6 +83,7 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_agent_metadata);
+        WebkitHelpers.enableEdgeToEdge(this);
 
         setTitle(R.string.user_agent_metadata_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
@@ -102,12 +103,13 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
         radioGroup.setOnCheckedChangeListener(this::onRadioGroupChanged);
 
         // Initially send a request without overrides
-        refreshView(false);
+        refreshView(R.id.user_agent_metadata_without_override_mode);
     }
 
-    private void refreshView(boolean setOverrides) {
+    private void refreshView(int checkedId) {
         UserAgentMetadata overrideSetting;
-        if (setOverrides) {
+        String resourcePath = "www/user_agent_metadata_main.html";
+        if (checkedId == R.id.user_agent_metadata_with_override_mode) {
             UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion
                     .Builder().setBrand("myBrand").setMajorVersion("1").setFullVersion("1.1.1.1")
                     .build();
@@ -118,6 +120,27 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
                     .setMobile(true).setModel("myModel").setBitness(32)
                     .setWow64(false).build();
 
+
+        } else if (checkedId == R.id.user_agent_metadata_with_override_form_factors_mode) {
+            if (!WebViewFeature.isFeatureSupported(
+                    WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS)) {
+                overrideSetting = new UserAgentMetadata.Builder().build();
+                resourcePath = "www/user_agent_metadata_form_factors_not_supported.html";
+            } else {
+                UserAgentMetadata.BrandVersion brandVersion = new UserAgentMetadata.BrandVersion
+                        .Builder().setBrand("myBrand").setMajorVersion("1")
+                        .setFullVersion("1.1.1.1")
+                        .build();
+                overrideSetting = new UserAgentMetadata.Builder()
+                        .setBrandVersionList(Collections.singletonList(brandVersion))
+                        .setFullVersion("1.1.1.1").setPlatform("myPlatform")
+                        .setPlatformVersion("2.2.2.2").setArchitecture("myArch")
+                        .setMobile(true).setModel("myModel").setBitness(32)
+                        .setWow64(false)
+                        .setFormFactors(Collections.singletonList(UserAgentMetadata.FORM_FACTOR_XR))
+                        .build();
+                resourcePath = "www/user_agent_metadata_form_factors.html";
+            }
         } else {
             overrideSetting = new UserAgentMetadata.Builder().build();
         }
@@ -130,8 +153,7 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
                         .addPathHandler(mExampleUri.getPath() + "/", new AssetsPathHandler(this))
                         .build();
         mWebView.setWebViewClient(new MyWebViewClient(assetLoader));
-        mWebView.loadUrl(Uri.withAppendedPath(mExampleUri,
-                "www/user_agent_metadata_main.html").toString());
+        mWebView.loadUrl(Uri.withAppendedPath(mExampleUri, resourcePath).toString());
     }
 
     /**
@@ -140,6 +162,6 @@ public class UserAgentMetadataActivity extends AppCompatActivity {
      * @param checkedId ID of checked radio button
      */
     public void onRadioGroupChanged(@NonNull RadioGroup unused, int checkedId) {
-        refreshView(checkedId == R.id.user_agent_metadata_with_override_mode);
+        refreshView(checkedId);
     }
 }

@@ -41,14 +41,14 @@ internal class CredentialProviderCreateRestoreCredentialController(private val c
         com.google.android.gms.auth.blockstore.restorecredential.CreateRestoreCredentialRequest,
         CreateRestoreCredentialResponse,
         CreateCredentialResponse,
-        CreateCredentialException
+        CreateCredentialException,
     >(context) {
 
     override fun invokePlayServices(
         request: CreateRestoreCredentialRequest,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
         executor: Executor,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ) {
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
@@ -88,7 +88,7 @@ internal class CredentialProviderCreateRestoreCredentialController(private val c
                             createException =
                                 CreateRestoreCredentialDomException(
                                     DataError(),
-                                    "The request did not match the fido spec, failure: ${e.message}"
+                                    "The request did not match the fido spec, failure: ${e.message}",
                                 )
                         }
                         RestoreCredentialStatusCodes.RESTORE_CREDENTIAL_INTERNAL_FAILURE -> {

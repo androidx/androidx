@@ -28,7 +28,6 @@ import androidx.credentials.provider.ui.UiUtils.Companion.constructCreateEntryWi
 import androidx.credentials.provider.ui.UiUtils.Companion.constructRemoteEntryDefault
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -37,14 +36,13 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 23)
 class BeginCreateCredentialResponseTest {
 
     @Test
     fun constructor_success() {
         BeginCreateCredentialResponse(
             createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-            remoteEntry = constructRemoteEntryDefault()
+            remoteEntry = constructRemoteEntryDefault(),
         )
     }
 
@@ -71,7 +69,7 @@ class BeginCreateCredentialResponseTest {
                 listOf(
                     constructCreateEntryWithSimpleParams(expectedAccountName, expectedDescription)
                 ),
-                null
+                null,
             )
         val actualAccountName = beginCreateCredentialResponse.createEntries[0].accountName
         val actualDescription = beginCreateCredentialResponse.createEntries[0].description
@@ -87,7 +85,7 @@ class BeginCreateCredentialResponseTest {
         val beginCreateCredentialResponse =
             BeginCreateCredentialResponse(
                 listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-                expectedRemoteEntry
+                expectedRemoteEntry,
             )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
@@ -101,20 +99,19 @@ class BeginCreateCredentialResponseTest {
         val beginCreateCredentialResponse =
             BeginCreateCredentialResponse(
                 listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-                expectedRemoteEntry
+                expectedRemoteEntry,
             )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
         assertThat(actualRemoteEntry).isEqualTo(expectedRemoteEntry)
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun bundleConversions_success() {
         val expected =
             BeginCreateCredentialResponse(
                 createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", null)),
-                remoteEntry = constructRemoteEntryDefault()
+                remoteEntry = constructRemoteEntryDefault(),
             )
 
         val actual =
@@ -125,7 +122,6 @@ class BeginCreateCredentialResponseTest {
         assertEquals(ApplicationProvider.getApplicationContext(), actual!!, expected)
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun bundleConversions_multipleCreateEntries_success() {
         val context: Context = ApplicationProvider.getApplicationContext()
@@ -139,7 +135,7 @@ class BeginCreateCredentialResponseTest {
                                 context,
                                 0,
                                 Intent(),
-                                PendingIntent.FLAG_IMMUTABLE
+                                PendingIntent.FLAG_IMMUTABLE,
                             ),
                             "Desc",
                             if (Build.VERSION.SDK_INT >= 26) Instant.now() else null,
@@ -155,7 +151,7 @@ class BeginCreateCredentialResponseTest {
                                 context,
                                 0,
                                 Intent(),
-                                PendingIntent.FLAG_IMMUTABLE
+                                PendingIntent.FLAG_IMMUTABLE,
                             ),
                             "Desc...",
                             if (Build.VERSION.SDK_INT >= 26) Instant.now() else null,
@@ -163,9 +159,9 @@ class BeginCreateCredentialResponseTest {
                             10,
                             null,
                             null,
-                        )
+                        ),
                     ),
-                remoteEntry = null
+                remoteEntry = null,
             )
 
         val actual =
@@ -176,7 +172,6 @@ class BeginCreateCredentialResponseTest {
         assertEquals(context, actual!!, expected)
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun bundleConversions_emptyBundle_returnsNull() {
         val actual = BeginCreateCredentialResponse.fromBundle(Bundle())

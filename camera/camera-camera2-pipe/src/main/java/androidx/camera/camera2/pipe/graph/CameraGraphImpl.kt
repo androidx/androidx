@@ -16,18 +16,27 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AudioRestrictionMode
+import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.Session
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.GraphState
+import androidx.camera.camera2.pipe.Lock3ABehavior
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Token
@@ -35,6 +44,7 @@ import androidx.camera.camera2.pipe.core.acquireToken
 import androidx.camera.camera2.pipe.core.acquireTokenAndSuspend
 import androidx.camera.camera2.pipe.core.tryAcquireToken
 import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
+import androidx.camera.camera2.pipe.internal.CameraGraphRequestListenersImpl
 import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import javax.inject.Inject
@@ -44,6 +54,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
@@ -67,7 +78,9 @@ constructor(
     private val audioRestrictionController: AudioRestrictionController,
     override val id: CameraGraphId,
     override val parameters: CameraGraphParametersImpl,
-    private val sessionLock: SessionLock
+    override val listeners: CameraGraphRequestListenersImpl,
+    private val sessionLock: SessionLock,
+    @ForCameraGraph private val graphScope: CoroutineScope,
 ) : CameraGraph {
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
     private val closed = atomic(false)
@@ -96,10 +109,7 @@ constructor(
             }
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            require(graphConfig.input == null) { "Reprocessing not supported under Android M" }
-        }
-        if (graphConfig.input != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (graphConfig.input != null) {
             require(graphConfig.input.isNotEmpty()) {
                 "At least one InputConfiguration is required for reprocessing"
             }
@@ -143,7 +153,7 @@ constructor(
         Debug.traceStop()
     }
 
-    override suspend fun acquireSession(): CameraGraph.Session {
+    override suspend fun acquireSession(): Session {
         // Step 1: Acquire a lock on the session mutex, which returns a releasable token. This may
         //         or may not suspend.
         val token = sessionLock.acquireToken()
@@ -153,14 +163,12 @@ constructor(
         return createSessionFromToken(token)
     }
 
-    override fun acquireSessionOrNull(): CameraGraph.Session? {
+    override fun acquireSessionOrNull(): Session? {
         val token = sessionLock.tryAcquireToken() ?: return null
         return createSessionFromToken(token)
     }
 
-    override suspend fun <T> useSession(
-        action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): T =
+    override suspend fun <T> useSession(action: suspend CoroutineScope.(Session) -> T): T =
         acquireSession().use {
             // Wrap the block in a coroutineScope to ensure all operations are completed before
             // releasing the lock.
@@ -169,7 +177,7 @@ constructor(
 
     override fun <T> useSessionIn(
         scope: CoroutineScope,
-        action: suspend CoroutineScope.(CameraGraph.Session) -> T
+        action: suspend CoroutineScope.(Session) -> T,
     ): Deferred<T> {
         return sessionLock.withTokenIn(scope) { token ->
             // Create and use the session
@@ -181,9 +189,6 @@ constructor(
             }
         }
     }
-
-    private fun createSessionFromToken(token: Token) =
-        CameraGraphSessionImpl(token, graphProcessor, controller3A, frameCaptureQueue, parameters)
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
@@ -200,6 +205,87 @@ constructor(
         }
     }
 
+    override fun update3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.update3A(
+            aeMode = aeMode,
+            afMode = afMode,
+            awbMode,
+            aeRegions = aeRegions,
+            afRegions = afRegions,
+            awbRegions = awbRegions,
+        )
+    }
+
+    override fun submit3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
+    }
+
+    override fun setTorchOn(): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.setTorchOn()
+    }
+
+    override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.setTorchOff(aeMode)
+    }
+
+    override fun lock3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+        aeLockBehavior: Lock3ABehavior?,
+        afLockBehavior: Lock3ABehavior?,
+        awbLockBehavior: Lock3ABehavior?,
+        afTriggerStartAeMode: AeMode?,
+        convergedCondition: ((FrameMetadata) -> Boolean)?,
+        lockedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int,
+        convergedTimeLimitNs: Long,
+        lockedTimeLimitNs: Long,
+    ): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.lock3A(
+            aeRegions,
+            afRegions,
+            awbRegions,
+            aeLockBehavior,
+            afLockBehavior,
+            awbLockBehavior,
+            afTriggerStartAeMode,
+            convergedCondition,
+            lockedCondition,
+            frameLimit,
+            convergedTimeLimitNs,
+            lockedTimeLimitNs,
+        )
+    }
+
+    override fun unlock3A(
+        ae: Boolean?,
+        af: Boolean?,
+        awb: Boolean?,
+        unlockedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int,
+        timeLimitNs: Long,
+    ): Deferred<Result3A> = withSessionLockAsync {
+        controller3A.unlock3A(ae, af, awb, unlockedCondition, frameLimit, timeLimitNs)
+    }
+
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             Debug.traceStart { "$this#close" }
@@ -210,11 +296,35 @@ constructor(
             frameCaptureQueue.close()
             surfaceGraph.close()
             audioRestrictionController.removeCameraGraph(this)
+            graphScope.cancel()
             Debug.traceStop()
         }
     }
 
     override fun toString(): String = id.toString()
+
+    private fun createSessionFromToken(token: Token) =
+        CameraGraphSessionImpl(
+            token,
+            graphProcessor,
+            controller3A,
+            frameCaptureQueue,
+            parameters,
+            listeners,
+        )
+
+    /**
+     * Acquires a [SessionLock] token and executes the given code block. The code block(s) will
+     * execute in the same order as they were invoked. This method uses [graphScope]. See
+     * [useSessionIn] for further reference. This method additionally chains the Deferred<T> return
+     * type of the code block, to its own return type. The other advantage of this method as
+     * compared to [useSessionIn] is that it doesn't create a [Session] object, however it should be
+     * noted that any camera state changes, like parameter updates, that the [Session]'s init or
+     * close block handles, will be skipped, so invoke them separately if needed.
+     */
+    private fun <T> withSessionLockAsync(
+        block: suspend CoroutineScope.() -> Deferred<T>
+    ): Deferred<T> = sessionLock.withTokenInAsync(graphScope) { coroutineScope { block() } }
 }
 
 @CameraGraphScope
@@ -227,7 +337,30 @@ internal class SessionLock @Inject constructor() {
 
     internal fun <T> withTokenIn(
         scope: CoroutineScope,
-        action: suspend (token: Token) -> T
+        action: suspend (token: Token) -> T,
+    ): Deferred<T> =
+        asyncUndispatched(scope) {
+            // Note: It's _very_ important to suspend here (which acquireTokenAndSuspend does) to
+            // ensure the action occurs on the correct scope thread.
+            mutex.acquireTokenAndSuspend().use { token -> action(token) }
+        }
+
+    internal fun <T> withTokenInAsync(
+        scope: CoroutineScope,
+        action: suspend (token: Token) -> Deferred<T>,
+    ): Deferred<T> =
+        asyncUndispatched(scope) {
+            // Note: It's _very_ important to suspend here (which acquireTokenAndSuspend does) to
+            // ensure the action occurs on the correct scope thread.
+            val deferred = mutex.acquireTokenAndSuspend().use { token -> action(token) }
+
+            ensureActive()
+            deferred.await()
+        }
+
+    private fun <T> asyncUndispatched(
+        scope: CoroutineScope,
+        block: suspend CoroutineScope.() -> T,
     ): Deferred<T> {
         // https://github.com/Kotlin/kotlinx.coroutines/issues/1578
         // To handle `runBlocking` we need to use `job.complete()` in `result.invokeOnCompletion`.
@@ -245,7 +378,7 @@ internal class SessionLock @Inject constructor() {
                 // this will force the execution to switch to the provided scope after ensuring the
                 // lock is acquired or in the queue. This guarantees exclusion, ordering, and
                 // execution within the correct scope.
-                mutex.acquireTokenAndSuspend().use { token -> action(token) }
+                block()
             }
         result.invokeOnCompletion { childJob.complete() }
         return result

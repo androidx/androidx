@@ -440,7 +440,7 @@ public final class GridItem implements Item {
          * <p>Individual items can be set to be included or excluded from filtered lists, but it's
          * also possible to enable/disable the creation of filtered lists as a whole via the
          * template's API (eg. {@code SectionedItemTemplate
-         * .Builder#setAlphabeticalIndexingAllowed(Boolean)}).
+         * .Builder#setAlphabeticalIndexingStrategy(int)}).
          */
         @ExperimentalCarApi
         public @NonNull Builder setIndexable(boolean indexable) {

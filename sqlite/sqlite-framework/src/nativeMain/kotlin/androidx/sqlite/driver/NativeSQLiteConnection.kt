@@ -23,21 +23,35 @@ import androidx.sqlite.throwSQLiteException
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
 import kotlin.concurrent.Volatile
+import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.CPointerVar
+import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.toKStringFromUtf8
 import kotlinx.cinterop.utf16
 import kotlinx.cinterop.value
 import sqlite3.SQLITE_MISUSE
 import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
+import sqlite3.sqlite3_free
+import sqlite3.sqlite3_get_autocommit
+import sqlite3.sqlite3_load_extension
 import sqlite3.sqlite3_prepare16_v2
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : SQLiteConnection {
 
-    @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
+    @Volatile private var isClosed = false
+
+    override fun inTransaction(): Boolean {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
+        }
+        return sqlite3_get_autocommit(dbPointer) == 0
+    }
 
     override fun prepare(sql: String): SQLiteStatement = memScoped {
         if (isClosed) {
@@ -52,7 +66,7 @@ public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : 
                 zSql = sqlUtf16,
                 nByte = sqlUtf16.size,
                 ppStmt = stmtPointer.ptr,
-                pzTail = null
+                pzTail = null,
             )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -60,10 +74,28 @@ public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : 
         NativeSQLiteStatement(dbPointer, stmtPointer.value!!)
     }
 
+    internal fun loadExtension(fileName: String, entryPoint: String?): Unit = memScoped {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
+        }
+        val errorMessagePointer = alloc<CPointerVar<ByteVar>>()
+        val resultCode =
+            sqlite3_load_extension(dbPointer, fileName, entryPoint, errorMessagePointer.ptr)
+
+        if (resultCode != SQLITE_OK) {
+            val errorMessage = errorMessagePointer.value?.toKStringFromUtf8()
+            if (errorMessage != null) {
+                sqlite3_free(errorMessagePointer.value)
+            }
+
+            throwSQLiteException(resultCode, errorMessage)
+        }
+    }
+
     override fun close() {
         if (!isClosed) {
+            isClosed = true
             sqlite3_close_v2(dbPointer)
         }
-        isClosed = true
     }
 }

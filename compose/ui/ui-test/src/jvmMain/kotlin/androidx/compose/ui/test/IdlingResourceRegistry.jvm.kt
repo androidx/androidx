@@ -125,7 +125,7 @@ internal constructor(private val pollScopeOverride: CoroutineScope?) : IdlingRes
                 }
                 Pair(
                     (idlingResources - busyResources).toList(),
-                    busyResources.map { it.getDiagnosticMessageIfBusy() ?: it.toString() }
+                    busyResources.map { it.getDiagnosticMessageIfBusy() ?: it.toString() },
                 )
             }
         return "IdlingResourceRegistry has the following idling resources registered:" +
@@ -143,7 +143,7 @@ internal constructor(private val pollScopeOverride: CoroutineScope?) : IdlingRes
         return replace("\n(?=.)".toRegex(), "\n$prefix")
     }
 
-    fun <R> withRegistry(block: () -> R): R {
+    inline fun <R> withRegistry(block: () -> R): R {
         try {
             return block()
         } finally {

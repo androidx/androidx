@@ -27,20 +27,20 @@ import androidx.compose.runtime.rememberCompositionContext
  * access to data tracked during composition. The tools API should be used instead which provides a
  * more usable interpretation of the slot table.
  */
-interface CompositionData {
+public interface CompositionData {
     /**
      * Iterate the composition data in the group. The composition data is structured as a tree of
      * values that corresponds to the call graph of the functions that produced the tree.
      * Interspersed are groups that represents the nodes themselves.
      */
-    val compositionGroups: Iterable<CompositionGroup>
+    public val compositionGroups: Iterable<CompositionGroup>
 
     /**
      * Returns true if no composition data has been collected. This occurs when the first
      * composition into this composition data has not completed yet or, if it is a group, it doesn't
      * contain any child groups.
      */
-    val isEmpty: Boolean
+    public val isEmpty: Boolean
 
     /**
      * Find a sub-group by identity. Returns `null` if the group is not found or the implementation
@@ -48,7 +48,7 @@ interface CompositionData {
      * result from this method should not be interpreted as the identity is not a group in the
      * composition data.
      */
-    fun find(identityToFind: Any): CompositionGroup? = null
+    public fun find(identityToFind: Any): CompositionGroup? = null
 }
 
 /**
@@ -61,25 +61,25 @@ interface CompositionData {
  * more usable interpretation of the slot table.
  */
 @JvmDefaultWithCompatibility
-interface CompositionGroup : CompositionData {
+public interface CompositionGroup : CompositionData {
     /**
      * A value used to identify the group within its siblings and is typically a compiler generated
      * integer but can be an object if the [key] composable is used.
      */
-    val key: Any
+    public val key: Any
 
     /**
      * Information recorded by the compiler to help tooling identify the source that generated the
      * group. The format of this string is internal and is interpreted by the tools API which
      * translates this information into source file name and offsets.
      */
-    val sourceInfo: String?
+    public val sourceInfo: String?
 
     /**
      * If the group represents a node this returns a non-null value which is the node that was
      * emitted for the group.
      */
-    val node: Any?
+    public val node: Any?
 
     /**
      * The data stored in the slot table for this group. This information includes the values stored
@@ -87,17 +87,17 @@ interface CompositionGroup : CompositionData {
      * [androidx.compose.runtime.remember] and the last value returned by
      * [androidx.compose.runtime.remember], etc.
      */
-    val data: Iterable<Any?>
+    public val data: Iterable<Any?>
 
     /** A value that identifies a Group independently of movement caused by recompositions. */
-    val identity: Any?
+    public val identity: Any?
         get() = null
 
     /** The total number of groups, including itself, that this group contains. */
-    val groupSize: Int
+    public val groupSize: Int
         get() = 0
 
-    val slotsSize: Int
+    public val slotsSize: Int
         get() = 0
 }
 
@@ -105,22 +105,22 @@ interface CompositionGroup : CompositionData {
  * [CompositionInstance] provides information about the composition of which a [CompositionData] is
  * part.
  */
-interface CompositionInstance {
+public interface CompositionInstance {
     /**
      * The parent composition instance, if the instance is part of a sub-composition. If this is the
      * root of a composition (such as the content of a ComposeView), then [parent] will be `null`.
      */
-    val parent: CompositionInstance?
+    public val parent: CompositionInstance?
 
     /** The [CompositionData] for the instance */
-    val data: CompositionData
+    public val data: CompositionData
 
     /**
      * Find the [CompositionGroup] that contains the [CompositionContext] created by a call to
      * [rememberCompositionContext] that is the parent context for this composition. If this is the
      * root of the composition (e.g. [parent] is `null`) then this method also returns `null`.
      */
-    fun findContextGroup(): CompositionGroup?
+    public fun findContextGroup(): CompositionGroup?
 }
 
 /**
@@ -131,4 +131,5 @@ interface CompositionInstance {
  * [CompositionData] has an associated [CompositionInstance]. All [CompositionGroup] instances will
  * return `null`.
  */
-fun CompositionData.findCompositionInstance(): CompositionInstance? = this as? CompositionInstance
+public fun CompositionData.findCompositionInstance(): CompositionInstance? =
+    this as? CompositionInstance

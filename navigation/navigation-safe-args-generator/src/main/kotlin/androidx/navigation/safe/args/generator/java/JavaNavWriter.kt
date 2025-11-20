@@ -61,7 +61,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
-        parentDirectionsFileList: List<JavaCodeFile>
+        parentDirectionsFileList: List<JavaCodeFile>,
     ): JavaCodeFile {
         val className = destination.toClassName()
         val typeSpec =
@@ -72,7 +72,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
     private fun generateDestinationDirectionsTypeSpec(
         className: ClassName,
         destination: Destination,
-        parentDirectionsFileList: List<JavaCodeFile>
+        parentDirectionsFileList: List<JavaCodeFile>,
     ): TypeSpec {
         val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
@@ -93,7 +93,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                         .addStatement(
                             "return new $T($L)",
                             ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
-                            action.id.accessor()
+                            action.id.accessor(),
                         )
                         .build()
                 } else {
@@ -103,7 +103,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                         ClassName.get(
                             className.packageName(),
                             className.simpleName(),
-                            actionType.name
+                            actionType.name,
                         )
                     MethodSpec.methodBuilder(methodName)
                         .apply {
@@ -143,7 +143,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                             .addStatement(
                                 "return $T.$L($params)",
                                 ClassName.get(parentPackageName, parentTypeSpec.name),
-                                actionMethod.name
+                                actionMethod.name,
                             )
                             .build()
                     parentGetters.add(methodSpec)
@@ -196,7 +196,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                         "$S + $L() + $S",
                         "${className.simpleName()}(actionId=",
                         getDestIdMethod.name,
-                        "){"
+                        "){",
                     )
                 }
                 .build()
@@ -280,7 +280,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                                 "$N = $N.get($S)",
                                 arg.sanitizedName,
                                 savedStateHandle,
-                                arg.name
+                                arg.name,
                             )
                         }
                     }
@@ -311,7 +311,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                     "$N.$N.putAll($N)",
                     "this",
                     specs.hashMapFieldSpec.name,
-                    "argumentsMap"
+                    "argumentsMap",
                 )
                 .build()
 
@@ -324,7 +324,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                     "$T result = new $T($N)",
                     className,
                     className,
-                    specs.hashMapFieldSpec.name
+                    specs.hashMapFieldSpec.name,
                 )
                 .addStatement("return result")
                 .build()
@@ -368,7 +368,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
         targetVariableName: String,
         arg: Argument,
         specs: ClassWithArgsSpecs,
-        addGetStatement: MethodSpec.Builder.() -> Unit
+        addGetStatement: MethodSpec.Builder.() -> Unit,
     ) {
         beginControlFlow("if ($N.$containsMethodName($S))", sourceVariableName, arg.name)
         addStatement("$T $N", arg.type.typeName(), arg.sanitizedName)
@@ -378,7 +378,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             "$targetVariableName.$N.put($S, $N)",
             specs.hashMapFieldSpec,
             arg.name,
-            arg.sanitizedName
+            arg.sanitizedName,
         )
         nextControlFlow("else")
         if (arg.defaultValue == null) {
@@ -386,14 +386,14 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                 "throw new $T($S)",
                 IllegalArgumentException::class.java,
                 "Required argument \"${arg.name}\" is missing and does not have an " +
-                    "android:defaultValue"
+                    "android:defaultValue",
             )
         } else {
             addStatement(
                 "$targetVariableName.$N.put($S, $L)",
                 specs.hashMapFieldSpec,
                 arg.name,
-                arg.defaultValue.write()
+                arg.defaultValue.write(),
             )
         }
         endControlFlow()
@@ -403,7 +403,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 private class ClassWithArgsSpecs(
     val args: List<Argument>,
     val androidAnnotations: Annotations,
-    val privateConstructor: Boolean = false
+    val privateConstructor: Boolean = false,
 ) {
 
     val suppressAnnotationSpec =
@@ -430,7 +430,7 @@ private class ClassWithArgsSpecs(
                         "this.$N.put($S, $N)",
                         hashMapFieldSpec.name,
                         arg.name,
-                        arg.sanitizedName
+                        arg.sanitizedName,
                     )
                     addStatement("return this")
                     returns(thisClassName)
@@ -452,7 +452,7 @@ private class ClassWithArgsSpecs(
                         "this.$N.put($S, $N)",
                         hashMapFieldSpec.name,
                         arg.name,
-                        arg.sanitizedName
+                        arg.sanitizedName,
                     )
                 }
             }
@@ -479,7 +479,7 @@ private class ClassWithArgsSpecs(
                                 arg.sanitizedName,
                                 arg.type.typeName(),
                                 hashMapFieldSpec.name,
-                                arg.name
+                                arg.name,
                             )
                             arg.type.addBundlePutStatement(this, arg, result, arg.sanitizedName)
                         }
@@ -489,7 +489,7 @@ private class ClassWithArgsSpecs(
                                 this,
                                 arg,
                                 result,
-                                arg.defaultValue.write()
+                                arg.defaultValue.write(),
                             )
                         }
                     }
@@ -514,7 +514,7 @@ private class ClassWithArgsSpecs(
                     "$T $N = new $T()",
                     SAVED_STATE_HANDLE_CLASSNAME,
                     result,
-                    SAVED_STATE_HANDLE_CLASSNAME
+                    SAVED_STATE_HANDLE_CLASSNAME,
                 )
                 args.forEach { arg ->
                     beginControlFlow("if ($N.containsKey($S))", hashMapFieldSpec.name, arg.name)
@@ -525,13 +525,13 @@ private class ClassWithArgsSpecs(
                                 arg.sanitizedName,
                                 arg.type.typeName(),
                                 hashMapFieldSpec.name,
-                                arg.name
+                                arg.name,
                             )
                             arg.type.addSavedStateHandleSetStatement(
                                 this,
                                 arg,
                                 result,
-                                arg.sanitizedName
+                                arg.sanitizedName,
                             )
                         }
                     if (arg.defaultValue != null) {
@@ -540,7 +540,7 @@ private class ClassWithArgsSpecs(
                                 this,
                                 arg,
                                 result,
-                                arg.defaultValue.write()
+                                arg.defaultValue.write(),
                             )
                         }
                     }
@@ -557,7 +557,7 @@ private class ClassWithArgsSpecs(
                 to,
                 hashMapFieldSpec.name,
                 from,
-                hashMapFieldSpec.name
+                hashMapFieldSpec.name,
             )
             .build()
 
@@ -586,7 +586,7 @@ private class ClassWithArgsSpecs(
                         "return ($T) $N.get($S)",
                         arg.type.typeName(),
                         hashMapFieldSpec.name,
-                        arg.name
+                        arg.name,
                     )
                     returns(arg.type.typeName())
                 }
@@ -618,7 +618,7 @@ private class ClassWithArgsSpecs(
                             hashMapFieldSpec,
                             name,
                             hashMapFieldSpec,
-                            name
+                            name,
                         )
                         .apply { addStatement("return false") }
                         .endControlFlow()
@@ -744,7 +744,7 @@ internal fun MethodSpec.Builder.addNullCheck(arg: Argument, variableName: String
             addStatement(
                 "throw new $T($S)",
                 IllegalArgumentException::class.java,
-                "Argument \"${arg.name}\" is marked as non-null but was passed a null value."
+                "Argument \"${arg.name}\" is marked as non-null but was passed a null value.",
             )
         }
         endControlFlow()

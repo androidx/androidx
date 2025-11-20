@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.view.MotionEvent;
@@ -46,7 +45,6 @@ import android.widget.FrameLayout;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -63,7 +61,6 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unchecked")
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewCacheTest {
     TimeMockingRecyclerView mRecyclerView;

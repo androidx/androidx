@@ -1131,7 +1131,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return True if it is running an expanding or collapsing transition, false otherwise.
      */
     public boolean isExpandTransitionSupported() {
-        return VERSION.SDK_INT >= 21;
+        return true;
     }
 
     /**

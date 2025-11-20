@@ -63,7 +63,7 @@ class AsCollectionDetector : Detector(), SourceCodeScanner {
                             ISSUE,
                             node,
                             context.getLocation(node),
-                            "Use method $methodName() only for public API usage"
+                            "Use method $methodName() only for public API usage",
                         )
                     }
                 }
@@ -78,7 +78,7 @@ class AsCollectionDetector : Detector(), SourceCodeScanner {
                 "asSet",
                 "asMutableSet",
                 "asList",
-                "asMutableList"
+                "asMutableList",
             )
         private val CollectionClasses =
             scatterSetOf(
@@ -110,7 +110,7 @@ class AsCollectionDetector : Detector(), SourceCodeScanner {
                 priority = 3,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(AsCollectionDetector::class.java, EnumSet.of(Scope.JAVA_FILE))
+                    Implementation(AsCollectionDetector::class.java, EnumSet.of(Scope.JAVA_FILE)),
             )
     }
 }

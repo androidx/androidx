@@ -118,7 +118,7 @@ fun Carousel(
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
         )
     },
-    content: @Composable AnimatedContentScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit,
 ) {
     CarouselStateUpdater(carouselState, itemCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
@@ -136,7 +136,7 @@ fun Carousel(
         itemCount = itemCount,
         carouselState = carouselState,
         doAutoScroll = shouldPerformAutoScroll(focusState, accessibilityManager),
-        onAutoScrollChange = { isAutoScrollActive = it }
+        onAutoScrollChange = { isAutoScrollActive = it },
     )
 
     Box(
@@ -157,7 +157,7 @@ fun Carousel(
                     outerBoxFocusRequester = carouselOuterBoxFocusRequester,
                     focusManager = focusManager,
                     itemCount = itemCount,
-                    isLtr = isLtr
+                    isLtr = isLtr,
                 ) {
                     focusState
                 }
@@ -172,7 +172,7 @@ fun Carousel(
                     contentTransformStartToEnd
                 }
             },
-            label = "CarouselAnimation"
+            label = "CarouselAnimation",
         ) { activeItemIndex ->
             LaunchedEffect(Unit) {
                 if (accessibilityManager.isEnabled) {
@@ -201,7 +201,7 @@ fun Carousel(
 @Composable
 private fun shouldPerformAutoScroll(
     focusState: FocusState?,
-    accessibilityManager: AccessibilityManager
+    accessibilityManager: AccessibilityManager,
 ): Boolean {
     val carouselIsFocused = focusState?.isFocused ?: false
     val carouselHasFocus = focusState?.hasFocus ?: false
@@ -253,7 +253,7 @@ private fun Modifier.handleKeyEvents(
     focusManager: FocusManager,
     itemCount: Int,
     isLtr: Boolean,
-    currentCarouselBoxFocusState: () -> FocusState?
+    currentCarouselBoxFocusState: () -> FocusState?,
 ): Modifier =
     onKeyEvent {
             fun showPreviousItem() {
@@ -327,7 +327,7 @@ private fun shouldFocusExitCarousel(
     focusDirection: FocusDirection,
     carouselState: CarouselState,
     itemCount: Int,
-    isLtr: Boolean
+    isLtr: Boolean,
 ): Boolean =
     when {
         // LTR: Don't exit if not first item
@@ -497,9 +497,9 @@ object CarouselDefaults {
                         .background(
                             color = if (isActive) activeColor else inactiveColor,
                             shape = CircleShape,
-                        ),
+                        )
             )
-        }
+        },
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -530,7 +530,7 @@ internal fun Modifier.carouselSemantics(itemCount: Int, state: CarouselState): M
                         // Last slide index represents the max. value
                         (itemCount - 1).toFloat()
                     },
-                    reverseScrolling = false
+                    reverseScrolling = false,
                 )
 
             val scrollByAction: ((x: Float, y: Float) -> Boolean) = { x, _ ->

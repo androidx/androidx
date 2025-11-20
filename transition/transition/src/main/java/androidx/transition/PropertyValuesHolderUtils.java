@@ -19,10 +19,7 @@ package androidx.transition;
 import android.animation.PropertyValuesHolder;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.os.Build;
 import android.util.Property;
-
-import androidx.annotation.RequiresApi;
 
 class PropertyValuesHolderUtils {
 
@@ -37,22 +34,8 @@ class PropertyValuesHolderUtils {
      * @return PropertyValuesHolder The constructed PropertyValuesHolder object.
      */
     static PropertyValuesHolder ofPointF(Property<?, PointF> property, Path path) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.ofObject(property, path);
-        }
-        return PropertyValuesHolder.ofFloat(new PathProperty<>(property, path), 0f, 1f);
+        return PropertyValuesHolder.ofObject(property, null, path);
     }
 
     private PropertyValuesHolderUtils() { }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static <V> PropertyValuesHolder ofObject(Property<?, V> property, Path path) {
-            return PropertyValuesHolder.ofObject(property, null, path);
-        }
-    }
 }

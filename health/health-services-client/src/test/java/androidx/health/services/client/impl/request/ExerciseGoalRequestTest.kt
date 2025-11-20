@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ExerciseGoalRequestTest {
     @Test
     fun parcelableRoundTrip() {
@@ -37,9 +38,9 @@ class ExerciseGoalRequestTest {
                     DataTypeCondition(
                         DataType.HEART_RATE_BPM_STATS,
                         192.0,
-                        ComparisonType.GREATER_THAN
+                        ComparisonType.GREATER_THAN,
                     )
-                )
+                ),
             )
         val parcel = Parcel.obtain()
 

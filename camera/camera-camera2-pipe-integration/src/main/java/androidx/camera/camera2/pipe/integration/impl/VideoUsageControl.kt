@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import dagger.Binds
 import dagger.Module
@@ -34,16 +33,18 @@ public class VideoUsageControl @Inject constructor() : UseCaseCameraControl {
 
     /** Increments usage count by 1. */
     public fun incrementUsage() {
-        videoUsage.incrementAndGet().also { debug { "incrementUsage: videoUsage = $it" } }
+        videoUsage.incrementAndGet().also {
+            Camera2Logger.debug { "incrementUsage: videoUsage = $it" }
+        }
     }
 
     /** Decrements usage count by 1. */
     public fun decrementUsage() {
         videoUsage.decrementAndGet().also {
             if (it < 0) {
-                debug { "decrementUsage: videoUsage = $it, which is less than 0!" }
+                Camera2Logger.debug { "decrementUsage: videoUsage = $it, which is less than 0!" }
             } else {
-                debug { "decrementUsage: videoUsage = $it" }
+                Camera2Logger.debug { "decrementUsage: videoUsage = $it" }
             }
         }
     }
@@ -51,11 +52,13 @@ public class VideoUsageControl @Inject constructor() : UseCaseCameraControl {
     /** Resets the usage count to 0. */
     override fun reset() {
         videoUsage.value = 0
-        debug { "reset: videoUsage = 0" }
+        Camera2Logger.debug { "reset: videoUsage = 0" }
     }
 
     public fun isInVideoUsage(): Boolean {
-        return videoUsage.value.also { debug { "isInVideoUsage: videoUsage = $it" } } > 0
+        return videoUsage.value.also {
+            Camera2Logger.debug { "isInVideoUsage: videoUsage = $it" }
+        } > 0
     }
 
     @Module

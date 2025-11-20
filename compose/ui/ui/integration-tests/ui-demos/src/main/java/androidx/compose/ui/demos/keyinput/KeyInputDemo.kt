@@ -72,7 +72,7 @@ private fun FocusableText(text: MutableState<String>) {
                     }
                 },
         text = text.value,
-        color = color
+        color = color,
     )
 }
 
@@ -81,6 +81,6 @@ private fun CenteredRow(content: @Composable RowScope.() -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        content = content
+        content = content,
     )
 }

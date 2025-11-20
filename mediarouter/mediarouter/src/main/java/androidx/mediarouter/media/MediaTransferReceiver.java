@@ -80,6 +80,6 @@ public final class MediaTransferReceiver extends BroadcastReceiver  {
         PackageManager pm = applicationContext.getPackageManager();
         List<ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, 0);
 
-        return resolveInfos.size() > 0;
+        return !resolveInfos.isEmpty();
     }
 }

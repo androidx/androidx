@@ -28,7 +28,7 @@ public final class TestItemDetails extends ItemDetails<String> {
     private int mPosition;
     private String mSelectionKey;
     private boolean mInDragRegion;
-    private boolean mInSelectionHotspot;
+    private @ItemDetails.SelectionHotspotResult int mClassifySelectionHotspot;
 
     public TestItemDetails() {
         mPosition = RecyclerView.NO_POSITION;
@@ -38,7 +38,7 @@ public final class TestItemDetails extends ItemDetails<String> {
         mPosition = source.mPosition;
         mSelectionKey = source.mSelectionKey;
         mInDragRegion = source.mInDragRegion;
-        mInSelectionHotspot = source.mInSelectionHotspot;
+        mClassifySelectionHotspot = source.mClassifySelectionHotspot;
     }
 
     public void at(int position) {
@@ -53,7 +53,14 @@ public final class TestItemDetails extends ItemDetails<String> {
     }
 
     public void setInItemSelectRegion(boolean over) {
-        mInSelectionHotspot = over;
+        mClassifySelectionHotspot = over
+            ? ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
+            : ItemDetails.SELECTION_HOTSPOT_OUTSIDE;
+    }
+
+    public void setClassifySelectionHotspot(
+            @ItemDetails.SelectionHotspotResult int classifySelectionHotspot) {
+        mClassifySelectionHotspot = classifySelectionHotspot;
     }
 
     @Override
@@ -92,7 +99,7 @@ public final class TestItemDetails extends ItemDetails<String> {
     }
 
     @Override
-    public boolean inSelectionHotspot(@NonNull MotionEvent e) {
-        return mInSelectionHotspot;
+    public int classifySelectionHotspot(@NonNull MotionEvent e) {
+        return mClassifySelectionHotspot;
     }
 }

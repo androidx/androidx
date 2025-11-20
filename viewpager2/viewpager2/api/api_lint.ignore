@@ -1,8 +1,8 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #0:
-    Invalid nullability on parameter `v` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `v` in method `onApplyWindowInsets`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.viewpager2.widget.WindowInsetsApplier#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
-    Invalid nullability on parameter `insets` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type androidx.core.view.WindowInsetsCompat in parameter `insets` in method `onApplyWindowInsets`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingNullability: androidx.viewpager2.widget.ViewPager2#dispatchRestoreInstanceState(android.util.SparseArray<android.os.Parcelable>) parameter #0:

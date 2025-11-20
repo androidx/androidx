@@ -1,0 +1,12 @@
+{
+  "projectPath": ":arch:core:core-runtime",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":arch:core:core-common"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

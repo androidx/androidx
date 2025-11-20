@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -33,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,10 +40,10 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTvMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
@@ -122,7 +122,7 @@ class ButtonScreenshotTest {
                 OutlinedButton(
                     onClick = {},
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Text("Outlined Button")
                 }
@@ -142,7 +142,7 @@ class ButtonScreenshotTest {
                 OutlinedButton(
                     onClick = {},
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Text("Outlined Button")
                 }
@@ -161,12 +161,12 @@ class ButtonScreenshotTest {
             LightMaterialTheme {
                 Button(
                     onClick = { /* Do something! */ },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -186,12 +186,12 @@ class ButtonScreenshotTest {
             DarkMaterialTheme {
                 Button(
                     onClick = { /* Do something! */ },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -213,12 +213,12 @@ class ButtonScreenshotTest {
                     onClick = { /* Do something! */ },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -240,12 +240,12 @@ class ButtonScreenshotTest {
                     onClick = { /* Do something! */ },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")

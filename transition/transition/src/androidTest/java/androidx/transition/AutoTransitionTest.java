@@ -61,7 +61,7 @@ public class AutoTransitionTest extends BaseTest {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertThat(mView1.getY(), is(100.f));
+                assertThat(mView1.getY(), is(100.f + mRoot.getPaddingTop()));
                 assertThat(mView0.getVisibility(), is(View.VISIBLE));
                 mView1.addOnLayoutChangeListener(counter);
             }
@@ -81,7 +81,7 @@ public class AutoTransitionTest extends BaseTest {
         });
         assertThat("Timed out waiting for the TransitionListener",
                 listener.await(), is(true));
-        assertThat(mView1.getY(), is(0.f));
+        assertThat(mView1.getY(), is(0.f + mRoot.getPaddingTop()));
         assertThat(mView0.getVisibility(), is(View.GONE));
         counter.reset();
         listener.reset();
@@ -95,7 +95,7 @@ public class AutoTransitionTest extends BaseTest {
         });
         assertThat("Timed out waiting for the TransitionListener",
                 listener.await(), is(true));
-        assertThat(mView1.getY(), is(100.f));
+        assertThat(mView1.getY(), is(100.f + mRoot.getPaddingTop()));
         assertThat(mView0.getVisibility(), is(View.VISIBLE));
     }
 

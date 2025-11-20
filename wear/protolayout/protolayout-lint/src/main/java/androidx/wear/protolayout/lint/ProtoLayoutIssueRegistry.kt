@@ -29,7 +29,7 @@ class ProtoLayoutIssueRegistry : IssueRegistry() {
         listOf(
             ProtoLayoutMinSchemaDetector.ISSUE,
             ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE,
-            ResponsiveLayoutDetector.EDGE_CONTENT_LAYOUT_ISSUE
+            ResponsiveLayoutDetector.EDGE_CONTENT_LAYOUT_ISSUE,
         )
     override val vendor =
         Vendor(

@@ -31,7 +31,7 @@ internal class UwbControllerSessionScopeImpl(
     private val uwbClient: UwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
-    override val uwbComplexChannel: UwbComplexChannel
+    override val uwbComplexChannel: UwbComplexChannel,
 ) :
     UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress),
     UwbControllerSessionScope {
@@ -84,7 +84,7 @@ internal class UwbControllerSessionScopeImpl(
             com.google.android.gms.nearby.uwb.RangingControleeParameters(
                 uwbAddress,
                 parameters.subSessionId,
-                parameters.subSessionKey
+                parameters.subSessionKey,
             )
         try {
             uwbClient.addControleeWithSessionParams(uwbControleeParams).await()

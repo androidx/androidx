@@ -71,7 +71,7 @@ class AppCompatIconsTest {
             it.theme.resolveAttribute(
                 androidx.appcompat.R.attr.actionModeCutDrawable,
                 typedValueCut,
-                true
+                true,
             )
             val drawableCut = AppCompatResources.getDrawable(it, typedValueCut.resourceId)
             assertNotNull(drawableCut)
@@ -81,7 +81,7 @@ class AppCompatIconsTest {
             it.theme.resolveAttribute(
                 androidx.appcompat.R.attr.actionModeCopyDrawable,
                 typedValueCopy,
-                true
+                true,
             )
             val drawableCopy = AppCompatResources.getDrawable(it, typedValueCopy.resourceId)
             assertNotNull(drawableCopy)
@@ -91,7 +91,7 @@ class AppCompatIconsTest {
             it.theme.resolveAttribute(
                 androidx.appcompat.R.attr.actionModePasteDrawable,
                 typedValuePaste,
-                true
+                true,
             )
             val drawablePaste = AppCompatResources.getDrawable(it, typedValuePaste.resourceId)
             assertNotNull(drawablePaste)
@@ -101,7 +101,7 @@ class AppCompatIconsTest {
             it.theme.resolveAttribute(
                 androidx.appcompat.R.attr.actionModeSelectAllDrawable,
                 typedValueSelectAll,
-                true
+                true,
             )
             val drawableSelectAll =
                 AppCompatResources.getDrawable(it, typedValueSelectAll.resourceId)
@@ -112,7 +112,7 @@ class AppCompatIconsTest {
             it.theme.resolveAttribute(
                 androidx.appcompat.R.attr.actionModeShareDrawable,
                 typedValueShare,
-                true
+                true,
             )
             val drawableShare = AppCompatResources.getDrawable(it, typedValueShare.resourceId)
             assertNotNull(drawableShare)

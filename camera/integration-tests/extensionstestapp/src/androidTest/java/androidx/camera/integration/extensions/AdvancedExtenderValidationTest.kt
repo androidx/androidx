@@ -95,18 +95,6 @@ class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
         validation.initSession_medianSize_canConfigureSession()
 
     @Test
-    fun initSessionWithAnalysis_maxSize_canConfigureSession() =
-        validation.initSessionWithAnalysis_maxSize_canConfigureSession()
-
-    @Test
-    fun initSessionWithAnalysis_minSize_canConfigureSession() =
-        validation.initSessionWithAnalysis_minSize_canConfigureSession()
-
-    @Test
-    fun initSessionWithAnalysis_medianSize_canConfigureSession() =
-        validation.initSessionWithAnalysis_medianSize_canConfigureSession()
-
-    @Test
     fun initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession() =
         validation.initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession()
 
@@ -125,4 +113,9 @@ class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
     @Test
     fun validateProcessProgressSupport_sinceVersion_1_4() =
         validation.validateProcessProgressSupport_sinceVersion_1_4()
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    fun validateAvailableCharacteristicsKeyValuesSupport_sinceVersion_1_5() =
+        validation.validateAvailableCharacteristicsKeyValuesSupport_sinceVersion_1_5()
 }

@@ -19,7 +19,6 @@ package androidx.compose.material3
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.tokens.ShapeKeyTokens
 import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.runtime.Composable
@@ -28,7 +27,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
 
 /**
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
@@ -93,8 +91,6 @@ constructor(
     extraLargeIncreased: CornerBasedShape = ShapeDefaults.ExtraLargeIncreased,
     extraExtraLarge: CornerBasedShape = ShapeDefaults.ExtraExtraLarge,
 ) {
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.medium] and
@@ -102,8 +98,6 @@ constructor(
      */
     val largeIncreased = largeIncreased
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.large] and smaller
@@ -111,8 +105,6 @@ constructor(
      */
     val extraLargeIncreased = extraLargeIncreased
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /**
      * A shape style with 4 same-sized corners whose size are bigger than [Shapes.extraLarge] and
@@ -268,6 +260,24 @@ constructor(
     internal var defaultIconToggleButtonShapesCached: IconToggleButtonShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultIconButtonShapesCached: IconButtonShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultInteractiveListItemShapesCached: InteractiveListItemShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuStandaloneItemShapesCached: MenuItemShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuLeadingItemShapesCached: MenuItemShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuMiddleItemShapesCached: MenuItemShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuTrailingItemShapesCached: MenuItemShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuStandaloneGroupShapesCached: MenuGroupShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuLeadingGroupShapesCached: MenuGroupShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuMiddleGroupShapesCached: MenuGroupShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultMenuTrailingGroupShapesCached: MenuGroupShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */
@@ -284,54 +294,48 @@ object ShapeDefaults {
     /** Large sized corner shape */
     val Large: CornerBasedShape = ShapeTokens.CornerLarge
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** Large sized corner shape, slightly larger than [Large] */
-    val LargeIncreased: CornerBasedShape = RoundedCornerShape(20.dp)
+    val LargeIncreased: CornerBasedShape = ShapeTokens.CornerLargeIncreased
 
     /** Extra large sized corner shape */
     val ExtraLarge: CornerBasedShape = ShapeTokens.CornerExtraLarge
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** Extra large sized corner shape, slightly larger than [ExtraLarge] */
-    val ExtraLargeIncreased: CornerBasedShape = RoundedCornerShape(32.dp)
+    val ExtraLargeIncreased: CornerBasedShape = ShapeTokens.CornerExtraLargeIncreased
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** An extra extra large (XXL) sized corner shape */
-    val ExtraExtraLarge: CornerBasedShape = RoundedCornerShape(48.dp)
+    val ExtraExtraLarge: CornerBasedShape = ShapeTokens.CornerExtraExtraLarge
 
     // TODO(b/368578382): Update 'increased' variant kdocs to reference design documentation.
     /** A non-rounded corner size */
-    internal val CornerNone: CornerSize = CornerSize(0.dp)
+    internal val CornerNone: CornerSize = ShapeTokens.CornerValueNone
 
     /** An extra small rounded corner size */
-    internal val CornerExtraSmall: CornerSize = CornerSize(4.dp)
+    internal val CornerExtraSmall: CornerSize = ShapeTokens.CornerValueExtraSmall
 
     /** A small rounded corner size */
-    internal val CornerSmall: CornerSize = CornerSize(8.dp)
+    internal val CornerSmall: CornerSize = ShapeTokens.CornerValueSmall
 
     /** A medium rounded corner size */
-    internal val CornerMedium: CornerSize = CornerSize(12.dp)
+    internal val CornerMedium: CornerSize = ShapeTokens.CornerValueMedium
 
     /** A large rounded corner size */
-    internal val CornerLarge: CornerSize = CornerSize(16.dp)
+    internal val CornerLarge: CornerSize = ShapeTokens.CornerValueLarge
 
     /** A large rounded corner size, slightly larger than [CornerLarge] */
-    internal val CornerLargeIncreased: CornerSize = CornerSize(20.dp)
+    internal val CornerLargeIncreased: CornerSize = ShapeTokens.CornerValueLargeIncreased
 
     /** An extra large rounded corner size */
-    internal val CornerExtraLarge: CornerSize = CornerSize(28.dp)
+    internal val CornerExtraLarge: CornerSize = ShapeTokens.CornerValueExtraLarge
 
     /** An extra large rounded corner size, slightly larger than [CornerExtraLarge] */
-    internal val CornerExtraLargeIncreased: CornerSize = CornerSize(32.dp)
+    internal val CornerExtraLargeIncreased: CornerSize = ShapeTokens.CornerValueExtraLargeIncreased
 
     /** An extra extra large (XXL) rounded corner size */
-    internal val CornerExtraExtraLarge: CornerSize = CornerSize(48.dp)
+    internal val CornerExtraExtraLarge: CornerSize = ShapeTokens.CornerValueExtraExtraLarge
 
     /** A fully rounded corner size */
     internal val CornerFull: CornerSize = CornerSize(100)
@@ -373,21 +377,24 @@ internal fun CornerBasedShape.end(
  * Helper function for component shape tokens. Here is an example on how to use component color
  * tokens: ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
  */
-// TODO: When tokens are available, add mappings for largeIncreased, extraLargeIncreased,
-// extraExtraLarge
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
     return when (value) {
         ShapeKeyTokens.CornerExtraLarge -> extraLarge
+        ShapeKeyTokens.CornerExtraLargeIncreased -> extraLargeIncreased
+        ShapeKeyTokens.CornerExtraExtraLarge -> extraExtraLarge
         ShapeKeyTokens.CornerExtraLargeTop -> extraLarge.top()
         ShapeKeyTokens.CornerExtraSmall -> extraSmall
         ShapeKeyTokens.CornerExtraSmallTop -> extraSmall.top()
         ShapeKeyTokens.CornerFull -> CircleShape
         ShapeKeyTokens.CornerLarge -> large
+        ShapeKeyTokens.CornerLargeIncreased -> largeIncreased
         ShapeKeyTokens.CornerLargeEnd -> large.end()
         ShapeKeyTokens.CornerLargeTop -> large.top()
         ShapeKeyTokens.CornerMedium -> medium
         ShapeKeyTokens.CornerNone -> RectangleShape
         ShapeKeyTokens.CornerSmall -> small
+        ShapeKeyTokens.CornerLargeStart -> large.start()
     }
 }
 

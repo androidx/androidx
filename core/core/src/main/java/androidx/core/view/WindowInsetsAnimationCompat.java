@@ -78,19 +78,15 @@ public final class WindowInsetsAnimationCompat {
             long durationMillis) {
         if (Build.VERSION.SDK_INT >= 30) {
             mImpl = new Impl30(typeMask, interpolator, durationMillis);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new Impl21(typeMask, interpolator, durationMillis);
         } else {
-            mImpl = new Impl(0, interpolator, durationMillis);
+            mImpl = new Impl21(typeMask, interpolator, durationMillis);
         }
     }
 
     @RequiresApi(30)
     private WindowInsetsAnimationCompat(@NonNull WindowInsetsAnimation animation) {
         this(0, null, 0);
-        if (Build.VERSION.SDK_INT >= 30) {
-            mImpl = new Impl30(animation);
-        }
+        mImpl = new Impl30(animation);
     }
 
     /**
@@ -519,7 +515,7 @@ public final class WindowInsetsAnimationCompat {
     static void setCallback(@NonNull View view, @Nullable Callback callback) {
         if (Build.VERSION.SDK_INT >= 30) {
             Impl30.setCallback(view, callback);
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        } else {
             Impl21.setCallback(view, callback);
         }
         // Do nothing pre 21
@@ -576,7 +572,6 @@ public final class WindowInsetsAnimationCompat {
 
     }
 
-    @RequiresApi(21)
     private static class Impl21 extends Impl {
 
         /**
@@ -739,7 +734,6 @@ public final class WindowInsetsAnimationCompat {
          * Wrapper class around a {@link Callback} that will trigger the callback when
          * {@link View#onApplyWindowInsets(WindowInsets)} is called
          */
-        @RequiresApi(21)
         private static class Impl21OnApplyWindowInsetsListener implements
                 View.OnApplyWindowInsetsListener {
 

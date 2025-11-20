@@ -79,7 +79,7 @@ class TrackDatabasesTest {
         val alreadyOpenDatabases =
             listOf(
                 Database("db1").createInstance(temporaryFolder),
-                Database("db2").createInstance(temporaryFolder)
+                Database("db2").createInstance(temporaryFolder),
             )
 
         testEnvironment.registerAlreadyOpenDatabases(alreadyOpenDatabases)
@@ -103,7 +103,7 @@ class TrackDatabasesTest {
             listOf(
                 OPEN_DATABASE_COMMAND_SIGNATURE_API11,
                 OPEN_DATABASE_COMMAND_SIGNATURE_API27,
-                CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
+                CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27,
             )
         val wantedSignatures =
             when {
@@ -112,7 +112,7 @@ class TrackDatabasesTest {
                     listOf(
                         OPEN_DATABASE_COMMAND_SIGNATURE_API11,
                         OPEN_DATABASE_COMMAND_SIGNATURE_API27,
-                        CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
+                        CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27,
                     )
             }
 
@@ -598,7 +598,8 @@ class TrackDatabasesTest {
         val field = clazz.declaredFields.first { it.name == fieldName }
         field.isAccessible = true
         val result = field.get(target)
-        @Suppress("UNCHECKED_CAST") return result as T
+        @Suppress("UNCHECKED_CAST")
+        return result as T
     }
 
     private fun assertNoQueuedEvents() {

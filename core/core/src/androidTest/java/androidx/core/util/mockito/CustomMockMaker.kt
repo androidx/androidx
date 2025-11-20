@@ -85,7 +85,7 @@ class CustomMockMaker : InlineMockMaker {
     override fun resetMock(
         mock: Any?,
         newHandler: MockHandler<*>?,
-        settings: MockCreationSettings<*>?
+        settings: MockCreationSettings<*>?,
     ) {
         MOCK_MAKERS.forEach { it.resetMock(mock, newHandler, settings) }
     }

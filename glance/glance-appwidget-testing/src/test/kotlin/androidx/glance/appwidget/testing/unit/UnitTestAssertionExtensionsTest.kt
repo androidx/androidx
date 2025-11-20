@@ -47,7 +47,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = true
                         modifier = GlanceModifier.semantics { testTag = "checkbox" }
                     },
-                onNodeMatcher = hasTestTag("checkbox")
+                onNodeMatcher = hasTestTag("checkbox"),
             )
 
         nodeAssertion.assertIsChecked()
@@ -67,7 +67,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("checkbox")
+                onNodeMatcher = hasTestTag("checkbox"),
             )
 
         val assertionError =
@@ -87,7 +87,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = true
                         modifier = GlanceModifier.semantics { testTag = "switch" }
                     },
-                onNodeMatcher = hasTestTag("switch")
+                onNodeMatcher = hasTestTag("switch"),
             )
 
         nodeAssertion.assertIsChecked()
@@ -103,7 +103,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = false
                         modifier = GlanceModifier.semantics { testTag = "switch" }
                     },
-                onNodeMatcher = hasTestTag("switch")
+                onNodeMatcher = hasTestTag("switch"),
             )
 
         val assertionError =
@@ -123,7 +123,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = true
                         modifier = GlanceModifier.semantics { testTag = "radio" }
                     },
-                onNodeMatcher = hasTestTag("radio")
+                onNodeMatcher = hasTestTag("radio"),
             )
 
         nodeAssertion.assertIsChecked()
@@ -139,7 +139,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = false
                         modifier = GlanceModifier.semantics { testTag = "radio" }
                     },
-                onNodeMatcher = hasTestTag("radio")
+                onNodeMatcher = hasTestTag("radio"),
             )
 
         val assertionError =
@@ -163,7 +163,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -183,7 +183,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = false
                         modifier = GlanceModifier.semantics { testTag = "checkbox" }
                     },
-                onNodeMatcher = hasTestTag("checkbox")
+                onNodeMatcher = hasTestTag("checkbox"),
             )
 
         nodeAssertion.assertIsNotChecked()
@@ -203,7 +203,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("checkbox")
+                onNodeMatcher = hasTestTag("checkbox"),
             )
 
         val assertionError =
@@ -223,7 +223,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = false
                         modifier = GlanceModifier.semantics { testTag = "switch" }
                     },
-                onNodeMatcher = hasTestTag("switch")
+                onNodeMatcher = hasTestTag("switch"),
             )
 
         nodeAssertion.assertIsNotChecked()
@@ -239,7 +239,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = true
                         modifier = GlanceModifier.semantics { testTag = "switch" }
                     },
-                onNodeMatcher = hasTestTag("switch")
+                onNodeMatcher = hasTestTag("switch"),
             )
 
         val assertionError =
@@ -259,7 +259,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = false
                         modifier = GlanceModifier.semantics { testTag = "radio" }
                     },
-                onNodeMatcher = hasTestTag("radio")
+                onNodeMatcher = hasTestTag("radio"),
             )
 
         nodeAssertion.assertIsNotChecked()
@@ -275,7 +275,7 @@ class UnitTestAssertionExtensionsTest {
                         checked = true
                         modifier = GlanceModifier.semantics { testTag = "radio" }
                     },
-                onNodeMatcher = hasTestTag("radio")
+                onNodeMatcher = hasTestTag("radio"),
             )
 
         val assertionError =
@@ -299,7 +299,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -314,19 +314,19 @@ class UnitTestAssertionExtensionsTest {
         private val CHECKBOX_COLORS =
             checkBoxColors(
                 checkedColor = ColorProvider(Color.Red),
-                uncheckedColor = ColorProvider(Color.Blue)
+                uncheckedColor = ColorProvider(Color.Blue),
             )
         private val SWITCH_COLORS =
             switchColors(
                 checkedThumbColor = ColorProvider(Color.Green),
                 uncheckedThumbColor = ColorProvider(Color.Gray),
                 checkedTrackColor = ColorProvider(Color.Blue),
-                uncheckedTrackColor = ColorProvider(Color.Red)
+                uncheckedTrackColor = ColorProvider(Color.Red),
             )
         private val RADIO_BUTTON_COLORS =
             RadioButtonDefaults.colors(
                 checkedColor = ColorProvider(Color.Green),
-                uncheckedColor = ColorProvider(Color.Gray)
+                uncheckedColor = ColorProvider(Color.Gray),
             )
     }
 }

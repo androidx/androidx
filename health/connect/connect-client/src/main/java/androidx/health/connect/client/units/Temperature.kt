@@ -21,11 +21,8 @@ package androidx.health.connect.client.units
  * - Celsius - see [Temperature.celsius], [Double.celsius]
  * - Fahrenheit - see [Temperature.fahrenheit], [Double.fahrenheit]
  */
-class Temperature
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Temperature> {
+class Temperature private constructor(private val value: Double, private val type: Type) :
+    Comparable<Temperature> {
 
     /** Returns the temperature in Celsius degrees. */
     @get:JvmName("getCelsius")

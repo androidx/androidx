@@ -43,6 +43,7 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
         onAmplitudeCallbacks.accept(maxAmplitude)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
     fun verifyOnSuspendStateChanged(
         callTimes: CallTimes,
         timeoutMs: Long = NO_TIMEOUT,
@@ -57,6 +58,7 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
             onSuspendStateChanged,
         )
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
     fun verifyOnSilenceStateChanged(
         callTimes: CallTimes,
         timeoutMs: Long = NO_TIMEOUT,

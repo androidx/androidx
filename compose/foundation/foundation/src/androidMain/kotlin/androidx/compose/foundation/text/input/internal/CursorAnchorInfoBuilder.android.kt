@@ -45,7 +45,7 @@ internal fun CursorAnchorInfo.Builder.build(
     includeInsertionMarker: Boolean = true,
     includeCharacterBounds: Boolean = true,
     includeEditorBounds: Boolean = true,
-    includeLineBounds: Boolean = true
+    includeLineBounds: Boolean = true,
 ): CursorAnchorInfo {
     reset()
 
@@ -69,7 +69,7 @@ internal fun CursorAnchorInfo.Builder.build(
                 compositionStart,
                 compositionEnd,
                 textLayoutResult,
-                innerTextFieldBounds
+                innerTextFieldBounds,
             )
         }
     }
@@ -82,7 +82,7 @@ internal fun CursorAnchorInfo.Builder.build(
         CursorAnchorInfoApi34Helper.addVisibleLineBounds(
             this,
             textLayoutResult,
-            innerTextFieldBounds
+            innerTextFieldBounds,
         )
     }
 
@@ -92,7 +92,7 @@ internal fun CursorAnchorInfo.Builder.build(
 private fun CursorAnchorInfo.Builder.setInsertionMarker(
     selectionStart: Int,
     textLayoutResult: TextLayoutResult,
-    innerTextFieldBounds: Rect
+    innerTextFieldBounds: Rect,
 ): CursorAnchorInfo.Builder {
     if (selectionStart < 0) return this
 
@@ -119,7 +119,7 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
     startOffset: Int,
     endOffset: Int,
     textLayoutResult: TextLayoutResult,
-    innerTextFieldBounds: Rect
+    innerTextFieldBounds: Rect,
 ): CursorAnchorInfo.Builder {
     val array = FloatArray((endOffset - startOffset) * 4)
     textLayoutResult.multiParagraph.fillBoundingBoxes(TextRange(startOffset, endOffset), array, 0)
@@ -131,7 +131,7 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
                 array[arrayIndex] /* left */,
                 array[arrayIndex + 1] /* top */,
                 array[arrayIndex + 2] /* right */,
-                array[arrayIndex + 3] /* bottom */
+                array[arrayIndex + 3], /* bottom */
             )
 
         var flags = 0

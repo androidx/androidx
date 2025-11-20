@@ -370,6 +370,8 @@ package androidx.appsearch.app {
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_EMBEDDING_QUANTIZATION = "SCHEMA_EMBEDDING_QUANTIZATION";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_SCORABLE_PROPERTY_CONFIG = "SCHEMA_SCORABLE_PROPERTY_CONFIG";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SCHEMA_SET_DESCRIPTION = "SCHEMA_SET_DESCRIPTION";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_AND_CLICK_ACCUMULATOR = "SEARCH_AND_CLICK_ACCUMULATOR";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_EMBEDDING_MATCH_INFO = "SEARCH_EMBEDDING_MATCH_INFO";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_RESULT_PARENT_TYPES = "SEARCH_RESULT_PARENT_TYPES";
     field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS = "SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS";
@@ -378,6 +380,8 @@ package androidx.appsearch.app {
     field public static final String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
     field public static final String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
     field public static final String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE = "SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE";
+    field @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final String SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT = "SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT";
     field public static final String SEARCH_SPEC_SEARCH_STRING_PARAMETERS = "SEARCH_SPEC_SEARCH_STRING_PARAMETERS";
     field public static final String SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG = "SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG";
     field public static final String SEARCH_SUGGESTION = "SEARCH_SUGGESTION";
@@ -675,7 +679,15 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult.Builder setRankingSignal(double);
   }
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final class SearchResult.EmbeddingMatchInfo {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SearchResult.EmbeddingMatchInfo(double, int, int);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public int getEmbeddingSearchMetricType();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public int getQueryEmbeddingVectorIndex();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public double getSemanticScore();
+  }
+
   public static final class SearchResult.MatchInfo {
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.EmbeddingMatchInfo? getEmbeddingMatch();
     method public CharSequence getExactMatch();
     method public androidx.appsearch.app.SearchResult.MatchRange getExactMatchRange();
     method public String getFullText();
@@ -685,11 +697,13 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public CharSequence getSubmatch();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public androidx.appsearch.app.SearchResult.MatchRange getSubmatchRange();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.TextMatchInfo? getTextMatch();
   }
 
   public static final class SearchResult.MatchInfo.Builder {
     ctor public SearchResult.MatchInfo.Builder(String);
     method public androidx.appsearch.app.SearchResult.MatchInfo build();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.MatchInfo.Builder setEmbeddingMatch(androidx.appsearch.app.SearchResult.EmbeddingMatchInfo?);
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setExactMatchRange(androidx.appsearch.app.SearchResult.MatchRange);
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setSnippetRange(androidx.appsearch.app.SearchResult.MatchRange);
     method public androidx.appsearch.app.SearchResult.MatchInfo.Builder setSubmatchRange(androidx.appsearch.app.SearchResult.MatchRange);
@@ -699,6 +713,17 @@ package androidx.appsearch.app {
     ctor public SearchResult.MatchRange(int, int);
     method public int getEnd();
     method public int getStart();
+  }
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static final class SearchResult.TextMatchInfo {
+    ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public SearchResult.TextMatchInfo(int, int, int, int, int, int);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public CharSequence getExactMatch();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.MatchRange getExactMatchRange();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public String getFullText();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public CharSequence getSnippet();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) @androidx.appsearch.app.ExperimentalAppSearchApi public CharSequence getSubmatch();
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchResult.MatchRange getSubmatchRange();
   }
 
   public interface SearchResults extends java.io.Closeable {
@@ -738,6 +763,7 @@ package androidx.appsearch.app {
     method public boolean isNumericSearchEnabled();
     method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public boolean isScorablePropertyRankingEnabled();
     method public boolean isVerbatimSearchEnabled();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public boolean shouldRetrieveEmbeddingMatchInfos();
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_COSINE = 1; // 0x1
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_DEFAULT = 0; // 0x0
     field public static final int EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT = 2; // 0x2
@@ -819,6 +845,7 @@ package androidx.appsearch.app {
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION) public androidx.appsearch.app.SearchSpec.Builder setRankingStrategy(String);
     method public androidx.appsearch.app.SearchSpec.Builder setResultCountPerPage(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setResultGrouping(int, int);
+    method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_EMBEDDING_MATCH_INFO) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchSpec.Builder setRetrieveEmbeddingMatchInfos(boolean);
     method @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_SCORABLE_PROPERTY_CONFIG) @androidx.appsearch.app.ExperimentalAppSearchApi public androidx.appsearch.app.SearchSpec.Builder setScorablePropertyRankingEnabled(boolean);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG) public androidx.appsearch.app.SearchSpec.Builder setSearchSourceLogTag(String);
     method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(@IntRange(from=0, to=0x2710) int);

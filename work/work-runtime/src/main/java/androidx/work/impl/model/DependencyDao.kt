@@ -22,13 +22,14 @@ import androidx.room.Query
 
 /** The Data Access Object for [Dependency]. */
 @Dao
-interface DependencyDao {
+public interface DependencyDao {
     /**
      * Attempts to insert a [Dependency] into the database.
      *
      * @param dependency The [Dependency]s to insert
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertDependency(dependency: Dependency)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    public fun insertDependency(dependency: Dependency)
 
     /**
      * Determines if a [WorkSpec] has completed all prerequisites.
@@ -42,7 +43,7 @@ interface DependencyDao {
             WorkTypeConverters.StateIds.SUCCEEDED +
             ")"
     )
-    fun hasCompletedAllPrerequisites(id: String): Boolean
+    public fun hasCompletedAllPrerequisites(id: String): Boolean
 
     /**
      * Gets all the direct prerequisites for a particular [WorkSpec].
@@ -51,7 +52,7 @@ interface DependencyDao {
      * @return A list of all prerequisites for `id`
      */
     @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
-    fun getPrerequisites(id: String): List<String>
+    public fun getPrerequisites(id: String): List<String>
 
     /**
      * Gets all [WorkSpec] id's dependent on a given id
@@ -60,7 +61,7 @@ interface DependencyDao {
      * @return A list of all identifiers that depend on the input
      */
     @Query("SELECT work_spec_id FROM dependency WHERE prerequisite_id=:id")
-    fun getDependentWorkIds(id: String): List<String>
+    public fun getDependentWorkIds(id: String): List<String>
 
     /**
      * Determines if a [WorkSpec] has any dependents.
@@ -69,5 +70,5 @@ interface DependencyDao {
      * @return `true` if the [WorkSpec] has WorkSpecs that depend on it
      */
     @Query("SELECT COUNT(*)>0 FROM dependency WHERE prerequisite_id=:id")
-    fun hasDependents(id: String): Boolean
+    public fun hasDependents(id: String): Boolean
 }

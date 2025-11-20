@@ -16,7 +16,7 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Exception thrown when attempting to create a {@link JavaScriptSandbox} via

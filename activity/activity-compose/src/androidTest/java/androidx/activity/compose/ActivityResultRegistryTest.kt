@@ -47,6 +47,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ActivityResultRegistryTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     var launchCount = 0
     val registryOwner =
@@ -66,7 +67,7 @@ class ActivityResultRegistryTest {
                         requestCode: Int,
                         contract: ActivityResultContract<I, O>,
                         input: I,
-                        options: ActivityOptionsCompat?
+                        options: ActivityOptionsCompat?,
                     ) {
                         launchCount++
                     }
@@ -166,7 +167,7 @@ class ActivityResultRegistryTest {
                             requestCode: Int,
                             contract: ActivityResultContract<I, O>,
                             input: I,
-                            options: ActivityOptionsCompat?
+                            options: ActivityOptionsCompat?,
                         ) {
                             launchCount++
                         }
@@ -202,7 +203,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                 }
@@ -253,7 +254,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                     launchCount++
@@ -302,7 +303,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                     launchCount++

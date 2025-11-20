@@ -59,6 +59,7 @@ import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_TAK
 import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 import androidx.camera.integration.extensions.validation.PhotoFragment.Companion.decodeImageToBitmap
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -108,6 +109,12 @@ class ImageValidationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.image_validation_activity)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(R.id.image_validation_activity_root),
+        )
+
         testResults = TestResults.getInstance(this)
 
         testType = intent?.getStringExtra(INTENT_EXTRA_KEY_TEST_TYPE)!!
@@ -217,7 +224,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_FAILED
+                TEST_RESULT_FAILED,
             )
             finish()
             return
@@ -287,14 +294,14 @@ class ImageValidationActivity : AppCompatActivity() {
                 contentResolver,
                 imageUris[viewPager.currentItem],
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
 
         if (outputUri != null) {
             Toast.makeText(
                     this,
                     "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_LONG,
                 )
                 .show()
         } else {
@@ -309,7 +316,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_FAILED
+                TEST_RESULT_FAILED,
             )
             finish()
         }
@@ -320,7 +327,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_PASSED
+                TEST_RESULT_PASSED,
             )
             finish()
         }
@@ -373,7 +380,7 @@ class ImageValidationActivity : AppCompatActivity() {
             return PhotoFragment(
                 imageUris[position],
                 imageRotationDegrees[position],
-                scaleGestureListener
+                scaleGestureListener,
             )
         }
     }
@@ -448,7 +455,7 @@ class ImageValidationActivity : AppCompatActivity() {
         x: Float,
         y: Float,
         previousX: Float,
-        previousY: Float
+        previousY: Float,
     ) {
         val newTranslationX = translationX + x - previousX
 
@@ -509,7 +516,7 @@ class ImageValidationActivity : AppCompatActivity() {
             decodeImageToBitmap(
                 this@ImageValidationActivity.contentResolver,
                 imageUris[viewPager.currentItem],
-                imageRotationDegrees[viewPager.currentItem]
+                imageRotationDegrees[viewPager.currentItem],
             )
 
         photoImageView.setImageBitmap(bitmap)

@@ -42,5 +42,10 @@ androidx {
 
 android {
     namespace = "androidx.mediarouter.testing"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 }
 

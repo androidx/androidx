@@ -30,20 +30,20 @@ import androidx.compose.ui.unit.Constraints
 internal abstract class LazyGridMeasuredItemProvider(
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
-    private val defaultMainAxisSpacing: Int
-) : LazyLayoutMeasuredItemProvider<LazyGridMeasuredItem> {
+    private val defaultMainAxisSpacing: Int,
+) : LazyLayoutMeasuredItemProvider<LazyGridMeasuredItem>() {
     override fun getAndMeasure(
         index: Int,
         lane: Int,
         span: Int,
-        constraints: Constraints
+        constraints: Constraints,
     ): LazyGridMeasuredItem =
         getAndMeasure(
             index = index,
             constraints = constraints,
             lane = lane,
             span = span,
-            mainAxisSpacing = defaultMainAxisSpacing
+            mainAxisSpacing = defaultMainAxisSpacing,
         )
 
     /**
@@ -55,11 +55,11 @@ internal abstract class LazyGridMeasuredItemProvider(
         constraints: Constraints,
         lane: Int,
         span: Int,
-        mainAxisSpacing: Int
+        mainAxisSpacing: Int,
     ): LazyGridMeasuredItem {
         val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
-        val placeables = measureScope.measure(index, constraints)
+        val placeables = measureScope.getPlaceables(index, constraints)
         val crossAxisSize =
             if (constraints.hasFixedWidth) {
                 constraints.minWidth
@@ -76,7 +76,7 @@ internal abstract class LazyGridMeasuredItemProvider(
             placeables,
             constraints,
             lane,
-            span
+            span,
         )
     }
 
@@ -99,6 +99,6 @@ internal abstract class LazyGridMeasuredItemProvider(
         placeables: List<Placeable>,
         constraints: Constraints,
         lane: Int,
-        span: Int
+        span: Int,
     ): LazyGridMeasuredItem
 }

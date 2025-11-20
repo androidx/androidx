@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ExerciseStateInfoTest {
     @Test
     fun sportCheckExerciseEndReasonActiveState() {
@@ -40,7 +41,7 @@ class ExerciseStateInfoTest {
         assertThat(
                 ExerciseStateInfo(
                     ExerciseState.AUTO_ENDED_PERMISSION_LOST,
-                    ExerciseEndReason.UNKNOWN
+                    ExerciseEndReason.UNKNOWN,
                 )
             )
             .isEqualTo(

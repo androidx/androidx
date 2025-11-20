@@ -27,13 +27,9 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
 
 /** Stable AIDL properties scoped to the AGP variant object. */
-@Suppress("UnstableApiUsage") // for VariantExtensionConfig
 abstract class StableAidlVariantExtension
 @Inject
-constructor(
-    config: VariantExtensionConfig<*>,
-    project: Project,
-) : VariantExtension, Serializable {
+constructor(config: VariantExtensionConfig<*>, project: Project) : VariantExtension, Serializable {
     abstract val version: Property<Int>
 
     init {

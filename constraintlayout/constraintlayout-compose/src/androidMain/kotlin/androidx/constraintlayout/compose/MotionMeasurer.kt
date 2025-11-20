@@ -54,7 +54,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         optimizationLevel: Int,
         constraintSet: ConstraintSet,
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ) {
         state.reset()
         constraintSet.applyTo(state, measurables)
@@ -89,14 +89,14 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         optimizationLevel: Int,
         progress: Float,
         compositionSource: CompositionSource,
-        invalidateOnConstraintsCallback: ShouldInvalidateCallback?
+        invalidateOnConstraintsCallback: ShouldInvalidateCallback?,
     ): IntSize {
         placeables = placeableMap
         val needsRemeasure =
             needsRemeasure(
                 constraints = constraints,
                 source = compositionSource,
-                invalidateOnConstraintsCallback = invalidateOnConstraintsCallback
+                invalidateOnConstraintsCallback = invalidateOnConstraintsCallback,
             )
 
         if (
@@ -114,7 +114,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
                 measurables = measurables,
                 optimizationLevel = optimizationLevel,
                 progress = progress,
-                remeasure = needsRemeasure
+                remeasure = needsRemeasure,
             )
         }
         oldConstraints = constraints
@@ -140,7 +140,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
     private fun needsRemeasure(
         constraints: Constraints,
         source: CompositionSource,
-        invalidateOnConstraintsCallback: ShouldInvalidateCallback?
+        invalidateOnConstraintsCallback: ShouldInvalidateCallback?,
     ): Boolean {
         if (this.transition.isEmpty || frameCache.isEmpty()) {
             // Nothing measured (by MotionMeasurer)
@@ -183,7 +183,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         measurables: List<Measurable>,
         optimizationLevel: Int,
         progress: Float,
-        remeasure: Boolean
+        remeasure: Boolean,
     ) {
         lastProgressInInterpolation = progress
         if (remeasure) {
@@ -242,7 +242,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         location: FloatArray,
         types: IntArray,
         progress: IntArray,
-        count: Int
+        count: Int,
     ) {
         if (count == 0) {
             return
@@ -345,7 +345,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
                 parentHeight = size.height,
                 startFrame = startFrame,
                 drawPath = drawPaths,
-                drawKeyPositions = drawKeyPositions
+                drawKeyPositions = drawKeyPositions,
             )
         }
     }
@@ -355,7 +355,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         parentHeight: Float,
         startFrame: WidgetFrame,
         drawPath: Boolean,
-        drawKeyPositions: Boolean
+        drawKeyPositions: Boolean,
     ) {
         val debugRender = MotionRenderDebug(23f)
         debugRender.basicDraw(
@@ -365,7 +365,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
             parentWidth.toInt(),
             parentHeight.toInt(),
             drawPath,
-            drawKeyPositions
+            drawKeyPositions,
         )
     }
 
@@ -375,7 +375,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         startFrame: WidgetFrame,
         endFrame: WidgetFrame,
         pathEffect: PathEffect,
-        color: Color
+        color: Color,
     ) {
         drawFrame(startFrame, pathEffect, color)
         drawFrame(endFrame, pathEffect, color)
@@ -388,7 +388,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
             1000,
             Motion.DRAW_PATH_BASIC,
             parentWidth.toInt(),
-            parentHeight.toInt()
+            parentHeight.toInt(),
         )
         if (numKeyPositions == 0) {
             //            drawLine(
@@ -449,7 +449,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
                 color,
                 Offset(frame.left.toFloat(), frame.top.toFloat()),
                 Size(frame.width().toFloat(), frame.height().toFloat()),
-                style = drawStyle
+                style = drawStyle,
             )
         } else {
             val matrix = Matrix()
@@ -468,7 +468,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
                     frame.right.toFloat(),
                     frame.bottom.toFloat(),
                     frame.left.toFloat(),
-                    frame.bottom.toFloat()
+                    frame.bottom.toFloat(),
                 )
             matrix.mapPoints(points)
             drawLine(
@@ -476,28 +476,28 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
                 end = Offset(points[2], points[3]),
                 color = color,
                 strokeWidth = 3f,
-                pathEffect = pathEffect
+                pathEffect = pathEffect,
             )
             drawLine(
                 start = Offset(points[2], points[3]),
                 end = Offset(points[4], points[5]),
                 color = color,
                 strokeWidth = 3f,
-                pathEffect = pathEffect
+                pathEffect = pathEffect,
             )
             drawLine(
                 start = Offset(points[4], points[5]),
                 end = Offset(points[6], points[7]),
                 color = color,
                 strokeWidth = 3f,
-                pathEffect = pathEffect
+                pathEffect = pathEffect,
             )
             drawLine(
                 start = Offset(points[6], points[7]),
                 end = Offset(points[0], points[1]),
                 color = color,
                 strokeWidth = 3f,
-                pathEffect = pathEffect
+                pathEffect = pathEffect,
             )
         }
     }
@@ -551,7 +551,7 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         end: ConstraintSet,
         layoutDirection: LayoutDirection,
         @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
-        progress: Float
+        progress: Float,
     ) {
         clearConstraintSets()
 

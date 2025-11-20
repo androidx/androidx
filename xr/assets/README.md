@@ -1,8 +1,9 @@
 # Jetpack XR Assets
+This library provides a convenient entrypoint for assets to be used across the
+Jetpack XR libraries for testing/sample purposes. Additional assets may not be
+added in other XR libraries to avoid file duplication.
 
-This library contains a collection of assets used across the Jetpack XR
-libraries for testing/sample purposes. Additional assets may not be added in
-other repositories to avoid file duplication.
-
-All files in this directory were created for this purpose and are released
-under the terms of the Apache 2.0 license.
+The files are actually located in the prebuilts/androidx/xr/assets directory
+and loaded for convenience in this project. All files in that directory were
+created for testing purposes and are released under the terms of the Apache 2.0
+license.

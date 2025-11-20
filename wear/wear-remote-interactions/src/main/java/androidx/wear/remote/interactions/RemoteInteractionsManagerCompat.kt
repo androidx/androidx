@@ -16,33 +16,39 @@
 package androidx.wear.remote.interactions
 
 import android.content.Context
+import android.net.Uri
+import android.os.OutcomeReceiver
+import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
+import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.Sdk
 import com.google.wear.services.remoteinteractions.RemoteInteractionsManager
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
-/** Forwards remote auth interaction availabilities to [RemoteInteractionsManager]. */
+/** Forwards remote interactions to [RemoteInteractionsManager]. */
 internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteInteractionsManager {
 
-    // TODO(b/307543793): Reuse the generalized `WearApiVersionHelper` once available.
-    private val wearApiVersion: WearApiVersion = WearApiVersion(context)
+    override val isAvailabilityStatusApiSupported =
+        isCurrentDeviceAWatch(context) &&
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_TIRAMISU_4)
 
     private val remoteInteractionsManager: RemoteInteractionsManager? =
         if (isAvailabilityStatusApiSupported)
             Sdk.getWearManager(context, RemoteInteractionsManager::class.java)
         else null
 
-    override val isAvailabilityStatusApiSupported: Boolean
-        get() = wearApiVersion.wearSdkVersion >= 4
+    override val isWearSdkApiStartRemoteActivitySupported =
+        isCurrentDeviceAWatch(context) &&
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_BAKLAVA_0)
 
     override fun registerRemoteActivityHelperStatusListener(
         executor: Executor,
-        listener: Consumer<Int>
+        listener: Consumer<Int>,
     ) {
         if (isAvailabilityStatusApiSupported) {
             remoteInteractionsManager!!.registerRemoteActivityHelperStatusListener(
                 executor,
-                listener
+                listener,
             )
         } else {
             throw UnsupportedOperationException("Should not call wear sdk when not supported.")
@@ -52,6 +58,24 @@ internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteI
     override fun unregisterRemoteActivityHelperStatusListener(listener: Consumer<Int>) {
         if (isAvailabilityStatusApiSupported) {
             remoteInteractionsManager!!.unregisterRemoteActivityHelperStatusListener(listener)
+        } else {
+            throw UnsupportedOperationException("Should not call wear sdk when not supported.")
+        }
+    }
+
+    override fun startRemoteActivity(
+        dataUri: Uri,
+        additionalCategories: List<String>,
+        executor: Executor,
+        outcomeReceiver: OutcomeReceiver<Void?, Throwable>,
+    ) {
+        if (isWearSdkApiStartRemoteActivitySupported) {
+            remoteInteractionsManager!!.startRemoteActivity(
+                dataUri,
+                additionalCategories,
+                executor,
+                outcomeReceiver,
+            )
         } else {
             throw UnsupportedOperationException("Should not call wear sdk when not supported.")
         }

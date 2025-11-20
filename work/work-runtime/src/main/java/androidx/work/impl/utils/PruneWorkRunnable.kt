@@ -28,12 +28,12 @@ import androidx.work.launchOperation
  */
 internal fun WorkDatabase.pruneWork(
     configuration: Configuration,
-    executor: TaskExecutor
+    executor: TaskExecutor,
 ): Operation =
     launchOperation(
         tracer = configuration.tracer,
         label = "PruneWork",
-        executor = executor.serialTaskExecutor
+        executor = executor.serialTaskExecutor,
     ) {
         workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
     }

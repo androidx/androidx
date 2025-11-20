@@ -16,26 +16,27 @@
 
 package androidx.appfunctions.compiler.core
 
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_LIST
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_SINGULAR
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.SUPPORTED_TYPES_STRING
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isAllowToBeOptional
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.isSupportedType
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSchemaDefinitionAnnotation
-import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionMetadata
-import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionParameterMetadata
-import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionResponseMetadata
-import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionDeprecationMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionResponseMetadata
+import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.LIST
-import com.squareup.kotlinpoet.TypeName
-import kotlin.reflect.KClass
 
 /**
  * Represents a collection of functions within a specific class that are annotated as app functions.
@@ -44,9 +45,47 @@ data class AnnotatedAppFunctions(
     /** The [KSClassDeclaration] of the class that contains the annotated app functions. */
     val classDeclaration: KSClassDeclaration,
     /** The list of [KSFunctionDeclaration] that are annotated as app function. */
-    val appFunctionDeclarations: List<KSFunctionDeclaration>
+    val appFunctionDeclarations: List<KSFunctionDeclaration>,
+    /**
+     * A map of AppFunction's qualifiedName to its docstring. Provides cached docStrings from the
+     * component registry, which aren't available at runtime for non-root modules.
+     */
+    private val appFunctionNameToDocstringMap: Map<String, String> = mapOf(),
 ) {
+    /** Gets all annotated nodes. */
+    fun getAllAnnotated(): List<KSAnnotated> {
+        return buildList {
+            // Only functions are annotated.
+            for (appFunctionDeclaration in appFunctionDeclarations) {
+                add(appFunctionDeclaration)
+            }
+        }
+    }
+
+    // TODO(b/410746104): Re-evaluate the validation pipeline.
+    /**
+     * Validates if the AppFunction implementation is valid.
+     *
+     * @throws SymbolNotReadyException if any related nodes are not ready for processing yet.
+     */
     fun validate(): AnnotatedAppFunctions {
+        for (appFunction in appFunctionDeclarations) {
+            for (parameter in appFunction.parameters) {
+                if (!parameter.validate()) {
+                    throw SymbolNotReadyException(
+                        "AppFunction parameter ($parameter) not ready for processing yet",
+                        appFunction,
+                    )
+                }
+            }
+
+            if (appFunction.returnType?.validate() == false) {
+                throw SymbolNotReadyException(
+                    "AppFunction return type not ready for processing yet",
+                    appFunction,
+                )
+            }
+        }
         validateFirstParameter()
         validateParameterTypes()
         return this
@@ -59,14 +98,14 @@ data class AnnotatedAppFunctions(
                 throw ProcessingException(
                     "The first parameter of an app function must be " +
                         "${AppFunctionContextClass.CLASS_NAME}",
-                    appFunctionDeclaration
+                    appFunctionDeclaration,
                 )
             }
             if (!firstParam.type.isOfType(AppFunctionContextClass.CLASS_NAME)) {
                 throw ProcessingException(
                     "The first parameter of an app function must be " +
                         "${AppFunctionContextClass.CLASS_NAME}",
-                    firstParam
+                    firstParam,
                 )
             }
         }
@@ -85,15 +124,22 @@ data class AnnotatedAppFunctions(
                         "App function parameters must be a supported type, or a type " +
                             "annotated as @AppFunctionSerializable. See list of supported types:\n" +
                             "${
-                                SUPPORTED_TYPES.joinToString(
-                                    ",\n"
-                                )
+                                SUPPORTED_TYPES_STRING
                             }\n" +
                             "but found ${
-                                ksValueParameter.resolveTypeReference().ensureQualifiedTypeName()
+                                AppFunctionTypeReference(ksValueParameter.type)
+                                    .selfOrItemTypeReference.ensureQualifiedTypeName()
                                     .asString()
                             }",
-                        ksValueParameter
+                        ksValueParameter,
+                    )
+                }
+
+                val isOptional = ksValueParameter.hasDefault
+                if (isOptional && !isAllowToBeOptional(ksValueParameter.type)) {
+                    throw ProcessingException(
+                        "Type ${ksValueParameter.type.toTypeName()} cannot be optional",
+                        ksValueParameter,
                     )
                 }
             }
@@ -106,10 +152,9 @@ data class AnnotatedAppFunctions(
      * The format of the identifier is `packageName.className#methodName`.
      */
     fun getAppFunctionIdentifier(functionDeclaration: KSFunctionDeclaration): String {
-        val packageName = classDeclaration.packageName.asString()
-        val className = classDeclaration.simpleName.asString()
+        val fullClassName = classDeclaration.toClassName()
         val methodName = functionDeclaration.simpleName.asString()
-        return "${packageName}.${className}#${methodName}"
+        return "$fullClassName#${methodName}"
     }
 
     /**
@@ -134,191 +179,116 @@ data class AnnotatedAppFunctions(
 
             // Traverse each functions parameter to obtain the relevant AppFunctionSerializable
             // class files
-            for (ksValueParameter in functionDeclaration.parameters) {
-                if (isAppFunctionSerializableType(ksValueParameter.type)) {
-                    val appFunctionSerializableClassDeclaration =
-                        ksValueParameter.type.resolve().declaration as KSClassDeclaration
-                    val annotatedSerializable =
-                        AnnotatedAppFunctionSerializable(appFunctionSerializableClassDeclaration)
-                    sourceFileSet.addAll(annotatedSerializable.getSourceFiles())
+            for ((paramIndex, ksValueParameter) in functionDeclaration.parameters.withIndex()) {
+                if (paramIndex == 0) {
+                    // Skip the first parameter which is always the `AppFunctionContext`.
+                    continue
+                }
+                val parameterTypeReference = AppFunctionTypeReference(ksValueParameter.type)
+                if (parameterTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
+                    sourceFileSet.addAll(
+                        getAnnotatedAppFunctionSerializable(parameterTypeReference)
+                            .getTransitiveSerializableSourceFiles()
+                    )
                 }
             }
-        }
 
-        // Todo(b/391342300): Consider return value source file in case of returning an
-        // AppFunctionSerializable
+            val returnTypeReference =
+                AppFunctionTypeReference(checkNotNull(functionDeclaration.returnType))
+            if (returnTypeReference.typeOrItemTypeIsAppFunctionSerializable()) {
+                sourceFileSet.addAll(
+                    getAnnotatedAppFunctionSerializable(returnTypeReference)
+                        .getTransitiveSerializableSourceFiles()
+                )
+            }
+        }
         return sourceFileSet
     }
 
     /** Gets the [classDeclaration]'s [ClassName]. */
     fun getEnclosingClassName(): ClassName {
-        return ClassName(
-            classDeclaration.packageName.asString(),
-            classDeclaration.simpleName.asString()
-        )
+        return classDeclaration.toClassName()
     }
 
     /**
-     * Creates a list of [AppFunctionMetadata] instances for each of the app functions defined in
-     * this class.
+     * Creates a list of [CompileTimeAppFunctionMetadata]] instances for each of the app functions
+     * defined in this class.
      */
-    fun createAppFunctionMetadataList(): List<AppFunctionMetadata> =
-        appFunctionDeclarations.map { functionDeclaration ->
+    fun createAppFunctionMetadataList(
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        sharedDataTypeDescriptionMap: Map<String, String> = mapOf(),
+    ): List<CompileTimeAppFunctionMetadata> {
+        val metadataCreatorHelper = AppFunctionMetadataCreatorHelper(sharedDataTypeDescriptionMap)
+        return appFunctionDeclarations.map { functionDeclaration ->
+            // Defining the shared types locally for this iteration is to isolate the components
+            // used per function. This is done with the expectation that they can be globally
+            // merged without encountering mismatching datatype metadata for the same object key.
+            val sharedDataTypeMap: MutableMap<String, AppFunctionDataTypeMetadata> = mutableMapOf()
+            val seenDataTypeQualifiers: MutableSet<String> = mutableSetOf()
+
             val appFunctionAnnotationProperties =
-                computeAppFunctionAnnotationProperties(functionDeclaration)
-            val parameterObjectTypeMetadata = functionDeclaration.buildParameterTypeMetadata()
-            val responseObjectTypeMetadata =
-                checkNotNull(functionDeclaration.returnType).buildResponseObjectTypeMetadata()
+                metadataCreatorHelper.computeAppFunctionAnnotationProperties(functionDeclaration)
+            val functionDescription =
+                functionDeclaration.getFunctionDescription(appFunctionAnnotationProperties)
+            val parameterTypeMetadataList =
+                metadataCreatorHelper.buildParameterTypeMetadataList(
+                    parameters = functionDeclaration.parameters,
+                    resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+                    sharedDataTypeMap = sharedDataTypeMap,
+                    seenDataTypeQualifiers = seenDataTypeQualifiers,
+                    parameterDescriptionMap = getParamDescriptionsFromKDoc(functionDescription),
+                )
+            val responseTypeMetadata =
+                metadataCreatorHelper.buildResponseTypeMetadata(
+                    returnType = checkNotNull(functionDeclaration.returnType),
+                    resolvedAnnotatedSerializableProxies = resolvedAnnotatedSerializableProxies,
+                    sharedDataTypeMap = sharedDataTypeMap,
+                    seenDataTypeQualifiers = seenDataTypeQualifiers,
+                    functionAnnotations = functionDeclaration.annotations,
+                )
+            val deprecationMetadata = functionDeclaration.getDeprecationMetadata()
 
-            AppFunctionMetadata(
+            CompileTimeAppFunctionMetadata(
                 id = getAppFunctionIdentifier(functionDeclaration),
-                isEnabledByDefault = appFunctionAnnotationProperties.isEnabledByDefault,
-                schema = appFunctionAnnotationProperties.toAppFunctionSchemaMetadata(),
-                parameters = parameterObjectTypeMetadata,
-                response = AppFunctionResponseMetadata(valueType = responseObjectTypeMetadata)
-            )
-        }
-
-    /**
-     * Builds an [AppFunctionDataTypeMetadata] instance for the return type of an app function.
-     *
-     * Currently, only primitive return types are supported.
-     */
-    private fun KSTypeReference.buildResponseObjectTypeMetadata(): AppFunctionDataTypeMetadata {
-        return toAppFunctionDataTypeMetadata()
-    }
-
-    /**
-     * Builds a list of [AppFunctionParameterMetadata] for the parameters of an app function.
-     *
-     * Currently, only primitive parameters are supported.
-     */
-    private fun KSFunctionDeclaration.buildParameterTypeMetadata():
-        List<AppFunctionParameterMetadata> = buildList {
-        for (ksValueParameter in parameters) {
-            if (ksValueParameter.type.isOfType(AppFunctionContextClass.CLASS_NAME)) {
-                // Skip the first parameter which is always the `AppFunctionContext`.
-                continue
-            }
-
-            // TODO: Support serializable and their collections
-            val parameterName = checkNotNull(ksValueParameter.name).asString()
-            val dataTypeMetadata = ksValueParameter.type.toAppFunctionDataTypeMetadata()
-
-            add(
-                AppFunctionParameterMetadata(
-                    name = parameterName,
-                    // TODO(b/394553462): Parse required state from annotation.
-                    isRequired = true,
-                    dataType = dataTypeMetadata
-                )
+                isEnabledByDefault =
+                    checkNotNull(appFunctionAnnotationProperties.isEnabledByDefault),
+                schema = appFunctionAnnotationProperties.getAppFunctionSchemaMetadata(),
+                parameters = parameterTypeMetadataList,
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = responseTypeMetadata,
+                        description = getResponseDescriptionFromKDoc(functionDescription),
+                    ),
+                components = AppFunctionComponentsMetadata(dataTypes = sharedDataTypeMap),
+                description = sanitizeKDoc(functionDescription),
+                deprecation = deprecationMetadata,
             )
         }
     }
 
-    private fun KSTypeReference.toAppFunctionDataTypeMetadata(): AppFunctionDataTypeMetadata {
-        val isNullable = resolve().isMarkedNullable
-        val typeName = toTypeName()
-        return when (typeName.ignoreNullable().toString()) {
-            in SUPPORTED_SINGLE_PRIMITIVE_TYPES ->
-                AppFunctionPrimitiveTypeMetadata(
-                    type = typeName.toAppFunctionDataType(),
-                    isNullable = isNullable
-                )
-            in SUPPORTED_ARRAY_PRIMITIVE_TYPES,
-            in SUPPORTED_COLLECTION_TYPES, ->
-                AppFunctionArrayTypeMetadata(
-                    itemType =
-                        AppFunctionPrimitiveTypeMetadata(
-                            type = typeName.determineArrayItemType(),
-                            // TODO: Support List with nullable items.
-                            isNullable = false
-                        ),
-                    isNullable = isNullable
-                )
-            else ->
-                // TODO: Properly construct this when @AppFunctionSerializable is supported.
-                AppFunctionObjectTypeMetadata(
-                    properties = emptyMap(),
-                    required = emptyList(),
-                    qualifiedName = null,
-                    isNullable = isNullable
-                )
-        }
-    }
-
-    private fun TypeName.toAppFunctionDataType(): Int =
-        when (this.ignoreNullable().toString()) {
-            String::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_STRING
-            Int::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_INT
-            Long::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_LONG
-            Float::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_FLOAT
-            Double::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_DOUBLE
-            Boolean::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_BOOLEAN
-            Unit::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_UNIT
-            ByteArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_BYTES
-            in SUPPORTED_ARRAY_PRIMITIVE_TYPES,
-            in SUPPORTED_COLLECTION_TYPES, -> AppFunctionDataTypeMetadata.TYPE_ARRAY
-            else -> TODO("Support AppFunctionSerializable types")
-        }
-
-    private fun TypeName.determineArrayItemType(): Int =
-        when (this.ignoreNullable().toString()) {
-            IntArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_INT
-            LongArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_LONG
-            FloatArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_FLOAT
-            DoubleArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_DOUBLE
-            BooleanArray::class.ensureQualifiedName() -> AppFunctionDataTypeMetadata.TYPE_BOOLEAN
-            STRING_LIST_TYPE -> AppFunctionDataTypeMetadata.TYPE_STRING
-            BYTE_ARRAY_LIST_TYPE -> AppFunctionDataTypeMetadata.TYPE_BYTES
-            else -> TODO("Support Lists AppFunctionSerializable types")
-        }
-
-    private fun computeAppFunctionAnnotationProperties(
+    private fun AppFunctionMetadataCreatorHelper.computeAppFunctionAnnotationProperties(
         functionDeclaration: KSFunctionDeclaration
-    ): AppFunctionAnnotationProperties {
+    ): AppFunctionMetadataCreatorHelper.AppFunctionAnnotationProperties {
         val appFunctionAnnotation =
             functionDeclaration.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME)
                 ?: throw ProcessingException(
                     "Function not annotated with @AppFunction.",
-                    functionDeclaration
+                    functionDeclaration,
                 )
-        val enabled =
-            appFunctionAnnotation.requirePropertyValueOfType(
-                AppFunctionAnnotation.PROPERTY_IS_ENABLED,
-                Boolean::class,
-            )
-
         val rootInterfaceWithAppFunctionSchemaDefinition =
             findRootAppFunctionSchemaInterface(functionDeclaration)
-
-        val schemaFunctionAnnotation =
+        val schemaDefinitionAnnotation =
             rootInterfaceWithAppFunctionSchemaDefinition
                 ?.annotations
                 ?.findAnnotation(AppFunctionSchemaDefinitionAnnotation.CLASS_NAME)
-        val schemaCategory =
-            schemaFunctionAnnotation?.requirePropertyValueOfType(
-                AppFunctionSchemaDefinitionAnnotation.PROPERTY_CATEGORY,
-                String::class,
-            )
-        val schemaName =
-            schemaFunctionAnnotation?.requirePropertyValueOfType(
-                AppFunctionSchemaDefinitionAnnotation.PROPERTY_NAME,
-                String::class,
-            )
-        val schemaVersion =
-            schemaFunctionAnnotation
-                ?.requirePropertyValueOfType(
-                    AppFunctionSchemaDefinitionAnnotation.PROPERTY_VERSION,
-                    Int::class,
-                )
-                ?.toLong()
-
-        return AppFunctionAnnotationProperties(enabled, schemaName, schemaVersion, schemaCategory)
+        return computeAppFunctionAnnotationProperties(
+            appFunctionAnnotation = appFunctionAnnotation,
+            schemaDefinitionAnnotation = schemaDefinitionAnnotation,
+        )
     }
 
     private fun findRootAppFunctionSchemaInterface(
-        function: KSFunctionDeclaration,
+        function: KSFunctionDeclaration
     ): KSClassDeclaration? {
         val parentDeclaration = function.parentDeclaration as? KSClassDeclaration ?: return null
 
@@ -335,105 +305,57 @@ data class AnnotatedAppFunctions(
         return findRootAppFunctionSchemaInterface(superClassFunction)
     }
 
+    private fun getAnnotatedAppFunctionSerializable(
+        appFunctionTypeReference: AppFunctionTypeReference
+    ): AppFunctionSerializableType {
+        val appFunctionSerializableKSType =
+            appFunctionTypeReference.selfOrItemTypeReference.resolve()
+        return AppFunctionSerializableType.create(
+            classDeclaration =
+                appFunctionSerializableKSType.declaration as? KSClassDeclaration
+                    ?: throw ProcessingException(
+                        "Only classes/interfaces should be annotated with @AppFunctionSerializable",
+                        appFunctionSerializableKSType.declaration,
+                    ),
+            typeArguments = appFunctionSerializableKSType.arguments,
+        )
+    }
+
+    private fun AppFunctionTypeReference.typeOrItemTypeIsAppFunctionSerializable(): Boolean {
+        return this.isOfTypeCategory(SERIALIZABLE_SINGULAR) ||
+            this.isOfTypeCategory(SERIALIZABLE_LIST)
+    }
+
+    private fun KSFunctionDeclaration.getFunctionDescription(
+        appFunctionAnnotationProperties:
+            AppFunctionMetadataCreatorHelper.AppFunctionAnnotationProperties
+    ): String {
+        return if (appFunctionAnnotationProperties.isDescribedByKdoc == true) {
+            appFunctionNameToDocstringMap[ensureQualifiedName()] ?: ""
+        } else {
+            ""
+        }
+    }
+
     /**
-     * Resolves the type reference of a parameter.
-     *
-     * If the parameter type is a list, it will resolve the type reference of the list element.
+     * Returns true if the developer opted for the given function's docString to be used as its
+     * description.
      */
-    private fun KSValueParameter.resolveTypeReference(): KSTypeReference {
-        return if (type.isOfType(LIST)) {
-            type.resolveListParameterizedType()
-        } else {
-            type
-        }
+    fun isDescribedByKdoc(functionDeclaration: KSFunctionDeclaration): Boolean {
+        return AppFunctionMetadataCreatorHelper()
+            .computeAppFunctionAnnotationProperties(functionDeclaration)
+            .isDescribedByKdoc ?: false
     }
 
-    private fun AppFunctionAnnotationProperties.toAppFunctionSchemaMetadata():
-        AppFunctionSchemaMetadata? {
-        return if (this.schemaName != null) {
-            AppFunctionSchemaMetadata(
-                category = checkNotNull(this.schemaCategory),
-                name = this.schemaName,
-                version = checkNotNull(this.schemaVersion)
+    private fun KSDeclaration.getDeprecationMetadata(): AppFunctionDeprecationMetadata? {
+        val annotation =
+            annotations.findAnnotation(IntrospectionHelper.DeprecatedAnnotation.CLASS_NAME)
+                ?: return null
+        val message =
+            annotation.requirePropertyValueOfType(
+                IntrospectionHelper.DeprecatedAnnotation.PROPERTY_MESSAGE,
+                String::class,
             )
-        } else {
-            null
-        }
-    }
-
-    private data class AppFunctionAnnotationProperties(
-        val isEnabledByDefault: Boolean,
-        val schemaName: String?,
-        val schemaVersion: Long?,
-        val schemaCategory: String?
-    )
-
-    companion object {
-        /**
-         * Checks if the type reference is a supported type.
-         *
-         * A supported type is a primitive type, a type annotated as @AppFunctionSerializable, or a
-         * list of a supported type.
-         */
-        fun isSupportedType(typeReferenceArgument: KSTypeReference): Boolean {
-            return SUPPORTED_TYPES.contains(
-                typeReferenceArgument.toTypeName().ignoreNullable().toString()
-            ) || isAppFunctionSerializableType(typeReferenceArgument)
-        }
-
-        /**
-         * Checks if the type reference is annotated as @AppFunctionSerializable.
-         *
-         * If the type reference is a list, it will resolve the type reference of the list element.
-         */
-        fun isAppFunctionSerializableType(typeReferenceArgument: KSTypeReference): Boolean {
-            var typeToCheck = typeReferenceArgument
-            if (typeReferenceArgument.isOfType(LIST)) {
-                typeToCheck = typeReferenceArgument.resolveListParameterizedType()
-            }
-            return typeToCheck
-                .resolve()
-                .declaration
-                .annotations
-                .findAnnotation(IntrospectionHelper.AppFunctionSerializableAnnotation.CLASS_NAME) !=
-                null
-        }
-
-        private fun TypeName.ignoreNullable(): TypeName {
-            return copy(nullable = false)
-        }
-
-        private fun KClass<*>.ensureQualifiedName(): String = checkNotNull(qualifiedName)
-
-        internal val SUPPORTED_ARRAY_PRIMITIVE_TYPES =
-            setOf(
-                IntArray::class.ensureQualifiedName(),
-                LongArray::class.ensureQualifiedName(),
-                FloatArray::class.ensureQualifiedName(),
-                DoubleArray::class.ensureQualifiedName(),
-                BooleanArray::class.ensureQualifiedName(),
-            )
-
-        internal val SUPPORTED_SINGLE_PRIMITIVE_TYPES =
-            setOf(
-                Int::class.ensureQualifiedName(),
-                Long::class.ensureQualifiedName(),
-                Float::class.ensureQualifiedName(),
-                Double::class.ensureQualifiedName(),
-                Boolean::class.ensureQualifiedName(),
-                String::class.ensureQualifiedName(),
-                ByteArray::class.ensureQualifiedName(),
-                Unit::class.ensureQualifiedName(),
-            )
-
-        private const val STRING_LIST_TYPE = "kotlin.collections.List<kotlin.String>"
-        private const val BYTE_ARRAY_LIST_TYPE = "kotlin.collections.List<kotlin.ByteArray>"
-
-        internal val SUPPORTED_COLLECTION_TYPES = setOf(STRING_LIST_TYPE, BYTE_ARRAY_LIST_TYPE)
-
-        internal val SUPPORTED_TYPES =
-            SUPPORTED_SINGLE_PRIMITIVE_TYPES +
-                SUPPORTED_ARRAY_PRIMITIVE_TYPES +
-                SUPPORTED_COLLECTION_TYPES
+        return AppFunctionDeprecationMetadata(message)
     }
 }

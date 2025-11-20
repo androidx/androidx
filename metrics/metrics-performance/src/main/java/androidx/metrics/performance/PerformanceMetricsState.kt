@@ -60,6 +60,7 @@ class PerformanceMetricsState private constructor() {
      */
     private val statesHolder = mutableListOf<StateData>()
     private val statesToBeCleared = mutableListOf<Int>()
+    private val pendingStatesToBeCleared = mutableListOf<Int>()
 
     /**
      * StateData objects are stored and retrieved from an object pool, to avoid re-allocating for
@@ -71,7 +72,7 @@ class PerformanceMetricsState private constructor() {
         frameStartTime: Long,
         frameEndTime: Long,
         frameStates: MutableList<StateInfo>,
-        activeStates: MutableList<StateData>
+        activeStates: MutableList<StateData>,
     ) {
         for (i in activeStates.indices.reversed()) {
             // idea: add state if state was active during this frame
@@ -87,10 +88,10 @@ class PerformanceMetricsState private constructor() {
                 // most recently added should be logged, as it replaces the earlier ones.
                 statesHolder.add(item)
                 if (activeStates == singleFrameStates && item.timeRemoved == -1L) {
-                    // This marks a single frame state for removal now that it has logged data
-                    // It will actually be removed at the end of the frame, to give it a chance to
-                    // log data for multiple listeners.
-                    item.timeRemoved = System.nanoTime()
+                    // This marks a single frame state for removal now that it has logged data.
+                    // It will actually be removed on the next frame, with the removal logic
+                    // above, to give it a chance to log data for multiple listeners on this frame.
+                    item.timeRemoved = frameStartTime
                 }
             }
         }
@@ -99,7 +100,9 @@ class PerformanceMetricsState private constructor() {
         // this block ensures.
         if (statesHolder.size > 0) {
             for (i in 0 until statesHolder.size) {
-                if (i !in statesToBeCleared) {
+                if (i in pendingStatesToBeCleared) {
+                    statesToBeCleared.add(i)
+                } else {
                     val item = statesHolder.get(i)
                     for (j in (i + 1) until statesHolder.size) {
                         val otherItem = statesHolder.get(j)
@@ -107,8 +110,17 @@ class PerformanceMetricsState private constructor() {
                             // If state names are the same, remove the one added earlier.
                             // Note that we are only marking them for removal here since we
                             // cannot alter the structure while iterating through it.
-                            if (item.timeAdded < otherItem.timeAdded) statesToBeCleared.add(i)
-                            else statesToBeCleared.add(j)
+                            if (item.timeAdded < otherItem.timeAdded) {
+                                statesToBeCleared.add(i)
+                                // If we are clearing i, we break here since j's timeAdded
+                                // is the new time to compare against.
+                                break
+                            } else {
+                                // If we are clearing j, we should not add it to
+                                // statesToBeCleared until i reaches that position
+                                // in order to maintain descending order
+                                pendingStatesToBeCleared.add(j)
+                            }
                         }
                     }
                 }
@@ -123,6 +135,7 @@ class PerformanceMetricsState private constructor() {
             }
             statesHolder.clear()
             statesToBeCleared.clear()
+            pendingStatesToBeCleared.clear()
         }
     }
 
@@ -288,7 +301,7 @@ class PerformanceMetricsState private constructor() {
     internal fun getIntervalStates(
         startTime: Long,
         endTime: Long,
-        frameStates: MutableList<StateInfo>
+        frameStates: MutableList<StateInfo>,
     ) {
         synchronized(singleFrameStates) {
             frameStates.clear()

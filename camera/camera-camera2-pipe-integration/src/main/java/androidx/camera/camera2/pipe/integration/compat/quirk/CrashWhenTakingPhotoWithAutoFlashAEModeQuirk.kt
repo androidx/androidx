@@ -53,7 +53,7 @@ public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk : Quirk {
                 "SM-A300Y",
                 "SM-A300YZ",
                 "SM-J510FN", // Galaxy J5
-                "5059X" // TCT Alcatel 1X
+                "5059X", // TCT Alcatel 1X
             )
 
         @JvmStatic

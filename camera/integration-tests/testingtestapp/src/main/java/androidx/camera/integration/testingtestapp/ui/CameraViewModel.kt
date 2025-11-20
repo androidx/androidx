@@ -74,7 +74,7 @@ constructor(
                     override fun onError(exception: ImageCaptureException) {
                         Log.d(LOG_TAG, "Errors! ${exception.message}")
                     }
-                }
+                },
             )
         } catch (e: IllegalStateException) {
             errorState.value = "Camera not ready"
@@ -98,7 +98,7 @@ constructor(
                         errorState.value = "No camera supported"
                     }
                 },
-                mainExecutor
+                mainExecutor,
             )
         }
         return cameraController

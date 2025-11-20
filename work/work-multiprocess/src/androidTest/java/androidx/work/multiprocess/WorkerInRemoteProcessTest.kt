@@ -66,7 +66,7 @@ class WorkerInRemoteProcessTest {
         val componentName =
             ComponentName(
                 "androidx.work.multiprocess.test",
-                RemoteWorkerService2::class.java.canonicalName!!
+                RemoteWorkerService2::class.java.canonicalName!!,
             )
         val workRequest =
             OneTimeWorkRequestBuilder<ProcessCheckingRemoteSuccessWorker>()

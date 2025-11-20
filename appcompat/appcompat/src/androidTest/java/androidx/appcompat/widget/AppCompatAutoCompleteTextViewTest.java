@@ -37,7 +37,6 @@ import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 
@@ -45,7 +44,6 @@ import org.junit.Test;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatAutoCompleteTextView} class.
  */
-@SdkSuppress(minSdkVersion = 21) // Flaky on SDK < 21, assumed due to platform bugs.
 @LargeTest
 public class AppCompatAutoCompleteTextViewTest
         extends AppCompatBaseViewTest<AppCompatAutoCompleteTextViewActivity,

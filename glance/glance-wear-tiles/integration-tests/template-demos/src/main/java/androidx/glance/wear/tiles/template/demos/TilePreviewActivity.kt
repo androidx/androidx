@@ -34,7 +34,7 @@ class TilePreviewActivity : Activity() {
             TileUiClient(
                 context = this,
                 component = ComponentName(this, DemoTile::class.java),
-                parentView = findViewById<FrameLayout>(R.id.tile_container)
+                parentView = findViewById<FrameLayout>(R.id.tile_container),
             )
         tileUiClient.connect()
     }

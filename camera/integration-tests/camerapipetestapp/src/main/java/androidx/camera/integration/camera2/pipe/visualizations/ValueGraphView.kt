@@ -27,7 +27,7 @@ class ValueGraphView(
     context: Context,
     beginTimeNanos: Long,
     valueGraphDataHolder: GraphDataHolderValueImpl,
-    private val paints: Paints
+    private val paints: Paints,
 ) : GraphView(context, beginTimeNanos, valueGraphDataHolder, paints) {
 
     override var unitHeight by Delegates.notNull<Float>()
@@ -45,6 +45,6 @@ class ValueGraphView(
         y1: Float,
         x2: Float,
         y2: Float,
-        paint: Paint
+        paint: Paint,
     ) = canvas.drawLine(x1, y1, x2, y2, paints.graphDataPaint)
 }

@@ -42,7 +42,7 @@ class TestUwbClient(
     val localAddress: UwbAddress,
     val rangingCapabilities: RangingCapabilities,
     val isAvailable: Boolean,
-    private val isController: Boolean
+    private val isController: Boolean,
 ) : UwbClient {
     var stopRangingCalled = false
         private set
@@ -99,7 +99,7 @@ class TestUwbClient(
 
     override fun startRanging(
         parameters: RangingParameters,
-        sessionCallback: RangingSessionCallback
+        sessionCallback: RangingSessionCallback,
     ): Task<Void> {
         if (startedRanging) {
             throw ApiException(Status(UwbStatusCodes.RANGING_ALREADY_STARTED))

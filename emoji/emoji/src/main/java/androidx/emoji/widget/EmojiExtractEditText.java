@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.inputmethodservice.ExtractEditText;
-import android.os.Build;
 import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -29,7 +28,6 @@ import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 import androidx.emoji.text.EmojiCompat;
@@ -68,7 +66,6 @@ public class EmojiExtractEditText extends ExtractEditText {
         init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

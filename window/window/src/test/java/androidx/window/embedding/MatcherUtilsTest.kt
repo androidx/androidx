@@ -40,7 +40,7 @@ class MatcherUtilsTest {
         assertTrue(
             areComponentsMatching(
                 FAKE_ACTIVITY_COMPONENT_INFO,
-                PACKAGE_WILDCARD_ACTIVITY_COMPONENT_INFO
+                PACKAGE_WILDCARD_ACTIVITY_COMPONENT_INFO,
             )
         )
     }
@@ -50,7 +50,7 @@ class MatcherUtilsTest {
         assertTrue(
             areComponentsMatching(
                 FAKE_ACTIVITY_COMPONENT_INFO,
-                CLASS_WILDCARD_ACTIVITY_COMPONENT_INFO
+                CLASS_WILDCARD_ACTIVITY_COMPONENT_INFO,
             )
         )
     }

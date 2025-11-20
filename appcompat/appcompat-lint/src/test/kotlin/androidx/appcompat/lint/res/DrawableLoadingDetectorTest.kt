@@ -46,7 +46,7 @@ class DrawableLoadingDetectorTest {
                    ResourceLoader().getDrawable(android.R.drawable.ic_delete)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -77,7 +77,7 @@ class DrawableLoadingDetectorTest {
                     getDrawable(android.R.drawable.ic_delete)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -116,7 +116,7 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable
                     getResources().getDrawable(android.R.drawable.ic_delete)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -155,7 +155,7 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
                     getResources().getDrawable(android.R.drawable.ic_delete, getTheme())
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 internal class HealthEventTest {
 
     fun Int.instant() = Instant.ofEpochMilli(toLong())
@@ -45,7 +46,7 @@ internal class HealthEventTest {
                             DataPoints.heartRate(43.0, 10.duration()),
                             DataPoints.distance(180.0, 20.duration(), 40.duration()),
                         )
-                    )
+                    ),
                 )
                 .proto
 

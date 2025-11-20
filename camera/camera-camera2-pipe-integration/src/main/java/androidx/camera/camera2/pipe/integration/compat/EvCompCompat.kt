@@ -73,19 +73,17 @@ constructor(
     private val threads: UseCaseThreads,
     private val comboRequestListener: ComboRequestListener,
 ) : EvCompCompat {
-    override val supported: Boolean
-        get() = range.upper != 0 && range.lower != 0
-
-    override val range: Range<Int> by lazy {
+    override val range: Range<Int> =
         cameraProperties.metadata.getOrDefault(CONTROL_AE_COMPENSATION_RANGE, EMPTY_RANGE)
-    }
-    override val step: Rational
-        get() =
-            if (!supported) {
-                Rational.ZERO
-            } else {
-                cameraProperties.metadata[CONTROL_AE_COMPENSATION_STEP]!!
-            }
+
+    override val supported: Boolean = range.upper != 0 && range.lower != 0
+
+    override val step: Rational =
+        if (!supported) {
+            Rational.ZERO
+        } else {
+            cameraProperties.metadata[CONTROL_AE_COMPENSATION_STEP]!!
+        }
 
     private var updateSignal: CompletableDeferred<Int>? = null
     private var updateListener: Request.Listener? = null

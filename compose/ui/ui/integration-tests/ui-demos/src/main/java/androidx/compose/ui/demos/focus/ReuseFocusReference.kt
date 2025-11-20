@@ -43,7 +43,7 @@ private const val size = 200f
 
 private enum class CurrentShape {
     Circle,
-    Square
+    Square,
 }
 
 @Composable
@@ -65,7 +65,7 @@ fun ReuseFocusRequesterDemo() {
                         Modifier.focusRequester(focusRequester).pointerInput(Unit) {
                             detectTapGestures { focusRequester.requestFocus() }
                         },
-                    nextShape = { shape = CurrentShape.Square }
+                    nextShape = { shape = CurrentShape.Square },
                 )
             CurrentShape.Square ->
                 Square(
@@ -73,7 +73,7 @@ fun ReuseFocusRequesterDemo() {
                         Modifier.focusRequester(focusRequester).pointerInput(Unit) {
                             detectTapGestures { focusRequester.requestFocus() }
                         },
-                    nextShape = { shape = CurrentShape.Circle }
+                    nextShape = { shape = CurrentShape.Circle },
                 )
         }
     }
@@ -93,7 +93,7 @@ private fun Circle(modifier: Modifier = Modifier, nextShape: () -> Unit) {
         drawCircle(
             color = if (isFocused) Color.Red else Color.Blue,
             radius = radius * scale,
-            center = center
+            center = center,
         )
     }
 }
@@ -112,7 +112,7 @@ private fun Square(modifier: Modifier = Modifier, nextShape: () -> Unit) {
         drawRect(
             color = if (isFocused) Color.Red else Color.Blue,
             topLeft = Offset(center.x - side / 2 * scale, center.y - side / 2 * scale),
-            size = Size(side * scale, side * scale)
+            size = Size(side * scale, side * scale),
         )
     }
 }

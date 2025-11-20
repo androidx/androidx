@@ -69,9 +69,9 @@ fun AnnotatedText(letterSpacing: Float, fontSize: Float) {
             style =
                 LocalTextStyle.current.copy(
                     letterSpacing = letterSpacing.sp,
-                    fontSize = fontSize.sp
+                    fontSize = fontSize.sp,
                 ),
-            onTextLayout = { textLayoutResult = it }
+            onTextLayout = { textLayoutResult = it },
         )
     }
 }

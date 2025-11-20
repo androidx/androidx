@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
@@ -36,7 +35,6 @@ import androidx.camera.camera2.pipe.compat.Camera2CaptureSessionsModule
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloser
 import androidx.camera.camera2.pipe.compat.Camera2DeviceCloserImpl
 import androidx.camera.camera2.pipe.compat.Camera2DeviceManager
-import androidx.camera.camera2.pipe.compat.Camera2DeviceManagerImpl
 import androidx.camera.camera2.pipe.compat.Camera2ErrorProcessor
 import androidx.camera.camera2.pipe.compat.Camera2MetadataCache
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
@@ -59,12 +57,19 @@ import javax.inject.Provider
 import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 
 @Module(subcomponents = [Camera2ControllerComponent::class])
 internal abstract class Camera2Module {
     @Binds
     @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
+
+    @Binds
+    abstract fun bindCamera2DeviceManager(
+        camera2DeviceManager: PruningCamera2DeviceManager
+    ): Camera2DeviceManager
 
     @Binds abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
 
@@ -97,23 +102,6 @@ internal abstract class Camera2Module {
     abstract fun bindAudioRestrictionController(
         audioRestrictionController: AudioRestrictionControllerImpl
     ): AudioRestrictionController
-
-    companion object {
-
-        @Provides
-        fun provideCamera2DeviceManager(
-            camera2DeviceManager: Provider<Camera2DeviceManagerImpl>,
-            pruningCamera2DeviceManager: Provider<PruningCamera2DeviceManager>,
-            cameraPipeConfig: CameraPipe.Config,
-        ): Camera2DeviceManager {
-            // TODO: b/369684573 - Enable PruningCamera2DeviceManager for all users.
-            return if (cameraPipeConfig.usePruningDeviceManager) {
-                pruningCamera2DeviceManager.get()
-            } else {
-                camera2DeviceManager.get()
-            }
-        }
-    }
 }
 
 @Scope internal annotation class Camera2ControllerScope
@@ -124,7 +112,7 @@ internal abstract class Camera2Module {
         [
             Camera2ControllerConfig::class,
             Camera2ControllerModule::class,
-            Camera2CaptureSessionsModule::class
+            Camera2CaptureSessionsModule::class,
         ]
 )
 internal interface Camera2ControllerComponent {
@@ -146,6 +134,7 @@ internal class Camera2ControllerConfig(
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph,
     private val surfaceTracker: SurfaceTracker,
+    private val shutdownListener: Camera2CameraController.ShutdownListener,
 ) {
     @Provides fun provideCameraGraphConfig() = graphConfig
 
@@ -158,6 +147,8 @@ internal class Camera2ControllerConfig(
     @Provides fun provideGraphListener() = graphListener
 
     @Provides fun provideSurfaceGraph() = surfaceTracker
+
+    @Provides fun provideShutdownListener() = shutdownListener
 }
 
 @Module
@@ -175,9 +166,13 @@ internal abstract class Camera2ControllerModule {
     companion object {
         @Camera2ControllerScope
         @Provides
-        fun provideCoroutineScope(threads: Threads): CoroutineScope {
+        fun provideCoroutineScope(
+            threads: Threads,
+            @CameraPipeJob cameraPipeJob: Job,
+        ): CoroutineScope {
             return CoroutineScope(
-                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller"))
+                SupervisorJob(cameraPipeJob) +
+                    threads.lightweightDispatcher.plus(CoroutineName("CXCP-Camera2Controller"))
             )
         }
 
@@ -186,9 +181,15 @@ internal abstract class Camera2ControllerModule {
         fun provideCameraStatusMonitor(
             cameraManager: Provider<CameraManager>,
             threads: Threads,
-            graphConfig: CameraGraph.Config
+            graphConfig: CameraGraph.Config,
+            @CameraPipeJob cameraPipeJob: Job,
         ): CameraStatusMonitor {
-            return Camera2CameraStatusMonitor(cameraManager, threads, graphConfig.camera)
+            return Camera2CameraStatusMonitor(
+                cameraManager,
+                threads,
+                graphConfig.camera,
+                cameraPipeJob,
+            )
         }
     }
 }

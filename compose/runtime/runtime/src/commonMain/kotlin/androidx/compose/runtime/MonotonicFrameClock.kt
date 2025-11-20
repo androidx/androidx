@@ -26,7 +26,7 @@ import kotlin.coroutines.coroutineContext
  * synchronizing work with a desired frame rate.
  */
 @JvmDefaultWithCompatibility
-interface MonotonicFrameClock : CoroutineContext.Element {
+public interface MonotonicFrameClock : CoroutineContext.Element {
     /**
      * Suspends until a new frame is requested, immediately invokes [onFrame] with the frame time in
      * nanoseconds in the calling context of frame dispatch, then resumes with the result from
@@ -39,12 +39,12 @@ interface MonotonicFrameClock : CoroutineContext.Element {
      * values provided are strictly monotonically increasing; after a call to [withFrameNanos]
      * completes it must not provide the same value again for a subsequent call.
      */
-    suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R
+    public suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R
 
     override val key: CoroutineContext.Key<*>
         get() = Key
 
-    companion object Key : CoroutineContext.Key<MonotonicFrameClock>
+    public companion object Key : CoroutineContext.Key<MonotonicFrameClock>
 }
 
 /**
@@ -60,7 +60,7 @@ interface MonotonicFrameClock : CoroutineContext.Element {
  * completes it must not provide a smaller value for a subsequent call.
  */
 @Suppress("UnnecessaryLambdaCreation")
-suspend inline fun <R> MonotonicFrameClock.withFrameMillis(
+public suspend inline fun <R> MonotonicFrameClock.withFrameMillis(
     crossinline onFrame: (frameTimeMillis: Long) -> R
 ): R = withFrameNanos { onFrame(it / 1_000_000L) }
 
@@ -81,7 +81,7 @@ suspend inline fun <R> MonotonicFrameClock.withFrameMillis(
  * not present in the [CoroutineContext].
  */
 @OptIn(ExperimentalComposeApi::class)
-suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+public suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
     coroutineContext.monotonicFrameClock.withFrameNanos(onFrame)
 
 /**
@@ -101,7 +101,7 @@ suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
  * not present in the [CoroutineContext].
  */
 @OptIn(ExperimentalComposeApi::class)
-suspend fun <R> withFrameMillis(onFrame: (frameTimeMillis: Long) -> R): R =
+public suspend fun <R> withFrameMillis(onFrame: (frameTimeMillis: Long) -> R): R =
     coroutineContext.monotonicFrameClock.withFrameMillis(onFrame)
 
 /**
@@ -109,7 +109,7 @@ suspend fun <R> withFrameMillis(onFrame: (frameTimeMillis: Long) -> R): R =
  * if one is not present.
  */
 @ExperimentalComposeApi
-val CoroutineContext.monotonicFrameClock: MonotonicFrameClock
+public val CoroutineContext.monotonicFrameClock: MonotonicFrameClock
     get() =
         this[MonotonicFrameClock]
             ?: error(
@@ -127,4 +127,4 @@ val CoroutineContext.monotonicFrameClock: MonotonicFrameClock
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-expect val DefaultMonotonicFrameClock: MonotonicFrameClock
+public expect val DefaultMonotonicFrameClock: MonotonicFrameClock

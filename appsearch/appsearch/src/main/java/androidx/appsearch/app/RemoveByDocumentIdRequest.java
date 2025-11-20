@@ -46,7 +46,8 @@ import java.util.Set;
  * @see AppSearchSession#removeAsync
  */
 @SafeParcelable.Class(creator = "RemoveByDocumentIdRequestCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class RemoveByDocumentIdRequest extends AbstractSafeParcelable {
     /** Creator class for {@link android.app.appsearch.RemoveByDocumentIdRequest}. */

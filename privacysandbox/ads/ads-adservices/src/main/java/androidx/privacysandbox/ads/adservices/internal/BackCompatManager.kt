@@ -29,7 +29,7 @@ internal object BackCompatManager {
             Log.d(
                 tag,
                 "Unable to find adservices code, check manifest for uses-library tag, " +
-                    "versionS=${AdServicesInfo.extServicesVersionS()}"
+                    "versionS=${AdServicesInfo.extServicesVersionS()}",
             )
             return null
         }

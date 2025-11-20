@@ -14,7 +14,4 @@
  * limitations under the License.
  */
 
-@RequiresApi(34)
 package androidx.xr.compose.testing;
-
-import androidx.annotation.RequiresApi;

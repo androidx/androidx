@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.content.ServiceConnection#onBindingDied`"
+        message="Call requires API level 26 (current min is 23): `android.content.ServiceConnection#onBindingDied`"
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.content.ServiceConnection#onBindingDied`"
+        message="Call requires API level 26 (current min is 23): `android.content.ServiceConnection#onBindingDied`"
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location

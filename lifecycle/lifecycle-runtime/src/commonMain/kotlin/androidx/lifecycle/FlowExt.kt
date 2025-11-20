@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.lifecycle
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -85,7 +87,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 public fun <T> Flow<T>.flowWithLifecycle(
     lifecycle: Lifecycle,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED
+    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
 ): Flow<T> = callbackFlow {
     lifecycle.repeatOnLifecycle(minActiveState) { this@flowWithLifecycle.collect { send(it) } }
     close()

@@ -312,13 +312,13 @@ See [Asynchronous work](/docs/api_guidelines/index.md#async)
 in the API Guidelines for more information on exposing the state of asynchronous
 work to clients.
 
-### Calling `Thread.sleep()` as a synchronization barrier
+### Calling `Thread.sleep()` or `UiController.loopMainThreadForAtLeast()` as a synchronization barrier {#calling-threadsleep-as-a-synchronization-barrier}
 
-`Thread.sleep()` is a common source of flakiness and instability in tests. If a
-developer needs to call `Thread.sleep()` -- even indirectly via a
-`PollingCheck` -- to get their test into a suitable state for checking
-assertions, your library needs to provide more reliable synchronization
-barriers.
+`Thread.sleep()` (and `UiController.loopMainThreadForAtLeast()`) is a common
+source of flakiness and instability in tests. If a developer needs to call
+`Thread.sleep()` -- even indirectly via a `PollingCheck` -- to get their test
+into a suitable state for checking assertions, your library needs to provide
+more reliable synchronization barriers.
 
 ```java {.bad}
 List<MediaItem> playlist = MediaTestUtils.createPlaylist(playlistSize);

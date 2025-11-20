@@ -58,12 +58,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 class NavigationDrawerTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun navigationDrawer_initialStateClosed_closedStateComposableDisplayed() {
@@ -72,7 +73,7 @@ class NavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Closed) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 Box(Modifier.size(200.dp))
             }
@@ -88,7 +89,7 @@ class NavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Open) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 BasicText("other content")
             }
@@ -109,9 +110,9 @@ class NavigationDrawerTest {
                 drawerContent = {
                     BasicText(
                         modifier = Modifier.focusable(),
-                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed",
                     )
-                }
+                },
             ) {
                 BasicText("other content")
             }
@@ -138,9 +139,9 @@ class NavigationDrawerTest {
                     drawerContent = {
                         BasicText(
                             text = if (it == DrawerValue.Open) "Opened" else "Closed",
-                            modifier = Modifier.focusable()
+                            modifier = Modifier.focusable(),
                         )
-                    }
+                    },
                 ) {
                     Box(modifier = Modifier.focusable()) { BasicText("Button") }
                 }
@@ -165,9 +166,9 @@ class NavigationDrawerTest {
                     drawerContent = {
                         BasicText(
                             text = if (it == DrawerValue.Open) "Opened" else "Closed",
-                            modifier = Modifier.focusable().testTag("drawerItem")
+                            modifier = Modifier.focusable().testTag("drawerItem"),
                         )
-                    }
+                    },
                 ) {
                     Box(modifier = Modifier.focusRequester(buttonFocusRequester).focusable()) {
                         BasicText("Button")
@@ -197,7 +198,7 @@ class NavigationDrawerTest {
                             // extra long content wrapped in a drawer-width restricting box
                             Box(Modifier.width(closedDrawerContentWidth * 10))
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -221,7 +222,7 @@ class NavigationDrawerTest {
                         Box(Modifier.width(openDrawerContentWidth)) {
                             Box(Modifier.width(openDrawerContentWidth * 10))
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -243,7 +244,7 @@ class NavigationDrawerTest {
                         Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -268,7 +269,7 @@ class NavigationDrawerTest {
                         Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -297,9 +298,9 @@ class NavigationDrawerTest {
                     drawerContent = {
                         BasicText(
                             text = if (it == DrawerValue.Open) "Opened" else "Closed",
-                            modifier = Modifier.focusable()
+                            modifier = Modifier.focusable(),
                         )
-                    }
+                    },
                 ) {
                     BasicText("other content")
                 }
@@ -335,9 +336,9 @@ class NavigationDrawerTest {
                 drawerContent = {
                     BasicText(
                         modifier = Modifier.focusable(),
-                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed",
                     )
-                }
+                },
             ) {
                 BasicText("other content")
             }

@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 
-import android.os.Build;
-
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class ImmediateFutureTest {
 
     @Test

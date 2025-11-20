@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.asFlow
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class VideoOutputTest {
 
     @Test
@@ -39,7 +37,7 @@ class VideoOutputTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         // Create an anonymous subclass of VideoOutput. Don't override
         // VideoOutput#getStreamState() so the default implementation is used.
@@ -54,7 +52,7 @@ class VideoOutputTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         // Create an anonymous subclass of VideoOutput. Don't override

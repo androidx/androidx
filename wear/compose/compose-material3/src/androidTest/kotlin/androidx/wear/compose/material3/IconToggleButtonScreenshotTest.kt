@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -28,20 +27,18 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -50,9 +47,9 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconToggleButtonScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -61,41 +58,41 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonEnabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton() }
+            content = { sampleIconToggleButton() },
         )
 
     @Test
     fun iconToggleButtonEnabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(checked = false) }
+            content = { sampleIconToggleButton(checked = false) },
         )
 
     @Test
     fun iconToggleButtonDisabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(enabled = false) }
+            content = { sampleIconToggleButton(enabled = false) },
         )
 
     @Test
     fun iconToggleButtonDisabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(enabled = false, checked = false) }
+            content = { sampleIconToggleButton(enabled = false, checked = false) },
         )
 
     @Test
     fun iconToggleButtonWithOffset() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
+            content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) },
         )
 
     @Ignore("TODO: b/345199060 work out how to show pressed state in test")
@@ -115,7 +112,7 @@ class IconToggleButtonScreenshotTest {
                     sampleIconToggleButton(
                         checked = false,
                         shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
-                        interactionSource = interactionSource
+                        interactionSource = interactionSource,
                     )
                 }
             }
@@ -124,36 +121,33 @@ class IconToggleButtonScreenshotTest {
         rule.mainClock.autoAdvance = false
         rule.mainClock.advanceTimeBy(500)
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(rule = screenshotRule, goldenIdentifier = testName.methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Test
     fun animatedIconToggleButtonChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleIconToggleButton(
                     checked = true,
                     shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
-            }
+            },
         )
 
     @Test
     fun animatedIconToggleButtonUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleIconToggleButton(
                     checked = false,
                     shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
-            }
+            },
         )
 
     @Composable
@@ -162,7 +156,7 @@ class IconToggleButtonScreenshotTest {
         checked: Boolean = true,
         modifier: Modifier = Modifier,
         shapes: IconToggleButtonShapes = IconToggleButtonDefaults.shapes(),
-        interactionSource: MutableInteractionSource? = null
+        interactionSource: MutableInteractionSource? = null,
     ) {
         IconToggleButton(
             checked = checked,
@@ -170,7 +164,7 @@ class IconToggleButtonScreenshotTest {
             enabled = enabled,
             modifier = modifier.testTag(TEST_TAG),
             shapes = shapes,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         ) {
             Icon(imageVector = Icons.Outlined.Star, contentDescription = "Favourite")
         }

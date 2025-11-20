@@ -13,15 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-    <application>
-        <service android:name="androidx.camera.core.impl.MetadataHolderService"
-            tools:node="merge">
-            <meta-data
-                android:name=
-                    "androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
-                android:value="androidx.camera.lifecycle.TestMetaDataConfigProvider" />
-        </service>
-    </application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
 </manifest>

@@ -21,8 +21,9 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
-import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isItelDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isUniSocChipsetDevice
 import androidx.camera.core.impl.Quirk
+import kotlin.text.contains
 
 /**
  * QuirkSummary
@@ -46,7 +47,7 @@ public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
 
     public companion object {
         public fun isEnabled(): Boolean {
-            return isUniSocChipsetDevice() || isHuaweiPSmart()
+            return isProblematicUniSocChipsetDevice() || isUniSocChipsetDevice() || isHuaweiPSmart()
         }
 
         private val PROBLEMATIC_UNI_SOC_MODELS =
@@ -61,17 +62,12 @@ public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
                 "sm-a032f",
                 "sm-a035m",
                 "sm-f946u1",
-                "tecno mobile bf6"
+                "tecno mobile bf6",
             )
 
-        private fun isUniSocChipsetDevice(): Boolean {
-            // There is no clear way to determine whether a device is UniSoc or not. In addition to
-            // known devices, possible properties are checked. See b/344704367#comment2 for details.
-            return PROBLEMATIC_UNI_SOC_MODELS.contains(Build.MODEL.lowercase()) ||
-                (Build.VERSION.SDK_INT >= 31 &&
-                    "Spreadtrum".equals(Build.SOC_MANUFACTURER, ignoreCase = true)) ||
-                Build.HARDWARE.lowercase().startsWith("ums") ||
-                (isItelDevice() && Build.HARDWARE.lowercase().startsWith("sp"))
+        private fun isProblematicUniSocChipsetDevice(): Boolean {
+            // Known devices for the problem. See b/344704367#comment2 for details.
+            return PROBLEMATIC_UNI_SOC_MODELS.contains(Build.MODEL.lowercase())
         }
 
         private fun isHuaweiPSmart(): Boolean {

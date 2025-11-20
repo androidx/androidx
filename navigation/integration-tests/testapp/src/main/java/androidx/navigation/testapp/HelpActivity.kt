@@ -16,7 +16,6 @@
 
 package androidx.navigation.testapp
 
-import android.os.Build
 import android.os.Bundle
 import android.transition.Fade
 import android.view.LayoutInflater
@@ -44,13 +43,11 @@ class HelpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val fade = Fade()
-            fade.excludeTarget(android.R.id.statusBarBackground, true)
-            fade.excludeTarget(android.R.id.navigationBarBackground, true)
-            window.exitTransition = fade
-            window.enterTransition = fade
-        }
+        val fade = Fade()
+        fade.excludeTarget(android.R.id.statusBarBackground, true)
+        fade.excludeTarget(android.R.id.navigationBarBackground, true)
+        window.exitTransition = fade
+        window.enterTransition = fade
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -84,7 +81,7 @@ class BottomSheetNavigationView : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val navigationView =
             requireActivity().layoutInflater.inflate(R.layout.bottom_bar_menu, container, false)

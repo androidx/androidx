@@ -26,7 +26,7 @@ public class FakeSessionConfigOptionUnpacker : SessionConfig.OptionUnpacker {
     override fun unpack(
         resolution: Size,
         config: UseCaseConfig<*>,
-        builder: SessionConfig.Builder
+        builder: SessionConfig.Builder,
     ) {
         val defaultSessionConfig = config.getDefaultSessionConfig(/* valueIfMissing= */ null)
 

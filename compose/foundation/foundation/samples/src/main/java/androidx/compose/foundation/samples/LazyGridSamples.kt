@@ -82,19 +82,19 @@ fun LazyVerticalGridSpanSample() {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         sections.forEachIndexed { index, items ->
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     "This is section $index",
-                    Modifier.border(1.dp, Color.Gray).height(80.dp).wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).height(80.dp).wrapContentSize(),
                 )
             }
             items(
                 items,
                 // not required as it is the default
-                span = { GridItemSpan(1) }
+                span = { GridItemSpan(1) },
             ) {
                 Text("Item $it", Modifier.border(1.dp, Color.Blue).height(80.dp).wrapContentSize())
             }
@@ -113,7 +113,7 @@ fun LazyHorizontalGridSample() {
     LazyHorizontalGrid(
         rows = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         items(itemsList) { Text("Item is $it", itemModifier) }
 
@@ -132,19 +132,19 @@ fun LazyHorizontalGridSpanSample() {
     LazyHorizontalGrid(
         rows = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         sections.forEachIndexed { index, items ->
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     "This is section $index",
-                    Modifier.border(1.dp, Color.Gray).width(80.dp).wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).width(80.dp).wrapContentSize(),
                 )
             }
             items(
                 items,
                 // not required as it is the default
-                span = { GridItemSpan(1) }
+                span = { GridItemSpan(1) },
             ) {
                 Text("Item $it", Modifier.border(1.dp, Color.Blue).width(80.dp).wrapContentSize())
             }
@@ -229,7 +229,7 @@ fun LazyGridCustomScrollUsingLazyLayoutScrollScopeSample() {
                         androidx.compose.animation.core.animate(
                             0f,
                             distance,
-                            animationSpec = tween(5_000)
+                            animationSpec = tween(5_000),
                         ) { currentValue, _ ->
                             previousValue += scrollBy(currentValue - previousValue)
                         }
@@ -242,7 +242,7 @@ fun LazyGridCustomScrollUsingLazyLayoutScrollScopeSample() {
         LazyHorizontalGrid(
             state = state,
             rows = GridCells.Fixed(3),
-            modifier = Modifier.height(600.dp).fillMaxWidth()
+            modifier = Modifier.height(600.dp).fillMaxWidth(),
         ) {
             items(itemsList) {
                 Box(Modifier.padding(2.dp).background(Color.Red).size(45.dp)) {

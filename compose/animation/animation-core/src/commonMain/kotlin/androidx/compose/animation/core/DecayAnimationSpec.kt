@@ -58,13 +58,13 @@ public interface DecayAnimationSpec<T> {
 public fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
     typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
-    initialVelocity: T
+    initialVelocity: T,
 ): T {
     val vectorizedSpec = vectorize(typeConverter)
     val targetVector =
         vectorizedSpec.getTargetValue(
             typeConverter.convertToVector(initialValue),
-            typeConverter.convertToVector(initialVelocity)
+            typeConverter.convertToVector(initialVelocity),
         )
     return typeConverter.convertFromVector(targetVector)
 }
@@ -77,13 +77,13 @@ public fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
  */
 public fun DecayAnimationSpec<Float>.calculateTargetValue(
     initialValue: Float,
-    initialVelocity: Float
+    initialVelocity: Float,
 ): Float {
     val vectorizedSpec = vectorize(Float.VectorConverter)
     val targetVector =
         vectorizedSpec.getTargetValue(
             AnimationVector(initialValue),
-            AnimationVector(initialVelocity)
+            AnimationVector(initialVelocity),
         )
     return targetVector.value
 }
@@ -103,7 +103,7 @@ public fun DecayAnimationSpec<Float>.calculateTargetValue(
  */
 public fun <T> exponentialDecay(
     @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
-    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
+    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f,
 ): DecayAnimationSpec<T> =
     FloatExponentialDecaySpec(frictionMultiplier, absVelocityThreshold).generateDecayAnimationSpec()
 
@@ -150,7 +150,7 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
             maxDuration =
                 maxOf(
                     maxDuration,
-                    floatDecaySpec.getDurationNanos(initialValue[i], initialVelocity[i])
+                    floatDecaySpec.getDurationNanos(initialValue[i], initialVelocity[i]),
                 )
         }
         return maxDuration
@@ -165,7 +165,7 @@ private class VectorizedFloatDecaySpec<V : AnimationVector>(
                 floatDecaySpec.getVelocityFromNanos(
                     playTimeNanos,
                     initialValue[i],
-                    initialVelocity[i]
+                    initialVelocity[i],
                 )
         }
         return velocityVector

@@ -155,7 +155,7 @@ class FragmentResultTest {
                 fm.setFragmentResultListener(
                     "requestKey",
                     fragment1,
-                    FragmentResultListener { _, _ -> }
+                    FragmentResultListener { _, _ -> },
                 )
             }
 
@@ -225,14 +225,14 @@ class FragmentResultTest {
                 fm.setFragmentResultListener(
                     "requestKey",
                     fragment1,
-                    FragmentResultListener { _, _ -> firstListenerFired = true }
+                    FragmentResultListener { _, _ -> firstListenerFired = true },
                 )
 
                 // lets set another listener before the first is fired
                 fm.setFragmentResultListener(
                     "requestKey",
                     fragment1,
-                    FragmentResultListener { _, _ -> secondListenerFired = true }
+                    FragmentResultListener { _, _ -> secondListenerFired = true },
                 )
             }
 
@@ -307,7 +307,7 @@ class FragmentResultTest {
                     fragment1,
                     FragmentResultListener { _, bundle ->
                         actualResult = bundle.getString("bundleKey")
-                    }
+                    },
                 )
             }
 
@@ -434,7 +434,7 @@ class ResultFragment : StrictFragment() {
         parentFragmentManager.setFragmentResultListener(
             "requestKey",
             this,
-            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") }
+            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") },
         )
     }
 }
@@ -455,7 +455,7 @@ class ClearResultFragment(
                         FragmentResultListener { _, _ ->
                             callbackCount++
                             parentFragmentManager.clearFragmentResultListener("requestKey")
-                        }
+                        },
                     )
                 }
             }
@@ -472,7 +472,7 @@ class ParentResultFragment : StrictFragment() {
         childFragmentManager.setFragmentResultListener(
             "requestKey",
             this,
-            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") }
+            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") },
         )
     }
 }
@@ -497,7 +497,7 @@ class ParcelableResultFragment : StrictFragment() {
             this,
             FragmentResultListener { _, bundle ->
                 actualResult = bundle.getParcelable<ActivityResult>("bundleKey")
-            }
+            },
         )
     }
 }

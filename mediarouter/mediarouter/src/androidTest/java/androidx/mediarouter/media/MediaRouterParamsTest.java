@@ -107,7 +107,6 @@ public class MediaRouterParamsTest {
     }
 
     /** Asserts that two Bundles are equal. */
-    @SuppressWarnings("deprecation")
     public static void assertBundleEquals(Bundle expected, Bundle observed) {
         if (expected == null || observed == null) {
             assertSame(expected, observed);

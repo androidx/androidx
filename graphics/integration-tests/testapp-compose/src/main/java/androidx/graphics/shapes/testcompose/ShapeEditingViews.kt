@@ -57,19 +57,19 @@ fun FeatureEditor(params: ShapeParameters) {
         FeatureColorScheme(
             edgeColor = Color.Blue,
             concaveColor = Color.Red,
-            convexColor = Color.Green
+            convexColor = Color.Green,
         )
     val polygon = params.genShape().normalized()
 
     Column(
         Modifier.padding(12.dp).fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(
             "Tap on dot to change its feature type",
             textAlign = TextAlign.Center,
-            color = scheme.primary.copy(0.6f)
+            color = scheme.primary.copy(0.6f),
         )
 
         PolygonFeatureView(polygon, params.customFeaturesOverlay, colors)
@@ -100,7 +100,7 @@ fun ParametricEditor(params: ShapeParameters) {
         } else {
             Text(
                 "This shape can only parametrically edit its rotation.",
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
 
@@ -148,12 +148,12 @@ internal fun ColorLegend(scheme: FeatureColorScheme) {
             modifier =
                 Modifier.border(
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(0.4f)),
-                        shape = RoundedCornerShape(100)
+                        shape = RoundedCornerShape(100),
                     )
                     .padding(10.dp)
                     .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             LegendChip(colors[0], scheme.edgeColor)
             LegendChip(colors[1], scheme.convexColor)
@@ -178,12 +178,12 @@ fun DoubleLabelledSlider(
     maxValue: Float,
     step: Float,
     valueHolder: MutableFloatState,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Row(
         Modifier.fillMaxWidth().height(50.dp),
         horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val value = " %.2f".format(valueHolder.floatValue)
         Text(name, Modifier.weight(1f))
@@ -197,7 +197,7 @@ fun DoubleLabelledSlider(
                 if (step == 0f) 0
                 else if (step > maxValue - minValue) ((maxValue - minValue) / step).roundToInt() - 1
                 else ((maxValue - minValue) / step).roundToInt() - 1,
-            enabled = enabled
+            enabled = enabled,
         )
         Spacer(Modifier.width(10.dp))
         Text(value, Modifier.width(60.dp))

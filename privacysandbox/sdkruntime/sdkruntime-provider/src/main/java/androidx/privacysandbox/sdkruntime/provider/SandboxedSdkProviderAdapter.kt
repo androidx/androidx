@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.provider
 
@@ -30,8 +31,9 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  */
+@Deprecated("This library is no longer supported.")
 @RequiresApi(34)
-class SandboxedSdkProviderAdapter
+public class SandboxedSdkProviderAdapter
 internal constructor(private val classNameProvider: CompatClassNameProvider) :
     SandboxedSdkProvider() {
 
@@ -40,7 +42,7 @@ internal constructor(private val classNameProvider: CompatClassNameProvider) :
         fun getCompatProviderClassName(context: Context): String
     }
 
-    constructor() : this(DefaultClassNameProvider())
+    public constructor() : this(DefaultClassNameProvider())
 
     internal val delegate: SandboxedSdkProviderCompat by lazy {
         val currentContext = context!!
@@ -65,8 +67,9 @@ internal constructor(private val classNameProvider: CompatClassNameProvider) :
         delegate.beforeUnloadSdk()
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407503025
     override fun getView(windowContext: Context, params: Bundle, width: Int, height: Int): View {
-        return delegate.getView(windowContext, params, width, height)
+        throw UnsupportedOperationException("This SDK doesn't support SurfaceView requests.")
     }
 
     private class DefaultClassNameProvider : CompatClassNameProvider {

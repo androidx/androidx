@@ -43,7 +43,7 @@ internal fun LazySaveableStateHolderProvider(content: @Composable (SaveableState
     val holder =
         rememberSaveable(
             currentRegistry,
-            saver = LazySaveableStateHolder.saver(currentRegistry, wrappedHolder)
+            saver = LazySaveableStateHolder.saver(currentRegistry, wrappedHolder),
         ) {
             LazySaveableStateHolder(currentRegistry, emptyMap(), wrappedHolder)
         }
@@ -52,16 +52,16 @@ internal fun LazySaveableStateHolderProvider(content: @Composable (SaveableState
 
 private class LazySaveableStateHolder(
     private val wrappedRegistry: SaveableStateRegistry,
-    private val wrappedHolder: SaveableStateHolder
+    private val wrappedHolder: SaveableStateHolder,
 ) : SaveableStateRegistry by wrappedRegistry, SaveableStateHolder {
 
     constructor(
         parentRegistry: SaveableStateRegistry?,
         restoredValues: Map<String, List<Any?>>?,
-        wrappedHolder: SaveableStateHolder
+        wrappedHolder: SaveableStateHolder,
     ) : this(
         SaveableStateRegistry(restoredValues) { parentRegistry?.canBeSaved(it) ?: true },
-        wrappedHolder
+        wrappedHolder,
     )
 
     private val previouslyComposedKeys = mutableScatterSetOf<Any>()
@@ -90,7 +90,7 @@ private class LazySaveableStateHolder(
                 save = { it.performSave().ifEmpty { null } },
                 restore = { restored ->
                     LazySaveableStateHolder(parentRegistry, restored, wrappedHolder)
-                }
+                },
             )
     }
 }

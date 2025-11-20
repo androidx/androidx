@@ -40,7 +40,7 @@ class DataManager(private val visualizationDefaults: VisualizationDefaults) {
                     GraphDataHolderValueImpl(
                         absoluteMin = range.first,
                         absoluteMax = range.second,
-                        graphData = GraphDataSortedRingBuffer()
+                        graphData = GraphDataSortedRingBuffer(),
                     )
 
                 /** Because the top row of any graph view is a key value view */

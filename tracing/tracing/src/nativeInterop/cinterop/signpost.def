@@ -1,0 +1,5 @@
+package = androidx.tracing.apple
+language = Objective-C
+headers = OSLogger.h
+
+# Static library and path for ObjC bindings are added by AndroidX Multiplatform plugin.

@@ -35,6 +35,7 @@ import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_TE
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.core.app.ActivityCompat
 
 /**
@@ -57,6 +58,11 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.full_listview)
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(R.id.full_listview_root),
+        )
 
         testResults = TestResults.getInstance(this)
 
@@ -99,7 +105,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
                 startCaptureValidationActivity(
                     testType,
                     cameraId,
-                    extensionTestResultMap.keys.elementAt(position)
+                    extensionTestResultMap.keys.elementAt(position),
                 )
             }
     }
@@ -128,7 +134,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
             this,
             intent,
             imageValidationActivityRequestCode,
-            null
+            null,
         )
     }
 }

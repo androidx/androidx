@@ -62,7 +62,7 @@ class PositionIndicatorBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = POSITION_INDICATOR_ACTIVITY
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val buttonVisibilityAutoHide = device.findObject(By.desc(CHANGE_VISIBILITY_AUTO_HIDE))
             val buttonVisibilityHide = device.findObject(By.desc(CHANGE_VISIBILITY_HIDE))
@@ -94,7 +94,7 @@ class PositionIndicatorBenchmark(private val compilationMode: CompilationMode) {
     private fun repeatIncrementAndDecrement(
         device: UiDevice,
         times: Int,
-        delayBetweenClicks: Long
+        delayBetweenClicks: Long,
     ) {
         val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
         val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))

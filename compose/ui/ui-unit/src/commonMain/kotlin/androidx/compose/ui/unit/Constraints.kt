@@ -180,7 +180,7 @@ value class Constraints(@PublishedApi internal val value: Long) {
         minWidth: Int = this.minWidth,
         maxWidth: Int = this.maxWidth,
         minHeight: Int = this.minHeight,
-        maxHeight: Int = this.maxHeight
+        maxHeight: Int = this.maxHeight,
     ): Constraints {
         requirePrecondition(
             maxWidth >= minWidth && maxHeight >= minHeight && minWidth >= 0 && minHeight >= 0
@@ -233,7 +233,7 @@ value class Constraints(@PublishedApi internal val value: Long) {
                 minWidth = width,
                 maxWidth = width,
                 minHeight = 0,
-                maxHeight = Infinity
+                maxHeight = Infinity,
             )
         }
 
@@ -245,7 +245,7 @@ value class Constraints(@PublishedApi internal val value: Long) {
                 minWidth = 0,
                 maxWidth = Infinity,
                 minHeight = height,
-                maxHeight = height
+                maxHeight = height,
             )
         }
 
@@ -255,7 +255,7 @@ value class Constraints(@PublishedApi internal val value: Long) {
             replaceWith =
                 ReplaceWith(
                     "Constraints.fitPrioritizingWidth(minWidth, maxWidth, minHeight, maxHeight)"
-                )
+                ),
         )
         @Stable
         fun restrictConstraints(
@@ -263,7 +263,7 @@ value class Constraints(@PublishedApi internal val value: Long) {
             maxWidth: Int,
             minHeight: Int,
             maxHeight: Int,
-            prioritizeWidth: Boolean = true
+            prioritizeWidth: Boolean = true,
         ): Constraints {
             return if (prioritizeWidth) {
                 fitPrioritizingWidth(minWidth, maxWidth, minHeight, maxHeight)
@@ -413,7 +413,7 @@ internal fun createConstraints(
     minWidth: Int,
     maxWidth: Int,
     minHeight: Int,
-    maxHeight: Int
+    maxHeight: Int,
 ): Constraints {
     val heightVal = if (maxHeight == Infinity) minHeight else maxHeight
     val heightBits = bitsNeedForSizeUnchecked(heightVal)
@@ -481,7 +481,7 @@ fun Constraints(
     minWidth: Int = 0,
     maxWidth: Int = Infinity,
     minHeight: Int = 0,
-    maxHeight: Int = Infinity
+    maxHeight: Int = Infinity,
 ): Constraints {
     requirePrecondition(
         (maxWidth >= minWidth) and (maxHeight >= minHeight) and (minWidth >= 0) and (minHeight >= 0)
@@ -514,7 +514,7 @@ fun Constraints.constrain(otherConstraints: Constraints): Constraints {
         minWidth = otherConstraints.minWidth.fastCoerceIn(minWidth, maxWidth),
         maxWidth = otherConstraints.maxWidth.fastCoerceIn(minWidth, maxWidth),
         minHeight = otherConstraints.minHeight.fastCoerceIn(minHeight, maxHeight),
-        maxHeight = otherConstraints.maxHeight.fastCoerceIn(minHeight, maxHeight)
+        maxHeight = otherConstraints.maxHeight.fastCoerceIn(minHeight, maxHeight),
     )
 }
 
@@ -523,7 +523,7 @@ fun Constraints.constrain(otherConstraints: Constraints): Constraints {
 fun Constraints.constrain(size: IntSize) =
     IntSize(
         width = size.width.fastCoerceIn(minWidth, maxWidth),
-        height = size.height.fastCoerceIn(minHeight, maxHeight)
+        height = size.height.fastCoerceIn(minHeight, maxHeight),
     )
 
 /** Takes a width and returns the closest size to it that satisfies the constraints. */
@@ -545,7 +545,7 @@ fun Constraints.offset(horizontal: Int = 0, vertical: Int = 0) =
         (minWidth + horizontal).fastCoerceAtLeast(0),
         addMaxWithMinimum(maxWidth, horizontal),
         (minHeight + vertical).fastCoerceAtLeast(0),
-        addMaxWithMinimum(maxHeight, vertical)
+        addMaxWithMinimum(maxHeight, vertical),
     )
 
 private inline fun addMaxWithMinimum(max: Int, value: Int): Int {

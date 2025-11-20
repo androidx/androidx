@@ -47,7 +47,7 @@ private fun createSuspendedLoop(
     suspendedLoopTrigger.nextStep =
         block.createCoroutineUnintercepted(
             receiver = suspendedLoopTrigger,
-            completion = suspendedLoopTrigger
+            completion = suspendedLoopTrigger,
         )
     return suspendedLoopTrigger
 }
@@ -144,7 +144,7 @@ constructor(testDefinition: TestDefinition, private val config: MicrobenchmarkCo
             loopedMeasurementBlock = { microbenchScope, loops ->
                 scope = microbenchScope
                 awaitLoops(loops)
-            }
+            },
         )
     }
 

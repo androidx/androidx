@@ -69,8 +69,7 @@ public final class PrintHelper {
      * There is a bug in the PrintActivity that causes it to ignore the orientation
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static final boolean PRINT_ACTIVITY_RESPECTS_ORIENTATION =
-            Build.VERSION.SDK_INT < 20 || Build.VERSION.SDK_INT > 23;
+    static final boolean PRINT_ACTIVITY_RESPECTS_ORIENTATION = Build.VERSION.SDK_INT > 23;
 
     /**
      * Whether the print subsystem handles min margins correctly. If not the print helper needs

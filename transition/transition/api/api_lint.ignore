@@ -28,8 +28,8 @@ NoClone: androidx.transition.TransitionSet#clone():
 
 
 NullableCollection: androidx.transition.Transition#getTargetNames():
-    Return type of method androidx.transition.Transition.getTargetNames() is a nullable collection (`java.util.List`); must be non-null
+    Return type of method androidx.transition.Transition.getTargetNames() uses a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.transition.Transition#getTargetTypes():
-    Return type of method androidx.transition.Transition.getTargetTypes() is a nullable collection (`java.util.List`); must be non-null
+    Return type of method androidx.transition.Transition.getTargetTypes() uses a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.transition.Transition#getTransitionProperties():
-    Return type of method androidx.transition.Transition.getTransitionProperties() is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.transition.Transition.getTransitionProperties() uses a nullable collection (`java.lang.String[]`); must be non-null

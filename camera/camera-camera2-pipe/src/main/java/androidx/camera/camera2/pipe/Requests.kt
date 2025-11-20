@@ -60,7 +60,7 @@ public class Request(
     public val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
     public val listeners: List<Listener> = emptyList(),
     public val template: RequestTemplate? = null,
-    public val inputRequest: InputRequest? = null
+    public val inputRequest: InputRequest? = null,
 ) {
     public operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
 
@@ -89,7 +89,7 @@ public class Request(
         public fun onStarted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            timestamp: CameraTimestamp
+            timestamp: CameraTimestamp,
         ) {}
 
         /**
@@ -105,7 +105,7 @@ public class Request(
         public fun onPartialCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            captureResult: FrameMetadata
+            captureResult: FrameMetadata,
         ) {}
 
         /**
@@ -141,7 +141,7 @@ public class Request(
         public fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            totalCaptureResult: FrameInfo
+            totalCaptureResult: FrameInfo,
         ) {}
 
         /**
@@ -158,7 +158,7 @@ public class Request(
         public fun onComplete(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            result: FrameInfo
+            result: FrameInfo,
         ) {}
 
         /**
@@ -175,7 +175,7 @@ public class Request(
         public fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            requestFailure: RequestFailure
+            requestFailure: RequestFailure,
         ) {}
 
         /**
@@ -191,7 +191,7 @@ public class Request(
         public fun onReadoutStarted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            timestamp: SensorTimestamp
+            timestamp: SensorTimestamp,
         ) {}
 
         /**
@@ -207,7 +207,7 @@ public class Request(
         public fun onBufferLost(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            stream: StreamId
+            stream: StreamId,
         ) {}
 
         /**
@@ -260,7 +260,7 @@ public class Request(
          */
         public fun onRequestSequenceCompleted(
             requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber
+            frameNumber: FrameNumber,
         ) {}
     }
 
@@ -414,6 +414,14 @@ public fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Map<Any, Any>.filterToCaptureRequestParameters(): Map<CaptureRequest.Key<*>, Any> =
+    this.filterKeys { it is CaptureRequest.Key<*> }.mapKeys { it.key as CaptureRequest.Key<*> }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun Map<Any, Any>.filterToMetadataParameters(): Map<Metadata.Key<*>, Any> =
+    this.filterKeys { it is Metadata.Key<*> }.mapKeys { it.key as Metadata.Key<*> }
 
 /** Utility function to help deal with the unsafe nature of the typed Key/Value pairs. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

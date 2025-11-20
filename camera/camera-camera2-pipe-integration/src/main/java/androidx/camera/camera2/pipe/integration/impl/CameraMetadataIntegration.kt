@@ -26,7 +26,7 @@ public val CameraMetadata.availableAfModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
-                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+                intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF),
             )
             .asList()
 
@@ -34,7 +34,7 @@ public val CameraMetadata.availableAeModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
-                intArrayOf(CaptureRequest.CONTROL_AE_MODE_OFF)
+                intArrayOf(CaptureRequest.CONTROL_AE_MODE_OFF),
             )
             .asList()
 
@@ -42,7 +42,7 @@ public val CameraMetadata.availableAwbModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES,
-                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_OFF)
+                intArrayOf(CaptureRequest.CONTROL_AWB_MODE_OFF),
             )
             .asList()
 

@@ -61,7 +61,7 @@ internal class DomExceptionUtils {
             type: String,
             prefix: String,
             msg: String?,
-            t: T
+            t: T,
         ): T {
 
             return when (type) {

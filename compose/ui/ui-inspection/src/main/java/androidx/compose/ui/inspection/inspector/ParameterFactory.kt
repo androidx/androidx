@@ -19,7 +19,6 @@ package androidx.compose.ui.inspection.inspector
 import android.util.Log
 import android.view.View
 import androidx.collection.mutableIntListOf
-import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.runtime.internal.ComposableLambda
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -30,6 +29,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.inspection.SPAM_LOG_TAG
 import androidx.compose.ui.inspection.inspector.ParameterType.DimensionDp
 import androidx.compose.ui.inspection.util.copy
 import androidx.compose.ui.inspection.util.removeLast
@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontListFontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.intl.Locale
@@ -49,9 +48,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier as JavaModifier
-import java.util.IdentityHashMap
 import kotlin.jvm.internal.FunctionReference
-import kotlin.jvm.internal.Lambda
 import kotlin.math.abs
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -91,7 +88,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      * - androidx.compose.ui.node.LayoutNode
      */
     private val ignoredPackagePrefixes =
-        listOf("android.", "java.", "javax.", "kotlinx.", "androidx.compose.ui.node.")
+        listOf("android.", "java.", "javax.", "kotlinx.", "androidx.compose.ui.node.", "dagger.")
 
     var density = Density(1.0f)
 
@@ -126,7 +123,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         kind: ParameterKind,
         parameterIndex: Int,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): NodeParameter {
         val creator = creatorCache ?: ParameterCreator()
         try {
@@ -140,7 +137,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     kind,
                     parameterIndex,
                     maxRecursions,
-                    maxInitialIterableSize
+                    maxInitialIterableSize,
                 )
             }
         } finally {
@@ -171,7 +168,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         startIndex: Int,
         maxElements: Int,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): NodeParameter? {
         val creator = creatorCache ?: ParameterCreator()
         try {
@@ -186,17 +183,12 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     startIndex,
                     maxElements,
                     maxRecursions,
-                    maxInitialIterableSize
+                    maxInitialIterableSize,
                 )
             }
         } finally {
             creatorCache = creator
         }
-    }
-
-    fun clearReferenceCache() {
-        val creator = creatorCache ?: return
-        creator.clearReferenceCache()
     }
 
     private fun loadConstantsFrom(javaClass: Class<*>) {
@@ -226,7 +218,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         try {
             // Note: This doesn't work when @file.JvmName is specified
             Class.forName("${javaClass.name}Kt")
-        } catch (ex: Throwable) {
+        } catch (_: Throwable) {
             null
         }
 
@@ -305,7 +297,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             field?.isAccessible = true
             inlineClassConverter.castParameterValue(
                 inlineResultClass(property),
-                field?.get(instance)
+                field?.get(instance),
             )
         } catch (_: ReflectiveOperationException) {
             // ignore reflection errors
@@ -337,10 +329,6 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         private var maxInitialIterableSize = 0
         private var recursions = 0
         private val valueIndex = mutableIntListOf()
-        private val valueLazyReferenceMap = IdentityHashMap<Any, MutableList<NodeParameter>>()
-        private val rootValueIndexCache =
-            mutableLongObjectMapOf<IdentityHashMap<Any, NodeParameterReference>>()
-        private var valueIndexMap = IdentityHashMap<Any, NodeParameterReference>()
 
         fun create(
             rootId: Long,
@@ -351,7 +339,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             kind: ParameterKind,
             parameterIndex: Int,
             maxRecursions: Int,
-            maxInitialIterableSize: Int
+            maxInitialIterableSize: Int,
         ): NodeParameter =
             try {
                 setup(
@@ -361,7 +349,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     kind,
                     parameterIndex,
                     maxRecursions,
-                    maxInitialIterableSize
+                    maxInitialIterableSize,
                 )
                 create(name, value, null) ?: createEmptyParameter(name)
             } finally {
@@ -378,7 +366,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             startIndex: Int,
             maxElements: Int,
             maxRecursions: Int,
-            maxInitialIterableSize: Int
+            maxInitialIterableSize: Int,
         ): NodeParameter? {
             setup(
                 rootId,
@@ -387,7 +375,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 reference.kind,
                 reference.parameterIndex,
                 maxRecursions,
-                maxInitialIterableSize
+                maxInitialIterableSize,
             )
             var parent: Pair<String, Any?>? = null
             var new = Pair(name, value)
@@ -406,17 +394,13 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                         new.second,
                         parent?.second,
                         startIndex,
-                        maxElements
+                        maxElements,
                     )
                 }
             if (parameter == null && reference.indices.isEmpty()) {
                 return createEmptyParameter(name)
             }
             return parameter
-        }
-
-        fun clearReferenceCache() {
-            rootValueIndexCache.clear()
         }
 
         private fun setup(
@@ -426,7 +410,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             newKind: ParameterKind = ParameterKind.Normal,
             newParameterIndex: Int = 0,
             maxRecursions: Int = 0,
-            maxInitialIterableSize: Int = 0
+            maxInitialIterableSize: Int = 0,
         ) {
             rootId = newRootId
             nodeId = newNodeId
@@ -437,8 +421,6 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             this.maxInitialIterableSize = maxInitialIterableSize
             recursions = 0
             valueIndex.clear()
-            valueLazyReferenceMap.clear()
-            valueIndexMap = rootValueIndexCache.getOrPut(newRootId) { IdentityHashMap() }
         }
 
         private fun create(name: String, value: Any?, parentValue: Any?): NodeParameter? {
@@ -448,20 +430,14 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             createFromSimpleValue(name, value)?.let {
                 return it
             }
-
-            val existing =
-                valueIndexMap[value] ?: return createFromCompositeValue(name, value, parentValue)
-
-            // Do not decompose an instance we already decomposed.
-            // Instead reference the data that was already decomposed.
-            return createReferenceToExistingValue(name, value, parentValue, existing)
+            return createFromCompositeValue(name, value, parentValue)
         }
 
         private fun create(
             name: String,
             value: Any?,
             parentValue: Any?,
-            specifiedIndex: Int = 0
+            specifiedIndex: Int = 0,
         ): NodeParameter? = create(name, value, parentValue)?.apply { index = specifiedIndex }
 
         private fun createFromSimpleValue(name: String, value: Any?): NodeParameter? {
@@ -485,7 +461,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 is FontListFontFamily -> createFromFontListFamily(name, value)
                 is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
                 is Int -> NodeParameter(name, ParameterType.Int32, value)
-                is Lambda<*> -> createFromLambda(name, value)
+                is Function<*> -> createFromFunction(name, value)
                 is Locale -> NodeParameter(name, ParameterType.String, value.toString())
                 is Long -> NodeParameter(name, ParameterType.Int64, value)
                 is SolidColor -> NodeParameter(name, ParameterType.Color, value.value.toArgb())
@@ -502,7 +478,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             value: Any?,
             parentValue: Any?,
             startIndex: Int = 0,
-            maxElements: Int = maxInitialIterableSize
+            maxElements: Int = maxInitialIterableSize,
         ): NodeParameter? =
             when {
                 value == null -> null
@@ -542,7 +518,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             name: String,
             value: Any?,
             parentValue: Any?,
-            index: Int
+            index: Int,
         ): NodeParameter? {
             valueIndex.add(index)
             recursions++
@@ -554,83 +530,20 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
         private fun shouldRecurseDeeper(): Boolean = recursions < maxRecursions
 
-        /**
-         * Create a [NodeParameter] as a reference to a previously created parameter.
-         *
-         * Use [createFromCompositeValue] to compute the data type and top value, however no
-         * children will be created. Instead a reference to the previously created parameter is
-         * specified.
-         */
-        private fun createReferenceToExistingValue(
-            name: String,
-            value: Any?,
-            parentValue: Any?,
-            ref: NodeParameterReference
-        ): NodeParameter? {
-            val remember = recursions
-            recursions = maxRecursions
-            val parameter =
-                createFromCompositeValue(name, value, parentValue)?.apply { reference = ref }
-            recursions = remember
-            return parameter
-        }
-
-        /**
-         * Returns `true` if the value can be mapped to a [NodeParameter].
-         *
-         * Composite values should NOT be added to the [valueIndexMap] since we do not intend to
-         * include this parameter in the response.
-         */
+        /** Returns `true` if the value can be mapped to a [NodeParameter]. */
         private fun hasMappableValue(value: Any?): Boolean {
             if (value == null) {
                 return false
-            }
-            if (valueIndexMap.containsKey(value)) {
-                return true
             }
             val remember = recursions
             recursions = maxRecursions
             val parameter = create("p", value, null)
             recursions = remember
-            valueIndexMap.remove(value)
             return parameter != null
         }
 
-        /**
-         * Store the reference of this [NodeParameter] by its [value]
-         *
-         * If the value is seen in other parameter values again, there is no need to create child
-         * parameters a second time.
-         */
-        private fun NodeParameter.store(value: Any?): NodeParameter {
-            if (value != null) {
-                val index = valueIndexToReference()
-                valueIndexMap[value] = index
-            }
-            return this
-        }
-
-        /** Remove the [value] of this [NodeParameter] if there are no child elements. */
-        private fun NodeParameter.removeIfEmpty(value: Any?): NodeParameter {
-            if (value != null) {
-                if (elements.isEmpty()) {
-                    valueIndexMap.remove(value)
-                }
-                val reference = valueIndexMap[value]
-                valueLazyReferenceMap.remove(value)?.forEach { it.reference = reference }
-            }
-            return this
-        }
-
-        /**
-         * Delay the creation of all child parameters of this composite parameter.
-         *
-         * If the child parameters are omitted because of [maxRecursions], store the parameter
-         * itself such that its reference can be updated if it turns out that child [NodeParameter]s
-         * need to be generated later.
-         */
-        private fun NodeParameter.withChildReference(value: Any): NodeParameter {
-            valueLazyReferenceMap.getOrPut(value, { mutableListOf() }).add(this)
+        /** Delay the creation of all child parameters of this composite parameter. */
+        private fun NodeParameter.withChildReference(): NodeParameter {
             reference = valueIndexToReference()
             return this
         }
@@ -645,7 +558,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             name: String,
             value: Any,
             startIndex: Int,
-            maxElements: Int
+            maxElements: Int,
         ): NodeParameter? {
             val sequence = arrayToSequence(value) ?: return null
             return createFromSequence(name, value, sequence, startIndex, maxElements)
@@ -700,7 +613,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         // For now: select ResourceFontFont closest to W400 and Normal, and return the resId
         private fun createFromFontListFamily(
             name: String,
-            value: FontListFontFamily
+            value: FontListFontFamily,
         ): NodeParameter? =
             findBestResourceFont(value)?.let {
                 NodeParameter(name, ParameterType.Resource, it.resId)
@@ -708,7 +621,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
         private fun createFromFunctionReference(
             name: String,
-            value: FunctionReference
+            value: FunctionReference,
         ): NodeParameter =
             NodeParameter(name, ParameterType.FunctionReference, arrayOf<Any>(value, value.name))
 
@@ -718,13 +631,13 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             val parameter = NodeParameter(name, ParameterType.String, simpleName)
             return when {
                 properties.isEmpty() -> parameter
-                !shouldRecurseDeeper() -> parameter.withChildReference(value)
+                !shouldRecurseDeeper() -> parameter.withChildReference()
                 else -> {
-                    val elements = parameter.store(value).elements
+                    val elements = parameter.elements
                     properties.values.mapIndexedNotNullTo(elements) { index, part ->
                         createRecursively(part.name, valueOf(part, value), value, index)
                     }
-                    parameter.removeIfEmpty(value)
+                    parameter
                 }
             }
         }
@@ -754,8 +667,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     .plus(kClass.allSuperclasses.asSequence())
                     .flatMap { it.declaredMemberProperties.asSequence() }
                     .associateBy { it.name }
-            } catch (ex: Throwable) {
-                Log.w("Compose", "Could not decompose ${kClass.simpleName}", ex)
+            } catch (_: Throwable) {
+                Log.w(SPAM_LOG_TAG, "Could not decompose ${kClass.simpleName}")
                 null
             }
         }
@@ -766,15 +679,15 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 // Bug in kotlin reflection API: if the type is a nullable inline type with a null
                 // value, we get an IllegalArgumentException in this line:
                 property.getter.call(instance)
-            } catch (ex: Throwable) {
+            } catch (_: Throwable) {
                 // TODO: Remove this warning since this is expected with nullable inline types
-                Log.w("Compose", "Could not get value of ${property.name}")
+                Log.w(SPAM_LOG_TAG, "Could not get value of ${property.name}")
                 null
             }
 
         private fun createFromInspectableValue(
             name: String,
-            value: InspectableValue
+            value: InspectableValue,
         ): NodeParameter {
             val tempValue = value.valueOverride ?: ""
             val parameterName = name.ifEmpty { value.nameFallback } ?: "element"
@@ -783,18 +696,18 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 createFromSimpleValue(parameterName, parameterValue)
                     ?: NodeParameter(parameterName, ParameterType.String, "")
             if (!shouldRecurseDeeper()) {
-                return parameter.withChildReference(value)
+                return parameter.withChildReference()
             }
-            val elements = parameter.store(value).elements
+            val elements = parameter.elements
             value.inspectableElements.mapIndexedNotNullTo(elements) { index, element ->
                 createRecursively(element.name, element.value, value, index)
             }
-            return parameter.removeIfEmpty(value)
+            return parameter
         }
 
         private fun findFromInspectableValue(
             value: InspectableValue,
-            index: Int
+            index: Int,
         ): Pair<String, Any?>? {
             val elements = value.inspectableElements.toList()
             if (index !in elements.indices) {
@@ -807,7 +720,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         private fun createFromMapEntry(
             name: String,
             entry: Map.Entry<*, *>,
-            parentValue: Any?
+            parentValue: Any?,
         ): NodeParameter? {
             val key = createRecursively("key", entry.key, entry, 0) ?: return null
             val value = createRecursively("value", entry.value, entry, 1) ?: return null
@@ -832,14 +745,14 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             value: Any,
             sequence: Sequence<*>,
             startIndex: Int,
-            maxElements: Int
+            maxElements: Int,
         ): NodeParameter {
             val parameter = NodeParameter(name, ParameterType.Iterable, sequenceName(value))
             return when {
                 !sequence.any() -> parameter
-                !shouldRecurseDeeper() -> parameter.withChildReference(value)
+                !shouldRecurseDeeper() -> parameter.withChildReference()
                 else -> {
-                    val elements = parameter.store(value).elements
+                    val elements = parameter.elements
                     val rest = sequence.drop(startIndex).iterator()
                     var index = startIndex
                     while (rest.hasNext() && elements.size < maxElements) {
@@ -850,11 +763,11 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     }
                     while (rest.hasNext()) {
                         if (hasMappableValue(rest.next())) {
-                            parameter.withChildReference(value)
+                            parameter.withChildReference()
                             break
                         }
                     }
-                    parameter.removeIfEmpty(value)
+                    parameter
                 }
             }
         }
@@ -882,7 +795,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 else -> "Sequence"
             }
 
-        private fun createFromLambda(name: String, value: Lambda<*>): NodeParameter =
+        private fun createFromFunction(name: String, value: Function<*>): NodeParameter =
             NodeParameter(name, ParameterType.Lambda, arrayOf<Any>(value))
 
         private fun createFromModifier(name: String, value: Modifier): NodeParameter? =
@@ -892,13 +805,13 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     val modifiers = unwrap(value)
                     when {
                         modifiers.isEmpty() -> parameter
-                        !shouldRecurseDeeper() -> parameter.withChildReference(value)
+                        !shouldRecurseDeeper() -> parameter.withChildReference()
                         else -> {
                             val elements = parameter.elements
                             modifiers.mapIndexedNotNullTo(elements) { index, element ->
                                 createRecursively("", element, value, index)
                             }
-                            parameter.store(value).removeIfEmpty(value)
+                            parameter
                         }
                     }
                 }
@@ -915,7 +828,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         private fun findFromModifier(
             name: String,
             value: Modifier,
-            index: Int
+            index: Int,
         ): Pair<String, Any?>? =
             when {
                 name.isNotEmpty() -> {
@@ -1031,7 +944,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         /**
          * Select a resource font among the font in the family to represent the font
          *
-         * Prefer the font closest to [FontWeight.Normal] and [FontStyle.Normal]
+         * Prefer the font closest to [FontWeight.Normal] and
+         * [androidx.compose.ui.text.font.FontStyle.Normal]
          */
         private fun findBestResourceFont(value: FontListFontFamily): ResourceFont? =
             value.fonts.asSequence().filterIsInstance<ResourceFont>().minByOrNull {

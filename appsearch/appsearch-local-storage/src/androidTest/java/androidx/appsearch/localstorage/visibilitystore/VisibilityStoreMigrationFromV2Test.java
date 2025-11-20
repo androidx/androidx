@@ -71,6 +71,7 @@ public class VisibilityStoreMigrationFromV2Test {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testVisibilityMigration_from2() throws Exception {
         // As such, we can treat V2 documents as V3 documents when upgrading, but we need to test
         // this.
@@ -91,8 +92,10 @@ public class VisibilityStoreMigrationFromV2Test {
         AppSearchImpl appSearchImplInV2 = AppSearchImpl.create(mFile,
                 mConfig,
                 /*initStatsBuilder=*/ null,
+                /*callStatsBuilder=*/ null,
                 /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
 
         // Erase overlay schemas since it doesn't exist in released V2 schema.
@@ -102,22 +105,26 @@ public class VisibilityStoreMigrationFromV2Test {
                 // no overlay schema
                 ImmutableList.of(),
                 /*prefixedVisibilityBundles=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ true, // force push the old version into disk
                 VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA_VERSION_LATEST,
-                /*setSchemaStatsBuilder=*/ null);
+                /*setSchemaStatsBuilder=*/ null,
+                /*callStatsBuilder=*/ null);
         assertThat(internalSetAndroidVSchemaResponse.isSuccess()).isTrue();
 
         GetSchemaResponse getSchemaResponse = appSearchImplInV2.getSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
-                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME),
+                /*callStatsBuilder=*/ null);
         assertThat(getSchemaResponse.getSchemas()).containsExactly(
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
                 VisibilityPermissionConfig.SCHEMA);
         GetSchemaResponse getAndroidVOverlaySchemaResponse = appSearchImplInV2.getSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME,
-                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME),
+                /*callStatsBuilder=*/ null);
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).isEmpty();
 
         // Build deprecated visibility documents in version 2
@@ -148,9 +155,11 @@ public class VisibilityStoreMigrationFromV2Test {
                 ImmutableList.of(
                         new AppSearchSchema.Builder("Schema").build()),
                 /*visibilityDocuments=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ Collections.emptyMap(),
                 /*forceOverride=*/ false,
                 /*schemaVersion=*/ 0,
-                /*setSchemaStatsBuilder=*/ null);
+                /*setSchemaStatsBuilder=*/ null,
+                /*callStatsBuilder=*/ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Put deprecated visibility documents in version 2 to AppSearchImpl
@@ -159,15 +168,18 @@ public class VisibilityStoreMigrationFromV2Test {
                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
                 visibilityDocumentV2,
                 /*sendChangeNotifications=*/ false,
-                /*logger=*/null);
+                /*logger=*/null,
+                /*callStatsBuilder=*/ null);
 
         // Persist to disk and re-open the AppSearchImpl
         appSearchImplInV2.close();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile,
                 mConfig,
                 /*initStatsBuilder=*/ null,
+                /*callStatsBuilder=*/ null,
                 /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
 
         InternalVisibilityConfig actualConfig =
@@ -177,7 +189,8 @@ public class VisibilityStoreMigrationFromV2Test {
                                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
                                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                                 /*id=*/ prefix + "Schema",
-                                /*typePropertyPaths=*/ Collections.emptyMap()),
+                                /*typePropertyPaths=*/ Collections.emptyMap(),
+                                /*callStatsBuilder=*/ null),
                 /*androidVOverlayDocument=*/null);
 
         assertThat(actualConfig.isNotDisplayedBySystem()).isTrue();
@@ -193,14 +206,16 @@ public class VisibilityStoreMigrationFromV2Test {
         getSchemaResponse = appSearchImpl.getSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
-                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME),
+                /*callStatsBuilder=*/ null);
         assertThat(getSchemaResponse.getSchemas()).containsExactly(
                 VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_SCHEMA,
                 VisibilityPermissionConfig.SCHEMA);
         getAndroidVOverlaySchemaResponse = appSearchImpl.getSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME,
-                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME));
+                new CallerAccess(/*callingPackageName=*/VisibilityStore.VISIBILITY_PACKAGE_NAME),
+                /*callStatsBuilder=*/ null);
         assertThat(getAndroidVOverlaySchemaResponse.getSchemas()).containsExactly(
                 VisibilityToDocumentConverter.ANDROID_V_OVERLAY_SCHEMA);
 
@@ -211,7 +226,8 @@ public class VisibilityStoreMigrationFromV2Test {
                         VisibilityStore.DOCUMENT_ANDROID_V_OVERLAY_DATABASE_NAME,
                          VisibilityToDocumentConverter.ANDROID_V_OVERLAY_NAMESPACE,
                         /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()));
+                        /*typePropertyPaths=*/ Collections.emptyMap(),
+                         /*callStatsBuilder=*/ null));
         assertThat(e).hasMessageThat().contains("not found");
 
         appSearchImpl.close();

@@ -35,6 +35,12 @@ internal typealias PlatformActiveCaloriesBurnedRecord =
 internal typealias PlatformActiveCaloriesBurnedRecordBuilder =
     android.health.connect.datatypes.ActiveCaloriesBurnedRecord.Builder
 
+internal typealias PlatformActivityIntensityRecord =
+    android.health.connect.datatypes.ActivityIntensityRecord
+
+internal typealias PlatformActivityIntensityRecordBuilder =
+    android.health.connect.datatypes.ActivityIntensityRecord.Builder
+
 internal typealias PlatformBasalBodyTemperatureRecord =
     android.health.connect.datatypes.BasalBodyTemperatureRecord
 
@@ -270,6 +276,12 @@ internal typealias PlatformIntermenstrualBleedingRecord =
 internal typealias PlatformIntermenstrualBleedingRecordBuilder =
     android.health.connect.datatypes.IntermenstrualBleedingRecord.Builder
 
+internal typealias PlatformMindfulnessSessionRecord =
+    android.health.connect.datatypes.MindfulnessSessionRecord
+
+internal typealias PlatformMindfulnessSessionRecordBuilder =
+    android.health.connect.datatypes.MindfulnessSessionRecord.Builder
+
 internal typealias PlatformLeanBodyMassRecord = android.health.connect.datatypes.LeanBodyMassRecord
 
 internal typealias PlatformLeanBodyMassRecordBuilder =
@@ -438,3 +450,22 @@ internal typealias PlatformTemperatureDelta =
 internal typealias PlatformVelocity = android.health.connect.datatypes.units.Velocity
 
 internal typealias PlatformVolume = android.health.connect.datatypes.units.Volume
+
+internal typealias PlatformFhirVersion = android.health.connect.datatypes.FhirVersion
+
+internal typealias PlatformFhirResource = android.health.connect.datatypes.FhirResource
+
+internal typealias PlatformFhirResourceBuilder =
+    android.health.connect.datatypes.FhirResource.Builder
+
+internal typealias PlatformMedicalDataSource = android.health.connect.datatypes.MedicalDataSource
+
+internal typealias PlatformMedicalDataSourceBuilder =
+    android.health.connect.datatypes.MedicalDataSource.Builder
+
+internal typealias PlatformMedicalResourceId = android.health.connect.MedicalResourceId
+
+internal typealias PlatformMedicalResource = android.health.connect.datatypes.MedicalResource
+
+internal typealias PlatformMedicalResourceBuilder =
+    android.health.connect.datatypes.MedicalResource.Builder

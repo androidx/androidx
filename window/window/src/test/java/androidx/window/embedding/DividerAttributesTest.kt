@@ -43,6 +43,8 @@ class DividerAttributesTest {
                 .setWidthDp(DividerAttributes.WIDTH_SYSTEM_DEFAULT)
                 .setDragRange(DRAG_RANGE_SYSTEM_DEFAULT)
                 .build()
+        val attrs5 =
+            DraggableDividerAttributes.Builder(attrs4).setDraggingToFullscreenAllowed(true).build()
 
         assertNotEquals(attrs1, attrs2)
         assertNotEquals(attrs1.hashCode(), attrs2.hashCode())
@@ -52,6 +54,9 @@ class DividerAttributesTest {
 
         assertNotEquals(attrs3, attrs4)
         assertNotEquals(attrs3.hashCode(), attrs4.hashCode())
+
+        assertNotEquals(attrs4, attrs5)
+        assertNotEquals(attrs4.hashCode(), attrs5.hashCode())
 
         // attrs2 and attrs4 must be equal because attrs4 uses default values.
         assertEquals(attrs2, attrs4)
@@ -65,11 +70,13 @@ class DividerAttributesTest {
                 .setWidthDp(20)
                 .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
                 .setColor(Color.GRAY)
+                .setDraggingToFullscreenAllowed(true)
                 .build()
 
         assertEquals(20, attrs.widthDp)
         assertEquals(SplitRatioDragRange(0.3f, 0.7f), attrs.dragRange)
         assertEquals(Color.GRAY, attrs.color)
+        assertEquals(true, attrs.isDraggingToFullscreenAllowed)
     }
 
     @Test
@@ -79,6 +86,7 @@ class DividerAttributesTest {
         assertEquals(DividerAttributes.WIDTH_SYSTEM_DEFAULT, attrs.widthDp)
         assertEquals(DRAG_RANGE_SYSTEM_DEFAULT, attrs.dragRange)
         assertEquals(Color.BLACK, attrs.color)
+        assertEquals(false, attrs.isDraggingToFullscreenAllowed)
     }
 
     @Test

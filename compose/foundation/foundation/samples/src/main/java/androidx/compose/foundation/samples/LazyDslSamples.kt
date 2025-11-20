@@ -96,7 +96,7 @@ fun StickyHeaderListSample() {
             stickyHeader {
                 Text(
                     "Section $section",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp),
                 )
             }
             items(10) { Text("Item $it from the section $section") }
@@ -115,7 +115,7 @@ fun StickyHeaderGridSample() {
             stickyHeader {
                 Text(
                     "Section $section",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp),
                 )
             }
             items(10) { Text("Item= $it S=$section", modifier = Modifier.height(64.dp)) }
@@ -149,7 +149,7 @@ fun StickyHeaderHeaderIndexSample() {
                     "Section $section",
                     Modifier.fillMaxWidth()
                         .background(if (isSticking) Color.Red else Color.LightGray)
-                        .padding(8.dp)
+                        .padding(8.dp),
                 )
             }
             items(10) { Text("Item $it from the section $section") }
@@ -231,7 +231,7 @@ fun LazyListCustomScrollUsingLazyLayoutScrollScopeSample() {
                         androidx.compose.animation.core.animate(
                             0f,
                             distance,
-                            animationSpec = tween(5_000)
+                            animationSpec = tween(5_000),
                         ) { currentValue, _ ->
                             previousValue += scrollBy(currentValue - previousValue)
                         }

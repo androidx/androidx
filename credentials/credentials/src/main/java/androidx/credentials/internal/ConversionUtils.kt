@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
@@ -50,10 +51,7 @@ import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentia
 /** Take the create request's `credentialData` and add SDK specific values to it. */
 @RequiresApi(Build.VERSION_CODES.M)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun getFinalCreateCredentialData(
-    request: CreateCredentialRequest,
-    context: Context,
-): Bundle {
+fun getFinalCreateCredentialData(request: CreateCredentialRequest, context: Context): Bundle {
     val createCredentialData = request.credentialData
     val displayInfoBundle = request.displayInfo.toBundle()
     displayInfoBundle.putParcelable(
@@ -61,15 +59,15 @@ fun getFinalCreateCredentialData(
         Icon.createWithResource(
             context,
             when (request) {
-                is CreatePasswordRequest -> R.drawable.ic_password
-                is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey
-                else -> R.drawable.ic_other_sign_in
-            }
-        )
+                is CreatePasswordRequest -> R.drawable.adx_ic_password
+                is CreatePublicKeyCredentialRequest -> R.drawable.adx_ic_passkey
+                else -> R.drawable.adx_ic_other_sign_in
+            },
+        ),
     )
     createCredentialData.putBundle(
         CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-        displayInfoBundle
+        displayInfoBundle,
     )
     return createCredentialData
 }
@@ -108,7 +106,7 @@ fun toJetpackGetException(errorType: String, errorMsg: CharSequence?): GetCreden
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 fun toJetpackCreateException(
     errorType: String,
-    errorMsg: CharSequence? = null
+    errorMsg: CharSequence? = null,
 ): CreateCredentialException {
     return when (errorType) {
         android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS ->
@@ -136,5 +134,15 @@ fun toJetpackCreateException(
                 CreateCredentialCustomException(errorType, errorMsg)
             }
         }
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun isValidBase64Url(s: String): Boolean {
+    return try {
+        Base64.decode(s, Base64.NO_WRAP or Base64.URL_SAFE or Base64.NO_PADDING)
+        true
+    } catch (e: IllegalArgumentException) {
+        false
     }
 }

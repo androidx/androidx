@@ -102,7 +102,7 @@ class BanVisibleForTestingParams : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanVisibleForTestingParams::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanVisibleForTestingParams::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

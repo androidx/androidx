@@ -71,10 +71,8 @@ public final class MediaSessionManager {
     private MediaSessionManager(Context context) {
         if (Build.VERSION.SDK_INT >= 28) {
             mImpl = new MediaSessionManagerImplApi28(context);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaSessionManagerImplApi21(context);
         } else {
-            mImpl = new MediaSessionManagerImplBase(context);
+            mImpl = new MediaSessionManagerImplApi21(context);
         }
     }
 

@@ -67,7 +67,7 @@ class ProtectedSignalsManagerFuturesTest {
     fun testUpdateSignals() {
         Assume.assumeTrue(
             "minSdkVersion = API 34 ext 12",
-            VersionCompatUtil.isTPlusWithMinAdServicesVersion(12)
+            VersionCompatUtil.isTPlusWithMinAdServicesVersion(12),
         )
         val protectedSignalsManager = mockProtectedSignalsManager(mContext)
         setupResponse(protectedSignalsManager)
@@ -99,7 +99,7 @@ class ProtectedSignalsManagerFuturesTest {
         private fun setupResponse(protectedSignalsManager: ProtectedSignalsManager) {
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
+                receiver.onResult(Any())
                 null
             }
             doAnswer(answer).`when`(protectedSignalsManager).updateSignals(any(), any(), any())

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.runtime.retain.RetainedValuesStore#consumeExitedValueOrDefault(Object, Object):
+    Binary breaking change: Added method androidx.compose.runtime.retain.RetainedValuesStore.consumeExitedValueOrDefault(Object,Object)
+
+
+RemovedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.getExitedValueOrElse(Object,Object)
+RemovedMethod: androidx.compose.runtime.retain.ManagedRetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.ManagedRetainedValuesStore.getExitedValueOrElse(Object,Object)
+RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.getExitedValueOrElse(Object,Object)

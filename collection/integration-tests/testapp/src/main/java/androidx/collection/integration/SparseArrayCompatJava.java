@@ -16,9 +16,10 @@
 
 package androidx.collection.integration;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Integration (actually build) test that SparseArrayCompat can be subclassed.

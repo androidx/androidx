@@ -5,15 +5,15 @@
 Using AndroidX remote build cache
 # > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
 ZipFile closed
-# > Task :room:integration-tests:room-testapp:runErrorProne
+# > Task :room3:integration-tests:room-testapp:runErrorProne
 java\.util\.zip\.ZipException\: ZipFile closed
 # > Task :compose:animation:animation-core:testDebugUnitTest
 androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
 kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
-# > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
+# > Task :room3:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :room:integration-tests:room-testapp:compileDebugJavaWithJavac
+# > Task :room3:integration-tests:room-testapp:compileDebugJavaWithJavac
 java.io.IOException: Stream closed
 # > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
 # If a test fails, we don't want the build to fail, we want to pass the test output to the tests server and for the tests server to report the failure
@@ -142,7 +142,7 @@ Could not read index from network cache: null
 Using custom version .* of AGP due to GRADLE_PLUGIN_VERSION being set\.
 Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
-Publishing build scan\.\.\.
+Publishing Build Scan to Develocity\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/AndroidXDemos/src/main/java/com/example/androidx/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
@@ -165,3 +165,14 @@ Unable to release compile session, maybe daemon is already down.*
 java\.net\.ConnectException: Connection refused
 java\.net\.SocketException: Connection reset
 java\.io\.EOFException
+# b/425976715
+Warning: Unable to lock settings file \$GRADLE_USER_HOME/\.android/analytics\.settings.*
+# Develocity flake, reported via slack
+\[Resource\-Usage\] Problem extracting process name:.*
+# b/427504385
+ChromeHeadless has not captured in [0-9]+ ms, killing\.
+# b/446710763
+.*Unable to find pattern file or unable to map it for am.*
+# b/460470375
+Failed to read desugaring graph\. Cause: FileNotFoundException, message: .*graph\.bin \(No such file or directory\)\.
+Fall back to non-incremental mode\.

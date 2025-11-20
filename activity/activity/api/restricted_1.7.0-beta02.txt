@@ -29,8 +29,8 @@ package androidx.activity {
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
     method public android.content.Context? peekAvailableContext();
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
     method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
@@ -45,8 +45,8 @@ package androidx.activity {
   }
 
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
-    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
+    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
@@ -85,8 +85,8 @@ package androidx.activity {
   }
 
   public final class OnBackPressedDispatcher {
-    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public boolean hasEnabledCallbacks();
@@ -178,8 +178,8 @@ package androidx.activity.result {
     method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
     method public final void onRestoreInstanceState(android.os.Bundle?);
     method public final void onSaveInstanceState(android.os.Bundle);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
   public interface ActivityResultRegistryOwner {
@@ -203,8 +203,8 @@ package androidx.activity.result {
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
     ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
     method public androidx.activity.result.IntentSenderRequest build();
     method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
     method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
@@ -256,8 +256,8 @@ package androidx.activity.result.contract {
   }
 
   @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     ctor @Deprecated public ActivityResultContracts.CreateDocument();
+    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);

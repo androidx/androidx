@@ -12,6 +12,9 @@ message TileAddEvent {
   // to the carousel. This ID will remain the same for this tile instance as
   // long it is not removed from the carousel.
   uint32 tile_id = 1;
+
+  // The container type for this tile.
+  uint32 container_type = 2;
 }
 
 // Event fired when a tile has been removed from the carousel.
@@ -19,6 +22,9 @@ message TileRemoveEvent {
   // Instance ID of the removed tile, allocated when the tile instance
   // was added to the carousel.
   uint32 tile_id = 1;
+
+  // The container type for this tile.
+  uint32 container_type = 2;
 }
 
 // Event fired when a tile is swiped to by the user (i.e. it's visible on

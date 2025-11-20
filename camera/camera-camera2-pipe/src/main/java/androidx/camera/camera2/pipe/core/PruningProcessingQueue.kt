@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.core
 
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -134,6 +135,9 @@ internal class PruningProcessingQueue<T>(
 
                     processDeferred?.onAwait { processDeferred = null }
                 }
+            } catch (cancellationException: CancellationException) {
+                Log.debug { "PruningProcessingQueue: Scope cancelled" }
+                break
             } catch (throwable: Throwable) {
                 Log.error(throwable) { "Encountered exception during processing" }
                 exitCause = throwable
@@ -188,7 +192,7 @@ internal class PruningProcessingQueue<T>(
     internal companion object {
         /** Launch the processing loop in the provided processing scope. */
         fun <T> PruningProcessingQueue<T>.processIn(
-            scope: CoroutineScope,
+            scope: CoroutineScope
         ): PruningProcessingQueue<T> {
             check(started.compareAndSet(expect = false, update = true)) {
                 "PruningProcessingQueue cannot be re-started!"

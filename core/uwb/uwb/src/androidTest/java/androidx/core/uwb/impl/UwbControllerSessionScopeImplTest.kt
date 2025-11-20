@@ -45,7 +45,7 @@ class UwbControllerSessionScopeImplTest {
             LOCAL_ADDRESS,
             RANGING_CAPABILITIES,
             isAvailable = true,
-            isController = true
+            isController = true,
         )
     private val uwbClientSession =
         UwbClientSessionScopeImpl(
@@ -61,9 +61,9 @@ class UwbControllerSessionScopeImplTest {
                 RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
                 RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
                 RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-                RANGING_CAPABILITIES.hasBackgroundRangingSupport()
+                RANGING_CAPABILITIES.hasBackgroundRangingSupport(),
             ),
-            UwbAddress(LOCAL_ADDRESS.address)
+            UwbAddress(LOCAL_ADDRESS.address),
         )
     private val uwbControllerSession =
         UwbControllerSessionScopeImpl(
@@ -79,13 +79,13 @@ class UwbControllerSessionScopeImplTest {
                 RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
                 RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
                 RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-                RANGING_CAPABILITIES.hasBackgroundRangingSupport()
+                RANGING_CAPABILITIES.hasBackgroundRangingSupport(),
             ),
             UwbAddress(LOCAL_ADDRESS.address),
             androidx.core.uwb.UwbComplexChannel(
                 COMPLEX_CHANNEL.channel,
-                COMPLEX_CHANNEL.preambleIndex
-            )
+                COMPLEX_CHANNEL.preambleIndex,
+            ),
         )
 
     private var rangingResult: RangingResult? = null
@@ -143,7 +143,7 @@ class UwbControllerSessionScopeImplTest {
             uwbControllerSession.removeControlee(UwbAddress(NEIGHBOR_1))
             delay(500)
         }
-        assertThat(rangingResult is RangingResult.RangingResultPeerDisconnected).isTrue()
+        assertThat(rangingResult is RangingResult.RangingResultFailure).isTrue()
         assertThat(rangingResult!!.device.address.address).isEqualTo(NEIGHBOR_1)
         stopRanging(job)
     }

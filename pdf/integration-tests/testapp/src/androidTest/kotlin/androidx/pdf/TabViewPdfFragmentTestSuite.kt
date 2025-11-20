@@ -63,7 +63,7 @@ class TabsViewPdfFragmentTestSuite {
             launchFragmentInContainer<TabsViewPdfFragment>(
                 themeResId =
                     com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
-                initialState = Lifecycle.State.INITIALIZED
+                initialState = Lifecycle.State.INITIALIZED,
             )
     }
 
@@ -75,7 +75,7 @@ class TabsViewPdfFragmentTestSuite {
     private fun scenarioLoadDocument(
         filename: String,
         nextState: Lifecycle.State,
-        orientation: Int
+        orientation: Int,
     ): FragmentScenario<TabsViewPdfFragment> {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
@@ -102,7 +102,7 @@ class TabsViewPdfFragmentTestSuite {
         scenarioLoadDocument(
             TEST_DOCUMENT_FILE,
             Lifecycle.State.STARTED,
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         )
 
         // Perform swipe actions on the PDF container.
@@ -126,7 +126,7 @@ class TabsViewPdfFragmentTestSuite {
         scenarioLoadDocument(
             TEST_DOCUMENT_FILE,
             Lifecycle.State.STARTED,
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         )
 
         // Zoom and scroll in the first tab.
@@ -145,7 +145,7 @@ class TabsViewPdfFragmentTestSuite {
         scenarioLoadDocument(
             TEST_DOCUMENT_FILE,
             Lifecycle.State.STARTED,
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         )
 
         // Capture the bitmap of the third tab's initial state.

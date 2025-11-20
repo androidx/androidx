@@ -51,8 +51,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
 
 /**
- * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material
- * Design top app bar</a>.
+ * [Material Design top app bar](https://material.io/components/app-bars-top)
  *
  * The top app bar displays information and actions relating to the current screen.
  *
@@ -99,7 +98,7 @@ fun TopAppBar(
         AppBarDefaults.ContentPadding,
         RectangleShape,
         windowInsets,
-        modifier
+        modifier,
     ) {
         if (navigationIcon == null) {
             Spacer(TitleInsetWithoutIcon)
@@ -107,7 +106,7 @@ fun TopAppBar(
             Row(TitleIconModifier, verticalAlignment = Alignment.CenterVertically) {
                 CompositionLocalProvider(
                     LocalContentAlpha provides ContentAlpha.high,
-                    content = navigationIcon
+                    content = navigationIcon,
                 )
             }
         }
@@ -116,7 +115,7 @@ fun TopAppBar(
             ProvideTextStyle(value = MaterialTheme.typography.h6) {
                 CompositionLocalProvider(
                     LocalContentAlpha provides ContentAlpha.high,
-                    content = title
+                    content = title,
                 )
             }
         }
@@ -126,15 +125,14 @@ fun TopAppBar(
                 Modifier.fillMaxHeight(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
-                content = actions
+                content = actions,
             )
         }
     }
 }
 
 /**
- * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material
- * Design top app bar</a>.
+ * [Material Design top app bar](https://material.io/components/app-bars-top)
  *
  * The top app bar displays information and actions relating to the current screen.
  *
@@ -167,7 +165,7 @@ fun TopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
-    elevation: Dp = AppBarDefaults.TopAppBarElevation
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
 ) {
     TopAppBar(
         title,
@@ -177,13 +175,12 @@ fun TopAppBar(
         actions,
         backgroundColor,
         contentColor,
-        elevation
+        elevation,
     )
 }
 
 /**
- * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material
- * Design top app bar</a>.
+ * [Material Design top app bar](https://material.io/components/app-bars-top)
  *
  * The top app bar displays information and actions relating to the current screen.
  *
@@ -221,7 +218,7 @@ fun TopAppBar(
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = AppBarDefaults.TopAppBarElevation,
     contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     AppBar(
         backgroundColor,
@@ -231,13 +228,12 @@ fun TopAppBar(
         RectangleShape,
         windowInsets,
         modifier = modifier,
-        content = content
+        content = content,
     )
 }
 
 /**
- * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material
- * Design top app bar</a>.
+ * [Material Design top app bar](https://material.io/components/app-bars-top)
  *
  * The top app bar displays information and actions relating to the current screen.
  *
@@ -270,7 +266,7 @@ fun TopAppBar(
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = AppBarDefaults.TopAppBarElevation,
     contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     AppBar(
         backgroundColor,
@@ -280,13 +276,12 @@ fun TopAppBar(
         RectangleShape,
         ZeroInsets,
         modifier = modifier,
-        content = content
+        content = content,
     )
 }
 
 /**
- * <a href="https://material.io/components/app-bars-bottom" class="external"
- * target="_blank">Material Design bottom app bar</a>.
+ * [Material Design bottom app bar](https://material.io/components/app-bars-bottom)
  *
  * A bottom app bar displays navigation and key actions at the bottom of screens.
  *
@@ -338,7 +333,7 @@ fun BottomAppBar(
     cutoutShape: Shape? = null,
     elevation: Dp = AppBarDefaults.BottomAppBarElevation,
     contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     val fabPlacement = LocalFabPlacement.current
     val shape =
@@ -355,13 +350,12 @@ fun BottomAppBar(
         shape,
         windowInsets,
         modifier,
-        content
+        content,
     )
 }
 
 /**
- * <a href="https://material.io/components/app-bars-bottom" class="external"
- * target="_blank">Material Design bottom app bar</a>.
+ * [Material Design bottom app bar](https://material.io/components/app-bars-bottom)
  *
  * A bottom app bar displays navigation and key actions at the bottom of screens.
  *
@@ -408,7 +402,7 @@ fun BottomAppBar(
     cutoutShape: Shape? = null,
     elevation: Dp = AppBarDefaults.BottomAppBarElevation,
     contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     val fabPlacement = LocalFabPlacement.current
     val shape =
@@ -425,7 +419,7 @@ fun BottomAppBar(
         shape,
         ZeroInsets,
         modifier,
-        content
+        content,
     )
 }
 
@@ -473,7 +467,7 @@ private data class BottomAppBarCutoutShape(val cutoutShape: Shape, val fabPlacem
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val boundingRectangle = Path().apply { addRect(Rect(0f, 0f, size.width, size.height)) }
         val path =
@@ -496,7 +490,7 @@ private data class BottomAppBarCutoutShape(val cutoutShape: Shape, val fabPlacem
         val cutoutSize =
             Size(
                 width = fabPlacement.width + (cutoutOffset * 2),
-                height = fabPlacement.height + (cutoutOffset * 2)
+                height = fabPlacement.height + (cutoutOffset * 2),
             )
 
         val cutoutStartX = fabPlacement.left - cutoutOffset
@@ -539,7 +533,7 @@ private data class BottomAppBarCutoutShape(val cutoutShape: Shape, val fabPlacem
         cutoutEndPosition: Float,
         cutoutRadius: Float,
         roundedEdgeRadius: Float,
-        verticalOffset: Float
+        verticalOffset: Float,
     ) {
         // Where the cutout intersects with the app bar, as if the cutout is not vertically aligned
         // with the app bar, the intersect will not be equal to the radius of the circle.
@@ -578,7 +572,7 @@ private data class BottomAppBarCutoutShape(val cutoutShape: Shape, val fabPlacem
             appBarInterceptStartX - controlPointOffset,
             0f,
             curveInterceptStartX,
-            curveInterceptY
+            curveInterceptY,
         )
         lineTo(curveInterceptEndX, curveInterceptY)
         quadraticTo(appBarInterceptEndX + controlPointOffset, 0f, roundedEdgeEndX, 0f)
@@ -610,7 +604,7 @@ private data class BottomAppBarCutoutShape(val cutoutShape: Shape, val fabPlacem
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun calculateCutoutCircleYIntercept(
     cutoutRadius: Float,
-    verticalOffset: Float
+    verticalOffset: Float,
 ): Float {
     return -sqrt(square(cutoutRadius) - square(verticalOffset))
 }
@@ -625,7 +619,8 @@ internal inline fun calculateCutoutCircleYIntercept(
  * This returns the relative offset from the center of a circle with radius that is half the height
  * of the cutout.
  *
- * Explanation and derivation comes from the Flutter team: https://goo.gl/Ufzrqn
+ * Explanation and derivation comes from the Flutter team:
+ * [Computing a smooth circular notch](https://goo.gl/Ufzrqn)
  *
  * @param controlPointX the horizontal offset of the control point from the center of the circle
  * @param verticalOffset the vertical offset of the top edge of the app bar from the center of the
@@ -637,7 +632,7 @@ internal inline fun calculateCutoutCircleYIntercept(
 internal fun calculateRoundedEdgeIntercept(
     controlPointX: Float,
     verticalOffset: Float,
-    radius: Float
+    radius: Float,
 ): Pair<Float, Float> {
     val a = controlPointX
     val b = verticalOffset
@@ -701,14 +696,14 @@ private fun AppBar(
     shape: Shape,
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
         color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         shape = shape,
-        modifier = modifier
+        modifier = modifier,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Row(
@@ -718,7 +713,7 @@ private fun AppBar(
                     .height(AppBarHeight),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                content = content
+                content = content,
             )
         }
     }

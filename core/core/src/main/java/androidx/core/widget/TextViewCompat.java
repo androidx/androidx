@@ -212,11 +212,7 @@ public final class TextViewCompat {
      * @param resId    The resource identifier of the style to apply.
      */
     public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            textView.setTextAppearance(resId);
-        } else {
-            textView.setTextAppearance(textView.getContext(), resId);
-        }
+        textView.setTextAppearance(resId);
     }
 
     /**
@@ -786,10 +782,8 @@ public final class TextViewCompat {
         } else {
             PrecomputedTextCompat.Params.Builder builder =
                     new PrecomputedTextCompat.Params.Builder(new TextPaint(textView.getPaint()));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                builder.setBreakStrategy(Api23Impl.getBreakStrategy(textView));
-                builder.setHyphenationFrequency(Api23Impl.getHyphenationFrequency(textView));
-            }
+            builder.setBreakStrategy(textView.getBreakStrategy());
+            builder.setHyphenationFrequency(textView.getHyphenationFrequency());
             builder.setTextDirection(getTextDirectionHeuristic(textView));
             return builder.build();
         }
@@ -808,29 +802,12 @@ public final class TextViewCompat {
         // Convert to the View's text direction int values.
         textView.setTextDirection(getTextDirection(params.getTextDirection()));
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            float paintTextScaleX = params.getTextPaint().getTextScaleX();
-
-            // This is not a recommended way but there is no API to set paint to text view.
-            textView.getPaint().set(params.getTextPaint());
-            // On API 22 or before, doing following trick to invalidate internal layout objects.
-
-            if (paintTextScaleX == textView.getTextScaleX()) {
-                // Set the different value of the scaleX so that the following setTextScaleX will
-                // trigger new layout request.
-                textView.setTextScaleX(paintTextScaleX / 2.0f + 1.0f);
-            }
-            textView.setTextScaleX(paintTextScaleX);
-
-        } else {  // API 23 or later
-            // This is not a recommended way but there is no API to set paint to text view.
-            textView.getPaint().set(params.getTextPaint());
-            // getPaint().set() doesn't invalidaate the internal layout objects.
-            // On API 23 or later, setBreakStrategy/setHyphenationFrequency invalidates internal
-            // layout objects.
-            Api23Impl.setBreakStrategy(textView, params.getBreakStrategy());
-            Api23Impl.setHyphenationFrequency(textView, params.getHyphenationFrequency());
-        }
+        // This is not a recommended way but there is no API to set paint to text view.
+        textView.getPaint().set(params.getTextPaint());
+        // getPaint().set() doesn't invalidate the internal layout objects.
+        // setBreakStrategy/setHyphenationFrequency invalidates internal layout objects.
+        textView.setBreakStrategy(params.getBreakStrategy());
+        textView.setHyphenationFrequency(params.getHyphenationFrequency());
     }
 
     /**
@@ -956,7 +933,7 @@ public final class TextViewCompat {
             @Nullable ColorStateList tint) {
         Preconditions.checkNotNull(textView);
         if (Build.VERSION.SDK_INT >= 24) {
-            Api23Impl.setCompoundDrawableTintList(textView, tint);
+            textView.setCompoundDrawableTintList(tint);
         } else if (textView instanceof TintableCompoundDrawablesView) {
             ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintList(tint);
         }
@@ -971,7 +948,7 @@ public final class TextViewCompat {
     public static @Nullable ColorStateList getCompoundDrawableTintList(@NonNull TextView textView) {
         Preconditions.checkNotNull(textView);
         if (Build.VERSION.SDK_INT >= 24) {
-            return Api23Impl.getCompoundDrawableTintList(textView);
+            return textView.getCompoundDrawableTintList();
         } else if (textView instanceof TintableCompoundDrawablesView) {
             return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintList();
         }
@@ -989,7 +966,7 @@ public final class TextViewCompat {
             PorterDuff.@Nullable Mode tintMode) {
         Preconditions.checkNotNull(textView);
         if (Build.VERSION.SDK_INT >= 24) {
-            Api23Impl.setCompoundDrawableTintMode(textView, tintMode);
+            textView.setCompoundDrawableTintMode(tintMode);
         } else if (textView instanceof TintableCompoundDrawablesView) {
             ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintMode(
                     tintMode);
@@ -1006,7 +983,7 @@ public final class TextViewCompat {
             @NonNull TextView textView) {
         Preconditions.checkNotNull(textView);
         if (Build.VERSION.SDK_INT >= 24) {
-            return Api23Impl.getCompoundDrawableTintMode(textView);
+            return textView.getCompoundDrawableTintMode();
         } else if (textView instanceof TintableCompoundDrawablesView) {
             return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintMode();
         }
@@ -1076,46 +1053,6 @@ public final class TextViewCompat {
 
         static CharSequence castToCharSequence(PrecomputedText precomputedText) {
             return precomputedText;
-        }
-    }
-
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static int getBreakStrategy(TextView textView) {
-            return textView.getBreakStrategy();
-        }
-
-        static void setBreakStrategy(TextView textView, int breakStrategy) {
-            textView.setBreakStrategy(breakStrategy);
-        }
-
-        static int getHyphenationFrequency(TextView textView) {
-            return textView.getHyphenationFrequency();
-        }
-
-        static void setHyphenationFrequency(TextView textView, int hyphenationFrequency) {
-            textView.setHyphenationFrequency(hyphenationFrequency);
-        }
-
-        static PorterDuff.Mode getCompoundDrawableTintMode(TextView textView) {
-            return textView.getCompoundDrawableTintMode();
-        }
-
-        static ColorStateList getCompoundDrawableTintList(TextView textView) {
-            return textView.getCompoundDrawableTintList();
-        }
-
-        static void setCompoundDrawableTintList(TextView textView, ColorStateList tint) {
-            textView.setCompoundDrawableTintList(tint);
-        }
-
-        static void setCompoundDrawableTintMode(TextView textView, PorterDuff.Mode tintMode) {
-            textView.setCompoundDrawableTintMode(tintMode);
         }
     }
 

@@ -348,7 +348,7 @@ public class MultiTouchInputBuilder(
          */
         public fun rotate90DegreesClockwise(
             centerX: Float,
-            centerY: Float
+            centerY: Float,
         ): MultiTouchInputBuilder =
             MultiTouchInputBuilder(
                 pointerCount = 2,

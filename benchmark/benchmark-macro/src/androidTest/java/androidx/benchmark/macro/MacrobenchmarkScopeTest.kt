@@ -20,7 +20,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -72,6 +75,23 @@ class MacrobenchmarkScopeTest {
         assertFalse(Shell.isPackageAlive(Packages.TARGET))
     }
 
+    @Test
+    fun killTest_processSuffix() {
+        // regression test for b/408673462, where killall fails
+        // due to each process has a suffix name (com.mypackage:foo)
+        val scope =
+            MacrobenchmarkScope(
+                "com.google.android.googlequicksearchbox",
+                launchWithClearTask = true,
+            )
+
+        // test only useful if package is alive
+        assumeTrue(Shell.getPidsForProcess(scope.packageName).isNotEmpty())
+
+        // killProcess shouldn't fail
+        scope.killProcess()
+    }
+
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun compile_speedProfile() {
@@ -85,7 +105,7 @@ class MacrobenchmarkScopeTest {
         val compilation =
             CompilationMode.Partial(
                 baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = iterations
+                warmupIterations = iterations,
             )
         compilation.resetAndCompile(scope) {
             executions += 1
@@ -95,18 +115,27 @@ class MacrobenchmarkScopeTest {
         assertEquals(iterations, executions)
     }
 
-    @SdkSuppress(minSdkVersion = 24)
-    @Test
-    fun compile_speedProfile_withProfileFlushes() {
-        // Emulator api 30 does not have dex2oat (b/264938965)
-        assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
+    /**
+     * Verify that profile flushes happen when the target app is killed, with the lambda defining
+     * kill behavior
+     */
+    @RequiresApi(24)
+    fun verify_compile_speedProfile_withProfileFlushes(killProcess: (MacrobenchmarkScope) -> Unit) {
+        if (DeviceInfo.isEmulator) {
+            // Emulator API 30 does not have dex2oat (b/264938965)
+            assumeTrue(Build.VERSION.SDK_INT != 30)
+
+            // Emulator API 26 times out when compiling (b/393186249)
+            assumeTrue(Build.VERSION.SDK_INT != 26)
+        }
+
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         val warmupIterations = 2
         var executions = 0
         val compilation =
             CompilationMode.Partial(
                 baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = warmupIterations
+                warmupIterations = warmupIterations,
             )
         assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         compilation.resetAndCompile(scope) {
@@ -114,14 +143,33 @@ class MacrobenchmarkScopeTest {
             executions += 1
 
             // on first iter, kill doesn't kill anything, so profiles are not yet flushed
-            scope.killProcess()
-            assertEquals(executions != 1, scope.hasFlushedArtProfiles)
+            killProcess(scope)
+            assertEquals(
+                executions != 1,
+                scope.hasFlushedArtProfiles,
+                "execution nr $executions, flushed = ${scope.hasFlushedArtProfiles}",
+            )
 
             scope.pressHome()
             scope.startActivityAndWait()
         }
         assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertEquals(warmupIterations, executions)
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun compile_speedProfile_withProfileFlushes() {
+        verify_compile_speedProfile_withProfileFlushes { it.killProcess() }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun compile_speedProfile_withProfileFlushes_noBroadcast() {
+        assumeTrue(DeviceInfo.isRooted) // codepath only works with root
+        verify_compile_speedProfile_withProfileFlushes {
+            it.killProcessAndFlushArtProfiles(allowFlushWithBroadcast = false)
+        }
     }
 
     @SdkSuppress(minSdkVersion = 24)
@@ -135,7 +183,7 @@ class MacrobenchmarkScopeTest {
         val compilation =
             CompilationMode.Partial(
                 baselineProfileMode = BaselineProfileMode.Disable,
-                warmupIterations = 2
+                warmupIterations = 2,
             )
         assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertContains(
@@ -148,7 +196,7 @@ class MacrobenchmarkScopeTest {
                     }
                 }
                 .message!!,
-            "never flushed profiles in any process"
+            "never flushed profiles in any process",
         )
         assertEquals(MacrobenchmarkScope.KillMode.None, scope.killMode)
         assertEquals(2, executions)
@@ -218,7 +266,7 @@ class MacrobenchmarkScopeTest {
         val scope =
             MacrobenchmarkScope(
                 Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
-                launchWithClearTask = true
+                launchWithClearTask = true,
             )
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -238,6 +286,8 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun measureBlock_methodTracing() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         val scope =
             MacrobenchmarkScope(
                 Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
@@ -261,6 +311,8 @@ class MacrobenchmarkScopeTest {
 
     @Test
     fun multipleMethodTraces_onProcessStartStop() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
         scope.fileLabel = "TEST-UNIQUE-NAME"
         scope.startMethodTracing()
@@ -282,7 +334,7 @@ class MacrobenchmarkScopeTest {
         val scope =
             MacrobenchmarkScope(
                 Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
-                launchWithClearTask = false
+                launchWithClearTask = false,
             )
         // check that initial launch (home -> activity) is detected
         scope.pressHome()

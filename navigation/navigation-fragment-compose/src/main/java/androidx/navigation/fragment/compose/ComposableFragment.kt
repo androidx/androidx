@@ -25,8 +25,8 @@ import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.reflect.getDeclaredComposableMethod
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.savedstate.savedState
 
 /**
  * This class provides a [Fragment] wrapper around a composable function that is loaded via
@@ -52,7 +52,7 @@ public class ComposableFragment internal constructor() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         // Consider using Fragment.content from fragment-compose once it is stable
         return ComposeView(requireContext()).apply {
@@ -80,7 +80,7 @@ public class ComposableFragment internal constructor() : Fragment() {
         @JvmStatic
         public fun ComposableFragment(fullyQualifiedName: String): ComposableFragment {
             return ComposableFragment().apply {
-                arguments = bundleOf(FULLY_QUALIFIED_NAME to fullyQualifiedName)
+                arguments = savedState { putString(FULLY_QUALIFIED_NAME, fullyQualifiedName) }
             }
         }
     }

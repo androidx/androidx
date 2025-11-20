@@ -55,7 +55,7 @@ class NestedScrollViewStretchFlingTest {
             val layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
             activity.setContentView(nestedScrollView, layoutParams)
 
@@ -64,7 +64,7 @@ class NestedScrollViewStretchFlingTest {
             val linearLayoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
             nestedScrollView.addView(linearLayout, linearLayoutParams)
 

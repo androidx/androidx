@@ -24,22 +24,30 @@ import android.view.View
  * When [SessionObserver.onSessionClosed] is called for the associated session observers, the
  * resources of the [SessionObserverContext] will be freed.
  */
-class SessionObserverContext(
+@Deprecated("This library is no longer supported.")
+@Suppress("DEPRECATION")
+public class SessionObserverContext(
     /**
      * Returns the view that is presenting content for the associated [SandboxedUiAdapter.Session].
      *
      * This value will be non-null if the [SandboxedUiAdapter.Session] and the [SessionObserver] are
      * created from the same process. Otherwise, it will be null.
      */
-    val view: View?
+    public val view: View?,
+    /** Returns the signal options which are supported by the container hosting the UI session. */
+    public val supportedSignalOptions: Set<String>,
 ) {
-    override fun toString() = "SessionObserverContext(view=$view)"
+    override fun toString(): String =
+        "SessionObserverContext(view=$view, supportedSignalOptions=$supportedSignalOptions)"
 
     override fun equals(other: Any?): Boolean {
-        return other is SessionObserverContext && view == other.view
+        return other is SessionObserverContext &&
+            view == other.view &&
+            supportedSignalOptions == other.supportedSignalOptions
     }
 
     override fun hashCode(): Int {
-        return view.hashCode()
+        var result = view.hashCode()
+        return result + 31 * supportedSignalOptions.hashCode()
     }
 }

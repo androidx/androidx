@@ -50,6 +50,7 @@ public class FlashAvailabilityBufferUnderflowQuirk : Quirk {
         }
     }
 
+    @Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     public data class DeviceInfo private constructor(val manufacturer: String, val model: String) {
         public companion object {
             public operator fun invoke(manufacturer: String, model: String): DeviceInfo =

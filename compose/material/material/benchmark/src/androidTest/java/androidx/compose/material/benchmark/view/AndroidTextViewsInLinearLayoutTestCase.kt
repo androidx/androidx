@@ -34,7 +34,7 @@ class AndroidTextViewsInLinearLayoutTestCase(private val amountOfCheckboxes: Int
         column.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             )
         repeat(amountOfCheckboxes) {
             val text = TextView(activity)
@@ -42,7 +42,7 @@ class AndroidTextViewsInLinearLayoutTestCase(private val amountOfCheckboxes: Int
             text.layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
             text.setTextSize(fontSize)
             column.addView(text)

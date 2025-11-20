@@ -17,7 +17,6 @@ package androidx.constraintlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -93,10 +92,8 @@ public class Constraints extends ViewGroup {
                 if (attr == R.styleable.ConstraintSet_android_alpha) {
                     alpha = a.getFloat(attr, alpha);
                 } else if (attr == R.styleable.ConstraintSet_android_elevation) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        elevation = a.getFloat(attr, elevation);
-                        applyElevation = true;
-                    }
+                    elevation = a.getFloat(attr, elevation);
+                    applyElevation = true;
                 } else if (attr == R.styleable.ConstraintSet_android_rotationX) {
                     rotationX = a.getFloat(attr, rotationX);
                 } else if (attr == R.styleable.ConstraintSet_android_rotationY) {
@@ -116,9 +113,7 @@ public class Constraints extends ViewGroup {
                 } else if (attr == R.styleable.ConstraintSet_android_translationY) {
                     translationY = a.getFloat(attr, translationY);
                 } else if (attr == R.styleable.ConstraintSet_android_translationZ) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        translationZ = a.getFloat(attr, translationZ);
-                    }
+                    translationZ = a.getFloat(attr, translationZ);
                 }
             }
             a.recycle();

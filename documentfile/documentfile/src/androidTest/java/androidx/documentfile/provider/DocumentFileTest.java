@@ -24,7 +24,6 @@ import android.net.Uri;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -42,7 +41,6 @@ public class DocumentFileTest {
             Uri.parse(CONTENT_TREE_ROOT_URI + "/document/primary%3ADownload");
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testFromTreeUriUsesFullDocumentId() {
         Context context = ApplicationProvider.getApplicationContext();
         DocumentFile rootDoc = DocumentFile.fromTreeUri(context, CONTENT_TREE_ROOT_URI);

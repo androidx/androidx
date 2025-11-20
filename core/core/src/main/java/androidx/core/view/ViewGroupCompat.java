@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.R;
 import androidx.core.view.ViewCompat.ScrollAxis;
 
@@ -153,11 +152,7 @@ public final class ViewGroupCompat {
      *                          together.
      */
     public static void setTransitionGroup(@NonNull ViewGroup group, boolean isTransitionGroup) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            Api21Impl.setTransitionGroup(group, isTransitionGroup);
-        } else {
-            group.setTag(R.id.tag_transition_group, isTransitionGroup);
-        }
+        group.setTransitionGroup(isTransitionGroup);
     }
 
     /**
@@ -166,13 +161,7 @@ public final class ViewGroupCompat {
      * individually during the transition.
      */
     public static boolean isTransitionGroup(@NonNull ViewGroup group) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.isTransitionGroup(group);
-        }
-        Boolean explicit = (Boolean) group.getTag(R.id.tag_transition_group);
-        return (explicit != null && explicit)
-                || group.getBackground() != null
-                || ViewCompat.getTransitionName(group) != null;
+        return group.isTransitionGroup();
     }
 
     /**
@@ -190,13 +179,7 @@ public final class ViewGroupCompat {
     @ScrollAxis
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static int getNestedScrollAxes(@NonNull ViewGroup group) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.getNestedScrollAxes(group);
-        }
-        if (group instanceof NestedScrollingParent) {
-            return ((NestedScrollingParent) group).getNestedScrollAxes();
-        }
-        return ViewCompat.SCROLL_AXIS_NONE;
+        return group.getNestedScrollAxes();
     }
 
     /**
@@ -227,6 +210,7 @@ public final class ViewGroupCompat {
         sCompatInsetsDispatchInstalled = true;
     }
 
+    @NonNull
     static WindowInsets dispatchApplyWindowInsets(View view, WindowInsets windowInsets) {
         final Object wrappedUserListener = view.getTag(R.id.tag_on_apply_window_listener);
         final Object animCallback = view.getTag(R.id.tag_window_insets_animation_callback);
@@ -240,7 +224,7 @@ public final class ViewGroupCompat {
         // Don't call View#onApplyWindowInsets directly, but via View#dispatchApplyWindowInsets.
         // Otherwise, the view won't get PFLAG3_APPLYING_INSETS and it will dispatch insets on its
         // own.
-        final WindowInsets[] outInsets = new WindowInsets[1];
+        final WindowInsets[] outInsets = {CONSUMED};
         view.setOnApplyWindowInsetsListener((v, w) -> {
             outInsets[0] = listener != null
                     ? listener.onApplyWindowInsets(v, w)
@@ -249,6 +233,9 @@ public final class ViewGroupCompat {
             // Only apply window insets to this view.
             return CONSUMED;
         });
+        // If our OnApplyWindowInsetsListener doesn't get called, it means the view has its own
+        // dispatching logic, the outInsets will remain CONSUMED, and we don't have to dispatch
+        // insets to its child views.
         view.dispatchApplyWindowInsets(windowInsets);
 
         // Restore the listener.
@@ -265,25 +252,6 @@ public final class ViewGroupCompat {
                 dispatchApplyWindowInsets(parent.getChildAt(i), outInsets[0]);
             }
         }
-        return outInsets[0];
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setTransitionGroup(ViewGroup viewGroup, boolean isTransitionGroup) {
-            viewGroup.setTransitionGroup(isTransitionGroup);
-        }
-
-        static boolean isTransitionGroup(ViewGroup viewGroup) {
-            return viewGroup.isTransitionGroup();
-        }
-
-        static int getNestedScrollAxes(ViewGroup viewGroup) {
-            return viewGroup.getNestedScrollAxes();
-        }
+        return outInsets[0] != null ? outInsets[0] : CONSUMED;
     }
 }

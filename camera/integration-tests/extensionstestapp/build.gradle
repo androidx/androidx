@@ -27,11 +27,11 @@ import androidx.build.ApkCopyHelperKt
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "androidx.camera.integration.extensions"
@@ -41,8 +41,8 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     namespace = "androidx.camera.integration.extensions"
@@ -60,9 +60,7 @@ dependencies {
 
     // Android Support Library
     api(libs.constraintLayout)
-    implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.activity:activity-ktx:1.2.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
@@ -75,10 +73,8 @@ dependencies {
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
@@ -89,13 +85,32 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
+
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
+    // Transitive dependencies
+    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation 'androidx.fragment:fragment:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation libs.androidx.annotation
+    implementation libs.androidx.core
+    implementation libs.kotlinCoroutinesCore
+    implementation project(':camera:camera-core')
+    androidTestImplementation libs.hamcrestCore
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.testMonitor
+
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing")) {
+    implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
+        // Exclude JUnit to avoid R8 errors in release builds.
+        exclude(group: "junit", module: "junit")
+        // Exclude Truth to avoid R8 errors in release builds.
+        exclude(group: "com.google.truth")
     }
     debugImplementation(libs.testCore)
 }

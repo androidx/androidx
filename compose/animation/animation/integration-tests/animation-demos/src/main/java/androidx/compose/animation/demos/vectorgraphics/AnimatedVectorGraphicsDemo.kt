@@ -59,7 +59,7 @@ fun AnimatedVectorGraphicsDemo() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val image = AnimatedImageVector.animatedVectorResource(R.drawable.ic_hourglass_animated)
         var atEnd by remember { mutableStateOf(false) }
@@ -67,7 +67,7 @@ fun AnimatedVectorGraphicsDemo() {
             painter = rememberAnimatedVectorPainter(image, atEnd),
             contentDescription = "AnimatedImageVector",
             modifier = Modifier.size(200.dp).clickable { atEnd = !atEnd },
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         var toggle by remember { mutableStateOf(false) }
@@ -75,7 +75,7 @@ fun AnimatedVectorGraphicsDemo() {
             painter = createSampleVectorPainter(toggle),
             contentDescription = "Transition with vector graphics",
             modifier = Modifier.size(200.dp).clickable { toggle = !toggle },
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
     }
 }
@@ -88,7 +88,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
         viewportWidth = 24f,
         viewportHeight = 24f,
         name = "sample",
-        autoMirror = true
+        autoMirror = true,
     ) { _, _ ->
         val transition = updateTransition(targetState = toggle, label = "sample")
         val duration = 3000
@@ -100,7 +100,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                     horizontalLineTo(0f)
                     close()
                 },
-            fill = SolidColor(Color.Cyan)
+            fill = SolidColor(Color.Cyan),
         )
         val rotation by
             transition.animateFloat(
@@ -114,11 +114,11 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                     } else {
                         spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessVeryLow
+                            stiffness = Spring.StiffnessVeryLow,
                         )
                     }
                 },
-                label = "rotation"
+                label = "rotation",
             ) { state ->
                 if (state) 360f else 0f
             }
@@ -138,11 +138,11 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                     } else {
                         spring(
                             dampingRatio = Spring.DampingRatioHighBouncy,
-                            stiffness = Spring.StiffnessLow
+                            stiffness = Spring.StiffnessLow,
                         )
                     }
                 },
-                label = "translationX"
+                label = "translationX",
             ) {
                 0f
             }
@@ -161,7 +161,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                         spring()
                     }
                 },
-                label = "translationY"
+                label = "translationY",
             ) {
                 0f
             }
@@ -171,7 +171,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
             translationX = translationX,
             translationY = translationY,
             pivotX = 12f,
-            pivotY = 12f
+            pivotY = 12f,
         ) {
             val fillColor by
                 transition.animateColor(
@@ -186,7 +186,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                             spring()
                         }
                     },
-                    label = "fillColor"
+                    label = "fillColor",
                 ) { state ->
                     if (state) Color.Blue else Color.Red
                 }
@@ -199,7 +199,7 @@ fun createSampleVectorPainter(toggle: Boolean): Painter {
                         lineTo(8f, 16f)
                         close()
                     },
-                fill = SolidColor(fillColor)
+                fill = SolidColor(fillColor),
             )
         }
     }

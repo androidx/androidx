@@ -16,6 +16,6 @@
 
 package androidx.collection
 
-internal interface CollectionBenchmark {
+interface CollectionBenchmark {
     fun measuredBlock()
 }

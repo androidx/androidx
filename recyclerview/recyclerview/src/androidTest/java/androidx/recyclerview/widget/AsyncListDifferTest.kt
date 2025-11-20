@@ -46,7 +46,7 @@ class AsyncListDifferTest {
             AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
                 .setMainThreadExecutor(mMainThread)
                 .setBackgroundThreadExecutor(mBackgroundThread)
-                .build()
+                .build(),
         )
     }
 

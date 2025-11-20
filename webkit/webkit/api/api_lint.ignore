@@ -24,31 +24,31 @@ GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getBlockNetwor
 
 
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String) parameter #0:
-    Invalid nullability on parameter `view` in method `onPageCommitVisible`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebView in parameter `view` in method `onPageCommitVisible`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String) parameter #1:
-    Invalid nullability on parameter `url` in method `onPageCommitVisible`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type java.lang.String in parameter `url` in method `onPageCommitVisible`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #0:
-    Invalid nullability on parameter `view` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebView in parameter `view` in method `onReceivedError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #1:
-    Invalid nullability on parameter `request` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceRequest in parameter `request` in method `onReceivedError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError) parameter #2:
-    Invalid nullability on parameter `error` in method `onReceivedError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceError in parameter `error` in method `onReceivedError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #0:
-    Invalid nullability on parameter `view` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebView in parameter `view` in method `onReceivedHttpError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #1:
-    Invalid nullability on parameter `request` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceRequest in parameter `request` in method `onReceivedHttpError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceResponse) parameter #2:
-    Invalid nullability on parameter `errorResponse` in method `onReceivedHttpError`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceResponse in parameter `errorResponse` in method `onReceivedHttpError`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #0:
-    Invalid nullability on parameter `view` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebView in parameter `view` in method `onSafeBrowsingHit`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #1:
-    Invalid nullability on parameter `request` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceRequest in parameter `request` in method `onSafeBrowsingHit`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse) parameter #3:
-    Invalid nullability on parameter `response` in method `onSafeBrowsingHit`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.SafeBrowsingResponse in parameter `response` in method `onSafeBrowsingHit`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView, android.webkit.WebResourceRequest) parameter #0:
-    Invalid nullability on parameter `view` in method `shouldOverrideUrlLoading`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebView in parameter `view` in method `shouldOverrideUrlLoading`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.webkit.WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView, android.webkit.WebResourceRequest) parameter #1:
-    Invalid nullability on parameter `request` in method `shouldOverrideUrlLoading`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.webkit.WebResourceRequest in parameter `request` in method `shouldOverrideUrlLoading`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
@@ -76,7 +76,7 @@ NotCloseable: androidx.webkit.WebMessagePortCompat:
 
 
 NullableCollection: androidx.webkit.WebMessageCompat#getPorts():
-    Return type of method androidx.webkit.WebMessageCompat.getPorts() is a nullable collection (`androidx.webkit.WebMessagePortCompat[]`); must be non-null
+    Return type of method androidx.webkit.WebMessageCompat.getPorts() uses a nullable collection (`androidx.webkit.WebMessagePortCompat[]`); must be non-null
 
 
 StaticFinalBuilder: androidx.webkit.TracingConfig.Builder:

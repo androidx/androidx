@@ -22,17 +22,17 @@ import android.content.UriMatcher;
 import android.net.Uri;
 
 import androidx.core.util.Predicate;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link UriMatcherCompat}
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class UriMatcherCompatTest {
     static final int ROOT = 0;
     static final int PEOPLE = 1;

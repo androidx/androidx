@@ -382,36 +382,39 @@ class PreferencesTest {
         val intKey = intPreferencesKey("int_key")
         val booleanKey = booleanPreferencesKey("boolean_key")
         val floatKey = floatPreferencesKey("float_key")
+        val doubleKey = doublePreferencesKey("double_key")
         val stringKey = stringPreferencesKey("string_key")
         val stringSetKey = stringSetPreferencesKey("string_set_key")
         val longKey = longPreferencesKey("long_key")
         val byteArrayKey = byteArrayPreferencesKey("byte_array_key")
 
+        val intActual = 123
+        val booleanActual = false
+        val floatActual = 3.14f
+        val doubleActual = 3.1415
+        val stringActual = "abc"
+        val stringSetActual = setOf("1", "2", "3")
+        val longActual = 10000000000L
+        val byteArrayActual = byteArrayOf(1, 2, 3, 4)
+
         val prefs =
             preferencesOf(
-                intKey to 123,
-                booleanKey to false,
-                floatKey to 3.14f,
-                stringKey to "abc",
-                stringSetKey to setOf("1", "2", "3"),
-                longKey to 10000000000L,
-                byteArrayKey to byteArrayOf(1, 2, 3, 4)
+                intKey to intActual,
+                booleanKey to booleanActual,
+                floatKey to floatActual,
+                doubleKey to doubleActual,
+                stringKey to stringActual,
+                stringSetKey to stringSetActual,
+                longKey to longActual,
+                byteArrayKey to byteArrayActual,
             )
-
-        assertEquals(
-            """
-            {
-              int_key = 123,
-              boolean_key = false,
-              float_key = 3.14,
-              string_key = abc,
-              string_set_key = [1, 2, 3],
-              long_key = 10000000000,
-              byte_array_key = [1, 2, 3, 4]
-            }
-            """
-                .trimIndent(),
-            prefs.toString()
-        )
+        assertEquals(prefs[intKey], intActual)
+        assertEquals(prefs[booleanKey], booleanActual)
+        assertEquals(prefs[floatKey], floatActual)
+        assertEquals(prefs[doubleKey], doubleActual)
+        assertEquals(prefs[stringKey], stringActual)
+        assertEquals(prefs[stringSetKey], stringSetActual)
+        assertEquals(prefs[longKey], longActual)
+        assertTrue(prefs[byteArrayKey].contentEquals(byteArrayActual))
     }
 }

@@ -17,4 +17,5 @@ impl/build.sh createAllArchives createAggregateBuildInfoFiles
 # folder in DIST.
 # This cannot be merged with the buildOnServer run because
 # snapshot version is not a proper release version.
+mkdir -p $DIST_DIR/snapshots
 DIST_DIR=$DIST_DIR/snapshots SNAPSHOT=true impl/build.sh createAllArchives

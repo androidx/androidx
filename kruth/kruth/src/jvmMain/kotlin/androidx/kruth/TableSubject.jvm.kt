@@ -23,10 +23,8 @@ import com.google.common.collect.Table.Cell
 import com.google.common.collect.Tables.immutableCell
 
 class TableSubject<R, C, V>
-internal constructor(
-    actual: Table<R, C, V>,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Table<R, C, V>>(actual, metadata, typeDescriptionOverride = null) {
+internal constructor(actual: Table<R, C, V>, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<Table<R, C, V>>(actual, metadata, typeDescriptionOverride = null) {
 
     /** Fails if the table is not empty. */
     fun isEmpty() {

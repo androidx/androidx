@@ -316,7 +316,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
             "Expected index to be within 0..size()-1, but was $index"
         }
 
-        @Suppress("UNCHECKED_CAST") return array[index shl 1] as K
+        @Suppress("UNCHECKED_CAST")
+        return array[index shl 1] as K
     }
 
     /**
@@ -331,7 +332,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
             "Expected index to be within 0..size()-1, but was $index"
         }
 
-        @Suppress("UNCHECKED_CAST") return array[(index shl 1) + 1] as V
+        @Suppress("UNCHECKED_CAST")
+        return array[(index shl 1) + 1] as V
     }
 
     /**
@@ -433,13 +435,13 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                     destination = hashes,
                     destinationOffset = 0,
                     startIndex = 0,
-                    endIndex = n
+                    endIndex = n,
                 )
                 map.array.copyInto(
                     destination = array,
                     destinationOffset = 0,
                     startIndex = 0,
-                    endIndex = n shl 1
+                    endIndex = n shl 1,
                 )
                 size = n
             }
@@ -554,13 +556,13 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                         destination = hashes,
                         destinationOffset = 0,
                         startIndex = 0,
-                        endIndex = index
+                        endIndex = index,
                     )
                     oarray.copyInto(
                         destination = array,
                         destinationOffset = 0,
                         startIndex = 0,
-                        endIndex = index shl 1
+                        endIndex = index shl 1,
                     )
                 }
 
@@ -572,13 +574,13 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                         destination = hashes,
                         destinationOffset = index,
                         startIndex = index + 1,
-                        endIndex = nsize + 1
+                        endIndex = nsize + 1,
                     )
                     oarray.copyInto(
                         destination = array,
                         destinationOffset = index shl 1,
                         startIndex = (index + 1) shl 1,
-                        endIndex = (nsize + 1) shl 1
+                        endIndex = (nsize + 1) shl 1,
                     )
                 }
             } else {
@@ -591,13 +593,13 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                         destination = hashes,
                         destinationOffset = index,
                         startIndex = index + 1,
-                        endIndex = nsize + 1
+                        endIndex = nsize + 1,
                     )
                     array.copyInto(
                         destination = array,
                         destinationOffset = index shl 1,
                         startIndex = (index + 1) shl 1,
-                        endIndex = (nsize + 1) shl 1
+                        endIndex = (nsize + 1) shl 1,
                     )
                 }
                 array[nsize shl 1] = null
@@ -609,7 +611,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
             size = nsize
         }
 
-        @Suppress("UNCHECKED_CAST") return old as V
+        @Suppress("UNCHECKED_CAST")
+        return old as V
     }
 
     /**

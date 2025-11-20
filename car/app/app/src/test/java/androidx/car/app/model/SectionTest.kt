@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SectionTest {
     /** An example item containing a uniquely identifying field. */
     @CarProtocol
@@ -65,6 +66,13 @@ class SectionTest {
         val section = TestSection.Builder().setNoItemsMessage(message).build()
 
         assertThat(section.noItemsMessage).isEqualTo(message)
+    }
+
+    @Test
+    fun getOnItemVisibilityChangedDelegate() {
+        val section = TestSection.Builder().setOnItemVisibilityChangedListener { _, _ -> }.build()
+
+        assertThat(section.onItemVisibilityChangedDelegate).isNotNull()
     }
 
     @Test
@@ -126,6 +134,7 @@ class SectionTest {
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
 
         @Suppress("ReplaceCallWithBinaryOperator") assertThat(section.equals(section)).isTrue()
@@ -139,6 +148,7 @@ class SectionTest {
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
         val section2 =
             TestSection.Builder()
@@ -146,6 +156,7 @@ class SectionTest {
                 .addItem(TestItem(2))
                 .setNoItemsMessage("Some message")
                 .setTitle("some title")
+                .setOnItemVisibilityChangedListener { _, _ -> }
                 .build()
 
         // Is symmetric
@@ -161,7 +172,8 @@ class SectionTest {
                 TestSection.Builder().addItem(TestItem(1)).build(),
                 TestSection.Builder().addItem(TestItem(2)).build(),
                 TestSection.Builder().setTitle("title").build(),
-                TestSection.Builder().setNoItemsMessage("no items").build()
+                TestSection.Builder().setNoItemsMessage("no items").build(),
+                TestSection.Builder().setOnItemVisibilityChangedListener { _, _ -> }.build(),
             )
 
         // Test all different sections against each other

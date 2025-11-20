@@ -22,27 +22,23 @@ import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.generator.SpecNames.resumeWithExceptionMethod
 import androidx.privacysandbox.tools.core.generator.SpecNames.suspendCancellableCoroutineMethod
+import androidx.privacysandbox.tools.core.generator.SpecNames.uiCoreLibInfoPropertyName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
-import androidx.privacysandbox.tools.core.model.Types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
 
 class ClientProxyTypeGenerator(
     private val basePackageName: String,
-    private val binderCodeConverter: BinderCodeConverter
+    private val binderCodeConverter: BinderCodeConverter,
 ) {
     private val cancellationSignalClassName = ClassName(basePackageName, "ICancellationSignal")
-    private val sandboxedUiAdapterPropertyName = "sandboxedUiAdapter"
-    private val sandboxedUiAdapterFactoryClass =
-        ClassName("androidx.privacysandbox.ui.client", "SandboxedUiAdapterFactory")
 
     /**
      * Generates a ClientProxy for this interface.
@@ -55,7 +51,6 @@ class ClientProxyTypeGenerator(
     fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
         val className = annotatedInterface.clientProxyNameSpec().simpleName
         val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
-        val inheritsUiAdapter = annotatedInterface.superTypes.contains(Types.sandboxedUiAdapter)
 
         val classSpec =
             TypeSpec.classBuilder(className).build {
@@ -75,31 +70,37 @@ class ClientProxyTypeGenerator(
                                     .build()
                             )
                         }
-                        if (inheritsUiAdapter)
+                        if (annotatedInterface.inheritsUiAdapter) {
                             add(
-                                PropertySpec.builder("coreLibInfo", SpecNames.bundleClass)
+                                PropertySpec.builder(
+                                        uiCoreLibInfoPropertyName,
+                                        SpecNames.bundleClass,
+                                    )
                                     .addModifiers(KModifier.PUBLIC)
                                     .build()
                             )
+                        }
                     }
                 )
 
                 addFunctions(annotatedInterface.methods.map(::toFunSpec))
 
-                if (inheritsUiAdapter) {
+                if (annotatedInterface.inheritsUiAdapter) {
+                    val uiAdapterSpec = getUiAdapterSpecForInterface(annotatedInterface)
                     addProperty(
                         PropertySpec.builder(
-                                sandboxedUiAdapterPropertyName,
-                                Types.sandboxedUiAdapter.poetTypeName()
+                                uiAdapterSpec.adapterPropertyName,
+                                uiAdapterSpec.type.poetTypeName(),
                             )
                             .addModifiers(KModifier.PUBLIC)
                             .initializer(
-                                "%T.createFromCoreLibInfo(coreLibInfo)",
-                                sandboxedUiAdapterFactoryClass
+                                "%T.createFromCoreLibInfo(%L)",
+                                uiAdapterSpec.adapterFactoryClass,
+                                uiCoreLibInfoPropertyName,
                             )
                             .build()
                     )
-                    addFunction(generateOpenSession())
+                    addFunction(uiAdapterSpec.openSessionSpec)
                 }
             }
 
@@ -144,49 +145,19 @@ class ClientProxyTypeGenerator(
             addCode(generateRemoteCall(method))
         }
 
-    private fun generateOpenSession() =
-        FunSpec.builder("openSession").build {
-            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-            addParameters(
-                listOf(
-                    ParameterSpec(contextPropertyName, contextClass),
-                    ParameterSpec(
-                        "sessionConstants",
-                        ClassName("androidx.privacysandbox.ui.core", "SessionConstants")
-                    ),
-                    ParameterSpec("initialWidth", Types.int.poetClassName()),
-                    ParameterSpec("initialHeight", Types.int.poetClassName()),
-                    ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
-                    ParameterSpec("clientExecutor", ClassName("java.util.concurrent", "Executor")),
-                    ParameterSpec(
-                        "client",
-                        ClassName(
-                            "androidx.privacysandbox.ui.core",
-                            "SandboxedUiAdapter.SessionClient"
-                        )
-                    ),
-                )
-            )
-            addStatement(
-                "$sandboxedUiAdapterPropertyName.openSession(%N, sessionConstants, initialWidth, " +
-                    "initialHeight, isZOrderOnTop, clientExecutor, client)",
-                contextPropertyName,
-            )
-        }
-
     private fun generateTransactionCallbackObject(method: Method) =
         CodeBlock.builder().build {
             val transactionCallbackClassName =
                 ClassName(
                     basePackageName,
                     wrapWithListIfNeeded(method.returnType).transactionCallbackName(),
-                    "Stub"
+                    "Stub",
                 )
 
             addControlFlow("val transactionCallback = object: %T()", transactionCallbackClassName) {
                 addControlFlow(
                     "override fun onCancellable(cancellationSignal: %T)",
-                    cancellationSignalClassName
+                    cancellationSignalClassName,
                 ) {
                     addControlFlow("if (it.isCancelled)") {
                         addStatement("cancellationSignal.cancel()")
@@ -198,14 +169,14 @@ class ClientProxyTypeGenerator(
 
                 addControlFlow(
                     "override fun onFailure(throwableParcel: %T)",
-                    ClassName(basePackageName, throwableParcelName)
+                    ClassName(basePackageName, throwableParcelName),
                 ) {
                     addStatement(
                         "it.%M(%M(throwableParcel))",
                         resumeWithExceptionMethod,
                         ThrowableParcelConverterFileGenerator.fromThrowableParcelNameSpec(
                             basePackageName
-                        )
+                        ),
                     )
                 }
             }
@@ -223,20 +194,17 @@ class ClientProxyTypeGenerator(
         return CodeBlock.builder().build {
             addControlFlow(
                 "override fun onSuccess(result: %T)",
-                binderCodeConverter.convertToBinderType(method.returnType)
+                binderCodeConverter.convertToBinderType(method.returnType),
             ) {
                 addStatement(
                     "it.resumeWith(Result.success(%L))",
-                    binderCodeConverter.convertToModelCode(method.returnType, "result")
+                    binderCodeConverter.convertToModelCode(method.returnType, "result"),
                 )
             }
         }
     }
 
-    private fun generateRemoteCall(
-        method: Method,
-        extraParameters: List<CodeBlock> = emptyList(),
-    ) =
+    private fun generateRemoteCall(method: Method, extraParameters: List<CodeBlock> = emptyList()) =
         CodeBlock.builder().build {
             val parameters =
                 method.parameters.map {

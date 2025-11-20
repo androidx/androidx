@@ -52,7 +52,7 @@ public inline fun buildSpannedString(
  */
 public inline fun SpannableStringBuilder.inSpans(
     vararg spans: Any,
-    builderAction: SpannableStringBuilder.() -> Unit
+    builderAction: SpannableStringBuilder.() -> Unit,
 ): SpannableStringBuilder {
     val start = length
     builderAction()
@@ -69,7 +69,7 @@ public inline fun SpannableStringBuilder.inSpans(
  */
 public inline fun SpannableStringBuilder.inSpans(
     span: Any,
-    builderAction: SpannableStringBuilder.() -> Unit
+    builderAction: SpannableStringBuilder.() -> Unit,
 ): SpannableStringBuilder {
     val start = length
     builderAction()
@@ -111,7 +111,7 @@ public inline fun SpannableStringBuilder.underline(
  */
 public inline fun SpannableStringBuilder.color(
     @ColorInt color: Int,
-    builderAction: SpannableStringBuilder.() -> Unit
+    builderAction: SpannableStringBuilder.() -> Unit,
 ): SpannableStringBuilder = inSpans(ForegroundColorSpan(color), builderAction = builderAction)
 
 /**
@@ -121,7 +121,7 @@ public inline fun SpannableStringBuilder.color(
  */
 public inline fun SpannableStringBuilder.backgroundColor(
     @ColorInt color: Int,
-    builderAction: SpannableStringBuilder.() -> Unit
+    builderAction: SpannableStringBuilder.() -> Unit,
 ): SpannableStringBuilder = inSpans(BackgroundColorSpan(color), builderAction = builderAction)
 
 /**
@@ -140,7 +140,7 @@ public inline fun SpannableStringBuilder.strikeThrough(
  */
 public inline fun SpannableStringBuilder.scale(
     proportion: Float,
-    builderAction: SpannableStringBuilder.() -> Unit
+    builderAction: SpannableStringBuilder.() -> Unit,
 ): SpannableStringBuilder = inSpans(RelativeSizeSpan(proportion), builderAction = builderAction)
 
 /**

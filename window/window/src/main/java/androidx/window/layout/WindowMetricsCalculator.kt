@@ -18,7 +18,6 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
-import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Display
@@ -30,7 +29,7 @@ import androidx.window.core.Bounds
 import androidx.window.layout.util.WindowMetricsCompatHelper
 
 /** An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext]. */
-interface WindowMetricsCalculator {
+public interface WindowMetricsCalculator {
 
     /**
      * Computes the size and position of the area the window would occupy with
@@ -65,22 +64,22 @@ interface WindowMetricsCalculator {
      * @see android.view.WindowManager.getCurrentWindowMetrics
      * @see android.view.WindowMetrics.getBounds
      */
-    fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
+    public fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
 
     /**
      * Computes the size and position of the area the window would occupy with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height and any
-     * combination of flags that would allow the window to extend behind display cutouts.
-     *
-     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
-     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
-     * created via the [Context.createWindowContext] APIs.
+     * combination of flags that would allow the window to extend behind display cutouts. The
+     * [Context] must either be a [UiContext] or an Application [Context]. We recommend using a
+     * [UiContext] as it will give the most accurate [WindowMetrics]. Using the Application
+     * [Context] may exclude some decorations or can provide some unexpected behaviors for multi
+     * instance apps in a desktop like environment.
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
      * @see [computeCurrentWindowMetrics]
      */
-    fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+    public fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeCurrentWindowMetrics(context) and" + " provide an implementation."
         )
@@ -96,7 +95,7 @@ interface WindowMetricsCalculator {
      *
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
+    public fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
 
     /**
      * Computes the maximum size and position of the area the window can expect with
@@ -106,39 +105,40 @@ interface WindowMetricsCalculator {
      * The value returned from this method will always match [Display.getRealSize] on
      * [Android 10][Build.VERSION_CODES.Q] and below.
      *
-     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
-     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
-     * created via the [Context.createWindowContext] APIs.
+     * The [Context] must either be a [UiContext] or an Application [Context]. We recommend using a
+     * [UiContext] as it will give the most accurate [WindowMetrics]. Using the Application
+     * [Context] may exclude some decorations or can provide some unexpected behaviors for multi
+     * instance apps in a desktop like environment.
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
      * @see [computeMaximumWindowMetrics]
      */
-    fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+    public fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeMaximumWindowMetrics(context) and" + " provide an implementation."
         )
     }
 
-    companion object {
+    public companion object {
 
         private var decorator: (WindowMetricsCalculator) -> WindowMetricsCalculator = { it }
         private val windowMetricsCalculatorCompat = WindowMetricsCalculatorCompat()
 
         @JvmStatic
-        fun getOrCreate(): WindowMetricsCalculator {
+        public fun getOrCreate(): WindowMetricsCalculator {
             return decorator(windowMetricsCalculatorCompat)
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
             decorator = overridingDecorator::decorate
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun reset() {
+        public fun reset() {
             decorator = { it }
         }
 
@@ -149,7 +149,7 @@ interface WindowMetricsCalculator {
         @RequiresApi(Build.VERSION_CODES.R)
         internal fun translateWindowMetrics(
             windowMetrics: AndroidWindowMetrics,
-            density: Float
+            density: Float,
         ): WindowMetrics {
             return WindowMetricsCompatHelper.getInstance()
                 .translateWindowMetrics(windowMetrics, density)
@@ -158,15 +158,15 @@ interface WindowMetricsCalculator {
         internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
             return WindowMetrics(
                 Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-                displayMetrics.density
+                displayMetrics.density,
             )
         }
     }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface WindowMetricsCalculatorDecorator {
+public interface WindowMetricsCalculatorDecorator {
 
     /** Returns an instance of [WindowMetricsCalculator] */
-    fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
+    public fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
 }

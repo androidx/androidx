@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.tools.apipackager
 
@@ -44,7 +45,7 @@ internal object AnnotationInspector {
         val annotationExtractor = AnnotationExtractor()
         reader.accept(
             annotationExtractor,
-            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
         )
         return annotationExtractor.hasPrivacySandboxAnnotation
     }

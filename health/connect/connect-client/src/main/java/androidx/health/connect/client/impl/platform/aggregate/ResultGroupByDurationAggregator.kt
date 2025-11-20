@@ -41,7 +41,7 @@ import java.time.ZoneOffset
 internal class ResultGroupedByDurationAggregator<T : Record>(
     private val timeRange: TimeRange<*>,
     private val bucketDuration: Duration,
-    private val initProcessor: (InstantTimeRange) -> AggregationProcessor<T>
+    private val initProcessor: (InstantTimeRange) -> AggregationProcessor<T>,
 ) : Aggregator<T, List<AggregationResultGroupedByDurationWithMinTime>> {
 
     private val instantTimeRange: InstantTimeRange =
@@ -50,7 +50,7 @@ internal class ResultGroupedByDurationAggregator<T : Record>(
             is LocalTimeRange ->
                 InstantTimeRange(
                     startTime = timeRange.startTime.toInstant(ZoneOffset.MAX),
-                    endTime = timeRange.endTime.toInstant(ZoneOffset.MIN)
+                    endTime = timeRange.endTime.toInstant(ZoneOffset.MIN),
                 )
         }
 
@@ -68,7 +68,7 @@ internal class ResultGroupedByDurationAggregator<T : Record>(
                     is InstantaneousRecord -> getBucketStartTime(record.time)
                     is IntervalRecord -> getBucketStartTime(record.startTime)
                     else -> error("Unsupported value for aggregation: $record")
-                }
+                },
             )
 
         val lastBucketStartTime =
@@ -87,7 +87,7 @@ internal class ResultGroupedByDurationAggregator<T : Record>(
                     .getOrPut(bucketStartTime) {
                         AggregationProcessorWithZoneOffset(
                             initProcessor(bucketTimeRange),
-                            bucketStartTime
+                            bucketStartTime,
                         )
                     }
                     .processRecord(record)
@@ -109,9 +109,9 @@ internal class ResultGroupedByDurationAggregator<T : Record>(
                         result = it.getProcessedAggregationResult(),
                         startTime = bucketTimeRange.startTime,
                         endTime = bucketTimeRange.endTime,
-                        zoneOffset = zoneOffset
+                        zoneOffset = zoneOffset,
                     ),
-                minTime = it.minTime ?: Instant.MAX
+                minTime = it.minTime ?: Instant.MAX,
             )
         }
     }
@@ -131,7 +131,7 @@ internal class ResultGroupedByDurationAggregator<T : Record>(
 
 private class AggregationProcessorWithZoneOffset<T : Record>(
     private val delegate: AggregationProcessor<T>,
-    val bucketStartTime: Instant
+    val bucketStartTime: Instant,
 ) : AggregationProcessor<T> by delegate {
 
     var zoneOffset: ZoneOffset? = null
@@ -166,5 +166,5 @@ private class AggregationProcessorWithZoneOffset<T : Record>(
 
 internal data class AggregationResultGroupedByDurationWithMinTime(
     val aggregationResultGroupedByDuration: AggregationResultGroupedByDuration,
-    val minTime: Instant
+    val minTime: Instant,
 )

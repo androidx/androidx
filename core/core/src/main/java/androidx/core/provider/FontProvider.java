@@ -27,6 +27,8 @@ import android.content.pm.ProviderInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Typeface;
+import android.graphics.fonts.Font;
 import android.net.Uri;
 import android.os.Build;
 import android.os.CancellationSignal;
@@ -65,6 +67,25 @@ class FontProvider {
             ArrayList<FontInfo[]> queryResults = new ArrayList<>();
             for (int i = 0; i < requests.size(); i++) {
                 FontRequest request = requests.get(i);
+
+                if (Build.VERSION.SDK_INT >= 31) {
+                    final String systemFont = request.getSystemFont();
+                    final Typeface typeface = TypefaceCompat.getSystemFontFamily(systemFont);
+                    if (typeface != null) {
+                        Font font = TypefaceCompat.guessPrimaryFont(typeface);
+                        if (font != null) {
+                            // We cannot store the Font instance directly into FontInfo objects.
+                            // Instead, we will re-resolve the font at the time of Typeface
+                            // creation. The performance overhead should be minimal because of the
+                            // system's layout cache.
+                            queryResults.add(new FontInfo[]{
+                                    new FontInfo(systemFont, request.getVariationSettings())
+                            });
+                            continue;
+                        }
+                    }
+                }
+
                 ProviderInfo providerInfo = getProvider(
                         context.getPackageManager(), request, context.getResources());
                 if (providerInfo == null) {

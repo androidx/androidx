@@ -42,6 +42,7 @@ public class UnattachedActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unattached);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.unattached_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

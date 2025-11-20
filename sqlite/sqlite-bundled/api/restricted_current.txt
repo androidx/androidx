@@ -24,9 +24,12 @@ package androidx.sqlite.driver.bundled {
 
   public final class BundledSQLiteDriver implements androidx.sqlite.SQLiteDriver {
     ctor public BundledSQLiteDriver();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getThreadingMode();
+    method public void addExtension(String fileName);
+    method public void addExtension(String fileName, String entryPoint);
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getThreadingMode();
     method public androidx.sqlite.SQLiteConnection open(String fileName);
     method public androidx.sqlite.SQLiteConnection open(String fileName, int flags);
+    property public boolean hasConnectionPool;
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int threadingMode;
   }
 

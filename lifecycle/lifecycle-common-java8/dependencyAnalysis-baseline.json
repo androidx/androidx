@@ -1,0 +1,36 @@
+{
+  "projectPath": ":lifecycle:lifecycle-common-java8",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.mockito:mockito-core",
+        "resolvedVersion": "4.8.0"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":lifecycle:lifecycle-common"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

@@ -18,25 +18,43 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.modifier.ProvidableModifierLocal
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.DelegatableNode
 import kotlin.jvm.JvmInline
 
 /**
  * A modifier local that provides access to a [BeyondBoundsLayout] that a child can use to ask a
  * parent to layout more items that are beyond its visible bounds.
  */
+@get:Deprecated(
+    "Please use DelegatableNode.findNearestBeyondBoundsLayoutAncestor() to access the nearest " +
+        "parent BeyondBoundsLayout.",
+    level = DeprecationLevel.WARNING,
+)
 val ModifierLocalBeyondBoundsLayout: ProvidableModifierLocal<BeyondBoundsLayout?> =
     modifierLocalOf {
         null
     }
 
 /**
+ * Provides a [BeyondBoundsLayout] through Modifier.Node APIs. To access the nearest
+ * [BeyondBoundsLayout] parent use [DelegatableNode.findNearestBeyondBoundsLayoutAncestor]. You
+ * should use this node when implementing Layouts that do not create all items at once (e.g. Lazy
+ * Layouts). The focus system will use the [BeyondBoundsLayout] to create items during focus search
+ * in order to move focus between items that are not yet laid out.
+ */
+interface BeyondBoundsLayoutProviderModifierNode : DelegatableNode {
+    /** The [BeyondBoundsLayout] that this node will provide. */
+    val beyondBoundsLayout: BeyondBoundsLayout
+}
+
+/**
  * Layout extra items in the specified direction.
  *
- * A [BeyondBoundsLayout] instance can be obtained by consuming the
- * [BeyondBoundsLayout modifier local][ModifierLocalBeyondBoundsLayout]. It can be used to send a
- * request to layout more items in a particular [direction][LayoutDirection]. This can be useful
- * when composition or layout is determined lazily, as with a LazyColumn. The request is received by
- * any parent up the hierarchy that provides this modifier local.
+ * A [BeyondBoundsLayout] instance can be obtained by searching the tree using
+ * [DelegatableNode.findNearestBeyondBoundsLayoutAncestor()]. It can be used to send a request to
+ * layout more items in a particular [direction][LayoutDirection]. This can be useful when
+ * composition or layout is determined lazily, as with a LazyColumn. The request is received by any
+ * parent up the hierarchy that provides this modifier local.
  */
 interface BeyondBoundsLayout {
     /**

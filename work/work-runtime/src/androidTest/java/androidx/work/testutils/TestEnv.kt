@@ -47,7 +47,7 @@ fun GreedyScheduler(env: TestEnv, trackers: Trackers): GreedyScheduler {
         trackers,
         env.processor,
         launcher,
-        env.taskExecutor
+        env.taskExecutor,
     )
 }
 
@@ -59,5 +59,5 @@ fun WorkManager(env: TestEnv, schedulers: List<Scheduler>, trackers: Trackers) =
         env.db,
         schedulers,
         env.processor,
-        trackers
+        trackers,
     )

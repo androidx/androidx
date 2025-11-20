@@ -630,15 +630,11 @@ package androidx.compose.material3 {
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum DismissDirection {
-    method @Deprecated public static androidx.compose.material3.DismissDirection valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.compose.material3.DismissDirection[] values();
     enum_constant @Deprecated public static final androidx.compose.material3.DismissDirection EndToStart;
     enum_constant @Deprecated public static final androidx.compose.material3.DismissDirection StartToEnd;
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum DismissValue {
-    method @Deprecated public static androidx.compose.material3.DismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.compose.material3.DismissValue[] values();
     enum_constant @Deprecated public static final androidx.compose.material3.DismissValue Default;
     enum_constant @Deprecated public static final androidx.compose.material3.DismissValue DismissedToEnd;
     enum_constant @Deprecated public static final androidx.compose.material3.DismissValue DismissedToStart;
@@ -717,8 +713,6 @@ package androidx.compose.material3 {
   }
 
   public enum DrawerValue {
-    method public static androidx.compose.material3.DrawerValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.DrawerValue[] values();
     enum_constant public static final androidx.compose.material3.DrawerValue Closed;
     enum_constant public static final androidx.compose.material3.DrawerValue Open;
   }
@@ -728,7 +722,7 @@ package androidx.compose.material3 {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public static androidx.compose.material3.ColorScheme dynamicLightColorScheme(android.content.Context context);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3Api {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3Api {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface ExposedDropdownMenuBoxScope {
@@ -1412,8 +1406,6 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum SheetValue {
-    method public static androidx.compose.material3.SheetValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.SheetValue[] values();
     enum_constant public static final androidx.compose.material3.SheetValue Expanded;
     enum_constant public static final androidx.compose.material3.SheetValue Hidden;
     enum_constant public static final androidx.compose.material3.SheetValue PartiallyExpanded;
@@ -1513,8 +1505,6 @@ package androidx.compose.material3 {
   }
 
   public enum SnackbarDuration {
-    method public static androidx.compose.material3.SnackbarDuration valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.SnackbarDuration[] values();
     enum_constant public static final androidx.compose.material3.SnackbarDuration Indefinite;
     enum_constant public static final androidx.compose.material3.SnackbarDuration Long;
     enum_constant public static final androidx.compose.material3.SnackbarDuration Short;
@@ -1538,8 +1528,6 @@ package androidx.compose.material3 {
   }
 
   public enum SnackbarResult {
-    method public static androidx.compose.material3.SnackbarResult valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.SnackbarResult[] values();
     enum_constant public static final androidx.compose.material3.SnackbarResult ActionPerformed;
     enum_constant public static final androidx.compose.material3.SnackbarResult Dismissed;
   }
@@ -1617,8 +1605,6 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public enum SwipeToDismissBoxValue {
-    method public static androidx.compose.material3.SwipeToDismissBoxValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.material3.SwipeToDismissBoxValue[] values();
     enum_constant public static final androidx.compose.material3.SwipeToDismissBoxValue EndToStart;
     enum_constant public static final androidx.compose.material3.SwipeToDismissBoxValue Settled;
     enum_constant public static final androidx.compose.material3.SwipeToDismissBoxValue StartToEnd;

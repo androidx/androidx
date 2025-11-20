@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
@@ -96,7 +97,7 @@ fun LoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = LoadingIndicatorDefaults.indicatorColor,
-    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
 ) =
     LoadingIndicatorImpl(
         progress = progress,
@@ -179,7 +180,7 @@ fun ContainedLoadingIndicator(
     containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
     indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
     containerShape: Shape = LoadingIndicatorDefaults.containerShape,
-    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
 ) =
     LoadingIndicatorImpl(
         progress = progress,
@@ -253,7 +254,7 @@ private fun LoadingIndicatorImpl(
     containerColor: Color,
     indicatorColor: Color,
     containerShape: Shape,
-    indicatorPolygons: List<RoundedPolygon>
+    indicatorPolygons: List<RoundedPolygon>,
 ) {
     require(indicatorPolygons.size > 1) {
         "indicatorPolygons should have, at least, two RoundedPolygons"
@@ -282,17 +283,17 @@ private fun LoadingIndicatorImpl(
                     progressBarRangeInfo =
                         ProgressBarRangeInfo(
                             coercedProgress().takeUnless { it.isNaN() } ?: 0f,
-                            0f..1f
+                            0f..1f,
                         )
                 }
                 .size(
                     width = LoadingIndicatorDefaults.ContainerWidth,
-                    height = LoadingIndicatorDefaults.ContainerHeight
+                    height = LoadingIndicatorDefaults.ContainerHeight,
                 )
                 .fillMaxSize()
                 .clip(containerShape)
                 .background(containerColor),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // Using a Spacer to render the indicator's shapes. Maintains a square aspect ratio (1:1)
         // to prevent shape distortion during rendering.
@@ -327,14 +328,14 @@ private fun LoadingIndicatorImpl(
                                                 // Use the adjusted progress.
                                                 progress = adjustedProgressValue,
                                                 path = path,
-                                                startAngle = 0
+                                                startAngle = 0,
                                             ),
                                         size = size,
                                         scaleFactor = morphScaleFactor,
-                                        scaleMatrix = scaleMatrix
+                                        scaleMatrix = scaleMatrix,
                                     ),
                                 color = indicatorColor,
-                                style = Fill
+                                style = Fill,
                             )
                         }
                     }
@@ -360,7 +361,7 @@ private fun LoadingIndicatorImpl(
     containerColor: Color,
     indicatorColor: Color,
     containerShape: Shape,
-    indicatorPolygons: List<RoundedPolygon>
+    indicatorPolygons: List<RoundedPolygon>,
 ) {
     require(indicatorPolygons.size > 1) {
         "indicatorPolygons should have, at least, two RoundedPolygons"
@@ -383,40 +384,61 @@ private fun LoadingIndicatorImpl(
     val globalRotation = remember { Animatable(0f) }
     var currentMorphIndex by remember(indicatorPolygons) { mutableIntStateOf(0) }
     LaunchedEffect(indicatorPolygons) {
-        launch {
-            // Note that we up the visibilityThreshold here to 0.1, which is x10 than the default
-            // threshold, and ends the low-damping spring in a shorter time.
-            val morphAnimationSpec =
-                spring(dampingRatio = 0.6f, stiffness = 200f, visibilityThreshold = 0.1f)
-            while (true) {
-                // Async launch of a spring that will finish in less than 650ms
-                // (MorphIntervalMillis). We then delay the entire while loop by 650ms till the next
-                // morph starts.
-                val deferred = async {
-                    val animationResult =
-                        morphProgress.animateTo(
-                            targetValue = 1f,
-                            animationSpec = morphAnimationSpec
-                        )
-                    if (animationResult.endReason == AnimationEndReason.Finished) {
-                        currentMorphIndex = (currentMorphIndex + 1) % morphSequence.size
-                        morphProgress.snapTo(0f)
-                        morphRotationTargetAngle =
-                            (morphRotationTargetAngle + QuarterRotation) % FullRotation
+        val morphAnimationBlock = {
+            launch {
+                // Note that we up the visibilityThreshold here to 0.1, which is x10 than the
+                // default threshold, and ends the low-damping spring in a shorter time.
+                val morphAnimationSpec =
+                    spring(dampingRatio = 0.6f, stiffness = 200f, visibilityThreshold = 0.1f)
+                while (true) {
+                    // Async launch of a spring that will finish in less than 650ms
+                    // (MorphIntervalMillis). We then delay the entire while loop by 650ms till the
+                    // next morph starts.
+                    val deferred = async {
+                        val animationResult =
+                            morphProgress.animateTo(
+                                targetValue = 1f,
+                                animationSpec = morphAnimationSpec,
+                            )
+                        if (animationResult.endReason == AnimationEndReason.Finished) {
+                            currentMorphIndex = (currentMorphIndex + 1) % morphSequence.size
+                            morphProgress.snapTo(0f)
+                            morphRotationTargetAngle =
+                                (morphRotationTargetAngle + QuarterRotation) % FullRotation
+                        }
                     }
+                    delay(MorphIntervalMillis)
+                    deferred.await()
                 }
-                delay(MorphIntervalMillis)
-                deferred.await()
             }
         }
-        globalRotation.animateTo(
-            targetValue = FullRotation,
-            animationSpec =
-                infiniteRepeatable(
-                    tween(GlobalRotationDurationMillis, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
+
+        val rotationAnimationBlock = {
+            launch {
+                globalRotation.animateTo(
+                    targetValue = FullRotation,
+                    animationSpec =
+                        infiniteRepeatable(
+                            tween(GlobalRotationDurationMillis, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart,
+                        ),
                 )
-        )
+            }
+        }
+
+        // Possibly skip the infinite animation block when an InfiniteAnimationPolicy is
+        // installed.
+        when (val policy = coroutineContext[InfiniteAnimationPolicy]) {
+            null -> {
+                morphAnimationBlock()
+                rotationAnimationBlock()
+            }
+            else ->
+                policy.onInfiniteOperation {
+                    morphAnimationBlock()
+                    rotationAnimationBlock()
+                }
+        }
     }
 
     val path = remember { Path() }
@@ -427,12 +449,12 @@ private fun LoadingIndicatorImpl(
                 .progressSemantics()
                 .size(
                     width = LoadingIndicatorDefaults.ContainerWidth,
-                    height = LoadingIndicatorDefaults.ContainerHeight
+                    height = LoadingIndicatorDefaults.ContainerHeight,
                 )
                 .fillMaxSize()
                 .clip(containerShape)
                 .background(containerColor),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Spacer(
             modifier =
@@ -450,14 +472,14 @@ private fun LoadingIndicatorImpl(
                                             // to simulate some bounciness instead.
                                             progress = progress,
                                             path = path,
-                                            startAngle = 0
+                                            startAngle = 0,
                                         ),
                                     size = size,
                                     scaleFactor = shapesScaleFactor,
-                                    scaleMatrix = scaleMatrix
+                                    scaleMatrix = scaleMatrix,
                                 ),
                             color = indicatorColor,
-                            style = Fill
+                            style = Fill,
                         )
                     }
                 }
@@ -515,7 +537,7 @@ object LoadingIndicatorDefaults {
             MaterialShapes.Pill,
             MaterialShapes.Sunny,
             MaterialShapes.Cookie4Sided,
-            MaterialShapes.Oval
+            MaterialShapes.Oval,
         )
 
     /**
@@ -531,7 +553,7 @@ object LoadingIndicatorDefaults {
             // Rotating the circle gets us a smoother morphing to the soft-burst shapes, which is
             // also being rotated at the same angle.
             MaterialShapes.Circle.transformed(Matrix().apply { rotateZ(360f / 20) }),
-            MaterialShapes.SoftBurst
+            MaterialShapes.SoftBurst,
         )
 
     /**

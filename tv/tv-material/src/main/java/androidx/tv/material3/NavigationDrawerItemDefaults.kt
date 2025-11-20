@@ -74,9 +74,7 @@ object NavigationDrawerItemDefaults {
         @ReadOnlyComposable
         @Composable
         get() =
-            Border(
-                border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border),
-            )
+            Border(border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border))
 
     /** The default container color used by [NavigationDrawerItem]'s trailing badge */
     val TrailingBadgeContainerColor
@@ -98,17 +96,14 @@ object NavigationDrawerItemDefaults {
     fun TrailingBadge(
         text: String,
         containerColor: Color = TrailingBadgeContainerColor,
-        contentColor: Color = TrailingBadgeContentColor
+        contentColor: Color = TrailingBadgeContentColor,
     ) {
         Box(
             modifier =
                 Modifier.background(containerColor, RoundedCornerShape(50)).padding(10.dp, 2.dp)
         ) {
             ProvideTextStyle(value = TrailingBadgeTextStyle) {
-                Text(
-                    text = text,
-                    color = contentColor,
-                )
+                Text(text = text, color = contentColor)
             }
         }
     }
@@ -137,7 +132,7 @@ object NavigationDrawerItemDefaults {
         disabledShape: Shape = shape,
         focusedSelectedShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
-        pressedSelectedShape: Shape = shape
+        pressedSelectedShape: Shape = shape,
     ) =
         NavigationDrawerItemShape(
             shape = shape,
@@ -147,7 +142,7 @@ object NavigationDrawerItemDefaults {
             disabledShape = disabledShape,
             focusedSelectedShape = focusedSelectedShape,
             focusedDisabledShape = focusedDisabledShape,
-            pressedSelectedShape = pressedSelectedShape
+            pressedSelectedShape = pressedSelectedShape,
         )
 
     /**
@@ -205,7 +200,7 @@ object NavigationDrawerItemDefaults {
         focusedSelectedContainerColor: Color = focusedContainerColor,
         focusedSelectedContentColor: Color = focusedContentColor,
         pressedSelectedContainerColor: Color = pressedContainerColor,
-        pressedSelectedContentColor: Color = pressedContentColor
+        pressedSelectedContentColor: Color = pressedContentColor,
     ) =
         NavigationDrawerItemColors(
             containerColor = containerColor,
@@ -223,7 +218,7 @@ object NavigationDrawerItemDefaults {
             focusedSelectedContainerColor = focusedSelectedContainerColor,
             focusedSelectedContentColor = focusedSelectedContentColor,
             pressedSelectedContainerColor = pressedSelectedContainerColor,
-            pressedSelectedContentColor = pressedSelectedContentColor
+            pressedSelectedContentColor = pressedSelectedContentColor,
         )
 
     /**
@@ -254,7 +249,7 @@ object NavigationDrawerItemDefaults {
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedSelectedScale: Float = focusedScale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
-        @FloatRange(from = 0.0) pressedSelectedScale: Float = scale
+        @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
     ) =
         NavigationDrawerItemScale(
             scale = scale,
@@ -264,7 +259,7 @@ object NavigationDrawerItemDefaults {
             disabledScale = disabledScale,
             focusedSelectedScale = focusedSelectedScale,
             focusedDisabledScale = focusedDisabledScale,
-            pressedSelectedScale = pressedSelectedScale
+            pressedSelectedScale = pressedSelectedScale,
         )
 
     /**
@@ -294,7 +289,7 @@ object NavigationDrawerItemDefaults {
         disabledBorder: Border = border,
         focusedSelectedBorder: Border = focusedBorder,
         focusedDisabledBorder: Border = DefaultBorder,
-        pressedSelectedBorder: Border = border
+        pressedSelectedBorder: Border = border,
     ) =
         NavigationDrawerItemBorder(
             border = border,
@@ -304,7 +299,7 @@ object NavigationDrawerItemDefaults {
             disabledBorder = disabledBorder,
             focusedSelectedBorder = focusedSelectedBorder,
             focusedDisabledBorder = focusedDisabledBorder,
-            pressedSelectedBorder = pressedSelectedBorder
+            pressedSelectedBorder = pressedSelectedBorder,
         )
 
     /**
@@ -327,7 +322,7 @@ object NavigationDrawerItemDefaults {
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
-        pressedSelectedGlow: Glow = glow
+        pressedSelectedGlow: Glow = glow,
     ) =
         NavigationDrawerItemGlow(
             glow = glow,
@@ -335,6 +330,6 @@ object NavigationDrawerItemDefaults {
             pressedGlow = pressedGlow,
             selectedGlow = selectedGlow,
             focusedSelectedGlow = focusedSelectedGlow,
-            pressedSelectedGlow = pressedSelectedGlow
+            pressedSelectedGlow = pressedSelectedGlow,
         )
 }

@@ -104,5 +104,5 @@ private val androidAutofillTypes: HashMap<AutofillType, String> =
         AutofillType.BirthDateDay to AUTOFILL_HINT_BIRTH_DATE_DAY,
         AutofillType.BirthDateMonth to AUTOFILL_HINT_BIRTH_DATE_MONTH,
         AutofillType.BirthDateYear to AUTOFILL_HINT_BIRTH_DATE_YEAR,
-        AutofillType.SmsOtpCode to AUTOFILL_HINT_SMS_OTP
+        AutofillType.SmsOtpCode to AUTOFILL_HINT_SMS_OTP,
     )

@@ -31,10 +31,7 @@ internal fun ParticipantParcelable.toParticipant(): Participant {
  * @param name The name of the Participant, which remote surfaces will display to users.
  */
 @ExperimentalAppActions
-public class Participant(
-    public val id: String,
-    public val name: CharSequence,
-) {
+public class Participant(public val id: String, public val name: CharSequence) {
 
     internal fun toParticipantParcelable(): ParticipantParcelable {
         return ParticipantParcelable().also { parcelable ->

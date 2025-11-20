@@ -43,7 +43,7 @@ internal class SelectableTextAnnotatedStringElement(
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
     private val color: ColorProducer? = null,
-    private val autoSize: TextAutoSize? = null
+    private val autoSize: TextAutoSize? = null,
 ) : ModifierNodeElement<SelectableTextAnnotatedStringNode>() {
 
     override fun create(): SelectableTextAnnotatedStringNode =
@@ -60,7 +60,7 @@ internal class SelectableTextAnnotatedStringElement(
             onPlaceholderLayout,
             selectionController,
             color,
-            autoSize
+            autoSize,
         )
 
     override fun update(node: SelectableTextAnnotatedStringNode) {
@@ -77,7 +77,7 @@ internal class SelectableTextAnnotatedStringElement(
             onPlaceholderLayout = onPlaceholderLayout,
             selectionController = selectionController,
             color = color,
-            autoSize = autoSize
+            autoSize = autoSize,
         )
     }
 

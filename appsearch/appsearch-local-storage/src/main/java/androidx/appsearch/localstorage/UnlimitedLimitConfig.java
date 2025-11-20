@@ -49,4 +49,9 @@ public class UnlimitedLimitConfig implements LimitConfig {
     public int getMaxOpenBlobCount() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public int getMaxByteLimitForBatchPut() {
+        return Integer.MAX_VALUE;
+    }
 }

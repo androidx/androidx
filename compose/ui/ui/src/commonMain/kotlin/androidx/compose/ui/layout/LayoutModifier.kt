@@ -77,13 +77,13 @@ private object MeasuringIntrinsics {
         modifier: LayoutModifier,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
@@ -98,13 +98,13 @@ private object MeasuringIntrinsics {
         modifier: LayoutModifier,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
@@ -119,13 +119,13 @@ private object MeasuringIntrinsics {
         modifier: LayoutModifier,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
@@ -140,13 +140,13 @@ private object MeasuringIntrinsics {
         modifier: LayoutModifier,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
@@ -160,7 +160,7 @@ private object MeasuringIntrinsics {
     private class DefaultIntrinsicMeasurable(
         val measurable: IntrinsicMeasurable,
         val minMax: IntrinsicMinMax,
-        val widthHeight: IntrinsicWidthHeight
+        val widthHeight: IntrinsicWidthHeight,
     ) : Measurable {
         override val parentData: Any?
             get() = measurable.parentData
@@ -214,18 +214,18 @@ private object MeasuringIntrinsics {
         override fun placeAt(
             position: IntOffset,
             zIndex: Float,
-            layerBlock: (GraphicsLayerScope.() -> Unit)?
+            layerBlock: (GraphicsLayerScope.() -> Unit)?,
         ) {}
     }
 
     private enum class IntrinsicMinMax {
         Min,
-        Max
+        Max,
     }
 
     private enum class IntrinsicWidthHeight {
         Width,
-        Height
+        Height,
     }
 }
 

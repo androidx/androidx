@@ -74,8 +74,8 @@ class AppCompatDialogTest {
                 view,
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
             )
 
             val lifecycle = dialog.lifecycle

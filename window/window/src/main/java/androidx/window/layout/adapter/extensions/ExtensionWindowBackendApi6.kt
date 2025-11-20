@@ -22,9 +22,9 @@ import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.layout.SupportedPosture
 
 @RequiresWindowSdkExtension(version = 6)
-internal class ExtensionWindowBackendApi6(
+internal open class ExtensionWindowBackendApi6(
     component: WindowLayoutComponent,
-    adapter: ConsumerAdapter
+    adapter: ConsumerAdapter,
 ) : ExtensionWindowBackendApi2(component, adapter) {
     override val supportedPostures: List<SupportedPosture>
         get() = ExtensionsWindowLayoutInfoAdapter.translate(component.supportedWindowFeatures)

@@ -22,9 +22,9 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,14 +33,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.graphics.shapes"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     desktop()
     linux()
@@ -48,27 +40,33 @@ androidXMultiplatform {
     watchos()
     tvos()
     mac()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation("androidx.collection:collection:1.4.5")
+                implementation("androidx.collection:collection:1.5.0")
                 implementation("androidx.annotation:annotation:1.9.1")
             }
         }
 
         commonTest {
             dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
         }
 
         androidMain {
@@ -79,31 +77,46 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        nativeMain {
-            dependsOn(commonMain)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
+        androidDeviceTest {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.dexmakerMockitoInlineExtended)
-                implementation(libs.mockitoKotlin)
             }
         }
 
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+        }
+
+        nonJvmMain {
+            dependsOn(commonMain)
+        }
+
+        nonJvmTest {
+            dependsOn(commonTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
         targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nonJvmTest)
             }
         }
     }
@@ -119,5 +132,4 @@ androidx {
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

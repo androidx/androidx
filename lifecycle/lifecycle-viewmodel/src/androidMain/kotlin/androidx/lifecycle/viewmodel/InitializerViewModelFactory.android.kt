@@ -35,7 +35,7 @@ actual constructor(
      */
     public constructor(
         clazz: Class<T>,
-        initializer: CreationExtras.() -> T
+        initializer: CreationExtras.() -> T,
     ) : this(clazz.kotlin, initializer)
 }
 

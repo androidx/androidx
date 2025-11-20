@@ -92,15 +92,16 @@ import androidx.camera.core.ImageCaptureCapabilities;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
-import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.ExtensionMode;
+import androidx.camera.extensions.ExtensionSessionConfig;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil;
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
 import androidx.camera.integration.extensions.utils.FpsRecorder;
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
@@ -129,6 +130,7 @@ import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -234,7 +236,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     void switchCameras() {
-        mCameraProvider.unbindAll();
         if (mCurrentCameraId != null) {
             String nextCameraId = CameraSelectorUtil.findNextSupportedCameraId(
                     this, mExtensionsManager, mCurrentCameraId, mCurrentExtensionMode);
@@ -274,30 +275,29 @@ public class CameraExtensionsActivity extends AppCompatActivity
         } while (!bindUseCasesWithCurrentExtensionMode());
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = {ExperimentalCamera2Interop.class})
     boolean bindUseCasesWithCurrentExtensionMode() {
         if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector,
                 mCurrentExtensionMode)) {
             return false;
         }
 
-        mCameraProvider.unbindAll();
-
-        CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
-                mCurrentCameraSelector, mCurrentExtensionMode);
-
-        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector);
+        // Obtains the CameraInfo with the extension session config.
+        CameraInfo cameraInfo = mCameraProvider.getCameraInfo(mCurrentCameraSelector,
+                new ExtensionSessionConfig.Builder(mCurrentExtensionMode,
+                        mExtensionsManager).build());
+        // Obtains the ImageCaptureCapabilities from the CameraInfo.
+        ImageCaptureCapabilities imageCaptureCapabilities =
+                ImageCapture.getImageCaptureCapabilities(cameraInfo);
 
         // Reset to the default JPEG output format if the format set previously is not supported by
         // the new extensions mode or the different lens facing camera.
-        if (!ImageCapture.getImageCaptureCapabilities(
-                mCamera.getCameraInfo()).getSupportedOutputFormats().contains(mImageOutputFormat)) {
+        if (!imageCaptureCapabilities.getSupportedOutputFormats().contains(mImageOutputFormat)) {
             mImageOutputFormat = OUTPUT_FORMAT_JPEG;
         }
         setUpImageOutputFormatButton();
 
-        final boolean isPostviewSupported = ImageCapture.getImageCaptureCapabilities(
-                mCamera.getCameraInfo()).isPostviewSupported();
+        final boolean isPostviewSupported = imageCaptureCapabilities.isPostviewSupported();
 
         resetPreviewViewStreamingStateIdlingResource();
         resetPreviewViewIdleStateIdlingResource();
@@ -355,22 +355,21 @@ public class CameraExtensionsActivity extends AppCompatActivity
             updateInfoBlock();
         });
 
-        UseCaseGroup.Builder useCaseGroupBuilder =
-                new UseCaseGroup.Builder()
-                        .addUseCase(mPreview)
-                        .addUseCase(mImageCapture);
-
+        ExtensionSessionConfig.Builder extensionSessionConfigBuilder =
+                new ExtensionSessionConfig.Builder(mCurrentExtensionMode, mExtensionsManager);
+        extensionSessionConfigBuilder.addUseCase(mPreview);
+        extensionSessionConfigBuilder.addUseCase(mImageCapture);
         // Setup VideoCapture.
         stopRecording();
         mVideoCapture = null;
         if (mToggleVideoCapture.isChecked()) {
             Recorder recorder = new Recorder.Builder().build();
             mVideoCapture = VideoCapture.withOutput(recorder);
-            useCaseGroupBuilder.addUseCase(checkNotNull(mVideoCapture));
+            extensionSessionConfigBuilder.addUseCase(checkNotNull(mVideoCapture));
         }
 
-        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector,
-                useCaseGroupBuilder.build());
+        mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
+                extensionSessionConfigBuilder.build());
 
         // Update the UI and save location for ImageCapture
         Button toggleButton = findViewById(R.id.PhotoToggle);
@@ -593,6 +592,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_extensions);
+
+        EdgeToEdgeUtil.enableEdgeToEdge(
+                this,
+                R.id.root_layout,
+                Arrays.asList(R.id.PhotoToggle, R.id.ExtensionToggle, R.id.videoStabilizationToggle)
+        );
+
         setTitle(R.string.camerax_extensions);
 
         mInitializationIdlingResource.increment();

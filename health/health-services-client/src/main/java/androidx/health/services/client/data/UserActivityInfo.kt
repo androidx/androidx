@@ -50,7 +50,7 @@ public class UserActivityInfo(
     ) : this(
         UserActivityState.fromProto(proto.state),
         if (proto.hasExerciseInfo()) ExerciseInfo(proto.exerciseInfo) else null,
-        Instant.ofEpochMilli(proto.stateChangeTimeEpochMs)
+        Instant.ofEpochMilli(proto.stateChangeTimeEpochMs),
     )
 
     internal val proto: UserActivityInfoProto = getUserActivityInfoProto()
@@ -81,7 +81,7 @@ public class UserActivityInfo(
         @JvmStatic
         public fun createActiveExerciseState(
             exerciseInfo: ExerciseInfo,
-            stateChangeTime: Instant
+            stateChangeTime: Instant,
         ): UserActivityInfo =
             UserActivityInfo(USER_ACTIVITY_EXERCISE, exerciseInfo, stateChangeTime)
 

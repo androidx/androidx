@@ -29,5 +29,5 @@ internal actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale,
-    cache: MutableMap<String, Any>
+    cache: MutableMap<String, Any>,
 ): String = implementedInJetBrainsFork()

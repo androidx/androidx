@@ -31,11 +31,11 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to build your ActivityDestination instead",
-    ReplaceWith("activity(route = id.toString()) { builder.invoke() }")
+    ReplaceWith("activity(route = id.toString()) { builder.invoke() }"),
 )
 public inline fun NavGraphBuilder.activity(
     @IdRes id: Int,
-    builder: ActivityNavigatorDestinationBuilder.() -> Unit
+    builder: ActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], id).apply(builder)
@@ -44,7 +44,7 @@ public inline fun NavGraphBuilder.activity(
 /** Construct a new [ActivityNavigator.Destination] */
 public inline fun NavGraphBuilder.activity(
     route: String,
-    builder: ActivityNavigatorDestinationBuilder.() -> Unit
+    builder: ActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], route)
@@ -61,7 +61,7 @@ public inline fun NavGraphBuilder.activity(
  */
 public inline fun <reified T : Any> NavGraphBuilder.activity(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: ActivityNavigatorDestinationBuilder.() -> Unit
+    builder: ActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], T::class, typeMap)
@@ -77,7 +77,7 @@ public class ActivityNavigatorDestinationBuilder :
     @Suppress("Deprecation")
     @Deprecated(
         "Use routes to create your ActivityNavigatorDestinationBuilder instead",
-        ReplaceWith("ActivityNavigatorDestinationBuilder(navigator, route = id.toString())")
+        ReplaceWith("ActivityNavigatorDestinationBuilder(navigator, route = id.toString())"),
     )
     public constructor(navigator: ActivityNavigator, @IdRes id: Int) : super(navigator, id) {
         context = navigator.context

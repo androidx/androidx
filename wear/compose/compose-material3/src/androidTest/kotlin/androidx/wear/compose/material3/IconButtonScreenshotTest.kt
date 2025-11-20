@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.test
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,13 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -54,6 +50,8 @@ import androidx.wear.compose.material3.rememberAnimatedCornerBasedShape
 import androidx.wear.compose.material3.rememberAnimatedRoundedCornerShape
 import androidx.wear.compose.material3.setContentWithTheme
 import androidx.wear.compose.material3.touchTargetAwareSize
+import androidx.wear.compose.material3.verifyScreenshot
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -61,10 +59,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -157,9 +155,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun button_with_corner_animation() = verifyScreenshot {
-        sampleOutlinedIconButton(
-            shapes = IconButtonDefaults.animatedShapes(),
-        )
+        sampleOutlinedIconButton(shapes = IconButtonDefaults.animatedShapes())
     }
 
     @Test
@@ -182,8 +178,8 @@ class IconButtonScreenshotTest {
             shapes =
                 IconButtonDefaults.animatedShapes(
                     shape = CutCornerShape(15.dp),
-                    pressedShape = RoundedCornerShape(15.dp)
-                ),
+                    pressedShape = RoundedCornerShape(15.dp),
+                )
         )
     }
 
@@ -203,7 +199,7 @@ class IconButtonScreenshotTest {
             rememberAnimatedRoundedCornerShape(
                 IconButtonDefaults.shape,
                 MaterialTheme.shapes.small as RoundedCornerShape,
-                mutableStateOf(progress)
+                mutableStateOf(progress),
             )
 
         return progressShape
@@ -215,7 +211,7 @@ class IconButtonScreenshotTest {
             rememberAnimatedCornerBasedShape(
                 CutCornerShape(15.dp),
                 RoundedCornerShape(15.dp),
-                mutableStateOf(progress)
+                mutableStateOf(progress),
             )
 
         return progressShape
@@ -232,7 +228,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -242,7 +238,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -258,7 +254,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -268,7 +264,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -291,7 +287,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -301,7 +297,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -324,7 +320,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -334,14 +330,14 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
 
     private fun verifyScreenshot(
         methodName: String = testName.methodName,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             Box(
@@ -351,9 +347,6 @@ class IconButtonScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }

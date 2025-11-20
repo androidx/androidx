@@ -120,14 +120,14 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
         if (factsWithName.isEmpty()) {
             failWithoutActual(
                 fact("expected to contain fact", key),
-                fact("but contained only", error.factKeys())
+                fact("but contained only", error.factKeys()),
             )
             return ignoreCheck().that("")
         }
         if (index == null && factsWithName.size > 1) {
             failWithoutActual(
                 fact("expected to contain a single fact with key", key),
-                fact("but contained multiple", factsWithName)
+                fact("but contained multiple", factsWithName),
             )
             return ignoreCheck().that("")
         }
@@ -135,7 +135,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
             failWithoutActual(
                 fact("for key", key),
                 fact("index too high", index),
-                fact("fact count was", factsWithName.size)
+                fact("fact count was", factsWithName.size),
             )
             return ignoreCheck().that("")
         }
@@ -146,7 +146,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
                     simpleFact("expected to have a value"),
                     fact("for key", key),
                     simpleFact("but the key was present with no value"),
-                    HOW_TO_TEST_KEYS_WITHOUT_VALUES
+                    HOW_TO_TEST_KEYS_WITHOUT_VALUES,
                 )
             } else {
                 failWithoutActual(
@@ -154,7 +154,7 @@ internal constructor(actual: T?, metadata: FailureMetadata, typeDescription: Str
                     fact("for key", key),
                     fact("and index", index),
                     simpleFact("but the key was present with no value"),
-                    HOW_TO_TEST_KEYS_WITHOUT_VALUES
+                    HOW_TO_TEST_KEYS_WITHOUT_VALUES,
                 )
             }
             return ignoreCheck().that("")

@@ -21,20 +21,34 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
-    jvmStubs()
-    linuxX64Stubs()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.lifecycle.runtime.compose"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -42,8 +56,14 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.compose.runtime:runtime:1.7.1")
+                api("androidx.annotation:annotation:1.9.1")
+                api("androidx.compose.runtime:runtime:1.9.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
             }
         }
 
@@ -58,7 +78,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependencies {
                 implementation(project(":lifecycle:lifecycle-runtime-testing"))
                 implementation(project(":compose:ui:ui-test"))
@@ -74,18 +94,57 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
             dependsOn(nonAndroidMain)
         }
 
-        linuxx64StubsMain {
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
             dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
         }
     }
 }
 
 dependencies {
     lintPublish(project(":lifecycle:lifecycle-runtime-compose-lint"))
+
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 2.9.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.5") {
+            because "prevents symbols duplication"
+        }
+    }
 }
 
 androidx {
@@ -94,14 +153,4 @@ androidx {
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
     samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
-}
-
-android {
-    compileSdk = 35
-
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
-    namespace = "androidx.lifecycle.runtime.compose"
 }

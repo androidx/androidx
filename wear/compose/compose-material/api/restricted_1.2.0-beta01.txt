@@ -185,7 +185,7 @@ package androidx.wear.compose.material {
     method @Deprecated public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Material API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearMaterialApi {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material.ExperimentalWearMaterialApi public final class FixedThreshold implements androidx.wear.compose.material.ThresholdConfig {

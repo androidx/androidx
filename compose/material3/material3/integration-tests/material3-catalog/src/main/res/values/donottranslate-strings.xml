@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +42,10 @@
     <string name="font_scale" description="Font scale. [CHAR_LIMIT=NONE]">Font scale</string>
     <string name="text_direction" description="Text direction. [CHAR_LIMIT=NONE]">Text direction</string>
     <string name="reset_all" description="Reset all. [CHAR_LIMIT=NONE]">Reset all</string>
+
+    <string name="mark_expressive_components" description="Mark expressive components with an expressive banner. [CHAR_LIMIT=NONE]">Mark expressive components</string>
+    <string name="display_only_expressive_components" description="Display only expressive components. [CHAR_LIMIT=NONE]">Show only expressive components</string>
+    <string name="expressive_banner" description="Expressive banner. [CHAR_LIMIT=NONE]">Expr</string>
 
     <string name="scale">%.2f</string>
 

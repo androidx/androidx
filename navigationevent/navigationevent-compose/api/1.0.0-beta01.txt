@@ -1,0 +1,42 @@
+// Signature format: 4.0
+package androidx.navigationevent.compose {
+
+  public final class LocalNavigationEventDispatcherOwner {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.navigationevent.NavigationEventDispatcherOwner? getCurrent(androidx.compose.runtime.Composer?, int);
+    method public infix androidx.compose.runtime.ProvidedValue<androidx.navigationevent.NavigationEventDispatcherOwner?> provides(androidx.navigationevent.NavigationEventDispatcherOwner navigationEventDispatcherOwner);
+    property public androidx.navigationevent.NavigationEventDispatcherOwner? current;
+    field public static final androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner INSTANCE;
+  }
+
+  public final class NavigationEventHandlerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void NavigationBackHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo> state, optional boolean isBackEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBackCancelled, kotlin.jvm.functions.Function0<kotlin.Unit> onBackCompleted);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void NavigationBackHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo!>, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void NavigationEventHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo> state, optional boolean isForwardEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onForwardCancelled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onForwardCompleted, optional boolean isBackEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBackCancelled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBackCompleted);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void NavigationEventHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo!>, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void NavigationForwardHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo> state, optional boolean isForwardEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onForwardCancelled, kotlin.jvm.functions.Function0<kotlin.Unit> onForwardCompleted);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void NavigationForwardHandler(androidx.navigationevent.compose.NavigationEventState<? extends androidx.navigationevent.NavigationEventInfo!>, boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Stable public final class NavigationEventState<T extends androidx.navigationevent.NavigationEventInfo> {
+    method @InaccessibleFromKotlin public java.util.List<T> getBackInfo();
+    method @InaccessibleFromKotlin public T getCurrentInfo();
+    method @InaccessibleFromKotlin public java.util.List<T> getForwardInfo();
+    method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEventTransitionState getTransitionState();
+    property public java.util.List<T> backInfo;
+    property public T currentInfo;
+    property public java.util.List<T> forwardInfo;
+    property public androidx.navigationevent.NavigationEventTransitionState transitionState;
+  }
+
+  public final class RememberNavigationEventDispatcherOwnerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.navigationevent.NavigationEventDispatcherOwner rememberNavigationEventDispatcherOwner(optional boolean enabled, optional androidx.navigationevent.NavigationEventDispatcherOwner? parent);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.navigationevent.NavigationEventDispatcherOwner rememberNavigationEventDispatcherOwner(boolean, androidx.navigationevent.NavigationEventDispatcherOwner?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class RememberNavigationEventStateKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T extends androidx.navigationevent.NavigationEventInfo> androidx.navigationevent.compose.NavigationEventState<T!> rememberNavigationEventState(T, java.util.List<? extends T!>?, java.util.List<? extends T!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T extends androidx.navigationevent.NavigationEventInfo> androidx.navigationevent.compose.NavigationEventState<T> rememberNavigationEventState(T currentInfo, optional java.util.List<T> backInfo, optional java.util.List<T> forwardInfo);
+  }
+
+}
+

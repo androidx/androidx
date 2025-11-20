@@ -44,7 +44,7 @@ fun InspectorInfoInComposedModifierSample() {
             factory = {
                 // add your modifier implementation here
                 Modifier
-            }
+            },
         )
 }
 
@@ -70,6 +70,6 @@ fun InspectorInfoInComposedModifierWithArgumentsSample() {
             factory = {
                 // add your modifier implementation here
                 Modifier
-            }
+            },
         )
 }

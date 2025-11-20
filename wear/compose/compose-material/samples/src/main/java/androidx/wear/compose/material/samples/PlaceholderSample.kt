@@ -72,7 +72,7 @@ fun ChipWithIconAndLabelAndPlaceholders() {
                 text = labelText,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth().placeholder(chipPlaceholderState)
+                modifier = Modifier.fillMaxWidth().placeholder(chipPlaceholderState),
             )
         },
         icon = {
@@ -92,9 +92,9 @@ fun ChipWithIconAndLabelAndPlaceholders() {
         colors =
             PlaceholderDefaults.placeholderChipColors(
                 originalChipColors = ChipDefaults.primaryChipColors(),
-                placeholderState = chipPlaceholderState
+                placeholderState = chipPlaceholderState,
             ),
-        modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState)
+        modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState),
     )
     // Simulate content loading completing in stages
     LaunchedEffect(Unit) {
@@ -140,7 +140,7 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                         text = labelText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 },
                 secondaryLabel = {
@@ -148,7 +148,7 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                         text = secondaryLabelText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 },
                 icon = {
@@ -158,12 +158,12 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                             contentDescription = "airplane",
                             modifier =
                                 Modifier.wrapContentSize(align = Alignment.Center)
-                                    .size(ChipDefaults.IconSize)
+                                    .size(ChipDefaults.IconSize),
                         )
                     }
                 },
                 colors = ChipDefaults.gradientBackgroundChipColors(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         if (!chipPlaceholderState.isShowContent) {
@@ -203,7 +203,7 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                     PlaceholderDefaults.placeholderChipColors(
                         placeholderState = chipPlaceholderState
                     ),
-                modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState)
+                modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState),
             )
         }
     }
@@ -240,7 +240,7 @@ fun TextPlaceholder() {
         modifier =
             Modifier.width(90.dp)
                 .placeholderShimmer(chipPlaceholderState)
-                .placeholder(chipPlaceholderState)
+                .placeholder(chipPlaceholderState),
     )
 
     // Simulate content loading

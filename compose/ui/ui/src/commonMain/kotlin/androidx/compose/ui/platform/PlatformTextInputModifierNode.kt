@@ -93,7 +93,7 @@ fun interface PlatformTextInputInterceptor {
      */
     suspend fun interceptStartInputMethod(
         request: PlatformTextInputMethodRequest,
-        nextHandler: PlatformTextInputSession
+        nextHandler: PlatformTextInputSession,
     ): Nothing
 }
 
@@ -152,7 +152,7 @@ suspend fun PlatformTextInputModifierNode.establishTextInputSession(
 @Composable
 fun InterceptPlatformTextInput(
     interceptor: PlatformTextInputInterceptor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val parent = LocalChainedPlatformTextInputInterceptor.current
     // We don't need to worry about explicitly cancelling the input session if the parent changes:
@@ -168,7 +168,7 @@ fun InterceptPlatformTextInput(
 
     CompositionLocalProvider(
         LocalChainedPlatformTextInputInterceptor provides chainedInterceptor,
-        content = content
+        content = content,
     )
 }
 
@@ -178,7 +178,7 @@ private val LocalChainedPlatformTextInputInterceptor =
 /** Establishes a new text input session, optionally intercepted by [chainedInterceptor]. */
 private suspend fun Owner.interceptedTextInputSession(
     chainedInterceptor: ChainedPlatformTextInputInterceptor?,
-    session: suspend PlatformTextInputSessionScope.() -> Nothing
+    session: suspend PlatformTextInputSessionScope.() -> Nothing,
 ): Nothing {
     if (chainedInterceptor == null) {
         textInputSession(session)
@@ -195,7 +195,7 @@ private suspend fun Owner.interceptedTextInputSession(
 @Stable
 private class ChainedPlatformTextInputInterceptor(
     initialInterceptor: PlatformTextInputInterceptor,
-    private val parent: ChainedPlatformTextInputInterceptor?
+    private val parent: ChainedPlatformTextInputInterceptor?,
 ) {
     private var interceptor by mutableStateOf(initialInterceptor)
 
@@ -214,7 +214,7 @@ private class ChainedPlatformTextInputInterceptor(
     @OptIn(InternalComposeUiApi::class)
     suspend fun textInputSession(
         owner: Owner,
-        session: suspend PlatformTextInputSessionScope.() -> Nothing
+        session: suspend PlatformTextInputSessionScope.() -> Nothing,
     ): Nothing {
         owner.interceptedTextInputSession(parent) {
             val parentSession = this
@@ -237,11 +237,11 @@ private class ChainedPlatformTextInputInterceptor(
                                     .collectLatest { interceptor ->
                                         interceptor.interceptStartInputMethod(
                                             request,
-                                            parentSession
+                                            parentSession,
                                         )
                                     }
                                 error("Interceptors flow should never terminate.")
-                            }
+                            },
                         )
                     }
                 }

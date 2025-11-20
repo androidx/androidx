@@ -18,20 +18,19 @@ package androidx.pdf.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SmallTest;
-
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** Unit tests for {@link EnumKeyGenerator}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class EnumKeyGeneratorTest {
 
     enum Animal {

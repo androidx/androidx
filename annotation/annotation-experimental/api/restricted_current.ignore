@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.annotation.OptIn#markerClass():
+    Source breaking change: method androidx.annotation.OptIn.markerClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresOptIn#level():
+    Source breaking change: method androidx.annotation.RequiresOptIn.level() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.RequiresOptIn#message():
+    Source breaking change: method androidx.annotation.RequiresOptIn.message() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.experimental.Experimental#level():
+    Source breaking change: method androidx.annotation.experimental.Experimental.level() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.annotation.experimental.UseExperimental#markerClass():
+    Source breaking change: method androidx.annotation.experimental.UseExperimental.markerClass() can no longer be resolved from Kotlin source

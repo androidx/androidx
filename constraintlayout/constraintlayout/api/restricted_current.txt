@@ -869,8 +869,8 @@ package androidx.constraintlayout.utils.widget {
     method public void setImagePanY(float);
     method public void setImageRotate(float);
     method public void setImageZoom(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setRound(float);
+    method public void setRoundPercent(float);
     method public void setSaturation(float);
     method public void setWarmth(float);
   }
@@ -899,8 +899,8 @@ package androidx.constraintlayout.utils.widget {
     method public void setImagePanY(float);
     method public void setImageRotate(float);
     method public void setImageZoom(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setRound(float);
+    method public void setRoundPercent(float);
     method public void setSaturation(float);
     method public void setWarmth(float);
   }
@@ -919,8 +919,8 @@ package androidx.constraintlayout.utils.widget {
     ctor public MotionButton(android.content.Context!, android.util.AttributeSet!, int);
     method public float getRound();
     method public float getRoundPercent();
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setRound(float);
+    method public void setRoundPercent(float);
   }
 
   public class MotionLabel extends android.view.View implements androidx.constraintlayout.motion.widget.FloatLayout {
@@ -942,8 +942,8 @@ package androidx.constraintlayout.utils.widget {
     method public android.graphics.Typeface! getTypeface();
     method public void layout(float, float, float, float);
     method public void setGravity(int);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
-    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setRound(float);
+    method public void setRoundPercent(float);
     method public void setScaleFromTextSize(float);
     method public void setText(CharSequence!);
     method public void setTextBackgroundPanX(float);

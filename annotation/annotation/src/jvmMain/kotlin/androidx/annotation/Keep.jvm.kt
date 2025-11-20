@@ -49,7 +49,7 @@ import java.lang.annotation.ElementType.TYPE
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.FIELD
+    AnnotationTarget.FIELD,
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921

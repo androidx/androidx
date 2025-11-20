@@ -192,7 +192,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxBy(selector: (T) -> R): T? {
 @OptIn(ExperimentalContracts::class)
 inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     destination: C,
-    transform: (T) -> R
+    transform: (T) -> R,
 ): C {
     contract { callsInPlace(transform) }
     fastForEach { item -> destination.add(transform(item)) }
@@ -339,7 +339,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R
 @OptIn(ExperimentalContracts::class)
 inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrDefault(
     defaultValue: R,
-    selector: (T) -> R
+    selector: (T) -> R,
 ): R {
     contract { callsInPlace(selector) }
     if (isEmpty()) return defaultValue
@@ -460,7 +460,7 @@ fun <T> List<T>.fastJoinToString(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): String {
     return fastJoinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform)
         .toString()
@@ -584,7 +584,7 @@ private fun <T, A : Appendable> List<T>.fastJoinTo(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): A {
     buffer.append(prefix)
     var count = 0

@@ -50,7 +50,7 @@ import java.io.FileOutputStream
 internal class SandboxedSdkContextCompat(
     base: Context,
     private val sdkPackageName: String,
-    private val classLoader: ClassLoader?
+    private val classLoader: ClassLoader?,
 ) : ContextThemeWrapper(base, ResourcesCompat.ID_NULL) {
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -58,7 +58,7 @@ internal class SandboxedSdkContextCompat(
         return SandboxedSdkContextCompat(
             Api24.createDeviceProtectedStorageContext(baseContext),
             sdkPackageName,
-            classLoader
+            classLoader,
         )
     }
 
@@ -66,7 +66,7 @@ internal class SandboxedSdkContextCompat(
         return SandboxedSdkContextCompat(
             baseContext.createDisplayContext(display),
             sdkPackageName,
-            classLoader
+            classLoader,
         )
     }
 
@@ -75,7 +75,7 @@ internal class SandboxedSdkContextCompat(
         return SandboxedSdkContextCompat(
             Api30.createWindowContext(baseContext, type, options),
             sdkPackageName,
-            classLoader
+            classLoader,
         )
     }
 
@@ -84,7 +84,7 @@ internal class SandboxedSdkContextCompat(
         return SandboxedSdkContextCompat(
             Api31.createWindowContext(baseContext, display, type, options),
             sdkPackageName,
-            classLoader
+            classLoader,
         )
     }
 
@@ -162,7 +162,7 @@ internal class SandboxedSdkContextCompat(
     override fun openOrCreateDatabase(
         name: String,
         mode: Int,
-        factory: SQLiteDatabase.CursorFactory?
+        factory: SQLiteDatabase.CursorFactory?,
     ): SQLiteDatabase {
         return openOrCreateDatabase(name, mode, factory, null)
     }
@@ -171,13 +171,13 @@ internal class SandboxedSdkContextCompat(
         name: String,
         mode: Int,
         factory: SQLiteDatabase.CursorFactory?,
-        errorHandler: DatabaseErrorHandler?
+        errorHandler: DatabaseErrorHandler?,
     ): SQLiteDatabase {
         return baseContext.openOrCreateDatabase(
             getDatabasePath(name).absolutePath,
             mode,
             factory,
-            errorHandler
+            errorHandler,
         )
     }
 
@@ -233,7 +233,7 @@ internal class SandboxedSdkContextCompat(
                 MigrationUtils.moveFiles(
                     sourceSharedPreferencesDir,
                     targetSharedPreferencesDir,
-                    "$sdkSharedPreferencesName.xml"
+                    "$sdkSharedPreferencesName.xml",
                 )
 
             if (moveResult) {
@@ -301,7 +301,7 @@ internal class SandboxedSdkContextCompat(
             context: Context,
             display: Display,
             type: Int,
-            options: Bundle?
+            options: Bundle?,
         ): Context = context.createWindowContext(display, type, options)
     }
 

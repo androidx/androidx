@@ -31,7 +31,7 @@ internal fun TextLayout.getRangeForRect(
     layoutHelper: LayoutHelper,
     rect: RectF,
     @LayoutCompat.TextGranularity granularity: Int,
-    inclusionStrategy: (RectF, RectF) -> Boolean
+    inclusionStrategy: (RectF, RectF) -> Boolean,
 ): IntArray? {
     val segmentFinder =
         when (granularity) {
@@ -64,7 +64,7 @@ internal fun TextLayout.getRangeForRect(
             rect,
             segmentFinder,
             inclusionStrategy,
-            getStart = true
+            getStart = true,
         )
 
     // If the area does not contain any text on this line, keep trying subsequent lines until
@@ -79,7 +79,7 @@ internal fun TextLayout.getRangeForRect(
                 rect,
                 segmentFinder,
                 inclusionStrategy,
-                getStart = true
+                getStart = true,
             )
     }
     if (start == -1) return null
@@ -92,7 +92,7 @@ internal fun TextLayout.getRangeForRect(
             rect,
             segmentFinder,
             inclusionStrategy,
-            getStart = false
+            getStart = false,
         )
     // If the area does not contain any text on this line, keep trying subsequent lines until
     // the end line is reached.
@@ -106,7 +106,7 @@ internal fun TextLayout.getRangeForRect(
                 rect,
                 segmentFinder,
                 inclusionStrategy,
-                getStart = false
+                getStart = false,
             )
     }
     if (end == -1) return null
@@ -128,7 +128,7 @@ private fun TextLayout.getStartOrEndOffsetForRectWithinLine(
     rect: RectF,
     segmentFinder: SegmentFinder,
     inclusionStrategy: (RectF, RectF) -> Boolean,
-    getStart: Boolean
+    getStart: Boolean,
 ): Int {
     val lineTop = layout.getLineTop(lineIndex)
     // In platform, we get line bottom without the line spacing. However, this API is not public
@@ -179,7 +179,7 @@ private fun TextLayout.getStartOrEndOffsetForRectWithinLine(
                     runRight,
                     horizontalBounds,
                     segmentFinder,
-                    inclusionStrategy
+                    inclusionStrategy,
                 )
             } else {
                 bidiRun.getEndOffsetForRectWithinRun(
@@ -191,7 +191,7 @@ private fun TextLayout.getStartOrEndOffsetForRectWithinLine(
                     runRight,
                     horizontalBounds,
                     segmentFinder,
-                    inclusionStrategy
+                    inclusionStrategy,
                 )
             }
 
@@ -209,7 +209,7 @@ private fun LayoutHelper.BidiRun.getStartOffsetForRectWithinRun(
     runRight: Float,
     horizontalBounds: FloatArray,
     segmentFinder: SegmentFinder,
-    inclusionStrategy: (RectF, RectF) -> Boolean
+    inclusionStrategy: (RectF, RectF) -> Boolean,
 ): Int {
     if (!rect.horizontalOverlap(runLeft, runRight)) {
         return -1
@@ -281,7 +281,7 @@ private fun LayoutHelper.BidiRun.getEndOffsetForRectWithinRun(
     runRight: Float,
     horizontalBounds: FloatArray,
     segmentFinder: SegmentFinder,
-    inclusionStrategy: (RectF, RectF) -> Boolean
+    inclusionStrategy: (RectF, RectF) -> Boolean,
 ): Int {
     if (!rect.horizontalOverlap(runLeft, runRight)) {
         // This run doesn't overlap with the given rect.
@@ -354,7 +354,7 @@ private fun LayoutHelper.BidiRun.getEndOffsetForRectWithinRun(
 private fun getCharacterLeftBounds(
     offset: Int,
     lineStart: Int,
-    horizontalBounds: FloatArray
+    horizontalBounds: FloatArray,
 ): Float {
     return horizontalBounds[2 * (offset - lineStart)]
 }
@@ -369,7 +369,7 @@ private fun getCharacterLeftBounds(
 private fun getCharacterRightBounds(
     offset: Int,
     lineStart: Int,
-    horizontalBounds: FloatArray
+    horizontalBounds: FloatArray,
 ): Float {
     return horizontalBounds[2 * (offset - lineStart) + 1]
 }

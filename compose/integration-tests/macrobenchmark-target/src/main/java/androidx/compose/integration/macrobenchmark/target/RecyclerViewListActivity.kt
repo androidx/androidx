@@ -72,9 +72,7 @@ class EntryViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(co
     }
 }
 
-class EntryAdapter(
-    private val entries: List<Entry>,
-) : RecyclerView.Adapter<EntryViewHolder>() {
+class EntryAdapter(private val entries: List<Entry>) : RecyclerView.Adapter<EntryViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
         return EntryViewHolder(ComposeView(parent.context))
     }

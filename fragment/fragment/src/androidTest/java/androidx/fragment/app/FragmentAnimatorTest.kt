@@ -254,6 +254,71 @@ class FragmentAnimatorTest {
         assertExitPopEnter(fragment)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun hideAnimatorsPredictiveBackCancelRepeat() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        // One fragment with a view
+        val fragment1 = AnimatorFragment(R.layout.scene1)
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment1, "1").commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimatorFragment(R.layout.scene1)
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .add(R.id.fragmentContainer, fragment2, "2")
+            .hide(fragment1)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val dispatcher = activityRule.activity.onBackPressedDispatcher
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+        }
+
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        if (FragmentManager.USE_PREDICTIVE_BACK) {
+            assertThat(fragment1.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(fragment2.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(fragment1.inProgress).isTrue()
+            assertThat(fragment2.inProgress).isTrue()
+        } else {
+            assertThat(fragment1.inProgress).isFalse()
+            assertThat(fragment1.inProgress).isFalse()
+        }
+
+        activityRule.runOnUiThread { dispatcher.dispatchOnBackCancelled() }
+
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+        }
+
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        if (FragmentManager.USE_PREDICTIVE_BACK) {
+            assertThat(fragment1.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(fragment2.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(fragment1.inProgress).isTrue()
+            assertThat(fragment2.inProgress).isTrue()
+        } else {
+            assertThat(fragment1.inProgress).isFalse()
+            assertThat(fragment1.inProgress).isFalse()
+        }
+
+        activityRule.runOnUiThread { dispatcher.dispatchOnBackCancelled() }
+    }
+
     // Ensure a hide animation is canceled if fragment is shown before it happens
     @Test
     fun hideAndShowNoAnimator() {
@@ -665,7 +730,7 @@ class FragmentAnimatorTest {
                 android.R.animator.fade_in,
                 android.R.animator.fade_out,
                 android.R.animator.fade_in,
-                android.R.animator.fade_out
+                android.R.animator.fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
@@ -731,7 +796,7 @@ class FragmentAnimatorTest {
                 android.R.animator.fade_in,
                 android.R.animator.fade_out,
                 android.R.animator.fade_in,
-                android.R.animator.fade_out
+                android.R.animator.fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
@@ -825,7 +890,7 @@ class FragmentAnimatorTest {
         fragment: AnimatorFragment,
         numAnimators: Int,
         isEnter: Boolean,
-        animatorResourceId: Int
+        animatorResourceId: Int,
     ) {
         assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.baseEnter).isEqualTo(isEnter)

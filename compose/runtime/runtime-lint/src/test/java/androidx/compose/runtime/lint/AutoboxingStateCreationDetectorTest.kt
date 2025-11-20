@@ -93,15 +93,15 @@ class AutoboxingStateCreationDetectorTest(typeUnderTest: TypeUnderTest) : LintDe
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         val state = mutableStateOf<$type>($stateValue)
                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -146,7 +146,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         }
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -172,15 +172,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         val state = mutableStateOf($stateValue)
                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -213,15 +213,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         val state = mutableStateOf<$fqType>($stateValue)
                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -254,15 +254,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         var state by mutableStateOf<$type>($stateValue)
                                      ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -295,15 +295,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         var state by mutableStateOf($stateValue)
                                      ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -336,15 +336,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         private set
                 }
             """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/Test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/Test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                     var state by mutableStateOf(initialValue)
                                  ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -377,15 +377,15 @@ Fix for src/androidx/compose/runtime/lint/test/Test.kt line 8: Replace with muta
                         state = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         var state: $type by mutableStateOf($stateValue)
                                    ${" ".repeat(type.length)}    ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -418,7 +418,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -444,15 +444,15 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expect(
                 """
-src/androidx/compose/runtime/lint/test/test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+src/androidx/compose/runtime/lint/test/test.kt:8: Hint: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
                         val state = mutableStateOf($stateValue, structuralEqualityPolicy())
                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
             """
             )
             .expectFixDiffs(
@@ -485,7 +485,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -511,7 +511,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -537,7 +537,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -563,7 +563,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                         state.value = $stateValue
                     }
                 """
-                )
+                ),
             )
             .run()
             .expectClean()
@@ -577,7 +577,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                 testCase("kotlin.Int", "java.lang.Integer", "42"),
                 testCase("kotlin.Long", "java.lang.Long", "0xABCDEF1234"),
                 testCase("kotlin.Float", "java.lang.Float", "1.5f"),
-                testCase("kotlin.Double", "java.lang.Double", "1.024")
+                testCase("kotlin.Double", "java.lang.Double", "1.024"),
             )
 
         private fun testCase(fqName: String, jvmFqName: String, value: String) =
@@ -586,7 +586,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
                 typeName = fqName.split('.').last(),
                 fqJvmName = jvmFqName,
                 jvmClassName = jvmFqName.split('.').last(),
-                sampleValue = value
+                sampleValue = value,
             )
     }
 

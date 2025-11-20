@@ -47,7 +47,7 @@ class AidlInterfaceGeneratorTest {
                                             listOf(
                                                 Parameter(
                                                     "myInterface",
-                                                    Type("com.mysdk", "MyInterface")
+                                                    Type("com.mysdk", "MyInterface"),
                                                 )
                                             ),
                                         returnType = Types.unit,
@@ -58,8 +58,8 @@ class AidlInterfaceGeneratorTest {
                                         parameters = listOf(),
                                         returnType = Type("com.mysdk", "MyInterface"),
                                         isSuspend = true,
-                                    )
-                                )
+                                    ),
+                                ),
                         )
                     ),
                 interfaces =
@@ -74,7 +74,7 @@ class AidlInterfaceGeneratorTest {
                                             listOf(
                                                 Parameter(
                                                     "myInterface",
-                                                    Type("com.mysdk", "MyInterface")
+                                                    Type("com.mysdk", "MyInterface"),
                                                 )
                                             ),
                                         returnType = Types.unit,
@@ -92,15 +92,15 @@ class AidlInterfaceGeneratorTest {
                                             listOf(
                                                 Parameter(
                                                     "activityLauncher",
-                                                    Types.sdkActivityLauncher
+                                                    Types.sdkActivityLauncher,
                                                 )
                                             ),
                                         returnType = Types.unit,
                                         isSuspend = false,
                                     ),
-                                )
+                                ),
                         )
-                    )
+                    ),
             )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)

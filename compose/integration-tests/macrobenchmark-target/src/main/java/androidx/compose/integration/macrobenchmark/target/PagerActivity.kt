@@ -73,7 +73,7 @@ class PagerActivity : ComponentActivity() {
                             scope.launch {
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
-                        }
+                        },
                     ) {
                         Text("Next Page")
                     }
@@ -134,7 +134,7 @@ class PagerActivity : ComponentActivity() {
                         settings.setSupportZoom(true)
                     }
                 },
-                update = { webView -> webView.loadUrl("https://www.google.com/") }
+                update = { webView -> webView.loadUrl("https://www.google.com/") },
             )
         }
     }
@@ -147,7 +147,7 @@ class PagerActivity : ComponentActivity() {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 painter = painterResource(pageImage.second),
-                contentDescription = stringResource(pageImage.third)
+                contentDescription = stringResource(pageImage.third),
             )
         }
     }
@@ -161,7 +161,7 @@ class PagerActivity : ComponentActivity() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.height(200.dp).fillMaxWidth(),
                     painter = painterResource(pageImage.second),
-                    contentDescription = stringResource(pageImage.third)
+                    contentDescription = stringResource(pageImage.third),
                 )
             }
         }
@@ -173,7 +173,7 @@ class PagerActivity : ComponentActivity() {
             modifier = Modifier.semantics { contentDescription = "Pager" }.background(Color.White),
             state = pagerState,
             pageSize = PageSize.Fill,
-            pageContent = content
+            pageContent = content,
         )
     }
 
@@ -184,7 +184,7 @@ class PagerActivity : ComponentActivity() {
             state = pagerState,
             pageSize = PageSize.Fixed(200.dp),
             pageSpacing = 10.dp,
-            pageContent = content
+            pageContent = content,
         )
     }
 

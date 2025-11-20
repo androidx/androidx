@@ -48,7 +48,7 @@ internal class PerfettoSdkSideloader(private val packageName: String) {
         sourceZipFile: File,
         tempDirectory: File,
         shellCommandExecutor: ShellCommandExecutor,
-        moveLibFileFromTmpDirToAppDir: FileMover
+        moveLibFileFromTmpDirToAppDir: FileMover,
     ): File {
         val abi = getDeviceAbi(shellCommandExecutor)
         val tmpFile = extractPerfettoBinaryFromZip(sourceZipFile, tempDirectory, abi)

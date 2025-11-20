@@ -124,7 +124,7 @@ fun ClipboardDemo() {
                         Toast.makeText(
                                 context,
                                 "There are no images in the clipboard",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
                     }
@@ -168,13 +168,13 @@ fun ImagePlaceholder() {
                     Color.Blue,
                     alpha = 0.4f,
                     start = Offset.Zero,
-                    end = Offset(size.width, size.height)
+                    end = Offset(size.width, size.height),
                 )
                 drawLine(
                     Color.Blue,
                     alpha = 0.4f,
                     start = Offset(size.width, 0f),
-                    end = Offset(0f, size.height)
+                    end = Offset(0f, size.height),
                 )
             }
     ) {

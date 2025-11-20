@@ -18,7 +18,6 @@ package androidx.preference.tests
 
 import android.content.Context
 import android.graphics.drawable.StateListDrawable
-import android.os.Build
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -34,7 +33,6 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -45,7 +43,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Test for selectable [Preference] logic. */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SelectableTest {

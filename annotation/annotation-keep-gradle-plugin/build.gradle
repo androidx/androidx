@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
+
+configurations {
+    testPlugin {
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    api(gradleApi())
+    compileOnly(libs.androidGradlePlugin)
+    implementation(libs.asm)
+    implementation(libs.asmCommons)
+    implementation(libs.asmUtil)
+    // Experimentally including a library that can write keep rules
+    // Eventually we need to figure out a way to version the annotations and this library together.
+    // implementation(files("libs/keepanno-toolslib.jar"))
+    testImplementation(project(":internal-testutils-gradle-plugin"))
+    testImplementation(libs.androidGradlePlugin)
+    testImplementation(gradleTestKit())
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    // Bootstrap Plugin test classpath
+    testPlugin(libs.androidGradlePlugin)
+    testPlugin(libs.kotlinGradlePlugin)
+}
+
+gradlePlugin {
+    plugins {
+        annotationKeep {
+            id = "androidx.annotation.keep"
+            implementationClass = "androidx.annotation.keep.AnnotationKeepPlugin"
+        }
+    }
+}
+
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies. This bootstraps the test plugin classpath
+// correctly.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+    it.pluginClasspath.from(configurations.testPlugin)
+}
+
+
+androidx {
+    name = "Benchmarks - Keep Plugin"
+    type = SoftwareType.GRADLE_PLUGIN
+    mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
+    inceptionYear = "2025"
+    description = "A Plugin to convert keep annotations to rules in the standard text format."
+}

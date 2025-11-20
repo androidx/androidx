@@ -72,13 +72,13 @@ fun RadioButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     val dotRadius =
         animateDpAsState(
             targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,
             animationSpec = tween(durationMillis = RadioAnimationDuration),
-            label = "radioButton_dotRadius"
+            label = "radioButton_dotRadius",
         )
     val radioColor = colors.radioColor(enabled, selected)
     val selectableModifier =
@@ -90,7 +90,7 @@ fun RadioButton(
                 role = Role.RadioButton,
                 // TODO: remove the optional argument once we update to compose 1.7.x
                 interactionSource = interactionSource ?: remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             )
         } else {
             Modifier
@@ -107,7 +107,7 @@ fun RadioButton(
         drawCircle(
             radioColor.value,
             radius = (RadioButtonTokens.IconSize / 2).toPx() - strokeWidth / 2,
-            style = Stroke(strokeWidth)
+            style = Stroke(strokeWidth),
         )
         if (dotRadius.value > 0.dp) {
             drawCircle(radioColor.value, dotRadius.value.toPx() - strokeWidth / 2, style = Fill)
@@ -146,7 +146,7 @@ object RadioButtonDefaults {
             selectedColor,
             unselectedColor,
             disabledSelectedColor,
-            disabledUnselectedColor
+            disabledUnselectedColor,
         )
 
     internal val ColorScheme.defaultRadioButtonColors: RadioButtonColors
@@ -160,7 +160,7 @@ object RadioButtonDefaults {
                                 .copy(alpha = RadioButtonTokens.DisabledSelectedIconOpacity),
                         disabledUnselectedColor =
                             fromToken(RadioButtonTokens.DisabledUnselectedIconColor)
-                                .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity)
+                                .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity),
                     )
                     .also { defaultRadioButtonColorsCached = it }
         }
@@ -184,7 +184,7 @@ class RadioButtonColors(
     val selectedColor: Color,
     val unselectedColor: Color,
     val disabledSelectedColor: Color,
-    val disabledUnselectedColor: Color
+    val disabledUnselectedColor: Color,
 ) {
     /**
      * Returns a copy of this SelectableChipColors, optionally overriding some of the values. This

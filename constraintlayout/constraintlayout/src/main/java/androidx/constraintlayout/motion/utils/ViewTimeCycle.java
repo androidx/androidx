@@ -15,7 +15,6 @@
  */
 package androidx.constraintlayout.motion.utils;
 
-import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -147,9 +146,7 @@ public abstract class ViewTimeCycle extends TimeCycleSplineSet {
     static class ElevationSet extends ViewTimeCycle {
         @Override
         public boolean setProperty(View view, float t, long time, KeyCache cache) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setElevation(get(t, time, view, cache));
-            }
+            view.setElevation(get(t, time, view, cache));
             return mContinue;
         }
     }
@@ -249,9 +246,7 @@ public abstract class ViewTimeCycle extends TimeCycleSplineSet {
     static class TranslationZset extends ViewTimeCycle {
         @Override
         public boolean setProperty(View view, float t, long time, KeyCache cache) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setTranslationZ(get(t, time, view, cache));
-            }
+            view.setTranslationZ(get(t, time, view, cache));
             return mContinue;
         }
     }

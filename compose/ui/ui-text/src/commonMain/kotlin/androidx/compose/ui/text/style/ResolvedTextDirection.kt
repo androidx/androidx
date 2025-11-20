@@ -27,5 +27,5 @@ enum class ResolvedTextDirection {
     Ltr,
 
     /** Represents the text that is right-to-left. */
-    Rtl
+    Rtl,
 }

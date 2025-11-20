@@ -1,17 +1,17 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public final class CoroutineLiveDataKt {
-    method @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, java.time.Duration timeout, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @kotlin.UseExperimental(markerClass=ExperimentalTypeInference::class) public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
 
   public final class FlowLiveDataConversions {
     method public static <T> kotlinx.coroutines.flow.Flow<T> asFlow(androidx.lifecycle.LiveData<T>);
-    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L);
-    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext);
     method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, java.time.Duration timeout);
+    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout);
+    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs);
   }
 
   public interface LiveDataScope<T> {

@@ -20,7 +20,6 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -71,7 +70,7 @@ inline fun <reified A : FragmentActivity> ActivityScenario<A>.popBackStackImmedi
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     id: Int,
-    flags: Int = 0
+    flags: Int = 0,
 ): Boolean {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     var ret = false
@@ -84,7 +83,7 @@ fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmedi
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     name: String,
-    flags: Int = 0
+    flags: Int = 0,
 ): Boolean {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     var ret = false
@@ -152,7 +151,7 @@ val View.boundsOnScreen: Rect
 data class TransitionVerificationInfo(
     var epicenter: Rect? = null,
     val exitingViews: MutableList<View> = mutableListOf(),
-    val enteringViews: MutableList<View> = mutableListOf()
+    val enteringViews: MutableList<View> = mutableListOf(),
 )
 
 fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.() -> Unit) {
@@ -168,7 +167,6 @@ fun TargetTracking.verifyAndClearTransition(block: TransitionVerificationInfo.()
     clearTargets()
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun verifyNoOtherTransitions(fragment: TransitionFragment) {
     assertThat(fragment.enterTransition.enteringTargets).isEmpty()
     assertThat(fragment.enterTransition.exitingTargets).isEmpty()

@@ -64,10 +64,7 @@ class CoroutineBroadcastReceiverTest {
         val broadcastReceiver = TestBroadcast()
 
         if (android.os.Build.VERSION.SDK_INT < 33) {
-            context.registerReceiver(
-                broadcastReceiver,
-                IntentFilter(BROADCAST_ACTION),
-            )
+            context.registerReceiver(broadcastReceiver, IntentFilter(BROADCAST_ACTION))
         } else {
             context.registerReceiver(
                 broadcastReceiver,

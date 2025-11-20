@@ -41,7 +41,7 @@ public open class TestActivity : Activity(), View.OnLayoutChangeListener {
         oldLeft: Int,
         oldTop: Int,
         oldRight: Int,
-        oldBottom: Int
+        oldBottom: Int,
     ) {
         layoutLatch.countDown()
     }

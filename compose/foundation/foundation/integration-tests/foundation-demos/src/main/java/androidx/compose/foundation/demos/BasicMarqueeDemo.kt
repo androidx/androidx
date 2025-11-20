@@ -67,7 +67,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun BasicMarqueeDemo() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = spacedBy(4.dp)
+        verticalArrangement = spacedBy(4.dp),
     ) {
         Text("Android marquees:", style = MaterialTheme.typography.subtitle1)
         AndroidMarqueeTextView("short", Modifier.fillMaxWidth())
@@ -81,7 +81,7 @@ fun BasicMarqueeDemo() {
                 "only animate when focused",
                 Modifier.size(80.dp, 30.dp),
                 initiallySelected = false,
-                focusable = true
+                focusable = true,
             )
         }
 
@@ -100,7 +100,7 @@ fun BasicMarqueeDemo() {
             MarqueeText(
                 "only animate when focused",
                 Modifier.size(80.dp, 30.dp),
-                animationMode = WhileFocused
+                animationMode = WhileFocused,
             )
         }
 
@@ -127,7 +127,7 @@ private fun AndroidMarqueeTextView(
     text: CharSequence,
     modifier: Modifier = Modifier,
     initiallySelected: Boolean = true,
-    focusable: Boolean = false
+    focusable: Boolean = false,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     AndroidView(
@@ -146,7 +146,7 @@ private fun AndroidMarqueeTextView(
                 isFocusableInTouchMode = focusable
             }
         },
-        update = { it.text = text }
+        update = { it.text = text },
     )
 }
 
@@ -155,7 +155,7 @@ private fun MarqueeWithClickable() {
     val uriHandler = LocalUriHandler.current
     Row(
         Modifier.width(60.dp).border(1.dp, Color.Black).basicMarquee(iterations = Int.MAX_VALUE),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text("text ")
         TextButton(onClick = { uriHandler.openUri("https://www.google.com") }) { Text("with") }
@@ -168,7 +168,7 @@ private fun MarqueeText(
     text: String,
     modifier: Modifier = Modifier,
     animationMode: MarqueeAnimationMode = Immediately,
-    velocity: Dp = Velocity
+    velocity: Dp = Velocity,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -179,15 +179,15 @@ private fun MarqueeText(
             .basicMarquee(
                 iterations = Int.MAX_VALUE,
                 animationMode = animationMode,
-                velocity = velocity
+                velocity = velocity,
             )
             .clickable(
                 onClick = { focusRequester.requestFocus() },
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }
+                interactionSource = remember { MutableInteractionSource() },
             )
             .onFocusChanged { isFocused = it.isFocused }
             .focusRequester(focusRequester)
-            .then(if (animationMode == WhileFocused) Modifier.focusable() else Modifier)
+            .then(if (animationMode == WhileFocused) Modifier.focusable() else Modifier),
     )
 }

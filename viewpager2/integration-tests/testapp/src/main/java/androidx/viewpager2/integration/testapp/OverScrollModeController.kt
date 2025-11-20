@@ -33,7 +33,7 @@ class OverScrollModeController(private val viewPager: ViewPager2, private val sp
             ArrayAdapter(
                 spinner.context,
                 android.R.layout.simple_spinner_item,
-                arrayOf(ALWAYS, IF_CONTENT_SCROLLS, NEVER)
+                arrayOf(ALWAYS, IF_CONTENT_SCROLLS, NEVER),
             )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
@@ -49,7 +49,7 @@ class OverScrollModeController(private val viewPager: ViewPager2, private val sp
                     parent: AdapterView<*>,
                     view: View?,
                     position: Int,
-                    id: Long
+                    id: Long,
                 ) {
                     viewPager.overScrollMode =
                         stringToOverScrollMode(parent.selectedItem.toString())

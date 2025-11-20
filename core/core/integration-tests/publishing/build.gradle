@@ -29,7 +29,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.junit)

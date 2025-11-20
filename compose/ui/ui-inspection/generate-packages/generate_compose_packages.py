@@ -5,7 +5,7 @@ import argparse, os, sys
 # List of directories we want to exclude when traversing the project files. This list should
 # contain directories related to tests, documentation/samples, API, resources, etc.
 EXCLUDED_DIRS = ['androidTest', 'androidAndroidTest', 'api', 'docs', 'res', 'samples', 'test',
-                 'androidInstrumentedTest']
+                 'androidDeviceTest']
 # List of packages that should be excluded when traversing the project files. These packages might
 # include Java/Kotlin source files that contain Composable, but we're not interested in including
 # them on the output list because it's unlikely that developers will use them in their code.
@@ -24,16 +24,20 @@ SCRIPT_NAME = 'generate_compose_packages.py'
 # File containing an ordered list of packages that contain at least one Composable.
 # The file is formatted as one package per line.
 COMPOSE_PACKAGES_LIST_FILE = 'compose_packages_list.txt'
+# frameworks/support directory relative to the directory of this script
+ROOT_DIR = '../../../..'
 
-# `frameworks/support/compose/`, `frameworks/support/navigation/navigation-compose`, and
-# `frameworks/support/wear/compose`, relative to this script directory, should be the root
-# directories where we search for composables.
-TARGET_DIRECTORIES = [
-    '../../..',
-    '../../../../navigation/navigation-compose',
-    '../../../../wear/compose',
-    '../../../../lifecycle/lifecycle-runtime-compose',
-]
+# Specify the root directories where we search for composables, relative to frameworks/support
+TARGET_DIRECTORIES = map(
+    lambda d: "{0}/{1}".format(ROOT_DIR, d),
+    [
+        'compose',
+        'navigation/navigation-compose',
+        'wear/compose',
+        'lifecycle/lifecycle-runtime-compose',
+        'xr/compose',
+    ]
+)
 
 # Reads a source file with the given file_path and adds its package to the current set of packages
 # if the file contains at least one Composable.

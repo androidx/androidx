@@ -108,7 +108,7 @@ fun SemanticsNodeInteraction.assertHeightIsAtLeast(
  */
 fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedLeft: Dp,
-    expectedTop: Dp
+    expectedTop: Dp,
 ): SemanticsNodeInteraction {
     return withUnclippedBoundsInRoot {
         it.left.assertIsEqualTo(expectedLeft, "left")
@@ -239,7 +239,7 @@ fun SemanticsNodeInteraction.getFirstLinkBounds(
                     min(startBB.left, endBB.left),
                     startBB.top,
                     max(startBB.right, endBB.right),
-                    startBB.bottom
+                    startBB.bottom,
                 )
             }
         if (boundsOfLink != null) return@withDensity boundsOfLink

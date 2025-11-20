@@ -71,7 +71,7 @@ class FileDescriptorMonitorTest {
             FileDescriptorMonitor(
                 testHandlerThreadExecutor,
                 scheduleMillis = 200,
-                manageExecutor = true
+                manageExecutor = true,
             )
         val latch = CountDownLatch(1)
         monitor.addCleanupCallback { latch.countDown() }

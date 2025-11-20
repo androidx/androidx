@@ -66,7 +66,7 @@ class RippleBenchmark {
                     Box(
                         Modifier.indication(
                             interactionSource = interactionSource,
-                            indication = TestRipple
+                            indication = TestRipple,
                         )
                     )
                 }
@@ -255,7 +255,7 @@ private val TestRippleAlpha =
 
 private class TestIndicationNodeFactory(
     private val color: ColorProducer,
-    private val rippleAlpha: () -> RippleAlpha
+    private val rippleAlpha: () -> RippleAlpha,
 ) : IndicationNodeFactory {
     override fun create(interactionSource: InteractionSource): DelegatableNode {
         return createRippleModifierNode(
@@ -263,7 +263,7 @@ private class TestIndicationNodeFactory(
             bounded = true,
             radius = Dp.Unspecified,
             color = color,
-            rippleAlpha = rippleAlpha
+            rippleAlpha = rippleAlpha,
         )
     }
 

@@ -76,6 +76,7 @@
     <item
         android:id="@+id/view_port"
         android:checkable="true"
+        android:enabled="true"
         android:title="@string/disable_view_port"
         app:showAsAction="never" />
     <item

@@ -18,7 +18,6 @@ package androidx.core.graphics;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -30,7 +29,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -47,11 +45,7 @@ public class DrawableCompatTest {
         final Drawable original = new GradientDrawable();
         final Drawable wrappedDrawable = DrawableCompat.wrap(original);
 
-        if (Build.VERSION.SDK_INT < 23) {
-            assertNotSame(original, wrappedDrawable);
-        } else {
-            assertSame(original, wrappedDrawable);
-        }
+        assertSame(original, wrappedDrawable);
     }
 
     @Test

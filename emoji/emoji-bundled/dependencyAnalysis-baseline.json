@@ -1,0 +1,13 @@
+{
+  "projectPath": ":emoji:emoji-bundled",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.3.0"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

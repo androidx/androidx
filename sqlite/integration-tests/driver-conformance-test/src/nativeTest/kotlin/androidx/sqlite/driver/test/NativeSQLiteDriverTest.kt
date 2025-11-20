@@ -16,8 +16,10 @@
 
 package androidx.sqlite.driver.test
 
+import androidx.kruth.assertThat
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.NativeSQLiteDriver
+import kotlin.test.Test
 
 class NativeSQLiteDriverTest : BaseConformanceTest() {
 
@@ -25,5 +27,22 @@ class NativeSQLiteDriverTest : BaseConformanceTest() {
 
     override fun getDriver(): SQLiteDriver {
         return NativeSQLiteDriver()
+    }
+
+    @Test
+    fun loadExtension() {
+        val extensionPath = getExtensionFileName()
+
+        val driver =
+            NativeSQLiteDriver().apply {
+                addExtension(extensionPath, "sqlite3_test_extension_init")
+            }
+
+        driver.open(":memory:").use { connection ->
+            connection.prepare("SELECT hello_world()").use { stmt ->
+                assertThat(stmt.step()).isTrue()
+                assertThat(stmt.getText(0)).isEqualTo("Hello from sqlite_extension.cpp!")
+            }
+        }
     }
 }

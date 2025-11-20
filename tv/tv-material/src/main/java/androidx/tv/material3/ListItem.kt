@@ -92,7 +92,7 @@ fun ListItem(
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     BaseListItem(
         selected = selected,
@@ -116,12 +116,12 @@ fun ListItem(
             listItemMinHeight(
                 hasLeadingContent = leadingContent != null,
                 hasSupportingContent = supportingContent != null,
-                hasOverlineContent = overlineContent != null
+                hasOverlineContent = overlineContent != null,
             ),
         minIconSize = ListItemDefaults.IconSize,
         headlineTextStyle = MaterialTheme.typography.titleMedium,
         trailingTextStyle = MaterialTheme.typography.labelLarge,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -184,7 +184,7 @@ fun DenseListItem(
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     BaseListItem(
         selected = selected,
@@ -209,12 +209,12 @@ fun DenseListItem(
                 hasLeadingContent = leadingContent != null,
                 hasSupportingContent = supportingContent != null,
                 hasOverlineContent = overlineContent != null,
-                dense = true
+                dense = true,
             ),
         minIconSize = ListItemDefaults.IconSizeDense,
         headlineTextStyle = MaterialTheme.typography.titleSmall,
         trailingTextStyle = MaterialTheme.typography.labelSmall,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -277,7 +277,7 @@ private fun BaseListItem(
     minIconSize: Dp,
     headlineTextStyle: TextStyle,
     trailingTextStyle: TextStyle,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource?,
 ) {
     val semanticModifier =
         Modifier.semantics(mergeDescendants = true) { this.selected = selected }.then(modifier)
@@ -294,11 +294,11 @@ private fun BaseListItem(
         scale = scale.toSelectableSurfaceScale(),
         border = border.toSelectableSurfaceBorder(),
         glow = glow.toSelectableSurfaceGlow(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         Row(
             modifier = Modifier.defaultMinSize(minHeight = minHeight).padding(contentPadding),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             leadingContent?.let {
                 CompositionLocalProvider(
@@ -308,10 +308,10 @@ private fun BaseListItem(
                         modifier =
                             Modifier.defaultMinSize(
                                 minWidth = minIconSize,
-                                minHeight = minIconSize
+                                minHeight = minIconSize,
                             ),
                         contentAlignment = Alignment.Center,
-                        content = it
+                        content = it,
                     )
                 }
                 Spacer(modifier = Modifier.padding(end = ListItemDefaults.LeadingContentEndPadding))
@@ -328,7 +328,7 @@ private fun BaseListItem(
                         ) {
                             ProvideTextStyle(
                                 value = MaterialTheme.typography.labelSmall,
-                                content = it
+                                content = it,
                             )
                         }
                     }
@@ -344,7 +344,7 @@ private fun BaseListItem(
                         ) {
                             ProvideTextStyle(
                                 value = MaterialTheme.typography.bodySmall,
-                                content = it
+                                content = it,
                             )
                         }
                     }
@@ -380,7 +380,7 @@ private fun listItemMinHeight(
     hasLeadingContent: Boolean,
     hasSupportingContent: Boolean,
     hasOverlineContent: Boolean,
-    dense: Boolean = false
+    dense: Boolean = false,
 ): Dp {
     return when {
         hasSupportingContent && hasOverlineContent -> {
@@ -413,7 +413,7 @@ internal fun ListItemShape.toSelectableSurfaceShape() =
         focusedDisabledShape = focusedDisabledShape,
         pressedSelectedShape = pressedSelectedShape,
         selectedDisabledShape = disabledShape,
-        focusedSelectedDisabledShape = focusedDisabledShape
+        focusedSelectedDisabledShape = focusedDisabledShape,
     )
 
 internal fun ListItemColors.toSelectableSurfaceColors() =
@@ -431,7 +431,7 @@ internal fun ListItemColors.toSelectableSurfaceColors() =
         focusedSelectedContainerColor = focusedSelectedContainerColor,
         focusedSelectedContentColor = focusedSelectedContentColor,
         pressedSelectedContainerColor = pressedSelectedContainerColor,
-        pressedSelectedContentColor = pressedSelectedContentColor
+        pressedSelectedContentColor = pressedSelectedContentColor,
     )
 
 internal fun ListItemScale.toSelectableSurfaceScale() =
@@ -445,7 +445,7 @@ internal fun ListItemScale.toSelectableSurfaceScale() =
         focusedDisabledScale = focusedDisabledScale,
         pressedSelectedScale = pressedSelectedScale,
         selectedDisabledScale = disabledScale,
-        focusedSelectedDisabledScale = focusedDisabledScale
+        focusedSelectedDisabledScale = focusedDisabledScale,
     )
 
 internal fun ListItemBorder.toSelectableSurfaceBorder() =
@@ -459,7 +459,7 @@ internal fun ListItemBorder.toSelectableSurfaceBorder() =
         focusedDisabledBorder = focusedDisabledBorder,
         pressedSelectedBorder = pressedSelectedBorder,
         selectedDisabledBorder = disabledBorder,
-        focusedSelectedDisabledBorder = focusedDisabledBorder
+        focusedSelectedDisabledBorder = focusedDisabledBorder,
     )
 
 internal fun ListItemGlow.toSelectableSurfaceGlow() =
@@ -469,5 +469,5 @@ internal fun ListItemGlow.toSelectableSurfaceGlow() =
         pressedGlow = pressedGlow,
         selectedGlow = selectedGlow,
         focusedSelectedGlow = focusedSelectedGlow,
-        pressedSelectedGlow = pressedSelectedGlow
+        pressedSelectedGlow = pressedSelectedGlow,
     )

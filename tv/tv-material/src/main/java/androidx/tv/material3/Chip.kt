@@ -89,7 +89,7 @@ fun AssistChip(
     border: ClickableChipBorder = AssistChipDefaults.border(),
     glow: ClickableChipGlow = AssistChipDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ClickableChip(
         modifier = modifier,
@@ -110,9 +110,9 @@ fun AssistChip(
             chipPadding(
                 hasAvatar = false,
                 hasLeadingIcon = leadingIcon != null,
-                hasTrailingIcon = trailingIcon != null
+                hasTrailingIcon = trailingIcon != null,
             ),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -166,7 +166,7 @@ fun FilterChip(
     border: SelectableChipBorder = FilterChipDefaults.border(),
     glow: SelectableChipGlow = FilterChipDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     SelectableChip(
         selected = selected,
@@ -189,9 +189,9 @@ fun FilterChip(
             chipPadding(
                 hasAvatar = false,
                 hasLeadingIcon = leadingIcon != null,
-                hasTrailingIcon = trailingIcon != null
+                hasTrailingIcon = trailingIcon != null,
             ),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -244,7 +244,7 @@ fun InputChip(
     border: SelectableChipBorder = InputChipDefaults.border(hasAvatar = avatar != null),
     glow: SelectableChipGlow = InputChipDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     SelectableChip(
         selected = selected,
@@ -267,9 +267,9 @@ fun InputChip(
             chipPadding(
                 hasAvatar = avatar != null,
                 hasLeadingIcon = leadingIcon != null,
-                hasTrailingIcon = trailingIcon != null
+                hasTrailingIcon = trailingIcon != null,
             ),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -314,7 +314,7 @@ fun SuggestionChip(
     border: ClickableChipBorder = SuggestionChipDefaults.border(),
     glow: ClickableChipGlow = SuggestionChipDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ClickableChip(
         modifier = modifier,
@@ -333,7 +333,7 @@ fun SuggestionChip(
         minHeight = SuggestionChipDefaults.ContainerHeight,
         paddingValues =
             chipPadding(hasAvatar = false, hasLeadingIcon = false, hasTrailingIcon = false),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -356,7 +356,7 @@ private fun ClickableChip(
     glow: ClickableChipGlow,
     minHeight: Dp,
     paddingValues: PaddingValues,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource?,
 ) {
     Surface(
         modifier = modifier.semantics { role = Role.Button },
@@ -368,7 +368,7 @@ private fun ClickableChip(
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ChipContent(
             label = label,
@@ -377,7 +377,7 @@ private fun ClickableChip(
             avatar = null,
             trailingIcon = trailingIcon,
             minHeight = minHeight,
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 }
@@ -403,7 +403,7 @@ private fun SelectableChip(
     glow: SelectableChipGlow,
     minHeight: Dp,
     paddingValues: PaddingValues,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource?,
 ) {
     Surface(
         selected = selected,
@@ -416,7 +416,7 @@ private fun SelectableChip(
         scale = scale.toSelectableSurfaceScale(),
         border = border.toSelectableSurfaceBorder(),
         glow = glow.toSelectableSurfaceGlow(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ChipContent(
             label = label,
@@ -425,7 +425,7 @@ private fun SelectableChip(
             avatar = avatar,
             trailingIcon = trailingIcon,
             minHeight = minHeight,
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 }
@@ -439,13 +439,13 @@ private fun ChipContent(
     avatar: @Composable (() -> Unit)?,
     trailingIcon: @Composable (() -> Unit)?,
     minHeight: Dp,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
 
     Row(
         Modifier.defaultMinSize(minHeight = minHeight).padding(paddingValues),
         horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         androidx.compose.animation.AnimatedVisibility(visible = avatar != null) {
             Row {
@@ -471,7 +471,7 @@ private fun ChipContent(
 private fun chipPadding(
     hasAvatar: Boolean,
     hasLeadingIcon: Boolean,
-    hasTrailingIcon: Boolean
+    hasTrailingIcon: Boolean,
 ): PaddingValues {
     val start = if (hasAvatar) 4.dp else if (hasLeadingIcon) 12.dp else 16.dp
     val end = if (hasTrailingIcon) 12.dp else 16.dp
@@ -512,14 +512,14 @@ object AssistChipDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ClickableChipShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -578,14 +578,14 @@ object AssistChipDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ClickableChipScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -604,7 +604,7 @@ object AssistChipDefaults {
         border: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
@@ -612,16 +612,16 @@ object AssistChipDefaults {
             Border(
                 border =
                     BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
-        focusedDisabledBorder: Border = border
+        focusedDisabledBorder: Border = border,
     ) =
         ClickableChipBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**
@@ -680,7 +680,7 @@ object FilterChipDefaults {
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
-        focusedSelectedDisabledShape: Shape = disabledShape
+        focusedSelectedDisabledShape: Shape = disabledShape,
     ) =
         SelectableChipShape(
             shape = shape,
@@ -692,7 +692,7 @@ object FilterChipDefaults {
             focusedDisabledShape = focusedDisabledShape,
             pressedSelectedShape = pressedSelectedShape,
             selectedDisabledShape = selectedDisabledShape,
-            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape,
         )
 
     /**
@@ -790,7 +790,7 @@ object FilterChipDefaults {
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
         @FloatRange(from = 0.0) selectedDisabledScale: Float = disabledScale,
-        @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale,
     ) =
         SelectableChipScale(
             scale = scale,
@@ -802,7 +802,7 @@ object FilterChipDefaults {
             focusedDisabledScale = focusedDisabledScale,
             pressedSelectedScale = pressedSelectedScale,
             selectedDisabledScale = selectedDisabledScale,
-            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale,
         )
 
     /**
@@ -827,34 +827,34 @@ object FilterChipDefaults {
         border: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
         selectedBorder: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.secondary),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         disabledBorder: Border =
             Border(
                 border =
                     BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedSelectedBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 1.1.dp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedDisabledBorder: Border = border,
         pressedSelectedBorder: Border = Border.None,
         selectedDisabledBorder: Border = Border.None,
-        focusedSelectedDisabledBorder: Border = border
+        focusedSelectedDisabledBorder: Border = border,
     ) =
         SelectableChipBorder(
             border = border,
@@ -885,7 +885,7 @@ object FilterChipDefaults {
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
-        pressedSelectedGlow: Glow = glow
+        pressedSelectedGlow: Glow = glow,
     ) =
         SelectableChipGlow(
             glow = glow,
@@ -893,7 +893,7 @@ object FilterChipDefaults {
             pressedGlow = pressedGlow,
             selectedGlow = selectedGlow,
             focusedSelectedGlow = focusedSelectedGlow,
-            pressedSelectedGlow = pressedSelectedGlow
+            pressedSelectedGlow = pressedSelectedGlow,
         )
 }
 
@@ -951,7 +951,7 @@ object InputChipDefaults {
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
-        focusedSelectedDisabledShape: Shape = disabledShape
+        focusedSelectedDisabledShape: Shape = disabledShape,
     ) =
         SelectableChipShape(
             shape = shape,
@@ -963,7 +963,7 @@ object InputChipDefaults {
             focusedDisabledShape = focusedDisabledShape,
             pressedSelectedShape = pressedSelectedShape,
             selectedDisabledShape = selectedDisabledShape,
-            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape,
         )
 
     /**
@@ -1061,7 +1061,7 @@ object InputChipDefaults {
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
         @FloatRange(from = 0.0) selectedDisabledScale: Float = disabledScale,
-        @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale,
     ) =
         SelectableChipScale(
             scale = scale,
@@ -1073,7 +1073,7 @@ object InputChipDefaults {
             focusedDisabledScale = focusedDisabledScale,
             pressedSelectedScale = pressedSelectedScale,
             selectedDisabledScale = selectedDisabledScale,
-            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale,
         )
 
     /**
@@ -1101,34 +1101,34 @@ object InputChipDefaults {
         border: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
-                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape,
             ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
         selectedBorder: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.secondary),
-                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape,
             ),
         disabledBorder: Border =
             Border(
                 border =
                     BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
-                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape,
             ),
         focusedSelectedBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 1.1.dp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
-                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape,
             ),
         focusedDisabledBorder: Border = border,
         pressedSelectedBorder: Border = Border.None,
         selectedDisabledBorder: Border = Border.None,
-        focusedSelectedDisabledBorder: Border = border
+        focusedSelectedDisabledBorder: Border = border,
     ) =
         SelectableChipBorder(
             border = border,
@@ -1159,7 +1159,7 @@ object InputChipDefaults {
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
-        pressedSelectedGlow: Glow = glow
+        pressedSelectedGlow: Glow = glow,
     ) =
         SelectableChipGlow(
             glow = glow,
@@ -1167,7 +1167,7 @@ object InputChipDefaults {
             pressedGlow = pressedGlow,
             selectedGlow = selectedGlow,
             focusedSelectedGlow = focusedSelectedGlow,
-            pressedSelectedGlow = pressedSelectedGlow
+            pressedSelectedGlow = pressedSelectedGlow,
         )
 }
 
@@ -1201,14 +1201,14 @@ object SuggestionChipDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ClickableChipShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -1236,7 +1236,7 @@ object SuggestionChipDefaults {
         disabledContainerColor: Color =
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledBackgroundColorOpacity),
         disabledContentColor: Color =
-            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity)
+            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity),
     ) =
         ClickableChipColors(
             containerColor = containerColor,
@@ -1267,14 +1267,14 @@ object SuggestionChipDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ClickableChipScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -1293,7 +1293,7 @@ object SuggestionChipDefaults {
         border: Border =
             Border(
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
@@ -1301,16 +1301,16 @@ object SuggestionChipDefaults {
             Border(
                 border =
                     BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
-        focusedDisabledBorder: Border = border
+        focusedDisabledBorder: Border = border,
     ) =
         ClickableChipBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**

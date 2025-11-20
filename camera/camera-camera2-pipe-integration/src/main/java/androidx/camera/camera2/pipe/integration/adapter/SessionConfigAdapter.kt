@@ -18,24 +18,17 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CameraDevice
 import android.media.MediaCodec
-import android.util.Range
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.OutputStream
-import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.getSessionConfig
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_HINT_OPTION
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.camera2.pipe.integration.internal.StreamUseCaseUtil
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.streamsharing.StreamSharing
+import java.util.Collections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,10 +39,8 @@ import kotlinx.coroutines.launch
  */
 public class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
-    private val sessionProcessorConfig: SessionConfig? = null,
     private val isPrimary: Boolean = true,
 ) {
-    public val isSessionProcessorEnabled: Boolean = sessionProcessorConfig != null
     public val surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
         val useCaseConfigs = mutableListOf<UseCaseConfig<*>>()
@@ -70,11 +61,6 @@ public class SessionConfigAdapter(
             validatingBuilder.add(useCase.getSessionConfig(isPrimary))
         }
 
-        if (sessionProcessorConfig != null) {
-            validatingBuilder.clearSurfaces()
-            validatingBuilder.add(sessionProcessorConfig)
-        }
-
         validatingBuilder
     }
 
@@ -87,7 +73,14 @@ public class SessionConfigAdapter(
     public val deferrableSurfaces: List<DeferrableSurface> by lazy {
         check(validatingBuilder.isValid)
 
-        sessionConfig.surfaces
+        sessionConfig.postviewOutputConfig?.let {
+            Collections.unmodifiableList(
+                mutableListOf<DeferrableSurface>().apply {
+                    addAll(sessionConfig.surfaces)
+                    add(it.surface)
+                }
+            )
+        } ?: sessionConfig.surfaces
     }
 
     public fun getValidSessionConfigOrNull(): SessionConfig? {
@@ -99,7 +92,7 @@ public class SessionConfigAdapter(
     }
 
     public fun reportSurfaceInvalid(deferrableSurface: DeferrableSurface) {
-        debug { "Unavailable $deferrableSurface, notify SessionConfig invalid" }
+        Camera2Logger.debug { "Unavailable $deferrableSurface, notify SessionConfig invalid" }
 
         // Only report error to one SessionConfig, CameraInternal#onUseCaseReset()
         // will handle the other failed Surfaces if there are any.
@@ -120,15 +113,6 @@ public class SessionConfigAdapter(
         }
     }
 
-    public fun getExpectedFrameRateRange(): Range<Int>? {
-        return if (
-            isSessionConfigValid() &&
-                sessionConfig.expectedFrameRateRange != StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
-        )
-            sessionConfig.expectedFrameRateRange
-        else null
-    }
-
     /**
      * Populates the mapping between surfaces of a capture session and the Stream Use Case of their
      * associated stream.
@@ -143,7 +127,7 @@ public class SessionConfigAdapter(
     ): Map<DeferrableSurface, Long> {
         if (sessionConfigs.any { it.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG }) {
             // If is ZSL, do not populate anything.
-            Log.error { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
+            Camera2Logger.error { "ZSL in populateSurfaceToStreamUseCaseMapping()" }
             return emptyMap()
         }
 
@@ -151,7 +135,7 @@ public class SessionConfigAdapter(
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
             sessionConfigs,
             useCaseConfigs,
-            mapping
+            mapping,
         )
 
         return mapping
@@ -172,44 +156,51 @@ public class SessionConfigAdapter(
         for (sessionConfig in sessionConfigs) {
             for (surface in sessionConfig.surfaces) {
                 if (
-                    sessionConfig.implementationOptions.containsOption(STREAM_USE_HINT_OPTION) &&
+                    sessionConfig.implementationOptions.containsOption(
+                        Camera2ImplConfig.STREAM_USE_HINT_OPTION
+                    ) &&
                         sessionConfig.implementationOptions.retrieveOption(
-                            STREAM_USE_HINT_OPTION
+                            Camera2ImplConfig.STREAM_USE_HINT_OPTION
                         ) != null
                 ) {
                     mapping[surface] =
-                        sessionConfig.implementationOptions.retrieveOption(STREAM_USE_HINT_OPTION)!!
+                        sessionConfig.implementationOptions.retrieveOption(
+                            Camera2ImplConfig.STREAM_USE_HINT_OPTION
+                        )!!
                     continue
                 }
+
+                mapping[surface] = getStreamUseHintForContainerClass(surface.containerClass)
             }
         }
         return mapping
     }
 
-    private fun getStreamUseCaseForContainerClass(kClass: Class<*>?): Long {
-        return when (kClass) {
-            ImageAnalysis::class.java -> OutputStream.StreamUseCase.PREVIEW.value
-            Preview::class.java -> OutputStream.StreamUseCase.PREVIEW.value
-            ImageCapture::class.java -> OutputStream.StreamUseCase.STILL_CAPTURE.value
-            MediaCodec::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
-            StreamSharing::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
-            else -> OutputStream.StreamUseCase.DEFAULT.value
-        }
-    }
-
+    /**
+     * Determines the appropriate [OutputStream.StreamUseHint] value based on the provided container
+     * class.
+     *
+     * StreamUseHint is used for the following purposes:
+     *
+     * (1) **Surface Ordering:** To ensure [MediaCodec] surfaces are placed at the end of the output
+     * list within [androidx.camera.camera2.pipe.graph.StreamGraphImpl]. Note: [StreamSharing] uses
+     * [android.graphics.SurfaceTexture], not [MediaCodec] surface.
+     *
+     * (2) **High-Speed Session Operation:** To identify the presence of a [MediaCodec] surface in
+     * high-speed capture session scenarios within
+     * [androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor].
+     *
+     * @param kClass The Kotlin [Class] of the container.
+     * @return The corresponding [OutputStream.StreamUseHint] value.
+     */
     private fun getStreamUseHintForContainerClass(kClass: Class<*>?): Long {
         return when (kClass) {
             MediaCodec::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
-            StreamSharing::class.java -> OutputStream.StreamUseHint.VIDEO_RECORD.value
             else -> OutputStream.StreamUseHint.DEFAULT.value
         }
     }
 
     public companion object {
-        public fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
-            return Camera2ImplConfig(implementationOptions)
-        }
-
         public fun UseCase.getSessionConfig(isPrimary: Boolean): SessionConfig {
             return if (isPrimary) sessionConfig else secondarySessionConfig
         }

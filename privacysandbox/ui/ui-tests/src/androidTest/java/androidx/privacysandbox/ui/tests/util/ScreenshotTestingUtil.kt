@@ -41,7 +41,7 @@ class ScreenshotTestingUtil {
             top: Int,
             right: Int,
             bottom: Int,
-            requiredColor: Int
+            requiredColor: Int,
         ): Boolean {
             val screenshot = instrumentationRegistry.uiAutomation.takeScreenshot(window)
             assertNotNull("Failed to generate a screenshot", screenshot)

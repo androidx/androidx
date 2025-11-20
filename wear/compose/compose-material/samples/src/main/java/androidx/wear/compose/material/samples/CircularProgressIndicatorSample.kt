@@ -51,18 +51,16 @@ public fun CircularProgressIndicatorWithAnimation() {
     val animatedProgress by
         animateFloatAsState(
             targetValue = progress,
-            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(
-            progress = animatedProgress,
-        )
+        CircularProgressIndicator(progress = animatedProgress)
         Spacer(Modifier.requiredHeight(10.dp))
         CompactChip(
             modifier = Modifier.width(90.dp),
             onClick = { if (progress < 1f) progress += 0.1f },
-            label = { Text("Increase") }
+            label = { Text("Increase") },
         )
     }
 }
@@ -75,6 +73,6 @@ public fun CircularProgressIndicatorFullscreenWithGap() {
         startAngle = 295.5f,
         endAngle = 245.5f,
         progress = 0.3f,
-        strokeWidth = ProgressIndicatorDefaults.FullScreenStrokeWidth
+        strokeWidth = ProgressIndicatorDefaults.FullScreenStrokeWidth,
     )
 }

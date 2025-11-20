@@ -149,12 +149,12 @@ class ReleaseTestActivity : AppCompatActivity() {
                         Toast.makeText(
                                 this@ReleaseTestActivity,
                                 "Required permissions are not " + "all granted!",
-                                Toast.LENGTH_LONG
+                                Toast.LENGTH_LONG,
                             )
                             .show()
                         setResultAndFinishActivity(
                             RESULT_ERROR_PERMISSION_NOT_SATISFIED,
-                            "Permission requirements are not satisfied."
+                            "Permission requirements are not satisfied.",
                         )
                         return
                     }
@@ -165,11 +165,11 @@ class ReleaseTestActivity : AppCompatActivity() {
                 override fun onFailure(t: Throwable) {
                     setResultAndFinishActivity(
                         RESULT_ERROR_PERMISSION_NOT_SATISFIED,
-                        "Permission requirements are not satisfied."
+                        "Permission requirements are not satisfied.",
                     )
                 }
             },
-            ContextCompat.getMainExecutor(this)
+            ContextCompat.getMainExecutor(this),
         )
     }
 
@@ -186,7 +186,7 @@ class ReleaseTestActivity : AppCompatActivity() {
 
         setResultAndFinishActivity(
             RESULT_ERROR_RUNNING_MODE_INCORRECT,
-            "Running mode check failed! The target running mode is $runningModeCheck"
+            "Running mode check failed! The target running mode is $runningModeCheck",
         )
     }
 
@@ -211,7 +211,7 @@ class ReleaseTestActivity : AppCompatActivity() {
                         if (hasRetried) {
                             setResultAndFinishActivity(
                                 RESULT_ERROR_INCORRECT_CAMERA_IMPLEMENTATION,
-                                "Can not setup implementation correctly."
+                                "Can not setup implementation correctly.",
                             )
                             return
                         }
@@ -225,7 +225,7 @@ class ReleaseTestActivity : AppCompatActivity() {
                                     hasRetried = true
                                     configAndRetrieveCameraProvider()
                                 },
-                                ContextCompat.getMainExecutor(this@ReleaseTestActivity)
+                                ContextCompat.getMainExecutor(this@ReleaseTestActivity),
                             )
                         return
                     }
@@ -237,7 +237,7 @@ class ReleaseTestActivity : AppCompatActivity() {
                     throw RuntimeException("Failed to get camera provider", t)
                 }
             },
-            ContextCompat.getMainExecutor(this@ReleaseTestActivity)
+            ContextCompat.getMainExecutor(this@ReleaseTestActivity),
         )
     }
 
@@ -287,7 +287,7 @@ class ReleaseTestActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -348,11 +348,11 @@ class ReleaseTestActivity : AppCompatActivity() {
                 override fun onFailure(throwable: Throwable) {
                     setResultAndFinishActivity(
                         RESULT_ERROR_FAILED_TO_RETRIEVE_EXTENSIONS_MANAGER,
-                        "Failed to retrieve ExtensionsManager."
+                        "Failed to retrieve ExtensionsManager.",
                     )
                 }
             },
-            ContextCompat.getMainExecutor(this@ReleaseTestActivity)
+            ContextCompat.getMainExecutor(this@ReleaseTestActivity),
         )
     }
 
@@ -360,7 +360,7 @@ class ReleaseTestActivity : AppCompatActivity() {
         if (!extensionsManager.isExtensionAvailable(currentCameraSelector, currentExtensionMode)) {
             setResultAndFinishActivity(
                 RESULT_ERROR_EXTENSION_MOD_NOT_SUPPORTED,
-                "Mode $currentExtensionMode is not supported!"
+                "Mode $currentExtensionMode is not supported!",
             )
             return
         }
@@ -370,7 +370,7 @@ class ReleaseTestActivity : AppCompatActivity() {
         val cameraSelector =
             extensionsManager.getExtensionEnabledCameraSelector(
                 currentCameraSelector,
-                currentExtensionMode
+                currentExtensionMode,
             )
 
         camera = cameraProvider.bindToLifecycle(this, cameraSelector)
@@ -415,7 +415,7 @@ class ReleaseTestActivity : AppCompatActivity() {
                     Log.e(TAG, errorMessage)
                     setResultAndFinishActivity(RESULT_ERROR_TAKE_PICTURE_FAILED, errorMessage)
                 }
-            }
+            },
         )
     }
 }

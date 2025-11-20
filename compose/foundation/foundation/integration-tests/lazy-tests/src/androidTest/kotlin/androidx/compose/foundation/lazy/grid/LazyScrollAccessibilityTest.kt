@@ -145,7 +145,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) :
         createScrollableContent_StartAtStart()
         verifyNodeInfoScrollActions(
             expectForward = !config.reversed,
-            expectBackward = config.reversed
+            expectBackward = config.reversed,
         )
     }
 
@@ -160,7 +160,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) :
         createScrollableContent_StartAtEnd()
         verifyNodeInfoScrollActions(
             expectForward = config.reversed,
-            expectBackward = !config.reversed
+            expectBackward = !config.reversed,
         )
     }
 
@@ -189,7 +189,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) :
     private fun testAbsoluteDirection(
         canonicalTarget: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean
+        expectActionSuccess: Boolean,
     ) {
         var target = canonicalTarget
         if (config.horizontal && config.rtl) {
@@ -208,7 +208,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) :
     private fun testScrollAction(
         target: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean = true
+        expectActionSuccess: Boolean = true,
     ) {
         createScrollableContent_StartInMiddle()
         rule.onNodeWithText("$target").assertDoesNotExist()
@@ -321,7 +321,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) :
                         modifier = Modifier.testTag(scrollerTag).matchParentSize(),
                         state = state,
                         contentPadding = PaddingValues(contentPaddingDp),
-                        reverseLayout = config.reversed
+                        reverseLayout = config.reversed,
                     ) {
                         items(100) {
                             Box(Modifier.requiredSize(itemSizeDp).background(Color.Yellow)) {

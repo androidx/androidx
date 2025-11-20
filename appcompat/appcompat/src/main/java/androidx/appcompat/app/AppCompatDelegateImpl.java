@@ -17,7 +17,6 @@
 package androidx.appcompat.app;
 
 import static android.view.View.GONE;
-import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -99,17 +98,15 @@ import androidx.appcompat.widget.ActionBarContextView;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.appcompat.widget.ContentFrameLayout;
 import androidx.appcompat.widget.DecorContentParent;
-import androidx.appcompat.widget.FitWindowsViewGroup;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.appcompat.widget.ViewStubCompat;
 import androidx.appcompat.widget.ViewUtils;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.KeyEventDispatcher;
@@ -126,7 +123,6 @@ import androidx.lifecycle.LifecycleOwner;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.util.List;
 import java.util.Locale;
@@ -138,7 +134,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
     private static final SimpleArrayMap<String, Integer> sLocalNightModes = new SimpleArrayMap<>();
-    private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
 
     private static final int[] sWindowBackgroundStyleable = {android.R.attr.windowBackground};
 
@@ -148,47 +143,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      */
     private static final boolean sCanReturnDifferentContext =
             !"robolectric".equals(Build.FINGERPRINT);
-
-    private static boolean sInstalledExceptionHandler;
-
-    static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
-            + " trying to use is a vector resource, you may be referencing it in an unsupported"
-            + " way. See AppCompatDelegate.setCompatVectorFromResourcesEnabled() for more info.";
-
-    static {
-        if (IS_PRE_LOLLIPOP && !sInstalledExceptionHandler) {
-            final Thread.UncaughtExceptionHandler defHandler
-                    = Thread.getDefaultUncaughtExceptionHandler();
-
-            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(@NonNull Thread thread,
-                        final @NonNull Throwable throwable) {
-                    if (shouldWrapException(throwable)) {
-                        // Now wrap the throwable, but append some extra information to the message
-                        final Throwable wrapped = new Resources.NotFoundException(
-                                throwable.getMessage() + EXCEPTION_HANDLER_MESSAGE_SUFFIX);
-                        wrapped.initCause(throwable.getCause());
-                        wrapped.setStackTrace(throwable.getStackTrace());
-                        defHandler.uncaughtException(thread, wrapped);
-                    } else {
-                        defHandler.uncaughtException(thread, throwable);
-                    }
-                }
-
-                private boolean shouldWrapException(Throwable throwable) {
-                    if (throwable instanceof Resources.NotFoundException) {
-                        final String message = throwable.getMessage();
-                        return message != null && (message.contains("drawable")
-                                || message.contains("Drawable"));
-                    }
-                    return false;
-                }
-            });
-
-            sInstalledExceptionHandler = true;
-        }
-    }
 
     final Object mHost;
     final Context mContext;
@@ -207,6 +161,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     ActionMode mActionMode;
     ActionBarContextView mActionModeView;
+
     PopupWindow mActionModePopup;
     Runnable mShowActionModePopup;
     ViewPropertyAnimatorCompat mFadeAnim = null;
@@ -218,7 +173,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     ViewGroup mSubDecor;
 
     private TextView mTitleView;
-    private View mStatusGuard;
 
     // Used to keep track of Progress Bar Window features
     private boolean mFeatureProgress, mFeatureIndeterminateProgress;
@@ -284,7 +238,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private Rect mTempRect2;
 
     private AppCompatViewInflater mAppCompatViewInflater;
-    private LayoutIncludeDetector mLayoutIncludeDetector;
     private OnBackInvokedDispatcher mDispatcher;
     private OnBackInvokedCallback mBackCallback;
 
@@ -987,39 +940,25 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                             + ", windowNoTitle: " + mWindowNoTitle
                             + " }");
         }
+        ViewCompat.setOnApplyWindowInsetsListener(subDecor, new OnApplyWindowInsetsListener() {
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(View v,
+                            WindowInsetsCompat insets) {
+                        final int top = insets.getSystemWindowInsetTop();
+                        final int newTop = updateActionModeInsets(insets, null);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            // If we're running on L or above, we can rely on ViewCompat's
-            // setOnApplyWindowInsetsListener
-            ViewCompat.setOnApplyWindowInsetsListener(subDecor, new OnApplyWindowInsetsListener() {
-                        @Override
-                        public WindowInsetsCompat onApplyWindowInsets(View v,
-                                WindowInsetsCompat insets) {
-                            final int top = insets.getSystemWindowInsetTop();
-                            final int newTop = updateStatusGuard(insets, null);
-
-                            if (top != newTop) {
-                                insets = insets.replaceSystemWindowInsets(
-                                        insets.getSystemWindowInsetLeft(),
-                                        newTop,
-                                        insets.getSystemWindowInsetRight(),
-                                        insets.getSystemWindowInsetBottom());
-                            }
-
-                            // Now apply the insets on our view
-                            return ViewCompat.onApplyWindowInsets(v, insets);
+                        if (top != newTop) {
+                            insets = insets.replaceSystemWindowInsets(
+                                    insets.getSystemWindowInsetLeft(),
+                                    newTop,
+                                    insets.getSystemWindowInsetRight(),
+                                    insets.getSystemWindowInsetBottom());
                         }
-                    });
-        } else if (subDecor instanceof FitWindowsViewGroup) {
-            // Else, we need to use our own FitWindowsViewGroup handling
-            ((FitWindowsViewGroup) subDecor).setOnFitSystemWindowsListener(
-                    new FitWindowsViewGroup.OnFitSystemWindowsListener() {
-                        @Override
-                        public void onFitSystemWindows(Rect insets) {
-                            insets.top = updateStatusGuard(null, insets);
-                        }
-                    });
-        }
+
+                        // Now apply the insets on our view
+                        return ViewCompat.onApplyWindowInsets(v, insets);
+                    }
+                });
 
         if (mDecorContentParent == null) {
             mTitleView = (TextView) subDecor.findViewById(R.id.title);
@@ -1631,53 +1570,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         boolean inheritContext = false;
-        if (IS_PRE_LOLLIPOP) {
-            if (mLayoutIncludeDetector == null) {
-                mLayoutIncludeDetector = new LayoutIncludeDetector();
-            }
-            if (mLayoutIncludeDetector.detect(attrs)) {
-                // The view being inflated is the root of an <include>d view, so make sure
-                // we carry over any themed context.
-                inheritContext = true;
-            } else {
-                inheritContext = (attrs instanceof XmlPullParser)
-                        // If we have a XmlPullParser, we can detect where we are in the layout
-                        ? ((XmlPullParser) attrs).getDepth() > 1
-                        // Otherwise we have to use the old heuristic
-                        : shouldInheritContext((ViewParent) parent);
-            }
-        }
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
-                IS_PRE_LOLLIPOP, /* Only read android:theme pre-L (L+ handles this anyway) */
+                false, /* Only read android:theme pre-L (L+ handles this anyway) */
                 true, /* Read read app:theme as a fallback at all times for legacy reasons */
-                VectorEnabledTintResources.shouldBeUsed() /* Only tint wrap the context if enabled */
+                false /* Only tint wrap the context if enabled */
         );
-    }
-
-    private boolean shouldInheritContext(ViewParent parent) {
-        if (parent == null) {
-            // The initial parent is null so just return false
-            return false;
-        }
-        final View windowDecor = mWindow.getDecorView();
-        while (true) {
-            if (parent == null) {
-                // Bingo. We've hit a view which has a null parent before being terminated from
-                // the loop. This is (most probably) because it's the root view in an inflation
-                // call, therefore we should inherit. This works as the inflated layout is only
-                // added to the hierarchy at the end of the inflate() call.
-                return true;
-            } else if (parent == windowDecor || !(parent instanceof View)
-                    || ((View) parent).isAttachedToWindow()) {
-                // We have either hit the window's decor view, a parent which isn't a View
-                // (i.e. ViewRootImpl), or an attached view, so we know that the original parent
-                // is currently added to the view hierarchy. This means that it has not be
-                // inflated in the current inflate() call and we should not inherit the context.
-                return false;
-            }
-            parent = parent.getParent();
-        }
     }
 
     @Override
@@ -2288,13 +2186,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     /**
-     * Updates the status bar guard
+     * Makes the action mode view fit navigation bar and extend into the rest of system window
+     * insets.
      *
      * @param insets the current system window insets, or null if not available
      * @param rectInsets the current system window insets if {@code insets} is not available
      * @return the new top system window inset
      */
-    final int updateStatusGuard(final @Nullable WindowInsetsCompat insets,
+    final int updateActionModeInsets(final @Nullable WindowInsetsCompat insets,
             final @Nullable Rect rectInsets) {
         int systemWindowInsetTop = 0;
         if (insets != null) {
@@ -2302,9 +2201,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         } else if (rectInsets != null) {
             systemWindowInsetTop = rectInsets.top;
         }
-        boolean showStatusGuard = false;
 
-        // Show the status guard when the non-overlay contextual action bar is showing
         if (mActionModeView != null) {
             if (mActionModeView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams)
@@ -2316,81 +2213,43 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                         mTempRect1 = new Rect();
                         mTempRect2 = new Rect();
                     }
-                    final Rect innerInsets = mTempRect1;
+                    final Rect systemWindowInsets = mTempRect1;
                     final Rect rect = mTempRect2;
+                    final Insets navBarInsets;
                     if (insets == null) {
-                        innerInsets.set(rectInsets);
+                        systemWindowInsets.set(rectInsets);
+                        navBarInsets = Insets.NONE;
                     } else {
-                        innerInsets.set(
+                        systemWindowInsets.set(
                                 insets.getSystemWindowInsetLeft(),
                                 insets.getSystemWindowInsetTop(),
                                 insets.getSystemWindowInsetRight(),
                                 insets.getSystemWindowInsetBottom());
+                        navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
                     }
 
-                    ViewUtils.computeFitSystemWindows(mSubDecor, innerInsets, rect);
-                    int newTopMargin = innerInsets.top;
-                    int newLeftMargin = innerInsets.left;
-                    int newRightMargin = innerInsets.right;
+                    ViewUtils.computeFitSystemWindows(mSubDecor, systemWindowInsets, rect);
+                    final Insets newMargin = inset(
+                            navBarInsets, rect.left, rect.top, rect.right, rect.bottom);
 
-                    // Must use root window insets for the guard, because the color views consume
-                    // the navigation bar inset if the window does not request LAYOUT_HIDE_NAV - but
-                    // the status guard is attached at the root.
-                    WindowInsetsCompat rootInsets = ViewCompat.getRootWindowInsets(mSubDecor);
-                    int newGuardLeftMargin =
-                            rootInsets == null ? 0 : rootInsets.getSystemWindowInsetLeft();
-                    int newGuardRightMargin =
-                            rootInsets == null ? 0 : rootInsets.getSystemWindowInsetRight();
-
-                    if (mlp.topMargin != newTopMargin || mlp.leftMargin != newLeftMargin
-                            || mlp.rightMargin != newRightMargin) {
+                    if (mlp.leftMargin != newMargin.left || mlp.rightMargin != newMargin.right) {
                         mlpChanged = true;
-                        mlp.topMargin = newTopMargin;
-                        mlp.leftMargin = newLeftMargin;
-                        mlp.rightMargin = newRightMargin;
+                        mlp.leftMargin = newMargin.left;
+                        mlp.rightMargin = newMargin.right;
                     }
 
-                    if (newTopMargin > 0 && mStatusGuard == null) {
-                        mStatusGuard = new View(mContext);
-                        mStatusGuard.setVisibility(GONE);
-                        final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                                MATCH_PARENT, mlp.topMargin, Gravity.LEFT | Gravity.TOP);
-                        lp.leftMargin = newGuardLeftMargin;
-                        lp.rightMargin = newGuardRightMargin;
-                        mSubDecor.addView(mStatusGuard, -1, lp);
-                    } else if (mStatusGuard != null) {
-                        final ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
-                                mStatusGuard.getLayoutParams();
-                        if (lp.height != mlp.topMargin || lp.leftMargin != newGuardLeftMargin
-                                || lp.rightMargin != newGuardRightMargin) {
-                            lp.height = mlp.topMargin;
-                            lp.leftMargin = newGuardLeftMargin;
-                            lp.rightMargin = newGuardRightMargin;
-                            mStatusGuard.setLayoutParams(lp);
-                        }
-                    }
-
-                    // The action mode's theme may differ from the app, so
-                    // always show the status guard above it.
-                    showStatusGuard = mStatusGuard != null;
-
-                    if (showStatusGuard && mStatusGuard.getVisibility() != VISIBLE) {
-                        // If it wasn't previously shown, the color may be stale
-                        updateStatusGuardColor(mStatusGuard);
-                    }
+                    mActionModeView.setPaddingForInsets(
+                            systemWindowInsets.left - newMargin.left,
+                            systemWindowInsets.top,
+                            systemWindowInsets.right - newMargin.right,
+                            0);
 
                     // We only need to consume the insets if the action
                     // mode is overlaid on the app content (e.g. it's
                     // sitting in a FrameLayout, see
                     // screen_simple_overlay_action_mode.xml).
-                    if (!mOverlayActionMode && showStatusGuard) {
+                    if (!mOverlayActionMode && systemWindowInsets.top > 0) {
                         systemWindowInsetTop = 0;
-                    }
-                } else {
-                    // reset top margin
-                    if (mlp.topMargin != 0) {
-                        mlpChanged = true;
-                        mlp.topMargin = 0;
                     }
                 }
                 if (mlpChanged) {
@@ -2398,19 +2257,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 }
             }
         }
-        if (mStatusGuard != null) {
-            mStatusGuard.setVisibility(showStatusGuard ? VISIBLE : GONE);
-        }
 
         return systemWindowInsetTop;
     }
 
-    private void updateStatusGuardColor(View v) {
-        boolean lightStatusBar = (ViewCompat.getWindowSystemUiVisibility(v)
-                & SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;
-        v.setBackgroundColor(lightStatusBar
-                ? ContextCompat.getColor(mContext, R.color.abc_decor_view_status_guard_light)
-                : ContextCompat.getColor(mContext, R.color.abc_decor_view_status_guard));
+    private static Insets inset(Insets in, int left, int top, int right, int bottom) {
+        return Insets.of(
+                Math.max(0, in.left - left),
+                Math.max(0, in.top - top),
+                Math.max(0, in.right - right),
+                Math.max(0, in.bottom - bottom));
     }
 
     private void throwFeatureRequestIfSubDecorInstalled() {
@@ -2578,15 +2434,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // one from the requested locales.
             if (requestedLocales.isEmpty()) {
                 localesToBeApplied = LocaleListCompat.getEmptyLocaleList();
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                localesToBeApplied =
-                        LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(
-                                requestedLocales.get(0)));
             } else {
-                // The method Locale.forLanguageTag() was introduced in API level 21,
-                // using Locale.toString() method for APIs below that.
                 localesToBeApplied =
-                        LocaleListCompat.forLanguageTags(requestedLocales.get(0).toString());
+                        LocaleListCompat.forLanguageTags(requestedLocales.get(0).toLanguageTag());
             }
         }
 
@@ -2629,14 +2479,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // $FALLTHROUGH since these are all valid modes to return
                 return mode;
             case MODE_NIGHT_AUTO_TIME:
-                if (Build.VERSION.SDK_INT >= 23) {
-                    UiModeManager uiModeManager = (UiModeManager) context.getApplicationContext()
-                            .getSystemService(Context.UI_MODE_SERVICE);
-                    if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
-                        // If we're set to AUTO and the system's auto night mode is already enabled,
-                        // we'll just let the system handle it by returning FOLLOW_SYSTEM
-                        return MODE_NIGHT_FOLLOW_SYSTEM;
-                    }
+                UiModeManager uiModeManager = (UiModeManager) context.getApplicationContext()
+                        .getSystemService(Context.UI_MODE_SERVICE);
+                if (uiModeManager.getNightMode() == UiModeManager.MODE_NIGHT_AUTO) {
+                    // If we're set to AUTO and the system's auto night mode is already enabled,
+                    // we'll just let the system handle it by returning FOLLOW_SYSTEM
+                    return MODE_NIGHT_FOLLOW_SYSTEM;
                 }
                 return getAutoTimeNightModeManager(context).getApplyableNightMode();
             case MODE_NIGHT_AUTO_BATTERY:
@@ -2667,10 +2515,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     LocaleListCompat getConfigurationLocales(Configuration conf) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.getLocales(conf);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(conf.locale));
         } else {
-            return LocaleListCompat.create(conf.locale);
+            return LocaleListCompat.forLanguageTags(conf.locale.toLanguageTag());
         }
     }
 
@@ -2879,14 +2725,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // configuration
             mContext.setTheme(mThemeResId);
 
-            if (Build.VERSION.SDK_INT >= 23) {
-                // On M+ setTheme only applies if the themeResId actually changes,
-                // since we have no way to publicly check what the Theme's current
-                // themeResId is, we just manually apply it anyway. Most of the time
-                // this is what we need anyway (since the themeResId does not
-                // often change)
-                mContext.getTheme().applyStyle(mThemeResId, true);
-            }
+            // setTheme only applies if the themeResId actually changes,
+            // since we have no way to publicly check what the Theme's current
+            // themeResId is, we just manually apply it anyway. Most of the time
+            // this is what we need anyway (since the themeResId does not
+            // often change)
+            mContext.getTheme().applyStyle(mThemeResId, true);
         }
 
         if (callOnConfigChange && mHost instanceof Activity) {
@@ -2902,11 +2746,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
             if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.CREATED)) {
                 activity.onConfigurationChanged(conf);
+                // Dispatch the configuration change through the view tree
+                mWindow.getDecorView().dispatchConfigurationChanged(conf);
             }
         } else {
             // Otherwise, we'll fallback to our internal created and destroyed flags.
             if (mCreated && !mDestroyed) {
                 activity.onConfigurationChanged(conf);
+                // Dispatch the configuration change through the view tree
+                mWindow.getDecorView().dispatchConfigurationChanged(conf);
             }
         }
     }
@@ -3481,16 +3329,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         @Override
         public android.view.ActionMode onWindowStartingActionMode(
                 android.view.ActionMode.Callback callback) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                // No-op on API 23+
-                return null;
-            }
-            // We wrap in a support action mode on v14+ if enabled
-            if (isHandleNativeActionModesEnabled()) {
-                return startAsSupportActionMode(callback);
-            }
-            // Else, let the call fall through to the wrapped callback
-            return super.onWindowStartingActionMode(callback);
+            return null;
         }
 
         /**
@@ -3515,7 +3354,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        @RequiresApi(23)
         public android.view.ActionMode onWindowStartingActionMode(
             android.view.ActionMode.Callback callback, int type) {
             if (isHandleNativeActionModesEnabled()) {
@@ -3687,10 +3525,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         @ApplyableNightMode
         @Override
         public int getApplyableNightMode() {
-            if (Build.VERSION.SDK_INT >= 21) {
-                return Api21Impl.isPowerSaveMode(mPowerManager) ? MODE_NIGHT_YES : MODE_NIGHT_NO;
-            }
-            return MODE_NIGHT_NO;
+            return mPowerManager.isPowerSaveMode() ? MODE_NIGHT_YES : MODE_NIGHT_NO;
         }
 
         @Override
@@ -3700,12 +3535,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         @Override
         IntentFilter createIntentFilterForBroadcastReceiver() {
-            if (Build.VERSION.SDK_INT >= 21) {
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
-                return filter;
-            }
-            return null;
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
+            return filter;
         }
     }
 
@@ -3876,19 +3708,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Assets sequence and window configuration are not supported.
 
         return delta;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() { }
-
-        static boolean isPowerSaveMode(PowerManager powerManager) {
-            return powerManager.isPowerSaveMode();
-        }
-
-        static String toLanguageTag(Locale locale) {
-            return locale.toLanguageTag();
-        }
     }
 
     @RequiresApi(24)

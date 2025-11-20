@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toList;
 
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
+import androidx.wear.protolayout.proto.ActionProto.Action;
+import androidx.wear.protolayout.proto.ActionProto.PendingIntentAction;
 import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
@@ -104,6 +106,16 @@ public class TestDsl {
                     .setColor(ColorProp.newBuilder().setArgb(colorArgb))
                     .build();
         }
+    }
+
+    /** Creates to {@link ModifiersProto.Clickable} with a {@link PendingIntentAction} */
+    public static ModifiersProto.Clickable pendingIntentActionClickable(String clickableId) {
+        return ModifiersProto.Clickable.newBuilder()
+                .setId(clickableId)
+                .setOnClick(
+                        Action.newBuilder()
+                                .setPendingIntentAction(PendingIntentAction.newBuilder()))
+                .build();
     }
 
     /** Corresponds to {@link ModifiersProto.Modifiers} */

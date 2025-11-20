@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `enableAccessibilityChecks`"
+        errorLine1="    composeTestRule.enableAccessibilityChecks()"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `disableAccessibilityChecks`"
+        errorLine1="    composeTestRule.disableAccessibilityChecks()"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `enableAccessibilityChecks`"
+        errorLine1="    androidComposeTestRule.enableAccessibilityChecks(accessibilityValidator)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `enableAccessibilityChecks`"
+        errorLine1="    androidComposeTestRule.enableAccessibilityChecks(accessibilityValidator)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ComposeTestRuleDispatcher"
+        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        errorLine1="private val composeTestRule = createComposeRule()"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ComposeTestRuleDispatcher"
+        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        errorLine1="private val androidComposeTestRule = createAndroidComposeRule&lt;ComponentActivity>()"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/test/junit4/accessibility/samples/AccessibilityChecksSamples.kt"/>
+    </issue>
+
+</issues>

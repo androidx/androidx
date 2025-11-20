@@ -76,6 +76,12 @@ interface IJsSandboxService {
     const String EVALUATE_FROM_FD = "EVALUATE_FROM_FD";
 
     /**
+     * Feature flag indicating that an embedder can create and use MessagePorts to communicate
+     * between the embedder and the sandboxed JavaScript isolate, through Binder or AssetFileDescriptors.
+     */
+    const String MESSAGE_PORTS = "MESSAGE_PORTS";
+
+    /**
      * @return A list of feature names supported by this implementation.
      */
     List<String> getSupportedFeatures() = 1;

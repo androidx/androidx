@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
@@ -45,7 +46,7 @@ private constructor(
         val lifecycleProxy =
             lifecycleRegistryProxyFactory.setupLifecycleProxy(
                 activityHolderProxy,
-                activityHolder.lifecycle
+                activityHolder.lifecycle,
             )
         handler.lifecycleProxy = lifecycleProxy
 
@@ -82,7 +83,7 @@ private constructor(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder",
                     /* initialize= */ false,
-                    classLoader
+                    classLoader,
                 )
 
             val lifecycleRegistryProxyFactory = LifecycleRegistryProxyFactory.createFor(classLoader)
@@ -93,7 +94,7 @@ private constructor(
                 sdkClassLoader = classLoader,
                 activityHolderClass = activityHolderClass,
                 backPressedDispatcherProxyFactory = backPressedDispatcherProxyFactory,
-                lifecycleRegistryProxyFactory = lifecycleRegistryProxyFactory
+                lifecycleRegistryProxyFactory = lifecycleRegistryProxyFactory,
             )
         }
     }

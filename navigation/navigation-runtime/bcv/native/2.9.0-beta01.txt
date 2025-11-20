@@ -1,0 +1,106 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigation:navigation-runtime>
+open annotation class androidx.navigation/NavDeepLinkSaveStateControl : kotlin/Annotation { // androidx.navigation/NavDeepLinkSaveStateControl|null[0]
+    constructor <init>() // androidx.navigation/NavDeepLinkSaveStateControl.<init>|<init>(){}[0]
+}
+
+abstract interface androidx.navigation/NavHost { // androidx.navigation/NavHost|null[0]
+    abstract val navController // androidx.navigation/NavHost.navController|{}navController[0]
+        abstract fun <get-navController>(): androidx.navigation/NavController // androidx.navigation/NavHost.navController.<get-navController>|<get-navController>(){}[0]
+}
+
+open class androidx.navigation/NavController { // androidx.navigation/NavController|null[0]
+    constructor <init>() // androidx.navigation/NavController.<init>|<init>(){}[0]
+
+    final val currentBackStack // androidx.navigation/NavController.currentBackStack|{}currentBackStack[0]
+        final fun <get-currentBackStack>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/List<androidx.navigation/NavBackStackEntry>> // androidx.navigation/NavController.currentBackStack.<get-currentBackStack>|<get-currentBackStack>(){}[0]
+    final val currentBackStackEntryFlow // androidx.navigation/NavController.currentBackStackEntryFlow|{}currentBackStackEntryFlow[0]
+        final fun <get-currentBackStackEntryFlow>(): kotlinx.coroutines.flow/Flow<androidx.navigation/NavBackStackEntry> // androidx.navigation/NavController.currentBackStackEntryFlow.<get-currentBackStackEntryFlow>|<get-currentBackStackEntryFlow>(){}[0]
+    final val visibleEntries // androidx.navigation/NavController.visibleEntries|{}visibleEntries[0]
+        final fun <get-visibleEntries>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/List<androidx.navigation/NavBackStackEntry>> // androidx.navigation/NavController.visibleEntries.<get-visibleEntries>|<get-visibleEntries>(){}[0]
+    open val currentBackStackEntry // androidx.navigation/NavController.currentBackStackEntry|{}currentBackStackEntry[0]
+        open fun <get-currentBackStackEntry>(): androidx.navigation/NavBackStackEntry? // androidx.navigation/NavController.currentBackStackEntry.<get-currentBackStackEntry>|<get-currentBackStackEntry>(){}[0]
+    open val currentDestination // androidx.navigation/NavController.currentDestination|{}currentDestination[0]
+        open fun <get-currentDestination>(): androidx.navigation/NavDestination? // androidx.navigation/NavController.currentDestination.<get-currentDestination>|<get-currentDestination>(){}[0]
+    open val previousBackStackEntry // androidx.navigation/NavController.previousBackStackEntry|{}previousBackStackEntry[0]
+        open fun <get-previousBackStackEntry>(): androidx.navigation/NavBackStackEntry? // androidx.navigation/NavController.previousBackStackEntry.<get-previousBackStackEntry>|<get-previousBackStackEntry>(){}[0]
+
+    open var graph // androidx.navigation/NavController.graph|{}graph[0]
+        open fun <get-graph>(): androidx.navigation/NavGraph // androidx.navigation/NavController.graph.<get-graph>|<get-graph>(){}[0]
+        open fun <set-graph>(androidx.navigation/NavGraph) // androidx.navigation/NavController.graph.<set-graph>|<set-graph>(androidx.navigation.NavGraph){}[0]
+    open var navigatorProvider // androidx.navigation/NavController.navigatorProvider|{}navigatorProvider[0]
+        open fun <get-navigatorProvider>(): androidx.navigation/NavigatorProvider // androidx.navigation/NavController.navigatorProvider.<get-navigatorProvider>|<get-navigatorProvider>(){}[0]
+        open fun <set-navigatorProvider>(androidx.navigation/NavigatorProvider) // androidx.navigation/NavController.navigatorProvider.<set-navigatorProvider>|<set-navigatorProvider>(androidx.navigation.NavigatorProvider){}[0]
+
+    final fun (androidx.navigation/NavDestination).findDestinationComprehensive(kotlin/Int, kotlin/Boolean): androidx.navigation/NavDestination? // androidx.navigation/NavController.findDestinationComprehensive|findDestinationComprehensive@androidx.navigation.NavDestination(kotlin.Int;kotlin.Boolean){}[0]
+    final fun <#A1: kotlin/Any> clearBackStack(#A1): kotlin/Boolean // androidx.navigation/NavController.clearBackStack|clearBackStack(0:0){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> clearBackStack(kotlin.reflect/KClass<#A1>): kotlin/Boolean // androidx.navigation/NavController.clearBackStack|clearBackStack(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> getBackStackEntry(#A1): androidx.navigation/NavBackStackEntry // androidx.navigation/NavController.getBackStackEntry|getBackStackEntry(0:0){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> getBackStackEntry(kotlin.reflect/KClass<#A1>): androidx.navigation/NavBackStackEntry // androidx.navigation/NavController.getBackStackEntry|getBackStackEntry(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> navigate(#A1, androidx.navigation/NavOptions? = ..., androidx.navigation/Navigator.Extras? = ...) // androidx.navigation/NavController.navigate|navigate(0:0;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> navigate(#A1, kotlin/Function1<androidx.navigation/NavOptionsBuilder, kotlin/Unit>) // androidx.navigation/NavController.navigate|navigate(0:0;kotlin.Function1<androidx.navigation.NavOptionsBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> popBackStack(#A1, kotlin/Boolean, kotlin/Boolean = ...): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(0:0;kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> popBackStack(kotlin.reflect/KClass<#A1>, kotlin/Boolean, kotlin/Boolean = ...): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(kotlin.reflect.KClass<0:0>;kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+    final fun clearBackStack(kotlin/String): kotlin/Boolean // androidx.navigation/NavController.clearBackStack|clearBackStack(kotlin.String){}[0]
+    final fun findDestination(kotlin/Int): androidx.navigation/NavDestination? // androidx.navigation/NavController.findDestination|findDestination(kotlin.Int){}[0]
+    final fun findDestination(kotlin/String): androidx.navigation/NavDestination? // androidx.navigation/NavController.findDestination|findDestination(kotlin.String){}[0]
+    final fun getBackStackEntry(kotlin/String): androidx.navigation/NavBackStackEntry // androidx.navigation/NavController.getBackStackEntry|getBackStackEntry(kotlin.String){}[0]
+    final fun handleDeepLink(androidx.navigation/NavDeepLinkRequest): kotlin/Boolean // androidx.navigation/NavController.handleDeepLink|handleDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
+    final fun navigate(kotlin/String, androidx.navigation/NavOptions? = ..., androidx.navigation/Navigator.Extras? = ...) // androidx.navigation/NavController.navigate|navigate(kotlin.String;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    final fun navigate(kotlin/String, kotlin/Function1<androidx.navigation/NavOptionsBuilder, kotlin/Unit>) // androidx.navigation/NavController.navigate|navigate(kotlin.String;kotlin.Function1<androidx.navigation.NavOptionsBuilder,kotlin.Unit>){}[0]
+    final fun popBackStack(kotlin/String, kotlin/Boolean, kotlin/Boolean = ...): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(kotlin.String;kotlin.Boolean;kotlin.Boolean){}[0]
+    final inline fun <#A1: reified kotlin/Any> clearBackStack(): kotlin/Boolean // androidx.navigation/NavController.clearBackStack|clearBackStack(){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any> getBackStackEntry(): androidx.navigation/NavBackStackEntry // androidx.navigation/NavController.getBackStackEntry|getBackStackEntry(){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any> popBackStack(kotlin/Boolean, kotlin/Boolean = ...): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+    open fun addOnDestinationChangedListener(androidx.navigation/NavController.OnDestinationChangedListener) // androidx.navigation/NavController.addOnDestinationChangedListener|addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener){}[0]
+    open fun navigate(androidx.navigation/NavDeepLinkRequest) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavDeepLinkRequest){}[0]
+    open fun navigate(androidx.navigation/NavDeepLinkRequest, androidx.navigation/NavOptions?) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavDeepLinkRequest;androidx.navigation.NavOptions?){}[0]
+    open fun navigate(androidx.navigation/NavDeepLinkRequest, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavDeepLinkRequest;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    open fun navigate(androidx.navigation/NavUri) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavUri){}[0]
+    open fun navigate(androidx.navigation/NavUri, androidx.navigation/NavOptions?) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavUri;androidx.navigation.NavOptions?){}[0]
+    open fun navigate(androidx.navigation/NavUri, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?) // androidx.navigation/NavController.navigate|navigate(androidx.navigation.NavUri;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    open fun navigateUp(): kotlin/Boolean // androidx.navigation/NavController.navigateUp|navigateUp(){}[0]
+    open fun popBackStack(): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(){}[0]
+    open fun popBackStack(kotlin/Int, kotlin/Boolean): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(kotlin.Int;kotlin.Boolean){}[0]
+    open fun popBackStack(kotlin/Int, kotlin/Boolean, kotlin/Boolean): kotlin/Boolean // androidx.navigation/NavController.popBackStack|popBackStack(kotlin.Int;kotlin.Boolean;kotlin.Boolean){}[0]
+    open fun removeOnDestinationChangedListener(androidx.navigation/NavController.OnDestinationChangedListener) // androidx.navigation/NavController.removeOnDestinationChangedListener|removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener){}[0]
+    open fun restoreState(androidx.savedstate/SavedState?) // androidx.navigation/NavController.restoreState|restoreState(androidx.savedstate.SavedState?){}[0]
+    open fun saveState(): androidx.savedstate/SavedState? // androidx.navigation/NavController.saveState|saveState(){}[0]
+    open fun setGraph(androidx.navigation/NavGraph, androidx.savedstate/SavedState?) // androidx.navigation/NavController.setGraph|setGraph(androidx.navigation.NavGraph;androidx.savedstate.SavedState?){}[0]
+    open fun setLifecycleOwner(androidx.lifecycle/LifecycleOwner) // androidx.navigation/NavController.setLifecycleOwner|setLifecycleOwner(androidx.lifecycle.LifecycleOwner){}[0]
+    open fun setViewModelStore(androidx.lifecycle/ViewModelStore) // androidx.navigation/NavController.setViewModelStore|setViewModelStore(androidx.lifecycle.ViewModelStore){}[0]
+
+    abstract fun interface OnDestinationChangedListener { // androidx.navigation/NavController.OnDestinationChangedListener|null[0]
+        abstract fun onDestinationChanged(androidx.navigation/NavController, androidx.navigation/NavDestination, androidx.savedstate/SavedState?) // androidx.navigation/NavController.OnDestinationChangedListener.onDestinationChanged|onDestinationChanged(androidx.navigation.NavController;androidx.navigation.NavDestination;androidx.savedstate.SavedState?){}[0]
+    }
+
+    final object Companion { // androidx.navigation/NavController.Companion|null[0]
+        final const val KEY_DEEP_LINK_HANDLED // androidx.navigation/NavController.Companion.KEY_DEEP_LINK_HANDLED|{}KEY_DEEP_LINK_HANDLED[0]
+            final fun <get-KEY_DEEP_LINK_HANDLED>(): kotlin/String // androidx.navigation/NavController.Companion.KEY_DEEP_LINK_HANDLED.<get-KEY_DEEP_LINK_HANDLED>|<get-KEY_DEEP_LINK_HANDLED>(){}[0]
+
+        final fun enableDeepLinkSaveState(kotlin/Boolean) // androidx.navigation/NavController.Companion.enableDeepLinkSaveState|enableDeepLinkSaveState(kotlin.Boolean){}[0]
+    }
+}
+
+open class androidx.navigation/NavHostController : androidx.navigation/NavController { // androidx.navigation/NavHostController|null[0]
+    constructor <init>() // androidx.navigation/NavHostController.<init>|<init>(){}[0]
+
+    final fun setLifecycleOwner(androidx.lifecycle/LifecycleOwner) // androidx.navigation/NavHostController.setLifecycleOwner|setLifecycleOwner(androidx.lifecycle.LifecycleOwner){}[0]
+    final fun setViewModelStore(androidx.lifecycle/ViewModelStore) // androidx.navigation/NavHostController.setViewModelStore|setViewModelStore(androidx.lifecycle.ViewModelStore){}[0]
+}
+
+final object androidx.navigation/Navigation // androidx.navigation/Navigation|null[0]
+
+final inline fun (androidx.navigation/NavController).androidx.navigation/createGraph(kotlin.reflect/KClass<*>, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavController(kotlin.reflect.KClass<*>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavController).androidx.navigation/createGraph(kotlin/Any, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavController(kotlin.Any;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavController).androidx.navigation/createGraph(kotlin/String, kotlin/String? = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavController(kotlin.String;kotlin.String?;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin.reflect/KClass<*>, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.reflect.KClass<*>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin/Any, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.Any;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin/String, kotlin/String? = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.String;kotlin.String?;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun androidx.navigation/implementedInJetBrainsFork(): kotlin/Nothing // androidx.navigation/implementedInJetBrainsFork|implementedInJetBrainsFork(){}[0]

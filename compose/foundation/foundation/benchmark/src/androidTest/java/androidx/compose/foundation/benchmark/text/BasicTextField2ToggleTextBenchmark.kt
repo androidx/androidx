@@ -62,7 +62,7 @@ class BasicTextField2ToggleTextBenchmark(private val textLength: Int) {
                 textLength = textLength,
                 textNumber = textBenchmarkRule.repeatTimes,
                 width = width,
-                fontSize = fontSize
+                fontSize = fontSize,
             )
         }
     }
@@ -127,7 +127,7 @@ class BasicTextField2ToggleTextBenchmark(private val textLength: Int) {
         benchmarkRule.toggleStateBenchmarkMeasure(
             caseFactory = caseFactory,
             toggleCausesRecompose = false,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -137,7 +137,7 @@ class BasicTextField2ToggleTextBenchmark(private val textLength: Int) {
         benchmarkRule.toggleStateBenchmarkLayout(
             caseFactory = caseFactory,
             assertOneRecomposition = false,
-            toggleCausesRecompose = false
+            toggleCausesRecompose = false,
         )
     }
 
@@ -147,7 +147,7 @@ class BasicTextField2ToggleTextBenchmark(private val textLength: Int) {
         benchmarkRule.toggleStateBenchmarkDraw(
             caseFactory = caseFactory,
             toggleCausesRecompose = false,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }

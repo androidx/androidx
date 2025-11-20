@@ -27,21 +27,22 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
     api("androidx.compose.runtime:runtime:1.7.0")
     api("androidx.compose.runtime:runtime-saveable:1.7.0")
-    api(project(":activity:activity-ktx"))
+    api(project(":activity:activity"))
+    api("androidx.navigationevent:navigationevent-compose:1.0.0")
     api("androidx.compose.ui:ui:1.0.1")
     api("androidx.core:core-ktx:1.13.0")
-    api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-common:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
     implementation("androidx.savedstate:savedstate:1.2.1")
 
     androidTestImplementation("androidx.annotation:annotation:1.8.1")
@@ -55,6 +56,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-graphics"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation("androidx.navigationevent:navigationevent-testing:1.0.0")
     androidTestImplementation(project(":lifecycle:lifecycle-common"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
@@ -64,6 +66,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
 
     lintChecks(project(":activity:activity-compose-lint"))
     lintPublish(project(":activity:activity-compose-lint"))
@@ -79,6 +82,6 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.activity.compose"
 }

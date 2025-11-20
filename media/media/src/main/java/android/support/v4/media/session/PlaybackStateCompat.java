@@ -804,7 +804,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return An equivalent {@link PlaybackStateCompat} object, or null if none.
      */
     public static PlaybackStateCompat fromPlaybackState(Object stateObj) {
-        if (stateObj != null && Build.VERSION.SDK_INT >= 21) {
+        if (stateObj != null) {
             PlaybackState stateFwk = (PlaybackState) stateObj;
             List<PlaybackState.CustomAction> customActionFwks =
                     Api21Impl.getCustomActions(stateFwk);
@@ -850,7 +850,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return An equivalent {@link android.media.session.PlaybackState} object, or null if none.
      */
     public Object getPlaybackState() {
-        if (mStateFwk == null && Build.VERSION.SDK_INT >= 21) {
+        if (mStateFwk == null) {
             PlaybackState.Builder builder = Api21Impl.createBuilder();
             Api21Impl.setState(builder, mState, mPosition, mSpeed, mUpdateTime);
             Api21Impl.setBufferedPosition(builder, mBufferedPosition);
@@ -941,7 +941,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * @return An equivalent {@link PlaybackStateCompat.CustomAction} object, or null if none.
          */
         public static PlaybackStateCompat.CustomAction fromCustomAction(Object customActionObj) {
-            if (customActionObj == null || Build.VERSION.SDK_INT < 21) {
+            if (customActionObj == null) {
                 return null;
             }
 
@@ -970,7 +970,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * or null if none.
          */
         public Object getCustomAction() {
-            if (mCustomActionFwk != null || Build.VERSION.SDK_INT < 21) {
+            if (mCustomActionFwk != null) {
                 return mCustomActionFwk;
             }
 
@@ -1387,7 +1387,6 @@ public final class PlaybackStateCompat implements Parcelable {
         }
     }
 
-    @RequiresApi(21)
     private static class Api21Impl {
         private Api21Impl() {}
 

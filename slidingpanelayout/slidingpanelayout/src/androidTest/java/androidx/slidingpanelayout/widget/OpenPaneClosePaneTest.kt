@@ -160,7 +160,7 @@ class OpenPaneClosePaneTest {
 
     private fun testClosePaneInTheMiddleOfOpenPane(
         useDurationForOpen: Boolean,
-        useDurationForClose: Boolean
+        useDurationForClose: Boolean,
     ) {
         TestActivity.onActivityCreated = { activity ->
             val slidingPaneLayout =
@@ -211,7 +211,7 @@ class OpenPaneClosePaneTest {
 
     private fun testOpenPaneInTheMiddleOfClosePane(
         useDurationForOpen: Boolean,
-        useDurationForClose: Boolean
+        useDurationForClose: Boolean,
     ) {
         TestActivity.onActivityCreated = { activity ->
             val slidingPaneLayout =

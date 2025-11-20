@@ -37,8 +37,15 @@ import org.jspecify.annotations.NonNull;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppSearchVersionUtil {
+    public static class TExtensionVersions {
+        public static final int U_BASE = 7;
+        public static final int M2023_11 = 10;
+        public static final int V_BASE = 13;
+        public static final int B_BASE = 17;
+    }
     public static final long APPSEARCH_U_BASE_VERSION_CODE = 340800000;
     public static final long APPSEARCH_M2023_11_VERSION_CODE = 341113000;
+    public static final long APPSEARCH_V_BASE_VERSION_CODE = 350700000;
     public static final long APPSEARCH_M2024_11_VERSION_CODE = 351112060;
 
     private static final String APPSEARCH_MODULE_NAME = "com.android.appsearch";
@@ -79,13 +86,6 @@ public class AppSearchVersionUtil {
             }
         }
         return sAppSearchVersionCode;
-    }
-
-    // TODO(b/326656531): Remove this function once BuildCompat#isAtLeastB is available.
-    @ChecksSdkIntAtLeast(api = 36, codename = "Baklava")
-    public static boolean isAtLeastB() {
-        return Build.VERSION.SDK_INT >= 36
-                || (Build.VERSION.SDK_INT >= 35 && Build.VERSION.CODENAME.equals("Baklava"));
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

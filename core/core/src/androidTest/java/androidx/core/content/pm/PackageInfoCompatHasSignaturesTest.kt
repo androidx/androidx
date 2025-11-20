@@ -52,7 +52,8 @@ import org.mockito.internal.util.reflection.FieldSetter
  * manually runs itself for both [Build.VERSION_CODES.O] and the current device SDK version by
  * swapping [Build.VERSION.SDK_INT].
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+// maxSdkVersion due to b/432083981
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P, maxSdkVersion = 34)
 @LargeTest
 @RunWith(Parameterized::class)
 class PackageInfoCompatHasSignaturesTest {
@@ -160,18 +161,18 @@ class PackageInfoCompatHasSignaturesTest {
             val mockCerts: MockCerts,
             val queryType: QueryType,
             val certType: CertType,
-            val matchExact: Boolean
+            val matchExact: Boolean,
         ) {
             enum class CertType(val flag: Int) {
                 X509(PackageManager.CERT_INPUT_RAW_X509),
-                SHA256(PackageManager.CERT_INPUT_SHA256)
+                SHA256(PackageManager.CERT_INPUT_SHA256),
             }
 
             enum class QueryType {
                 NONE,
                 EXACT_COUNT,
                 FEWER,
-                MORE
+                MORE,
             }
 
             val queryCerts =
@@ -243,7 +244,7 @@ class PackageInfoCompatHasSignaturesTest {
                             MockSignatures(emptyCerts),
                             MockSignatures(multiSignerCerts),
                             // Legacy GET_SIGNATURES cannot include certificate history
-                            MockSignatures(noHistoryCerts)
+                            MockSignatures(noHistoryCerts),
                         )
                         .associateWith { Build.VERSION_CODES.O_MR1 },
                     listOf(
@@ -251,34 +252,34 @@ class PackageInfoCompatHasSignaturesTest {
                                 multiSigners = false,
                                 hasHistory = null,
                                 contentsSigners = null,
-                                certHistory = null
+                                certHistory = null,
                             ),
                             MockSigningInfo(
                                 multiSigners = false,
                                 hasHistory = null,
                                 contentsSigners = null,
-                                certHistory = emptyCerts
+                                certHistory = emptyCerts,
                             ),
                             MockSigningInfo(
                                 multiSigners = true,
                                 hasHistory = null,
                                 contentsSigners = multiSignerCerts,
-                                certHistory = null
+                                certHistory = null,
                             ),
                             MockSigningInfo(
                                 multiSigners = false,
                                 hasHistory = true,
                                 contentsSigners = null,
-                                certHistory = pastHistoryCerts
+                                certHistory = pastHistoryCerts,
                             ),
                             MockSigningInfo(
                                 multiSigners = false,
                                 hasHistory = false,
                                 contentsSigners = null,
-                                certHistory = noHistoryCerts
-                            )
+                                certHistory = noHistoryCerts,
+                            ),
                         )
-                        .associateWith { Build.VERSION.SDK_INT }
+                        .associateWith { Build.VERSION.SDK_INT },
                 )
                 .flatMap {
                     // Multiply all base params by QueryType, CertType and matchExact values to
@@ -291,7 +292,7 @@ class PackageInfoCompatHasSignaturesTest {
                                 QueryType.FEWER.takeIf {
                                     val certificates = mockCerts.certificates
                                     !certificates.isNullOrEmpty() && certificates.size > 1
-                                }
+                                },
                             )
                             .flatMap { queryType ->
                                 listOf(Params.CertType.X509, Params.CertType.SHA256).flatMap {
@@ -302,7 +303,7 @@ class PackageInfoCompatHasSignaturesTest {
                                             mockCerts,
                                             queryType,
                                             certType,
-                                            matchExact
+                                            matchExact,
                                         )
                                     }
                                 }
@@ -428,7 +429,7 @@ class PackageInfoCompatHasSignaturesTest {
             val multiSigners: Boolean,
             val hasHistory: Boolean?,
             val contentsSigners: List<Certificate>?,
-            val certHistory: List<Certificate>?
+            val certHistory: List<Certificate>?,
         ) : MockCerts() {
             override val certificates = contentsSigners ?: certHistory
             override val flag = PackageManager.GET_SIGNING_CERTIFICATES

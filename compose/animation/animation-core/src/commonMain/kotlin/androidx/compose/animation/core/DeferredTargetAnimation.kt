@@ -67,7 +67,7 @@ public class DeferredTargetAnimation<T, V : AnimationVector>(
     public fun updateTarget(
         target: T,
         coroutineScope: CoroutineScope,
-        animationSpec: FiniteAnimationSpec<T> = spring()
+        animationSpec: FiniteAnimationSpec<T> = spring(),
     ): T {
         _pendingTarget = target
         val anim = animatable ?: Animatable(target, vectorConverter).also { animatable = it }

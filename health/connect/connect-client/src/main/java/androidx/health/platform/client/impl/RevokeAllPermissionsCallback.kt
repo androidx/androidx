@@ -21,9 +21,8 @@ import androidx.health.platform.client.service.IRevokeAllPermissionsCallback
 import com.google.common.util.concurrent.SettableFuture
 
 /** Wrapper to convert [IRevokeAllPermissionsCallback] to listenable futures. */
-internal class RevokeAllPermissionsCallback(
-    private val resultFuture: SettableFuture<Unit>,
-) : IRevokeAllPermissionsCallback.Stub() {
+internal class RevokeAllPermissionsCallback(private val resultFuture: SettableFuture<Unit>) :
+    IRevokeAllPermissionsCallback.Stub() {
 
     override fun onSuccess() {
         resultFuture.set(Unit)

@@ -39,7 +39,7 @@ internal constructor(
      *
      * For example, the data may be real loaded data that has been cached via [cachedIn].
      */
-    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null }
+    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null },
 ) {
     public companion object {
         internal val NOOP_UI_RECEIVER =
@@ -75,19 +75,13 @@ internal constructor(
                 hintReceiver = NOOP_HINT_RECEIVER,
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
-                        pages =
-                            listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf(),
-                                )
-                            ),
+                        pages = listOf(TransformablePage(originalPageOffset = 0, data = listOf())),
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = LoadStates.IDLE,
-                        mediatorLoadStates = null
+                        mediatorLoadStates = null,
                     )
-                }
+                },
             )
 
         /**
@@ -119,19 +113,13 @@ internal constructor(
                 hintReceiver = NOOP_HINT_RECEIVER,
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
-                        pages =
-                            listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf(),
-                                )
-                            ),
+                        pages = listOf(TransformablePage(originalPageOffset = 0, data = listOf())),
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = sourceLoadStates,
-                        mediatorLoadStates = mediatorLoadStates
+                        mediatorLoadStates = mediatorLoadStates,
                     )
-                }
+                },
             )
 
         /**
@@ -140,10 +128,20 @@ internal constructor(
          * dispatches [LoadState.NotLoading] on all LoadStates to the presenter.
          *
          * @param data Static list of [T] to display.
+         * @param placeholdersBefore The count of placeholders before the list of [data]. This can
+         *   be used to display placeholders along with the static list of data. Note that these
+         *   placeholders are no-op, meaning scrolls to these placeholders do not trigger loads. to
+         *   these placeholders does not trigger loads.
+         * @param placeholdersAfter The count of placeholders after the list of [data]. This can be
+         *   used to display placeholders along with the static list of data. Note that these
+         *   placeholders are no-op, meaning scrolls to these placeholders do not trigger loads.
          */
+        @JvmOverloads
         @JvmStatic // Convenience for Java developers.
         public fun <T : Any> from(
             data: List<T>,
+            placeholdersBefore: Int = 0,
+            placeholdersAfter: Int = 0,
         ): PagingData<T> =
             PagingData(
                 flow =
@@ -152,6 +150,8 @@ internal constructor(
                             data = data,
                             sourceLoadStates = null,
                             mediatorLoadStates = null,
+                            placeholdersBefore = placeholdersBefore,
+                            placeholdersAfter = placeholdersAfter,
                         )
                     ),
                 uiReceiver = NOOP_UI_RECEIVER,
@@ -159,12 +159,12 @@ internal constructor(
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
                         pages = listOf(TransformablePage(0, data)),
-                        placeholdersBefore = 0,
-                        placeholdersAfter = 0,
+                        placeholdersBefore = placeholdersBefore,
+                        placeholdersAfter = placeholdersAfter,
                         sourceLoadStates = LoadStates.IDLE,
-                        mediatorLoadStates = null
+                        mediatorLoadStates = null,
                     )
-                }
+                },
             )
 
         /**
@@ -176,6 +176,13 @@ internal constructor(
          *   E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
          * @param mediatorLoadStates [LoadStates] of [RemoteMediator] to pass forward to a
          *   presenter. E.g., [AsyncPagingDataAdapter][androidx.paging.AsyncPagingDataAdapter].
+         * @param placeholdersBefore The count of placeholders before the list of [data]. This can
+         *   be used to display placeholders along with the static list of data. Note that these
+         *   placeholders are no-op, meaning scrolls to these placeholders do not trigger loads. to
+         *   these placeholders does not trigger loads.
+         * @param placeholdersAfter The count of placeholders after the list of [data]. This can be
+         *   used to display placeholders along with the static list of data. Note that these
+         *   placeholders are no-op, meaning scrolls to these placeholders do not trigger loads.
          */
         @JvmOverloads
         @JvmStatic // Convenience for Java developers.
@@ -183,6 +190,8 @@ internal constructor(
             data: List<T>,
             sourceLoadStates: LoadStates,
             mediatorLoadStates: LoadStates? = null,
+            placeholdersBefore: Int = 0,
+            placeholdersAfter: Int = 0,
         ): PagingData<T> =
             PagingData(
                 flow =
@@ -191,6 +200,8 @@ internal constructor(
                             data = data,
                             sourceLoadStates = sourceLoadStates,
                             mediatorLoadStates = mediatorLoadStates,
+                            placeholdersBefore = placeholdersBefore,
+                            placeholdersAfter = placeholdersAfter,
                         )
                     ),
                 uiReceiver = NOOP_UI_RECEIVER,
@@ -198,12 +209,12 @@ internal constructor(
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
                         pages = listOf(TransformablePage(0, data)),
-                        placeholdersBefore = 0,
-                        placeholdersAfter = 0,
+                        placeholdersBefore = placeholdersBefore,
+                        placeholdersAfter = placeholdersAfter,
                         sourceLoadStates = sourceLoadStates,
-                        mediatorLoadStates = mediatorLoadStates
+                        mediatorLoadStates = mediatorLoadStates,
                     )
-                }
+                },
             )
     }
 

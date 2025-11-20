@@ -111,6 +111,13 @@
             app:fontFamily="@font/samplefont"
             android:focusable="false" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_font_adjustment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            />
+
     </LinearLayout>
 
 </ScrollView>

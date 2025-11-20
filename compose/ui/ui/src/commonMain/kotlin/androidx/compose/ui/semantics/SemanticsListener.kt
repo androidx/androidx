@@ -29,6 +29,6 @@ internal interface SemanticsListener {
      */
     fun onSemanticsChanged(
         semanticsInfo: SemanticsInfo,
-        previousSemanticsConfiguration: SemanticsConfiguration?
+        previousSemanticsConfiguration: SemanticsConfiguration?,
     )
 }

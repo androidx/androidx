@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import android.util.Log
 import android.view.View
 import androidx.collection.LongObjectMap
 import androidx.collection.emptyLongObjectMap
@@ -23,8 +24,8 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionInstance
-import androidx.compose.runtime.tooling.findCompositionInstance
 import androidx.compose.ui.R
+import androidx.compose.ui.inspection.LOG_TAG
 import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.node.RootForTest
@@ -33,18 +34,16 @@ import androidx.compose.ui.tooling.data.ContextCache
 import androidx.compose.ui.tooling.data.ParameterInformation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.findParameters
+import androidx.compose.ui.tooling.data.makeTree
 import androidx.compose.ui.unit.Density
 import java.util.ArrayDeque
 
 /** Generator of a tree for the Layout Inspector. */
 @OptIn(UiToolingDataApi::class)
-class LayoutInspectorTree {
-    private val builderData = SharedBuilderDataImpl()
-    private val builder = CompositionBuilder(builderData)
-    private val rootByComposition = mutableMapOf<CompositionInstance, CompositionData>()
-    private val hierarchy = mutableMapOf<CompositionInstance, MutableList<CompositionInstance>>()
+class LayoutInspectorTree(anchorMap: AnchorMap) {
+    private val builderData = SharedBuilderDataImpl(anchorMap)
     private val resultByComposition = mutableMapOf<CompositionInstance, SubCompositionResult>()
-    private val compositions = mutableSetOf<CompositionInstance>()
+    private val builder = CompositionBuilder(builderData, resultByComposition)
 
     /** If true, system nodes are excluded from the resulting tree */
     var hideSystemNodes: Boolean by builderData::hideSystemNodes
@@ -58,13 +57,21 @@ class LayoutInspectorTree {
         if (views.isEmpty()) {
             return emptyLongObjectMap()
         }
+        val data = mutableSetOf<CompositionData>()
+        views.forEach { view ->
+            data.addAll(view.compositionRoots)
+            collectSemantics(view)
+        }
         val defaultView = views.first()
         builderData.setDensity(defaultView)
+        data.makeTree(
+            builder::prepareResult,
+            builder::convert,
+            builder::createResult,
+            builderData.contextCache,
+        )
+
         val defaultViewId = defaultView.uniqueDrawingId
-        buildCompositionLookups(views)
-        while (compositions.isNotEmpty()) {
-            buildNodesFor(compositions.first())
-        }
         val result = mutableLongObjectMapOf<MutableList<InspectorNode>>()
         resultByComposition.values.forEach {
             val viewId = it.ownerView?.uniqueDrawingId ?: defaultViewId
@@ -74,68 +81,11 @@ class LayoutInspectorTree {
         return result
     }
 
-    private fun buildCompositionLookups(views: List<View>) {
-        for (view in views) {
-            val roots = view.compositionRoots
-            for (root in roots) {
-                root.findCompositionInstance()?.let { composition ->
-                    rootByComposition[composition] = root
-                    buildCompositionHierarchy(composition)
-                }
-            }
-            collectSemantics(view)
-        }
-    }
-
     private val View.compositionRoots: Set<CompositionData>
         get() {
             @Suppress("UNCHECKED_CAST")
             return getTag(R.id.inspection_slot_table_set) as? Set<CompositionData> ?: emptySet()
         }
-
-    private fun buildCompositionHierarchy(root: CompositionInstance) {
-        compositions.add(root)
-        var composition = root
-        var parent = composition.parent
-        while (parent != null) {
-            compositions.add(parent)
-            val children = hierarchy.getOrPut(parent) { mutableListOf() }
-            if (children.contains(composition)) {
-                return
-            }
-            children.add(composition)
-            composition = parent
-            parent = composition.parent
-        }
-    }
-
-    /** Build nodes for the specified [composition]. */
-    private fun buildNodesFor(composition: CompositionInstance) {
-        if (!compositions.contains(composition)) {
-            // We have already built the nodes for this composition.
-            return
-        }
-        // Mark this composition done:
-        compositions.remove(composition)
-
-        // We must build nodes for the child compositions first:
-        val children = hierarchy[composition] ?: emptyList()
-        children.forEach { buildNodesFor(it) }
-
-        val root = rootByComposition[composition] ?: return
-        val subCompositions = children.mapNotNull { resultByComposition[it] }
-        var result = builder.convert(composition, root, subCompositions)
-        val singleSubComposition = children.singleOrNull()
-        if (result.nodes.isEmpty() && result.ownerView == null && singleSubComposition != null) {
-            // Special case:
-            // Everything from this unowned composition was pushed to its single sub-composition.
-            // Remove the result of the sub-composition and use that result for this composition.
-            resultByComposition.remove(singleSubComposition)?.let {
-                result = SubCompositionResult(composition, it.ownerView, it.nodes)
-            }
-        }
-        resultByComposition[composition] = result
-    }
 
     fun findParameters(view: View, anchorId: Int): InspectorNode? {
         val identity = builderData.anchorMap[anchorId] ?: return null
@@ -173,7 +123,7 @@ class LayoutInspectorTree {
         node: InspectorNode,
         kind: ParameterKind,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): List<NodeParameter> {
         val parameters = node.parametersByKind(kind)
         return parameters.mapIndexed { index, parameter ->
@@ -186,7 +136,7 @@ class LayoutInspectorTree {
                 kind,
                 index,
                 maxRecursions,
-                maxInitialIterableSize
+                maxInitialIterableSize,
             )
         }
     }
@@ -203,7 +153,7 @@ class LayoutInspectorTree {
         startIndex: Int,
         maxElements: Int,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): NodeParameter? {
         val parameters = node.parametersByKind(reference.kind)
         if (reference.parameterIndex !in parameters.indices) {
@@ -220,8 +170,34 @@ class LayoutInspectorTree {
             startIndex,
             maxElements,
             maxRecursions,
-            maxInitialIterableSize
+            maxInitialIterableSize,
         )
+    }
+
+    fun convertStateValue(value: Any?): NodeParameter? {
+        return try {
+            builderData.parameterFactory.create(
+                rootId = -1,
+                nodeId = -1,
+                anchorId = -1,
+                name = "value",
+                value = value,
+                kind = ParameterKind.Normal,
+                parameterIndex = 0,
+                maxRecursions = 3,
+                maxInitialIterableSize = 5,
+            )
+        } catch (ex: Throwable) {
+            // A failure to decompose the value should not stop the agent from sending
+            // state reads to the client.
+            Log.w(LOG_TAG, "Could not decompose parameter: $value", ex)
+            null
+        }
+    }
+
+    private fun sort(compositions: List<SubCompositionResult>): List<SubCompositionResult> {
+        val anyIndices = compositions.any { it.listIndex >= 0 }
+        return if (anyIndices) compositions.sortedBy { it.listIndex } else compositions
     }
 
     private fun castValue(parameter: ParameterInformation): Any? {
@@ -232,16 +208,12 @@ class LayoutInspectorTree {
 
     private fun clear() {
         builderData.clear()
-        rootByComposition.clear()
-        hierarchy.clear()
         resultByComposition.clear()
-        compositions.clear()
     }
 
-    private class SharedBuilderDataImpl : SharedBuilderData {
+    private class SharedBuilderDataImpl(override val anchorMap: AnchorMap) : SharedBuilderData {
         override val cache = ArrayDeque<MutableInspectorNode>()
         override val contextCache = ContextCache()
-        override val anchorMap = AnchorMap()
         override val semanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
         override val unmergedSemanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
         override val inlineClassConverter = InlineClassConverter()
@@ -259,7 +231,6 @@ class LayoutInspectorTree {
             semanticsMap.clear()
             unmergedSemanticsMap.clear()
             inlineClassConverter.clear()
-            parameterFactory.clearReferenceCache()
             generatedId = -1L
         }
     }

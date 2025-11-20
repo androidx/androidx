@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * delegates, and they will be invoked in order until a delegated factory returns a non-null
  * [ListenableWorker] instance.
  */
-open class DelegatingWorkerFactory : WorkerFactory() {
+public open class DelegatingWorkerFactory : WorkerFactory() {
     // Use a CopyOnWriteArrayList here to allow modifying a list of factories during
     // iteration. This allows createWorker() to call addFactory().
     private val factories: MutableList<WorkerFactory> = CopyOnWriteArrayList()
@@ -33,14 +33,14 @@ open class DelegatingWorkerFactory : WorkerFactory() {
      *
      * @param workerFactory The [WorkerFactory] instance.
      */
-    fun addFactory(workerFactory: WorkerFactory) {
+    public fun addFactory(workerFactory: WorkerFactory) {
         factories.add(workerFactory)
     }
 
     final override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker? {
         // If none of the delegates can instantiate a ListenableWorker return null
         // so we can fallback to the default factory which is based on reflection.

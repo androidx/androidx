@@ -266,15 +266,29 @@ public abstract class MediaRouteProvider {
     }
 
     /**
+     * Creates a {@link RouteController}.
+     *
+     * <p>It will be called from an app or {@link MediaRouter} when a single route is selected.
+     *
+     * @param routeId the selected route's ID.
+     * @param routeControllerOptions the parameters to be used to create the route controller.
+     * @return {@link RouteController}. Returns null if there is no such route.
+     */
+    @Nullable
+    public RouteController onCreateRouteController(
+            @NonNull String routeId, @NonNull RouteControllerOptions routeControllerOptions) {
+        return onCreateRouteController(routeId);
+    }
+
+    /**
      * Called by the media router to obtain a route controller for a particular route.
-     * <p>
-     * The media router will invoke the {@link RouteController#onRelease} method of the route
+     *
+     * <p>The media router will invoke the {@link RouteController#onRelease} method of the route
      * controller when it is no longer needed to allow it to free its resources.
-     * </p>
      *
      * @param routeId The unique id of the route.
-     * @return The route controller.  Returns null if there is no such route or if the route
-     * cannot be controlled using the route controller interface.
+     * @return The route controller. Returns null if there is no such route or if the route cannot
+     *     be controlled using the route controller interface.
      */
     @Nullable
     public RouteController onCreateRouteController(@NonNull String routeId) {
@@ -307,7 +321,7 @@ public abstract class MediaRouteProvider {
         if (routeGroupId == null) {
             throw new IllegalArgumentException("routeGroupId cannot be null");
         }
-        return onCreateRouteController(routeId);
+        return onCreateRouteController(routeId, MediaRouteProvider.RouteControllerOptions.EMPTY);
     }
 
     /**
@@ -914,31 +928,54 @@ public abstract class MediaRouteProvider {
     public static final class RouteControllerOptions {
         static final RouteControllerOptions EMPTY = new RouteControllerOptions.Builder().build();
         private static final String KEY_CONTROL_HINTS = "controlHints";
+        private static final String KEY_CLIENT_PACKAGE_NAME = "clientPackageName";
+        private static final String EMPTY_CLIENT_PACKAGE_NAME = "";
         private final Bundle mBundle;
-        // The controlHints is passed by the client application for creating the route controller,
-        // or {@code null} if the client has not provided control hints. The controlHints may be
-        // provided by {@link android.media.MediaRouter2.OnGetControllerHintsListener}.
-        private final Bundle mControlHints;
 
         /* package */ RouteControllerOptions(Bundle bundle) {
             mBundle = new Bundle(bundle);
-            Bundle controlHints = mBundle.getParcelable(KEY_CONTROL_HINTS);
-            mControlHints = (controlHints != null) ? controlHints : Bundle.EMPTY;
         }
 
         /** Returns the contents of this object represented as a bundle. */
-        /* package */ @NonNull Bundle asBundle() {
+        /* package */ @NonNull
+        Bundle asBundle() {
             return mBundle;
         }
 
         @NonNull
         public Bundle getControlHints() {
-            return mControlHints;
+            // The controlHints is passed by the application for creating the route controller, or
+            // {@code null} if the client has not provided control hints. The controlHints may be
+            // provided by {@link android.media.MediaRouter2.OnGetControllerHintsListener}.
+            Bundle controlHints = mBundle.getParcelable(KEY_CONTROL_HINTS);
+            return (controlHints != null) ? controlHints : Bundle.EMPTY;
+        }
+
+        /** Returns the package name of the client requesting the route controller creation. */
+        @NonNull
+        public String getClientPackageName() {
+            return mBundle.getString(KEY_CLIENT_PACKAGE_NAME, EMPTY_CLIENT_PACKAGE_NAME);
         }
 
         /** Builder for {@link RouteControllerOptions}. */
         public static final class Builder {
-            private final Bundle mBundle = new Bundle();
+            private final Bundle mBundle;
+
+            public Builder() {
+                mBundle = new Bundle();
+            }
+
+            /**
+             * Copies the properties from the given {@link RouteControllerOptions}.
+             *
+             * <p>The values are read from the given {@link RouteControllerOptions} but can be
+             * overridden with the other setters in the builder.
+             */
+            public Builder(@NonNull RouteControllerOptions routeControllerOptions) {
+                mBundle = new Bundle();
+                setControlHints(routeControllerOptions.getControlHints());
+                setClientPackageName(routeControllerOptions.getClientPackageName());
+            }
 
             /** Sets controlHints passed by the client application. */
             @NonNull
@@ -947,9 +984,16 @@ public abstract class MediaRouteProvider {
                 return this;
             }
 
+            /** Sets the client package name for creating the route controller. */
+            @NonNull
+            public Builder setClientPackageName(@NonNull String clientPackageName) {
+                mBundle.putString(KEY_CLIENT_PACKAGE_NAME, clientPackageName);
+                return this;
+            }
+
             /** Builds the {@link RouteControllerOptions}. */
             @NonNull
-            public  RouteControllerOptions build() {
+            public RouteControllerOptions build() {
                 return new RouteControllerOptions(mBundle);
             }
         }

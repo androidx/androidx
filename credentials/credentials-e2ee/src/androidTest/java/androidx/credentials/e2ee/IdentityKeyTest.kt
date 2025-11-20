@@ -61,7 +61,7 @@ class IdentityKeyTest {
                 IdentityKey.createFromPrf(
                     prf,
                     /* salt= */ null,
-                    IdentityKey.IDENTITY_KEY_TYPE_ED25519
+                    IdentityKey.IDENTITY_KEY_TYPE_ED25519,
                 )
             val identityKey2 =
                 IdentityKey.createFromPrf(prf, ByteArray(32), IdentityKey.IDENTITY_KEY_TYPE_ED25519)
@@ -84,7 +84,7 @@ class IdentityKeyTest {
             Base64.decode(
                 "f2HM0TolWHyYJ/+LQDW8N2vRdE0+risMV/tIKXQdj7tVKdGChdJuMyz1" +
                     "/iX7x4y3GvHLlmja1A8qCsKsekW22Q==",
-                Base64.DEFAULT
+                Base64.DEFAULT,
             )
         val salt = ByteArray(32)
         val expectedPrivKeyHex = "bccdec572ae1be6b3c3f3473781965a1935d2614c928f5430b79188950658ad6"

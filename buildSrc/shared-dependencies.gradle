@@ -3,6 +3,27 @@
 apply from: "${buildscript.sourceFile.parent}/kotlin-dsl-dependency.gradle"
 // copy findGradleKotlinDsl to a local variable: https://github.com/gradle/gradle/issues/26057
 def findGradleKotlinDsl = project.findGradleKotlinDsl
+
+configurations {
+    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
+    // Until we migrate, use the configuration below. It removes need for suppressing
+    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
+    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
+    // IDE does not support this configuration yet, so you will still see references to internal
+    // members marked as an error
+    friends {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+        attributes {
+            attribute(
+                    Attribute.of("artifactType", String), "jar"
+            )
+        }
+    }
+    compileOnly.extendsFrom(friends)
+}
+
 dependencies {
 
     // Gradle APIs
@@ -14,17 +35,23 @@ dependencies {
 
     // Plugins we use and configure
     api(libs.kotlinGradlePlugin)
-    compileOnly(libs.kotlinCompiler) // for binaryCompatibilityValidator
-    implementation(libs.androidGradlePlugin)
+    friends(libs.kotlinCompiler) // for binaryCompatibilityValidator
+    implementation(libs.androidGradlePluginApi)
+    runtimeOnly(libs.androidGradlePlugin)
     implementation(libs.androidToolsCommon) // for com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
     implementation(libs.androidToolsRepository) // com.android.repository for Stable AIDL plugin
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.spdxGradlePluginz)
-    implementation(libs.androidKotlinMultiplatform)
+    runtimeOnly(libs.androidExperimentalBuiltInKotlinPlugin)
+    runtimeOnly(libs.androidKotlinMultiplatform)
+    runtimeOnly(libs.androidLegacyKaptPlugin)
     implementation(libs.binaryCompatibilityValidator)
 
     // For Room Gradle Plugin
-    implementation(libs.kspGradlePlugin)
+    implementation(libs.kspGradlePlugin) {
+        // ensure that AGP dependency doesn't override KSP version we use
+        version { strictly(libs.versions.ksp.get()) }
+    }
 
     // Force jsoup upgrade on spdx (b/309773103)
     implementation(libs.jsoup)
@@ -47,7 +74,7 @@ dependencies {
     implementation(libs.protobufGradlePlugin) // needed to compile inspection plugin
     implementation(libs.kotlinPoet) // needed to compile glance-layout-generator
 
-    implementation("com.google.protobuf:protobuf-java:3.22.3") // needed to compile baseline-profile gradle plugins
+    implementation("com.google.protobuf:protobuf-java:3.25.5") // needed to compile baseline-profile gradle plugins
     implementation(libs.agpTestingPlatformCoreProto) // needed to compile baseline-profile gradle plugins
 
     // dependencies that aren't used by buildSrc directly but that we resolve here so that the
@@ -58,4 +85,6 @@ dependencies {
 
     // Plugin for analyzing dependencies
     implementation(libs.dependency.analysis.gradle.plugin)
+
+    implementation("com.google.cloud:google-cloud-secretmanager:2.67.0")
 }

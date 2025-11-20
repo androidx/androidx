@@ -60,7 +60,7 @@ interface StaggeredGridCells {
 
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
-            spacing: Int
+            spacing: Int,
         ): IntArray {
             return calculateCellsCrossAxisSizeImpl(availableSize, count, spacing)
         }
@@ -90,7 +90,7 @@ interface StaggeredGridCells {
 
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
-            spacing: Int
+            spacing: Int,
         ): IntArray {
             val count = maxOf((availableSize + spacing) / (minSize.roundToPx() + spacing), 1)
             return calculateCellsCrossAxisSizeImpl(availableSize, count, spacing)
@@ -119,7 +119,7 @@ interface StaggeredGridCells {
     class FixedSize(private val size: Dp) : StaggeredGridCells {
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
-            spacing: Int
+            spacing: Int,
         ): IntArray {
             val cellSize = size.roundToPx()
             return if (cellSize + spacing < availableSize + spacing) {

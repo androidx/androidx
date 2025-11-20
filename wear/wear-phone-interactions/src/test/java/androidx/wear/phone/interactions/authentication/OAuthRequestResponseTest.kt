@@ -19,8 +19,8 @@ package androidx.wear.phone.interactions.authentication
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
@@ -36,7 +36,7 @@ import org.robolectric.shadows.ShadowPackageManager
 @RunWith(WearPhoneInteractionsTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = 28)
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 public class OAuthRequestResponseTest {
     internal companion object {
         private val context: Context = ApplicationProvider.getApplicationContext()
@@ -111,7 +111,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -130,7 +130,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName_cn,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -150,7 +150,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             customRedirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -170,7 +170,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             customRedirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -195,7 +195,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -221,7 +221,7 @@ public class OAuthRequestResponseTest {
         checkBuildFailure(
             builder,
             "The use of Proof Key for Code Exchange is required for authentication, " +
-                "please provide client_id in the request."
+                "please provide client_id in the request.",
         )
     }
 
@@ -239,7 +239,7 @@ public class OAuthRequestResponseTest {
             "The 'client_id' query param already exists in the authProviderUrl, " +
                 "expect to have the value of '$clientId', but " +
                 "'XXX' is given. Please correct it,  or leave it out " +
-                "to allow the request builder to append it automatically."
+                "to allow the request builder to append it automatically.",
         )
     }
 
@@ -258,7 +258,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -273,7 +273,7 @@ public class OAuthRequestResponseTest {
         checkBuildFailure(
             builder,
             "The use of Proof Key for Code Exchange is required for authentication, " +
-                "please provide code_challenge in the request."
+                "please provide code_challenge in the request.",
         )
     }
 
@@ -292,7 +292,7 @@ public class OAuthRequestResponseTest {
             "The 'code_challenge' query param already exists in the authProviderUrl, " +
                 "expect to have the value of '${codeChallenge.value}', but " +
                 "'XXX' is given. Please correct it,  or leave it out " +
-                "to allow the request builder to append it automatically."
+                "to allow the request builder to append it automatically.",
         )
     }
 
@@ -313,7 +313,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -331,7 +331,7 @@ public class OAuthRequestResponseTest {
             "The 'response_type' query param already exists in the authProviderUrl, " +
                 "expect to have the value of 'code', but " +
                 "'XXX' is given. Please correct it,  or leave it out " +
-                "to allow the request builder to append it automatically."
+                "to allow the request builder to append it automatically.",
         )
     }
 
@@ -350,7 +350,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -368,7 +368,7 @@ public class OAuthRequestResponseTest {
             "The 'code_challenge_method' query param already exists in the authProviderUrl, " +
                 "expect to have the value of 'S256', but " +
                 "'PLAIN' is given. Please correct it,  or leave it out " +
-                "to allow the request builder to append it automatically."
+                "to allow the request builder to append it automatically.",
         )
     }
 
@@ -387,7 +387,7 @@ public class OAuthRequestResponseTest {
             authProviderUrl,
             clientId,
             redirectUrlWithPackageName,
-            codeChallenge.value
+            codeChallenge.value,
         )
     }
 
@@ -409,7 +409,7 @@ public class OAuthRequestResponseTest {
             "The 'redirect_uri' query param already exists in the authProviderUrl, " +
                 "expect to have the value of '$customRedirectUrlWithPackageName', but " +
                 "'$redirectUrlWithPackageName' is given. Please correct it,  or leave it out " +
-                "to allow the request builder to append it automatically."
+                "to allow the request builder to append it automatically.",
         )
     }
 

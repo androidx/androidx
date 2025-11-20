@@ -213,11 +213,11 @@ class MutableVecTest {
     }
 
     @Test
-    fun asImmutable_returnsNewEquivalentImmutableVec() {
+    fun toImmutable_returnsNewEquivalentImmutableVec() {
         val vec = MutableVec(1f, 2f)
 
-        assertThat(vec.asImmutable()).isNotSameInstanceAs(vec)
-        assertThat(vec.asImmutable()).isEqualTo(vec)
+        assertThat(vec.toImmutable()).isNotSameInstanceAs(vec)
+        assertThat(vec.toImmutable()).isEqualTo(vec)
     }
 
     @Test
@@ -275,46 +275,63 @@ class MutableVecTest {
     }
 
     @Test
-    fun fromDirectionAndMagnitude_returnsCorrectValue() {
-        assertThat(MutableVec.fromDirectionAndMagnitude(0f, 5f).isAlmostEqual(MutableVec(5f, 0f)))
-            .isTrue()
+    fun populateFromDirectionInDegreesAndMagnitude_returnsCorrectValue() {
+        val scratchMutableVec = MutableVec()
+        // Each call overwrites and returns the instance.
+        assertThat(scratchMutableVec.populateFromDirectionInDegreesAndMagnitude(0f, 5f))
+            .isSameInstanceAs(scratchMutableVec)
+
         assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(90f), 5f)
-                    .isAlmostEqual(MutableVec(0f, 5f))
-            )
-            .isTrue()
-        assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(180f), 5f)
-                    .isAlmostEqual(MutableVec(-5f, 0f))
-            )
-            .isTrue()
-        assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(270f), 5f)
-                    .isAlmostEqual(MutableVec(0f, -5f))
-            )
-            .isTrue()
-        assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(360f), 5f)
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(0f, 5f)
                     .isAlmostEqual(MutableVec(5f, 0f))
             )
             .isTrue()
         assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(45f), sqrt(50f))
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(90f, 5f)
+                    .isAlmostEqual(MutableVec(0f, 5f))
+            )
+            .isTrue()
+        assertThat(
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(180f, 5f)
+                    .isAlmostEqual(MutableVec(-5f, 0f))
+            )
+            .isTrue()
+        assertThat(
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(270f, 5f)
+                    .isAlmostEqual(MutableVec(0f, -5f))
+            )
+            .isTrue()
+        assertThat(
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(360f, 5f)
+                    .isAlmostEqual(MutableVec(5f, 0f))
+            )
+            .isTrue()
+        assertThat(
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(45f, sqrt(50f))
                     .isAlmostEqual(MutableVec(5f, 5f))
             )
             .isTrue()
         assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(135f), sqrt(50f))
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(135f, sqrt(50f))
                     .isAlmostEqual(MutableVec(-5f, 5f))
             )
             .isTrue()
         assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(225f), sqrt(50f))
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(225f, sqrt(50f))
                     .isAlmostEqual(MutableVec(-5f, -5f))
             )
             .isTrue()
         assertThat(
-                MutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(315f), sqrt(50f))
+                scratchMutableVec
+                    .populateFromDirectionInDegreesAndMagnitude(315f, sqrt(50f))
                     .isAlmostEqual(MutableVec(5f, -5f))
             )
             .isTrue()

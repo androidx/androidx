@@ -28,7 +28,7 @@ import org.robolectric.util.ReflectionHelpers
 /** Instrument tests for [SurfaceViewNotCroppedByParentQuirk]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class SurfaceViewNotCroppedByParentQuirkTest {
 
     @Test

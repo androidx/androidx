@@ -84,7 +84,7 @@ class WorkConstraintsTrackerTest {
             workConstraintsTracker.listen(
                 TEST_WORKSPECS[0],
                 executor.asCoroutineDispatcher(),
-                callback
+                callback,
             )
         assertThat(callback.channel.receive()).isEqualTo(ConstraintsNotMet)
         tracker.constraintState = true
@@ -128,11 +128,7 @@ class WorkConstraintsTrackerTest {
 }
 
 private val TEST_WORKSPECS =
-    listOf(
-        WorkSpec("A", "Worker1"),
-        WorkSpec("B", "Worker2"),
-        WorkSpec("C", "Worker3"),
-    )
+    listOf(WorkSpec("A", "Worker1"), WorkSpec("B", "Worker2"), WorkSpec("C", "Worker3"))
 private val TEST_WORKSPEC_IDS = TEST_WORKSPECS.map { it.id }
 
 internal fun WorkConstraintsTracker(

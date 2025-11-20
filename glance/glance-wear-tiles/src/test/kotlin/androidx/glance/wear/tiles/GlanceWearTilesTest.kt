@@ -35,6 +35,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalGlanceWearTilesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class GlanceWearTilesTest {
     private lateinit var fakeCoroutineScope: TestScope
 
@@ -50,7 +51,7 @@ class GlanceWearTilesTest {
             val compositionResult =
                 compose(
                     context = ApplicationProvider.getApplicationContext<Context>(),
-                    size = DpSize(100.dp, 50.dp)
+                    size = DpSize(100.dp, 50.dp),
                 ) {}
             assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
             assertThat(
@@ -67,7 +68,7 @@ class GlanceWearTilesTest {
             val compositionResult =
                 compose(
                     context = ApplicationProvider.getApplicationContext<Context>(),
-                    size = DpSize(100.dp, 50.dp)
+                    size = DpSize(100.dp, 50.dp),
                 ) {
                     Text("text content")
                 }

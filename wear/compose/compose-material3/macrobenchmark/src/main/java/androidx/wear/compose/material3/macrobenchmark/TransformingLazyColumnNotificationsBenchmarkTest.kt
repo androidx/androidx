@@ -28,5 +28,5 @@ class TransformingLazyColumnNotificationsBenchmarkTest(compilationMode: Compilat
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = TransformingLazyColumnNotificationsBenchmark,
-        actionSuffix = "TRANSFORMING_LAZY_COLUMN_NOTIFICATIONS_ACTIVITY"
+        actionSuffix = "TRANSFORMING_LAZY_COLUMN_NOTIFICATIONS_ACTIVITY",
     )

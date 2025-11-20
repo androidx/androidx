@@ -8,13 +8,26 @@ inputs:
     description: "Root folder of the project (used for building)"
     required: true
   gradle-cache-password:
-    description: "password for gradle cache"
+    description: "password for gradle cache, should be specified if gradle-cache-disabled is false"
+    required: false
+    default: ""
   gradle-enterprise-access-key:
     description: "access key for gradle enterprise"
   gradle-encryption-key:
-    description: "key for gradle configuration cache encryption"
+    description: "key for gradle configuration cache encryption, should be specified if gradle-cache-disabled is false"
+    required: false
+    default: ""
   gradle-flags:
     description: "flags to pass while invoking gradle"
+  gradle-version:
+    description: "Version of gradle to use. Defaults to the version of gradlew if not specified."
+    required: false
+    default: wrapper
+  gradle-cache-disabled:
+    description: "Whether to disable the gradle build cache. Defaults to false (cache enabled)."
+    required: false
+    default: false
+
 runs:
   using: "composite"
   steps:
@@ -48,7 +61,7 @@ runs:
         echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
     - name: "Setup Gradle"
-      uses: gradle/gradle-build-action@v3-beta
+      uses: gradle/actions/setup-gradle@v4
       with:
         # Only save Gradle User Home state for builds on the 'androidx-main' branch.
         # Builds on other branches will only read existing entries from the cache.
@@ -65,21 +78,45 @@ runs:
           caches/jars-9
           caches/transforms-3
 
+        gradle-version: ${{ inputs.gradle-version }}
+
+        cache-disabled: ${{ inputs.gradle-cache-disabled }}
+
     - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
-        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        DEVELOCITY_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: ./gradlew buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
+      run: gradle buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
     - name: "gradle playgroundCIHostTests"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
-        GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        DEVELOCITY_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: ./gradlew playgroundCIHostTests ${{ inputs.gradle-flags }}
+      run: gradle playgroundCIHostTests ${{ inputs.gradle-flags }}
+
+    # Zip artifacts because some paths contain ":", which upload-artifact does not accept.
+    - name: "Zip build artifacts"
+      continue-on-error: true
+      shell: bash
+      run: zip -r artifacts_${{ inputs.project }}.zip ~/dist
+    - name: "Upload build artifacts"
+      continue-on-error: true
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts_${{ inputs.project }}
+        path: artifacts_${{ inputs.project }}.zip
+
+    - name: "Upload daemon logs"
+      continue-on-error: true
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-daemon-logs_${{ inputs.project }}
+        path: ~/.gradle/daemon

@@ -37,12 +37,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Collections;
 
 /** Tests for {@link ItemListTest}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ItemListTest {
     private static final Row row1 = new Row.Builder().setTitle("Row1").build();

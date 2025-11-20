@@ -35,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class LazyGridSpanTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun spans() {
@@ -55,7 +56,7 @@ class LazyGridSpanTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),
                 modifier = Modifier.requiredSize(columnWidth * columns, itemHeight * 3),
-                state = state
+                state = state,
             ) {
                 items(
                     count = 6,
@@ -145,7 +146,7 @@ class LazyGridSpanTest {
             LazyHorizontalGrid(
                 rows = GridCells.Fixed(rows),
                 modifier = Modifier.requiredSize(itemWidth * 3, rowHeight * rows),
-                state = state
+                state = state,
             ) {
                 items(
                     count = 6,
@@ -236,9 +237,9 @@ class LazyGridSpanTest {
                 modifier =
                     Modifier.requiredSize(
                         columnWidth * columns + spacing * (columns - 1),
-                        itemHeight
+                        itemHeight,
                     ),
-                horizontalArrangement = Arrangement.spacedBy(spacing)
+                horizontalArrangement = Arrangement.spacedBy(spacing),
             ) {
                 items(
                     count = 2,
@@ -248,7 +249,7 @@ class LazyGridSpanTest {
                             1 -> GridItemSpan(3)
                             else -> error("Out of index span queried")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.height(itemHeight).testTag("$it"))
                 }
@@ -275,7 +276,7 @@ class LazyGridSpanTest {
         rule.setContent {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),
-                modifier = Modifier.requiredSize(columnWidth * columns, itemHeight)
+                modifier = Modifier.requiredSize(columnWidth * columns, itemHeight),
             ) {
                 items(
                     count = 1,
@@ -284,7 +285,7 @@ class LazyGridSpanTest {
                             0 -> GridItemSpan(1)
                             else -> error("Out of index span queried")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.height(itemHeight).testTag("0"))
                 }
@@ -303,7 +304,7 @@ class LazyGridSpanTest {
                             error("Wrong span calculation parameters")
                         }
                         GridItemSpan(1)
-                    }
+                    },
                 ) {
                     if (it != 0) error("Wrong index")
                     Box(Modifier.height(itemHeight).testTag("2"))
@@ -336,7 +337,7 @@ class LazyGridSpanTest {
         rule.setContent {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),
-                modifier = Modifier.requiredSize(columnWidth * columns, itemHeight * 3)
+                modifier = Modifier.requiredSize(columnWidth * columns, itemHeight * 3),
             ) {
                 item(
                     span = {
@@ -361,7 +362,7 @@ class LazyGridSpanTest {
                         )
                             error("Wrong maxSpan")
                         GridItemSpan(listOf(2, 1, 2, 2)[index])
-                    }
+                    },
                 ) {
                     Box(Modifier.height(itemHeight).testTag((it + 1).toString()))
                 }
@@ -404,7 +405,7 @@ class LazyGridSpanTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 state = state,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(100.dp),
             ) {
                 repeat(100) {
                     item(span = { GridItemSpan(maxLineSpan) }) {

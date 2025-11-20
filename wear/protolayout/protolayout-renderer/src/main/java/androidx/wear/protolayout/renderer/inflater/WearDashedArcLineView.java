@@ -28,7 +28,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Style;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +37,6 @@ import androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection;
 import androidx.wear.widget.ArcLayout.Widget;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,8 +66,8 @@ public class WearDashedArcLineView extends View implements Widget {
     private float mLineSweepAngleDegrees = 0F;
     private int mGapSizePx = 0;
     private float mStrokeWidthPx;
-    @Nullable private Path mPath;
-    @Nullable private Path mScaledPath;
+    private final List<ArcLinePath> mPathList = new ArrayList<>();
+    private final List<ArcLinePath> mScaledPathList = new ArrayList<>();
 
     public WearDashedArcLineView(@NonNull Context context) {
         super(context, null, 0, 0);
@@ -89,8 +87,8 @@ public class WearDashedArcLineView extends View implements Widget {
             return;
         }
 
-        mPath = null;
-        mScaledPath = null;
+        mPathList.clear();
+        mScaledPathList.clear();
 
         float lineLength = resolveSweepAngleDegrees();
         float insetPx = mStrokeWidthPx / 2f;
@@ -136,13 +134,11 @@ public class WearDashedArcLineView extends View implements Widget {
 
             float segmentStartAngle = mSegments.get(i).startAngleDegrees + dotInDegree * scale / 2f;
             if (scale == 1F) {
-                if (mPath == null) {
-                    mPath = new Path();
-                }
-                mPath.addArc(
-                        rect,
-                        segmentStartAngle * arcDirectionSign + angleShift,
-                        segmentArcLength * arcDirectionSign);
+                mPathList.add(
+                        new ArcLinePath(
+                                rect,
+                                segmentStartAngle * arcDirectionSign + angleShift,
+                                segmentArcLength * arcDirectionSign));
             } else {
                 // Apply scale to the stroke width for dot transition.
                 if (mStrokeWidthPx * scale < 1f) { // stroke width is smaller than 1 pixel
@@ -150,13 +146,11 @@ public class WearDashedArcLineView extends View implements Widget {
                 }
                 mScaledPaint.setStrokeWidth(mStrokeWidthPx * scale);
                 mScaledPaint.setAlpha((int) (scale * Color.alpha(mPaint.getColor())));
-                if (mScaledPath == null) {
-                    mScaledPath = new Path();
-                }
-                mScaledPath.addArc(
-                        rect,
-                        segmentStartAngle * arcDirectionSign + angleShift,
-                        segmentArcLength * arcDirectionSign);
+                mScaledPathList.add(
+                        new ArcLinePath(
+                                rect,
+                                segmentStartAngle * arcDirectionSign + angleShift,
+                                segmentArcLength * arcDirectionSign));
             }
         }
     }
@@ -344,12 +338,22 @@ public class WearDashedArcLineView extends View implements Widget {
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
-        if (mPath != null) {
-            canvas.drawPath(mPath, mPaint);
-        }
-        if (mScaledPath != null) {
-            canvas.drawPath(mScaledPath, mScaledPaint);
-        }
+        mPathList.forEach(
+                arc ->
+                        canvas.drawArc(
+                                arc.getOval(),
+                                arc.getStartAngle(),
+                                arc.getSweepAngle(),
+                                /* useCenter= */ false,
+                                mPaint));
+        mScaledPathList.forEach(
+                arc ->
+                        canvas.drawArc(
+                                arc.getOval(),
+                                arc.getStartAngle(),
+                                arc.getSweepAngle(),
+                                /* useCenter= */ false,
+                                mScaledPaint));
     }
 
     /** Return true when the given point is in the clickable area of the child widget. */

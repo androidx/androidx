@@ -26,6 +26,7 @@ import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecInfo.CodecCapabilities;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.opengl.GLES20;
 import android.os.Handler;
@@ -74,11 +75,11 @@ public class EncoderBase implements AutoCloseable,
     private static final boolean DEBUG = false;
 
     private String MIME;
-    private int GRID_WIDTH;
-    private int GRID_HEIGHT;
-    private int ENCODING_BLOCK_SIZE;
-    private double MAX_COMPRESS_RATIO;
-    private int INPUT_BUFFER_POOL_SIZE = 2;
+    private static int GRID_WIDTH;
+    private static int GRID_HEIGHT;
+    private static int ENCODING_BLOCK_SIZE;
+    private static double MAX_COMPRESS_RATIO;
+    private static int INPUT_BUFFER_POOL_SIZE = 2;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
         MediaCodec mEncoder;
@@ -181,6 +182,73 @@ public class EncoderBase implements AutoCloseable,
         public abstract void onError(@NonNull EncoderBase encoder, @NonNull CodecException e);
     }
 
+    private static @Nullable String findVideoEncoderFallback(@NonNull String mimeType,
+            @NonNull EncoderPreference preference) {
+        String encoder = null; // first encoder
+        String encoderHw = null; // first hardware encoder
+        String encoderSw = null; // first software encoder
+        final MediaCodecList list = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        boolean hwOk = (preference.getEncoderType() ==
+            EncoderPreference.HARDWARE_ENCODER_ONLY ||
+            preference.getEncoderType() == EncoderPreference.HARDWARE_ENCODER_PREFERRED ||
+            preference.getEncoderType() == EncoderPreference.NO_ENCODER_PREFERENCE);
+        boolean swOk = (preference.getEncoderType() ==
+            EncoderPreference.SOFTWARE_ENCODER_ONLY ||
+            preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_PREFERRED ||
+            preference.getEncoderType() == EncoderPreference.NO_ENCODER_PREFERENCE);
+
+        for (MediaCodecInfo info : list.getCodecInfos()) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(mimeType);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
+                continue;
+            }
+            boolean isHw = info.isHardwareAccelerated();
+            boolean isSw = !isHw;
+            if (isSw && preference.getEncoderType() ==
+                    EncoderPreference.HARDWARE_ENCODER_ONLY) {
+                continue;
+            }
+            if (isHw && preference.getEncoderType() ==
+                    EncoderPreference.SOFTWARE_ENCODER_ONLY) {
+                continue;
+            }
+            if (caps.getEncoderCapabilities().isBitrateModeSupported(
+                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                // Encoder that supports CQ mode is preferred over others,
+                // return the first encoder that supports CQ mode if the
+                // hw/sw preference check is OK, cache otherwise
+                if ((isHw && hwOk) || (isSw && swOk)) {
+                    return info.getName();
+                }
+            } else if (preference.getBitrateMode() ==
+                EncoderPreference.CONSTANT_QUALITY_MODE_ONLY) {
+                // Skip if CQ mode is enforced.
+                continue;
+            }
+            if (encoder == null) { encoder = info.getName(); }
+            if (isHw && encoderHw == null) { encoderHw = info.getName(); }
+            if (isSw && encoderSw == null) { encoderSw = info.getName(); }
+        }
+        // If no encoders support CQ, return the first encoder that meets the preference
+        // (nullable if no encoder meets the preference).
+        if (preference.getEncoderType() == EncoderPreference.HARDWARE_ENCODER_PREFERRED) {
+            return encoderHw != null ? encoderHw : encoder;
+        }
+        if (preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_PREFERRED) {
+            return encoderSw != null ? encoderSw : encoder;
+        }
+        return encoder;
+    }
+
     /**
      * Configure the encoder. Should only be called once.
      *
@@ -197,7 +265,7 @@ public class EncoderBase implements AutoCloseable,
      * @param cb The callback to receive various messages from the heif encoder.
      */
     protected EncoderBase(@NonNull String mimeType, int width, int height, boolean useGrid,
-        int quality, @InputMode int inputMode,
+        int quality, @InputMode int inputMode, @NonNull EncoderPreference preference,
         @Nullable Handler handler, @NonNull Callback cb,
         boolean useBitDepth10) throws IOException {
         if (DEBUG)
@@ -231,9 +299,18 @@ public class EncoderBase implements AutoCloseable,
 
         boolean useHeicEncoder = false;
         MediaCodecInfo.CodecCapabilities caps = null;
+        String encoder = null;
         switch (MIME) {
             case "HEIC":
                 try {
+                    // Skic HEIC encoder if software encoder is enforced
+                    if (preference.getEncoderType() == EncoderPreference.SOFTWARE_ENCODER_ONLY
+                            || preference.getEncoderType() ==
+                            EncoderPreference.SOFTWARE_ENCODER_PREFERRED) {
+                        mEncoder.release();
+                        mEncoder = null;
+                        throw new Exception();
+                    }
                     mEncoder = MediaCodec.createEncoderByType(
                         MediaFormat.MIMETYPE_IMAGE_ANDROID_HEIC);
                     caps = mEncoder.getCodecInfo().getCapabilitiesForType(
@@ -246,7 +323,13 @@ public class EncoderBase implements AutoCloseable,
                     }
                     useHeicEncoder = true;
                 } catch (Exception e) {
-                    mEncoder = MediaCodec.createByCodecName(HeifEncoder.findHevcFallback());
+                    encoder = findVideoEncoderFallback(
+                            MediaFormat.MIMETYPE_VIDEO_HEVC, preference);
+                    if (encoder == null) {
+                        throw new IllegalArgumentException("Cannot find capable "
+                            + "encoder with the current encoder preference: " + preference);
+                    }
+                    mEncoder = MediaCodec.createByCodecName(encoder);
                     caps = mEncoder.getCodecInfo()
                         .getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
                     // Disable grid if the image is too small
@@ -256,7 +339,13 @@ public class EncoderBase implements AutoCloseable,
                 }
                 break;
             case "AVIF":
-                mEncoder = MediaCodec.createByCodecName(AvifEncoder.findAv1Fallback());
+                encoder = findVideoEncoderFallback(MediaFormat.MIMETYPE_VIDEO_AV1, preference);
+                if (encoder == null) {
+                    throw new IllegalArgumentException("Cannot find capable"
+                        + "encoder with the current encoder preference: " + preference);
+                }
+
+                mEncoder = MediaCodec.createByCodecName(encoder);
                 caps = mEncoder.getCodecInfo()
                     .getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1);
                 // Disable grid if the image is too small

@@ -35,7 +35,7 @@ open class FrameData(
     frameStartNanos: Long,
     frameDurationUiNanos: Long,
     isJank: Boolean,
-    val states: List<StateInfo>
+    val states: List<StateInfo>,
 ) {
     /**
      * These backing fields are used to enable mutation of an existing FrameData object, to avoid

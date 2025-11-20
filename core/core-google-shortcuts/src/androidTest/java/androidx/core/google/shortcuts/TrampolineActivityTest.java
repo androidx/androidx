@@ -36,7 +36,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.crypto.tink.KeysetHandle;
@@ -49,7 +48,6 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class TrampolineActivityTest {
     private static final String SHORTCUT_LISTENER_INTENT_FILTER_ACTION = "androidx.core.content.pm"
             + ".SHORTCUT_LISTENER";

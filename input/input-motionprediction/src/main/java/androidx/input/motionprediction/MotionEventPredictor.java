@@ -74,7 +74,7 @@ public interface MotionEventPredictor {
         Context context = view.getContext();
         Configuration configuration = Configuration.getInstance();
         if (Build.VERSION.SDK_INT >= 34
-                && configuration.preferSystemPrediction()) {
+                && !configuration.preferLibraryPrediction()) {
             return SystemMotionEventPredictor.newInstance(
                     context,
                     configuration.predictionStrategy());

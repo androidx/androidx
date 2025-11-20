@@ -61,7 +61,7 @@ fun DefaultLineLimits() {
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.Default,
         textStyle = LocalTextStyle.current,
-        modifier = demoTextFieldModifiers
+        modifier = demoTextFieldModifiers,
     )
 }
 
@@ -73,7 +73,7 @@ fun SingleLineLimits() {
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.SingleLine,
         textStyle = LocalTextStyle.current,
-        modifier = demoTextFieldModifiers
+        modifier = demoTextFieldModifiers,
     )
 }
 
@@ -90,7 +90,7 @@ fun MultiLineLimits() {
             value = minLines.toFloat(),
             onValueChange = { minLines = it.roundToInt() },
             valueRange = 1f..10f,
-            steps = 9
+            steps = 9,
         )
     }
 
@@ -100,7 +100,7 @@ fun MultiLineLimits() {
             value = maxLines.toFloat(),
             onValueChange = { maxLines = it.roundToInt() },
             valueRange = 1f..10f,
-            steps = 9
+            steps = 9,
         )
     }
 
@@ -111,6 +111,6 @@ fun MultiLineLimits() {
         lineLimits =
             TextFieldLineLimits.MultiLine(minHeightInLines = minLines, maxHeightInLines = maxLines),
         textStyle = LocalTextStyle.current,
-        modifier = demoTextFieldModifiers
+        modifier = demoTextFieldModifiers,
     )
 }

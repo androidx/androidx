@@ -80,10 +80,7 @@ fun WideButton(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     background: @Composable () -> Unit = {
-        WideButtonDefaults.Background(
-            enabled = enabled,
-            interactionSource = interactionSource,
-        )
+        WideButtonDefaults.Background(enabled = enabled, interactionSource = interactionSource)
     },
     scale: ButtonScale = WideButtonDefaults.scale(),
     glow: ButtonGlow = WideButtonDefaults.glow(),
@@ -92,7 +89,7 @@ fun WideButton(
     tonalElevation: Dp = Elevation.Level0,
     border: ButtonBorder = WideButtonDefaults.border(),
     contentPadding: PaddingValues = WideButtonDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     WideButtonImpl(
         onClick = onClick,
@@ -108,7 +105,7 @@ fun WideButton(
         interactionSource = interactionSource,
         modifier = modifier,
         background = background,
-        content = content
+        content = content,
     )
 }
 
@@ -182,7 +179,7 @@ fun WideButton(
         minHeight =
             if (subtitle == null) BaseWideButtonDefaults.MinHeight
             else BaseWideButtonDefaults.MinHeightWithSubtitle,
-        background = background
+        background = background,
     ) {
         if (icon != null) {
             icon()
@@ -198,7 +195,7 @@ fun WideButton(
                     ) {
                         title()
                     }
-                }
+                },
             )
             if (subtitle != null) {
                 ProvideTextStyle(
@@ -209,7 +206,7 @@ fun WideButton(
                                     alpha = BaseWideButtonDefaults.SubtitleAlpha
                                 )
                         ),
-                    content = subtitle
+                    content = subtitle,
                 )
             }
         }
@@ -232,7 +229,7 @@ private fun WideButtonImpl(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     minHeight: Dp = BaseWideButtonDefaults.MinHeight,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     val density = LocalDensity.current
     var buttonWidth by remember { mutableStateOf(0.dp) }
@@ -249,7 +246,7 @@ private fun WideButtonImpl(
         colors = contentColor.toClickableSurfaceColors(),
         tonalElevation = tonalElevation,
         border = border.toClickableSurfaceBorder(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ProvideTextStyle(value = MaterialTheme.typography.labelLarge) {
             Box(
@@ -270,7 +267,7 @@ private fun WideButtonImpl(
                 Row(
                     modifier = Modifier.size(buttonWidth, buttonHeight).padding(contentPadding),
                     verticalAlignment = Alignment.CenterVertically,
-                    content = content
+                    content = content,
                 )
             }
         }

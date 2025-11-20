@@ -27,7 +27,9 @@ import androidx.fragment.compose.rememberFragmentState
 @Composable
 fun BasicAndroidFragment() {
     val fragmentState = rememberFragmentState()
-    val args = bundleOf("myarg" to "arguments")
+    val args =
+        @Suppress("DEPRECATION") // bundleOf is deprecated
+        bundleOf("myarg" to "arguments")
     AndroidFragment<MyFragment>(fragmentState = fragmentState, arguments = args)
 }
 

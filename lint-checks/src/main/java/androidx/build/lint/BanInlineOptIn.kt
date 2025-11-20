@@ -63,7 +63,7 @@ class BanInlineOptIn : Detector(), Detector.UastScanner {
                 category = Category.CORRECTNESS,
                 priority = 5,
                 severity = Severity.ERROR,
-                implementation = Implementation(BanInlineOptIn::class.java, Scope.JAVA_FILE_SCOPE)
+                implementation = Implementation(BanInlineOptIn::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

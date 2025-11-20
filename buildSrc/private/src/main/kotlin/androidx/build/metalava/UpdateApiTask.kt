@@ -58,10 +58,7 @@ abstract class UpdateApiTask : DefaultTask() {
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         return outputApiLocations.get().flatMap { outputApiLocation ->
-            listOf(
-                outputApiLocation.publicApiFile,
-                outputApiLocation.restrictedApiFile,
-            )
+            listOf(outputApiLocation.publicApiFile, outputApiLocation.restrictedApiFile)
         }
     }
 
@@ -73,7 +70,7 @@ abstract class UpdateApiTask : DefaultTask() {
             copy(
                 source = inputApi.restrictedApiFile,
                 dest = outputApi.restrictedApiFile,
-                logger = logger
+                logger = logger,
             )
         }
     }

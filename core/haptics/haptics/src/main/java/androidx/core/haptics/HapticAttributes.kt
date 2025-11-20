@@ -55,20 +55,13 @@ constructor(
     )
 
     /** Creates a [HapticAttributes] mapping fields from given [AudioAttributes]. */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public constructor(
         attrs: AudioAttributes
-    ) : this(
-        HapticAttributesConverter.usageFromAudioAttributes(attrs),
-        flags = 0,
-    )
+    ) : this(HapticAttributesConverter.usageFromAudioAttributes(attrs), flags = 0)
 
     /** Builder class for [HapticAttributes]. */
     public class Builder
-    private constructor(
-        @Usage private var usage: Int,
-        @Flag private var flags: Int,
-    ) {
+    private constructor(@Usage private var usage: Int, @Flag private var flags: Int) {
 
         /** Creates a builder for [HapticAttributes] with given usage. */
         public constructor(@Usage usage: Int) : this(usage, flags = 0)
@@ -86,13 +79,9 @@ constructor(
         )
 
         /** Creates a builder for [HapticAttributes] copying mapped fields from given attributes. */
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         public constructor(
             attrs: AudioAttributes
-        ) : this(
-            HapticAttributesConverter.usageFromAudioAttributes(attrs),
-            flags = 0,
-        )
+        ) : this(HapticAttributesConverter.usageFromAudioAttributes(attrs), flags = 0)
 
         /** Sets the usage that maps correct system policies and user settings to the vibration. */
         public fun setUsage(@Usage usage: Int): Builder = apply { this.usage = usage }
@@ -116,7 +105,7 @@ constructor(
 
     override fun toString(): String = "HapticAttributes(usage=$usage, flags=$flags)"
 
-    internal fun toAttributes(): AttributesWrapper? = HapticAttributesConverter.toAttributes(this)
+    internal fun toAttributes(): AttributesWrapper = HapticAttributesConverter.toAttributes(this)
 
     public companion object {
         // Values from VibrationAttributes.USAGE_* and VibrationAttributes.FLAG_*
@@ -199,13 +188,7 @@ constructor(
     internal annotation class Usage
 
     /** Typedef for the flag attribute. */
-    @IntDef(
-        flag = true,
-        value =
-            [
-                FLAG_BYPASS_INTERRUPTION_POLICY,
-            ],
-    )
+    @IntDef(flag = true, value = [FLAG_BYPASS_INTERRUPTION_POLICY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     internal annotation class Flag

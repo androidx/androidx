@@ -59,7 +59,7 @@ class BaselineProfile {
                 startActivityAndWait(intent)
                 device.waitForIdle()
                 iterateAllPages(pageCount = BaselineProfileScreens.size)
-            }
+            },
         )
     }
 

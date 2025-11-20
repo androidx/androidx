@@ -24,7 +24,7 @@ import androidx.work.impl.StartStopToken
 
 /** A [Runnable] that requests [androidx.work.impl.Processor] to stop the work */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class StopWorkRunnable(
+public class StopWorkRunnable(
     private val processor: Processor,
     private val token: StartStopToken,
     private val stopInForeground: Boolean,
@@ -33,7 +33,7 @@ class StopWorkRunnable(
 
     // java compatibility, can't use default args because @JvmOverloads doesn't work with
     // inline classes
-    constructor(
+    public constructor(
         processor: Processor,
         token: StartStopToken,
         stopInForeground: Boolean,
@@ -51,7 +51,7 @@ class StopWorkRunnable(
         Logger.get()
             .debug(
                 Logger.tagWithPrefix("StopWorkRunnable"),
-                "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped"
+                "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped",
             )
     }
 }

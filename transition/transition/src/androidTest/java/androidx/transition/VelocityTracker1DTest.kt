@@ -32,7 +32,7 @@ class VelocityTracker1DTest : BaseTest() {
         checkTestCase(
             VelocityTrackingTestCase(
                 dataPoints = listOf(1 to 5f, 2 to 15f),
-                expectedVelocity = 10000f
+                expectedVelocity = 10000f,
             )
         )
     }
@@ -41,12 +41,7 @@ class VelocityTracker1DTest : BaseTest() {
     fun threePoints_pointerStoppedMoving_nonDifferentialValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        25 to 25f,
-                        50 to 50f,
-                        100 to 100f,
-                    ),
+                dataPoints = listOf(25 to 25f, 50 to 50f, 100 to 100f),
                 // Expect 0 velocities, as the pointer will be considered to have stopped moving,
                 // due to the (100-50)=40ms gap from the last data point (i.e. it's effectively
                 // a data set with only 1 data point).
@@ -60,14 +55,9 @@ class VelocityTracker1DTest : BaseTest() {
     fun threePoints_zeroVelocity_nonDifferentialValues() {
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 273f,
-                        1 to 273f,
-                        2 to 273f,
-                    ),
-                expectedVelocity = 0f
-            ),
+                dataPoints = listOf(0 to 273f, 1 to 273f, 2 to 273f),
+                expectedVelocity = 0f,
+            )
         )
     }
 
@@ -106,13 +96,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 0f,
-                        10 to 5f,
-                        20 to 10f,
-                        30 to 15f,
-                    ),
+                dataPoints = listOf(0 to 0f, 10 to 5f, 20 to 10f, 30 to 15f),
                 expectedVelocity = 500f,
             )
         )
@@ -123,12 +107,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to -20f,
-                        10 to -15f,
-                        20 to -10f,
-                    ),
+                dataPoints = listOf(0 to -20f, 10 to -15f, 20 to -10f),
                 expectedVelocity = 500f,
             )
         )
@@ -139,12 +118,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to -5f,
-                        10 to 0f,
-                        20 to 5f,
-                    ),
+                dataPoints = listOf(0 to -5f, 10 to 0f, 20 to 5f),
                 expectedVelocity = 500f,
             )
         )
@@ -155,12 +129,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 0f,
-                        10 to -5f,
-                        20 to -10f,
-                    ),
+                dataPoints = listOf(0 to 0f, 10 to -5f, 20 to -10f),
                 expectedVelocity = -500f,
             )
         )
@@ -171,12 +140,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 20f,
-                        10 to 15f,
-                        20 to 10f,
-                    ),
+                dataPoints = listOf(0 to 20f, 10 to 15f, 20 to 10f),
                 expectedVelocity = -500f,
             )
         )
@@ -187,12 +151,7 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at 5 points per 10 milliseconds
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 5f,
-                        10 to 0f,
-                        20 to -5f,
-                    ),
+                dataPoints = listOf(0 to 5f, 10 to 0f, 20 to -5f),
                 expectedVelocity = -500f,
             )
         )
@@ -219,8 +178,8 @@ class VelocityTracker1DTest : BaseTest() {
                         90 to 80f,
                         100 to 100f,
                     ),
-                expectedVelocity = 2000f
-            ),
+                expectedVelocity = 2000f,
+            )
         )
     }
 
@@ -231,15 +190,8 @@ class VelocityTracker1DTest : BaseTest() {
         // were to just plot these points.
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 0f,
-                        30 to 0f,
-                        40 to 0f,
-                        70 to 40f,
-                        100 to 100f,
-                    ),
-                expectedVelocity = 2018.2f
+                dataPoints = listOf(0 to 0f, 30 to 0f, 40 to 0f, 70 to 40f, 100 to 100f),
+                expectedVelocity = 2018.2f,
             )
         )
     }
@@ -263,7 +215,7 @@ class VelocityTracker1DTest : BaseTest() {
                         90 to 50f,
                         100 to 50f,
                     ),
-                expectedVelocity = 1000f
+                expectedVelocity = 1000f,
             )
         )
     }
@@ -273,14 +225,9 @@ class VelocityTracker1DTest : BaseTest() {
         // Fixed velocity at first, but flat line afterwards
         checkTestCase(
             VelocityTrackingTestCase(
-                dataPoints =
-                    listOf(
-                        0 to 0f,
-                        50 to 50f,
-                        100 to 50f,
-                    ),
-                expectedVelocity = 0f
-            ),
+                dataPoints = listOf(0 to 0f, 50 to 50f, 100 to 50f),
+                expectedVelocity = 0f,
+            )
         )
     }
 
@@ -298,7 +245,7 @@ class VelocityTracker1DTest : BaseTest() {
                         85 to 274.79245f,
                         96 to 274.79245f,
                     ),
-                expectedVelocity = 623.57f
+                expectedVelocity = 623.57f,
             )
         )
     }
@@ -317,7 +264,7 @@ class VelocityTracker1DTest : BaseTest() {
                         85 to 428.113159f,
                         96 to 428.113159f,
                     ),
-                expectedVelocity = 5970.73f
+                expectedVelocity = 5970.73f,
             )
         )
     }
@@ -442,5 +389,5 @@ class VelocityTracker1DTest : BaseTest() {
 /** Holds configs for a velocity tracking test case, for convenience. */
 private data class VelocityTrackingTestCase(
     val dataPoints: List<Pair<Int, Float>>,
-    val expectedVelocity: Float
+    val expectedVelocity: Float,
 )

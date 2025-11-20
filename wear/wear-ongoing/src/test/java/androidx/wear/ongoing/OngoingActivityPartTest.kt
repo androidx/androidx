@@ -56,7 +56,7 @@ open class OngoingActivityPartTest {
         assertEquals(Status.TimerPart(1234L, 5678L), Status.TimerPart(1234L, 5678L))
         assertEquals(
             Status.TimerPart(1234L, 5678L).hashCode(),
-            Status.TimerPart(1234L, 5678L).hashCode()
+            Status.TimerPart(1234L, 5678L).hashCode(),
         )
         assertNotEquals(Status.TimerPart(1234L, 5678L), Status.TimerPart(1234L, 5679L))
         assertNotEquals(Status.TimerPart(1234L, 5678L), Status.TimerPart(1234L))
@@ -64,7 +64,7 @@ open class OngoingActivityPartTest {
         assertEquals(Status.TimerPart(1234L, 5678L, 100L), Status.TimerPart(1234L, 5678L, 100L))
         assertEquals(
             Status.TimerPart(1234L, 5678L, 100L).hashCode(),
-            Status.TimerPart(1234L, 5678L, 100L).hashCode()
+            Status.TimerPart(1234L, 5678L, 100L).hashCode(),
         )
         assertNotEquals(Status.TimerPart(1234L, 5678L, 100L), Status.TimerPart(1234L, 5678L, 101L))
         assertNotEquals(Status.TimerPart(1234L, 5678L, 100L), Status.TimerPart(1234L, 5678L))
@@ -81,7 +81,7 @@ open class OngoingActivityPartTest {
                 Status.TimerPart(1234L),
                 Status.TimerPart(1234L, 5678L),
                 Status.TextPart("Text2"),
-                Status.StopwatchPart(1234L, 5678L, 100L)
+                Status.StopwatchPart(1234L, 5678L, 100L),
             )
             .forEach { original ->
                 val bundle = Bundle()

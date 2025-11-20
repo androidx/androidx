@@ -57,7 +57,7 @@ fun ModalBottomSheetSample() {
     val state =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
-            skipHalfExpanded = skipHalfExpanded
+            skipHalfExpanded = skipHalfExpanded,
         )
     val scope = rememberCoroutineScope()
     ModalBottomSheetLayout(
@@ -70,23 +70,23 @@ fun ModalBottomSheetSample() {
                         icon = {
                             Icon(
                                 Icons.Default.Favorite,
-                                contentDescription = "Localized description"
+                                contentDescription = "Localized description",
                             )
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 Modifier.toggleable(
                     value = skipHalfExpanded,
                     role = Role.Checkbox,
-                    onValueChange = { checked -> skipHalfExpanded = checked }
+                    onValueChange = { checked -> skipHalfExpanded = checked },
                 )
             ) {
                 Checkbox(checked = skipHalfExpanded, onCheckedChange = null)

@@ -39,13 +39,13 @@ private const val TAG = "BouncyLogo"
 class BouncyLogoEffect(
     targets: Int,
     private val logoText: String,
-    private val previewView: PreviewView
+    private val previewView: PreviewView,
 ) :
     OverlayEffect(
         targets,
         0,
         Handler(Looper.getMainLooper()),
-        Consumer { t -> Log.d(TAG, "Effect error", t) }
+        Consumer { t -> Log.d(TAG, "Effect error", t) },
     ) {
 
     private var overlayEffectLogo: BouncyLogo? = null
@@ -91,13 +91,13 @@ class BouncyLogoEffect(
                     position.y.toFloat() - bounds.height().toFloat() * 1.2F,
                     position.x.toFloat() + bounds.width().toFloat() * 0.8F,
                     position.y.toFloat() + bounds.height().toFloat() * 1.2F,
-                    logoPaint
+                    logoPaint,
                 )
                 canvas.drawText(
                     logoText,
                     position.x.toFloat() - bounds.width().toFloat() / 2,
                     position.y.toFloat() + bounds.height().toFloat() / 2,
-                    textPaint
+                    textPaint,
                 )
             }
             true

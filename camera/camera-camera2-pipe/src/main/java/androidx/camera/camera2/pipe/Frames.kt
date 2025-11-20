@@ -92,7 +92,7 @@ public data class MetadataTransform(
      * the returned values should be limited to values that will override the default values that
      * are set on the TotalCaptureResult for this frame.
      */
-    val transformFn: TransformFn = object : TransformFn {}
+    val transformFn: TransformFn = object : TransformFn {},
 ) {
     init {
         check(past >= 0)
@@ -104,7 +104,7 @@ public data class MetadataTransform(
         public fun computeOverridesFor(
             result: FrameInfo,
             camera: CameraId,
-            related: List<FrameInfo?>
+            related: List<FrameInfo?>,
         ): Map<*, Any?> = emptyMap<Any, Any?>()
     }
 }

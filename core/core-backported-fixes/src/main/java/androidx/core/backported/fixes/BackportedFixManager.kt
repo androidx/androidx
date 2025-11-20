@@ -19,13 +19,21 @@ package androidx.core.backported.fixes
 import android.os.Build
 
 /**
- * Reports the status of a known issue on this device.
+ * Reports if a [Known Issue] is fixed on a device.
+ *
+ * Use this class to guard code against a known issue when the issue is not fixed.
+ *
+ * @sample androidx.core.backported.fixes.samples.ki350037348
+ *
+ * [KnownIssues] has the complete list of known issues, including sample code to guard against the
+ * issue.
  *
  * @param resolver a function that takes a [KnownIssue] and returns its [Status] on this device.
  *   This parameter is only used for testing. In normal flows, the empty constructor should be used.
  */
-internal class BackportedFixManager(private val resolver: StatusResolver) {
-    /** Creates a BackportedFixManager object using the default lookup strategy. */
+public class BackportedFixManager(private val resolver: StatusResolver) {
+
+    /** Creates a BackportedFixManager object using the default [StatusResolver]. */
     public constructor() :
         this(
             // TODO b/381267367 - Use Build.getBackportedFixStatus in when available.
@@ -35,9 +43,11 @@ internal class BackportedFixManager(private val resolver: StatusResolver) {
     /**
      * Is the known issue fixed on this device.
      *
+     * An issue is fixed if its status is [Status.Fixed] or [Status.NotApplicable].
+     *
      * @param ki The known issue to check.
      */
-    internal fun isFixed(ki: KnownIssue): Boolean {
+    public fun isFixed(ki: KnownIssue): Boolean {
         return when (getStatus(ki)) {
             Status.Unknown -> false
             Status.Fixed -> true
@@ -51,40 +61,15 @@ internal class BackportedFixManager(private val resolver: StatusResolver) {
      *
      * @param ki The known issue to check.
      */
-    internal fun getStatus(ki: KnownIssue): Status {
-        return when (ki) {
-            // If the known issue needs special handling,
-            // like when an issue only applies
-            // to certain devices then call a method named after the issue id or using
-            // a precondition names after the issue id.
-            //
-            // Issues are individually listed and use inline functions to make it easy for
-            // the compiler to remove unused code.
-
-            // keep-sorted start
-
-            KnownIssue.KI_372917199 -> preconditionResolution(::pre372917199, ki)
-
-            // keep-sorted end
-            else -> defaultResolution(ki)
+    public fun getStatus(ki: KnownIssue): Status {
+        return if (ki.precondition.invoke()) {
+            if (ki.manuallyTestedFingerprints.contains(Build.FINGERPRINT)) {
+                Status.Fixed
+            } else {
+                resolver.getStatus(ki)
+            }
+        } else {
+            Status.NotApplicable
         }
-    }
-
-    private inline fun preconditionResolution(precondition: () -> Boolean, ki: KnownIssue): Status {
-        if (precondition.invoke()) {
-            return defaultResolution(ki)
-        }
-        return Status.NotApplicable
-    }
-
-    private fun defaultResolution(ki: KnownIssue): Status {
-        return resolver.invoke(ki)
-    }
-
-    private fun pre372917199(): Boolean {
-        return (Build.BRAND.equals("robolectric"))
     }
 }
-
-/** Function that takes a [KnownIssue] and returns its [Status] on this device. */
-internal typealias StatusResolver = (KnownIssue) -> Status

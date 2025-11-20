@@ -125,7 +125,8 @@ import java.util.Objects;
  * nested {@link SearchSpec}, as in {@link SearchResult#getRankingSignal}.
  */
 @SafeParcelable.Class(creator = "JoinSpecCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class JoinSpec extends AbstractSafeParcelable {
     /** Creator class for {@link JoinSpec}. */

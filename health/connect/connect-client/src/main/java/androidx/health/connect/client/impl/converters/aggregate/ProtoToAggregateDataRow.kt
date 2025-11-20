@@ -38,7 +38,7 @@ fun DataProto.AggregateDataRow.toAggregateDataRowGroupByDuration():
         result = retrieveAggregateDataRow(),
         startTime = Instant.ofEpochMilli(startTimeEpochMs),
         endTime = Instant.ofEpochMilli(endTimeEpochMs),
-        zoneOffset = ZoneOffset.ofTotalSeconds(zoneOffsetSeconds)
+        zoneOffset = ZoneOffset.ofTotalSeconds(zoneOffsetSeconds),
     )
 }
 
@@ -57,5 +57,5 @@ fun DataProto.AggregateDataRow.retrieveAggregateDataRow() =
     AggregationResult(
         longValues = longValuesMap,
         doubleValues = doubleValuesMap,
-        dataOrigins = dataOriginsList.mapTo(HashSet()) { DataOrigin(it.applicationId) }
+        dataOrigins = dataOriginsList.mapTo(HashSet()) { DataOrigin(it.applicationId) },
     )

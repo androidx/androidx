@@ -117,40 +117,40 @@ public final class TimeFormatText implements TimeDependentText {
     }
 
     TimeFormatText(
-            SimpleDateFormat dateFormat,
+            @NonNull String format,
             @ComplicationText.TimeFormatStyle int style,
             TimeZone timeZone,
             long timePrecision) {
-        mDateFormat = dateFormat;
+        mDateFormat = new SimpleDateFormat(format);
         mStyle = style;
         mTimeZone = timeZone;
         mTimePrecision = timePrecision;
     }
 
     private static class SerializedForm implements Serializable {
-        SimpleDateFormat mDateFormat;
+        String mFormat;
         @ComplicationText.TimeFormatStyle int mStyle;
         TimeZone mTimeZone;
         long mTimePrecision;
 
         SerializedForm(
-                @NonNull SimpleDateFormat dateFormat,
+                @NonNull String format,
                 @ComplicationText.TimeFormatStyle int style,
                 @Nullable TimeZone timeZone,
                 long timePrecision) {
-            mDateFormat = dateFormat;
+            mFormat = format;
             mStyle = style;
             mTimeZone = timeZone;
             mTimePrecision = timePrecision;
         }
 
         Object readResolve() {
-            return new TimeFormatText(mDateFormat, mStyle, mTimeZone, mTimePrecision);
+            return new TimeFormatText(mFormat, mStyle, mTimeZone, mTimePrecision);
         }
     }
 
     Object writeReplace() {
-        return new SerializedForm(mDateFormat, mStyle, mTimeZone, mTimePrecision);
+        return new SerializedForm(mDateFormat.toPattern(), mStyle, mTimeZone, mTimePrecision);
     }
 
     private void readObject(ObjectInputStream stream) throws InvalidObjectException {

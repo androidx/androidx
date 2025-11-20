@@ -12,18 +12,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.fragment"
 }
 
@@ -43,14 +36,9 @@ dependencies {
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
-    api(libs.kotlinStdlib)
     implementation("androidx.arch.core:core-common:2.2.0")
 
-    androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
-        exclude group: "androidx.fragment", module: "fragment"
-        exclude group: "androidx.activity", module: "activity"
-    })
-    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.leakcanaryInstrumentation)
     androidTestImplementation(libs.hamcrestCore)
     androidTestImplementation(libs.junit)
@@ -63,16 +51,12 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(project(":internal-testutils-runtime"), {
-        exclude group: "androidx.fragment", module: "fragment"
-    })
+    androidTestImplementation(project(":internal-testutils-runtime"))
 
     testImplementation(project(":fragment:fragment"))
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testRuntimeOnly(libs.testCore)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
 
     lintPublish(project(":fragment:fragment-lint"))
 }
@@ -82,5 +66,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
-    legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

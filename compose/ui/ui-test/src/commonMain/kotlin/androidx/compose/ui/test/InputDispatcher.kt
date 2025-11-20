@@ -21,7 +21,7 @@ import androidx.compose.ui.node.RootForTest
 
 internal expect fun createInputDispatcher(
     testContext: TestContext,
-    root: RootForTest
+    root: RootForTest,
 ): InputDispatcher
 
 /**
@@ -76,7 +76,7 @@ internal abstract class InputDispatcher(
     private val testContext: TestContext,
     private val root: RootForTest,
     private val exitHoverOnPress: Boolean = true,
-    private val moveOnScroll: Boolean = true
+    private val moveOnScroll: Boolean = true,
 ) {
     companion object {
         /**
@@ -283,7 +283,7 @@ internal abstract class InputDispatcher(
      */
     fun enqueueTouchMoves(
         relativeHistoricalTimes: List<Long>,
-        historicalCoordinates: List<List<Offset>>
+        historicalCoordinates: List<List<Offset>>,
     ) {
         val gesture =
             checkNotNull(partialGesture) { "Cannot send MOVE event, no gesture is in progress" }
@@ -547,6 +547,18 @@ internal abstract class InputDispatcher(
         }
     }
 
+    fun enqueueMouseScroll(offset: Offset) {
+        val mouse = mouseInputState
+
+        if (moveOnScroll) {
+            // On Android a scroll is always preceded by a move(/hover) event
+            enqueueMouseMove(currentMousePosition)
+        }
+        if (isWithinRootBounds(currentMousePosition)) {
+            mouse.enqueueScroll(offset)
+        }
+    }
+
     /**
      * Generates a key down event for the given [key].
      *
@@ -670,7 +682,7 @@ internal abstract class InputDispatcher(
 
     protected abstract fun PartialGesture.enqueueMoves(
         relativeHistoricalTimes: List<Long>,
-        historicalCoordinates: List<List<Offset>>
+        historicalCoordinates: List<List<Offset>>,
     )
 
     protected abstract fun PartialGesture.enqueueUp(pointerId: Int)
@@ -718,6 +730,8 @@ internal abstract class InputDispatcher(
         get() = scrollLockState.isLockKeyOnIncludingOffPress
 
     protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
+
+    protected abstract fun MouseInputState.enqueueScroll(offset: Offset)
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
         horizontalScrollPixels: Float
@@ -903,5 +917,5 @@ internal class RotaryInputState
 internal data class InputDispatcherState(
     val partialGesture: PartialGesture?,
     val mouseInputState: MouseInputState,
-    val keyInputState: KeyInputState
+    val keyInputState: KeyInputState,
 )

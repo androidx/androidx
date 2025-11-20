@@ -139,7 +139,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                                     .MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD
                             )
                         )
-                }
+                },
             )
         }
     }
@@ -162,7 +162,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                                     .MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY
                             )
                         )
-                }
+                },
             )
         }
     }
@@ -185,7 +185,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                                     .OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD
                             )
                         )
-                }
+                },
             )
         }
     }
@@ -208,7 +208,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                                     .OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD
                             )
                         )
-                }
+                },
             )
         }
     }
@@ -247,7 +247,6 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                         TestUtils.Companion.isSubsetJson(expectedJson, actualJson, requiredKeys)
                     )
                     .isTrue()
-                // TODO("Add remaining tests in detail after discussing ideal form")
             } catch (e: JSONException) {
                 throw java.lang.RuntimeException(e)
             }

@@ -81,7 +81,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                         method = method,
                         methodInvocation = node,
                         parameter = parameter,
-                        argument = arg
+                        argument = arg,
                     )
                 }
             } else if (parameter.isPotentiallyVarArgs() && arg is UExpressionList) {
@@ -92,7 +92,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                             method = method,
                             methodInvocation = node,
                             parameter = parameter,
-                            argument = varArg
+                            argument = varArg,
                         )
                     }
                 }
@@ -105,7 +105,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
         method: PsiMethod,
         methodInvocation: UCallExpression,
         parameter: PsiParameter,
-        argument: UExpression
+        argument: UExpression,
     ) {
         val rootExpression = methodInvocation.resolveRootExpression()
         val rootExpressionLocation = context.getLocation(rootExpression)
@@ -157,7 +157,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                                     .end()
                                     .with("\n}")
                                     .reformat(true)
-                                    .build()
+                                    .build(),
                             )
                     },
 
@@ -168,7 +168,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                         .with(FqUnitName)
                         .shortenNames()
                         .build(),
-                )
+                ),
         )
     }
 
@@ -253,8 +253,8 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     OpaqueUnitKeyDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

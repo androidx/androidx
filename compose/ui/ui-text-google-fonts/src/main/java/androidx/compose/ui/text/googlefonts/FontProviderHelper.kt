@@ -29,7 +29,7 @@ import java.util.Arrays
 @WorkerThread
 internal fun GoogleFont.Provider.checkAvailable(
     packageManager: PackageManager,
-    resources: Resources
+    resources: Resources,
 ): Boolean {
     // check package is available (false return paths)
     @Suppress("DEPRECATION")
@@ -81,7 +81,8 @@ private fun PackageManager.getSignatures(packageName: String): List<ByteArray> {
     @Suppress("DEPRECATION")
     @SuppressLint("PackageManagerGetSignatures")
     val packageInfo: PackageInfo = getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-    @Suppress("DEPRECATION") return convertToByteArrayList(packageInfo.signatures!!)
+    @Suppress("DEPRECATION")
+    return convertToByteArrayList(packageInfo.signatures!!)
 }
 
 private val ByteArrayComparator = Comparator { l: ByteArray, r: ByteArray ->

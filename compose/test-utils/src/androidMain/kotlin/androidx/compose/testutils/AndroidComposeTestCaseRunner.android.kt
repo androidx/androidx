@@ -49,7 +49,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 /** Factory method to provide implementation of [ComposeBenchmarkScope]. */
 fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
     testCaseFactory: () -> T,
-    activity: ComponentActivity
+    activity: ComponentActivity,
 ): ComposeBenchmarkScope<T> {
     return AndroidComposeTestCaseRunner(testCaseFactory, activity)
 }
@@ -57,7 +57,7 @@ fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val testCaseFactory: () -> T,
-    private val activity: ComponentActivity
+    private val activity: ComponentActivity,
 ) : ComposeBenchmarkScope<T> {
 
     override val measuredWidth: Int
@@ -79,7 +79,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 
-    private val screenWithSpec: Int
+    private val screenWidthSpec: Int
     private val screenHeightSpec: Int
 
     @Suppress("NewApi") // NewApi doesn't understand Kotlin `when` (b/189459502)
@@ -123,7 +123,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         val height = displayMetrics.heightPixels
         val width = displayMetrics.widthPixels
 
-        screenWithSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
+        screenWidthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
         screenHeightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
     }
 
@@ -175,7 +175,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     }
 
     override fun measure() {
-        getView().measure(screenWithSpec, screenHeightSpec)
+        getView().measure(screenWidthSpec, screenHeightSpec)
         simulationState = SimulationState.MeasureDone
     }
 
@@ -230,8 +230,19 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             /* l= */ 0,
             /* t= */ 0,
             /* r= */ view.measuredWidth,
-            /* b= */ view.measuredHeight
+            /* b= */ view.measuredHeight,
         )
+        simulationState = SimulationState.LayoutDone
+    }
+
+    private fun measureAndLayout() {
+        if (getView().measuredHeight == 0 && getView().measuredHeight == 0) {
+            // If view was not measured before, measure and layout here.
+            measure()
+            layout()
+        }
+
+        owner?.measureAndLayoutForTest()
         simulationState = SimulationState.LayoutDone
     }
 
@@ -253,8 +264,8 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
         recompose()
 
-        measure()
-        layout()
+        measureAndLayout()
+
         drawToBitmap()
     }
 
@@ -332,7 +343,7 @@ private enum class SimulationState {
     DrawPrepared,
     DrawInProgress,
     DrawDone,
-    RecomposeDone
+    RecomposeDone,
 }
 
 private fun findViewRootForTest(activity: Activity): ViewRootForTest? {
@@ -444,4 +455,4 @@ private class ContinuationCountInterceptor(private val parentInterceptor: Contin
     }
 }
 
-private const val InternallyLaunchedCoroutines = 4
+private val InternallyLaunchedCoroutines = 4

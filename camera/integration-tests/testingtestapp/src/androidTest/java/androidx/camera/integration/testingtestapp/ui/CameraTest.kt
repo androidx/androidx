@@ -24,6 +24,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -37,7 +38,8 @@ class CameraTest {
     val cameraPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    @get:Rule(order = 2) var composeTestRule = createAndroidComposeRule<HiltComponentActivity>()
+    @get:Rule(order = 2)
+    var composeTestRule = createAndroidComposeRule<HiltComponentActivity>(StandardTestDispatcher())
 
     @Test
     fun test1() {

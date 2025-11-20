@@ -28,9 +28,11 @@ import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.INFL
 import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
+import android.util.Printer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,11 +46,13 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformEventSources;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
+import androidx.wear.protolayout.proto.ActionProto.PendingIntentAction;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement.InnerCase;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
@@ -125,6 +129,21 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         void onClick(@NonNull State nextState);
     }
 
+    /**
+     * Listener for clicks on Clickable objects that have an action to perform the operation
+     * associated with a {@link PendingIntent}.
+     */
+    public interface PendingIntentActionListener {
+
+        /**
+         * Called when a Clickable that has a {@link PendingIntentAction} is clicked.
+         *
+         * @param source the {@link View} that received the click.
+         * @param id the id for retrieving the associated {@link PendingIntent}.
+         */
+        void onClick(@NonNull View source, @NonNull String id);
+    }
+
     private static final int DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS = 4;
     static final int MAX_LAYOUT_ELEMENT_DEPTH = 30;
     private static final @NonNull String TAG = "ProtoLayoutViewInstance";
@@ -135,6 +154,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     private final @NonNull ProtoLayoutTheme mProtoLayoutTheme;
     private final @Nullable ProtoLayoutDynamicDataPipeline mDataPipeline;
     private final @NonNull LoadActionListener mLoadActionListener;
+    private final @NonNull PendingIntentActionListener mPendingIntentActionListener;
     private final @NonNull ListeningExecutorService mUiExecutorService;
     private final @NonNull ListeningExecutorService mBgExecutorService;
     private final @NonNull String mClickableIdExtra;
@@ -147,7 +167,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     private final boolean mAdaptiveUpdateRatesEnabled;
     private boolean mWasFullyVisibleBefore;
-    private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
     /** This keeps track of the current inflated parent for the layout. */
     private @Nullable ViewGroup mInflateParent = null;
@@ -202,7 +221,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     private boolean mCanReattachWithoutRendering = false;
 
-    private static final int DYNAMIC_NODES_MAX_COUNT = 200;
+    private static final int DYNAMIC_NODES_MAX_COUNT = 400;
 
     /**
      * This is used to provide a {@link ResourceResolvers} object to the {@link
@@ -262,7 +281,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @Nullable ViewGroup prevInflateParent,
                 boolean isReattaching,
                 InflaterStatsLogger inflaterStatsLogger) {
-            return immediateFuture(RenderingArtifact.create(inflaterStatsLogger));
+            return immediateFuture(
+                    RenderingArtifact.create(inflaterStatsLogger, prevInflateParent));
         }
     }
 
@@ -316,7 +336,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             attachParent.addView(
                     inflateResult.inflateParent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             inflateResult.updateDynamicDataPipeline(isReattaching);
-            return immediateFuture(RenderingArtifact.create(inflaterStatsLogger));
+            return immediateFuture(
+                    RenderingArtifact.create(inflaterStatsLogger, prevInflateParent));
         }
     }
 
@@ -363,6 +384,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         private final @Nullable StateStore mStateStore;
         private final @NonNull LoadActionListener mLoadActionListener;
+        private final @NonNull PendingIntentActionListener mPendingIntentActionListener;
         private final @NonNull ListeningExecutorService mUiExecutorService;
         private final @NonNull ListeningExecutorService mBgExecutorService;
         private final @Nullable ProtoLayoutExtensionViewProvider mExtensionViewProvider;
@@ -375,8 +397,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         private final boolean mUpdatesEnabled;
         private final boolean mAdaptiveUpdateRatesEnabled;
-        private final boolean mIsViewFullyVisible;
-        private final boolean mAllowLayoutChangingBindsWithoutDefault;
 
         Config(
                 @NonNull Context uiContext,
@@ -386,6 +406,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @NonNull Map<PlatformDataProvider, Set<PlatformDataKey<?>>> platformDataProviders,
                 @Nullable StateStore stateStore,
                 @NonNull LoadActionListener loadActionListener,
+                @NonNull PendingIntentActionListener pendingIntentActionListener,
                 @NonNull ListeningExecutorService uiExecutorService,
                 @NonNull ListeningExecutorService bgExecutorService,
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
@@ -395,9 +416,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 boolean animationEnabled,
                 int runningAnimationsLimit,
                 boolean updatesEnabled,
-                boolean adaptiveUpdateRatesEnabled,
-                boolean isViewFullyVisible,
-                boolean allowLayoutChangingBindsWithoutDefault) {
+                boolean adaptiveUpdateRatesEnabled) {
             this.mUiContext = uiContext;
             this.mRendererResources = rendererResources;
             this.mResourceResolversProvider = resourceResolversProvider;
@@ -405,6 +424,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mPlatformDataProviders = platformDataProviders;
             this.mStateStore = stateStore;
             this.mLoadActionListener = loadActionListener;
+            this.mPendingIntentActionListener = pendingIntentActionListener;
             this.mUiExecutorService = uiExecutorService;
             this.mBgExecutorService = bgExecutorService;
             this.mExtensionViewProvider = extensionViewProvider;
@@ -415,8 +435,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mRunningAnimationsLimit = runningAnimationsLimit;
             this.mUpdatesEnabled = updatesEnabled;
             this.mAdaptiveUpdateRatesEnabled = adaptiveUpdateRatesEnabled;
-            this.mIsViewFullyVisible = isViewFullyVisible;
-            this.mAllowLayoutChangingBindsWithoutDefault = allowLayoutChangingBindsWithoutDefault;
         }
 
         /** Returns UI Context used for interacting with the UI. */
@@ -456,6 +474,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /** Returns listener for load actions. */
         public @NonNull LoadActionListener getLoadActionListener() {
             return mLoadActionListener;
+        }
+
+        /** Returns listener for pending intent actions. */
+        public @NonNull PendingIntentActionListener getPendingIntentActionListener() {
+            return mPendingIntentActionListener;
         }
 
         /** Returns ExecutorService for UI tasks. */
@@ -514,24 +537,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mAdaptiveUpdateRatesEnabled;
         }
 
-        /** Returns whether view is fully visible. */
-        @RestrictTo(Scope.LIBRARY)
-        public boolean getIsViewFullyVisible() {
-            return mIsViewFullyVisible;
-        }
-
-        /**
-         * Sets whether a "layout changing" data bind can be applied without the "value_for_layout"
-         * field being filled in, or being set to zero / empty. Defaults to false.
-         *
-         * <p>This is to support legacy apps which use layout-changing data bind before the full
-         * support was built.
-         */
-        @RestrictTo(Scope.LIBRARY)
-        public boolean getAllowLayoutChangingBindsWithoutDefault() {
-            return mAllowLayoutChangingBindsWithoutDefault;
-        }
-
         /** Builder for {@link Config}. */
         @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
         public static final class Builder {
@@ -545,6 +550,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
             private @Nullable StateStore mStateStore;
             private @Nullable LoadActionListener mLoadActionListener;
+            private @Nullable PendingIntentActionListener mPendingIntentActionListener;
             private final @NonNull ListeningExecutorService mUiExecutorService;
             private final @NonNull ListeningExecutorService mBgExecutorService;
             private @Nullable ProtoLayoutExtensionViewProvider mExtensionViewProvider;
@@ -556,8 +562,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
             private boolean mUpdatesEnabled = true;
             private boolean mAdaptiveUpdateRatesEnabled = true;
-            private boolean mIsViewFullyVisible = true;
-            private boolean mAllowLayoutChangingBindsWithoutDefault = false;
 
             /**
              * Builder for the {@link Config} class.
@@ -633,6 +637,13 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 return this;
             }
 
+            /** Sets the listener for clicks that will cause to launch a {@link PendingIntent}. */
+            public @NonNull Builder setPendingIntentActionListener(
+                    @Nullable PendingIntentActionListener pendingIntentActionListener) {
+                this.mPendingIntentActionListener = pendingIntentActionListener;
+                return this;
+            }
+
             /** Sets provider for the renderer extension. */
             @RestrictTo(Scope.LIBRARY)
             public @NonNull Builder setExtensionViewProvider(
@@ -688,34 +699,25 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 return this;
             }
 
-            /** Sets whether the view is fully visible. */
-            @RestrictTo(Scope.LIBRARY)
-            public @NonNull Builder setIsViewFullyVisible(boolean isViewFullyVisible) {
-                this.mIsViewFullyVisible = isViewFullyVisible;
-                return this;
-            }
-
-            /**
-             * Sets whether a "layout changing" data bind can be applied without the
-             * "value_for_layout" field being filled in, or being set to zero / empty. Defaults to
-             * false.
-             *
-             * <p>This is to support legacy apps which use layout-changing data bind before the full
-             * support was built.
-             */
-            @RestrictTo(Scope.LIBRARY)
-            public @NonNull Builder setAllowLayoutChangingBindsWithoutDefault(
-                    boolean allowLayoutChangingBindsWithoutDefault) {
-                this.mAllowLayoutChangingBindsWithoutDefault =
-                        allowLayoutChangingBindsWithoutDefault;
-                return this;
-            }
-
             /** Builds {@link Config} object. */
             public @NonNull Config build() {
                 LoadActionListener loadActionListener = mLoadActionListener;
                 if (loadActionListener == null) {
                     loadActionListener = p -> {};
+                }
+                PendingIntentActionListener pendingIntentActionListener =
+                        mPendingIntentActionListener;
+                if (pendingIntentActionListener == null) {
+                    pendingIntentActionListener =
+                            (source, key) -> {
+                                Log.d(
+                                        TAG,
+                                        "ClickableId "
+                                                + key
+                                                + "is clicked for perform action of a"
+                                                + " PendingIntent, but no action will be taken due"
+                                                + " to no callback is provided.");
+                            };
                 }
                 if (mProtoLayoutTheme == null) {
                     mProtoLayoutTheme = ProtoLayoutThemeImpl.defaultTheme(mUiContext);
@@ -747,6 +749,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mPlatformDataProviders,
                         mStateStore,
                         loadActionListener,
+                        pendingIntentActionListener,
                         mUiExecutorService,
                         mBgExecutorService,
                         mExtensionViewProvider,
@@ -756,9 +759,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mAnimationEnabled,
                         mRunningAnimationsLimit,
                         mUpdatesEnabled,
-                        mAdaptiveUpdateRatesEnabled,
-                        mIsViewFullyVisible,
-                        mAllowLayoutChangingBindsWithoutDefault);
+                        mAdaptiveUpdateRatesEnabled);
             }
         }
     }
@@ -769,6 +770,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mResourceResolversProvider = config.getResourceResolversProvider();
         this.mProtoLayoutTheme = config.getProtoLayoutTheme();
         this.mLoadActionListener = config.getLoadActionListener();
+        this.mPendingIntentActionListener = config.getPendingIntentActionListener();
         this.mUiExecutorService = config.getUiExecutorService();
         this.mBgExecutorService = config.getBgExecutorService();
         this.mExtensionViewProvider = config.getExtensionViewProvider();
@@ -777,8 +779,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mLoggingUtils = config.getLoggingUtils();
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
         this.mWasFullyVisibleBefore = false;
-        this.mAllowLayoutChangingBindsWithoutDefault =
-                config.getAllowLayoutChangingBindsWithoutDefault();
         this.mProviderStatsLogger = config.getProviderStatsLogger();
 
         StateStore stateStore = config.getStateStore();
@@ -822,8 +822,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                     new ProtoLayoutDynamicDataPipeline(
                             config.getPlatformDataProviders(), stateStore);
         }
-
-        mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
     }
 
     @WorkerThread
@@ -861,12 +859,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 new ProtoLayoutInflater.Config.Builder(mUiContext, layout, resolvers)
                         .setLoadActionExecutor(mUiExecutorService)
                         .setLoadActionListener(mLoadActionListener::onClick)
+                        .setPendingIntentActionListener(mPendingIntentActionListener::onClick)
                         .setRendererResources(mRendererResources)
                         .setProtoLayoutTheme(mProtoLayoutTheme)
                         .setAnimationEnabled(mAnimationEnabled)
                         .setClickableIdExtra(mClickableIdExtra)
-                        .setAllowLayoutChangingBindsWithoutDefault(
-                                mAllowLayoutChangingBindsWithoutDefault)
                         .setInflaterStatsLogger(inflaterStatsLogger)
                         .setApplyFontVariantBodyAsDefault(true);
         if (mDataPipeline != null) {
@@ -939,14 +936,21 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public @NonNull ListenableFuture<RenderingArtifact> renderLayoutAndAttach(
             @NonNull Layout layout,
             ResourceProto.@NonNull Resources resources,
             @NonNull ViewGroup attachParent) {
-
         return renderAndAttach(
                 layout, resources, attachParent, mProviderStatsLogger.createInflaterStatsLogger());
+    }
+
+    /** Dumps the state of this tile view instance. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    public void dump(@NonNull Printer printer) {
+        printer.println(
+                "attachedParent: " + Integer.toHexString(System.identityHashCode(mAttachParent)));
     }
 
     /**
@@ -1162,6 +1166,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /**
+     * Notifies that the current layout is invalid and needs to be reinflated.
+     * This will clear any cached layout information and trigger a cache invalidation for resources.
+     */
+    public void invalidateLayout() {
+        mPrevLayout = null;
+        invalidateCache();
+    }
+
+    /**
      * Notifies that the future calls to {@link #renderAndAttach(Layout, ResourceProto.Resources,
      * ViewGroup)} will have a different versioning for layouts and resources. So any cached
      * rendered result should be cleared.
@@ -1322,7 +1335,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /** Sets the visibility state for this layout. */
-    @RestrictTo(Scope.LIBRARY)
     @UiThread
     public void setLayoutVisibility(@ProtoLayoutVisibilityState int visibility) {
 
@@ -1339,6 +1351,30 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 mDataPipeline.setFullyVisible(false);
                 mWasFullyVisibleBefore = false;
             }
+        }
+    }
+
+    /**
+     * Sets the layout's update status.
+     *
+     * <p>This is used to update {@link PlatformEventSources#layoutUpdateStatus()} platform data
+     * binding.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @UiThread
+    public void setLayoutUpdateStatus(
+            @PlatformEventSources.LayoutUpdateStatus int layoutUpdateStatus) {
+        if (mDataPipeline != null) {
+            mDataPipeline.setLayoutUpdateStatus(layoutUpdateStatus);
+        }
+    }
+
+    /** Sets the state of interactive vs ambient display update. */
+    @RestrictTo(Scope.LIBRARY)
+    @UiThread
+    public void setAmbientModeStatus(boolean isInAmbientMode) {
+        if (mDataPipeline != null) {
+            mDataPipeline.setAmbientModeStatus(isInAmbientMode);
         }
     }
 

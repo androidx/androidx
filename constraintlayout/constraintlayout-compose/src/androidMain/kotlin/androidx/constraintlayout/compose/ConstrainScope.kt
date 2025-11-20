@@ -83,7 +83,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
             override fun afterChange(
                 property: KProperty<*>,
                 oldValue: Visibility,
-                newValue: Visibility
+                newValue: Visibility,
             ) {
                 containerObject.putString(property.name, newValue.name)
             }
@@ -194,12 +194,12 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
         endMargin: Dp = 0.dp,
         startGoneMargin: Dp = 0.dp,
         endGoneMargin: Dp = 0.dp,
-        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
         this@ConstrainScope.start.linkTo(
             anchor = start,
             margin = startMargin,
-            goneMargin = startGoneMargin
+            goneMargin = startGoneMargin,
         )
         this@ConstrainScope.end.linkTo(anchor = end, margin = endMargin, goneMargin = endGoneMargin)
         containerObject.putNumber("hRtlBias", bias)
@@ -215,13 +215,13 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
         bottomMargin: Dp = 0.dp,
         topGoneMargin: Dp = 0.dp,
         bottomGoneMargin: Dp = 0.dp,
-        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
         this@ConstrainScope.top.linkTo(anchor = top, margin = topMargin, goneMargin = topGoneMargin)
         this@ConstrainScope.bottom.linkTo(
             anchor = bottom,
             margin = bottomMargin,
-            goneMargin = bottomGoneMargin
+            goneMargin = bottomGoneMargin,
         )
         containerObject.putNumber("vBias", bias)
     }
@@ -244,7 +244,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
         endGoneMargin: Dp = 0.dp,
         bottomGoneMargin: Dp = 0.dp,
         @FloatRange(from = 0.0, to = 1.0) horizontalBias: Float = 0.5f,
-        @FloatRange(from = 0.0, to = 1.0) verticalBias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) verticalBias: Float = 0.5f,
     ) {
         linkTo(
             start = start,
@@ -253,7 +253,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
             endMargin = endMargin,
             startGoneMargin = startGoneMargin,
             endGoneMargin = endGoneMargin,
-            bias = horizontalBias
+            bias = horizontalBias,
         )
         linkTo(
             top = top,
@@ -262,7 +262,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
             bottomMargin = bottomMargin,
             topGoneMargin = topGoneMargin,
             bottomGoneMargin = bottomGoneMargin,
-            bias = verticalBias
+            bias = verticalBias,
         )
     }
 
@@ -280,7 +280,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      */
     fun centerHorizontallyTo(
         other: ConstrainedLayoutReference,
-        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
         linkTo(start = other.start, end = other.end, bias = bias)
     }
@@ -291,7 +291,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
      */
     fun centerVerticallyTo(
         other: ConstrainedLayoutReference,
-        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f,
     ) {
         linkTo(other.top, other.bottom, bias = bias)
     }
@@ -407,7 +407,7 @@ internal constructor(internal val id: Any, internal val containerObject: CLObjec
 
     private inner class FloatProperty(
         initialValue: Float,
-        private val nameOverride: String? = null
+        private val nameOverride: String? = null,
     ) : ObservableProperty<Float>(initialValue) {
         override fun afterChange(property: KProperty<*>, oldValue: Float, newValue: Float) {
             if (!newValue.isNaN()) {
@@ -450,7 +450,7 @@ private class ConstraintBaselineAnchorable constructor(private val containerObje
     override fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp,
-        goneMargin: Dp
+        goneMargin: Dp,
     ) {
         val constraintArray =
             CLArray(charArrayOf()).apply {
@@ -466,7 +466,7 @@ private class ConstraintBaselineAnchorable constructor(private val containerObje
     override fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp,
-        goneMargin: Dp
+        goneMargin: Dp,
     ) {
         val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
         val constraintArray =

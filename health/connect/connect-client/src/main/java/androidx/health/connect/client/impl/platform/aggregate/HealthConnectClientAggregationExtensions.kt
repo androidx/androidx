@@ -43,7 +43,7 @@ private val AGGREGATION_FALLBACK_RECORD_TYPES =
         CyclingPedalingCadenceRecord::class,
         NutritionRecord::class,
         SpeedRecord::class,
-        StepsCadenceRecord::class
+        StepsCadenceRecord::class,
     )
 
 internal suspend fun HealthConnectClient.aggregateFallback(
@@ -52,7 +52,8 @@ internal suspend fun HealthConnectClient.aggregateFallback(
     val aggregationResult =
         AGGREGATION_FALLBACK_RECORD_TYPES.associateWith { recordType ->
                 request.withFilteredMetrics {
-                    it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!!
+                    !it.isPlatformSupportedMetric() &&
+                        it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!!
                 }
             }
             .filterValues { it.metrics.isNotEmpty() }
@@ -78,7 +79,10 @@ internal suspend fun HealthConnectClient.aggregateFallback(
     request: AggregateGroupByPeriodRequest
 ): List<AggregationResultGroupedByPeriod> {
     return AGGREGATION_FALLBACK_RECORD_TYPES.associateWith { recordType ->
-            request.withFilteredMetrics { it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!! }
+            request.withFilteredMetrics {
+                !it.isPlatformSupportedMetric() &&
+                    it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!!
+            }
         }
         .filterValues { it.metrics.isNotEmpty() }
         .flatMap { (recordType, recordTypeRequest) ->
@@ -97,7 +101,7 @@ internal suspend fun HealthConnectClient.aggregateFallback(
             AggregationResultGroupedByPeriod(
                 startTime = accumulator.startTime,
                 endTime = accumulator.endTime,
-                result = accumulator.result + element.result
+                result = accumulator.result + element.result,
             )
         }
         .values
@@ -108,7 +112,10 @@ internal suspend fun HealthConnectClient.aggregateFallback(
     request: AggregateGroupByDurationRequest
 ): List<AggregationResultGroupedByDuration> {
     return AGGREGATION_FALLBACK_RECORD_TYPES.associateWith { recordType ->
-            request.withFilteredMetrics { it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!! }
+            request.withFilteredMetrics {
+                !it.isPlatformSupportedMetric() &&
+                    it.dataTypeName == RECORDS_CLASS_NAME_MAP[recordType]!!
+            }
         }
         .filterValues { it.metrics.isNotEmpty() }
         .flatMap { (recordType, recordTypeRequest) ->
@@ -137,9 +144,9 @@ internal suspend fun HealthConnectClient.aggregateFallback(
                         zoneOffset =
                             minOf(accumulator, element, compareBy { it.minTime })
                                 .aggregationResultGroupedByDuration
-                                .zoneOffset
+                                .zoneOffset,
                     ),
-                minTime = minOf(accumulator.minTime, element.minTime)
+                minTime = minOf(accumulator.minTime, element.minTime),
             )
         }
         .map { it.value.aggregationResultGroupedByDuration }
@@ -148,7 +155,7 @@ internal suspend fun HealthConnectClient.aggregateFallback(
 
 internal suspend fun <T : Record, R> HealthConnectClient.aggregate(
     readRecordsRequest: ReadRecordsRequest<T>,
-    aggregator: Aggregator<T, R>
+    aggregator: Aggregator<T, R>,
 ): R {
     readRecordsFlow(readRecordsRequest).collect { records ->
         records.forEach { aggregator.filterAndAggregate(it) }

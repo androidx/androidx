@@ -95,20 +95,20 @@ private constructor(
                     GlanceState.getValue(
                         context,
                         LayoutStateDefinition,
-                        layoutDatastoreKey(appWidgetId)
+                        layoutDatastoreKey(appWidgetId),
                     )
                 } catch (ex: CorruptionException) {
                     Log.e(
                         GlanceAppWidgetTag,
                         "Set of layout structures for App Widget id $appWidgetId is corrupted",
-                        ex
+                        ex,
                     )
                     LayoutProto.LayoutConfig.getDefaultInstance()
                 } catch (ex: IOException) {
                     Log.e(
                         GlanceAppWidgetTag,
                         "I/O error reading set of layout structures for App Widget id $appWidgetId",
-                        ex
+                        ex,
                     )
                     LayoutProto.LayoutConfig.getDefaultInstance()
                 }
@@ -118,7 +118,7 @@ private constructor(
                 layouts,
                 nextIndex = config.nextIndex,
                 appWidgetId = appWidgetId,
-                existingLayoutIds = layouts.values.toMutableSet()
+                existingLayoutIds = layouts.values.toMutableSet(),
             )
         }
 
@@ -137,7 +137,7 @@ private constructor(
             context: Context,
             appWidgetId: Int,
             nextIndex: Int,
-            existingLayoutIds: Collection<Int> = emptyList()
+            existingLayoutIds: Collection<Int> = emptyList(),
         ): LayoutConfiguration =
             LayoutConfiguration(
                 context,
@@ -163,7 +163,7 @@ private constructor(
                         GlanceAppWidgetTag,
                         "Could not delete LayoutConfiguration dataStoreFile when cleaning up" +
                             "old appwidget id $id",
-                        e
+                        e,
                     )
                 }
             }

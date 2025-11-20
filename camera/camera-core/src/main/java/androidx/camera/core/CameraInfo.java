@@ -27,20 +27,24 @@ import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.internal.compat.MediaActionSoundCompat;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * An interface for retrieving camera information.
@@ -204,6 +208,34 @@ public interface CameraInfo {
     @NonNull LiveData<CameraState> getCameraState();
 
     /**
+     * Adds a listener for the camera's state.
+     *
+     * <p> The listener will be called on the given executor whenever the
+     * {@linkplain CameraState camera's state} changes. This is helpful in tests where awaiting
+     * a LiveData change is difficult due to main thread getting blocked.
+     *
+     * @param executor The executor on which the observer will be invoked.
+     * @param listener The listener to be added.
+     * @see #removeCameraStateListener(Consumer)
+     */
+    @VisibleForTesting
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default void addCameraStateListener(@NonNull Executor executor,
+            @NonNull Consumer<@NonNull CameraState> listener) {
+    }
+
+    /**
+     * Removes a previously added listener for the camera's state.
+     *
+     * @param listener The listener to be removed.
+     * @see #addCameraStateListener(Executor, Consumer)
+     */
+    @VisibleForTesting
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    default void removeCameraStateListener(@NonNull Consumer<@NonNull CameraState> listener) {
+    }
+
+    /**
      * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}
      * used in the initialization of CameraX.
      *
@@ -316,13 +348,49 @@ public interface CameraInfo {
      * <p>There is no guarantee that these ranges can be used for every size surface or
      * combination of use cases. If attempting to run the device using an unsupported range, there
      * may be stability issues or the device may quietly choose another frame rate operating range.
-     *
-     * <p>The returned set does not have any ordering guarantees and frame rate ranges may overlap.
+     * The returned set does not have any ordering guarantees. To get the guaranteed supported
+     * frame rate ranges under UseCase combination constraints, use
+     * {@link #getSupportedFrameRateRanges(SessionConfig)}.
      *
      * @return The set of FPS ranges supported by the device's AE algorithm
      * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
      */
     default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Returns an unordered set of the frame rate ranges, in frames per second, supported by this
+     * device's AE algorithm for a specific {@link SessionConfig}.
+     *
+     * <p>These are the frame rate ranges that the AE algorithm on the device can support when a
+     * particular {@link SessionConfig} is applied. This allows for querying supported frame rates
+     * based on the specific configuration of {@link UseCase}s, which might influence the
+     * available ranges.
+     *
+     * <p>If the provided {@link SessionConfig} has a target frame rate range already set (e.g.,
+     * set via {@link androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)}),
+     * this method will ignore that specific setting. The returned set represents all ranges the
+     * device can support under the given {@link SessionConfig}, irrespective of any pre-defined
+     * target frame rate within the config itself.
+     *
+     * <p>When CameraX is configured to run with the camera2 implementation, this list will be
+     * derived from
+     * {@link android.hardware.camera2.CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES}
+     * , though ranges may be added or removed for compatibility reasons or due to constraints
+     * imposed by the {@link SessionConfig}.
+     *
+     * <p>The returned set of frame rate ranges is guaranteed to be supported with the given
+     * {@link SessionConfig}. An empty set will be returned if the provided {@link SessionConfig}
+     * is invalid. The returned set does not have any ordering guarantees.
+     *
+     * @param sessionConfig The {@link SessionConfig} to query supported frame rate ranges for.
+     * @return The set of FPS ranges supported by the device's AE algorithm for the given session
+     * config.
+     * @see SessionConfig.Builder#setFrameRateRange(Range)
+     */
+    default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
+            @NonNull SessionConfig sessionConfig) {
         return Collections.emptySet();
     }
 
@@ -512,5 +580,67 @@ public interface CameraInfo {
      */
     default @NonNull LiveData<Integer> getLowLightBoostState() {
         return new MutableLiveData<>(LowLightBoostState.OFF);
+    }
+
+    /**
+     * Returns if the provided {@link SessionConfig} is supported by the camera.
+     *
+     * <p>This method checks if the camera can support the configuration contained within the given
+     * {@link SessionConfig}. This includes surfaces, features, and other parameters. It can also be
+     * used with subtypes of {@link SessionConfig}, such as
+     * {@link androidx.camera.video.HighSpeedVideoSessionConfig} or
+     * {@link androidx.camera.extensions.ExtensionSessionConfig}, to verify if those specific
+     * configurations are supported.
+     *
+     * <p> This API can be used before calling `bindToLifecycle` API to know if binding a
+     * {@link SessionConfig} with some given combination of feature groups will work or not.
+     *
+     * <p> The following pseudo-code shows an example of how to use this API:
+     * <pre>{@code
+     * // Disable the unsupported feature options in app feature menu UI once some features have
+     * // already been selected and adding these features will lead to an unsupported configuration.
+     * void disableUnsupportedFeatures(Set<GroupableFeature> selectedFeatures,
+     *         Set<GroupableFeature> appFeatureOptions) {
+     *     for (GroupableFeature featureOption : appFeatureOptions) {
+     *         if (selectedFeatures.contains(featureOption)) { continue; }
+     *
+     *         List<GroupableFeature> combinedFeatures = new ArrayList<>(selectedFeatures);
+     *         combinedFeatures.add(featureOption);
+     *         SessionConfig sessionConfig =
+     *             new SessionConfig.Builder(useCases)
+     *                 .addRequiredFeatureGroup(combinedFeatures.toArray(new Feature[0]))
+     *                 .build();
+     *
+     *         if (!cameraInfo.isSessionConfigSupported(sessionConfig)) {
+     *             disableFeatureOptionInUi(featureOption); // e.g. app logic to disable a menu item
+     *         }
+     *     }
+     * }}</pre>
+     *
+     * @param sessionConfig The {@link SessionConfig} to be checked.
+     * @return Whether the provided {@link SessionConfig} is supported or not.
+     * @throws IllegalArgumentException If some features conflict with each other by having
+     *   different values for the same feature type and can thus never be supported together.
+     * @see androidx.camera.core.featuregroup.GroupableFeature
+     */
+    default boolean isSessionConfigSupported(@NonNull SessionConfig sessionConfig) {
+        return false;
+    }
+
+    /**
+     * Returns the unique, stable CameraX identifier for this camera, if available.
+     *
+     * <p>For most standard CameraX implementations, this will return a non-null identifier.
+     * However, some legacy or testing implementations may not have a valid identifier, in which
+     * case this method will return {@code null}.
+     *
+     * @return The {@link CameraIdentifier} for this camera, or {@code null} if one is not
+     * available.
+     */
+    @Nullable
+    default CameraIdentifier getCameraIdentifier() {
+        // For classes that implement CameraInfo but do not override this method,
+        // return null to indicate that no identifier is available.
+        return null;
     }
 }

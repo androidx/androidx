@@ -401,10 +401,12 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet?, int);
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
+    method public void addOnAdapterChangeListener(androidx.recyclerview.widget.RecyclerView.OnAdapterChangeListener);
     method public void addOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void addOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void addRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
+    method public void clearOnAdapterChangeListeners();
     method public void clearOnChildAttachStateChangeListeners();
     method public void clearOnScrollListeners();
     method public int computeHorizontalScrollExtent();
@@ -462,6 +464,7 @@ package androidx.recyclerview.widget {
     method public void onScrolled(@Px int, @Px int);
     method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void removeItemDecorationAt(int);
+    method public void removeOnAdapterChangeListener(androidx.recyclerview.widget.RecyclerView.OnAdapterChangeListener);
     method public void removeOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
@@ -814,6 +817,10 @@ package androidx.recyclerview.widget {
     method public boolean isItemRemoved();
     method public boolean isViewInvalid();
     method public boolean viewNeedsUpdate();
+  }
+
+  public static interface RecyclerView.OnAdapterChangeListener {
+    method public void onAdapterChanged(androidx.recyclerview.widget.RecyclerView.Adapter<? extends java.lang.Object!>?, androidx.recyclerview.widget.RecyclerView.Adapter<? extends java.lang.Object!>?);
   }
 
   public static interface RecyclerView.OnChildAttachStateChangeListener {

@@ -161,7 +161,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
                     }
                 } else if (workSpec.hasConstraints()) {
                     Constraints constraints = workSpec.constraints;
-                    if (SDK_INT >= 23 && constraints.requiresDeviceIdle()) {
+                    if (constraints.requiresDeviceIdle()) {
                         // Ignore requests that have an idle mode constraint.
                         Logger.get().debug(TAG,
                                 "Ignoring " + workSpec + ". Requires device idle.");

@@ -17,7 +17,6 @@
 package androidx.appcompat.app.g3
 
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.NightModeActivity
 import androidx.appcompat.test.R
 import androidx.lifecycle.Lifecycle
@@ -49,7 +48,7 @@ class NavDrawerActivityTest {
         androidx.test.rule.ActivityTestRule(
             OldTranslateActivity::class.java,
             /* initialTouchMode = */ false,
-            /* launchActivity = */ false
+            /* launchActivity = */ false,
         )
 
     private lateinit var activity: OldTranslateActivity
@@ -81,7 +80,7 @@ class NavDrawerActivityTest {
         // Rotate the screen.
         UITestUtils.rotateScreen(
             InstrumentationRegistry.getInstrumentation(),
-            originalScreenOrientation
+            originalScreenOrientation,
         )
 
         // Close the top activity.
@@ -101,9 +100,6 @@ class NavDrawerActivityTest {
     }
 
     private fun verifyPressBackAndExitAfterRotation() {
-        // On 5.1, back button doesn't exit the app, appears to be an emulator quirk.
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.LOLLIPOP_MR1) {
-            assertThat(UITestUtils.verifyPressBackAndExit()).isTrue()
-        }
+        assertThat(UITestUtils.verifyPressBackAndExit()).isTrue()
     }
 }

@@ -32,9 +32,12 @@ constructor(
     val result: AggregationResult,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
+    shouldSkipValidation: Boolean = false,
 ) {
     init {
-        require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        if (!shouldSkipValidation) {
+            require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

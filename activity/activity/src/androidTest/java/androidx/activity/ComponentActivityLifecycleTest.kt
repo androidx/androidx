@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 internal enum class LifecycleSource {
     CONTEXT_AWARE,
     ACTIVITY,
-    ACTIVITY_CALLBACK
+    ACTIVITY_CALLBACK,
 }
 
 @LargeTest
@@ -66,7 +66,7 @@ class ComponentActivityLifecycleTest {
                 LifecycleSource.ACTIVITY to Lifecycle.Event.ON_STOP,
                 LifecycleSource.ACTIVITY_CALLBACK to Lifecycle.Event.ON_STOP,
                 LifecycleSource.ACTIVITY to Lifecycle.Event.ON_DESTROY,
-                LifecycleSource.ACTIVITY_CALLBACK to Lifecycle.Event.ON_DESTROY
+                LifecycleSource.ACTIVITY_CALLBACK to Lifecycle.Event.ON_DESTROY,
             )
             .inOrder()
     }

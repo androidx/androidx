@@ -32,7 +32,7 @@ internal class ItemGroup(
     internal val titleItem: CategoryTitle,
     private val contentItems: List<EmojiViewData>,
     private val maxContentItemCount: Int? = null,
-    private val emptyPlaceholderItem: PlaceholderText? = null
+    private val emptyPlaceholderItem: PlaceholderText? = null,
 ) {
 
     val size: Int
@@ -57,9 +57,7 @@ internal class ItemGroup(
 }
 
 /** A view of concatenated list of [ItemGroup]. */
-internal class EmojiPickerItems(
-    private val groups: List<ItemGroup>,
-) : Iterable<ItemViewData> {
+internal class EmojiPickerItems(private val groups: List<ItemGroup>) : Iterable<ItemViewData> {
     val size: Int
         get() = groups.sumOf { it.size }
 

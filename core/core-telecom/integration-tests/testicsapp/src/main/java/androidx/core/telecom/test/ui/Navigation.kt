@@ -42,7 +42,7 @@ fun NavGraphBuilder.notSupportedDestination() {
 /** The screen used for devices that have not set this application to the default dialer yet. */
 fun NavGraphBuilder.roleRequestsDestination(
     roleIntent: Intent,
-    onGrantedStateChanged: (Boolean) -> Unit
+    onGrantedStateChanged: (Boolean) -> Unit,
 ) {
     composable(NavRoute.ROLE_REQUESTS) { RoleRequestScreen(roleIntent, onGrantedStateChanged) }
 }
@@ -51,13 +51,13 @@ fun NavGraphBuilder.roleRequestsDestination(
 fun NavGraphBuilder.callsDestination(
     ongoingCallsViewModel: OngoingCallsViewModel,
     onShowAudioRouting: () -> Unit,
-    onMoveToSettings: () -> Unit
+    onMoveToSettings: () -> Unit,
 ) {
     composable(NavRoute.CALLS) {
         CallsScreen(
             ongoingCallsViewModel = ongoingCallsViewModel,
             onShowAudioRouting = onShowAudioRouting,
-            onMoveToSettings = onMoveToSettings
+            onMoveToSettings = onMoveToSettings,
         )
     }
 }
@@ -69,7 +69,7 @@ fun NavGraphBuilder.callsDestination(
 fun NavGraphBuilder.audioRouteDialog(
     ongoingCallsViewModel: OngoingCallsViewModel,
     onDismissDialog: () -> Unit,
-    onChangeAudioRoute: suspend (String) -> Unit
+    onChangeAudioRoute: suspend (String) -> Unit,
 ) {
     dialog(NavRoute.AUDIO_ROUTE_PICKER) {
         AudioRoutePickerDialog(ongoingCallsViewModel, onDismissDialog, onChangeAudioRoute)

@@ -98,7 +98,7 @@ internal class SpringSimulation(var finalPosition: Float) {
     internal fun updateValues(
         lastDisplacement: Float,
         lastVelocity: Float,
-        timeElapsed: Long
+        timeElapsed: Long,
     ): Motion {
         val adjustedDisplacement = lastDisplacement - finalPosition
         val deltaT = timeElapsed / 1000.0 // unit: seconds

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    tools:context=".fieldofviewvisibility.FieldOfViewVisibilityActivity">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:backgroundTint="@color/google_blue"
+            android:background="@color/google_blue"
+            app:layout_scrollFlags="enterAlways|snap"
+            app:navigationIcon="@drawable/arrow_back"
+            app:navigationIconTint="@color/white"
+            app:titleCentered="true"
+            app:title="@string/cuj_accessibility_test"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="60dp"
+        android:textSize="18sp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card0"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintBottom_toTopOf="@id/card1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="parent">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:padding="10dp">
+
+                            <Button
+                                android:id="@+id/button_set_both_geometry_and_skybox"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="10dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/test_button"
+                                android:text="Set both Geometry and Skybox"
+                                android:textFontWeight="400"
+                                android:textSize="18sp" />
+
+                            <Button
+                                android:id="@+id/button_revert_to_system_default_env"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@drawable/test_button"
+                                android:text="Revert to System Default Environment"
+                                android:textFontWeight="400"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+
+                        <RadioGroup
+                            android:id="@+id/radio_group_surface_entity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="40dp">
+
+                            <RadioButton
+                                android:id="@+id/radiobutton_quad"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:text="Quad"/>
+
+                            <RadioButton
+                                android:id="@+id/radiobutton_vr180"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:text="Vr180Hemisphere"/>
+
+                            <RadioButton
+                                android:id="@+id/radiobutton_vr360"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:text="Vr360Sphere" />
+                        </RadioGroup>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <Button
+                                android:id="@+id/button_create_surface_entity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Create Surface Entity"
+                                android:background="@drawable/test_button"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:layout_marginEnd="10dp"/>
+                            <Button
+                                android:id="@+id/button_destroy_surface_entity"
+                                android:layout_width="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Destroy Surface Entity"
+                                android:background="@drawable/test_button"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card0"
+                    app:layout_constraintBottom_toTopOf="@id/card2">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+                        <Button
+                            android:id="@+id/button_hide_model"
+                            android:layout_width="300dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Hide Model"
+                            android:background="@drawable/test_button"
+                            android:textSize="18sp"
+                            android:textFontWeight="400"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center|center_vertical"
+                            android:gravity="center"
+                            android:padding="10dp">
+                            <Button
+                                android:id="@+id/button_load_gltf_entity_model"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Load GLTF Entity Model"
+                                android:background="@drawable/test_button"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:layout_marginEnd="10dp"/>
+                            <Button
+                                android:id="@+id/button_create_gltf_entity"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Create GLTF Entity"
+                                android:background="@drawable/test_button"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"
+                                android:layout_marginEnd="10dp"/>
+                            <Button
+                                android:id="@+id/button_destroy_gltf_entity"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Destroy GLTF Entity"
+                                android:background="@drawable/test_button"
+                                android:textSize="18sp"
+                                android:textFontWeight="400"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/card1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:padding="10dp">
+                        <Button
+                            android:id="@+id/button_request_fsm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Request FSM"
+                            android:background="@drawable/test_button"
+                            android:textSize="18sp"
+                            android:textFontWeight="400"
+                            android:layout_marginEnd="10dp"/>
+                        <Button
+                            android:id="@+id/button_request_hsm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Request HSM"
+                            android:background="@drawable/test_button"
+                            android:textSize="18sp"
+                            android:textFontWeight="400"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottomCenterFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="Restart Activity"
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:backgroundTint="@color/google_blue"
+        android:src="@drawable/recreate"
+        android:layout_gravity="bottom|end"
+        app:layout_anchorGravity="bottom|right"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

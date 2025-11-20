@@ -13,17 +13,30 @@ if [ "$OUT_DIR" == "" ]; then
 fi
 mkdir -p "$OUT_DIR"
 export OUT_DIR="$(cd $OUT_DIR && pwd)"
-if [ "$DIST_DIR" == "" ]; then
-  DIST_DIR="$OUT_DIR/dist"
+
+# Save the original DIST_DIR so we can copy to it later
+# We update DIST_DIR below to a subdirectory of OUT_DIR to preserve Gradle config cache.
+if [ -n "${DIST_DIR:-}" ]; then
+  export ORIGINAL_DIST_DIR="$DIST_DIR"
 fi
+export DIST_DIR="$OUT_DIR/dist"
 mkdir -p "$DIST_DIR"
-export DIST_DIR="$DIST_DIR"
+
 if [ "$CHANGE_INFO" != "" ]; then
-  cp "$CHANGE_INFO" "$DIST_DIR/"
-  if [ "$MANIFEST" == "" ]; then
-    export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+  cp "$CHANGE_INFO" "$ORIGINAL_DIST_DIR/"
+  if [ "$MANIFEST" == "" ] && [ -f "$ORIGINAL_DIST_DIR/manifest_${BUILD_NUMBER}.xml" ]; then
+    export MANIFEST="$ORIGINAL_DIST_DIR/manifest_${BUILD_NUMBER}.xml"
   fi
 fi
+
+# Determine if this is a postsubmit build to push remote cache
+if [ -n "$BUILD_NUMBER" ] && [[ ! "$BUILD_NUMBER" == P* ]]; then
+  IS_POSTSUBMIT=true
+else
+  IS_POSTSUBMIT=false
+fi
+export IS_POSTSUBMIT
+export IS_ANDROIDX_CI=true
 
 # parse arguments
 if [ "$1" == "--diagnose" ]; then
@@ -92,7 +105,11 @@ busytown/impl/monitor.sh 3600 busytown/impl/showJavaStacks.sh &
 
 # run the build
 if run ./gradlew --ci "$@"; then
-  echo build passed
+  echo "build passed"
+  if [[ "$IS_POSTSUBMIT" == "true" && "$ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE" == "true" ]]; then
+    echo "Caching configuration for reuse in presubmit."
+    run IS_POSTSUBMIT=false ./gradlew --ci "$@" --dry-run
+  fi
 else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
@@ -131,5 +148,12 @@ fi
 
 # stop Gradle daemon to clean up after ourselves
 ./gradlew --stop
+
+# Move DIST_DIR back to its original location
+if [ -n "${ORIGINAL_DIST_DIR:-}" ] && [ "$ORIGINAL_DIST_DIR" != "$DIST_DIR" ]; then
+  mkdir -p "$ORIGINAL_DIST_DIR"
+  cp -a "$DIST_DIR"/. "$ORIGINAL_DIST_DIR"/
+  rm -rf "$DIST_DIR"
+fi
 
 exit "$BUILD_STATUS"

@@ -1,9 +1,9 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
-    ctor public SimpleSQLiteQuery(String!, Object![]?);
     ctor public SimpleSQLiteQuery(String!);
+    ctor public SimpleSQLiteQuery(String!, Object![]?);
     method public static void bind(androidx.sqlite.db.SupportSQLiteProgram!, Object![]!);
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram!);
     method public int getArgCount();
@@ -35,10 +35,10 @@ package androidx.sqlite.db {
     method public boolean isReadOnly();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public boolean isWriteAheadLoggingEnabled();
     method public boolean needUpgrade(int);
-    method public android.database.Cursor! query(String!);
-    method public android.database.Cursor! query(String!, Object![]!);
     method public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!, android.os.CancellationSignal!);
+    method public android.database.Cursor! query(String!);
+    method public android.database.Cursor! query(String!, Object![]!);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setForeignKeyConstraintsEnabled(boolean);
     method public void setLocale(java.util.Locale!);
     method public void setMaxSqlCacheSize(int);

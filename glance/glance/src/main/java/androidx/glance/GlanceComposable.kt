@@ -34,4 +34,4 @@ import androidx.compose.runtime.ComposableTargetMarker
     AnnotationTarget.TYPE,
     AnnotationTarget.TYPE_PARAMETER,
 )
-annotation class GlanceComposable
+public annotation class GlanceComposable

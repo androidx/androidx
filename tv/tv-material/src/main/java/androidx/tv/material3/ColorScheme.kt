@@ -64,7 +64,7 @@ fun lightColorScheme(
     onErrorContainer: Color = ColorLightTokens.OnErrorContainer,
     border: Color = ColorLightTokens.Border,
     borderVariant: Color = ColorLightTokens.BorderVariant,
-    scrim: Color = ColorLightTokens.Scrim
+    scrim: Color = ColorLightTokens.Scrim,
 ): ColorScheme =
     ColorScheme(
         primary = primary,
@@ -95,7 +95,7 @@ fun lightColorScheme(
         onErrorContainer = onErrorContainer,
         border = border,
         borderVariant = borderVariant,
-        scrim = scrim
+        scrim = scrim,
     )
 
 /**
@@ -192,7 +192,7 @@ class ColorScheme(
     onErrorContainer: Color,
     border: Color,
     borderVariant: Color,
-    scrim: Color
+    scrim: Color,
 ) {
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
@@ -313,7 +313,7 @@ class ColorScheme(
         onErrorContainer: Color = this.onErrorContainer,
         border: Color = this.border,
         borderVariant: Color = this.borderVariant,
-        scrim: Color = this.scrim
+        scrim: Color = this.scrim,
     ): ColorScheme =
         ColorScheme(
             primary = primary,
@@ -344,7 +344,7 @@ class ColorScheme(
             onErrorContainer = onErrorContainer,
             border = border,
             borderVariant = borderVariant,
-            scrim = scrim
+            scrim = scrim,
         )
 
     override fun toString(): String {
@@ -415,7 +415,7 @@ fun darkColorScheme(
     onErrorContainer: Color = ColorDarkTokens.OnErrorContainer,
     border: Color = ColorDarkTokens.Border,
     borderVariant: Color = ColorDarkTokens.BorderVariant,
-    scrim: Color = ColorDarkTokens.Scrim
+    scrim: Color = ColorDarkTokens.Scrim,
 ): ColorScheme =
     ColorScheme(
         primary = primary,
@@ -446,7 +446,7 @@ fun darkColorScheme(
         onErrorContainer = onErrorContainer,
         border = border,
         borderVariant = borderVariant,
-        scrim = scrim
+        scrim = scrim,
     )
 
 /**

@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -209,6 +209,7 @@ final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingState { // an
     final val pages // androidx.paging/PagingState.pages|{}pages[0]
         final fun <get-pages>(): kotlin.collections/List<androidx.paging/PagingSource.LoadResult.Page<#A, #B>> // androidx.paging/PagingState.pages.<get-pages>|<get-pages>(){}[0]
 
+    final fun closestItemAroundPosition(kotlin/Int, kotlin/Function1<#B, kotlin/Boolean>): #B? // androidx.paging/PagingState.closestItemAroundPosition|closestItemAroundPosition(kotlin.Int;kotlin.Function1<1:1,kotlin.Boolean>){}[0]
     final fun closestItemToPosition(kotlin/Int): #B? // androidx.paging/PagingState.closestItemToPosition|closestItemToPosition(kotlin.Int){}[0]
     final fun closestPageToPosition(kotlin/Int): androidx.paging/PagingSource.LoadResult.Page<#A, #B>? // androidx.paging/PagingState.closestPageToPosition|closestPageToPosition(kotlin.Int){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingState.equals|equals(kotlin.Any?){}[0]
@@ -223,8 +224,8 @@ final class <#A: kotlin/Any> androidx.paging/PagingData { // androidx.paging/Pag
     final object Companion { // androidx.paging/PagingData.Companion|null[0]
         final fun <#A2: kotlin/Any> empty(): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.empty|empty(){0§<kotlin.Any>}[0]
         final fun <#A2: kotlin/Any> empty(androidx.paging/LoadStates, androidx.paging/LoadStates? = ...): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.empty|empty(androidx.paging.LoadStates;androidx.paging.LoadStates?){0§<kotlin.Any>}[0]
-        final fun <#A2: kotlin/Any> from(kotlin.collections/List<#A2>): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.from|from(kotlin.collections.List<0:0>){0§<kotlin.Any>}[0]
-        final fun <#A2: kotlin/Any> from(kotlin.collections/List<#A2>, androidx.paging/LoadStates, androidx.paging/LoadStates? = ...): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.from|from(kotlin.collections.List<0:0>;androidx.paging.LoadStates;androidx.paging.LoadStates?){0§<kotlin.Any>}[0]
+        final fun <#A2: kotlin/Any> from(kotlin.collections/List<#A2>, androidx.paging/LoadStates, androidx.paging/LoadStates? = ..., kotlin/Int = ..., kotlin/Int = ...): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.from|from(kotlin.collections.List<0:0>;androidx.paging.LoadStates;androidx.paging.LoadStates?;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
+        final fun <#A2: kotlin/Any> from(kotlin.collections/List<#A2>, kotlin/Int = ..., kotlin/Int = ...): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.from|from(kotlin.collections.List<0:0>;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
     }
 }
 

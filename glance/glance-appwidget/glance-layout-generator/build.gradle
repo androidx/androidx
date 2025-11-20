@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -34,7 +33,6 @@ dependencies {
 
     implementation(libs.androidGradlePlugin)
     implementation(libs.kotlinGradlePlugin)
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinPoet)
 }
 
@@ -43,5 +41,4 @@ androidx {
     type = SoftwareType.INTERNAL_OTHER_CODE_PROCESSOR
     inceptionYear = "2021"
     description = "Generator module that generates the layouts Glance AppWidget needs."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

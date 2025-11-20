@@ -71,7 +71,7 @@ private constructor(
         isAutoSelectAllowed = isAutoSelectAllowed,
         allowedProviders = allowedProviders,
         requestData = toBundle(allowedUserIds),
-        candidateQueryData = toBundle(allowedUserIds)
+        candidateQueryData = toBundle(allowedUserIds),
     )
 
     internal companion object {

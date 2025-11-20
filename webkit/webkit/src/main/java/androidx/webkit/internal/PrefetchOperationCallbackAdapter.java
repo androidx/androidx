@@ -19,9 +19,8 @@ package androidx.webkit.internal;
 import androidx.webkit.OutcomeReceiverCompat;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.PrefetchNetworkException;
+import androidx.webkit.Profile;
 
-import org.chromium.support_lib_boundary.PrefetchExceptionBoundaryInterface;
-import org.chromium.support_lib_boundary.PrefetchNetworkExceptionBoundaryInterface;
 import org.chromium.support_lib_boundary.PrefetchOperationCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
@@ -30,13 +29,14 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.InvocationHandler;
 
 public class PrefetchOperationCallbackAdapter {
-
+    private PrefetchOperationCallbackAdapter() {}
     /**
      * Builds the PrefetchOperationCallback to send to the prefetch request.
      *
      * @param callback OutcomeReceiver to be triggered for the caller.
      * @return the built InvocationHandler
      */
+    @Profile.ExperimentalUrlPrefetch
     public static @NonNull /* PrefetchOperationCallback */ InvocationHandler buildInvocationHandler(
             @NonNull OutcomeReceiverCompat<@Nullable Void, @NonNull PrefetchException> callback) {
         PrefetchOperationCallbackBoundaryInterface operationCallback =
@@ -47,40 +47,18 @@ public class PrefetchOperationCallbackAdapter {
                     }
 
                     @Override
-                    public void onFailure(InvocationHandler failure) {
-                        if (BoundaryInterfaceReflectionUtil.instanceOfInOwnClassLoader(failure,
-                                PrefetchNetworkExceptionBoundaryInterface.class.getName())) {
-                            callback.onError(getNetworkException(failure));
+                    public void onFailure(@PrefetchExceptionTypeBoundaryInterface int type,
+                            @NonNull String message, int networkErrorCode) {
+                        if (type == PrefetchExceptionTypeBoundaryInterface.NETWORK) {
+                            callback.onError(
+                                    new PrefetchNetworkException(message, networkErrorCode));
                         } else {
-                            callback.onError(getPrefetchException(failure));
+                            callback.onError(new PrefetchException(message));
                         }
                     }
                 };
 
         return BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                 operationCallback);
-    }
-
-    private static PrefetchNetworkException getNetworkException(InvocationHandler error) {
-        PrefetchNetworkExceptionBoundaryInterface failure =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        PrefetchNetworkExceptionBoundaryInterface.class, error);
-        if (failure.getMessage() != null) {
-            return new PrefetchNetworkException(failure.getMessage(),
-                    failure.getHttpResponseStatusCode());
-        } else {
-            return new PrefetchNetworkException(failure.getHttpResponseStatusCode());
-        }
-    }
-
-    private static PrefetchException getPrefetchException(InvocationHandler error) {
-        PrefetchExceptionBoundaryInterface failure =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        PrefetchExceptionBoundaryInterface.class, error);
-        if (failure.getMessage() != null) {
-            return new PrefetchException(failure.getMessage());
-        } else {
-            return new PrefetchException();
-        }
     }
 }

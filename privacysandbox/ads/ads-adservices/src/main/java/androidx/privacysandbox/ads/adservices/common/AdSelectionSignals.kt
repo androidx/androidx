@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo
  *
  * @param signals Any valid JSON string to create the AdSelectionSignals with.
  */
-class AdSelectionSignals public constructor(val signals: String) {
+public class AdSelectionSignals public constructor(public val signals: String) {
     /**
      * Compares this AdSelectionSignals to the specified object. The result is true if and only if
      * the argument is not null and the signals property of the two objects are equal. Note that

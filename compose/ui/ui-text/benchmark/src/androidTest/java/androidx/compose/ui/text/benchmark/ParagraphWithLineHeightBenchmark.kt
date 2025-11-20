@@ -44,7 +44,7 @@ import org.junit.runners.Parameterized
 class ParagraphWithLineHeightBenchmark(
     private val textLength: Int,
     private val addNewLine: Boolean,
-    private val applyLineHeight: Boolean
+    private val applyLineHeight: Boolean,
 ) {
     companion object {
         @JvmStatic
@@ -55,7 +55,7 @@ class ParagraphWithLineHeightBenchmark(
                 // add new line
                 arrayOf(true),
                 // apply line height
-                arrayOf(false, true)
+                arrayOf(false, true),
             )
     }
 
@@ -76,7 +76,7 @@ class ParagraphWithLineHeightBenchmark(
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 textBenchmarkRule.widthDp,
-                instrumentationContext.resources.displayMetrics
+                instrumentationContext.resources.displayMetrics,
             )
     }
 
@@ -88,7 +88,7 @@ class ParagraphWithLineHeightBenchmark(
         return Paragraph(
             paragraphIntrinsics = paragraphIntrinsics(text),
             constraints = Constraints(maxWidth = ceil(width).toInt()),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -100,13 +100,13 @@ class ParagraphWithLineHeightBenchmark(
                     fontSize = fontSize,
                     lineHeight = fontSize * 2,
                     lineHeightStyle = LineHeightStyle.Default,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
                 )
             } else {
                 TextStyle(
                     fontSize = fontSize,
                     lineHeightStyle = LineHeightStyle.Default,
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
                 )
             }
 
@@ -116,7 +116,7 @@ class ParagraphWithLineHeightBenchmark(
             annotations = listOf(),
             density = Density(density = instrumentationContext.resources.displayMetrics.density),
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-            placeholders = listOf()
+            placeholders = listOf(),
         )
     }
 

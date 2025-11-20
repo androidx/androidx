@@ -45,9 +45,9 @@ import org.jspecify.annotations.NonNull;
  * <pre><code>
  * class SurfaceProcessorImpl implements SurfaceProcessor {
  *
- *     Consumer<Exception> mErrorListener;
+ *     Consumer&lt;Exception&gt; mErrorListener;
  *
- *     SurfaceProcessorImpl(@NonNull Consumer<Exception> errorListener) {
+ *     SurfaceProcessorImpl(@NonNull Consumer&lt;Exception&gt; errorListener) {
  *         mErrorListener = errorListener;
  *     }
  *

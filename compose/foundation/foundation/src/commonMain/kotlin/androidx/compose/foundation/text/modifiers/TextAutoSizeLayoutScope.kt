@@ -42,7 +42,7 @@ sealed interface TextAutoSizeLayoutScope : Density {
     fun performLayout(
         constraints: Constraints,
         text: AnnotatedString,
-        fontSize: TextUnit
+        fontSize: TextUnit,
     ): TextLayoutResult
 }
 

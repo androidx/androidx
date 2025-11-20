@@ -106,6 +106,9 @@ internal class Camera2CameraMetadata(
     override val sessionKeys: Set<CaptureRequest.Key<*>>
         get() = _sessionKeys.value
 
+    override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
+        get() = _sessionCharacteristicsKeys.value
+
     override val physicalCameraIds: Set<CameraId>
         get() = _physicalCameraIds.value
 
@@ -239,6 +242,26 @@ internal class Camera2CameraMetadata(
                     Log.warn(e) {
                         "Failed to getAvailablePhysicalCameraRequestKeys from " +
                             "Camera-${camera.value}"
+                    }
+                    emptySet()
+                }
+            }
+        }
+
+    private val _sessionCharacteristicsKeys: Lazy<Set<CameraCharacteristics.Key<*>>> =
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                emptySet()
+            } else {
+                try {
+                    Debug.trace("Camera-${camera.value}#getAvailableSessionCharacteristicsKeys") {
+                        Api35Compat.getAvailableSessionCharacteristicsKeys(characteristics)
+                            .orEmpty()
+                            .toSet()
+                    }
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getAvailableSessionCharacteristicsKeys from Camera-${camera.value}"
                     }
                     emptySet()
                 }

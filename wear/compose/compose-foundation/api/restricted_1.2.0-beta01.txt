@@ -195,6 +195,8 @@ package androidx.wear.compose.foundation {
     property public final boolean expanded;
   }
 
+}
+
 package androidx.wear.compose.foundation.lazy {
 
   @androidx.compose.runtime.Immutable public final class AutoCenteringParams {

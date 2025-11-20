@@ -60,11 +60,11 @@ class ModelValidator private constructor(val api: ParsedApi) {
     private fun validateServiceSupertypes() {
         val superTypes = api.services.first().superTypes
         if (superTypes.isNotEmpty()) {
-            if (superTypes.contains(Types.sandboxedUiAdapter)) {
+            if (superTypes.intersect(Types.uiAdapters).isNotEmpty()) {
                 errors.add(
                     "Interfaces annotated with @PrivacySandboxService may not extend any other " +
-                        "interface. To define a SandboxedUiAdapter, use @PrivacySandboxInterface " +
-                        "and return it from this service."
+                        "interface. To define a SandboxedUiAdapter or a SharedUiAdapter, use " +
+                        "@PrivacySandboxInterface and return it from this service."
                 )
             } else {
                 errors.add(
@@ -98,8 +98,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
-                            "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
-                            "SdkActivityLaunchers are supported as parameter types."
+                            "@PrivacySandboxCallback or @PrivacySandboxInterface, " +
+                            "SandboxedUiAdapters and SdkActivityLaunchers are supported " +
+                            "as parameter types."
                     )
                 }
                 if (!isValidInterfaceReturnType(method.returnType)) {
@@ -107,8 +108,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
-                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
-                            "return types."
+                            "@PrivacySandboxInterface, SandboxedUiAdapters and SdkActivityLaunchers " +
+                            "are supported as return types."
                     )
                 }
             }
@@ -126,8 +127,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
                         "Error in ${value.type.qualifiedName}.${property.name}: " +
                             "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
-                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
-                            "properties."
+                            "@PrivacySandboxInterface, SandboxedUiAdapters and " +
+                            "SdkActivityLaunchers are supported as properties."
                     )
                 }
             }
@@ -142,8 +143,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
                         "Error in ${callback.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data/enum classes annotated with " +
                             "@PrivacySandboxValue, interfaces annotated with " +
-                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
-                            "callback parameter types."
+                            "@PrivacySandboxInterface, SandboxedUiAdapters and SdkActivityLaunchers " +
+                            "are supported as callback parameter types."
                     )
                 }
             }
@@ -247,7 +248,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun isBundledType(type: Type) =
-        type == Types.sdkActivityLauncher || type.asNonNull() == Types.bundle
+        type == Types.sdkActivityLauncher ||
+            type == Types.sandboxedUiAdapter ||
+            type.asNonNull() == Types.bundle
 }
 
 data class ValidationResult(val errors: List<String>) {

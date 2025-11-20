@@ -21,17 +21,17 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.kapt")
+    id("com.android.legacy-kapt")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     kaptAndroidTest(project(":appsearch:appsearch-compiler"))
     androidTestImplementation(project(":appsearch:appsearch"))
@@ -50,6 +50,6 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.appsearch.ktx"
 }

@@ -26,13 +26,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.stableaidl")
 }
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
     implementation(libs.guavaListenableFuture)
@@ -43,7 +42,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
@@ -54,13 +52,12 @@ dependencies {
 android {
     defaultConfig {
         minSdk = 30
+        consumerProguardFiles("proguard-rules.pro")
     }
     buildFeatures {
         aidl = true
     }
     buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-
         stableAidl {
             version = 1
         }
@@ -75,4 +72,5 @@ androidx {
     inceptionYear = "2021"
     description = "This library helps developers create performant health applications in a platform agnostic way"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

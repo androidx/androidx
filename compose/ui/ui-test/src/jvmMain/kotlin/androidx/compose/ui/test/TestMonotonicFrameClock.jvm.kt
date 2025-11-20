@@ -58,7 +58,7 @@ class TestMonotonicFrameClock(
     private val coroutineScope: CoroutineScope,
     @get:Suppress("MethodNameUnits") // Nanos for high-precision animation clocks
     val frameDelayNanos: Long = DefaultFrameDelay,
-    private val onPerformTraversals: (Long) -> Unit = {}
+    private val onPerformTraversals: (Long) -> Unit = {},
 ) : MonotonicFrameClock {
     private val delayController =
         requireNotNull(coroutineScope.coroutineContext[TestCoroutineScheduler]) {
@@ -87,8 +87,6 @@ class TestMonotonicFrameClock(
      * will then be dispatched before resuming the continuations from the [withFrameNanos] calls
      * themselves.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTestApi
     @ExperimentalTestApi
     val continuationInterceptor: ContinuationInterceptor
         get() = frameDeferringInterceptor
@@ -160,8 +158,6 @@ class TestMonotonicFrameClock(
 
 /** The frame delay time for the [TestMonotonicFrameClock] in milliseconds. */
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalTestApi // Required to annotate Java-facing APIs
 @ExperimentalTestApi // Required by kotlinc to use frameDelayNanos
 val TestMonotonicFrameClock.frameDelayMillis: Long
     get() = frameDelayNanos / 1_000_000

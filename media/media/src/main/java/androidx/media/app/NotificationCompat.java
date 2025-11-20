@@ -27,8 +27,6 @@ import android.app.PendingIntent;
 import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Parcel;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -112,24 +110,10 @@ public class NotificationCompat {
         public static MediaSessionCompat.Token getMediaSession(Notification notification) {
             Bundle extras = androidx.core.app.NotificationCompat.getExtras(notification);
             if (extras != null) {
-                if (Build.VERSION.SDK_INT >= 21) {
-                    Object tokenInner = extras.getParcelable(
-                            androidx.core.app.NotificationCompat.EXTRA_MEDIA_SESSION);
-                    if (tokenInner != null) {
-                        return MediaSessionCompat.Token.fromToken(tokenInner);
-                    }
-                } else {
-                    IBinder tokenInner = extras.getBinder(
-                            androidx.core.app.NotificationCompat.EXTRA_MEDIA_SESSION);
-                    if (tokenInner != null) {
-                        Parcel p = Parcel.obtain();
-                        p.writeStrongBinder(tokenInner);
-                        p.setDataPosition(0);
-                        MediaSessionCompat.Token token =
-                                MediaSessionCompat.Token.CREATOR.createFromParcel(p);
-                        p.recycle();
-                        return token;
-                    }
+                Object tokenInner = extras.getParcelable(
+                        androidx.core.app.NotificationCompat.EXTRA_MEDIA_SESSION);
+                if (tokenInner != null) {
+                    return MediaSessionCompat.Token.fromToken(tokenInner);
                 }
             }
             return null;
@@ -228,9 +212,6 @@ public class NotificationCompat {
          * @param show whether to show a cancel button
          */
         public MediaStyle setShowCancelButton(boolean show) {
-            if (Build.VERSION.SDK_INT < 21) {
-                mShowCancelButton = show;
-            }
             return this;
         }
 
@@ -256,12 +237,10 @@ public class NotificationCompat {
                                 Api21Impl.createMediaStyle(), mDeviceName, mDeviceIcon,
                                         mDeviceIntent, mShowRemotePlaybackInfo),
                                 mActionsToShowInCompact, mToken));
-            } else if (Build.VERSION.SDK_INT >= 21) {
+            } else {
                 Api21Impl.setMediaStyle(builder.getBuilder(),
                         Api21Impl.fillInMediaStyle(Api21Impl.createMediaStyle(),
                                 mActionsToShowInCompact, mToken));
-            } else if (mShowCancelButton) {
-                builder.getBuilder().setOngoing(true);
             }
         }
 
@@ -270,11 +249,8 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY)
         @Override
         public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                // No custom content view required
-                return null;
-            }
-            return generateContentView();
+            // No custom content view required
+            return null;
         }
 
         RemoteViews generateContentView() {
@@ -336,11 +312,8 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY)
         @Override
         public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                // No custom content view required
-                return null;
-            }
-            return generateBigContentView();
+            // No custom content view required
+            return null;
         }
 
         RemoteViews generateBigContentView() {
@@ -446,26 +419,18 @@ public class NotificationCompat {
                 return null;
             }
             boolean hasContentView = mBuilder.getContentView() != null;
-            if (Build.VERSION.SDK_INT >= 21) {
-                // If we are on L/M the media notification will only be colored if the expanded
-                // version is of media style, so we have to create a custom view for the collapsed
-                // version as well in that case.
-                boolean createCustomContent = hasContentView
-                        || mBuilder.getBigContentView() != null;
-                if (createCustomContent) {
-                    RemoteViews contentView = generateContentView();
-                    if (hasContentView) {
-                        buildIntoRemoteViews(contentView, mBuilder.getContentView());
-                    }
-                    setBackgroundColor(contentView);
-                    return contentView;
-                }
-            } else {
+            // If we are on L/M the media notification will only be colored if the expanded
+            // version is of media style, so we have to create a custom view for the collapsed
+            // version as well in that case.
+            boolean createCustomContent = hasContentView
+                    || mBuilder.getBigContentView() != null;
+            if (createCustomContent) {
                 RemoteViews contentView = generateContentView();
                 if (hasContentView) {
                     buildIntoRemoteViews(contentView, mBuilder.getContentView());
-                    return contentView;
                 }
+                setBackgroundColor(contentView);
+                return contentView;
             }
             return null;
         }
@@ -495,9 +460,7 @@ public class NotificationCompat {
             }
             RemoteViews bigContentView = generateBigContentView();
             buildIntoRemoteViews(bigContentView, innerView);
-            if (Build.VERSION.SDK_INT >= 21) {
-                setBackgroundColor(bigContentView);
-            }
+            setBackgroundColor(bigContentView);
             return bigContentView;
         }
 
@@ -526,9 +489,7 @@ public class NotificationCompat {
             }
             RemoteViews headsUpContentView = generateBigContentView();
             buildIntoRemoteViews(headsUpContentView, innerView);
-            if (Build.VERSION.SDK_INT >= 21) {
-                setBackgroundColor(headsUpContentView);
-            }
+            setBackgroundColor(headsUpContentView);
             return headsUpContentView;
         }
 
@@ -541,7 +502,6 @@ public class NotificationCompat {
         }
     }
 
-    @RequiresApi(21)
     private static class Api21Impl {
         private Api21Impl() {}
 

@@ -93,7 +93,7 @@ class MutableTriangleTest {
             ImmutableTriangle(
                 ImmutableVec(10f, 11f),
                 ImmutableVec(12f, 13f),
-                ImmutableVec(14f, 15f)
+                ImmutableVec(14f, 15f),
             )
 
         triangle.populateFrom(other)
@@ -171,9 +171,9 @@ class MutableTriangleTest {
     }
 
     @Test
-    fun asImmutable_returnsImmutableCopy() {
+    fun toImmutable_returnsImmutableCopy() {
         val triangle = MutableTriangle(p0, p1, p2)
-        val output = triangle.asImmutable()
+        val output = triangle.toImmutable()
 
         assertThat(output.p0).isEqualTo(p0)
         assertThat(output.p1).isEqualTo(p1)
@@ -187,7 +187,7 @@ class MutableTriangleTest {
             MutableTriangle(
                 MutableVec(1.01f, 2.02f),
                 MutableVec(3.03f, 4.04f),
-                MutableVec(5.05f, 6.06f)
+                MutableVec(5.05f, 6.06f),
             )
 
         assertThat(triangle.isAlmostEqual(other, 0.1f)).isTrue()

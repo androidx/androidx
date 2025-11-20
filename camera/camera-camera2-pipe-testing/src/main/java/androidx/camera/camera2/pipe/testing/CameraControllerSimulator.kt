@@ -43,7 +43,7 @@ public class CameraControllerSimulator(
     cameraContext: CameraContext,
     private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
-    private val graphListener: GraphListener
+    private val graphListener: GraphListener,
 ) : CameraController {
     override val cameraId: CameraId
         get() = graphConfig.camera

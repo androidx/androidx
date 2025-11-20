@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.scrollingContainer
+import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -59,7 +59,7 @@ internal fun LazyStaggeredGrid(
     /** The horizontal spacing for items/lines. */
     crossAxisSpacing: Dp = 0.dp,
     /** The content of the grid */
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
     val coroutineScope = rememberCoroutineScope()
@@ -75,7 +75,7 @@ internal fun LazyStaggeredGrid(
             crossAxisSpacing,
             coroutineScope,
             slots,
-            graphicsContext
+            graphicsContext,
         )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
@@ -105,19 +105,18 @@ internal fun LazyStaggeredGrid(
                 )
                 .then(beyondBoundsModifier)
                 .then(state.itemAnimator.modifier)
-                .scrollingContainer(
+                .scrollableArea(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
                     reverseScrolling = reverseLayout,
                     flingBehavior = flingBehavior,
                     interactionSource = state.mutableInteractionSource,
-                    useLocalOverscrollFactory = false,
-                    overscrollEffect = overscrollEffect
+                    overscrollEffect = overscrollEffect,
                 ),
         prefetchState = state.prefetchState,
         itemProvider = itemProviderLambda,
-        measurePolicy = measurePolicy
+        measurePolicy = measurePolicy,
     )
 }
 

@@ -67,7 +67,7 @@ public class ExtraCroppingQuirk : Quirk {
                 "SM-A320FL" to null,
                 "SM-G570M" to null,
                 "SM-G610F" to null,
-                "SM-G610M" to Range(21, 26)
+                "SM-G610M" to Range(21, 26),
             )
 
         public fun isEnabled(): Boolean {

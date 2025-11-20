@@ -306,10 +306,9 @@ public class AudioAttributesCompat implements VersionedParcelable {
         }
         if (Build.VERSION.SDK_INT >= 26) {
             return new AudioAttributesCompat(new AudioAttributesImplApi26((AudioAttributes) aa));
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        } else {
             return new AudioAttributesCompat(new AudioAttributesImplApi21((AudioAttributes) aa));
         }
-        return null;
     }
 
     // The rest of this file implements an approximation to AudioAttributes using old stream types
@@ -378,10 +377,8 @@ public class AudioAttributesCompat implements VersionedParcelable {
                 mBuilderImpl = new AudioAttributesImplBase.Builder();
             } else if (Build.VERSION.SDK_INT >= 26) {
                 mBuilderImpl = new AudioAttributesImplApi26.Builder();
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                mBuilderImpl = new AudioAttributesImplApi21.Builder();
             } else {
-                mBuilderImpl = new AudioAttributesImplBase.Builder();
+                mBuilderImpl = new AudioAttributesImplApi21.Builder();
             }
         }
 
@@ -395,10 +392,8 @@ public class AudioAttributesCompat implements VersionedParcelable {
                 mBuilderImpl = new AudioAttributesImplBase.Builder(aa);
             } else if (Build.VERSION.SDK_INT >= 26) {
                 mBuilderImpl = new AudioAttributesImplApi26.Builder(aa.unwrap());
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                mBuilderImpl = new AudioAttributesImplApi21.Builder(aa.unwrap());
             } else {
-                mBuilderImpl = new AudioAttributesImplBase.Builder(aa);
+                mBuilderImpl = new AudioAttributesImplApi21.Builder(aa.unwrap());
             }
         }
 

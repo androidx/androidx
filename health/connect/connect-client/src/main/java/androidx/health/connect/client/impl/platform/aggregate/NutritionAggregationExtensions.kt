@@ -38,9 +38,9 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
         ReadRecordsRequest(
             NutritionRecord::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
-        ResultAggregator(timeRange, TransFatTotalAggregationProcessor(timeRange))
+        ResultAggregator(timeRange, TransFatTotalAggregationProcessor(timeRange)),
     )
 }
 
@@ -51,14 +51,14 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
         ReadRecordsRequest(
             NutritionRecord::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByPeriodAggregator(
             createLocalTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             TransFatTotalAggregationProcessor(it)
-        }
+        },
     )
 }
 
@@ -69,14 +69,14 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
         ReadRecordsRequest(
             NutritionRecord::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByDurationAggregator(
             createTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             TransFatTotalAggregationProcessor(it)
-        }
+        },
     )
 }
 

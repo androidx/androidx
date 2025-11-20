@@ -48,7 +48,7 @@ fun SegmentedButtonSingleSelectSample() {
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                 onClick = { selectedIndex = index },
-                selected = index == selectedIndex
+                selected = index == selectedIndex,
             ) {
                 Text(label)
             }
@@ -66,7 +66,7 @@ fun SegmentedButtonMultiSelectSample() {
         listOf(
             Icons.Filled.StarBorder,
             Icons.AutoMirrored.Filled.TrendingUp,
-            Icons.Filled.BookmarkBorder
+            Icons.Filled.BookmarkBorder,
         )
     MultiChoiceSegmentedButtonRow {
         options.forEachIndexed { index, label ->
@@ -77,7 +77,7 @@ fun SegmentedButtonMultiSelectSample() {
                         Icon(
                             imageVector = icons[index],
                             contentDescription = null,
-                            modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
+                            modifier = Modifier.size(SegmentedButtonDefaults.IconSize),
                         )
                     }
                 },
@@ -88,7 +88,7 @@ fun SegmentedButtonMultiSelectSample() {
                         checkedList.add(index)
                     }
                 },
-                checked = index in checkedList
+                checked = index in checkedList,
             ) {
                 Text(label)
             }

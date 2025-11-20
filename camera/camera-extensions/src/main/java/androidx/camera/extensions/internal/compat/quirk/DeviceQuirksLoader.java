@@ -63,6 +63,24 @@ public class DeviceQuirksLoader {
             quirks.add(new CaptureOutputSurfaceOccupiedQuirk());
         }
 
+        if (quirkSettings.shouldEnableQuirk(
+                EnsurePostviewFormatEquivalenceQuirk.class,
+                EnsurePostviewFormatEquivalenceQuirk.load())) {
+            quirks.add(new EnsurePostviewFormatEquivalenceQuirk());
+        }
+
+        if (quirkSettings.shouldEnableQuirk(
+                AvoidPostviewAvailabilityCheckQuirk.class,
+                AvoidPostviewAvailabilityCheckQuirk.load())) {
+            quirks.add(new AvoidPostviewAvailabilityCheckQuirk());
+        }
+
+        if (quirkSettings.shouldEnableQuirk(
+                AvoidCaptureProcessProgressAvailabilityCheckQuirk.class,
+                AvoidCaptureProcessProgressAvailabilityCheckQuirk.load())) {
+            quirks.add(new AvoidCaptureProcessProgressAvailabilityCheckQuirk());
+        }
+
         return quirks;
     }
 }

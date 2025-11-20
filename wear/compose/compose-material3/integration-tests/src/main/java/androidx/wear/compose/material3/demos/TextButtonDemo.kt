@@ -60,7 +60,7 @@ fun TextButtonDemo() {
                 TextButton(
                     onClick = {},
                     enabled = false,
-                    colors = TextButtonDefaults.filledTonalTextButtonColors()
+                    colors = TextButtonDefaults.filledTonalTextButtonColors(),
                 ) {
                     Text(text = "ABC")
                 }
@@ -74,7 +74,7 @@ fun TextButtonDemo() {
                 TextButton(
                     onClick = {},
                     enabled = false,
-                    colors = TextButtonDefaults.filledTextButtonColors()
+                    colors = TextButtonDefaults.filledTextButtonColors(),
                 ) {
                     Text(text = "ABC")
                 }
@@ -88,7 +88,7 @@ fun TextButtonDemo() {
                 TextButton(
                     onClick = {},
                     enabled = false,
-                    colors = TextButtonDefaults.filledVariantTextButtonColors()
+                    colors = TextButtonDefaults.filledVariantTextButtonColors(),
                 ) {
                     Text(text = "ABC")
                 }
@@ -103,7 +103,7 @@ fun TextButtonDemo() {
                     onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.outlinedTextButtonColors(),
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = false)
+                    border = ButtonDefaults.outlinedButtonBorder(enabled = false),
                 ) {
                     Text(text = "ABC")
                 }
@@ -162,7 +162,7 @@ private fun TextButtonWithSize(size: Dp) {
         modifier = Modifier.touchTargetAwareSize(size),
         onClick = {},
         enabled = true,
-        colors = TextButtonDefaults.filledTonalTextButtonColors()
+        colors = TextButtonDefaults.filledTonalTextButtonColors(),
     ) {
         Text(text = "ABC", style = textStyleFor(size))
     }

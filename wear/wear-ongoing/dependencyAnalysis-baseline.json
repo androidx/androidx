@@ -1,0 +1,37 @@
+{
+  "projectPath": ":wear:wear-ongoing",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:annotations",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:sandbox",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadowapi",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

@@ -42,7 +42,7 @@ internal constructor(
      *     &code_challenge_method=S256
      * ```
      */
-    public val requestUrl: Uri
+    public val requestUrl: Uri,
 ) {
     public companion object {
         /**
@@ -144,9 +144,9 @@ internal constructor(
                         } else {
                             redirectUrl
                         },
-                        packageName
+                        packageName,
                     )
-                    .toString()
+                    .toString(),
             )
 
             codeChallenge?.let {
@@ -161,7 +161,7 @@ internal constructor(
         private fun appendQueryParameter(
             requestUriBuilder: Uri.Builder,
             queryKey: String,
-            expectedQueryParam: String
+            expectedQueryParam: String,
         ) {
             val currentQueryParam = authProviderUrl!!.getQueryParameter(queryKey)
             if (currentQueryParam != null) {
@@ -199,7 +199,7 @@ internal constructor(
         private fun queryParameterCheck(
             requestUrl: Uri,
             queryKey: String,
-            expectedQueryParameter: String?
+            expectedQueryParameter: String?,
         ) {
             val queryParam = requestUrl.getQueryParameter(queryKey)
             require(queryParam != null) {

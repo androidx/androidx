@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -60,15 +60,6 @@
         message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        private val exif = Exif.createFromFile(file)"
         errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        private val exif = Exif.createFromFile(file)"
-        errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
     </issue>
@@ -147,15 +138,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Exif.createFromInputStream can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            exif = Exif.createFromInputStream(inputStream!!)"
-        errorLine2="                                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Exif.getHeight can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        override fun getResolution() = Size(exif.width, exif.height)"
         errorLine2="                                                             ~~~~~~">
@@ -224,6 +206,42 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/uiwidgets/compose/ui/screen/imagecapture/ImageCaptureScreenState.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/foldable/FoldableCameraActivity.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/viewpager/ViewPager2Activity.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/uiwidgets/viewpager/ViewPagerActivity.kt"/>
     </issue>
 
     <issue

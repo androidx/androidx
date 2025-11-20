@@ -17,11 +17,12 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.ui.test.junit4.createComposeRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class CurvedWeightTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun base_weight_size_test() {

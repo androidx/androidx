@@ -33,20 +33,20 @@ import androidx.compose.ui.unit.dp
 fun UnsupportedDeviceScreen() {
     Column(
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(12.dp).fillMaxSize()
+        modifier = Modifier.padding(12.dp).fillMaxSize(),
     ) {
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            text = "Unsupported Device"
+            text = "Unsupported Device",
         )
         Text(
             modifier = Modifier.padding(10.dp).fillMaxWidth(),
             textAlign = TextAlign.Center,
             text =
                 "Unfortunately, this device doesn't support the dialer role so this app will " +
-                    "not work."
+                    "not work.",
         )
     }
 }

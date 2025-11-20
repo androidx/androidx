@@ -33,7 +33,6 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -41,6 +40,7 @@ import android.view.Window;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
@@ -56,6 +56,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -75,6 +76,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.LiveDataUtil;
@@ -116,6 +118,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The abstract base camera controller class.
@@ -321,9 +324,11 @@ public abstract class CameraController {
     @VisibleForTesting
     final RotationProvider.@NonNull Listener mDeviceRotationListener;
 
+    private int mLastKnownRotation = ImageOutputConfig.INVALID_ROTATION;
+
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
-    private long mLatestFocusCancelTimeMillis;
+    private FocusMeteringResultCallback mFocusMeteringResultCallback;
 
     private final ForwardingLiveData<ZoomState> mZoomState = new ForwardingLiveData<>();
     private final ForwardingLiveData<Integer> mTorchState = new ForwardingLiveData<>();
@@ -347,6 +352,9 @@ public abstract class CameraController {
     private final Map<ScreenFlashUiInfo.ProviderType, ScreenFlashUiInfo>
             mScreenFlashUiInfoMap = new HashMap<>();
 
+    private long mTapToFocusAutoCancelDurationNanos = TimeUnit.MILLISECONDS.toNanos(
+            FocusMeteringAction.DEFAULT_AUTO_CANCEL_DURATION_MILLIS);
+
     CameraController(@NonNull Context context) {
         this(context, transform(ProcessCameraProvider.getInstance(context),
                 ProcessCameraProviderWrapperImpl::new, directExecutor()));
@@ -354,7 +362,7 @@ public abstract class CameraController {
 
     CameraController(@NonNull Context context,
             @NonNull ListenableFuture<ProcessCameraProviderWrapper> cameraProviderFuture) {
-        mAppContext = ContextUtil.getApplicationContext(context);
+        mAppContext = ContextUtil.getPersistentApplicationContext(context);
         mPreview = createPreview();
         mImageCapture = createImageCapture(null);
         mImageAnalysis = createImageAnalysis(null, null, null);
@@ -375,6 +383,7 @@ public abstract class CameraController {
         // mode.
         mRotationProvider = new RotationProvider(mAppContext);
         mDeviceRotationListener = rotation -> {
+            mLastKnownRotation = rotation;
             mImageAnalysis.setTargetRotation(rotation);
             mImageCapture.setTargetRotation(rotation);
             mVideoCapture.setTargetRotation(rotation);
@@ -591,8 +600,9 @@ public abstract class CameraController {
     }
 
     private void startListeningToRotationEvents() {
-        mRotationProvider.addListener(mainThreadExecutor(),
-                mDeviceRotationListener);
+        if (!mRotationProvider.addListener(mainThreadExecutor(), mDeviceRotationListener)) {
+            Logger.w(TAG, "The device cannot detect rotation changes.");
+        }
     }
 
     private void stopListeningToRotationEvents() {
@@ -624,7 +634,7 @@ public abstract class CameraController {
             return;
         }
         mPreviewTargetSize = targetSize;
-        unbindPreviewAndRecreate();
+        recreatePreview(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -662,7 +672,7 @@ public abstract class CameraController {
             return;
         }
         mPreviewResolutionSelector = resolutionSelector;
-        unbindPreviewAndRecreate();
+        recreatePreview(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -702,7 +712,7 @@ public abstract class CameraController {
     public void setPreviewDynamicRange(@NonNull DynamicRange dynamicRange) {
         checkMainThread();
         mPreviewDynamicRange = dynamicRange;
-        unbindPreviewAndRecreate();
+        recreatePreview(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -719,13 +729,14 @@ public abstract class CameraController {
     }
 
     /**
-     * Unbinds {@link Preview} and recreates with the latest parameters.
+     * Recreates {@link Preview} with the latest parameters.
      */
     @MainThread
-    private void unbindPreviewAndRecreate() {
-        if (isCameraInitialized()) {
-            mCameraProvider.unbind(mPreview);
+    private void recreatePreview(boolean unbindAllUseCases) {
+        if (unbindAllUseCases) {
+            unbindAllUseCases();
         }
+
         mPreview = createPreview();
         if (mSurfaceProvider != null) {
             mPreview.setSurfaceProvider(mSurfaceProvider);
@@ -778,15 +789,15 @@ public abstract class CameraController {
      *
      * <p>If {@link ImageCapture#FLASH_MODE_SCREEN} is set, a valid {@link android.view.Window}
      * instance must be set to a {@link PreviewView} or {@link ScreenFlashView} which this
-     * controller is set to. Trying to use {@link ImageCapture#FLASH_MODE_SCREEN} with a
-     * non-front camera or without setting a non-null window will be no-op. While switching the
+     * controller is set to. Trying to use {@link ImageCapture#FLASH_MODE_SCREEN} with a non-front
+     * camera or without setting a non-null window will throw an exception. While switching the
      * camera, it is the application's responsibility to change flash mode to the desired one if
      * it leads to a no-op case (e.g. switching to rear camera while {@code FLASH_MODE_SCREEN} is
      * still set). Otherwise, {@code FLASH_MODE_OFF} will be set.
      *
      * @param flashMode the flash mode for {@link ImageCapture}.
      * @throws IllegalArgumentException If flash mode is invalid or
-     * {@link ImageCapture#FLASH_MODE_SCREEN} is used without a front camera.
+     * {@link ImageCapture#FLASH_MODE_SCREEN} is used without a front camera or a non-null window.
      * @see PreviewView#setScreenFlashWindow(Window)
      * @see ScreenFlashView#setScreenFlashWindow(Window)
      */
@@ -973,7 +984,7 @@ public abstract class CameraController {
         if (mImageCapture.getCaptureMode() == captureMode) {
             return;
         }
-        unbindImageCaptureAndRecreate(captureMode);
+        recreateImageCapture(captureMode, /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1012,7 +1023,7 @@ public abstract class CameraController {
             return;
         }
         mImageCaptureTargetSize = targetSize;
-        unbindImageCaptureAndRecreate(getImageCaptureMode());
+        recreateImageCapture(getImageCaptureMode(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1051,7 +1062,7 @@ public abstract class CameraController {
             return;
         }
         mImageCaptureResolutionSelector = resolutionSelector;
-        unbindImageCaptureAndRecreate(getImageCaptureMode());
+        recreateImageCapture(getImageCaptureMode(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1088,7 +1099,7 @@ public abstract class CameraController {
             return;
         }
         mImageCaptureIoExecutor = executor;
-        unbindImageCaptureAndRecreate(getImageCaptureMode());
+        recreateImageCapture(getImageCaptureMode(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1102,18 +1113,20 @@ public abstract class CameraController {
     }
 
     /**
-     * Unbinds {@link ImageCapture} and recreates with the latest parameters.
+     * Recreates {@link ImageCapture} with the latest parameters.
      */
     @MainThread
-    private void unbindImageCaptureAndRecreate(Integer imageCaptureMode) {
-        if (isCameraInitialized()) {
-            mCameraProvider.unbind(mImageCapture);
+    private void recreateImageCapture(Integer imageCaptureMode, boolean unbindAllUseCases) {
+        if (unbindAllUseCases) {
+            unbindAllUseCases();
         }
+
         int flashMode = mImageCapture.getFlashMode();
         mImageCapture = createImageCapture(imageCaptureMode);
         setImageCaptureFlashMode(flashMode);
     }
 
+    @SuppressLint("WrongConstant")
     private ImageCapture createImageCapture(Integer imageCaptureMode) {
         ImageCapture.Builder builder = new ImageCapture.Builder();
         if (imageCaptureMode != null) {
@@ -1122,6 +1135,9 @@ public abstract class CameraController {
         configureResolution(builder, mImageCaptureResolutionSelector, mImageCaptureTargetSize);
         if (mImageCaptureIoExecutor != null) {
             builder.setIoExecutor(mImageCaptureIoExecutor);
+        }
+        if (mLastKnownRotation != ImageOutputConfig.INVALID_ROTATION) {
+            builder.setTargetRotation(mLastKnownRotation);
         }
 
         return builder.build();
@@ -1211,8 +1227,9 @@ public abstract class CameraController {
                 newAnalyzer.getDefaultTargetResolution();
         if (!Objects.equals(oldResolution, newResolution)) {
             // Rebind ImageAnalysis to reconfigure target resolution.
-            unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                    mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat());
+            recreateImageAnalysis(mImageAnalysis.getBackpressureStrategy(),
+                    mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat(),
+                    /* unbindAllUseCases= */ true);
             startCameraAndTrackStates();
         }
     }
@@ -1254,8 +1271,8 @@ public abstract class CameraController {
             return;
         }
 
-        unbindImageAnalysisAndRecreate(strategy, mImageAnalysis.getImageQueueDepth(),
-                mImageAnalysis.getOutputImageFormat());
+        recreateImageAnalysis(strategy, mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1278,8 +1295,8 @@ public abstract class CameraController {
         if (mImageAnalysis.getImageQueueDepth() == depth) {
             return;
         }
-        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(), depth,
-                mImageAnalysis.getOutputImageFormat());
+        recreateImageAnalysis(mImageAnalysis.getBackpressureStrategy(), depth,
+                mImageAnalysis.getOutputImageFormat(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1320,10 +1337,11 @@ public abstract class CameraController {
             return;
         }
         mImageAnalysisTargetSize = targetSize;
-        unbindImageAnalysisAndRecreate(
+        recreateImageAnalysis(
                 mImageAnalysis.getBackpressureStrategy(),
                 mImageAnalysis.getImageQueueDepth(),
-                mImageAnalysis.getOutputImageFormat());
+                mImageAnalysis.getOutputImageFormat(),
+                /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1362,10 +1380,11 @@ public abstract class CameraController {
             return;
         }
         mImageAnalysisResolutionSelector = resolutionSelector;
-        unbindImageAnalysisAndRecreate(
+        recreateImageAnalysis(
                 mImageAnalysis.getBackpressureStrategy(),
                 mImageAnalysis.getImageQueueDepth(),
-                mImageAnalysis.getOutputImageFormat());
+                mImageAnalysis.getOutputImageFormat(),
+                /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1401,8 +1420,9 @@ public abstract class CameraController {
             return;
         }
         mAnalysisBackgroundExecutor = executor;
-        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat());
+        recreateImageAnalysis(mImageAnalysis.getBackpressureStrategy(),
+                mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat(), /* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1448,8 +1468,9 @@ public abstract class CameraController {
             // No-op if the value is not changed.
             return;
         }
-        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth(), imageAnalysisOutputImageFormat);
+        recreateImageAnalysis(mImageAnalysis.getBackpressureStrategy(),
+                mImageAnalysis.getImageQueueDepth(),
+                imageAnalysisOutputImageFormat, /* unbindAllUseCases= */ true);
     }
 
     /**
@@ -1472,21 +1493,24 @@ public abstract class CameraController {
     }
 
     /**
-     * Unbinds {@link ImageAnalysis} and recreates with the latest parameters.
+     * Recreates {@link ImageAnalysis} with the latest parameters.
      */
     @MainThread
-    private void unbindImageAnalysisAndRecreate(Integer strategy, Integer imageQueueDepth,
-            Integer outputFormat) {
+    private void recreateImageAnalysis(Integer strategy, Integer imageQueueDepth,
+            Integer outputFormat, boolean unbindAllUseCases) {
         checkMainThread();
-        if (isCameraInitialized()) {
-            mCameraProvider.unbind(mImageAnalysis);
+
+        if (unbindAllUseCases) {
+            unbindAllUseCases();
         }
+
         mImageAnalysis = createImageAnalysis(strategy, imageQueueDepth, outputFormat);
         if (mAnalysisExecutor != null && mAnalysisAnalyzer != null) {
             mImageAnalysis.setAnalyzer(mAnalysisExecutor, mAnalysisAnalyzer);
         }
     }
 
+    @SuppressLint("WrongConstant")
     private ImageAnalysis createImageAnalysis(Integer strategy, Integer imageQueueDepth,
             Integer outputFormat) {
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
@@ -1502,6 +1526,9 @@ public abstract class CameraController {
         configureResolution(builder, mImageAnalysisResolutionSelector, mImageAnalysisTargetSize);
         if (mAnalysisBackgroundExecutor != null) {
             builder.setBackgroundExecutor(mAnalysisBackgroundExecutor);
+        }
+        if (mLastKnownRotation != ImageOutputConfig.INVALID_ROTATION) {
+            builder.setTargetRotation(mLastKnownRotation);
         }
 
         return builder.build();
@@ -1802,7 +1829,7 @@ public abstract class CameraController {
     public void setVideoCaptureQualitySelector(@NonNull QualitySelector qualitySelector) {
         checkMainThread();
         mVideoCaptureQualitySelector = qualitySelector;
-        unbindVideoAndRecreate();
+        recreateVideoCapture(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1832,7 +1859,7 @@ public abstract class CameraController {
     public void setVideoCaptureMirrorMode(@MirrorMode.Mirror int mirrorMode) {
         checkMainThread();
         mVideoCaptureMirrorMode = mirrorMode;
-        unbindVideoAndRecreate();
+        recreateVideoCapture(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1870,7 +1897,7 @@ public abstract class CameraController {
     public void setVideoCaptureDynamicRange(@NonNull DynamicRange dynamicRange) {
         checkMainThread();
         mVideoCaptureDynamicRange = dynamicRange;
-        unbindVideoAndRecreate();
+        recreateVideoCapture(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1902,7 +1929,7 @@ public abstract class CameraController {
     public void setVideoCaptureTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
         checkMainThread();
         mVideoCaptureTargetFrameRate = targetFrameRate;
-        unbindVideoAndRecreate();
+        recreateVideoCapture(/* unbindAllUseCases= */ true);
         startCameraAndTrackStates();
     }
 
@@ -1916,16 +1943,17 @@ public abstract class CameraController {
     }
 
     /**
-     * Unbinds VideoCapture and recreate with the latest parameters.
+     * Recreates VideoCapture with the latest parameters.
      */
     @MainThread
-    private void unbindVideoAndRecreate() {
-        if (isCameraInitialized()) {
-            mCameraProvider.unbind(mVideoCapture);
+    private void recreateVideoCapture(boolean unbindAllUseCases) {
+        if (unbindAllUseCases) {
+            unbindAllUseCases();
         }
         mVideoCapture = createVideoCapture();
     }
 
+    @SuppressLint("WrongConstant")
     private VideoCapture<Recorder> createVideoCapture() {
         Recorder.Builder videoRecorderBuilder = new Recorder.Builder().setQualitySelector(
                 mVideoCaptureQualitySelector);
@@ -1937,11 +1965,15 @@ public abstract class CameraController {
             }
         }
 
-        return new VideoCapture.Builder<>(videoRecorderBuilder.build())
+        VideoCapture.Builder<Recorder> builder = new VideoCapture.Builder<>(
+                videoRecorderBuilder.build())
                 .setTargetFrameRate(mVideoCaptureTargetFrameRate)
                 .setMirrorMode(mVideoCaptureMirrorMode)
-                .setDynamicRange(mVideoCaptureDynamicRange)
-                .build();
+                .setDynamicRange(mVideoCaptureDynamicRange);
+        if (mLastKnownRotation != ImageOutputConfig.INVALID_ROTATION) {
+            builder.setTargetRotation(mLastKnownRotation);
+        }
+        return builder.build();
     }
 
     private @Nullable AspectRatioStrategy getViewportAspectRatioStrategy(
@@ -1963,12 +1995,18 @@ public abstract class CameraController {
         int surfaceRotationDegrees =
                 viewPort == null ? 0 : CameraOrientationUtil.surfaceRotationToDegrees(
                         viewPort.getRotation());
-        int sensorRotationDegrees =
-                mCameraProvider == null ? 0 : mCameraProvider.getCameraInfo(
-                        mCameraSelector).getSensorRotationDegrees();
-        boolean isOppositeFacing =
-                mCameraProvider == null ? true : mCameraProvider.getCameraInfo(
-                        mCameraSelector).getLensFacing() == CameraSelector.LENS_FACING_BACK;
+        int sensorRotationDegrees = 0;
+        boolean isOppositeFacing = true;
+        try {
+            if (mCameraProvider != null) {
+                CameraInfo cameraInfo = mCameraProvider.getCameraInfo(mCameraSelector);
+                sensorRotationDegrees = cameraInfo.getSensorRotationDegrees();
+                isOppositeFacing = cameraInfo.getLensFacing() == CameraSelector.LENS_FACING_BACK;
+            }
+        } catch (IllegalArgumentException e) {
+            String readableSelector = getReadableSelectorString(mCameraSelector);
+            Logger.w(TAG, "Failed to retrieve CameraInfo for selector: " + readableSelector, e);
+        }
         int relativeRotation = CameraOrientationUtil.getRelativeImageRotation(
                 surfaceRotationDegrees, sensorRotationDegrees, isOppositeFacing);
         Rational aspectRatio = viewPort.getAspectRatio();
@@ -1977,9 +2015,9 @@ public abstract class CameraController {
                     /* denominator= */ aspectRatio.getNumerator());
         }
 
-        if (aspectRatio.equals(new Rational(4, 3))) {
+        if (aspectRatio.equals(AspectRatioUtil.ASPECT_RATIO_4_3)) {
             return AspectRatio.RATIO_4_3;
-        } else if (aspectRatio.equals(new Rational(16, 9))) {
+        } else if (aspectRatio.equals(AspectRatioUtil.ASPECT_RATIO_16_9)) {
             return AspectRatio.RATIO_16_9;
         } else {
             return AspectRatio.RATIO_DEFAULT;
@@ -1987,15 +2025,62 @@ public abstract class CameraController {
     }
 
     /**
+     * Creates a human-readable string from a CameraSelector for logging purposes.
+     */
+    @OptIn(markerClass = ExperimentalLensFacing.class)
+    private String getReadableSelectorString(CameraSelector selector) {
+        if (selector == null) {
+            return "null";
+        }
+        StringBuilder description = new StringBuilder("CameraSelector{");
+        // Get the lens facing, as it's the most common and useful identifier.
+        Integer lensFacing = selector.getLensFacing();
+        if (lensFacing != null) {
+            switch (lensFacing) {
+                case CameraSelector.LENS_FACING_BACK:
+                    description.append("lensFacing=BACK");
+                    break;
+                case CameraSelector.LENS_FACING_FRONT:
+                    description.append("lensFacing=FRONT");
+                    break;
+                case CameraSelector.LENS_FACING_EXTERNAL:
+                    description.append("lensFacing=EXTERNAL");
+                    break;
+                default:
+                    description.append("lensFacing=UNKNOWN(").append(lensFacing).append(")");
+                    break;
+            }
+        } else {
+            description.append("lensFacing=NOT_SPECIFIED");
+        }
+        // In the future, you could add other filters here if needed.
+        description.append("}");
+        return description.toString();
+    }
+
+    @MainThread
+    private void unbindAllUseCases() {
+        if (!isCameraInitialized()) {
+            return;
+        }
+
+        // Invokes the unbind() method to unbind all use cases created by the CameraController.
+        // This can avoid to unbind the UseCases bound with the other lifecycle owner unexpectedly.
+        mCameraProvider.unbind(mPreview, mImageCapture, mImageAnalysis, mVideoCapture);
+    }
+
+    /**
      * Unbinds all the use cases and recreate with the latest parameters.
      */
     @MainThread
     private void unbindAllAndRecreate() {
-        unbindPreviewAndRecreate();
-        unbindImageCaptureAndRecreate(getImageCaptureMode());
-        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat());
-        unbindVideoAndRecreate();
+        unbindAllUseCases();
+        recreatePreview(/* unbindAllUseCases= */ false);
+        recreateImageCapture(getImageCaptureMode(), /* unbindAllUseCases= */ false);
+        recreateImageAnalysis(mImageAnalysis.getBackpressureStrategy(),
+                mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat(), /* unbindAllUseCases= */ false);
+        recreateVideoCapture(/* unbindAllUseCases= */ false);
     }
 
     // -----------------
@@ -2168,59 +2253,50 @@ public abstract class CameraController {
             Logger.d(TAG, "Tap to focus disabled. ");
             return;
         }
+
+        PointF tapPoint = new PointF(x, y);
+        FocusMeteringAction focusMeteringAction = createFocusMeteringAction(meteringPointFactory,
+                tapPoint);
+
         Logger.d(TAG, "Tap to focus started: " + x + ", " + y);
-        mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_STARTED, new PointF(x, y)));
-        MeteringPoint afPoint = meteringPointFactory.createPoint(x, y, AF_SIZE);
-        MeteringPoint aePoint = meteringPointFactory.createPoint(x, y, AE_SIZE);
-        FocusMeteringAction focusMeteringAction = new FocusMeteringAction
-                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
-                .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
-                .build();
-        Futures.addCallback(mCamera.getCameraControl().startFocusAndMetering(focusMeteringAction),
-                new FutureCallback<FocusMeteringResult>() {
 
-                    @Override
-                    public void onSuccess(@Nullable FocusMeteringResult result) {
-                        if (result == null) {
-                            return;
-                        }
-                        Logger.d(TAG, "Tap to focus onSuccess: " + result.isFocusSuccessful());
-                        mTapToFocusInfoState.postValue(new TapToFocusInfo(
-                                result.isFocusSuccessful() ? TAP_TO_FOCUS_FOCUSED
-                                        : TAP_TO_FOCUS_NOT_FOCUSED, new PointF(x, y)));
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Throwable t) {
-                        if (t instanceof CameraControl.OperationCanceledException) {
-                            Logger.d(TAG, "Tap-to-focus is canceled by new action.");
-                            return;
-                        }
-                        Logger.d(TAG, "Tap to focus failed.", t);
-                        mTapToFocusInfoState.postValue(
-                                new TapToFocusInfo(TAP_TO_FOCUS_FAILED, new PointF(x, y)));
-                    }
-                }, directExecutor());
-
-        mLatestFocusCancelTimeMillis = 0; // reset to default first
-        long cancelDuration = focusMeteringAction.getAutoCancelDurationInMillis();
-        if (cancelDuration > 0L) {
-            mLatestFocusCancelTimeMillis = SystemClock.elapsedRealtime() + cancelDuration;
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                long currentTime = SystemClock.elapsedRealtime();
-                if (mLatestFocusCancelTimeMillis != 0
-                        && currentTime < mLatestFocusCancelTimeMillis) {
-                    Logger.d(TAG, "Ignoring current focus cancel event due to this not"
-                            + " being the latest cancel time, probably a new focus event arrived: "
-                            + "mLatestFocusCancelTimeMillis = " + mLatestFocusCancelTimeMillis
-                            + ", current time = " + currentTime);
-                    // There's a new focus event that came after this cancel event was scheduled.
-                    return;
-                }
-                mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, null));
-                mLatestFocusCancelTimeMillis = 0;
-            }, cancelDuration);
+        // Previous callback closed first so that TAP_TO_FOCUS_STARTED of this operation is not
+        // overwritten by any event from previous operations.
+        if (mFocusMeteringResultCallback != null) {
+            mFocusMeteringResultCallback.close();
         }
+
+        mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_STARTED, tapPoint));
+
+        FocusMeteringResultCallback focusMeteringResultCallback = new FocusMeteringResultCallback(
+                tapPoint, mTapToFocusInfoState);
+        mFocusMeteringResultCallback = focusMeteringResultCallback;
+        Futures.addCallback(mCamera.getCameraControl().startFocusAndMetering(focusMeteringAction),
+                focusMeteringResultCallback, directExecutor());
+
+        long cancelDuration = TimeUnit.NANOSECONDS.toMillis(mTapToFocusAutoCancelDurationNanos);
+        Logger.d(TAG, "Tap to focus auto cancel duration: " + cancelDuration + " ms");
+
+        if (cancelDuration > 0L) {
+            new Handler(Looper.getMainLooper()).postDelayed(
+                    focusMeteringResultCallback::resetStateAndClose, cancelDuration);
+        }
+    }
+
+    private FocusMeteringAction createFocusMeteringAction(MeteringPointFactory meteringPointFactory,
+            PointF tapPoint) {
+        MeteringPoint afPoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AF_SIZE);
+        MeteringPoint aePoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AE_SIZE);
+        FocusMeteringAction.Builder focusMeteringActionBuilder = new FocusMeteringAction
+                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
+                .addPoint(aePoint, FocusMeteringAction.FLAG_AE);
+        if (mTapToFocusAutoCancelDurationNanos > 0L) {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.setAutoCancelDuration(
+                    mTapToFocusAutoCancelDurationNanos, TimeUnit.NANOSECONDS);
+        } else {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.disableAutoCancel();
+        }
+        return focusMeteringActionBuilder.build();
     }
 
     /**
@@ -2402,6 +2478,31 @@ public abstract class CameraController {
     }
 
     /**
+     * Sets the auto-cancel duration for tap-to-focus events.
+     *
+     * <p> By default, CameraX uses a value of 5 seconds.
+     *
+     * @param duration The duration after which CameraX automatically cancels a tap-to-focus event.
+     *   A value of 0 will disable the auto-cancellation behavior.
+     * @param timeUnit The {@link TimeUnit} for the {@code duration} parameter.
+     *
+     * @see #getTapToFocusInfoState()
+     */
+    @MainThread
+    public void setTapToFocusAutoCancelDuration(
+            @IntRange(from = 0) long duration,
+            @NonNull TimeUnit timeUnit
+    ) {
+        Preconditions.checkArgument(
+                duration >= 0,
+                "Tap-to-focus auto-cancellation duration must be at least 0"
+        );
+        mTapToFocusAutoCancelDurationNanos = timeUnit.toNanos(duration);
+        Logger.d(TAG, "setTapToFocusAutoCancelDuration: " + mTapToFocusAutoCancelDurationNanos
+                + " ns set!");
+    }
+
+    /**
      * Returns a {@link LiveData} of {@link ZoomState}.
      *
      * <p>The LiveData will be updated whenever the set zoom state has been changed. This can
@@ -2573,7 +2674,7 @@ public abstract class CameraController {
         }
         if (mCameraProvider != null) {
             // Unbind to make sure the pipelines will be recreated.
-            mCameraProvider.unbindAll();
+            unbindAllUseCases();
         }
         mEffects.clear();
         mEffects.addAll(effects);
@@ -2590,7 +2691,7 @@ public abstract class CameraController {
         checkMainThread();
         if (mCameraProvider != null) {
             // Unbind to make sure the pipelines will be recreated.
-            mCameraProvider.unbindAll();
+            unbindAllUseCases();
         }
         mEffects.clear();
         startCameraAndTrackStates();
@@ -2652,24 +2753,22 @@ public abstract class CameraController {
             return null;
         }
 
+        // Always unbinds all UseCases to allow the resolution selection logic to re-select a
+        // workable resolutions set for the new UseCases combination.
+        unbindAllUseCases();
+
         UseCaseGroup.Builder builder = new UseCaseGroup.Builder().addUseCase(mPreview);
 
         if (isImageCaptureEnabled()) {
             builder.addUseCase(mImageCapture);
-        } else {
-            mCameraProvider.unbind(mImageCapture);
         }
 
         if (isImageAnalysisEnabled()) {
             builder.addUseCase(mImageAnalysis);
-        } else {
-            mCameraProvider.unbind(mImageAnalysis);
         }
 
         if (isVideoCaptureEnabled()) {
             builder.addUseCase(mVideoCapture);
-        } else {
-            mCameraProvider.unbind(mVideoCapture);
         }
 
         builder.setViewPort(mViewPort);
@@ -2758,6 +2857,83 @@ public abstract class CameraController {
         @Override
         public @NonNull String toString() {
             return "aspect ratio: " + mAspectRatio + " resolution: " + mResolution;
+        }
+    }
+
+    static class FocusMeteringResultCallback implements FutureCallback<FocusMeteringResult> {
+        private boolean mIsCanceled = false;
+        private final PointF mTapPoint;
+        private final MutableLiveData<TapToFocusInfo> mTapToFocusInfoState;
+
+        private final Object mLock = new Object();
+
+        FocusMeteringResultCallback(PointF tapPoint,
+                MutableLiveData<TapToFocusInfo> tapToFocusInfoState) {
+            mTapPoint = tapPoint;
+            mTapToFocusInfoState = tapToFocusInfoState;
+        }
+
+        @Override
+        public void onSuccess(@Nullable FocusMeteringResult result) {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                if (result == null) {
+                    return;
+                }
+
+                Logger.d(TAG, "Tap-to-focus onSuccess: " + result.isFocusSuccessful());
+                mTapToFocusInfoState.postValue(new TapToFocusInfo(
+                        result.isFocusSuccessful() ? TAP_TO_FOCUS_FOCUSED
+                                : TAP_TO_FOCUS_NOT_FOCUSED, mTapPoint));
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Throwable t) {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                if (t instanceof CameraControl.OperationCanceledException) {
+                    Logger.d(TAG, "Tap-to-focus canceled", t);
+
+                    // Resetting focus state, also closing earlier to avoid multiple reset updates.
+                    mTapToFocusInfoState.postValue(
+                            new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, null));
+                    close();
+
+                    return;
+                }
+
+                Logger.d(TAG, "Tap-to-focus failed.", t);
+                mTapToFocusInfoState.postValue(
+                        new TapToFocusInfo(TAP_TO_FOCUS_FAILED, mTapPoint));
+            }
+        }
+
+        /**
+         * Resets the tap-to-focus state and closes this callback class.
+         *
+         * <P> This method, like the other callback methods in this class, is no-op if the class has
+         * already been closed once.
+         *
+         * @see #close
+         */
+        void resetStateAndClose() {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                Logger.d(TAG, "Tap-to-focus reset.");
+                mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, null));
+                mIsCanceled = true;
+            }
+        }
+
+        /** Closes the callback class to ignore all future callback invocations. */
+        void close() {
+            synchronized (mLock) {
+                mIsCanceled = true;
+            }
         }
     }
 }

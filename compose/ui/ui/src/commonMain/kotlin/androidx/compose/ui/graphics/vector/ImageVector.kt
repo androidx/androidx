@@ -116,7 +116,7 @@ internal constructor(
         /**
          * Determines if the vector asset should automatically be mirrored for right to left locales
          */
-        private val autoMirror: Boolean = false
+        private val autoMirror: Boolean = false,
     ) {
 
         // Secondary constructor to maintain API compatibility that defaults autoMirror to false
@@ -126,9 +126,9 @@ internal constructor(
                 ReplaceWith(
                     "Builder(name, defaultWidth, defaultHeight, viewportWidth, " +
                         "viewportHeight, tintColor, tintBlendMode, false)",
-                    "androidx.compose.ui.graphics.vector"
+                    "androidx.compose.ui.graphics.vector",
                 ),
-            DeprecationLevel.HIDDEN
+            DeprecationLevel.HIDDEN,
         )
         constructor(
             /** Name of the vector asset */
@@ -156,7 +156,7 @@ internal constructor(
             tintColor: Color = Color.Unspecified,
 
             /** Blend mode used to apply the tint color */
-            tintBlendMode: BlendMode = BlendMode.SrcIn
+            tintBlendMode: BlendMode = BlendMode.SrcIn,
         ) : this(
             name,
             defaultWidth,
@@ -165,7 +165,7 @@ internal constructor(
             viewportHeight,
             tintColor,
             tintBlendMode,
-            false
+            false,
         )
 
         private val nodes = ArrayList<GroupParams>()
@@ -204,7 +204,7 @@ internal constructor(
             scaleY: Float = DefaultScaleY,
             translationX: Float = DefaultTranslationX,
             translationY: Float = DefaultTranslationY,
-            clipPathData: List<PathNode> = EmptyPath
+            clipPathData: List<PathNode> = EmptyPath,
         ): Builder {
             ensureNotConsumed()
             val group =
@@ -217,7 +217,7 @@ internal constructor(
                     scaleY,
                     translationX,
                     translationY,
-                    clipPathData
+                    clipPathData,
                 )
             nodes.push(group)
             return this
@@ -277,7 +277,7 @@ internal constructor(
             strokeLineMiter: Float = DefaultStrokeLineMiter,
             trimPathStart: Float = DefaultTrimPathStart,
             trimPathEnd: Float = DefaultTrimPathEnd,
-            trimPathOffset: Float = DefaultTrimPathOffset
+            trimPathOffset: Float = DefaultTrimPathOffset,
         ): Builder {
             ensureNotConsumed()
             currentGroup.children.add(
@@ -295,7 +295,7 @@ internal constructor(
                     strokeLineMiter,
                     trimPathStart,
                     trimPathEnd,
-                    trimPathOffset
+                    trimPathOffset,
                 )
             )
             return this
@@ -324,7 +324,7 @@ internal constructor(
                     root.asVectorGroup(),
                     tintColor,
                     tintBlendMode,
-                    autoMirror
+                    autoMirror,
                 )
 
             isConsumed = true
@@ -355,7 +355,7 @@ internal constructor(
                 translationX,
                 translationY,
                 clipPathData,
-                children
+                children,
             )
 
         /**
@@ -372,7 +372,7 @@ internal constructor(
             var translationX: Float = DefaultTranslationX,
             var translationY: Float = DefaultTranslationY,
             var clipPathData: List<PathNode> = EmptyPath,
-            var children: MutableList<VectorNode> = mutableListOf()
+            var children: MutableList<VectorNode> = mutableListOf(),
         )
     }
 
@@ -457,7 +457,7 @@ internal constructor(
     val clipPathData: List<PathNode> = EmptyPath,
 
     /** Child Vector nodes that are part of this group, this can contain paths or other groups */
-    private val children: List<VectorNode> = emptyList()
+    private val children: List<VectorNode> = emptyList(),
 ) : VectorNode(), Iterable<VectorNode> {
 
     val size: Int
@@ -573,7 +573,7 @@ internal constructor(
      * Specifies the offset of the trim region (allows showed region to include the start and end),
      * in the range from 0 to 1. The default is 0.
      */
-    val trimPathOffset: Float = DefaultTrimPathOffset
+    val trimPathOffset: Float = DefaultTrimPathOffset,
 ) : VectorNode() {
 
     override fun equals(other: Any?): Boolean {
@@ -648,7 +648,7 @@ inline fun ImageVector.Builder.path(
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: Float = DefaultStrokeLineMiter,
     pathFillType: PathFillType = DefaultFillType,
-    pathBuilder: PathBuilder.() -> Unit
+    pathBuilder: PathBuilder.() -> Unit,
 ) =
     addPath(
         PathData(pathBuilder),
@@ -661,7 +661,7 @@ inline fun ImageVector.Builder.path(
         strokeLineWidth,
         strokeLineCap,
         strokeLineJoin,
-        strokeLineMiter
+        strokeLineMiter,
     )
 
 /**
@@ -690,7 +690,7 @@ inline fun ImageVector.Builder.group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
-    block: ImageVector.Builder.() -> Unit
+    block: ImageVector.Builder.() -> Unit,
 ) = apply {
     addGroup(name, rotate, pivotX, pivotY, scaleX, scaleY, translationX, translationY, clipPathData)
     block()

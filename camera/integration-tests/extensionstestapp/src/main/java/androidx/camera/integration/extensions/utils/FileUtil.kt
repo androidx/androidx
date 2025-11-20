@@ -46,7 +46,7 @@ object FileUtil {
         fileNameSuffix: String,
         relativePath: String,
         contentResolver: ContentResolver,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ): Uri? {
         require((image.format == ImageFormat.JPEG) or (image.format == ImageFormat.YUV_420_888)) {
             "Incorrect image format of the input image proxy: ${image.format}"
@@ -76,7 +76,7 @@ object FileUtil {
             contentResolver,
             tempFileUri,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
+            contentValues,
         )
     }
 
@@ -87,7 +87,7 @@ object FileUtil {
         prefix: String,
         suffix: String,
         cacheDir: File? = null,
-        rotationDegrees: Int = 0
+        rotationDegrees: Int = 0,
     ): Uri? {
         val tempFile = File.createTempFile(prefix, suffix, cacheDir)
 
@@ -132,7 +132,7 @@ object FileUtil {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             Log.e(
                 TAG,
-                "The known devices which support Extensions should be at least" + " Android Q!"
+                "The known devices which support Extensions should be at least" + " Android Q!",
             )
             return null
         }
@@ -161,7 +161,7 @@ object FileUtil {
     private fun copyTempFileByteArrayToOutputLocation(
         contentResolver: ContentResolver,
         tempFileUri: Uri,
-        uri: Uri
+        uri: Uri,
     ): Boolean {
         contentResolver.openOutputStream(uri).use { outputStream ->
             if (tempFileUri.path == null || outputStream == null) {

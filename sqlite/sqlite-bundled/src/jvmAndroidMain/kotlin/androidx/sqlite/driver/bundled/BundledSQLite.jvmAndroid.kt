@@ -33,7 +33,7 @@ import androidx.annotation.RestrictTo
             SQLITE_OPEN_FULLMUTEX,
             SQLITE_OPEN_NOFOLLOW,
             SQLITE_OPEN_EXRESCODE,
-        ]
+        ],
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

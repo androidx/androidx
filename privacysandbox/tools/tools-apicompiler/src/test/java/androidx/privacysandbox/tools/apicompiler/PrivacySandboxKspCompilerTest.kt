@@ -48,10 +48,10 @@ class PrivacySandboxKspCompilerTest {
                     interface MySdk {
                         fun doStuff(x: Int, y: Int)
                     }
-                """
+                """,
             )
         val compilationResult = compileWithPrivacySandboxKspCompiler(listOf(source))
-        assertThat(compilationResult).succeeds()
+        assertThat(compilationResult).succeedsExcludingOptInWarnings()
 
         val resourceMap =
             compilationResult.resourceOutputDir
@@ -78,7 +78,7 @@ class PrivacySandboxKspCompilerTest {
                         fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
-                """
+                """,
             )
         assertThat(compileWithPrivacySandboxKspCompiler(listOf(source))).fails()
     }

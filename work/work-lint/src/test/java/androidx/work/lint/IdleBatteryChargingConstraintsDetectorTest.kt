@@ -39,7 +39,7 @@ class IdleBatteryChargingConstraintsDetectorTest {
                         .setRequiresCharging(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -76,7 +76,7 @@ class IdleBatteryChargingConstraintsDetectorTest {
                         .setRequiresDeviceIdle(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -112,7 +112,7 @@ class IdleBatteryChargingConstraintsDetectorTest {
                     builder.setRequiresDeviceIdle(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -140,7 +140,7 @@ class IdleBatteryChargingConstraintsDetectorTest {
                     builder.setRequiresCharging(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -171,7 +171,7 @@ class IdleBatteryChargingConstraintsDetectorTest {
                     builder2.setRequiresDeviceIdle(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

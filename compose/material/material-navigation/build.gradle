@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     api("androidx.navigation:navigation-compose:2.8.0")
     implementation(project(":compose:material:material"))
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinSerializationCore)
 
     androidTestImplementation(project(":compose:test-utils"))
@@ -48,12 +46,9 @@ androidx {
     description = "Compose Material integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:material:material-navigation-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {
     compileSdk = 35
     namespace = "androidx.compose.material.navigation"
-    // TODO(b/349411310)?
-    experimentalProperties["android.lint.useK2Uast"] = false
 }

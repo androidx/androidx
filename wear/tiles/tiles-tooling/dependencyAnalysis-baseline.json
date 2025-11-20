@@ -1,0 +1,80 @@
+{
+  "projectPath": ":wear:tiles:tiles-tooling",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-guava",
+        "resolvedVersion": "1.7.3"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout-expression"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout-expression"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout-expression"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
@@ -31,7 +32,7 @@ private constructor(
     private val callbackOnResultMethod: Method,
     private val callbackOnErrorMethod: Method,
     private val sandboxedSdkFactory: SandboxedSdkCompatProxyFactory,
-    private val loadSdkExceptionFactory: LoadSdkCompatExceptionProxyFactory
+    private val loadSdkExceptionFactory: LoadSdkCompatExceptionProxyFactory,
 ) {
 
     fun wrapLoadSdkCallback(originalCallback: Any): LoadSdkCallback =
@@ -40,7 +41,7 @@ private constructor(
             callbackOnResultMethod,
             callbackOnErrorMethod,
             sandboxedSdkFactory,
-            loadSdkExceptionFactory
+            loadSdkExceptionFactory,
         )
 
     private class WrappedCallback(
@@ -48,7 +49,7 @@ private constructor(
         private val callbackOnResultMethod: Method,
         private val callbackOnErrorMethod: Method,
         private val sandboxedSdkFactory: SandboxedSdkCompatProxyFactory,
-        private val loadSdkExceptionFactory: LoadSdkCompatExceptionProxyFactory
+        private val loadSdkExceptionFactory: LoadSdkCompatExceptionProxyFactory,
     ) : LoadSdkCallback {
 
         @SuppressLint("BanUncheckedReflection") // using reflection on library classes
@@ -70,19 +71,19 @@ private constructor(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val sandboxedSdkCompatClass =
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val loadSdkCompatExceptionClass =
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
 
             val callbackOnResultMethod =

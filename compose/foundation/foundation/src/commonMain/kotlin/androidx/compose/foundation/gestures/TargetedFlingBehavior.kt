@@ -43,7 +43,7 @@ interface TargetedFlingBehavior : FlingBehavior {
      */
     suspend fun ScrollScope.performFling(
         initialVelocity: Float,
-        onRemainingDistanceUpdated: (Float) -> Unit
+        onRemainingDistanceUpdated: (Float) -> Unit,
     ): Float
 
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float =

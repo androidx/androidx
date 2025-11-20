@@ -35,10 +35,11 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class GridLayoutManagerSnappingTest(
     val mConfig: Config,
     private val mReverseScroll: Boolean,
-    private val mApplyPadding: Boolean
+    private val mApplyPadding: Boolean,
 ) : BaseGridLayoutManagerTest() {
     @Throws(Throwable::class)
     override fun setupBasic(config: Config, testAdapter: GridTestAdapter): RecyclerView {
@@ -207,14 +208,14 @@ internal class GridLayoutManagerSnappingTest(
                 "The child should align with the center of the parent",
                 rvCenterX.toFloat(),
                 getViewCenterX(view).toFloat(),
-                1f
+                1f,
             )
         } else {
             Assert.assertEquals(
                 "The child should align with the center of the parent",
                 rvCenterY.toFloat(),
                 getViewCenterY(view).toFloat(),
-                1f
+                1f,
             )
         }
     }

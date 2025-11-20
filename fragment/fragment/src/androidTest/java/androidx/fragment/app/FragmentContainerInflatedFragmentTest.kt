@@ -245,7 +245,7 @@ class InflatedFragment() : StrictViewFragment() {
         val a =
             context.obtainStyledAttributes(
                 attrs,
-                androidx.fragment.R.styleable.FragmentContainerView
+                androidx.fragment.R.styleable.FragmentContainerView,
             )
         name = a.getString(androidx.fragment.R.styleable.FragmentContainerView_android_name)
         a.recycle()

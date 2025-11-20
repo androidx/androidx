@@ -42,7 +42,7 @@ internal class StaticListPagingSource<Value : Any>(private val dataList: List<Va
             prevKey = if (indexStart <= 0 || data.isEmpty()) null else indexStart - 1,
             nextKey = if (indexEnd >= dataList.lastIndex || data.isEmpty()) null else indexEnd + 1,
             itemsBefore = indexStart,
-            itemsAfter = dataList.lastIndex - indexEnd
+            itemsAfter = dataList.lastIndex - indexEnd,
         )
     }
 

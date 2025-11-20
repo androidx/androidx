@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,7 +25,7 @@ import android.widget.Button;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class ClickAndWaitTestActivity extends Activity {
+public class ClickAndWaitTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

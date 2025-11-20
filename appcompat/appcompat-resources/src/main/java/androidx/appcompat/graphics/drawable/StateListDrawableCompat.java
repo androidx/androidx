@@ -16,9 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-
 import static androidx.core.content.res.TypedArrayUtils.obtainAttributes;
 
 import android.content.Context;
@@ -29,8 +26,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.StateSet;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
 
@@ -152,9 +147,7 @@ public class StateListDrawableCompat extends DrawableContainerCompat {
     private void updateStateFromTypedArray(TypedArray a) {
         final StateListState state = mStateListState;
         // Account for any configuration changes.
-        if (SDK_INT >= LOLLIPOP) {
-            state.mChangingConfigurations |= Compatibility.Api21Impl.getChangingConfigurations(a);
-        }
+        state.mChangingConfigurations |= a.getChangingConfigurations();
         state.mVariablePadding = a.getBoolean(
                 R.styleable.StateListDrawable_android_variablePadding, state.mVariablePadding);
         state.mConstantSize = a.getBoolean(
@@ -211,11 +204,7 @@ public class StateListDrawableCompat extends DrawableContainerCompat {
                                     + ": <item> tag requires a 'drawable' attribute or "
                                     + "child tag defining a drawable");
                 }
-                if (SDK_INT >= LOLLIPOP) {
-                    dr = Compatibility.Api21Impl.createFromXmlInner(r, parser, attrs, theme);
-                } else {
-                    dr = Drawable.createFromXmlInner(r, parser, attrs);
-                }
+                dr = Drawable.createFromXmlInner(r, parser, attrs, theme);
             }
             state.addStateSet(states, dr);
         }
@@ -380,7 +369,6 @@ public class StateListDrawableCompat extends DrawableContainerCompat {
     }
 
     @Override
-    @RequiresApi(21)
     public void applyTheme(@NonNull Theme theme) {
         super.applyTheme(theme);
         onStateChange(getState());

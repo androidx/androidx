@@ -87,9 +87,7 @@ internal class AnimatedShapeState(
 }
 
 @Composable
-private fun rememberAnimatedShape(
-    state: AnimatedShapeState,
-): Shape {
+private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
     val density = LocalDensity.current
     state.density = density
 
@@ -110,7 +108,7 @@ private fun rememberAnimatedShape(
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
-                density: Density
+                density: Density,
             ): Outline {
                 state.size = size
 
@@ -133,12 +131,7 @@ internal fun rememberAnimatedShape(
     animationSpec: FiniteAnimationSpec<Float>,
 ): Shape {
     val state =
-        remember(animationSpec) {
-            AnimatedShapeState(
-                shape = currentShape,
-                spec = animationSpec,
-            )
-        }
+        remember(animationSpec) { AnimatedShapeState(shape = currentShape, spec = animationSpec) }
 
     val channel = remember { Channel<RoundedCornerShape>(Channel.CONFLATED) }
 

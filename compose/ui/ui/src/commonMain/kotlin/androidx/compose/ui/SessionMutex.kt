@@ -55,7 +55,7 @@ private constructor(private val currentSessionHolder: AtomicReference<Session<T>
      */
     suspend fun <R> withSessionCancellingPrevious(
         sessionInitializer: (CoroutineScope) -> T,
-        session: suspend (data: T) -> R
+        session: suspend (data: T) -> R,
     ): R = coroutineScope {
         val newSession = Session(job = coroutineContext.job, value = sessionInitializer(this))
         currentSessionHolder.getAndSet(newSession)?.job?.cancelAndJoin()

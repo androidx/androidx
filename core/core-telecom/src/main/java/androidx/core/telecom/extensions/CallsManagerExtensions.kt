@@ -71,6 +71,6 @@ public interface CallsManagerExtensions {
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        init: suspend ExtensionInitializationScope.() -> Unit
+        init: suspend ExtensionInitializationScope.() -> Unit,
     )
 }

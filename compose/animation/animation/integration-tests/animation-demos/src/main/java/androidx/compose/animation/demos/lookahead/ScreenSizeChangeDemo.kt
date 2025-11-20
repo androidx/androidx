@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -76,12 +75,12 @@ fun ScreenSizeChangeDemo() {
         modifier =
             Modifier.fillMaxSize().background(Color.Black).clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) {
                 state =
                     if (state == DisplayState.Tablet) DisplayState.Compact else DisplayState.Tablet
             },
-        contentAlignment = Alignment.TopStart
+        contentAlignment = Alignment.TopStart,
     ) {
         Root(state)
     }
@@ -90,7 +89,7 @@ fun ScreenSizeChangeDemo() {
 // Simulate different state
 enum class DisplayState {
     Compact,
-    Tablet
+    Tablet,
 }
 
 @Composable
@@ -122,7 +121,7 @@ fun SceneScope.Details(modifier: Modifier) {
                         Modifier.padding(2.dp)
                             .background(Color.White, RoundedCornerShape(3.dp))
                             .padding(6.dp),
-                    contentDescription = null
+                    contentDescription = null,
                 )
                 Icon(
                     Icons.Default.Menu,
@@ -130,7 +129,7 @@ fun SceneScope.Details(modifier: Modifier) {
                         Modifier.padding(2.dp)
                             .background(Color.White, RoundedCornerShape(3.dp))
                             .padding(6.dp),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
             Message(MessageList[1])
@@ -139,7 +138,6 @@ fun SceneScope.Details(modifier: Modifier) {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Root(state: DisplayState) {
     SceneHost {
@@ -152,7 +150,7 @@ fun Root(state: DisplayState) {
                             .fillMaxHeight()
                     } else {
                         Modifier.fillMaxSize()
-                    }
+                    },
                 )
                 .background(Color(0xffeae7f2))
                 .padding(top = 10.dp, start = 10.dp, end = 10.dp)
@@ -175,7 +173,7 @@ data class MessageData(
     val time: String,
     val subject: String,
     val content: String,
-    val addressing: String
+    val addressing: String,
 )
 
 val MessageList =
@@ -185,7 +183,7 @@ val MessageList =
             "10 mins ago",
             "豆花鱼",
             "最近忙吗？昨晚我去了你最爱的那家饭馆，点了他们特色的豆花鱼，吃着吃着就想你了。有空咱们视频？",
-            ""
+            "",
         ),
         MessageData(
             "So Duri",
@@ -196,7 +194,7 @@ val MessageList =
                 "intrigued by this idea of a noodle restaurant where no one gets to order for" +
                 "themselves - could be fun, or terrible, or both: :) \n\n" +
                 "So ",
-            "To me, Ziad and Lily"
+            "To me, Ziad and Lily",
         ),
         MessageData(
             "Lily",
@@ -208,7 +206,7 @@ val MessageList =
                 " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
                 " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
                 " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-            ""
+            "",
         ),
         MessageData(
             "Me",
@@ -220,8 +218,8 @@ val MessageList =
                 " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
                 " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
                 " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-            "To me, Ziad and Lily"
-        )
+            "To me, Ziad and Lily",
+        ),
     )
 
 @Composable
@@ -232,7 +230,7 @@ fun SearchBar() {
                 imageVector = Icons.Default.Search,
                 contentDescription = null,
                 tint = Color.LightGray,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(10.dp),
             )
             Text("Search", color = Color.LightGray, modifier = Modifier.weight(1f))
             Box(
@@ -253,7 +251,7 @@ fun Header(data: MessageData) {
         Icon(
             Icons.Outlined.Star,
             contentDescription = null,
-            Modifier.background(Color.White, CircleShape).padding(10.dp)
+            Modifier.background(Color.White, CircleShape).padding(10.dp),
         )
     }
 }
@@ -263,7 +261,7 @@ fun SceneScope.Card(cardData: MessageData, selected: Boolean = false) {
     Surface(
         shape = RoundedCornerShape(5.dp),
         modifier = Modifier.padding(2.dp),
-        color = if (selected) Color(0xffecddff) else Color(0xfff3edf7)
+        color = if (selected) Color(0xffecddff) else Color(0xfff3edf7),
     ) {
         Column(Modifier.padding(10.dp)) {
             Header(data = cardData)
@@ -273,7 +271,7 @@ fun SceneScope.Card(cardData: MessageData, selected: Boolean = false) {
                 cardData.content,
                 fontSize = 13.sp,
                 color = Color.Gray,
-                modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout()
+                modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout(),
             )
         }
     }
@@ -291,14 +289,14 @@ fun SceneScope.Message(messageData: MessageData) {
             messageData.addressing,
             fontSize = 12.sp,
             color = Color.LightGray,
-            modifier = Modifier.padding(start = 10.dp)
+            modifier = Modifier.padding(start = 10.dp),
         )
         Spacer(Modifier.size(10.dp))
         Text(
             messageData.content,
             fontSize = 13.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout()
+            modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout(),
         )
         Spacer(Modifier.size(10.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -308,7 +306,7 @@ fun SceneScope.Message(messageData: MessageData) {
                         .padding(5.dp)
                         .height(40.dp)
                         .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("Reply")
             }
@@ -318,7 +316,7 @@ fun SceneScope.Message(messageData: MessageData) {
                         .padding(5.dp)
                         .height(40.dp)
                         .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("Reply All")
             }
@@ -326,20 +324,19 @@ fun SceneScope.Message(messageData: MessageData) {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SceneScope.NavRail(state: DisplayState) {
     Column(
         Modifier.animateBounds(
                 this,
                 if (state == DisplayState.Tablet) Modifier.width(200.dp)
-                else Modifier.width(IntrinsicSize.Min)
+                else Modifier.width(IntrinsicSize.Min),
             )
             .padding(top = 20.dp, end = 5.dp)
     ) {
         Row(
             Modifier.fillMaxWidth().animateSizeAndSkipToFinalLayout().padding(5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             if (state == DisplayState.Tablet) {
                 Text("REPLY", color = Color(0xffa493c5), fontSize = 15.sp, letterSpacing = 0.12.em)
@@ -348,7 +345,7 @@ fun SceneScope.NavRail(state: DisplayState) {
                 imageVector = Icons.Outlined.Menu,
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier.width(40.dp).sharedElement()
+                modifier = Modifier.width(40.dp).sharedElement(),
             )
         }
         Spacer(modifier = Modifier.size(10.dp))
@@ -357,13 +354,13 @@ fun SceneScope.NavRail(state: DisplayState) {
                 .fillMaxWidth()
                 .background(Color(0xffffddee), RoundedCornerShape(8.dp))
                 .padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Create,
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(40.dp),
             )
             if (state == DisplayState.Tablet) {
                 Text(
@@ -372,7 +369,7 @@ fun SceneScope.NavRail(state: DisplayState) {
                         .clipToBounds()
                         .wrapContentWidth(align = Alignment.CenterHorizontally, unbounded = true),
                     color = Color.Gray,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -391,13 +388,13 @@ fun Item(state: DisplayState, icon: ImageVector, text: String, color: Color = Co
             .fillMaxWidth()
             .background(color, RoundedCornerShape(50))
             .padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             tint = Color.Gray,
-            modifier = Modifier.width(40.dp)
+            modifier = Modifier.width(40.dp),
         )
         if (state == DisplayState.Tablet) {
             Text(
@@ -408,7 +405,7 @@ fun Item(state: DisplayState, icon: ImageVector, text: String, color: Color = Co
                     .padding(start = 15.dp),
                 color = Color.Gray,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
+                fontSize = 14.sp,
             )
         }
     }

@@ -34,7 +34,7 @@ fun SelectionControlsDemo() {
     val headerStyle = MaterialTheme.typography.h6
     LazyColumn(
         contentPadding = PaddingValues(10.dp),
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly,
     ) {
         item {
             Text(text = "Checkbox", style = headerStyle)

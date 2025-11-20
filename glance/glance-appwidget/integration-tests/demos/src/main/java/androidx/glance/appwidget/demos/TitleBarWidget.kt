@@ -76,7 +76,7 @@ class TitleBarWidget : GlanceAppWidget() {
                 title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
                 iconColor = contentColor,
                 textColor = contentColor,
-                modifier = modifier
+                modifier = modifier,
             ) {
                 // Action block should contain icon buttons with a null `backgroundColor`
                 CircleIconButton(
@@ -84,14 +84,14 @@ class TitleBarWidget : GlanceAppWidget() {
                     contentDescription = "Add",
                     backgroundColor = null,
                     contentColor = contentColor,
-                    onClick = {}
+                    onClick = {},
                 )
                 CircleIconButton(
                     imageProvider = icPhone,
                     contentDescription = "Call",
                     backgroundColor = null,
                     contentColor = contentColor,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -101,14 +101,14 @@ class TitleBarWidget : GlanceAppWidget() {
             Text(
                 "This is the content() of the scaffold.\nWidget content goes here...",
                 style = TextStyle(color = ColorProvider(Color.DarkGray)),
-                modifier = modifier
+                modifier = modifier,
             )
         }
 
         Scaffold(
             backgroundColor = ColorProvider(Color.Yellow),
             titleBar = { WidgetTitleBar(GlanceModifier.background(Color.Magenta)) },
-            content = { MainContent(GlanceModifier.background(Color.Cyan).fillMaxSize()) }
+            content = { MainContent(GlanceModifier.background(Color.Cyan).fillMaxSize()) },
         )
     }
 }

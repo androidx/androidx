@@ -90,7 +90,7 @@ constructor(
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
@@ -105,7 +105,7 @@ constructor(
         diffCallback = diffCallback,
         updateCallback = updateCallback,
         mainDispatcher = mainDispatcher,
-        workerDispatcher = Dispatchers.Default
+        workerDispatcher = Dispatchers.Default,
     )
 
     /**
@@ -124,7 +124,7 @@ constructor(
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
@@ -141,7 +141,7 @@ constructor(
         diffCallback = diffCallback,
         updateCallback = updateCallback,
         mainDispatcher = mainDispatcher,
-        workerDispatcher = workerDispatcher
+        workerDispatcher = workerDispatcher,
     )
 
     /** True if we're currently executing [getItem] */
@@ -197,7 +197,7 @@ constructor(
                                         previousList.transformAnchorIndex(
                                             diffResult = diffResult,
                                             newList = newList,
-                                            oldPosition = lastAccessedIndex
+                                            oldPosition = lastAccessedIndex,
                                         )
                                     // Transform the last loadAround index from the old list to the
                                     // new list by passing it through the DiffResult, and pass
@@ -238,7 +238,7 @@ constructor(
                                 updateCallback.onChanged(
                                     placeholdersChangedPos,
                                     placeholdersChangedCount,
-                                    null
+                                    null,
                                 )
                             }
                             if (itemsInsertedCount > 0) {
@@ -265,7 +265,7 @@ constructor(
                                 updateCallback.onChanged(
                                     placeholdersChangedPos,
                                     placeholdersChangedCount,
-                                    null
+                                    null,
                                 )
                             }
                             if (itemsInsertedCount > 0) {
@@ -278,7 +278,7 @@ constructor(
                             if (placeholderInsertedCount > 0) {
                                 updateCallback.onInserted(
                                     newTotalSize - placeholderInsertedCount,
-                                    placeholderInsertedCount
+                                    placeholderInsertedCount,
                                 )
                             } else if (placeholderInsertedCount < 0) {
                                 updateCallback.onRemoved(newTotalSize, -placeholderInsertedCount)
@@ -341,7 +341,7 @@ constructor(
                             if (placeholdersToInsert > 0) {
                                 updateCallback.onInserted(
                                     newSize - placeholdersToInsert,
-                                    placeholdersToInsert
+                                    placeholdersToInsert,
                                 )
                             } else if (placeholdersToInsert < 0) {
                                 updateCallback.onRemoved(newSize, -placeholdersToInsert)

@@ -20,7 +20,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -48,10 +47,7 @@ final class WrappedDrawableState extends Drawable.ConstantState {
 
     @Override
     public @NonNull Drawable newDrawable(@Nullable Resources res) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new WrappedDrawableApi21(this, res);
-        }
-        return new WrappedDrawableApi14(this, res);
+        return new WrappedDrawableApi21(this, res);
     }
 
     @Override

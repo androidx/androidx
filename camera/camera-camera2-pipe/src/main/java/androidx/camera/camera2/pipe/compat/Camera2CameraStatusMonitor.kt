@@ -27,6 +27,9 @@ import javax.inject.Provider
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
@@ -43,11 +46,13 @@ internal class Camera2CameraStatusMonitor(
     cameraManager: Provider<CameraManager>,
     private val threads: Threads,
     private val cameraId: CameraId,
+    cameraPipeJob: Job,
 ) : CameraStatusMonitor {
     private val manager = cameraManager.get()
     private val scope =
         CoroutineScope(
-            threads.lightweightDispatcher.plus(CoroutineName("CXCP-CameraStatusMonitor"))
+            SupervisorJob(cameraPipeJob) +
+                threads.lightweightDispatcher.plus(CoroutineName("CXCP-CameraStatusMonitor"))
         )
 
     private val closed = atomic(false)
@@ -100,7 +105,7 @@ internal class Camera2CameraStatusMonitor(
             Api28Compat.registerAvailabilityCallback(
                 manager,
                 threads.lightweightExecutor,
-                availabilityCallback
+                availabilityCallback,
             )
         } else {
             manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
@@ -112,6 +117,7 @@ internal class Camera2CameraStatusMonitor(
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             cameraStatusJob.cancel()
+            scope.cancel()
         }
     }
 }

@@ -37,8 +37,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.konan.TempFiles
 import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.LinkerArguments
-import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.jetbrains.kotlin.konan.target.Platform
 import org.jetbrains.kotlin.konan.target.PlatformManager
 
@@ -50,7 +50,7 @@ import org.jetbrains.kotlin.konan.target.PlatformManager
  *
  * @see ClangArchiveTask
  * @see ClangCompileTask
- * @see ClangSharedLibraryTask
+ * @see ClangLinkerTask
  */
 abstract class KonanBuildService @Inject constructor(private val execOperations: ExecOperations) :
     BuildService<KonanBuildService.Parameters> {
@@ -68,7 +68,7 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         }
         KonanPrebuiltsSetup.createKonanDistribution(
             prebuiltsDirectory = parameters.prebuilts.orNull?.asFile,
-            konanHome = parameters.konanHome.get().asFile
+            konanHome = parameters.konanHome.get().asFile,
         )
     }
 
@@ -120,19 +120,20 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         }
     }
 
-    /** @see ClangSharedLibraryTask */
-    fun createSharedLibrary(parameters: ClangSharedLibraryParameters) {
+    /** @see ClangLinkerTask */
+    fun runLinker(parameters: ClangLinkerParameters) {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.parentFile.mkdirs()
 
         val platform = getPlatform(parameters.konanTarget)
 
-        // Specify max-page-size to align ELF regions to 16kb
+        // Specify max-page-size to align ELF regions to 16kb and use LLVM linker
+        // See https://youtrack.jetbrains.com/issue/KT-71728
         val linkerFlags =
             parameters.linkerArgs.get() +
                 if (parameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
-                    listOf("-z", "max-page-size=16384")
+                    listOf("-fuse-ld=lld", "-z", "max-page-size=16384")
                 } else {
                     emptyList()
                 }
@@ -149,10 +150,9 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                         linkerArgs = linkerFlags,
                         optimize = true,
                         debug = false,
-                        kind = LinkerOutputKind.DYNAMIC_LIBRARY,
+                        kind = parameters.linkerOutputKind.get(),
                         outputDsymBundle = "unused",
-                        mimallocEnabled = false,
-                        sanitizer = null
+                        sanitizer = null,
                     )
                     .finalLinkCommands()
             }
@@ -163,23 +163,29 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
                     execSpec.executable = args.first()
                     args
                         .drop(1)
-                        .filterNot {
-                            // TODO b/305804211 Figure out if we would rather pass all args manually
-                            // We use the linker that konan uses to be as similar as possible but
-                            // that
-                            // linker also has konan demangling, which we don't need and not even
-                            // available
-                            // in the default distribution. Hence we remove that parameters.
-                            // In the future, we can consider not using the `platform.linker` but
-                            // then
-                            // we would need to parse the konan.properties file to get the relevant
-                            // necessary parameters like sysroot etc.
-                            // https://github.com/JetBrains/kotlin/blob/master/kotlin-native/build-tools/src/main/kotlin/org/jetbrains/kotlin/KotlinNativeTest.kt#L536
-                            it.contains("--defsym") || it.contains("Konan_cxa_demangle")
-                        }
+                        .filter(getLinkerArgsFilter(parameters.konanTarget.get().asKonanTarget))
                         .forEach { execSpec.args(it) }
                 }
             }
+    }
+
+    private fun getLinkerArgsFilter(target: KonanTarget): (String) -> Boolean = { flag ->
+        // We use the linker that konan uses to be as similar as possible but that linker also has
+        // extra things we might not want or need, In the future, we can consider not using the
+        // `platform.linker` but then we would need to parse the konan.properties file to get the
+        // relevant necessary parameters like sysroot, etc.
+        // https://github.com/JetBrains/kotlin/blob/master/kotlin-native/konan/konan.properties
+        when {
+            // Remove konan demangling, which we don't need and is not available in the default
+            // distribution.
+            flag == "--defsym" || flag.contains("Konan_cxa_demangle") -> false
+            // b/414635735 - Remove flag to explicitly link with the shared version of GCC runtime
+            // library as that is not widely available in all Linux distribution and we prefer
+            // linking to the static version (via -lgcc). Found in 'linkerGccFlags' in
+            // the konan.properties.
+            target.family == Family.LINUX && flag == "-lgcc_s" -> false
+            else -> true
+        }
     }
 
     private fun FileCollection.regularFilePaths(): List<String> {
@@ -204,8 +210,8 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         val errorStream = ByteArrayOutputStream()
         val execResult = exec {
             block(it)
-            it.setErrorOutput(errorStream)
-            it.setStandardOutput(outputStream)
+            it.errorOutput = errorStream
+            it.standardOutput = outputStream
             it.isIgnoreExitValue = true // we'll check it below
         }
         if (execResult.exitValue != 0) {
@@ -242,7 +248,7 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
         fun obtain(project: Project): Provider<KonanBuildService> {
             return project.gradle.sharedServices.registerIfAbsent(
                 KEY,
-                KonanBuildService::class.java
+                KonanBuildService::class.java,
             ) {
                 check(project.plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
                     "KonanBuildService can only be used in projects that applied the KMP plugin"

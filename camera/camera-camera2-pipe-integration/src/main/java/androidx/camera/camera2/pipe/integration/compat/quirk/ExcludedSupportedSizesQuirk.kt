@@ -21,6 +21,7 @@ import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isNokiaDevice
 import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isOnePlusDevice
 import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isRedmiDevice
 import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
@@ -32,7 +33,7 @@ import androidx.camera.core.impl.Quirk
  * Quirk required to exclude certain supported surface sizes that are problematic.
  *
  * QuirkSummary
- * - Bug Id: b/157448499, b/192129158, b/245495234, b/303151423, b/365877975
+ * - Bug Id: b/157448499, b/192129158, b/245495234, b/303151423, b/365877975, b/436524501
  * - Description: These sizes are dependent on the device, camera and image format. An example is
  *   the resolution size 4000x3000 which is supported on OnePlus 6, but causes a WYSIWYG issue
  *   between preview and image capture. Another example is on Huawei P20 Lite, the Preview screen
@@ -42,7 +43,7 @@ import androidx.camera.core.impl.Quirk
  *   is used. On Samsung A05s (SM-A057G) device, black preview issue can happen when ImageAnalysis
  *   uses output sizes larger than 1920x1080.
  * - Device(s): OnePlus 6, OnePlus 6T, Huawei P20, Samsung J7 Prime (SM-G610M) API 27, Samsung J7
- *   (SM-J710MN) API 27, Redmi Note 9 Pro, Samsung A05s (SM-A057G)
+ *   (SM-J710MN) API 27, Redmi Note 9 Pro, Samsung A05s (SM-A057G), Nokia 7 plus
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -73,6 +74,9 @@ public class ExcludedSupportedSizesQuirk : Quirk {
         }
         if (isSamsungA05s) {
             return getSamsungA05sExcludedSizes(imageFormat)
+        }
+        if (isNokia7Plus) {
+            return getNokia7PlusExcludedSizes(imageFormat)
         }
         Logger.w(TAG, "Cannot retrieve list of supported sizes to exclude on this device.")
         return emptyList()
@@ -117,7 +121,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getHuaweiP20LiteExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
         // When klass is not null, the list for PRIVATE format should be returned.
@@ -136,7 +140,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getSamsungJ7PrimeApi27AboveExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
 
@@ -184,7 +188,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getSamsungJ7Api27AboveExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
 
@@ -245,6 +249,19 @@ public class ExcludedSupportedSizesQuirk : Quirk {
             }
         }
 
+    private fun getNokia7PlusExcludedSizes(imageFormat: Int) =
+        mutableListOf<Size>().apply {
+            if (imageFormat == ImageFormat.YUV_420_888) {
+                add(Size(4032, 3024))
+                add(Size(4000, 3000))
+                add(Size(3264, 2448))
+                add(Size(3200, 2400))
+                add(Size(3024, 3024))
+                add(Size(2976, 2976))
+                add(Size(2448, 2448))
+            }
+        }
+
     public companion object {
         private const val TAG: String = "ExcludedSupportedSizesQuirk"
         private const val UNKNOWN_IMAGE_FORMAT: Int = -1
@@ -256,7 +273,8 @@ public class ExcludedSupportedSizesQuirk : Quirk {
                 isSamsungJ7PrimeApi27Above ||
                 isSamsungJ7Api27Above ||
                 isRedmiNote9Pro ||
-                isSamsungA05s)
+                isSamsungA05s ||
+                isNokia7Plus)
         }
 
         internal val isOnePlus6: Boolean
@@ -297,6 +315,13 @@ public class ExcludedSupportedSizesQuirk : Quirk {
                 return (isSamsungDevice() &&
                     "a05s".equals(Build.DEVICE, ignoreCase = true) &&
                     Build.MODEL.uppercase().contains("SM-A057"))
+            }
+
+        internal val isNokia7Plus: Boolean
+            get() {
+                return (isNokiaDevice() &&
+                    ("B2N".equals(Build.DEVICE, ignoreCase = true) ||
+                        "B2N_sprout".equals(Build.DEVICE, ignoreCase = true)))
             }
     }
 }

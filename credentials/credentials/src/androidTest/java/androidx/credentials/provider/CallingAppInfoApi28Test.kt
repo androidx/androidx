@@ -191,7 +191,7 @@ class CallingAppInfoApi28Test {
                 val packageInfo =
                     context.packageManager.getPackageInfo(
                         packageName,
-                        PackageManager.GET_SIGNING_CERTIFICATES
+                        PackageManager.GET_SIGNING_CERTIFICATES,
                     )
                 assertNotNull(packageInfo.signingInfo)
                 signingInfo = packageInfo.signingInfo!!
@@ -230,7 +230,7 @@ class CallingAppInfoApi28Test {
     fun constructor_fail_emptyPackageName() {
         assertThrows(
             "Expected exception from no package name",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             CallingAppInfo("", signingInfo, ALLOWLIST_VALID_JSON)
         }
@@ -243,7 +243,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from empty privilegedAllowList",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             callingAppInfo.getOrigin("")
         }
@@ -256,7 +256,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from invalid json - no package name",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             callingAppInfo.getOrigin(ALLOWLIST_MISSING_PACKAGE_NAME_JSON)
         }
@@ -269,7 +269,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from emptyPrivilegedAllowList",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             callingAppInfo.getOrigin("invalid_json")
         }
@@ -292,7 +292,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from incorrect apps tag",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             callingAppInfo.getOrigin(ALLOWLIST_INVALID_APPS_TAG_JSON)
         }
@@ -305,7 +305,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from no matching package name",
-            IllegalStateException::class.java
+            IllegalStateException::class.java,
         ) {
             callingAppInfo.getOrigin(ALLOWLIST_VALID_JSON)
         }
@@ -318,7 +318,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from no matching package name",
-            IllegalStateException::class.java
+            IllegalStateException::class.java,
         ) {
             callingAppInfo.getOrigin(ALLOWLIST_NO_MATCH_PKG_JSON)
         }
@@ -331,7 +331,7 @@ class CallingAppInfoApi28Test {
         assertThat(callingAppInfo.origin).isEqualTo(ORIGIN)
         assertThrows(
             "Expected exception from no matching cert",
-            IllegalStateException::class.java
+            IllegalStateException::class.java,
         ) {
             callingAppInfo.getOrigin(ALLOWLIST_NO_MATCH_CERT_JSON)
         }

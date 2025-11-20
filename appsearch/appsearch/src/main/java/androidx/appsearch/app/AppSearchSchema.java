@@ -64,7 +64,8 @@ import java.util.Set;
  * @see AppSearchSession#setSchemaAsync
  */
 @SafeParcelable.Class(creator = "AppSearchSchemaCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class AppSearchSchema extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -882,10 +883,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         }
 
         /** Does not propagate deletion. */
-        // TODO(b/384947619) unhide the API once it is ready.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @ExperimentalAppSearchApi
-        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
+        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
         public static final int DELETE_PROPAGATION_TYPE_NONE = 0;
 
         /**
@@ -903,14 +902,12 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * the joinable value type). Otherwise, throw {@link IllegalStateException} when building
          * (see {@link StringPropertyConfig.Builder#build}).
          */
-        // TODO(b/384947619) unhide the API once it is ready.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features
                         .SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
         @ExperimentalAppSearchApi
-        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
+        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
         public static final int DELETE_PROPAGATION_TYPE_PROPAGATE_FROM = 1;
 
         StringPropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
@@ -959,9 +956,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * Returns how the deletion will be propagated between this document and the referenced
          * document whose qualified id is held by this property.
          */
-        // TODO(b/384947619) unhide the API once it is ready.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
+        @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
         @ExperimentalAppSearchApi
         @DeletePropagationType
         public int getDeletePropagationType() {
@@ -1073,6 +1068,14 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_NONE}, so that it is not joinable.
              *
              * <p>At most, 64 properties can be set as joinable per schema.
+             *
+             * <!--@exportToFramework:ifJetpack()-->
+             * <p>Callers setting {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID} with
+             * {@link PropertyConfig#CARDINALITY_REPEATED} must retrieve
+             * {@link AppSearchSession#getFeatures()} and call
+             * {@link Features#isFeatureSupported(String)} for
+             * {@link Features#SCHEMA_JOINABLE_REPEATED_PROPERTIES}.
+             * <!--@exportToFramework:else()-->
              */
             @CanIgnoreReturnValue
             public @NonNull StringPropertyConfig.Builder setJoinableValueType(
@@ -1100,14 +1103,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * the delete propagation has to use the qualified id. Otherwise, throw
              * {@link IllegalStateException} when building.
              */
-            // TODO(b/384947619) unhide the API once it is ready.
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @CanIgnoreReturnValue
-            @RequiresFeature(
-                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                    name = Features
-                            .SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
-            @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
+            @FlaggedApi(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
             @ExperimentalAppSearchApi
             public @NonNull StringPropertyConfig.Builder setDeletePropagationType(
                     @DeletePropagationType int deletePropagationType) {
@@ -1129,8 +1126,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              *     indexing type {@link StringPropertyConfig#INDEXING_TYPE_NONE}.
              *     <li>Indexing type is not {@link StringPropertyConfig#INDEXING_TYPE_NONE} with
              *     tokenizer type {@link StringPropertyConfig#TOKENIZER_TYPE_NONE}.
-             *     <li>{@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID} is set to a
-             *     {@link PropertyConfig#CARDINALITY_REPEATED} property.
              *     <li>Deletion type other than
              *     {@link StringPropertyConfig#DELETE_PROPAGATION_TYPE_NONE} is used without setting
              *     {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
@@ -1144,10 +1139,6 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 } else {
                     Preconditions.checkState(mIndexingType != INDEXING_TYPE_NONE, "Cannot set "
                             + "TOKENIZER_TYPE_PLAIN with INDEXING_TYPE_NONE.");
-                }
-                if (mJoinableValueType == JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
-                    Preconditions.checkState(mCardinality != CARDINALITY_REPEATED, "Cannot set "
-                            + "JOINABLE_VALUE_TYPE_QUALIFIED_ID with CARDINALITY_REPEATED.");
                 }
                 if (mDeletePropagationType != DELETE_PROPAGATION_TYPE_NONE) {
                     Preconditions.checkState(mJoinableValueType == JOINABLE_VALUE_TYPE_QUALIFIED_ID,
@@ -1691,6 +1682,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * Returns the list of indexable nested properties for the nested document.
          */
         @FlaggedApi(Flags.FLAG_ENABLE_GET_PARENT_TYPES_AND_INDEXABLE_NESTED_PROPERTIES)
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES)
         public @NonNull List<String> getIndexableNestedProperties() {
             DocumentIndexingConfigParcel indexingConfigParcel =
                     mPropertyConfigParcel.getDocumentIndexingConfigParcel();
@@ -2128,9 +2122,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     public static final class BlobHandlePropertyConfig extends PropertyConfig {
         BlobHandlePropertyConfig(@NonNull PropertyConfigParcel propertyConfigParcel) {
             super(propertyConfigParcel);
@@ -2159,6 +2152,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
+            @ExperimentalAppSearchApi
             @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_DESCRIPTION)
             @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
             public @NonNull Builder setDescription(@NonNull String description) {

@@ -41,7 +41,7 @@ abstract class ListProjectsService : BuildService<ListProjectsService.Parameters
             val settings = project.lazyReadFile("settings.gradle")
             return project.gradle.sharedServices.registerIfAbsent(
                 "listProjectsService",
-                ListProjectsService::class.java
+                ListProjectsService::class.java,
             ) { spec ->
                 spec.parameters.settingsFile = settings
             }

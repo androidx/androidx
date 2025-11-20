@@ -16,17 +16,23 @@
 
 package androidx.camera.camera2.pipe.integration.compat
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import android.util.Range
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.reflect.KClass
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,14 +40,65 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 @DoNotInstrument
 class ZoomCompatTest {
     @Test
     @Config(minSdk = 30)
     fun canProvideZoomCompat_whenGettingControlZoomRatioThrowsError() {
-        assertThat(ZoomCompat.Bindings.provideZoomRatio(throwingCameraProperties))
+        assertThat(ZoomCompat.Bindings.provideZoomCompat(throwingCameraProperties))
             .isInstanceOf(CropRegionZoomCompat::class.java)
+    }
+
+    @Test
+    fun canProvideZoomCompat_whenGettingActiveArraySizeReturnsNull() {
+        assertThat(ZoomCompat.Bindings.provideZoomCompat(FakeCameraProperties()))
+            .isInstanceOf(NoOpZoomCompat::class.java)
+    }
+
+    @Test
+    @Config(maxSdk = 29)
+    fun reset_CropRegionZoomCompat_removeParameters() {
+        val fakeRequestControl = FakeUseCaseCameraRequestControl()
+        val fakeCameraMetadata =
+            FakeCameraMetadata(
+                characteristics =
+                    mapOf(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10))
+            )
+        val zoomCompat = CropRegionZoomCompat(FakeCameraProperties(fakeCameraMetadata))
+        zoomCompat.resetAsync(fakeRequestControl)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            assertWithMessage("CONTROL_ZOOM_RATIO not reset by default zoom state")
+                .that(fakeRequestControl.removeParameterCalls)
+                .contains(CaptureRequest.CONTROL_ZOOM_RATIO)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                assertWithMessage("CONTROL_SETTINGS_OVERRIDE not reset by default zoom state")
+                    .that(fakeRequestControl.removeParameterCalls)
+                    .contains(CaptureRequest.CONTROL_SETTINGS_OVERRIDE)
+            }
+        } else {
+            assertWithMessage("SCALER_CROP_REGION not reset by default zoom state")
+                .that(fakeRequestControl.removeParameterCalls)
+                .contains(CaptureRequest.SCALER_CROP_REGION)
+        }
+    }
+
+    @Test
+    @Config(minSdk = 30)
+    fun reset_AndroidRZoomCompat_removeParameters() {
+        val fakeRequestControl = FakeUseCaseCameraRequestControl()
+        val zoomCompat = AndroidRZoomCompat(FakeCameraProperties(), Range(1.0f, 5.0f))
+        zoomCompat.resetAsync(fakeRequestControl)
+
+        assertWithMessage("CONTROL_ZOOM_RATIO not reset by default zoom state")
+            .that(fakeRequestControl.removeParameterCalls)
+            .contains(CaptureRequest.CONTROL_ZOOM_RATIO)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            assertWithMessage("CONTROL_SETTINGS_OVERRIDE not reset by default zoom state")
+                .that(fakeRequestControl.removeParameterCalls)
+                .contains(CaptureRequest.CONTROL_SETTINGS_OVERRIDE)
+        }
     }
 
     private val throwingCameraProperties =
@@ -82,6 +139,9 @@ class ZoomCompatTest {
             override val sessionKeys: Set<CaptureRequest.Key<*>>
                 get() = TODO("Not yet implemented")
 
+            override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
+                get() = TODO("Not yet implemented")
+
             override fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata {
                 TODO("Not yet implemented")
             }
@@ -101,6 +161,10 @@ class ZoomCompatTest {
                         key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
                 ) {
                     throw AssertionError()
+                }
+                if (key == CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE) {
+                    @Suppress("UNCHECKED_CAST") // T is guaranteed to be Rect
+                    return Rect(0, 0, 4000, 3000) as T?
                 }
                 TODO("Not yet implemented")
             }

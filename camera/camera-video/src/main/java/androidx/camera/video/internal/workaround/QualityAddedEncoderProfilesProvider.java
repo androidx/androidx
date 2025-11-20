@@ -18,13 +18,11 @@ package androidx.camera.video.internal.workaround;
 
 import static androidx.core.util.Preconditions.checkState;
 
-import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedQualityQuirk;
-import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -48,7 +46,7 @@ public class QualityAddedEncoderProfilesProvider implements EncoderProfilesProvi
             @NonNull EncoderProfilesProvider provider,
             @NonNull Quirks quirks,
             @NonNull CameraInfoInternal cameraInfo,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         mProvider = provider;
 
         List<ExtraSupportedQualityQuirk> extraQuirks = quirks.getAll(

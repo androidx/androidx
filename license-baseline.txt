@@ -114,3 +114,4 @@ org/apache/xbean/xbean-reflect/3.7/xbean-reflect-3.7.pom
 org/apache/xbean/xbean/3.7/xbean-3.7.pom
 org/jetbrains/kotlinx/benchmark/org.jetbrains.kotlinx.benchmark.gradle.plugin/0.4.11/org.jetbrains.kotlinx.benchmark.gradle.plugin-0.4.11.pom
 org/tensorflow/tensorflow-lite-metadata/0.1.0-rc2/tensorflow-lite-metadata-0.1.0-rc2.pom
+org/jetbrains/kotlin/kotlin-compose-compiler-plugin-embeddable/2.1.20-custom-branch-14/kotlin-compose-compiler-plugin-embeddable-2.1.20-custom-branch-14.pom

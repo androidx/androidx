@@ -28,12 +28,8 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-espresso"))
-    androidTestImplementation(project(":internal-testutils-runtime"), {
-        exclude group: "androidx.swiperefreshlayout", module: "swiperefreshlayout"
-    })
-    androidTestImplementation(project(":recyclerview:recyclerview"), {
-        exclude group: "androidx.swiperefreshlayout", module: "swiperefreshlayout"
-    })
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":recyclerview:recyclerview"))
 }
 
 androidx {

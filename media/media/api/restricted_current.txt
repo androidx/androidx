@@ -310,10 +310,13 @@ package android.support.v4.media.session {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public MediaSessionCompat(android.content.Context, String, android.content.ComponentName?, android.app.PendingIntent?, android.os.Bundle?, androidx.versionedparcelable.VersionedParcelable?);
     method @Deprecated public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener!);
     method @Deprecated public static android.support.v4.media.session.MediaSessionCompat! fromMediaSession(android.content.Context!, Object!);
+    method @Deprecated public static int getBitmapDimensionLimit();
     method @Deprecated public android.support.v4.media.session.MediaControllerCompat! getController();
     method @Deprecated public final androidx.media.MediaSessionManager.RemoteUserInfo getCurrentControllerInfo();
     method @Deprecated public Object! getMediaSession();
     method @Deprecated public Object! getRemoteControlClient();
+    method @Deprecated public static android.graphics.Bitmap! getScaledBitmap(android.graphics.Bitmap!);
+    method @Deprecated public static android.graphics.Bitmap! getScaledBitmap(android.graphics.Bitmap!, int);
     method @Deprecated public android.support.v4.media.session.MediaSessionCompat.Token! getSessionToken();
     method @Deprecated public boolean isActive();
     method @Deprecated public void release();

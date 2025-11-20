@@ -171,7 +171,7 @@ class PathBuilder {
         dx2: Float,
         dy2: Float,
         dx3: Float,
-        dy3: Float
+        dy3: Float,
     ): PathBuilder {
         _nodes.add(PathNode.RelativeCurveTo(dx1, dy1, dx2, dy2, dx3, dy3))
         return this
@@ -314,7 +314,7 @@ class PathBuilder {
         isMoreThanHalf: Boolean,
         isPositiveArc: Boolean,
         x1: Float,
-        y1: Float
+        y1: Float,
     ): PathBuilder {
         _nodes.add(
             PathNode.ArcTo(
@@ -324,7 +324,7 @@ class PathBuilder {
                 isMoreThanHalf,
                 isPositiveArc,
                 x1,
-                y1
+                y1,
             )
         )
         return this
@@ -364,7 +364,7 @@ class PathBuilder {
         isMoreThanHalf: Boolean,
         isPositiveArc: Boolean,
         dx1: Float,
-        dy1: Float
+        dy1: Float,
     ): PathBuilder {
         _nodes.add(PathNode.RelativeArcTo(a, b, theta, isMoreThanHalf, isPositiveArc, dx1, dy1))
         return this

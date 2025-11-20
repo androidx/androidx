@@ -245,9 +245,7 @@ internal class DefaultScalingParams(
 }
 
 @Stable
-internal class ReduceMotionScalingParams(
-    private val initial: ScalingParams,
-) : ScalingParams {
+internal class ReduceMotionScalingParams(private val initial: ScalingParams) : ScalingParams {
 
     override val edgeScale: Float = 1.0f
     override val edgeAlpha: Float = 1.0f
@@ -340,7 +338,7 @@ internal fun calculateScaleAndAlpha(
             inverseLerp(
                 scalingParams.minElementHeight,
                 scalingParams.maxElementHeight,
-                heightAsFractionOfViewPort
+                heightAsFractionOfViewPort,
             )
 
         val scalingLineAsFractionOfViewPort =
@@ -389,7 +387,7 @@ internal fun calculateItemInfo(
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
     autoCentering: AutoCenteringParams?,
-    visible: Boolean
+    visible: Boolean,
 ): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
     val adjustedItemEnd = itemStart + item.size - verticalAdjustment
@@ -400,7 +398,7 @@ internal fun calculateItemInfo(
             viewPortEndPx = viewportHeightPx,
             itemTopPx = adjustedItemStart,
             itemBottomPx = adjustedItemEnd,
-            scalingParams = scalingParams
+            scalingParams = scalingParams,
         )
 
     val isAboveLine = (adjustedItemEnd + adjustedItemStart) < viewportHeightPx
@@ -418,7 +416,7 @@ internal fun calculateItemInfo(
             itemScrollOffset = scaledItemTop,
             viewportCenterLinePx = viewportCenterLinePx,
             beforeContentPaddingInPx = beforeContentPaddingPx,
-            itemSizeInPx = scaledHeight
+            itemSizeInPx = scaledHeight,
         )
     val unadjustedOffset =
         convertToCenterOffset(
@@ -426,7 +424,7 @@ internal fun calculateItemInfo(
             itemScrollOffset = item.offset,
             viewportCenterLinePx = viewportCenterLinePx,
             beforeContentPaddingInPx = beforeContentPaddingPx,
-            itemSizeInPx = item.size
+            itemSizeInPx = item.size,
         )
     return DefaultScalingLazyListItemInfo(
         // Adjust index to take into account the Spacer before the first list item
@@ -437,7 +435,7 @@ internal fun calculateItemInfo(
         size = scaledHeight,
         scale = scaleAndAlpha.scale,
         alpha = if (visible) scaleAndAlpha.alpha else 0f,
-        unadjustedSize = item.size
+        unadjustedSize = item.size,
     )
 }
 
@@ -478,7 +476,7 @@ internal class DefaultScalingLazyListItemInfo(
     override val size: Int,
     override val scale: Float,
     override val alpha: Float,
-    override val unadjustedSize: Int
+    override val unadjustedSize: Int,
 ) : ScalingLazyListItemInfo {
     override fun toString(): String {
         return "DefaultScalingLazyListItemInfo(index=$index, key=$key, " +
@@ -513,7 +511,7 @@ internal fun convertToCenterOffset(
     itemScrollOffset: Int,
     viewportCenterLinePx: Int,
     beforeContentPaddingInPx: Int,
-    itemSizeInPx: Int
+    itemSizeInPx: Int,
 ): Int {
     return itemScrollOffset - viewportCenterLinePx +
         beforeContentPaddingInPx +

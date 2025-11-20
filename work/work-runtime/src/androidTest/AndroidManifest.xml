@@ -26,6 +26,8 @@
         android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <application>
         <service android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="specialUse" />

@@ -42,7 +42,7 @@ class NavArgumentResolverTest {
             ClassName.get("foo", "Fragment$capitalizedName"),
             "test",
             listOf(Argument("arg1", StringType), Argument("arg2", StringType, StringValue("foo"))),
-            emptyList()
+            emptyList(),
         )
     }
 
@@ -65,8 +65,8 @@ class NavArgumentResolverTest {
                             dest1Template.id,
                             listOf(
                                 Argument("arg1", StringType, StringValue("actionValue")),
-                                Argument("actionArg", StringType)
-                            )
+                                Argument("actionArg", StringType),
+                            ),
                         )
                     )
             )
@@ -80,7 +80,7 @@ class NavArgumentResolverTest {
         val resolvedAction1 = Action(id("action1"), dest2Template.id, dest2.args)
         assertThat(
             resolveArguments.nested[0].actions,
-            `is`(listOf(resolvedAction1, outerScopeAction))
+            `is`(listOf(resolvedAction1, outerScopeAction)),
         )
 
         val resolvedAction2 =
@@ -90,8 +90,8 @@ class NavArgumentResolverTest {
                 listOf(
                     Argument("arg1", StringType, StringValue("actionValue")),
                     Argument("actionArg", StringType),
-                    Argument("arg2", StringType, StringValue("foo"))
-                )
+                    Argument("arg2", StringType, StringValue("foo")),
+                ),
             )
         assertThat(resolveArguments.nested[1].actions, `is`(listOf(resolvedAction2)))
     }
@@ -103,7 +103,7 @@ class NavArgumentResolverTest {
             Action(
                 id("action"),
                 dest1.id,
-                listOf(Argument("arg2", IntType, IntValue("11")), Argument("arg1", StringType))
+                listOf(Argument("arg2", IntType, IntValue("11")), Argument("arg1", StringType)),
             )
 
         val topLevel =

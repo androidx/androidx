@@ -49,8 +49,8 @@ class WrongPopBackStackRouteDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         WrongPopBackStackRouteDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
             )
     }
 
@@ -59,7 +59,7 @@ class WrongPopBackStackRouteDetector : Detector(), SourceCodeScanner {
     final override fun visitMethodCall(
         context: JavaContext,
         node: UCallExpression,
-        method: PsiMethod
+        method: PsiMethod,
     ) {
         val startNode =
             node.valueArguments.find { node.getParameterForArgument(it)?.name == "route" } ?: return
@@ -68,7 +68,7 @@ class WrongPopBackStackRouteDetector : Detector(), SourceCodeScanner {
             startNode.isClassReference(
                 checkClass = false,
                 checkInterface = false,
-                checkCompanion = true
+                checkCompanion = true,
             )
         if (isClassType) {
             context.report(
@@ -94,7 +94,7 @@ class WrongPopBackStackRouteDetector : Detector(), SourceCodeScanner {
                             ?.replace(",", ", ") // correct comma formatting
                     )
                     .autoFix()
-                    .build()
+                    .build(),
             )
         }
     }

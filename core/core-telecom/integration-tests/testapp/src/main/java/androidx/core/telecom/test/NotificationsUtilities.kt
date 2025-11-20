@@ -51,7 +51,7 @@ class NotificationsUtilities {
             uniqueId: Int,
             channelId: String?,
             callerName: String?,
-            isOutgoing: Boolean
+            isOutgoing: Boolean,
         ): Notification {
             val fullScreenIntent = getDeclinePendingIntent(context, uniqueId)
             val person: Person = Person.Builder().setName(callerName).setImportant(true).build()
@@ -78,7 +78,7 @@ class NotificationsUtilities {
                 Notification.CallStyle.forIncomingCall(
                     person,
                     getDeclinePendingIntent(c, notificationId),
-                    getAnswerPendingIntent(c, notificationId)
+                    getAnswerPendingIntent(c, notificationId),
                 )
             }
         }
@@ -98,7 +98,7 @@ class NotificationsUtilities {
                     .setStyle(
                         Notification.CallStyle.forOngoingCall(
                             Person.Builder().setName(callerName).setImportant(true).build(),
-                            endCallAction
+                            endCallAction,
                         )
                     )
                     .setFullScreenIntent(endCallAction, true)
@@ -114,7 +114,7 @@ class NotificationsUtilities {
                 context,
                 notificationId,
                 getDeclineIntent(context, notificationId),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
 
@@ -134,7 +134,7 @@ class NotificationsUtilities {
                 c,
                 notificationId,
                 getAnswerIntent(c, notificationId),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
 
@@ -175,8 +175,8 @@ class NotificationsUtilities {
                         "notificationManager: hit exception=[%s] while deleting the" +
                             " call channel with id=[%s]",
                         e,
-                        NOTIFICATION_CHANNEL_ID
-                    )
+                        NOTIFICATION_CHANNEL_ID,
+                    ),
                 )
             }
         }

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -36,7 +35,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 /** Unit tests for [StreamConfigurationMapCompat]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class StreamConfigurationMapCompatTest {
 
     companion object {
@@ -59,7 +58,7 @@ class StreamConfigurationMapCompatTest {
         streamConfigurationMapCompat =
             StreamConfigurationMapCompat(
                 builder.build(),
-                OutputSizesCorrector(FakeCameraMetadata(), builder.build())
+                OutputSizesCorrector(FakeCameraMetadata(), builder.build()),
             )
     }
 
@@ -105,15 +104,14 @@ class StreamConfigurationMapCompatTest {
         val compat =
             StreamConfigurationMapCompat(
                 builder.build(),
-                OutputSizesCorrector(FakeCameraMetadata(), builder.build())
+                OutputSizesCorrector(FakeCameraMetadata(), builder.build()),
             )
 
         // b/361590210: check the workaround for NullPointerException issue (on API 23+) of
-        // StreamConfigurationMap provided by Robolectric is applied.
-        if (Build.VERSION.SDK_INT >= 23) {
-            assertThat(compat.getOutputFormats()).isNull()
-        } else {
-            assertThat(compat.getOutputFormats()).isNotNull()
-        }
+        // StreamConfigurationMap provided by Robolectric is applied. Different versions of
+        // Robolectric might have different implementations for the getOutputFormats function. Some
+        // might return null but some might not. Directly invoke the getOutputFormats to ensure
+        // that NullPointerException won't be thrown.
+        compat.getOutputFormats()
     }
 }

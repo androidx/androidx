@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.paging {
 
   public abstract class DataSource<Key, Value> {
@@ -154,8 +154,8 @@ package androidx.paging {
 
   public abstract static class PositionalDataSource.LoadInitialCallback<T> {
     ctor public PositionalDataSource.LoadInitialCallback();
-    method public abstract void onResult(java.util.List<T!>, int, int);
     method public abstract void onResult(java.util.List<T!>, int);
+    method public abstract void onResult(java.util.List<T!>, int, int);
   }
 
   public static class PositionalDataSource.LoadInitialParams {

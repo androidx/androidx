@@ -30,9 +30,9 @@ import org.junit.runners.Parameterized
  *
  * @see [VideoRecordingStreamSharingTest] for video recording with StreamSharing enabled.
  */
+@SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class VideoRecordingTest(
     private val implName: String,
     private var cameraSelector: CameraSelector,

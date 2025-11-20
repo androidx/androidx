@@ -47,7 +47,7 @@ fun AndroidViewBindingReusableSample() {
             update = {
                 myButton.text = label
                 myButton.setOnClickListener { action() }
-            }
+            },
         )
     }
 }

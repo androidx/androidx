@@ -87,7 +87,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         CN5cdaiaGAHjU2bxlPMiXv5A45oTgWeMwVT0scwY3RnwACFHD88ZQ9Za7F18
         18bKtKqNVY77rM+wN+rB6+BhB48YMVtBs4M5zPdAFo/xpAffIrRYsAgsFm8B
         Whw3Ci0CAAA=
-        """
+        """,
         )
 
     private val testLifecycleOwnerStub: TestFile =
@@ -130,7 +130,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         SRVVi+U/I/PhjETvJo2e5ljY3LutDEYxFhI9Ia8p9PxA9hvu5efPbUp16CHf
         yCku5FOr8a7GklJkIbWG5a59iEfkNyl7n7YwuYtICVMlTJPFA2VmSpjF3C5Y
         gBzyu+gLMBhgPoAe0D9CMsBQgOEAowHGfgPeFoO+3AQAAA==
-        """
+        """,
         )
 
     private val coroutineStub: TestFile =
@@ -175,7 +175,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         yGKH5lcFXRmtVTdQ8nepeYeXyXN66f4I3SMUkmduUFvn8M/K4/vTYJDMA7LB
         rwAs0A6UePlP8gpFu2fhM/jxOa58xNJZSXCsl/YOHpa/K82HBK6doBLheoQb
         ZLHiTCOiGm+egOVYwy06zxHkuJ3D+wnnrXWf6wIAAA==
-        """
+        """,
         )
 
     private val runTestCoroutineStub: TestFile =
@@ -221,7 +221,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
         DAx1Nok7GCIsq5aJKk56bDz28RNSXzBxicnt8Tgd4tG1hdHFC9xvNfGEZAyR
         jBK2MxhmJeivUNEENaJSCwmKexpGF/CMdImqTFHk9AGiOmZ0zJLEnI485nUs
         4MEBmI9FPDyA6iPuY8lH0kefj/4Q9/rQfgIMLZFBnQUAAA==
-        """
+        """,
         )
 
     @Test
@@ -250,7 +250,7 @@ class TestLifecycleOwnerInCoroutineDetectorTest : LintDetectorTest() {
                 coroutineStub,
                 lifecycleStub,
                 runTestCoroutineStub,
-                testLifecycleOwnerStub
+                testLifecycleOwnerStub,
             )
             .run()
             .expect(
@@ -288,7 +288,7 @@ src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside
                 coroutineStub,
                 lifecycleStub,
                 runTestCoroutineStub,
-                testLifecycleOwnerStub
+                testLifecycleOwnerStub,
             )
             .run()
             .expectClean()

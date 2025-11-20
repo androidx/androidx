@@ -22,13 +22,13 @@ import androidx.room.Query
 
 /** The Data Access Object for [WorkName]s. */
 @Dao
-interface WorkNameDao {
+public interface WorkNameDao {
     /**
      * Inserts a [WorkName] into the table.
      *
      * @param workName The [WorkName] to insert
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insert(workName: WorkName)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) public fun insert(workName: WorkName)
 
     /**
      * Retrieves all [WorkSpec] ids in the given named graph.
@@ -37,12 +37,12 @@ interface WorkNameDao {
      * @return All [WorkSpec] ids in the given named graph
      */
     @Query("SELECT work_spec_id FROM workname WHERE name=:name")
-    fun getWorkSpecIdsWithName(name: String): List<String>
+    public fun getWorkSpecIdsWithName(name: String): List<String>
 
     /**
      * @param workSpecId The [WorkSpec] id
      * @return All the names associated to the [WorkSpec] id
      */
     @Query("SELECT name FROM workname WHERE work_spec_id=:workSpecId")
-    fun getNamesForWorkSpecId(workSpecId: String): List<String>
+    public fun getNamesForWorkSpecId(workSpecId: String): List<String>
 }

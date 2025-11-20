@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
-import android.os.Build
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
@@ -31,7 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class Result3AStateListenerImplTest {
     @Test
@@ -142,9 +141,9 @@ internal class Result3AStateListenerImplTest {
                     CaptureResult.CONTROL_AF_STATE to
                         listOf(
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED,
                         ),
-                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED),
                 )
             )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
@@ -155,7 +154,7 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
                     )
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata)
@@ -170,9 +169,9 @@ internal class Result3AStateListenerImplTest {
                     CaptureResult.CONTROL_AF_STATE to
                         listOf(
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED,
                         ),
-                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED),
                 )
             )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
@@ -197,9 +196,9 @@ internal class Result3AStateListenerImplTest {
                     CaptureResult.CONTROL_AF_STATE to
                         listOf(
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED,
                         ),
-                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED)
+                    CaptureResult.CONTROL_AE_STATE to listOf(CaptureResult.CONTROL_AE_STATE_LOCKED),
                 )
             )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
@@ -221,7 +220,7 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED
+                        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_LOCKED,
                     )
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
@@ -237,7 +236,7 @@ internal class Result3AStateListenerImplTest {
                         CaptureResult.CONTROL_AF_STATE to
                             listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
                     ),
-                timeLimitNs = 1000000000L
+                timeLimitNs = 1000000000L,
             )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
@@ -247,7 +246,7 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 400000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 400000000L,
                     )
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
@@ -259,7 +258,7 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 900000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 900000000L,
                     )
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
@@ -271,7 +270,7 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 1500000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 1500000000L,
                     )
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
@@ -290,7 +289,7 @@ internal class Result3AStateListenerImplTest {
                         CaptureResult.CONTROL_AF_STATE to
                             listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
                     ),
-                frameLimit = 10
+                frameLimit = 10,
             )
         listenerForKeys.onRequestSequenceCreated(RequestNumber(1))
 
@@ -302,9 +301,9 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 400000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 400000000L,
                     ),
-                frameNumber = FrameNumber(1)
+                frameNumber = FrameNumber(1),
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata1)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -315,9 +314,9 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 900000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 900000000L,
                     ),
-                frameNumber = FrameNumber(3)
+                frameNumber = FrameNumber(3),
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata2)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -328,9 +327,9 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 1500000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 1500000000L,
                     ),
-                frameNumber = FrameNumber(10)
+                frameNumber = FrameNumber(10),
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata3)
         assertThat(listenerForKeys.result.isCompleted).isFalse()
@@ -341,9 +340,9 @@ internal class Result3AStateListenerImplTest {
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
                             CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                        CaptureResult.SENSOR_TIMESTAMP to 1700000000L
+                        CaptureResult.SENSOR_TIMESTAMP to 1700000000L,
                     ),
-                frameNumber = FrameNumber(12)
+                frameNumber = FrameNumber(12),
             )
         listenerForKeys.update(RequestNumber(1), frameMetadata4)
         val completedDeferred = listenerForKeys.result

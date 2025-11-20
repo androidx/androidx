@@ -31,7 +31,7 @@ import org.jetbrains.uast.UCallExpression
 @Suppress("UnstableApiUsage")
 abstract class BaseMethodDeprecationDetector(
     private val issue: Issue,
-    vararg val conditions: DeprecationCondition
+    vararg val conditions: DeprecationCondition,
 ) : Detector(), SourceCodeScanner {
 
     // Collect unique method names from all deprecation conditions defined in this detector.
@@ -45,12 +45,12 @@ abstract class BaseMethodDeprecationDetector(
         override fun matches(
             context: JavaContext,
             node: UCallExpression,
-            method: PsiMethod
+            method: PsiMethod,
         ): Boolean {
             return context.evaluator.extendsClass(
                 (node.receiverType as? PsiClassType)?.resolve(),
                 superClass,
-                false
+                false,
             )
         }
     }
@@ -58,12 +58,12 @@ abstract class BaseMethodDeprecationDetector(
     class MethodLocation(
         private val className: String,
         val methodName: String,
-        private vararg val params: String
+        private vararg val params: String,
     ) : Predicate {
         override fun matches(
             context: JavaContext,
             node: UCallExpression,
-            method: PsiMethod
+            method: PsiMethod,
         ): Boolean {
             if (!context.evaluator.isMemberInClass(method, className)) {
                 // Method is not in the right class.
@@ -90,7 +90,7 @@ abstract class BaseMethodDeprecationDetector(
         override fun matches(
             context: JavaContext,
             node: UCallExpression,
-            method: PsiMethod
+            method: PsiMethod,
         ): Boolean {
             if (!methodLocation.matches(context, node, method)) {
                 // Method location does not match. The whole condition is not applicable.
@@ -116,7 +116,7 @@ abstract class BaseMethodDeprecationDetector(
     final override fun visitMethodCall(
         context: JavaContext,
         node: UCallExpression,
-        method: PsiMethod
+        method: PsiMethod,
     ) {
         // Find the first condition that matches and report the issue.
         conditions.find { condition ->

@@ -36,6 +36,7 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.CameraXTracer;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -189,32 +190,35 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     @WorkerThread
     void processInputPacket(@NonNull InputPacket inputPacket) {
-        ProcessingRequest request = inputPacket.getProcessingRequest();
-        try {
-            // If simultaneous capture RAW + JPEG, only trigger callback when both images
-            // are available and processed.
-            boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
-            if (inputPacket.getProcessingRequest().isInMemoryCapture()) {
-                ImageProxy result = processInMemoryCapture(inputPacket);
-                mainThreadExecutor().execute(() -> request.onFinalResult(result));
-            } else {
-                ImageCapture.OutputFileResults result = processOnDiskCapture(inputPacket);
-                boolean isProcessed =
-                        !isSimultaneousCaptureEnabled || request.getTakePictureRequest()
-                                .isFormatProcessedInSimultaneousCapture();
-                if (isProcessed) {
+        CameraXTracer.trace("processInputPacket", () -> {
+            ProcessingRequest request = inputPacket.getProcessingRequest();
+            try {
+                // If simultaneous capture RAW + JPEG, only trigger callback when both images
+                // are available and processed.
+                boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
+                if (inputPacket.getProcessingRequest().isInMemoryCapture()) {
+                    ImageProxy result = processInMemoryCapture(inputPacket);
                     mainThreadExecutor().execute(() -> request.onFinalResult(result));
+                } else {
+                    ImageCapture.OutputFileResults result = processOnDiskCapture(inputPacket);
+                    boolean isProcessed =
+                            !isSimultaneousCaptureEnabled || request.getTakePictureRequest()
+                                    .isFormatProcessedInSimultaneousCapture();
+                    if (isProcessed) {
+                        mainThreadExecutor().execute(() -> request.onFinalResult(result));
+                    }
                 }
+            } catch (ImageCaptureException e) {
+                sendError(request, e);
+            } catch (OutOfMemoryError e) {
+                sendError(request, new ImageCaptureException(
+                        ERROR_UNKNOWN, "Processing failed due to low memory.", e));
+            } catch (RuntimeException e) {
+                // For unexpected exceptions, throw an ERROR_UNKNOWN ImageCaptureException.
+                sendError(request,
+                        new ImageCaptureException(ERROR_UNKNOWN, "Processing failed.", e));
             }
-        } catch (ImageCaptureException e) {
-            sendError(request, e);
-        } catch (OutOfMemoryError e) {
-            sendError(request, new ImageCaptureException(
-                    ERROR_UNKNOWN, "Processing failed due to low memory.", e));
-        } catch (RuntimeException e) {
-            // For unexpected exceptions, throw an ERROR_UNKNOWN ImageCaptureException.
-            sendError(request, new ImageCaptureException(ERROR_UNKNOWN, "Processing failed.", e));
-        }
+        });
     }
 
     @WorkerThread
@@ -240,6 +244,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @WorkerThread
     ImageCapture.@NonNull OutputFileResults processOnDiskCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
+        Logger.d(TAG, "processOnDiskCapture: request ID = "
+                + inputPacket.getProcessingRequest().getRequestId());
         List<Integer> outputFormats = mInputEdge.getOutputFormats();
         checkArgument(!outputFormats.isEmpty());
         int format = outputFormats.get(0);
@@ -330,6 +336,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     @WorkerThread
     @NonNull ImageProxy processInMemoryCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
+        Logger.d(TAG, "processInMemoryCapture: request ID = "
+                + inputPacket.getProcessingRequest().getRequestId());
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
         // TODO(b/322311893): Update to handle JPEG/R as output format in the if-statement when YUV

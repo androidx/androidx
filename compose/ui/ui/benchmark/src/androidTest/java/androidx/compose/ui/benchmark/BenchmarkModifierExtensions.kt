@@ -46,9 +46,8 @@ fun repeatModifier(count: Int, mod: () -> Modifier): Modifier {
  *   shouldn't use this directly as it is a bit confusing, and instead use [measureModifier] which
  *   will construct this lambda accordingly.
  */
-class ModifierTestCase(
-    val modifierFn: (Boolean) -> Modifier,
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class ModifierTestCase(val modifierFn: (Boolean) -> Modifier) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private var state by mutableStateOf(true)
 
     override fun toggleState() {

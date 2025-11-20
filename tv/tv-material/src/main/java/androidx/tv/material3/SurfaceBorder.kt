@@ -29,10 +29,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.tv.material3.tokens.ShapeTokens
 
-internal fun Modifier.tvSurfaceBorder(
-    shape: Shape,
-    border: Border,
-): Modifier {
+internal fun Modifier.tvSurfaceBorder(shape: Shape, border: Border): Modifier {
     return then(
         SurfaceBorderElement(
             shape = shape,
@@ -42,7 +39,7 @@ internal fun Modifier.tvSurfaceBorder(
                     name = "tvSurfaceBorder"
                     properties["shape"] = shape
                     properties["border"] = border
-                }
+                },
         )
     )
 }
@@ -50,20 +47,14 @@ internal fun Modifier.tvSurfaceBorder(
 private class SurfaceBorderElement(
     private val shape: Shape,
     private val border: Border,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<SurfaceBorderNode>() {
     override fun create(): SurfaceBorderNode {
-        return SurfaceBorderNode(
-            shape = shape,
-            border = border,
-        )
+        return SurfaceBorderNode(shape = shape, border = border)
     }
 
     override fun update(node: SurfaceBorderNode) {
-        node.reactToUpdates(
-            newShape = shape,
-            newBorder = border,
-        )
+        node.reactToUpdates(newShape = shape, newBorder = border)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -82,18 +73,13 @@ private class SurfaceBorderElement(
     }
 }
 
-private class SurfaceBorderNode(
-    private var shape: Shape,
-    private var border: Border,
-) : DrawModifierNode, Modifier.Node() {
+private class SurfaceBorderNode(private var shape: Shape, private var border: Border) :
+    DrawModifierNode, Modifier.Node() {
 
     private var shapeOutlineCache: SurfaceShapeOutlineCache? = null
     private var outlineStrokeCache: OutlineStrokeCache? = null
 
-    fun reactToUpdates(
-        newShape: Shape,
-        newBorder: Border,
-    ) {
+    fun reactToUpdates(newShape: Shape, newBorder: Border) {
         shape = newShape
         border = newBorder
     }
@@ -112,7 +98,7 @@ private class SurfaceBorderNode(
                     shape = borderShape,
                     size = size,
                     layoutDirection = layoutDirection,
-                    density = this
+                    density = this,
                 )
         }
 
@@ -126,7 +112,7 @@ private class SurfaceBorderNode(
                     shape = borderShape,
                     size = size,
                     layoutDirection = layoutDirection,
-                    density = this
+                    density = this,
                 )
 
             val outlineStroke =
@@ -136,7 +122,7 @@ private class SurfaceBorderNode(
                 outline = shapeOutline,
                 brush = borderStroke.brush,
                 alpha = 1f,
-                style = outlineStroke
+                style = outlineStroke,
             )
         }
     }

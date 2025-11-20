@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
 /** Converts public API object into internal proto for ipc. */
 fun toDeleteDataRangeRequestProto(
     dataTypeKC: KClass<out Record>,
-    timeRangeFilter: TimeRangeFilter
+    timeRangeFilter: TimeRangeFilter,
 ): RequestProto.DeleteDataRangeRequest =
     RequestProto.DeleteDataRangeRequest.newBuilder()
         .addDataType(dataTypeKC.toDataType())

@@ -40,12 +40,13 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class ConfirmationDialogTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun confirmation_linearText_supports_testtag() {
@@ -67,7 +68,7 @@ class ConfirmationDialogTest {
                 visible = true,
                 modifier = Modifier.testTag(TEST_TAG),
                 onDismissRequest = {},
-                curvedText = {}
+                curvedText = {},
             ) {}
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -109,7 +110,7 @@ class ConfirmationDialogTest {
                     visible = false
                     dismissCounter++
                 },
-                visible = visible
+                visible = visible,
             ) {}
         }
 
@@ -130,7 +131,7 @@ class ConfirmationDialogTest {
                     dismissCounter++
                 },
                 visible = visible,
-                curvedText = {}
+                curvedText = {},
             ) {}
         }
 
@@ -205,7 +206,7 @@ class ConfirmationDialogTest {
                 visible = false,
                 modifier = Modifier.testTag(TEST_TAG),
                 onDismissRequest = {},
-                curvedText = {}
+                curvedText = {},
             ) {}
         }
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
@@ -247,7 +248,7 @@ class ConfirmationDialogTest {
                 onDismissRequest = { dismissCounter++ },
                 // Set very long duration so that it won't be dismissed by the timeout
                 durationMillis = 100_000,
-                visible = visible.value
+                visible = visible.value,
             ) {}
         }
         rule.waitForIdle()
@@ -268,7 +269,7 @@ class ConfirmationDialogTest {
                 onDismissRequest = { dismissCounter++ },
                 // Set very long duration so that it won't be dismissed by the timeout
                 durationMillis = 100_000,
-                visible = visible.value
+                visible = visible.value,
             ) {}
         }
         rule.waitForIdle()
@@ -288,7 +289,7 @@ class ConfirmationDialogTest {
                 onDismissRequest = { dismissCounter++ },
                 // Set very long duration so that it won't be dismissed by the timeout
                 durationMillis = 100_000,
-                visible = visible.value
+                visible = visible.value,
             )
         }
         rule.waitForIdle()
@@ -308,7 +309,7 @@ class ConfirmationDialogTest {
                 onDismissRequest = { dismissCounter++ },
                 // Set very long duration so that it won't be dismissed by the timeout
                 durationMillis = 100_000,
-                visible = visible.value
+                visible = visible.value,
             )
         }
         rule.waitForIdle()
@@ -331,7 +332,7 @@ class ConfirmationDialogTest {
                     visible.value = false
                 },
                 durationMillis = 100,
-                visible = visible.value
+                visible = visible.value,
             ) {}
         }
         rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
@@ -353,7 +354,7 @@ class ConfirmationDialogTest {
                     visible.value = false
                 },
                 durationMillis = 100,
-                visible = visible.value
+                visible = visible.value,
             ) {}
         }
         rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
@@ -374,7 +375,7 @@ class ConfirmationDialogTest {
                     visible.value = false
                 },
                 durationMillis = 100,
-                visible = visible.value
+                visible = visible.value,
             )
         }
         rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
@@ -395,7 +396,7 @@ class ConfirmationDialogTest {
                     visible.value = false
                 },
                 durationMillis = 100,
-                visible = visible.value
+                visible = visible.value,
             )
         }
         rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
@@ -408,7 +409,7 @@ class ConfirmationDialogTest {
             ConfirmationDialog(
                 text = { Text("Text", modifier = Modifier.testTag(TextTestTag)) },
                 onDismissRequest = {},
-                visible = true
+                visible = true,
             ) {
                 TestImage(IconTestTag)
             }
@@ -423,7 +424,7 @@ class ConfirmationDialogTest {
             ConfirmationDialog(
                 onDismissRequest = {},
                 visible = true,
-                curvedText = { curvedText(CurvedText) }
+                curvedText = { curvedText(CurvedText) },
             ) {
                 TestImage(IconTestTag)
             }
@@ -439,7 +440,7 @@ class ConfirmationDialogTest {
             SuccessConfirmationDialog(
                 onDismissRequest = {},
                 visible = true,
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestImage(IconTestTag)
             }
@@ -455,7 +456,7 @@ class ConfirmationDialogTest {
             FailureConfirmationDialog(
                 onDismissRequest = {},
                 visible = true,
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestImage(IconTestTag)
             }
@@ -472,7 +473,7 @@ class ConfirmationDialogTest {
             ConfirmationDialog(
                 text = {},
                 onDismissRequest = { dismissed = true },
-                visible = true
+                visible = true,
             ) {}
         }
         // Timeout longer than default confirmation duration
@@ -488,7 +489,7 @@ class ConfirmationDialogTest {
             ConfirmationDialog(
                 onDismissRequest = { dismissed = true },
                 visible = true,
-                curvedText = {}
+                curvedText = {},
             ) {}
         }
         // Timeout longer than default confirmation duration
@@ -501,10 +502,7 @@ class ConfirmationDialogTest {
         var dismissed = false
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme {
-            SuccessConfirmationTest(
-                onDismissRequest = { dismissed = true },
-                visible = true,
-            )
+            SuccessConfirmationTest(onDismissRequest = { dismissed = true }, visible = true)
         }
         // Timeout longer than default confirmation duration
         rule.mainClock.advanceTimeBy(ConfirmationDialogDefaults.DurationMillis + 1000)
@@ -516,10 +514,7 @@ class ConfirmationDialogTest {
         var dismissed = false
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme {
-            FailureConfirmationTest(
-                onDismissRequest = { dismissed = true },
-                visible = true,
-            )
+            FailureConfirmationTest(onDismissRequest = { dismissed = true }, visible = true)
         }
         // Timeout longer than default confirmation duration
         rule.mainClock.advanceTimeBy(ConfirmationDialogDefaults.DurationMillis + 1000)
@@ -535,7 +530,7 @@ class ConfirmationDialogTest {
                     Text(
                         "Title",
                         modifier = Modifier.testTag(TextTestTag),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 },
                 onDismissRequest = {},
@@ -599,7 +594,7 @@ class ConfirmationDialogTest {
                 onDismissRequest = {},
                 modifier = Modifier.testTag(TEST_TAG),
                 visible = true,
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
@@ -694,8 +689,8 @@ class ConfirmationDialogTest {
                     ConfirmationDialogDefaults.colors(
                         iconColor = customIconColor,
                         iconContainerColor = customIconContainerColor,
-                        textColor = customTextColor
-                    )
+                        textColor = customTextColor,
+                    ),
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
@@ -725,9 +720,9 @@ class ConfirmationDialogTest {
                     ConfirmationDialogDefaults.colors(
                         iconColor = customIconColor,
                         iconContainerColor = customIconContainerColor,
-                        textColor = customTextColor
+                        textColor = customTextColor,
                     ),
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
@@ -757,9 +752,9 @@ class ConfirmationDialogTest {
                     ConfirmationDialogDefaults.successColors(
                         iconColor = customIconColor,
                         iconContainerColor = customIconContainerColor,
-                        textColor = customTextColor
+                        textColor = customTextColor,
                     ),
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
@@ -789,9 +784,9 @@ class ConfirmationDialogTest {
                     ConfirmationDialogDefaults.failureColors(
                         iconColor = customIconColor,
                         iconContainerColor = customIconContainerColor,
-                        textColor = customTextColor
+                        textColor = customTextColor,
                     ),
-                curvedText = { confirmationDialogCurvedText(CurvedText, style) }
+                curvedText = { confirmationDialogCurvedText(CurvedText, style) },
             ) {
                 TestIcon(Modifier.testTag(IconTestTag))
             }
@@ -828,7 +823,7 @@ class ConfirmationDialogTest {
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
         durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,
-        content: @Composable () -> Unit = {}
+        content: @Composable () -> Unit = {},
     ) {
         val failureText = "Failure"
         val failureTextStyle = ConfirmationDialogDefaults.curvedTextStyle
@@ -838,7 +833,7 @@ class ConfirmationDialogTest {
             onDismissRequest = onDismissRequest,
             curvedText = { confirmationDialogCurvedText(failureText, failureTextStyle) },
             durationMillis = durationMillis,
-            content = content
+            content = content,
         )
     }
 }

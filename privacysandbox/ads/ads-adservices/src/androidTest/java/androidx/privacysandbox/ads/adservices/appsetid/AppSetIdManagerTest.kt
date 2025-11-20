@@ -92,7 +92,7 @@ class AppSetIdManagerTest {
     fun testAppSetIdAsync() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion,
         )
 
         val appSetIdManager = mockAppSetIdManager(mContext, mValidAdExtServicesSdkExtVersion)
@@ -116,7 +116,7 @@ class AppSetIdManagerTest {
 
         private fun mockAppSetIdManager(
             spyContext: Context,
-            isExtServices: Boolean
+            isExtServices: Boolean,
         ): android.adservices.appsetid.AppSetIdManager {
             val appSetIdManager = mock(android.adservices.appsetid.AppSetIdManager::class.java)
             // only mock the .get() method if using extServices version
@@ -139,7 +139,7 @@ class AppSetIdManagerTest {
             val appSetId =
                 android.adservices.appsetid.AppSetId(
                     "1234",
-                    android.adservices.appsetid.AppSetId.SCOPE_APP
+                    android.adservices.appsetid.AppSetId.SCOPE_APP,
                 )
             val answer = { args: InvocationOnMock ->
                 val receiver =

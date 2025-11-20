@@ -52,13 +52,13 @@ val Context.rxdsWithMigration by
                     override suspend fun cleanUp() {}
                 }
             )
-        }
+        },
     )
 
 val Context.rxdsWithCorruptionHandler by
     rxPreferencesDataStore(
         "file3",
-        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(intKey to 123) }
+        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(intKey to 123) },
     )
 
 val Context.rxDataStoreForFileNameCheck by rxPreferencesDataStore("file5")

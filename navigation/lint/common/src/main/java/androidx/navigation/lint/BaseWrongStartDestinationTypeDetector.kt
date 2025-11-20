@@ -31,7 +31,7 @@ import org.jetbrains.uast.getParameterForArgument
 
 abstract class BaseWrongStartDestinationTypeDetector(
     private val methodNames: List<String>,
-    private val parameterNames: List<String>
+    private val parameterNames: List<String>,
 ) : Detector(), SourceCodeScanner {
 
     final override fun getApplicableMethodNames(): List<String> = methodNames
@@ -39,7 +39,7 @@ abstract class BaseWrongStartDestinationTypeDetector(
     final override fun visitMethodCall(
         context: JavaContext,
         node: UCallExpression,
-        method: PsiMethod
+        method: PsiMethod,
     ) {
         val startNode =
             node.valueArguments.find {
@@ -58,7 +58,7 @@ abstract class BaseWrongStartDestinationTypeDetector(
                         If the class $name does not contain arguments,
                         you can also pass in its KClass reference $name::class
                     """
-                    .trimIndent()
+                    .trimIndent(),
             )
         }
     }
@@ -82,5 +82,5 @@ fun createWrongStartDestinationTypeIssue(
                 "filled in), or else it will be treated as a case of missing arguments.",
         category = Category.CORRECTNESS,
         severity = Severity.ERROR,
-        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE)
+        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE),
     )

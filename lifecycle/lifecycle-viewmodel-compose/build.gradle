@@ -22,20 +22,22 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    androidTarget()
-    desktop()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.lifecycle.viewmodel.compose"
+    }
+    jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -44,10 +46,9 @@ androidXMultiplatform {
             dependencies {
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":lifecycle:lifecycle-viewmodel"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.annotation:annotation:1.9.1")
+                api("androidx.compose.runtime:runtime:1.9.0")
                 api(libs.kotlinSerializationCore)
-                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -63,7 +64,7 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                api("androidx.compose.ui:ui:1.6.0")
+                api("androidx.compose.ui:ui:1.9.0")
                 // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
                 // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
                 // `livedata` dependency directly works around the issue.
@@ -72,7 +73,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -89,8 +90,20 @@ androidXMultiplatform {
                 // but it doesn't work in androidx.
                 // See aosp/1804059
                 implementation(project(":lifecycle:lifecycle-common-java8"))
-                implementation(project(":activity:activity-compose"))
+                implementation("androidx.activity:activity-compose:1.10.1")
             }
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        jvmStubsMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(nonAndroidMain)
         }
     }
 }
@@ -105,10 +118,4 @@ androidx {
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
     samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.lifecycle.viewmodel.compose"
 }

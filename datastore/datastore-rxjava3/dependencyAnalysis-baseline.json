@@ -1,0 +1,34 @@
+{
+  "projectPath": ":datastore:datastore-rxjava3",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.truth:truth",
+        "resolvedVersion": "1.0.1"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":datastore:datastore-core"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":datastore:datastore-core"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":datastore:datastore-core"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

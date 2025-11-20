@@ -156,12 +156,11 @@ public interface AppSearchSession extends Closeable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     default @NonNull ListenableFuture<OpenBlobForWriteResponse> openBlobForWriteAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
-        throw new UnsupportedOperationException(Features.BLOB_STORAGE
+        throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
                 + " is not available on this AppSearch implementation.");
     }
 
@@ -188,12 +187,11 @@ public interface AppSearchSession extends Closeable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     default @NonNull ListenableFuture<RemoveBlobResponse> removeBlobAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
-        throw new UnsupportedOperationException(Features.BLOB_STORAGE
+        throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
                 + " is not available on this AppSearch implementation.");
     }
 
@@ -229,12 +227,11 @@ public interface AppSearchSession extends Closeable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     default @NonNull ListenableFuture<CommitBlobResponse> commitBlobAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
-        throw new UnsupportedOperationException(Features.BLOB_STORAGE
+        throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
                 + " is not available on this AppSearch implementation.");
     }
 
@@ -255,12 +252,11 @@ public interface AppSearchSession extends Closeable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     default @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
             @NonNull Set<AppSearchBlobHandle> handles) {
-        throw new UnsupportedOperationException(Features.BLOB_STORAGE
+        throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
                 + " is not available on this AppSearch implementation.");
     }
 
@@ -279,12 +275,11 @@ public interface AppSearchSession extends Closeable {
      */
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-            name = Features.BLOB_STORAGE)
+            name = Features.SCHEMA_BLOB_HANDLE)
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     default @NonNull ListenableFuture<Void> setBlobVisibilityAsync(
             @NonNull SetBlobVisibilityRequest request) {
-        throw new UnsupportedOperationException(Features.BLOB_STORAGE
+        throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
                 + " is not available on this AppSearch implementation.");
     }
 

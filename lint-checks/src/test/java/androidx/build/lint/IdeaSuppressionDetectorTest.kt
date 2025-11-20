@@ -52,7 +52,7 @@ class IdeaSuppressionDetectorTest :
                     public void notDeprecatedMethod() {}
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val expected =
@@ -94,7 +94,7 @@ src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppressi
                     fun notDeprecatedMethod() {}
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val expected =

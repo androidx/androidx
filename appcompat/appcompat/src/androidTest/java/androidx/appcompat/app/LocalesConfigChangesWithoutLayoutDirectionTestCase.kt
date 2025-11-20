@@ -51,7 +51,7 @@ class LocalesConfigChangesWithoutLayoutDirectionTestCase {
             expectedLocales =
                 LocalesUpdateActivity.overlayCustomAndSystemLocales(
                     LocalesUtils.CUSTOM_LOCALE_LIST,
-                    systemLocales
+                    systemLocales,
                 )
         }
     }
@@ -70,7 +70,26 @@ class LocalesConfigChangesWithoutLayoutDirectionTestCase {
             assertNull(it.lastConfigurationChangeAndClear)
             LocalesUtils.assertConfigurationLocalesEquals(
                 expectedLocales,
-                it.resources.configuration!!
+                it.resources.configuration!!,
+            )
+        }
+    }
+
+    @Test
+    fun testViewOnConfigurationChangeNotCalledWhileStarted() {
+        scenario.moveToState(Lifecycle.State.RESUMED)
+
+        // Set locales to CUSTOM_LOCALE_LIST.
+        scenario.onActivity { LocalesUtils.setLocales(LocalesUtils.CUSTOM_LOCALE_LIST) }
+        // Assert that the onConfigurationChange was called with a new correct config.
+        scenario.onActivity {
+            // the call should not have reached the LocalesUpdateActivity.onConfigurationChange()
+            // because the manifest entry for LocalesConfigChangesActivityWithoutLayoutDirection
+            // only handles locale and not layoutDir.
+            assertNull(it.lastViewConfigurationChangeAndClear)
+            LocalesUtils.assertConfigurationLocalesEquals(
+                expectedLocales,
+                it.resources.configuration!!,
             )
         }
     }

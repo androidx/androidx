@@ -46,7 +46,7 @@ interface PagerSnapDistance {
         suggestedTargetPage: Int,
         velocity: Float,
         pageSize: Int,
-        pageSpacing: Int
+        pageSpacing: Int,
     ): Int
 
     companion object {

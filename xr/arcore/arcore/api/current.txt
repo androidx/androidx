@@ -2,18 +2,13 @@
 package androidx.xr.arcore {
 
   public final class Anchor {
-    ctor public Anchor(androidx.xr.runtime.internal.Anchor runtimeAnchor);
     method public static androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public void detach();
     method public static java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
-    method public androidx.xr.runtime.internal.Anchor getRuntimeAnchor();
-    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> getState();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> getState();
     method public static androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public static androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
     method public suspend Object? persist(kotlin.coroutines.Continuation<? super java.util.UUID>);
     method public static void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public androidx.xr.runtime.internal.Anchor runtimeAnchor;
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> state;
     field public static final androidx.xr.arcore.Anchor.Companion Companion;
   }
@@ -22,58 +17,444 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
     method public androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
     method public void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
   }
 
   public static final class Anchor.State {
-    ctor public Anchor.State(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.runtime.math.Pose pose);
-    method public androidx.xr.runtime.math.Pose getPose();
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public androidx.xr.runtime.math.Pose pose;
-    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class AnchorCreateIllegalState extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateIllegalState();
+  }
+
+  public final class AnchorCreateNotAuthorized extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateNotAuthorized();
   }
 
   public final class AnchorCreateResourcesExhausted extends androidx.xr.arcore.AnchorCreateResult {
     ctor public AnchorCreateResourcesExhausted();
   }
 
-  public abstract sealed class AnchorCreateResult {
+  public abstract sealed exhaustive class AnchorCreateResult {
   }
 
   public final class AnchorCreateSuccess extends androidx.xr.arcore.AnchorCreateResult {
     ctor public AnchorCreateSuccess(androidx.xr.arcore.Anchor anchor);
-    method public androidx.xr.arcore.Anchor getAnchor();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Anchor getAnchor();
     property public androidx.xr.arcore.Anchor anchor;
   }
 
+  public final class AnchorCreateTrackingUnavailable extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateTrackingUnavailable();
+  }
+
+  public final class AnchorCreateUnsupportedLocation extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateUnsupportedLocation();
+  }
+
+  public final class AnchorLoadInvalidUuid extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorLoadInvalidUuid();
+  }
+
+  public final class ArDevice {
+    method public static androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> getState();
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> state;
+    field public static final androidx.xr.arcore.ArDevice.Companion Companion;
+  }
+
+  public static final class ArDevice.Companion {
+    method public androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
+  }
+
+  public static final class ArDevice.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
+    property public androidx.xr.runtime.math.Pose devicePose;
+  }
+
+  public final class AugmentedObject implements androidx.xr.arcore.Trackable<androidx.xr.arcore.AugmentedObject.State> {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.AugmentedObject.State> getState();
+    method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.AugmentedObject>> subscribe(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.AugmentedObject.State> state;
+    field public static final androidx.xr.arcore.AugmentedObject.Companion Companion;
+  }
+
+  public static final class AugmentedObject.Companion {
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.AugmentedObject>> subscribe(androidx.xr.runtime.Session session);
+  }
+
+  public static final class AugmentedObject.State implements androidx.xr.arcore.Trackable.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedObjectCategory getCategory();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getExtents();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    property public androidx.xr.runtime.AugmentedObjectCategory category;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.FloatSize3d extents;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class CreateGeospatialPoseFromPoseNotTracking extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    ctor public CreateGeospatialPoseFromPoseNotTracking();
+  }
+
+  public abstract sealed exhaustive class CreateGeospatialPoseFromPoseResult {
+  }
+
+  public final class CreateGeospatialPoseFromPoseSuccess extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    method @InaccessibleFromKotlin public double getHorizontalAccuracy();
+    method @InaccessibleFromKotlin public double getOrientationYawAccuracy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.GeospatialPose getPose();
+    method @InaccessibleFromKotlin public double getVerticalAccuracy();
+    property public double horizontalAccuracy;
+    property public double orientationYawAccuracy;
+    property public androidx.xr.runtime.math.GeospatialPose pose;
+    property public double verticalAccuracy;
+  }
+
+  public final class CreatePoseFromGeospatialPoseNotTracking extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseNotTracking();
+  }
+
+  public abstract sealed exhaustive class CreatePoseFromGeospatialPoseResult {
+  }
+
+  public final class CreatePoseFromGeospatialPoseSuccess extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseSuccess(androidx.xr.runtime.math.Pose pose);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  public final class DepthMap {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> getState();
+    method public static androidx.xr.arcore.DepthMap? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.DepthMap? mono(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.DepthMap? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> state;
+    field public static final androidx.xr.arcore.DepthMap.Companion Companion;
+  }
+
+  public static final class DepthMap.Companion {
+    method public androidx.xr.arcore.DepthMap? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.DepthMap? mono(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.DepthMap? right(androidx.xr.runtime.Session session);
+  }
+
+  public static final class DepthMap.State {
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
+    method @InaccessibleFromKotlin public int getWidth();
+    property public int height;
+    property public java.nio.ByteBuffer? rawConfidenceMap;
+    property public java.nio.FloatBuffer? rawDepthMap;
+    property public java.nio.ByteBuffer? smoothConfidenceMap;
+    property public java.nio.FloatBuffer? smoothDepthMap;
+    property public int width;
+  }
+
+  public final class Eye {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> getState();
+    method public static androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Eye.State> state;
+    field public static final androidx.xr.arcore.Eye.Companion Companion;
+  }
+
+  public static final class Eye.Companion {
+    method public androidx.xr.arcore.Eye? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Eye? right(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Eye.State {
+    ctor public Eye.State(boolean isOpen, androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.TrackingState trackingState);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class Face {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
+    method public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> state;
+    field public static final androidx.xr.arcore.Face.Companion Companion;
+  }
+
+  public static final class Face.Companion {
+    method public androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Face.State {
+    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.FaceBlendShapeType,java.lang.Float> getBlendShapes();
+    method @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) public float getConfidence(androidx.xr.arcore.FaceConfidenceRegion region);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    property public java.util.Map<androidx.xr.arcore.FaceBlendShapeType,java.lang.Float> blendShapes;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class FaceBlendShapeType {
+    field public static final androidx.xr.arcore.FaceBlendShapeType.Companion Companion;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_PUFF_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_PUFF_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_RAISER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_RAISER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_SUCK_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_SUCK_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHIN_RAISER_BOTTOM;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHIN_RAISER_TOP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_DIMPLER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_DIMPLER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_DOWN_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_DOWN_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_LEFT_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_LEFT_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_RIGHT_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_RIGHT_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_UP_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_UP_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_DROP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_SIDEWAYS_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_SIDEWAYS_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_THRUST;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIPS_TOWARD;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_LEFT_BOTTOM;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_LEFT_TOP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_RIGHT_BOTTOM;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_RIGHT_TOP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PUCKER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PUCKER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_LEFT_BOTTOM;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_LEFT_TOP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_RIGHT_BOTTOM;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_RIGHT_TOP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_TIGHTENER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_TIGHTENER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LOWER_LIP_DEPRESSOR_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LOWER_LIP_DEPRESSOR_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_MOUTH_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_MOUTH_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_NOSE_WRINKLER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_NOSE_WRINKLER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_DOWN;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_OUT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_UP;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LID_RAISER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LID_RAISER_RIGHT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LIP_RAISER_LEFT;
+    field public static final androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LIP_RAISER_RIGHT;
+  }
+
+  public static final class FaceBlendShapeType.Companion {
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_BROW_LOWERER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_PUFF_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_PUFF_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_RAISER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_RAISER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_SUCK_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHEEK_SUCK_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHIN_RAISER_BOTTOM;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_CHIN_RAISER_TOP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_DIMPLER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_DIMPLER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_CLOSED_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_DOWN_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_DOWN_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_LEFT_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_LEFT_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_RIGHT_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_RIGHT_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_UP_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_EYES_LOOK_UP_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_INNER_BROW_RAISER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_DROP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_SIDEWAYS_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_SIDEWAYS_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_JAW_THRUST;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LID_TIGHTENER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIPS_TOWARD;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_DEPRESSOR_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_CORNER_PULLER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_LEFT_BOTTOM;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_LEFT_TOP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_RIGHT_BOTTOM;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_FUNNELER_RIGHT_TOP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PRESSOR_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PUCKER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_PUCKER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_STRETCHER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_LEFT_BOTTOM;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_LEFT_TOP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_RIGHT_BOTTOM;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_SUCK_RIGHT_TOP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_TIGHTENER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LIP_TIGHTENER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LOWER_LIP_DEPRESSOR_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_LOWER_LIP_DEPRESSOR_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_MOUTH_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_MOUTH_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_NOSE_WRINKLER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_NOSE_WRINKLER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_OUTER_BROW_RAISER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_DOWN;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_OUT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_TONGUE_UP;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LID_RAISER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LID_RAISER_RIGHT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LIP_RAISER_LEFT;
+    property public androidx.xr.arcore.FaceBlendShapeType FACE_BLEND_SHAPE_TYPE_UPPER_LIP_RAISER_RIGHT;
+  }
+
+  public final class FaceConfidenceRegion {
+    field public static final androidx.xr.arcore.FaceConfidenceRegion.Companion Companion;
+    field public static final androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LEFT_UPPER;
+    field public static final androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LOWER;
+    field public static final androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_RIGHT_UPPER;
+  }
+
+  public static final class FaceConfidenceRegion.Companion {
+    property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LEFT_UPPER;
+    property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_LOWER;
+    property public androidx.xr.arcore.FaceConfidenceRegion FACE_CONFIDENCE_REGION_RIGHT_UPPER;
+  }
+
+  public final class Geospatial {
+    method public suspend Object? checkVpsAvailability(double latitude, double longitude, kotlin.coroutines.Continuation<? super androidx.xr.runtime.VpsAvailabilityResult>);
+    method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromPose(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.arcore.CreatePoseFromGeospatialPoseResult createPoseFromGeospatialPose(androidx.xr.runtime.math.GeospatialPose geospatialPose);
+    method public static androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> getState();
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Geospatial.State> state;
+    field public static final androidx.xr.arcore.Geospatial.Companion Companion;
+  }
+
+  public static final class Geospatial.Companion {
+    method public androidx.xr.arcore.Geospatial getInstance(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Geospatial.State {
+    field public static final androidx.xr.arcore.Geospatial.State.Companion Companion;
+    field public static final androidx.xr.arcore.Geospatial.State ERROR_INTERNAL;
+    field public static final androidx.xr.arcore.Geospatial.State ERROR_NOT_AUTHORIZED;
+    field public static final androidx.xr.arcore.Geospatial.State ERROR_RESOURCE_EXHAUSTED;
+    field public static final androidx.xr.arcore.Geospatial.State NOT_RUNNING;
+    field public static final androidx.xr.arcore.Geospatial.State PAUSED;
+    field public static final androidx.xr.arcore.Geospatial.State RUNNING;
+  }
+
+  public static final class Geospatial.State.Companion {
+    property public androidx.xr.arcore.Geospatial.State ERROR_INTERNAL;
+    property public androidx.xr.arcore.Geospatial.State ERROR_NOT_AUTHORIZED;
+    property public androidx.xr.arcore.Geospatial.State ERROR_RESOURCE_EXHAUSTED;
+    property public androidx.xr.arcore.Geospatial.State NOT_RUNNING;
+    property public androidx.xr.arcore.Geospatial.State PAUSED;
+    property public androidx.xr.arcore.Geospatial.State RUNNING;
+  }
+
   public final class Hand {
-    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> getState();
+    method public static androidx.xr.arcore.Hand.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> getState();
     method public static androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
     method public static androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> state;
     field public static final androidx.xr.arcore.Hand.Companion Companion;
   }
 
   public static final class Hand.Companion {
+    method public androidx.xr.arcore.Hand.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
     method public androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
     method public androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
   }
 
+  public enum Hand.HandSide {
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide LEFT;
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide RIGHT;
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide UNKNOWN;
+  }
+
   public static final class Hand.State {
-    ctor public Hand.State(boolean isActive, java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints);
-    method public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
-    method public boolean isActive();
-    property public java.util.Map<androidx.xr.runtime.internal.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
-    property public boolean isActive;
+    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer getHandJointsBuffer();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    property public java.util.Map<androidx.xr.arcore.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
+    property public java.nio.FloatBuffer handJointsBuffer;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public enum HandJointType {
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_DISTAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_INDEX_TIP;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_LITTLE_DISTAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_LITTLE_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_LITTLE_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_LITTLE_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_LITTLE_TIP;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_MIDDLE_DISTAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_MIDDLE_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_MIDDLE_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_MIDDLE_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_MIDDLE_TIP;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_PALM;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_RING_DISTAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_RING_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_RING_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_RING_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_RING_TIP;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_DISTAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_THUMB_TIP;
+    enum_constant public static final androidx.xr.arcore.HandJointType HAND_JOINT_TYPE_WRIST;
   }
 
   public final class HitResult {
     method public androidx.xr.arcore.AnchorCreateResult createAnchor();
-    method public float getDistance();
-    method public androidx.xr.runtime.math.Pose getHitPose();
-    method public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> getTrackable();
+    method @InaccessibleFromKotlin public float getDistance();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getHitPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> getTrackable();
     property public float distance;
     property public androidx.xr.runtime.math.Pose hitPose;
     property public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> trackable;
@@ -84,27 +465,37 @@ package androidx.xr.arcore {
   }
 
   public final class PerceptionState {
-    method public androidx.xr.arcore.Hand? getLeftHand();
-    method public androidx.xr.arcore.Hand? getRightHand();
-    method public kotlin.time.ComparableTimeMark getTimeMark();
-    method public java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> getTrackables();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice getArDevice();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap? getLeftDepthMap();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Hand? getLeftHand();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint? getLeftRenderViewpoint();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap? getMonoDepthMap();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint? getMonoRenderViewpoint();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap? getRightDepthMap();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Hand? getRightHand();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.RenderViewpoint? getRightRenderViewpoint();
+    method @InaccessibleFromKotlin public kotlin.time.ComparableTimeMark getTimeMark();
+    method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> getTrackables();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Face? getUserFace();
+    property public androidx.xr.arcore.ArDevice arDevice;
+    property public androidx.xr.arcore.DepthMap? leftDepthMap;
     property public androidx.xr.arcore.Hand? leftHand;
+    property public androidx.xr.arcore.RenderViewpoint? leftRenderViewpoint;
+    property public androidx.xr.arcore.DepthMap? monoDepthMap;
+    property public androidx.xr.arcore.RenderViewpoint? monoRenderViewpoint;
+    property public androidx.xr.arcore.DepthMap? rightDepthMap;
     property public androidx.xr.arcore.Hand? rightHand;
+    property public androidx.xr.arcore.RenderViewpoint? rightRenderViewpoint;
     property public kotlin.time.ComparableTimeMark timeMark;
     property public java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> trackables;
-  }
-
-  public final class PerceptionStateExtenderKt {
-    method public static androidx.xr.arcore.PerceptionState? getPerceptionState(androidx.xr.runtime.CoreState);
-    property public static androidx.xr.arcore.PerceptionState? perceptionState;
+    property public androidx.xr.arcore.Face? userFace;
   }
 
   public final class Plane implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Plane.State> {
     method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
-    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
-    method public androidx.xr.arcore.Plane.Type getType();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Type getType();
     method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Plane>> subscribe(androidx.xr.runtime.Session session);
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> state;
     property public androidx.xr.arcore.Plane.Type type;
     field public static final androidx.xr.arcore.Plane.Companion Companion;
@@ -115,60 +506,83 @@ package androidx.xr.arcore {
   }
 
   public static final class Plane.Label {
-    field public static final androidx.xr.arcore.Plane.Label Ceiling;
+    field public static final androidx.xr.arcore.Plane.Label CEILING;
     field public static final androidx.xr.arcore.Plane.Label.Companion Companion;
-    field public static final androidx.xr.arcore.Plane.Label Floor;
-    field public static final androidx.xr.arcore.Plane.Label Table;
-    field public static final androidx.xr.arcore.Plane.Label Unknown;
-    field public static final androidx.xr.arcore.Plane.Label Wall;
+    field public static final androidx.xr.arcore.Plane.Label FLOOR;
+    field public static final androidx.xr.arcore.Plane.Label TABLE;
+    field public static final androidx.xr.arcore.Plane.Label UNKNOWN;
+    field public static final androidx.xr.arcore.Plane.Label WALL;
   }
 
   public static final class Plane.Label.Companion {
-    property public androidx.xr.arcore.Plane.Label Ceiling;
-    property public androidx.xr.arcore.Plane.Label Floor;
-    property public androidx.xr.arcore.Plane.Label Table;
-    property public androidx.xr.arcore.Plane.Label Unknown;
-    property public androidx.xr.arcore.Plane.Label Wall;
+    property public androidx.xr.arcore.Plane.Label CEILING;
+    property public androidx.xr.arcore.Plane.Label FLOOR;
+    property public androidx.xr.arcore.Plane.Label TABLE;
+    property public androidx.xr.arcore.Plane.Label UNKNOWN;
+    property public androidx.xr.arcore.Plane.Label WALL;
   }
 
   public static final class Plane.State implements androidx.xr.arcore.Trackable.State {
-    ctor public Plane.State(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.arcore.Plane.Label label, androidx.xr.runtime.math.Pose centerPose, androidx.xr.runtime.math.Vector2 extents, androidx.xr.arcore.Plane? subsumedBy, java.util.List<androidx.xr.runtime.math.Vector2> vertices);
-    method public androidx.xr.runtime.math.Pose getCenterPose();
-    method public androidx.xr.runtime.math.Vector2 getExtents();
-    method public androidx.xr.arcore.Plane.Label getLabel();
-    method public androidx.xr.arcore.Plane? getSubsumedBy();
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
-    method public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane.Label getLabel();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Plane? getSubsumedBy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
     property public androidx.xr.runtime.math.Pose centerPose;
-    property public androidx.xr.runtime.math.Vector2 extents;
+    property public androidx.xr.runtime.math.FloatSize2d extents;
     property public androidx.xr.arcore.Plane.Label label;
     property public androidx.xr.arcore.Plane? subsumedBy;
-    property public androidx.xr.runtime.internal.TrackingState trackingState;
+    property public androidx.xr.runtime.TrackingState trackingState;
     property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
   }
 
   public static final class Plane.Type {
     field public static final androidx.xr.arcore.Plane.Type.Companion Companion;
-    field public static final androidx.xr.arcore.Plane.Type HorizontalDownwardFacing;
-    field public static final androidx.xr.arcore.Plane.Type HorizontalUpwardFacing;
-    field public static final androidx.xr.arcore.Plane.Type Vertical;
+    field public static final androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
+    field public static final androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
+    field public static final androidx.xr.arcore.Plane.Type VERTICAL;
   }
 
   public static final class Plane.Type.Companion {
-    property public androidx.xr.arcore.Plane.Type HorizontalDownwardFacing;
-    property public androidx.xr.arcore.Plane.Type HorizontalUpwardFacing;
-    property public androidx.xr.arcore.Plane.Type Vertical;
+    property public androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
+    property public androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
+    property public androidx.xr.arcore.Plane.Type VERTICAL;
+  }
+
+  public final class RenderViewpoint {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.RenderViewpoint.State> getState();
+    method public static androidx.xr.arcore.RenderViewpoint? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.RenderViewpoint? mono(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.RenderViewpoint? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.RenderViewpoint.State> state;
+    field public static final androidx.xr.arcore.RenderViewpoint.Companion Companion;
+  }
+
+  public static final class RenderViewpoint.Companion {
+    method public androidx.xr.arcore.RenderViewpoint? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.RenderViewpoint? mono(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.RenderViewpoint? right(androidx.xr.runtime.Session session);
+  }
+
+  public static final class RenderViewpoint.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getLocalPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    property public androidx.xr.runtime.FieldOfView fieldOfView;
+    property public androidx.xr.runtime.math.Pose localPose;
+    property public androidx.xr.runtime.math.Pose pose;
   }
 
   public interface Trackable<State> {
     method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
-    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> getState();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> getState();
     property public abstract kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> state;
   }
 
   public static interface Trackable.State {
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
-    property public abstract androidx.xr.runtime.internal.TrackingState trackingState;
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    property public abstract androidx.xr.runtime.TrackingState trackingState;
   }
 
 }

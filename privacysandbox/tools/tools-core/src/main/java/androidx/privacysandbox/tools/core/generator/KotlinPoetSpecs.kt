@@ -16,10 +16,16 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.SpecNames.uiAdapterToSpecs
+import androidx.privacysandbox.tools.core.generator.UiAdapterSpecs.Companion.sandboxedUiAdapterSpecs
+import androidx.privacysandbox.tools.core.generator.UiAdapterSpecs.Companion.sharedUiAdapterSpecs
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -62,6 +68,13 @@ fun AnnotatedInterface.stubDelegateNameSpec() =
 
 fun AnnotatedInterface.aidlInterfaceNameSpec() =
     ClassName(type.packageName, aidlType().innerType.simpleName)
+
+/**
+ * [UiAdapterSpecs] of the UI adapter [annotatedInterface] extends. Throws an error if called for an
+ * interface that does not extend any of the UI adapters.
+ */
+fun getUiAdapterSpecForInterface(annotatedInterface: AnnotatedInterface) =
+    uiAdapterToSpecs[annotatedInterface.superTypes.intersect(Types.uiAdapters).single()]!!
 
 /**
  * Defines the primary constructor of this type with the given list of properties.
@@ -122,7 +135,7 @@ fun FunSpec.Builder.addStatement(block: CodeBlock.Builder.() -> Unit) {
 fun CodeBlock.Builder.addControlFlow(
     controlFlow: String,
     vararg args: Any?,
-    block: CodeBlock.Builder.() -> Unit
+    block: CodeBlock.Builder.() -> Unit,
 ) {
     beginControlFlow(controlFlow, *args)
     block()
@@ -163,5 +176,90 @@ object SpecNames {
     val viewClass = ClassName("android.view", "View")
 
     // Privacy Sandbox UI
+    val uiCoreLibInfoPropertyName: String = "coreLibInfo"
     val toCoreLibInfoMethod = MemberName("androidx.privacysandbox.ui.provider", "toCoreLibInfo")
+
+    val uiAdapterToSpecs =
+        hashMapOf<Type, UiAdapterSpecs>(
+            Types.sandboxedUiAdapter to sandboxedUiAdapterSpecs,
+            Types.sharedUiAdapter to sharedUiAdapterSpecs,
+        )
+}
+
+interface UiAdapterSpecs {
+    val type: Type
+    val adapterPropertyName: String
+    val adapterFactoryClass: ClassName
+    val openSessionSpec: FunSpec
+    val toCoreLibInfoExpression: String
+
+    companion object {
+        val sandboxedUiAdapterSpecs =
+            object : UiAdapterSpecs {
+                override val type: Type = Types.sandboxedUiAdapter
+                override val adapterPropertyName: String = "sandboxedUiAdapter"
+                override val adapterFactoryClass: ClassName =
+                    ClassName("androidx.privacysandbox.ui.client", "SandboxedUiAdapterFactory")
+                override val openSessionSpec: FunSpec =
+                    FunSpec.builder("openSession").build {
+                        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                        addParameters(
+                            listOf(
+                                ParameterSpec(contextPropertyName, contextClass),
+                                ParameterSpec(
+                                    "sessionData",
+                                    ClassName("androidx.privacysandbox.ui.core", "SessionData"),
+                                ),
+                                ParameterSpec("initialWidth", Types.int.poetClassName()),
+                                ParameterSpec("initialHeight", Types.int.poetClassName()),
+                                ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
+                                ParameterSpec(
+                                    "clientExecutor",
+                                    ClassName("java.util.concurrent", "Executor"),
+                                ),
+                                ParameterSpec(
+                                    "client",
+                                    ClassName(
+                                            "androidx.privacysandbox.ui.core",
+                                            "SandboxedUiAdapter",
+                                        )
+                                        .nestedClass("SessionClient"),
+                                ),
+                            )
+                        )
+                        addStatement(
+                            "${adapterPropertyName}.openSession(%N, sessionData, initialWidth, " +
+                                "initialHeight, isZOrderOnTop, clientExecutor, client)",
+                            contextPropertyName,
+                        )
+                    }
+                override val toCoreLibInfoExpression: String = "%toCoreLibInfo:M(%context:N)"
+            }
+        val sharedUiAdapterSpecs =
+            object : UiAdapterSpecs {
+                override val type: Type = Types.sharedUiAdapter
+                override val adapterPropertyName: String = "sharedUiAdapter"
+                override val adapterFactoryClass: ClassName =
+                    ClassName("androidx.privacysandbox.ui.client", "SharedUiAdapterFactory")
+                override val openSessionSpec: FunSpec =
+                    FunSpec.builder("openSession").build {
+                        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                        addParameters(
+                            listOf(
+                                ParameterSpec(
+                                    "clientExecutor",
+                                    ClassName("java.util.concurrent", "Executor"),
+                                ),
+                                ParameterSpec(
+                                    "client",
+                                    ClassName("androidx.privacysandbox.ui.core", "SharedUiAdapter")
+                                        .nestedClass("SessionClient"),
+                                ),
+                            )
+                        )
+                        addStatement("${adapterPropertyName}.openSession(clientExecutor, client)")
+                    }
+                override val toCoreLibInfoExpression: String = "%toCoreLibInfo:M()"
+            }
+    }
 }

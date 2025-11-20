@@ -33,7 +33,7 @@ import androidx.camera.integration.antelope.testEnded
 class CameraXCaptureSessionCallback(
     internal val activity: MainActivity,
     internal val params: CameraParams,
-    internal val testConfig: TestConfig
+    internal val testConfig: TestConfig,
 ) : CameraCaptureSession.CaptureCallback() {
 
     /** Capture has been aborted. */
@@ -49,7 +49,7 @@ class CameraXCaptureSessionCallback(
     override fun onCaptureFailed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        failure: CaptureFailure
+        failure: CaptureFailure,
     ) {
         MainActivity.logd(
             "CameraX captureStillPicture captureCallback: Capture Failed. Failure: " +
@@ -66,7 +66,7 @@ class CameraXCaptureSessionCallback(
         session: CameraCaptureSession,
         request: CaptureRequest,
         timestamp: Long,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         // MainActivity.logd("CameraX captureStillPicture captureCallback: Capture Started.")
         super.onCaptureStarted(session, request, timestamp, frameNumber)
@@ -76,7 +76,7 @@ class CameraXCaptureSessionCallback(
     override fun onCaptureProgressed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        partialResult: CaptureResult
+        partialResult: CaptureResult,
     ) {
         // MainActivity.logd("CameraX captureStillPicture captureCallback: Capture progressed.")
         super.onCaptureProgressed(session, request, partialResult)
@@ -87,7 +87,7 @@ class CameraXCaptureSessionCallback(
         session: CameraCaptureSession,
         request: CaptureRequest,
         target: Surface,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         // MainActivity.logd("CameraX captureStillPicture captureCallback: Buffer lost.")
         super.onCaptureBufferLost(session, request, target, frameNumber)
@@ -97,7 +97,7 @@ class CameraXCaptureSessionCallback(
     override fun onCaptureCompleted(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        result: TotalCaptureResult
+        result: TotalCaptureResult,
     ) {
 
         if (params.cameraXLifecycle.isFinished()) {

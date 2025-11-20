@@ -28,7 +28,7 @@ import com.google.common.truth.Truth.assertThat
  */
 internal fun ViewInteraction.checkPagesAreVisible(
     firstVisiblePage: Int,
-    visiblePages: Int? = null
+    visiblePages: Int? = null,
 ) = this.check(PdfViewPagesAreVisible(firstVisiblePage, visiblePages))
 
 /**

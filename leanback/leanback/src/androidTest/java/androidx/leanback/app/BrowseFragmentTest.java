@@ -27,7 +27,6 @@ import android.app.Fragment;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.KeyEvent;
@@ -52,7 +51,6 @@ import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -93,14 +91,8 @@ public class BrowseFragmentTest {
         PollingCheck.waitFor(WAIT_TRANSIITON_TIMEOUT, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                if (Build.VERSION.SDK_INT >= 21) {
-                    return mActivity.getBrowseTestFragment() != null
-                            && mActivity.getBrowseTestFragment().mEntranceTransitionEnded;
-                } else {
-                    // when entrance transition not supported, wait main fragment loaded.
-                    return mActivity.getBrowseTestFragment() != null
-                            && mActivity.getBrowseTestFragment().getMainFragment() != null;
-                }
+                return mActivity.getBrowseTestFragment() != null
+                        && mActivity.getBrowseTestFragment().mEntranceTransitionEnded;
             }
         });
     }
@@ -375,7 +367,6 @@ public class BrowseFragmentTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
     @Test
     public void viewLeakTest() throws Throwable {
         Intent intent = new Intent();

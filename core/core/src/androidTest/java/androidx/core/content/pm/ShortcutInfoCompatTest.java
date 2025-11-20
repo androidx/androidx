@@ -162,7 +162,6 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testBuilder_setCapabilities() {
         final String capability1 = "START_EXERCISE";
         final String capability1Param1 = "exerciseName";
@@ -259,7 +258,6 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testBuilder_setCapabilities_noParameters() {
         final String capability = "actions.intent.TWEET";
 
@@ -281,7 +279,6 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testBuilder_setCapabilityWithParameters() {
         final String capability = "actions.intent.START_EXERCISE";
         final String capabilityParam1 = "exercise.name";

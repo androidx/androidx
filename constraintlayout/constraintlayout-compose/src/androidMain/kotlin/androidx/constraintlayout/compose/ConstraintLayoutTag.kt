@@ -46,7 +46,7 @@ fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
                     debugInspectorInfo {
                         name = "constraintLayoutId"
                         value = layoutId
-                    }
+                    },
             )
         )
     }
@@ -56,7 +56,7 @@ fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
 private class ConstraintLayoutTag(
     override val constraintLayoutTag: String,
     override val constraintLayoutId: String,
-    inspectorInfo: InspectorInfo.() -> Unit
+    inspectorInfo: InspectorInfo.() -> Unit,
 ) : ParentDataModifier, ConstraintLayoutTagParentData, InspectorValueInfo(inspectorInfo) {
     override fun Density.modifyParentData(parentData: Any?): Any? {
         return this@ConstraintLayoutTag

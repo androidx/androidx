@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
 
     <issue
         id="MissingSuperCall"
@@ -65,345 +65,84 @@
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 32 (leanback.BrowseAnimationFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
+        id="PrivateResource"
+        message="The resource `@dimen/lb_browse_padding_bottom` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        android:layout_marginBottom=&quot;@dimen/lb_browse_padding_bottom&quot;/>"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/BrowseAnimationFragment.java"/>
+            file="src/main/res/layout/date_picker.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/guidanceContainerStyle` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        style=&quot;?attr/guidanceContainerStyle&quot; >"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
+            file="src/main/res/layout/guidedstep_second_guidance.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/guidanceTitleStyle` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="            style=&quot;?attr/guidanceTitleStyle&quot; />"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/BrowseSupportFragment.java"/>
+            file="src/main/res/layout/guidedstep_second_guidance.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/guidanceBreadcrumbStyle` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="            style=&quot;?attr/guidanceBreadcrumbStyle&quot; />"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+            file="src/main/res/layout/guidedstep_second_guidance.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/guidanceDescriptionStyle` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="            style=&quot;?attr/guidanceDescriptionStyle&quot; />"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+            file="src/main/res/layout/guidedstep_second_guidance.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
+        id="PrivateResource"
+        message="The resource `@dimen/lb_browse_padding_bottom` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        android:layout_marginBottom=&quot;@dimen/lb_browse_padding_bottom&quot;/>"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
+            file="src/main/res/layout/pin_picker.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/defaultBrandColor` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        &lt;item name=&quot;android:colorAccent&quot;>?attr/defaultBrandColor&lt;/item>"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
+            file="src/main/res/values/themes.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
+        id="PrivateResource"
+        message="The resource `@attr/defaultBrandColor` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        &lt;item name=&quot;android:colorAccent&quot;>?attr/defaultBrandColor&lt;/item>"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
+            file="src/main/res/values/themes_appcompat.xml"/>
     </issue>
 
     <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
+        id="PrivateResource"
+        message="The resource `@dimen/lb_browse_padding_bottom` is marked as private in androidx.leanback:leanback:1.2.0-rc01"
+        errorLine1="        android:layout_marginBottom=&quot;@dimen/lb_browse_padding_bottom&quot;/>"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;button clicked&quot;);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/ErrorSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="                Log.v(TAG, &quot;onScrollStateChanged &quot;"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="                        if (DEBUG) Log.d(TAG, &quot;onChildSelected position=&quot; + position);"
-        errorLine2="                                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onCreate&quot;);"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;onNewIntent &quot; + intent);"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="            if (DEBUG) Log.v(TAG, &quot;createViewHolder &quot; + viewType);"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        errorLine1="            if (DEBUG) Log.v(TAG, &quot;bindViewHolder &quot; + position + &quot; &quot; + baseHolder);"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (PlaybackTransportControlGlue)"
-        errorLine1="            Log.e(TAG, &quot;disconnectToMediaSession: Media session disconnected&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlGlueSample.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/RowsSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Change %s&quot;, newQuery));"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Submit %s&quot;, query));"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SearchSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"/>
+            file="src/main/res/layout/time_picker.xml"/>
     </issue>
 
     <issue

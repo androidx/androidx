@@ -16,7 +16,4 @@
 
 package androidx.privacysandbox.tools.core.model
 
-data class ValueProperty(
-    val name: String,
-    val type: Type,
-)
+data class ValueProperty(val name: String, val type: Type)

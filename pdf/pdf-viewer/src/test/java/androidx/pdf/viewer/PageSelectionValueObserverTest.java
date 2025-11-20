@@ -28,15 +28,15 @@ import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.PageSelection;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class PageSelectionValueObserverTest {
     private final PaginatedView mMockPaginatedView = mock(PaginatedView.class);
     private final PaginationModel mMockPaginationModel = mock(PaginationModel.class);
@@ -72,7 +72,6 @@ public class PageSelectionValueObserverTest {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         displayMetrics.density = 1f;
         mContext.getResources().getDisplayMetrics().setTo(displayMetrics);
-        PdfViewer.setScreenForTest(mContext);
 
         PageSelectionValueObserver pageSelectionValueObserver =
                 new PageSelectionValueObserver(mMockPaginatedView,

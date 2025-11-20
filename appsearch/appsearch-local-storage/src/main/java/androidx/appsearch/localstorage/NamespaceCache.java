@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -55,15 +56,29 @@ public class NamespaceCache {
         mDocumentNamespaceMap.putAll(documentNamespaceMap);
     }
 
-    /**  Gets all prefixed document namespaces of the given package. */
-    public @NonNull Set<String> getAllPrefixedDocumentNamespaceForPackage(
-            @NonNull String packageName) {
+    /** Gets all prefixed document namespaces of the given set of packages. */
+    public @NonNull Set<String> getAllPrefixedDocumentNamespaceForPackages(
+            @NonNull Set<String> packageNames) {
         Set<String> wantedPrefixedNamespaces = new ArraySet<>();
 
         // Accumulate all the namespaces we're interested in.
-        for (String prefix : mDocumentNamespaceMap.keySet()) {
-            if (PrefixUtil.getPackageName(prefix).equals(packageName)) {
-                wantedPrefixedNamespaces.addAll(mDocumentNamespaceMap.get(prefix));
+        for (Map.Entry<String, Set<String>> entry : mDocumentNamespaceMap.entrySet()) {
+            if (packageNames.contains(PrefixUtil.getPackageName(entry.getKey()))) {
+                wantedPrefixedNamespaces.addAll(entry.getValue());
+            }
+        }
+        return wantedPrefixedNamespaces;
+    }
+
+    /** Gets all prefixed document blob namespaces of the given set of packages. */
+    public @NonNull Set<String> getAllPrefixedBlobNamespaceForPackages(
+            @NonNull Set<String> packageNames) {
+        Set<String> wantedPrefixedNamespaces = new ArraySet<>();
+
+        // Accumulate all the namespaces we're interested in.
+        for (Map.Entry<String, Set<String>> entry : mBlobNamespaceMap.entrySet()) {
+            if (packageNames.contains(PrefixUtil.getPackageName(entry.getKey()))) {
+                wantedPrefixedNamespaces.addAll(entry.getValue());
             }
         }
         return wantedPrefixedNamespaces;
@@ -94,7 +109,13 @@ public class NamespaceCache {
         return prefixedBlobNamespaces;
     }
 
-    /**  Removes prefixed document namespaces under the given prefix.  */
+    /**
+     * Removes prefixed document namespaces under the given prefix.
+     *
+     * @return the set of prefixed document namespaces that were removed, or {@code null} if
+     *         the prefix was not found.
+     */
+    @CanIgnoreReturnValue
     public @Nullable Set<String> removeDocumentNamespaces(@NonNull String prefix) {
         return mDocumentNamespaceMap.remove(prefix);
     }

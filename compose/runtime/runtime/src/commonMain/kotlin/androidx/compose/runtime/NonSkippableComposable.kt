@@ -22,4 +22,4 @@ package androidx.compose.runtime
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class NonSkippableComposable
+public annotation class NonSkippableComposable

@@ -1,0 +1,50 @@
+// Signature format: 4.0
+package androidx.savedstate.compose {
+
+  public final class LocalSavedStateRegistryOwnerKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> getLocalSavedStateRegistryOwner();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
+  }
+
+}
+
+package androidx.savedstate.compose.serialization.serializers {
+
+  public final class MutableStateSerializer<T> implements kotlinx.serialization.KSerializer<androidx.compose.runtime.MutableState<T>> {
+    ctor public MutableStateSerializer(kotlinx.serialization.KSerializer<T> valueSerializer);
+    method public androidx.compose.runtime.MutableState<T> deserialize(kotlinx.serialization.encoding.Decoder decoder);
+    method public kotlinx.serialization.descriptors.SerialDescriptor getDescriptor();
+    method public void serialize(kotlinx.serialization.encoding.Encoder encoder, androidx.compose.runtime.MutableState<T> value);
+    property public kotlinx.serialization.descriptors.SerialDescriptor descriptor;
+  }
+
+  public final class MutableStateSerializerKt {
+    method public static inline <reified T> androidx.savedstate.compose.serialization.serializers.MutableStateSerializer<T> MutableStateSerializer();
+  }
+
+  public final class SnapshotStateListSerializer<T> implements kotlinx.serialization.KSerializer<androidx.compose.runtime.snapshots.SnapshotStateList<T>> {
+    ctor public SnapshotStateListSerializer(kotlinx.serialization.KSerializer<T> elementSerializer);
+    method public androidx.compose.runtime.snapshots.SnapshotStateList<T> deserialize(kotlinx.serialization.encoding.Decoder decoder);
+    method public kotlinx.serialization.descriptors.SerialDescriptor getDescriptor();
+    method public void serialize(kotlinx.serialization.encoding.Encoder encoder, androidx.compose.runtime.snapshots.SnapshotStateList<T> value);
+    property public kotlinx.serialization.descriptors.SerialDescriptor descriptor;
+  }
+
+  public final class SnapshotStateListSerializerKt {
+    method public static inline <reified T> androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer<T> SnapshotStateListSerializer();
+  }
+
+  public final class SnapshotStateMapSerializer<K, V> implements kotlinx.serialization.KSerializer<androidx.compose.runtime.snapshots.SnapshotStateMap<K,V>> {
+    ctor public SnapshotStateMapSerializer(kotlinx.serialization.KSerializer<K> keySerializer, kotlinx.serialization.KSerializer<V> valueSerializer);
+    method public androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> deserialize(kotlinx.serialization.encoding.Decoder decoder);
+    method public kotlinx.serialization.descriptors.SerialDescriptor getDescriptor();
+    method public void serialize(kotlinx.serialization.encoding.Encoder encoder, androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> value);
+    property public kotlinx.serialization.descriptors.SerialDescriptor descriptor;
+  }
+
+  public final class SnapshotStateMapSerializerKt {
+    method public static inline <reified K, reified V> androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer<K,V> SnapshotStateMapSerializer();
+  }
+
+}
+

@@ -64,7 +64,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
                 createEntries(
                     getMultiplatformArtifactIds().get(),
                     getMultiplatformArtifactFiles().get(),
-                    multiplatform = true
+                    multiplatform = true,
                 )
 
         val gson =
@@ -81,7 +81,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
     private fun createEntries(
         ids: List<ComponentArtifactIdentifier>,
         artifacts: List<File>,
-        multiplatform: Boolean
+        multiplatform: Boolean,
     ): List<MetadataEntry> =
         ids.indices.mapNotNull { i ->
             val id = ids[i]
@@ -113,7 +113,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
                 groupId = componentId.group,
                 artifactId = componentId.module,
                 releaseNotesUrl = generateReleaseNotesUrl(componentId.group),
-                jarContents = fileList
+                jarContents = fileList,
             )
         }
 

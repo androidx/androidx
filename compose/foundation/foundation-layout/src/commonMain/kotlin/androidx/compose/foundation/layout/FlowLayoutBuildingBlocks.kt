@@ -31,7 +31,7 @@ internal class FlowLayoutBuildingBlocks(
 ) {
     class WrapInfo(
         val isLastItemInLine: Boolean = false,
-        val isLastItemInContainer: Boolean = false
+        val isLastItemInContainer: Boolean = false,
     )
 
     class WrapEllipsisInfo(
@@ -47,7 +47,7 @@ internal class FlowLayoutBuildingBlocks(
         lastContentLineIndex: Int,
         totalCrossAxisSize: Int,
         leftOverMainAxis: Int,
-        nextIndexInLine: Int
+        nextIndexInLine: Int,
     ): WrapEllipsisInfo? {
         if (!wrapInfo.isLastItemInContainer) return null
 
@@ -112,22 +112,22 @@ internal class FlowLayoutBuildingBlocks(
                     leftOver =
                         IntIntPair(
                             constraints.mainAxisMax,
-                            leftOver.second - crossAxisSpacing - currentLineCrossAxisSize
+                            leftOver.second - crossAxisSpacing - currentLineCrossAxisSize,
                         ),
                     // remove the mainAxisSpacing added to 2nd position or more indexed items.
                     IntIntPair(
                         first = nextSize.first.minus(mainAxisSpacing),
-                        second = nextSize.second
+                        second = nextSize.second,
                     ),
                     lineIndex = lineIndex + 1,
                     totalCrossAxisSize = totalContainerCrossAxisSize,
                     currentLineCrossAxisSize = 0,
                     isWrappingRound = true,
-                    isEllipsisWrap = false
+                    isEllipsisWrap = false,
                 )
             return WrapInfo(
                 isLastItemInLine = true,
-                isLastItemInContainer = wrapInfo.isLastItemInContainer
+                isLastItemInContainer = wrapInfo.isLastItemInContainer,
             )
         }
 
@@ -161,19 +161,19 @@ internal class FlowLayoutBuildingBlocks(
                         constraints.mainAxisMax,
                         leftOver.second -
                             crossAxisSpacing -
-                            max(currentLineCrossAxisSize, nextSize.second)
+                            max(currentLineCrossAxisSize, nextSize.second),
                     ),
                     ellipsis,
                     lineIndex = lineIndex + 1,
                     totalCrossAxisSize = totalContainerCrossAxisSize,
                     currentLineCrossAxisSize = 0,
                     isWrappingRound = true,
-                    isEllipsisWrap = true
+                    isEllipsisWrap = true,
                 )
 
             return WrapInfo(
                 isLastItemInLine = wrapInfo.isLastItemInContainer,
-                isLastItemInContainer = wrapInfo.isLastItemInContainer
+                isLastItemInContainer = wrapInfo.isLastItemInContainer,
             )
         }
 

@@ -18,9 +18,7 @@ package androidx.collection
 
 import kotlin.random.Random
 
-internal class SparseArrayGetBenchmark(
-    private val map: SparseArrayCompat<String>,
-) : CollectionBenchmark {
+class SparseArrayGetBenchmark(private val map: SparseArrayCompat<String>) : CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
 
     override fun measuredBlock() {
@@ -28,9 +26,8 @@ internal class SparseArrayGetBenchmark(
     }
 }
 
-internal class SparseArrayContainsKeyBenchmark(
-    private val map: SparseArrayCompat<String>,
-) : CollectionBenchmark {
+class SparseArrayContainsKeyBenchmark(private val map: SparseArrayCompat<String>) :
+    CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
 
     override fun measuredBlock() {
@@ -38,9 +35,8 @@ internal class SparseArrayContainsKeyBenchmark(
     }
 }
 
-internal class SparseArrayIndexOfKeyBenchmark(
-    private val map: SparseArrayCompat<String>,
-) : CollectionBenchmark {
+class SparseArrayIndexOfKeyBenchmark(private val map: SparseArrayCompat<String>) :
+    CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
 
     override fun measuredBlock() {
@@ -48,9 +44,8 @@ internal class SparseArrayIndexOfKeyBenchmark(
     }
 }
 
-internal class SparseArrayIndexOfValueBenchmark(
-    private val map: SparseArrayCompat<String>,
-) : CollectionBenchmark {
+class SparseArrayIndexOfValueBenchmark(private val map: SparseArrayCompat<String>) :
+    CollectionBenchmark {
     val lastValue = map.valueAt(map.size() - 1)
 
     override fun measuredBlock() {
@@ -58,7 +53,7 @@ internal class SparseArrayIndexOfValueBenchmark(
     }
 }
 
-internal fun createFilledSparseArray(size: Int, sparse: Boolean): SparseArrayCompat<String> {
+fun createFilledSparseArray(size: Int, sparse: Boolean): SparseArrayCompat<String> {
     return SparseArrayCompat<String>().apply {
         val keyFactory: () -> Int =
             if (sparse) {

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel
+package androidx.lifecycle.viewmodel.internal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.viewmodel.internal.SynchronizedObject
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders
-import androidx.lifecycle.viewmodel.internal.synchronized
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import kotlin.reflect.KClass
 
 /**

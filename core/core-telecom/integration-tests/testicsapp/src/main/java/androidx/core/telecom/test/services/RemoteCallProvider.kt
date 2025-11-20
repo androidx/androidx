@@ -34,7 +34,7 @@ data class LocalServiceConnection(
     val isConnected: Boolean,
     val context: Context? = null,
     val serviceConnection: ServiceConnection? = null,
-    val connection: LocalIcsBinder? = null
+    val connection: LocalIcsBinder? = null,
 )
 
 /**

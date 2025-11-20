@@ -20,7 +20,6 @@ import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.OrientationEventListener;
@@ -38,6 +37,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.FileUtil;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.camera.video.ExperimentalPersistentRecording;
 import androidx.camera.video.PendingRecording;
 import androidx.camera.video.Recorder;
@@ -54,6 +54,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -108,6 +109,9 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_camera_switching);
+
+        EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.root_layout,
+                Collections.singletonList(R.id.top_controls));
 
         Bundle bundle = this.getIntent().getExtras();
         long extraDurationMillis = INVALID_TIME_VALUE;
@@ -240,7 +244,6 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         mCamera = mCameraProvider.bindToLifecycle(this, newLensFacing, mPreview, mVideoCapture);
     }
 
-    @SuppressLint("NullAnnotationGroup")
     @SuppressWarnings("FutureReturnValueIgnored")
     @OptIn(markerClass = ExperimentalPersistentRecording.class)
     private void startRecording() {

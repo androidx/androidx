@@ -42,7 +42,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
  * different threads to avoid race conditions.
  */
 @Suppress("NotCloseable") // we can't implement AutoCloseable from commonMain
-class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit) -> Unit) {
+public class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit) -> Unit) {
     private val pendingChanges = AtomicReference<Any?>(null)
     private var sendingNotifications = false
 
@@ -218,7 +218,11 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      *   the callback, as [observedScopeMaps] grows with each new callback instance.
      * @param block to observe reads within.
      */
-    fun <T : Any> observeReads(scope: T, onValueChangedForScope: (T) -> Unit, block: () -> Unit) {
+    public fun <T : Any> observeReads(
+        scope: T,
+        onValueChangedForScope: (T) -> Unit,
+        block: () -> Unit,
+    ) {
         val scopeMap = synchronized(observedScopeMapsLock) { ensureMap(onValueChangedForScope) }
 
         val oldPaused = isPaused
@@ -257,10 +261,10 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         "Replace with Snapshot.withoutReadObservation()",
         ReplaceWith(
             "Snapshot.withoutReadObservation(block)",
-            "androidx.compose.runtime.snapshots.Snapshot"
-        )
+            "androidx.compose.runtime.snapshots.Snapshot",
+        ),
     )
-    fun withNoObservations(block: () -> Unit) {
+    public fun withNoObservations(block: () -> Unit) {
         val oldPaused = isPaused
         isPaused = true
         try {
@@ -274,7 +278,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * Clears all state read observations for a given [scope]. This clears values for all
      * `onValueChangedForScope` callbacks passed in [observeReads].
      */
-    fun clear(scope: Any) {
+    public fun clear(scope: Any) {
         removeScopeMapIf {
             it.clearScopeObservations(scope)
             !it.hasScopeObservations()
@@ -285,7 +289,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * Remove observations using [predicate] to identify scopes to be removed. This is used when a
      * scope is no longer in the hierarchy and should not receive any callbacks.
      */
-    fun clearIf(predicate: (scope: Any) -> Boolean) {
+    public fun clearIf(predicate: (scope: Any) -> Boolean) {
         removeScopeMapIf { scopeMap ->
             scopeMap.removeScopeIf(predicate)
             !scopeMap.hasScopeObservations()
@@ -293,12 +297,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
     }
 
     /** Starts watching for state commits. */
-    fun start() {
+    public fun start() {
         applyUnsubscribe = Snapshot.registerApplyObserver(applyObserver)
     }
 
     /** Stops watching for state commits. */
-    fun stop() {
+    public fun stop() {
         applyUnsubscribe?.dispose()
     }
 
@@ -307,12 +311,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
      * [snapshot].
      */
     @TestOnly
-    fun notifyChanges(changes: Set<Any>, snapshot: Snapshot) {
+    public fun notifyChanges(changes: Set<Any>, snapshot: Snapshot) {
         applyObserver(changes, snapshot)
     }
 
     /** Remove all observations. */
-    fun clear() {
+    public fun clear() {
         forEachScopeMap { scopeMap -> scopeMap.clear() }
     }
 
@@ -379,6 +383,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             }
 
         /**
+         * Guards reentrant apply notifications from accessing derived state list. This avoids
+         * b/435655844 without modifying how derived state behaves internally.
+         */
+        var readingDerivedStates = false
+
+        /**
          * Counter for skipping reads inside derived states. If count is > 0, read happens inside a
          * derived state. Reads for derived states are captured separately through
          * [DerivedState.Record.dependencies].
@@ -402,7 +412,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                         ?: MutableObjectIntMap<Any>().also {
                             currentScopeReads = it
                             scopeToValues[scope] = it
-                        }
+                        },
             )
         }
 
@@ -411,7 +421,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             value: Any,
             currentToken: Int,
             currentScope: Any,
-            recordedValues: MutableObjectIntMap<Any>
+            recordedValues: MutableObjectIntMap<Any>,
         ) {
             if (deriveStateScopeCount > 0) {
                 // Reads coming from derivedStateOf block
@@ -445,7 +455,13 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         }
 
         /** Setup new scope for state read observation, observe them, and cleanup afterwards */
-        fun observe(scope: Any, readObserver: (Any) -> Unit, block: () -> Unit) {
+        // inlined as used only in one place to not add extra function call overhead
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun observe(
+            scope: Any,
+            noinline readObserver: (Any) -> Unit,
+            noinline block: () -> Unit,
+        ) {
             val previousScope = currentScope
             val previousReads = currentScopeReads
             val previousToken = currentToken
@@ -457,7 +473,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             }
 
             observeDerivedStateRecalculations(derivedStateObserver) {
-                Snapshot.observe(readObserver, null, block)
+                Snapshot.observeInternal(readObserver, null, block)
             }
 
             clearObsoleteStateReads(currentScope!!)
@@ -531,28 +547,33 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                     return@fastForEach
                 }
 
-                if (value in dependencyToDerivedStates) {
-                    // Find derived state that is invalidated by this change
-                    dependencyToDerivedStates.forEachScopeOf(value) { derivedState ->
-                        derivedState as DerivedState<Any?>
-                        val previousValue = recordedDerivedStateValues[derivedState]
-                        val policy = derivedState.policy ?: structuralEqualityPolicy()
+                if (!readingDerivedStates && value in dependencyToDerivedStates) {
+                    readingDerivedStates = true
+                    try {
+                        // Find derived state that is invalidated by this change
+                        dependencyToDerivedStates.forEachScopeOf(value) { derivedState ->
+                            derivedState as DerivedState<Any?>
+                            val previousValue = recordedDerivedStateValues[derivedState]
+                            val policy = derivedState.policy ?: structuralEqualityPolicy()
 
-                        // Invalidate only if currentValue is different than observed on read
-                        if (
-                            !policy.equivalent(
-                                derivedState.currentRecord.currentValue,
-                                previousValue
-                            )
-                        ) {
-                            valueToScopes.forEachScopeOf(derivedState) { scope ->
-                                invalidated.add(scope)
-                                hasValues = true
+                            // Invalidate only if currentValue is different than observed on read
+                            if (
+                                !policy.equivalent(
+                                    derivedState.currentRecord.currentValue,
+                                    previousValue,
+                                )
+                            ) {
+                                valueToScopes.forEachScopeOf(derivedState) { scope ->
+                                    invalidated.add(scope)
+                                    hasValues = true
+                                }
+                            } else {
+                                // Re-read state to ensure its dependencies are up-to-date
+                                statesToReread.add(derivedState)
                             }
-                        } else {
-                            // Re-read state to ensure its dependencies are up-to-date
-                            statesToReread.add(derivedState)
                         }
+                    } finally {
+                        readingDerivedStates = false
                     }
                 }
 
@@ -562,7 +583,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                 }
             }
 
-            if (statesToReread.isNotEmpty()) {
+            if (!readingDerivedStates && statesToReread.isNotEmpty()) {
                 statesToReread.forEach { rereadDerivedState(it) }
                 statesToReread.clear()
             }
@@ -581,7 +602,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                     currentScope = scope,
                     recordedValues =
                         scopeToValues[scope]
-                            ?: MutableObjectIntMap<Any>().also { scopeToValues[scope] = it }
+                            ?: MutableObjectIntMap<Any>().also { scopeToValues[scope] = it },
                 )
             }
         }

@@ -24,14 +24,14 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import android.app.Instrumentation;
 import android.content.pm.PackageManager;
@@ -259,16 +259,10 @@ public class AppCompatTextViewTest
         TextView textView =
                 mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_resource);
         assertNotNull(textView.getTypeface());
-        // Pre-L, Typeface always resorts to native for a Typeface object, hence giving you a
-        // different one each call.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
-        }
+        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
         textView = mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_direct);
         assertNotNull(textView.getTypeface());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
-        }
+        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
     }
 
     @Test
@@ -385,7 +379,6 @@ public class AppCompatTextViewTest
         assertEquals(Typeface.SERIF, textView.getTypeface());
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testTextLocale_setInXml() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -397,7 +390,6 @@ public class AppCompatTextViewTest
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testTextLocale_setInXml_singleLocale() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -409,7 +401,6 @@ public class AppCompatTextViewTest
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testTextLocale_setInXmlByTextAppearance() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -421,7 +412,6 @@ public class AppCompatTextViewTest
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testTextLocalePriority_setInXml() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -798,21 +788,18 @@ public class AppCompatTextViewTest
         });
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyDefaultValue_withDefaultConstructor() {
         final AppCompatTextView textView = new AppCompatTextView(mActivity);
         assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, textView.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyDefaultValue_withInflator() {
         final AppCompatTextView textView = mActivity.findViewById(R.id.text_view_default_values);
         assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, textView.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyOverride_withInflator() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -820,21 +807,18 @@ public class AppCompatTextViewTest
         assertEquals(Layout.HYPHENATION_FREQUENCY_FULL, textView.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyDefaultValue_withDefaultConstructor() {
         final AppCompatTextView textView = new AppCompatTextView(mActivity);
         assertEquals(Layout.BREAK_STRATEGY_HIGH_QUALITY, textView.getBreakStrategy());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyDefaultValue_withInflator() {
         final AppCompatTextView textView = mActivity.findViewById(R.id.text_view_default_values);
         assertEquals(Layout.BREAK_STRATEGY_HIGH_QUALITY, textView.getBreakStrategy());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyOverride_withInflator() {
         final AppCompatTextView textView = mActivity.findViewById(
@@ -886,12 +870,8 @@ public class AppCompatTextViewTest
         // Then the left drawable should be present & should be a vector i.e. from the compat attr
         final Drawable drawableLeft = textView.getCompoundDrawables()[0];
         assertNotNull(drawableLeft);
-        if (Build.VERSION.SDK_INT >= 21) {
-            isVector = drawableLeft instanceof VectorDrawableCompat
-                    || drawableLeft instanceof VectorDrawable;
-        } else {
-            isVector = drawableLeft instanceof VectorDrawableCompat;
-        }
+        isVector = drawableLeft instanceof VectorDrawableCompat
+                || drawableLeft instanceof VectorDrawable;
         assertTrue(isVector);
     }
 
@@ -1307,5 +1287,38 @@ public class AppCompatTextViewTest
         final int textFontWeight = textView.getTypeface().getWeight();
 
         assertEquals(textFontWeight, 900);
+    }
+
+    @RequiresApi(26)
+    private void assertSystemHasVariableFont() {
+        AppCompatTextView textView = mActivity.findViewById(R.id.text_view_text_font_adjustment);
+
+        textView.setFontVariationSettings("'wght' 400");
+        Bitmap regular = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        textView.setFontVariationSettings("'wght' 700");
+        Bitmap bold = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        assumeFalse(regular.sameAs(bold));
+    }
+
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testFontAdjustment() {
+        // Skip if the system default font is not a variable font.
+        assertSystemHasVariableFont();
+
+        AppCompatTextView textView = mActivity.findViewById(R.id.text_view_text_font_adjustment);
+
+        textView.setFontVariationSettings("'wght' 400.0");
+        Bitmap before = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        textView.getFontVariationSettingsManager().setFontWeightAdjustmentForTesting(300);
+        textView.setFontVariationSettings("'wght' 400.0");
+        Bitmap after = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        // The font weight adjustment should change the weight of the variation settings.
+        assertFalse(before.sameAs(after));
     }
 }

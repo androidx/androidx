@@ -16,29 +16,25 @@
 
 package androidx.xr.compose.platform
 
-import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.xr.scenecore.Session
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_3D_CONTENT
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_APP_ENVIRONMENT
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_SPATIAL_AUDIO
-import androidx.xr.scenecore.SpatialCapabilities.Companion.SPATIAL_CAPABILITY_UI
-import androidx.xr.scenecore.addSpatialCapabilitiesChangedListener
-import androidx.xr.scenecore.getSpatialCapabilities
+import androidx.xr.runtime.Session
+import androidx.xr.scenecore.SpatialCapability
+import androidx.xr.scenecore.scene
 
-public val LocalSpatialCapabilities: CompositionLocal<SpatialCapabilities> =
+/**
+ * Provides the current [SpatialCapabilities] that are currently available to the application.
+ *
+ * The [SpatialCapabilities] represents a set of inherent permissions that the application may have
+ * depending on the context. For example, in home space mode, the app may not have the ability to
+ * create spatial UI; however, in full space mode, the application may have this capability.
+ */
+public val LocalSpatialCapabilities: ProvidableCompositionLocal<SpatialCapabilities> =
     compositionLocalWithComputedDefaultOf {
-        if (LocalHasXrSpatialFeature.currentValue) {
-            SpatialCapabilities.getOrCreate(
-                checkNotNull(LocalSession.currentValue) { "Session must be initialized." }
-            )
-        } else {
-            NoSpatialCapabilities()
-        }
+        LocalComposeXrOwners.currentValue?.spatialCapabilities ?: SpatialCapabilities.NoCapabilities
     }
 
 /**
@@ -81,39 +77,35 @@ public interface SpatialCapabilities {
     public val isSpatialAudioEnabled: Boolean
 
     public companion object {
-        private val sessionInstances: MutableMap<Session, SpatialCapabilities> = mutableMapOf()
-
-        public fun getOrCreate(session: Session): SpatialCapabilities =
-            sessionInstances.getOrPut(session) { SessionSpatialCapabilities(session) }
+        public val NoCapabilities: SpatialCapabilities =
+            object : SpatialCapabilities {
+                override val isSpatialUiEnabled: Boolean = false
+                override val isContent3dEnabled: Boolean = false
+                override val isAppEnvironmentEnabled: Boolean = false
+                override val isPassthroughControlEnabled: Boolean = false
+                override val isSpatialAudioEnabled: Boolean = false
+            }
     }
 }
 
-private class SessionSpatialCapabilities(session: Session) : SpatialCapabilities {
+internal class SessionSpatialCapabilities(session: Session) : SpatialCapabilities {
     private var capabilities by
-        mutableStateOf(session.getSpatialCapabilities()).apply {
-            session.addSpatialCapabilitiesChangedListener { value = it }
+        mutableStateOf(session.scene.spatialCapabilities).apply {
+            session.scene.addSpatialCapabilitiesChangedListener { value = it }
         }
 
     override val isSpatialUiEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_UI)
+        get() = capabilities.contains(SpatialCapability.SPATIAL_UI)
 
     override val isContent3dEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_3D_CONTENT)
+        get() = capabilities.contains(SpatialCapability.SPATIAL_3D_CONTENT)
 
     override val isAppEnvironmentEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_APP_ENVIRONMENT)
+        get() = capabilities.contains(SpatialCapability.APP_ENVIRONMENT)
 
     override val isPassthroughControlEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL)
+        get() = capabilities.contains(SpatialCapability.PASSTHROUGH_CONTROL)
 
     override val isSpatialAudioEnabled: Boolean
-        get() = capabilities.hasCapability(SPATIAL_CAPABILITY_SPATIAL_AUDIO)
-}
-
-private class NoSpatialCapabilities : SpatialCapabilities {
-    override val isSpatialUiEnabled: Boolean = false
-    override val isContent3dEnabled: Boolean = false
-    override val isAppEnvironmentEnabled: Boolean = false
-    override val isPassthroughControlEnabled: Boolean = false
-    override val isSpatialAudioEnabled: Boolean = false
+        get() = capabilities.contains(SpatialCapability.SPATIAL_AUDIO)
 }

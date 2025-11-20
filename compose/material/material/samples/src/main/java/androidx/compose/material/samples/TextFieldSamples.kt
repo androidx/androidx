@@ -98,7 +98,7 @@ fun TextFieldWithIcons() {
             IconButton(onClick = { state.clearText() }) {
                 Icon(Icons.Filled.Clear, contentDescription = "Clear text")
             }
-        }
+        },
     )
 }
 
@@ -109,7 +109,7 @@ fun TextFieldWithPlaceholder() {
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text("Email") },
-        placeholder = { Text("example@gmail.com") }
+        placeholder = { Text("example@gmail.com") },
     )
 }
 
@@ -142,7 +142,7 @@ fun TextFieldWithErrorState() {
             Modifier.semantics {
                 // Provide localized description of the error
                 if (isError) error("Email format is invalid.")
-            }
+            },
     )
 }
 
@@ -159,7 +159,7 @@ fun TextFieldWithHelperMessage() {
             text = "Helper message",
             color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
             style = MaterialTheme.typography.caption,
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp),
         )
     }
 }
@@ -182,7 +182,7 @@ fun PasswordTextField() {
                 val description = if (passwordHidden) "Show password" else "Hide password"
                 Icon(imageVector = visibilityIcon, contentDescription = description)
             }
-        }
+        },
     )
 }
 
@@ -279,11 +279,7 @@ private var _visibilityOff: ImageVector? = null
 @Composable
 fun TextFieldWithInitialValueAndSelection() {
     val state = rememberTextFieldState("Initial text", TextRange(0, 12))
-    TextField(
-        state = state,
-        label = { Text("Label") },
-        lineLimits = TextFieldLineLimits.SingleLine,
-    )
+    TextField(state = state, label = { Text("Label") }, lineLimits = TextFieldLineLimits.SingleLine)
 }
 
 @Sampled
@@ -336,19 +332,19 @@ fun CustomTextFieldBasedOnDecorationBox() {
         modifier =
             Modifier.background(
                     color = colors.backgroundColor(enabled).value,
-                    shape = TextFieldDefaults.TextFieldShape
+                    shape = TextFieldDefaults.TextFieldShape,
                 )
                 .indicatorLine(
                     enabled = enabled,
                     isError = false,
                     interactionSource = interactionSource,
-                    colors = colors
+                    colors = colors,
                 ),
         visualTransformation = passwordTransformation,
         // internal implementation of the BasicTextField will dispatch focus events
         interactionSource = interactionSource,
         enabled = enabled,
-        singleLine = singleLine
+        singleLine = singleLine,
     ) {
         TextFieldDefaults.TextFieldDecorationBox(
             value = value,
@@ -361,7 +357,7 @@ fun CustomTextFieldBasedOnDecorationBox() {
             interactionSource = interactionSource,
             // keep vertical paddings but change the horizontal
             contentPadding =
-                TextFieldDefaults.textFieldWithoutLabelPadding(start = 8.dp, end = 8.dp)
+                TextFieldDefaults.textFieldWithoutLabelPadding(start = 8.dp, end = 8.dp),
         )
     }
 }
@@ -379,7 +375,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
     val colors =
         TextFieldDefaults.outlinedTextFieldColors(
             unfocusedBorderColor = Color.LightGray,
-            focusedBorderColor = Color.DarkGray
+            focusedBorderColor = Color.DarkGray,
         )
     BasicTextField(
         value = value,
@@ -388,7 +384,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
         // internal implementation of the BasicTextField will dispatch focus events
         interactionSource = interactionSource,
         enabled = enabled,
-        singleLine = singleLine
+        singleLine = singleLine,
     ) {
         TextFieldDefaults.OutlinedTextFieldDecorationBox(
             value = value,
@@ -411,11 +407,11 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                     interactionSource = interactionSource,
                     shape = RectangleShape,
                     unfocusedBorderThickness = 2.dp,
-                    focusedBorderThickness = 4.dp
+                    focusedBorderThickness = 4.dp,
                 )
             },
             // update border colors
-            colors = colors
+            colors = colors,
         )
     }
 }

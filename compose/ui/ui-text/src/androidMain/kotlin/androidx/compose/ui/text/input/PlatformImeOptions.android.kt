@@ -25,9 +25,7 @@ import androidx.compose.runtime.Immutable
  *   private to a particular IME implementation.
  */
 @Immutable
-actual class PlatformImeOptions(
-    val privateImeOptions: String? = null,
-) {
+actual class PlatformImeOptions(val privateImeOptions: String? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformImeOptions) return false

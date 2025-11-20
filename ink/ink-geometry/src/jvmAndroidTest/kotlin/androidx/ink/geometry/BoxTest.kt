@@ -40,7 +40,7 @@ class BoxTest {
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
                         ImmutableVec(1.00001f, 1.99999f),
-                        ImmutableVec(3f, 4f)
+                        ImmutableVec(3f, 4f),
                     ),
                     tolerance = 0.000001f,
                 )
@@ -50,7 +50,7 @@ class BoxTest {
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
                         ImmutableVec(1f, 2f),
-                        ImmutableVec(3.00001f, 3.99999f)
+                        ImmutableVec(3.00001f, 3.99999f),
                     ),
                     tolerance = 0.000001f,
                 )
@@ -78,7 +78,7 @@ class BoxTest {
         val other =
             ImmutableBox.fromTwoPoints(
                 ImmutableVec(0.99999f, 2.00001f),
-                ImmutableVec(3.00001f, 3.99999f)
+                ImmutableVec(3.00001f, 3.99999f),
             )
         assertThat(box.isAlmostEqual(other, tolerance = 0.0001f)).isTrue()
     }

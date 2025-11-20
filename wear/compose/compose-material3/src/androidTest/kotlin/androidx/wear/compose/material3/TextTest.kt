@@ -41,6 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.lang.IllegalArgumentException
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +49,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TextTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private val ExpectedTextStyle =
         TextStyle(
@@ -95,14 +96,14 @@ class TextTest {
                         "Lorem ipsum",
                         minLines = 1,
                         maxLines = 3,
-                        onTextLayout = { size1 = it.size.height }
+                        onTextLayout = { size1 = it.size.height },
                     )
 
                     Text(
                         "Lorem ipsum",
                         minLines = 2,
                         maxLines = 3,
-                        onTextLayout = { size2 = it.size.height }
+                        onTextLayout = { size2 = it.size.height },
                     )
                 }
             }
@@ -133,7 +134,7 @@ class TextTest {
                         Text(
                             TestText,
                             color = expectedColor,
-                            onTextLayout = { textColor = it.layoutInput.style.color }
+                            onTextLayout = { textColor = it.layoutInput.style.color },
                         )
                     }
                 }
@@ -198,7 +199,7 @@ class TextTest {
                             letterSpacing = it.layoutInput.style.letterSpacing
                             textDecoration = it.layoutInput.style.textDecoration
                             textAlign = it.layoutInput.style.textAlign
-                        }
+                        },
                     )
                 }
             }
@@ -243,7 +244,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -277,7 +278,7 @@ class TextTest {
                 Text(
                     text = text,
                     onTextLayout = { textLayoutResult -> result = textLayoutResult },
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 )
             }
         }
@@ -296,7 +297,7 @@ class TextTest {
             Text(
                 text = text,
                 onTextLayout = { textLayoutResult -> result = textLayoutResult },
-                modifier = Modifier.testTag(TEST_TAG).width(200.dp)
+                modifier = Modifier.testTag(TEST_TAG).width(200.dp),
             )
         }
 
@@ -315,7 +316,7 @@ class TextTest {
                 text = text,
                 maxLines = 1,
                 onTextLayout = { textLayoutResult -> result = textLayoutResult },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -342,7 +343,7 @@ class TextTest {
                     text = text,
                     maxLines = 1,
                     onTextLayout = { textLayoutResult -> result = textLayoutResult },
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 )
             }
         }

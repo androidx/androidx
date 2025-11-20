@@ -43,6 +43,6 @@ class NavigationRuntimeIssueRegistry : IssueRegistry() {
         Vendor(
             feedbackUrl = "https://issuetracker.google.com/issues/new?component=409828",
             vendorName = "Android Open Source Project",
-            identifier = "androidx.navigation.runtime"
+            identifier = "androidx.navigation.runtime",
         )
 }

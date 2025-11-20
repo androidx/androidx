@@ -29,14 +29,11 @@ plugins {
     id("java-gradle-plugin")
 }
 
-apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
-
 dependencies {
-    compileOnly("com.android.tools.build:gradle:7.3.0")
-
+    compileOnly("com.android.tools.build:gradle-api:8.2.1")
     implementation(gradleApi())
 
-    testImplementation("com.android.tools.build:gradle:7.3.0")
+    testImplementation("com.android.tools.build:gradle-api:8.2.1")
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.junit)

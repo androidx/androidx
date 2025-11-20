@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.tools.apicompiler
 
@@ -74,13 +75,7 @@ class PrivacySandboxKspCompiler(
 
         val parsedApi = ApiParser(resolver, logger).parseApi()
 
-        SdkCodeGenerator(
-                codeGenerator,
-                parsedApi,
-                aidlCompilerPath,
-                frameworkAidlPath,
-                target,
-            )
+        SdkCodeGenerator(codeGenerator, parsedApi, aidlCompilerPath, frameworkAidlPath, target)
             .generate()
         return emptyList()
     }
@@ -90,7 +85,7 @@ class PrivacySandboxKspCompiler(
             return PrivacySandboxKspCompiler(
                 environment.logger,
                 environment.codeGenerator,
-                environment.options
+                environment.options,
             )
         }
     }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mock.View
 import androidx.compose.runtime.mock.ViewApplier
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
@@ -48,13 +49,12 @@ import androidx.compose.runtime.rememberUpdatedState
 │
 │
 │
-│
 └─
 */
 
 @Composable
-inline fun InlineWrapper(block: @Composable () -> Unit) {
-    block()
+inline fun InlineWrapper(content: @Composable () -> Unit) {
+    content()
 }
 
 @Composable
@@ -72,7 +72,7 @@ fun Subcompose(content: @Composable () -> Unit) {
 fun Linear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = {}
+        update = {},
     ) {
         content()
     }
@@ -82,7 +82,7 @@ fun Linear(content: @Composable () -> Unit) {
 inline fun InlineLinear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = {}
+        update = {},
     ) {
         content()
     }
@@ -100,7 +100,7 @@ fun <T : Any> Repeated(of: Iterable<T>, block: @Composable (value: T) -> Unit) {
 fun Text(value: String) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "text" } },
-        update = { set(value) { text = it } }
+        update = { set(value) { text = it } },
     )
 }
 
@@ -116,7 +116,7 @@ fun NodeWithCallbacks(
     onUpdate: () -> Unit = {},
     onReuse: () -> Unit = {},
     onDeactivate: () -> Unit = {},
-    onRelease: () -> Unit = {}
+    onRelease: () -> Unit = {},
 ) {
     ReusableComposeNode<View, ViewApplier>(
         factory = {
@@ -140,11 +140,28 @@ fun NodeWithCallbacks(
                 }
             }
         },
-        update = { onUpdate() }
+        update = { onUpdate() },
     )
 }
 
 @Composable
 fun Wrapper(content: @Composable () -> Unit) {
     content()
+}
+
+@Composable
+fun MovableWrapper(content: @Composable () -> Unit) {
+    val movableContent = remember { movableContentOf(content) }
+
+    movableContent()
+}
+
+@Composable
+fun WrappedMovableContent(
+    content: @Composable (Boolean) -> Unit,
+    wrap: @Composable (@Composable (Boolean) -> Unit) -> Unit,
+) {
+    val movableContent = remember { movableContentOf(content) }
+
+    wrap(movableContent)
 }

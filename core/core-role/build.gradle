@@ -15,7 +15,6 @@ plugins {
 dependencies {
     annotationProcessor(libs.nullaway)
 
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
 }

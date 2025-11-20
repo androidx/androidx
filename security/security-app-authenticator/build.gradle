@@ -41,7 +41,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
@@ -51,7 +50,6 @@ dependencies {
 }
 
 android {
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.security.app.authenticator"
 }
 
@@ -61,4 +59,5 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR
     inceptionYear = "2020"
     description = "Verify app packages for proper app to app authentication."
+    enableRobolectric()
 }

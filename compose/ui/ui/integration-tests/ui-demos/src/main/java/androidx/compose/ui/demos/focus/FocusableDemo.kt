@@ -57,7 +57,7 @@ private fun FocusableText(text: String) {
                 .focusTarget()
                 .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
-        color = color
+        color = color,
     )
 }
 
@@ -66,6 +66,6 @@ private fun CenteredRow(content: @Composable RowScope.() -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        content = content
+        content = content,
     )
 }

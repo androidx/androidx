@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/420551535
+
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.AutoTestFrameClock
@@ -50,14 +52,9 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> =
-            arrayOf(
-                Config(Orientation.Vertical),
-                Config(Orientation.Horizontal),
-            )
+            arrayOf(Config(Orientation.Vertical), Config(Orientation.Horizontal))
 
-        class Config(
-            val orientation: Orientation,
-        ) {
+        class Config(val orientation: Orientation) {
             override fun toString() = "orientation=$orientation"
         }
     }
@@ -76,6 +73,8 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
     @OptIn(ExperimentalFoundationApi::class)
     private val strategy =
         object : LazyGridPrefetchStrategy by LazyGridPrefetchStrategy() {
+            @Deprecated("override")
+            @Suppress("OVERRIDE_DEPRECATION") // b/446706247
             override val prefetchScheduler: PrefetchScheduler = scheduler
         }
 
@@ -178,7 +177,7 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
             state,
             createNestedLazyGridState = {
                 LazyGridState(prefetchStrategy = LazyGridPrefetchStrategy(1))
-            }
+            },
         )
 
         val prefetchIndex = 2
@@ -219,7 +218,7 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
                 LazyGridState(
                     prefetchStrategy = NestedPrefetchWithConstraintsStrategy(nestedConstraints)
                 )
-            }
+            },
         )
 
         val prefetchIndex = 2
@@ -278,6 +277,60 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
             .inOrder()
     }
 
+    @Test
+    fun automaticNestedPrefetchingBasedOnNumberOfVisibleItems() {
+
+        val state = createState()
+        composeGrid(state, createNestedLazyGridState = { LazyGridState(firstVisibleItemIndex = 4) })
+
+        val prefetchIndex = 2
+        val actions = trackingActions {
+            rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
+
+            waitForPrefetch()
+        }
+
+        assertThat(actions)
+            .containsExactly(
+                Action.Compose(prefetchIndex),
+                Action.Compose(prefetchIndex, 4),
+                Action.Compose(prefetchIndex, 5),
+                Action.Measure(prefetchIndex),
+                Action.Measure(prefetchIndex, 4),
+                Action.Measure(prefetchIndex, 5),
+                // Compose and measure the rest
+                Action.Compose(prefetchIndex, 6),
+                Action.Measure(prefetchIndex, 6),
+                Action.Compose(prefetchIndex, 7),
+                Action.Measure(prefetchIndex, 7),
+            )
+            .inOrder()
+
+        // jump ahead
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+
+        val newActions = trackingActions {
+            rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
+
+            waitForPrefetch()
+        }
+
+        assertThat(newActions)
+            .containsExactly(
+                Action.Compose(prefetchIndex + 10),
+                Action.Compose(prefetchIndex + 10, 4),
+                Action.Compose(prefetchIndex + 10, 5),
+                Action.Compose(prefetchIndex + 10, 6),
+                Action.Compose(prefetchIndex + 10, 7),
+                Action.Measure(prefetchIndex + 10),
+                Action.Measure(prefetchIndex + 10, 4),
+                Action.Measure(prefetchIndex + 10, 5),
+                Action.Measure(prefetchIndex + 10, 6),
+                Action.Measure(prefetchIndex + 10, 7),
+            )
+            .inOrder()
+    }
+
     private var actions: MutableList<Action>? = null
 
     /** Returns the list of Actions performed during block() */
@@ -312,15 +365,15 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
      */
     private fun composeGrid(
         lazyGridState: LazyGridState,
-        createNestedLazyGridState: (index: Int) -> LazyGridState = { LazyGridState() }
+        createNestedLazyGridState: (index: Int) -> LazyGridState = { LazyGridState() },
     ) {
         rule.setContent {
             LazyGrid(
                 cells = 1,
                 modifier = Modifier.mainAxisSize(itemsSizeDp * 2.5f).crossAxisSize(itemsSizeDp * 2),
-                state = lazyGridState
+                state = lazyGridState,
             ) {
-                items(100) { index ->
+                items(100, contentType = { "NESTED_GRID" }) { index ->
                     TrackActiveNodesEffect(index)
                     val nestedState = remember(index) { createNestedLazyGridState(index) }
                     LazyGrid(
@@ -367,15 +420,21 @@ class LazyGridNestedPrefetchingTest(val config: Config) :
     @OptIn(ExperimentalFoundationApi::class)
     private class NestedPrefetchWithConstraintsStrategy(
         private val childConstraints: Constraints,
-        private val nestedPrefetchItemCount: Int = 2
+        private val initialNestedPrefetchItemCount: Int = 2,
     ) : LazyGridPrefetchStrategy {
         override fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) {}
 
         override fun LazyGridPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyGridLayoutInfo) {}
 
         override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) {
-            repeat(nestedPrefetchItemCount) { i ->
-                schedulePrefetch(firstVisibleItemIndex + i, childConstraints)
+            val resolvedNestedPrefetchCount =
+                if (nestedPrefetchItemCount == -1) {
+                    initialNestedPrefetchItemCount
+                } else {
+                    nestedPrefetchItemCount
+                }
+            repeat(resolvedNestedPrefetchCount) { i ->
+                schedulePrecompositionAndPremeasure(firstVisibleItemIndex + i, childConstraints)
             }
         }
     }

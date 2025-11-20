@@ -133,10 +133,8 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
      * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
      */
     @Override
-    @RequiresApi(Build.VERSION_CODES.M)
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceError error) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
         onReceivedError(view, request, new WebResourceErrorImpl(error));
     }
 

@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 class VoipCall(
     val context: Context,
     val attributes: CallAttributesCompat,
-    val notificationId: Int
+    val notificationId: Int,
 ) {
     private val TAG = VoipCall::class.simpleName
     var mAdapter: CallListAdapter? = null
@@ -138,7 +138,7 @@ class VoipCall(
                 context = context,
                 notificationId = notificationId,
                 channelId = NOTIFICATION_CHANNEL_ID,
-                callerName = attributes.displayName.toString()
+                callerName = attributes.displayName.toString(),
             )
         }
         hasUpdatedToOngoing = true

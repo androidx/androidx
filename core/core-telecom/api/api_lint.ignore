@@ -1,3 +1,7 @@
 // Baseline format: 1.0
+AutoBoxing: androidx.core.telecom.CallAttributesCompat#CallAttributesCompat(CharSequence, android.net.Uri, int, int, int, androidx.core.telecom.CallEndpointCompat, Boolean) parameter #6:
+    Must avoid boxed primitives (`java.lang.Boolean`)
+
+
 NotCloseable: androidx.core.telecom.CallControlScope:
     Classes that release resources (disconnect()) should implement AutoCloseable and CloseGuard: class androidx.core.telecom.CallControlScope

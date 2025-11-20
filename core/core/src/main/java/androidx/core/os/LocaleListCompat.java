@@ -156,9 +156,7 @@ public final class LocaleListCompat {
             final String[] tags = list.split(",", -1);
             final Locale[] localeArray = new Locale[tags.length];
             for (int i = 0; i < localeArray.length; i++) {
-                localeArray[i] = Build.VERSION.SDK_INT >= 21
-                        ? Api21Impl.forLanguageTag(tags[i])
-                        : forLanguageTagCompat(tags[i]);
+                localeArray[i] = Locale.forLanguageTag(tags[i]);
             }
             return create(localeArray);
         }
@@ -236,20 +234,15 @@ public final class LocaleListCompat {
      * @param desired   The desired {@link Locale} to be compared.
      * @return True if they match, false otherwise.
      */
-    @RequiresApi(21)
     public static boolean matchesLanguageAndScript(@NonNull Locale supported,
             @NonNull Locale desired) {
         if (Build.VERSION.SDK_INT >= 33) {
             return LocaleList.matchesLanguageAndScript(supported, desired);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.matchesLanguageAndScript(supported, desired);
         } else {
-            throw new UnsupportedOperationException(
-                    "This method is only supported on API level 21+");
+            return Api21Impl.matchesLanguageAndScript(supported, desired);
         }
     }
 
-    @RequiresApi(21)
     static class Api21Impl {
         private Api21Impl() {
             // This class is not instantiable.
@@ -295,10 +288,6 @@ public final class LocaleListCompat {
                 }
             }
             return false;
-        }
-
-        static Locale forLanguageTag(String languageTag) {
-            return Locale.forLanguageTag(languageTag);
         }
     }
 

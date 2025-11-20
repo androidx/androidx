@@ -51,15 +51,15 @@ fun ClickableListItems() {
             trailing = {
                 Switch(
                     checked = switched,
-                    onCheckedChange = null // null recommended for accessibility with screenreaders
+                    onCheckedChange = null, // null recommended for accessibility with screenreaders
                 )
             },
             modifier =
                 Modifier.toggleable(
                     role = Role.Switch,
                     value = switched,
-                    onValueChange = onSwitchedChange
-                )
+                    onValueChange = onSwitchedChange,
+                ),
         )
         Divider()
         var checked by remember { mutableStateOf(true) }
@@ -69,15 +69,15 @@ fun ClickableListItems() {
             trailing = {
                 Checkbox(
                     checked = checked,
-                    onCheckedChange = null // null recommended for accessibility with screenreaders
+                    onCheckedChange = null, // null recommended for accessibility with screenreaders
                 )
             },
             modifier =
                 Modifier.toggleable(
                     role = Role.Checkbox,
                     value = checked,
-                    onValueChange = onCheckedChange
-                )
+                    onValueChange = onCheckedChange,
+                ),
         )
         Divider()
     }
@@ -92,7 +92,7 @@ fun OneLineListItems() {
         Divider()
         ListItem(
             text = { Text("One line list item with 24x24 icon") },
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) }
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         )
         Divider()
         ListItem(
@@ -101,9 +101,9 @@ fun OneLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
         ListItem(
@@ -112,9 +112,9 @@ fun OneLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(56.dp)
+                    modifier = Modifier.size(56.dp),
                 )
-            }
+            },
         )
         Divider()
         ListItem(
@@ -123,15 +123,15 @@ fun OneLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(56.dp)
+                    modifier = Modifier.size(56.dp),
                 )
             },
-            modifier = Modifier.clickable {}
+            modifier = Modifier.clickable {},
         )
         Divider()
         ListItem(
             text = { Text("One line list item with trailing icon") },
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") }
+            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
         )
         Divider()
         ListItem(
@@ -140,10 +140,10 @@ fun OneLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
             },
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") }
+            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") },
         )
         Divider()
     }
@@ -161,7 +161,7 @@ fun TwoLineListItems() {
         ListItem(
             text = { Text("Two line list item with 24x24 icon") },
             secondaryText = { Text("Secondary text") },
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) }
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         )
         Divider()
         ListItem(
@@ -171,9 +171,9 @@ fun TwoLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
         ListItem(
@@ -184,9 +184,9 @@ fun TwoLineListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
     }
@@ -206,13 +206,13 @@ fun ThreeLineListItems() {
                 )
             },
             singleLineSecondaryText = false,
-            trailing = { Text("meta") }
+            trailing = { Text("meta") },
         )
         Divider()
         ListItem(
             text = { Text("Three line list item") },
             overlineText = { Text("OVERLINE") },
-            secondaryText = { Text("Secondary text") }
+            secondaryText = { Text("Secondary text") },
         )
         Divider()
         ListItem(
@@ -224,7 +224,7 @@ fun ThreeLineListItems() {
                 )
             },
             singleLineSecondaryText = false,
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) }
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         )
         Divider()
         ListItem(
@@ -236,14 +236,14 @@ fun ThreeLineListItems() {
                 )
             },
             singleLineSecondaryText = false,
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") }
+            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") },
         )
         Divider()
         ListItem(
             text = { Text("Three line list item") },
             overlineText = { Text("OVERLINE") },
             secondaryText = { Text("Secondary text") },
-            trailing = { Text("meta") }
+            trailing = { Text("meta") },
         )
         Divider()
     }
@@ -263,19 +263,19 @@ fun OneLineRtlLtrListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
         ListItem(
             text = { Text("One line list item with 24x24 icon") },
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) }
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         )
         Divider()
         ListItem(
             text = { Text("عنصر قائمة واحد مع رمز زائدة") },
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = null) }
+            trailing = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         )
         Divider()
     }
@@ -292,7 +292,7 @@ fun TwoLineRtlLtrListItems() {
         ListItem(
             modifier = Modifier.clickable {},
             text = { Text("Clickable") },
-            secondaryText = { Text("Short item") }
+            secondaryText = { Text("Short item") },
         )
         Divider()
         ListItem(
@@ -302,9 +302,9 @@ fun TwoLineRtlLtrListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
         ListItem(
@@ -314,10 +314,10 @@ fun TwoLineRtlLtrListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
             },
-            modifier = Modifier.clickable {}
+            modifier = Modifier.clickable {},
         )
         Divider()
     }
@@ -331,7 +331,7 @@ fun ThreeLineRtlLtrListItems() {
             text = { Text("Three line list item") },
             overlineText = { Text("OVERLINE") },
             secondaryText = { Text("Secondary text") },
-            trailing = { Text("meta") }
+            trailing = { Text("meta") },
         )
         Divider()
         ListItem(
@@ -342,7 +342,7 @@ fun ThreeLineRtlLtrListItems() {
                         "في لغات أخرى قد نحتاج إلى المزيد من النص"
                 )
             },
-            singleLineSecondaryText = false
+            singleLineSecondaryText = false,
         )
         Divider()
         ListItem(
@@ -353,9 +353,9 @@ fun ThreeLineRtlLtrListItems() {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp),
                 )
-            }
+            },
         )
         Divider()
     }

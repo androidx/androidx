@@ -32,7 +32,6 @@ import androidx.pdf.data.FutureValues.DeferredFutureValue;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
 import androidx.pdf.data.FutureValues.SimpleCallback;
 import androidx.pdf.data.Supplier;
-import androidx.test.filters.SmallTest;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -42,9 +41,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class FutureValuesTest {
 
     @Mock

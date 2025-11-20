@@ -26,7 +26,6 @@ import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.GLUtil
-import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
@@ -41,7 +40,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 private const val WIDTH = 640
 private const val HEIGHT = 480
 
-@SdkSuppress(minSdkVersion = 21)
 abstract class RenderOutput<T> {
     abstract val surface: Surface
     protected abstract val imageFlow: Flow<T>
@@ -90,7 +88,6 @@ enum class OutputType {
     SURFACE_TEXTURE,
 }
 
-@SdkSuppress(minSdkVersion = 21)
 private class SurfaceTextureOutput : RenderOutput<Unit>() {
     override val surface: Surface by ::outputSurface
 
@@ -100,7 +97,7 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
                 it.updateTexImage()
                 trySend(Unit)
             },
-            handler
+            handler,
         )
         awaitClose { outputSurfaceTexture.setOnFrameAvailableListener(null) }
     }
@@ -127,7 +124,6 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
     private val outputSurface = Surface(outputSurfaceTexture)
 }
 
-@SdkSuppress(minSdkVersion = 21)
 private class ImageReaderOutput : RenderOutput<Image>() {
     override val surface: Surface
         get() = imageReader.surface

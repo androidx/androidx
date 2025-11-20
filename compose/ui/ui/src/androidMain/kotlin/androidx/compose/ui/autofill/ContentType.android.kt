@@ -97,7 +97,7 @@ actual sealed interface ContentType {
         actual val SmsOtpCode = ContentType(AUTOFILL_HINT_SMS_OTP)
     }
 
-    operator fun plus(other: ContentType): ContentType
+    actual operator fun plus(other: ContentType): ContentType
 }
 
 private class AndroidContentType(val androidAutofillHints: Set<String>) : ContentType {
@@ -108,6 +108,16 @@ private class AndroidContentType(val androidAutofillHints: Set<String>) : Conten
     }
 }
 
+/**
+ * Create a custom `ContentType` with [contentHint].
+ *
+ * This creates a `ContentType` with the parameter [contentHint] passed in. This API can be used if
+ * the Autofill hint is not present in the list of `contentType`s provided by Compose.
+ *
+ * For example,
+ * `ContentType(androidx.autofill.HintConstants.AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE)` can be used
+ * to create a new flight confirmation code hint.
+ */
 fun ContentType(contentHint: String): ContentType = AndroidContentType(setOf(contentHint))
 
 internal val ContentType.contentHints: Array<String>

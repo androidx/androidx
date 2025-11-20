@@ -36,7 +36,6 @@ import android.view.ViewParent;
 import android.view.ViewTreeObserver.OnDrawListener;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.core.util.Pair;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -420,10 +419,7 @@ public class TestUtils {
     /**
      * Executes the given shell command and returns true if any line matches the find predicate, or
      * false otherwise.
-     * <p>
-     * Requires API 21+ due to UiAutomation.executeShellCommand() dependency.
      */
-    @RequiresApi(21)
     public static boolean executeShellCommandAndFind(@NonNull String cmd,
             @NonNull Predicate<String> find) throws IOException {
         InputStream stdout = new ParcelFileDescriptor.AutoCloseInputStream(

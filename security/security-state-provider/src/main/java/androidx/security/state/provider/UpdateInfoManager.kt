@@ -32,7 +32,7 @@ import kotlinx.serialization.json.Json
  */
 public class UpdateInfoManager(
     private val context: Context,
-    customSecurityState: SecurityPatchState? = null
+    customSecurityState: SecurityPatchState? = null,
 ) {
 
     private val updateInfoPrefs: String = "UPDATE_INFO_PREFS"
@@ -53,7 +53,7 @@ public class UpdateInfoManager(
         val json =
             Json.encodeToString(
                 SerializableUpdateInfo.serializer(),
-                updateInfo.toSerializableUpdateInfo()
+                updateInfo.toSerializableUpdateInfo(),
             )
         editor?.putString(key, json)
         editor?.apply()

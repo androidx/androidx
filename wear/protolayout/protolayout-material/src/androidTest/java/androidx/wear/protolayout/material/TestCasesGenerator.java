@@ -442,11 +442,11 @@ public class TestCasesGenerator {
                 "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
                 new Box.Builder()
                         .setWidth(dp(100))
-                        .setHeight(dp(42))
+                        .setHeight(dp(43))
                         .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
                         .addContent(
                                 new Text.Builder(context, longText)
-                                        // Line height = 20sp
+                                        // Line height = 20sp, last line would be around ~23
                                         .setTypography(Typography.TYPOGRAPHY_BODY1)
                                         .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
                                         .setMaxLines(6)

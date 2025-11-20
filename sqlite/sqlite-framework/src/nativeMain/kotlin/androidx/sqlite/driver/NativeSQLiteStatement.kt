@@ -60,10 +60,10 @@ import sqlite3.sqlite3_stmt_busy
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 public class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
-    private val stmtPointer: CPointer<sqlite3_stmt>
+    private val stmtPointer: CPointer<sqlite3_stmt>,
 ) : SQLiteStatement {
 
-    @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
+    @Volatile private var isClosed = false
 
     override fun bindBlob(index: Int, value: ByteArray) {
         throwIfClosed()
@@ -104,7 +104,7 @@ public class NativeSQLiteStatement(
                 index,
                 valueUtf16,
                 valueUtf16.size - 1,
-                SQLITE_TRANSIENT
+                SQLITE_TRANSIENT,
             )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -212,9 +212,9 @@ public class NativeSQLiteStatement(
 
     override fun close() {
         if (!isClosed) {
+            isClosed = true
             sqlite3_finalize(stmtPointer)
         }
-        isClosed = true
     }
 
     private fun throwIfClosed() {

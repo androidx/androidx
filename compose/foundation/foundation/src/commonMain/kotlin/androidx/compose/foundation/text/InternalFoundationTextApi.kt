@@ -26,7 +26,7 @@ package androidx.compose.foundation.text
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY,
     AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+    AnnotationTarget.PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.BINARY)
 annotation class InternalFoundationTextApi

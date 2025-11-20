@@ -458,6 +458,32 @@ class BackStackRecordTest {
 
     @Test
     @UiThreadTest
+    fun setMaxLifecycleInitializedAfterConfigChange() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment, "1")
+            .setReorderingAllowed(true)
+            .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
+            .commitNow()
+
+        val recreatedFc = fc.restart(activityRule, viewModelStore)
+
+        val recreatedFragment =
+            recreatedFc.supportFragmentManager.findFragmentByTag("1") as StrictViewFragment
+
+        assertThat(recreatedFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        assertThat(recreatedFragment.calledOnResume).isFalse()
+    }
+
+    @Test
+    @UiThreadTest
     fun setMaxLifecycleInitializedAfterCreated() {
         val viewModelStore = ViewModelStore()
         val fc = activityRule.startupFragmentController(viewModelStore)
@@ -513,13 +539,14 @@ class BackStackRecordTest {
     }
 }
 
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class BackStackRecordVerify(private val backStackRecord: BackStackRecord) {
     var currentOp = 0
 
     fun verify(
         command: Int,
         fragment: Fragment? = null,
-        block: BackStackRecordOpInfo.() -> Unit = {}
+        block: BackStackRecordOpInfo.() -> Unit = {},
     ) {
         assertWithMessage(
                 "Cannot verify op $currentOp as there is only ${backStackRecord.mOps.size} operations"
@@ -531,6 +558,7 @@ internal class BackStackRecordVerify(private val backStackRecord: BackStackRecor
     }
 }
 
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal fun BackStackRecord.verifyOps(block: BackStackRecordVerify.() -> Unit) {
     val verify = BackStackRecordVerify(this).apply(block)
     assertWithMessage("Not all operations were verified")
@@ -544,7 +572,7 @@ private fun FragmentTransaction.Op.verify(
     opIndex: Int,
     command: Int,
     fragment: Fragment? = null,
-    block: BackStackRecordOpInfo.() -> Unit = {}
+    block: BackStackRecordOpInfo.() -> Unit = {},
 ) {
     val (fromExpandedOp) = BackStackRecordOpInfo().apply { block() }
 

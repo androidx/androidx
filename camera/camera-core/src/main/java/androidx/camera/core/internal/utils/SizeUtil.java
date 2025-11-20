@@ -39,6 +39,8 @@ public final class SizeUtil {
     public static final Size RESOLUTION_720P = new Size(1280, 720);
     public static final Size RESOLUTION_1080P = new Size(1920, 1080);
     public static final Size RESOLUTION_1440P = new Size(1920, 1440);
+    public static final Size RESOLUTION_1440P_16_9 = new Size(2560, 1440);
+    public static final Size RESOLUTION_UHD = new Size(3840, 2160);
 
     private SizeUtil() {
     }

@@ -31,7 +31,7 @@ internal constructor(
     internal val focusedShape: Shape,
     internal val pressedShape: Shape,
     internal val disabledShape: Shape,
-    internal val focusedDisabledShape: Shape
+    internal val focusedDisabledShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -70,7 +70,7 @@ internal constructor(
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 }
 
@@ -88,7 +88,7 @@ internal constructor(
     internal val focusedDisabledShape: Shape,
     internal val pressedSelectedShape: Shape,
     internal val selectedDisabledShape: Shape,
-    internal val focusedSelectedDisabledShape: Shape
+    internal val focusedSelectedDisabledShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -146,7 +146,7 @@ internal constructor(
             focusedDisabledShape = focusedDisabledShape,
             pressedSelectedShape = pressedSelectedShape,
             selectedDisabledShape = selectedDisabledShape,
-            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape,
         )
 }
 
@@ -162,7 +162,7 @@ internal constructor(
     internal val pressedContainerColor: Color,
     internal val pressedContentColor: Color,
     internal val disabledContainerColor: Color,
-    internal val disabledContentColor: Color
+    internal val disabledContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -233,7 +233,7 @@ internal constructor(
     internal val focusedSelectedContainerColor: Color,
     internal val focusedSelectedContentColor: Color,
     internal val pressedSelectedContainerColor: Color,
-    internal val pressedSelectedContentColor: Color
+    internal val pressedSelectedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -324,7 +324,7 @@ internal constructor(
     @FloatRange(from = 0.0) internal val focusedScale: Float,
     @FloatRange(from = 0.0) internal val pressedScale: Float,
     @FloatRange(from = 0.0) internal val disabledScale: Float,
-    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float
+    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -375,7 +375,7 @@ internal constructor(
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 }
 
@@ -396,7 +396,7 @@ internal constructor(
     @FloatRange(from = 0.0) internal val focusedDisabledScale: Float,
     @FloatRange(from = 0.0) internal val pressedSelectedScale: Float,
     @FloatRange(from = 0.0) internal val selectedDisabledScale: Float,
-    @FloatRange(from = 0.0) internal val focusedSelectedDisabledScale: Float
+    @FloatRange(from = 0.0) internal val focusedSelectedDisabledScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -471,7 +471,7 @@ internal constructor(
             focusedDisabledScale = focusedDisabledScale,
             pressedSelectedScale = pressedSelectedScale,
             selectedDisabledScale = selectedDisabledScale,
-            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale,
         )
 }
 
@@ -484,7 +484,7 @@ internal constructor(
     internal val focusedBorder: Border,
     internal val pressedBorder: Border,
     internal val disabledBorder: Border,
-    internal val focusedDisabledBorder: Border
+    internal val focusedDisabledBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -523,7 +523,7 @@ internal constructor(
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 }
 
@@ -541,7 +541,7 @@ internal constructor(
     internal val focusedDisabledBorder: Border,
     internal val pressedSelectedBorder: Border,
     internal val selectedDisabledBorder: Border,
-    internal val focusedSelectedDisabledBorder: Border
+    internal val focusedSelectedDisabledBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -599,7 +599,7 @@ internal constructor(
             focusedDisabledBorder = focusedDisabledBorder,
             pressedSelectedBorder = pressedSelectedBorder,
             selectedDisabledBorder = selectedDisabledBorder,
-            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder
+            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
         )
 }
 
@@ -610,7 +610,7 @@ class ClickableChipGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
-    internal val pressedGlow: Glow
+    internal val pressedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -651,7 +651,7 @@ internal constructor(
     internal val pressedGlow: Glow,
     internal val selectedGlow: Glow,
     internal val focusedSelectedGlow: Glow,
-    internal val pressedSelectedGlow: Glow
+    internal val pressedSelectedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -694,6 +694,6 @@ internal constructor(
             pressedGlow = pressedGlow,
             selectedGlow = selectedGlow,
             focusedSelectedGlow = focusedSelectedGlow,
-            pressedSelectedGlow = pressedSelectedGlow
+            pressedSelectedGlow = pressedSelectedGlow,
         )
 }

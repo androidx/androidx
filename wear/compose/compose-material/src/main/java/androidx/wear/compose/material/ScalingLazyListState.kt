@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
 @Composable
 public fun rememberScalingLazyListState(
     initialCenterItemIndex: Int = 1,
-    initialCenterItemScrollOffset: Int = 0
+    initialCenterItemScrollOffset: Int = 0,
 ): ScalingLazyListState {
     return rememberSaveable(saver = ScalingLazyListState.Saver) {
         ScalingLazyListState(initialCenterItemIndex, initialCenterItemScrollOffset)
@@ -90,7 +90,7 @@ public fun rememberScalingLazyListState(
 public class ScalingLazyListState
 constructor(
     private var initialCenterItemIndex: Int = 1,
-    private var initialCenterItemScrollOffset: Int = 0
+    private var initialCenterItemScrollOffset: Int = 0,
 ) : ScrollableState {
 
     internal var lazyListState: LazyListState = LazyListState(0, 0)
@@ -222,7 +222,7 @@ constructor(
                         beforeContentPaddingPx.value!!,
                         anchorType.value!!,
                         autoCentering.value,
-                        visible
+                        visible,
                     )
                 visibleItemsInfo.add(centerItemInfo)
 
@@ -266,7 +266,7 @@ constructor(
                                     beforeContentPaddingPx.value!!,
                                     anchorType.value!!,
                                     autoCentering.value,
-                                    visible
+                                    visible,
                                 )
                             visibleItemsInfo.add(0, itemInfo)
                             nextItemBottomNoPadding =
@@ -301,7 +301,7 @@ constructor(
                                     beforeContentPaddingPx.value!!,
                                     anchorType.value!!,
                                     autoCentering.value,
-                                    visible
+                                    visible,
                                 )
 
                             visibleItemsInfo.add(itemInfo)
@@ -338,7 +338,7 @@ constructor(
                                 // or first item is correctly size
                                 topSpacerIsCorrectlySized(
                                     lazyListState.layoutInfo.visibleItemsInfo,
-                                    lazyListState.layoutInfo.totalItemsCount
+                                    lazyListState.layoutInfo.totalItemsCount,
                                 )))
                 } else {
                     // We are already initialized and have an incomplete scroll to finish
@@ -361,7 +361,7 @@ constructor(
                         width = lazyListState.layoutInfo.viewportSize.width,
                         height =
                             lazyListState.layoutInfo.viewportSize.height -
-                                extraPaddingPx.value!! * 2
+                                extraPaddingPx.value!! * 2,
                     ),
                 beforeContentPadding = beforeContentPaddingPx.value!!,
                 afterContentPadding = afterContentPaddingPx.value!!,
@@ -396,16 +396,11 @@ constructor(
         /** The default [Saver] implementation for [ScalingLazyListState]. */
         public val Saver: Saver<ScalingLazyListState, Any> =
             listSaver<ScalingLazyListState, Int>(
-                save = {
-                    listOf(
-                        it.centerItemIndex,
-                        it.centerItemScrollOffset,
-                    )
-                },
+                save = { listOf(it.centerItemIndex, it.centerItemScrollOffset) },
                 restore = {
                     val scalingLazyColumnState = ScalingLazyListState(it[0], it[1])
                     scalingLazyColumnState
-                }
+                },
             )
     }
 
@@ -420,7 +415,7 @@ constructor(
 
     override suspend fun scroll(
         scrollPriority: MutatePriority,
-        block: suspend ScrollScope.() -> Unit
+        block: suspend ScrollScope.() -> Unit,
     ) {
         lazyListState.scroll(scrollPriority = scrollPriority, block = block)
     }
@@ -444,7 +439,7 @@ constructor(
         /*@IntRange(from = 0)*/
         index: Int,
         /*@IntRange(from = 0)*/
-        scrollOffset: Int = 0
+        scrollOffset: Int = 0,
     ) {
         return scrollToItem(false, index, scrollOffset)
     }
@@ -542,7 +537,7 @@ constructor(
         /*@IntRange(from = 0)*/
         index: Int,
         /*@IntRange(from = 0)*/
-        scrollOffset: Int = 0
+        scrollOffset: Int = 0,
     ) {
         return scrollToItem(true, index, scrollOffset)
     }
@@ -558,7 +553,7 @@ constructor(
      */
     private fun calculateTopAutoCenteringPaddingPx(
         visibleItems: List<ScalingLazyListItemInfo>,
-        totalItemCount: Int
+        totalItemCount: Int,
     ): Int {
         if (
             autoCentering.value == null ||
@@ -597,7 +592,7 @@ constructor(
      */
     private fun topSpacerIsCorrectlySized(
         visibleItems: List<LazyListItemInfo>,
-        totalItemCount: Int
+        totalItemCount: Int,
     ): Boolean {
         // If the top items has a non-zero size we know that it has been correctly inflated.
         if (lazyListState.layoutInfo.visibleItemsInfo.first().size > 0) return true
@@ -645,7 +640,7 @@ constructor(
 
     private fun calculateBottomAutoCenteringPaddingPx(
         visibleItemsInfo: List<ScalingLazyListItemInfo>,
-        totalItemsCount: Int
+        totalItemsCount: Int,
     ) =
         if (
             autoCentering.value != null &&

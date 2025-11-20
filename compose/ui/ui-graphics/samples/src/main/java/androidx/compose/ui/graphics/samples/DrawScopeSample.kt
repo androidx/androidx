@@ -89,7 +89,7 @@ fun DrawScopeOvalBrushSample() {
         drawOval(
             brush = Brush.linearGradient(listOf(Color.Red, Color.Blue)),
             topLeft = Offset(10f, 10f),
-            size = Size(size.width - 20f, size.height - 20f)
+            size = Size(size.width - 20f, size.height - 20f),
         )
     }
 }
@@ -101,7 +101,7 @@ fun DrawScopeOvalColorSample() {
         drawOval(
             color = Color.Cyan,
             topLeft = Offset(10f, 10f),
-            size = Size(size.width - 20f, size.height - 20f)
+            size = Size(size.width - 20f, size.height - 20f),
         )
     }
 }

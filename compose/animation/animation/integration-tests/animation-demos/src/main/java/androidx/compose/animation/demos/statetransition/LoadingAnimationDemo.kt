@@ -70,14 +70,9 @@ fun LoadingAnimationDemo() {
 @Composable
 fun ActualContent() {
     Column(Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp)) {
-        Surface(
-            shape = RoundedCornerShape(10.dp),
-        ) {
+        Surface(shape = RoundedCornerShape(10.dp)) {
             val painter = painterResource(R.drawable.yt_profile)
-            Image(
-                painter,
-                "Profile Picture",
-            )
+            Image(painter, "Profile Picture")
         }
         Text(
             text = "YT (油条)",
@@ -85,7 +80,7 @@ fun ActualContent() {
             fontSize = 40.sp,
             color = Color(0xff173d6e),
             modifier =
-                Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp, bottom = 5.dp)
+                Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp, bottom = 5.dp),
         )
         Row {
             Text("Age:", fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
@@ -95,10 +90,7 @@ fun ActualContent() {
             Text("Breed:", fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
             Text("Tabby")
         }
-        Text(
-            "About Me:",
-            fontWeight = FontWeight.Bold,
-        )
+        Text("About Me:", fontWeight = FontWeight.Bold)
         Text(
             "I have been taking care of the humans in my household since 10 years ago." +
                 " They like to stare at various sized glowing boxes for hours on end. I need" +
@@ -131,7 +123,7 @@ fun LoadingOverlay(isLoading: State<Boolean>) {
         Box(Modifier.fillMaxSize().background(BackgroundColor)) {
             Text(
                 "Tap anywhere to finish loading. \n Time out in 10 seconds.",
-                Modifier.align(Alignment.Center)
+                Modifier.align(Alignment.Center),
             )
         }
     }
@@ -143,7 +135,7 @@ fun LoadingOverlay(isLoading: State<Boolean>) {
                 Brush.verticalGradient(
                     listOf(Color.Transparent, GradientColor.copy(alpha = 0.2f), BackgroundColor),
                     startY = size.height * (fraction.value - 0.1f),
-                    endY = size.height * (fraction.value + 0.1f)
+                    endY = size.height * (fraction.value + 0.1f),
                 )
             onDrawWithContent { drawRect(gradient) }
         }

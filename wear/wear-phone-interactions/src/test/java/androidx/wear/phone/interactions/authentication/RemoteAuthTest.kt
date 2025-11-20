@@ -27,6 +27,7 @@ import android.os.RemoteException
 import android.util.Pair
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.wear.phone.interactions.WearPhoneInteractionsTestRunner
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
@@ -51,7 +52,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(WearPhoneInteractionsTestRunner::class)
 @DoNotInstrument // Needed because it is defined in the "android" package.
 @Config(minSdk = 26)
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 public class RemoteAuthTest {
 
     @Config(minSdk = 26)
@@ -105,7 +106,7 @@ public class RemoteAuthTest {
             remoteInteractionsManager,
             fakeServiceBinder,
             DIRECT_EXECUTOR,
-            appPackageName
+            appPackageName,
         )
     private val executor: Executor = SyncExecutor()
 
@@ -127,7 +128,7 @@ public class RemoteAuthTest {
                 .setCodeChallenge(CodeChallenge(CodeVerifier()))
                 .build(),
             executor,
-            mockCallback
+            mockCallback,
         )
         // THEN a connection is made to Clockwork Home's Auth service
         assertThat(fakeServiceBinder.state).isEqualTo(ConnectionState.CONNECTING)
@@ -222,7 +223,7 @@ public class RemoteAuthTest {
             listOf(
                 RemoteAuthClient.STATUS_AVAILABLE,
                 RemoteAuthClient.STATUS_UNAVAILABLE,
-                RemoteAuthClient.STATUS_TEMPORARILY_UNAVAILABLE
+                RemoteAuthClient.STATUS_TEMPORARILY_UNAVAILABLE,
             )) {
             whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(true)
             doAnswer {
@@ -245,7 +246,7 @@ public class RemoteAuthTest {
     internal enum class ConnectionState {
         DISCONNECTED,
         CONNECTING,
-        CONNECTED
+        CONNECTED,
     }
 
     /** Fakes binding to Clockwork Home. */
@@ -256,7 +257,7 @@ public class RemoteAuthTest {
         override fun bindService(
             intent: Intent,
             connection: ServiceConnection,
-            flags: Int
+            flags: Int,
         ): Boolean {
             if (intent.getPackage() != RemoteAuthClient.WEARABLE_PACKAGE_NAME) {
                 throw UnsupportedOperationException()
@@ -312,7 +313,7 @@ public class RemoteAuthTest {
 
             override fun sendAuthRequest(
                 request: OAuthRequest,
-                packageNameAndRequestId: kotlin.Pair<String, Int>
+                packageNameAndRequestId: kotlin.Pair<String, Int>,
             ) {
                 if (fakeServiceBinder.state != ConnectionState.CONNECTED) {
                     throw RemoteException("not connected")

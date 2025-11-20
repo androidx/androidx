@@ -37,7 +37,6 @@ import android.util.Xml;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
-import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
@@ -457,8 +456,8 @@ public final class ResourceManagerInternal {
             drawable.clearColorFilter();
         }
 
-        if (Build.VERSION.SDK_INT <= 23) {
-            // Pre-v23 there is no guarantee that a state change will invoke an invalidation,
+        if (Build.VERSION.SDK_INT == 23) {
+            // On API 23 there is no guarantee that a state change will invoke an invalidation,
             // so we force it ourselves
             drawable.invalidateSelf();
         }
@@ -567,12 +566,7 @@ public final class ResourceManagerInternal {
                             DrawableDelegate.class.getClassLoader().loadClass(className)
                                     .asSubclass(Drawable.class);
                     Drawable drawable = drawableClass.getDeclaredConstructor().newInstance();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        Compatibility.Api21Impl.inflate(drawable, context.getResources(), parser,
-                                attrs, theme);
-                    } else {
-                        drawable.inflate(context.getResources(), parser, attrs);
-                    }
+                    drawable.inflate(context.getResources(), parser, attrs, theme);
                     return drawable;
                 } catch (Exception e) {
                     Log.e("DrawableDelegate", "Exception while inflating <drawable>", e);

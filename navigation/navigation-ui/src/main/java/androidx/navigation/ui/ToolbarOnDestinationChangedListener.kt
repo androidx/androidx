@@ -31,14 +31,14 @@ import java.lang.ref.WeakReference
  */
 internal class ToolbarOnDestinationChangedListener(
     toolbar: Toolbar,
-    configuration: AppBarConfiguration
+    configuration: AppBarConfiguration,
 ) : AbstractAppBarOnDestinationChangedListener(toolbar.context, configuration) {
     private val toolbarWeakReference: WeakReference<Toolbar> = WeakReference(toolbar)
 
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
-        arguments: Bundle?
+        arguments: Bundle?,
     ) {
         val toolbar = toolbarWeakReference.get()
         if (toolbar == null) {

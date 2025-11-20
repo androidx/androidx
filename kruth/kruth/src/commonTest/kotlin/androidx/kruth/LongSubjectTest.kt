@@ -189,11 +189,7 @@ class LongSubjectTest {
         isNotWithinNegativeToleranceThrowsIAE(0L, -10, 20)
     }
 
-    private fun isWithinNegativeToleranceThrowsIAE(
-        actual: Long,
-        tolerance: Long,
-        expected: Long,
-    ) {
+    private fun isWithinNegativeToleranceThrowsIAE(actual: Long, tolerance: Long, expected: Long) {
         assertFailsWith<IllegalArgumentException>(
             assert = { e ->
                 assertThat(e)

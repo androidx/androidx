@@ -51,7 +51,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(onClick = LambdaAction("test-key") {})
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion.assertHasClickAction()
@@ -68,7 +68,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(onClick = actionStartActivity<TestActivity>())
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion.assertHasClickAction()
@@ -83,7 +83,7 @@ class UnitTestActionAssertionExtensionsTest {
                     EmittableColumn().apply {
                         modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
@@ -102,7 +102,7 @@ class UnitTestActionAssertionExtensionsTest {
                     EmittableColumn().apply {
                         modifier = GlanceModifier.semantics { testTag = "existing-test-tag" }
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion.assertHasNoClickAction()
@@ -119,7 +119,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(actionStartActivity<TestActivity>())
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
@@ -140,7 +140,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(actionStartActivity<TestActivity>())
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion
@@ -159,7 +159,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(actionStartActivity<AnotherTestActivity>())
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
@@ -189,7 +189,7 @@ class UnitTestActionAssertionExtensionsTest {
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion
@@ -198,7 +198,7 @@ class UnitTestActionAssertionExtensionsTest {
             )
             .assertHasStartActivityClickAction(
                 activityClass = TestActivity::class.java,
-                parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1)
+                parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
             )
         // no error
     }
@@ -217,7 +217,7 @@ class UnitTestActionAssertionExtensionsTest {
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
@@ -248,22 +248,22 @@ class UnitTestActionAssertionExtensionsTest {
                                     actionStartActivity<TestActivity>(
                                         parameters =
                                             actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
-                                        activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE
+                                        activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE,
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion
             .assertHasStartActivityClickAction<TestActivity>(
                 parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
-                activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE
+                activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE,
             )
             .assertHasStartActivityClickAction(
                 activityClass = TestActivity::class.java,
                 parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
-                activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE
+                activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE,
             )
         // no error
     }
@@ -281,18 +281,18 @@ class UnitTestActionAssertionExtensionsTest {
                                     actionStartActivity<TestActivity>(
                                         parameters =
                                             actionParametersOf(TEST_ACTION_PARAM_KEY to 100),
-                                        activityOptions = Bundle.EMPTY
+                                        activityOptions = Bundle.EMPTY,
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
             assertThrows(AssertionError::class.java) {
                 nodeAssertion.assertHasStartActivityClickAction<TestActivity>(
                     parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 99),
-                    activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE
+                    activityOptions = TEST_ACTIVITY_OPTIONS_BUNDLE,
                 )
             }
 
@@ -315,7 +315,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(actionStartActivity(TEST_COMPONENT_NAME))
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion.assertHasStartActivityClickAction(TEST_COMPONENT_NAME)
@@ -332,7 +332,7 @@ class UnitTestActionAssertionExtensionsTest {
                             GlanceModifier.semantics { testTag = "existing-test-tag" }
                                 .clickable(actionStartActivity(TEST_COMPONENT_NAME))
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
@@ -359,11 +359,11 @@ class UnitTestActionAssertionExtensionsTest {
                                 .clickable(
                                     actionStartActivity(
                                         componentName = TEST_COMPONENT_NAME,
-                                        parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1)
+                                        parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         nodeAssertion.assertHasStartActivityClickAction(
@@ -385,18 +385,18 @@ class UnitTestActionAssertionExtensionsTest {
                                     actionStartActivity(
                                         componentName = TEST_COMPONENT_NAME,
                                         parameters =
-                                            actionParametersOf(TEST_ACTION_PARAM_KEY to 100)
+                                            actionParametersOf(TEST_ACTION_PARAM_KEY to 100),
                                     )
                                 )
                     },
-                onNodeMatcher = hasTestTag("existing-test-tag")
+                onNodeMatcher = hasTestTag("existing-test-tag"),
             )
 
         val assertionError =
             assertThrows(AssertionError::class.java) {
                 nodeAssertion.assertHasStartActivityClickAction(
                     componentName = TEST_COMPONENT_NAME,
-                    parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 99)
+                    parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 99),
                 )
             }
 

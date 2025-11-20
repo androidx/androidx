@@ -79,10 +79,10 @@ fun FancyScrollingDemo() {
                         animScroll.animateTo(
                             targetValue = target - rem,
                             initialVelocity = velocity,
-                            animationSpec = SpringSpec(dampingRatio = 2.0f, stiffness = 100f)
+                            animationSpec = SpringSpec(dampingRatio = 2.0f, stiffness = 100f),
                         )
                     }
-                }
+                },
             )
 
         Canvas(modifier.fillMaxWidth().height(400.dp)) {
@@ -114,13 +114,13 @@ private fun DrawScope.drawItems(scrollPosition: Float, width: Float, height: Flo
     drawRect(
         pastelColors[(startingColorIndex + pastelColors.size - 1) % pastelColors.size],
         topLeft = Offset(startingPos + width + 10, 0.0f),
-        size = size
+        size = size,
     )
 
     drawRect(
         pastelColors[(startingColorIndex + pastelColors.size - 2) % pastelColors.size],
         topLeft = Offset(startingPos + width * 2 + 10, 0.0f),
-        size = size
+        size = size,
     )
 }
 
@@ -133,5 +133,5 @@ private val colors =
         Color(0xFFce0000),
         Color(0xFFff3b3b),
         Color(0xFFff7373),
-        Color(0xFFffa3a3)
+        Color(0xFFffa3a3),
     )

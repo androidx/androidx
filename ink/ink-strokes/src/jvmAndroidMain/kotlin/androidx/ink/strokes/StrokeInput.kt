@@ -35,22 +35,18 @@ public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F
         private set
-        @UsedByNative get
 
     /** The y-coordinate of the input position in stroke space. */
     public var y: Float = 0F
         private set
-        @UsedByNative get
 
     /** Time elapsed since the start of the stroke. */
     public var elapsedTimeMillis: Long = 0L
         private set
-        @UsedByNative get
 
     /** The input device used to generate this stroke input. */
     public var toolType: InputToolType = InputToolType.UNKNOWN
         private set
-        @UsedByNative get
 
     /**
      * The physical distance in centimeters that the pointer must travel in order to produce an
@@ -63,7 +59,6 @@ public class StrokeInput {
      */
     public var strokeUnitLengthCm: Float = NO_STROKE_UNIT_LENGTH
         private set
-        @UsedByNative get
 
     /**
      * Pressure value in the normalized, unitless range of [0, 1] indicating the force exerted
@@ -74,7 +69,6 @@ public class StrokeInput {
      */
     public var pressure: Float = NO_PRESSURE
         private set
-        @UsedByNative get
 
     /** Whether the [pressure] field contains a valid pressure value. */
     @get:JvmName("hasPressure")
@@ -90,7 +84,6 @@ public class StrokeInput {
      */
     public var tiltRadians: Float = NO_TILT
         private set
-        @UsedByNative get
 
     /** Whether the [tiltRadians] field contains a valid tilt value. */
     @get:JvmName("hasTilt")
@@ -107,11 +100,10 @@ public class StrokeInput {
      *
      * [NO_ORIENTATION] indicates that orientation is not reported, which can be checked with
      * [hasOrientation]. Note, that this is a separate condition from the orientation being
-     * indeterminant when [tiltRadians] is π/2.
+     * indeterminant when [tiltRadians] is 0.
      */
     public var orientationRadians: Float = NO_ORIENTATION
         private set
-        @UsedByNative get
 
     /** Whether the [orientationRadians] field contains a valid orientation value. */
     @get:JvmName("hasOrientation")

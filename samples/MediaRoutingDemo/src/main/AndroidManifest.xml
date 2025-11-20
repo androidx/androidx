@@ -105,7 +105,6 @@
             android:name=".services.SampleDynamicGroupMediaRouteProviderService"
             android:label="@string/sample_dynamic_group_mrp_service"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
                 <action android:name="android.media.MediaRoute2ProviderService" />
@@ -117,7 +116,7 @@
             android:name=".services.WrapperMediaRouteProviderService"
             android:label="@string/wrapper_media_route_provider_service"
             android:exported="false"
-            tools:ignore="MissingServiceExportedEqualsTrue">
+            android:enabled="false">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
                 <action android:name="android.media.MediaRoute2ProviderService" />

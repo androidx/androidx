@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
 package androidx.ink.storage
 
 import androidx.ink.brush.InputToolType
-import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
+import java.io.IOException
 import java.util.Base64
+import java.util.zip.GZIPOutputStream
 import kotlin.math.abs
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 class StrokeInputBatchExtensionsTest {
     private val testBatch =
         MutableStrokeInputBatch()
-            .addOrThrow(
+            .add(
                 StrokeInput.create(
                     toolType = InputToolType.STYLUS,
                     x = 2.0f,
@@ -47,7 +47,7 @@ class StrokeInputBatchExtensionsTest {
                     orientationRadians = 0.3f,
                 )
             )
-            .addOrThrow(
+            .add(
                 StrokeInput.create(
                     toolType = InputToolType.STYLUS,
                     x = 9.0f,
@@ -58,7 +58,7 @@ class StrokeInputBatchExtensionsTest {
                     orientationRadians = 0.9f,
                 )
             )
-            .asImmutable()
+            .toImmutable()
 
     private val compressedInvalidCodedStrokeInputBatchBytes =
         // Using hard-coded examples to avoid a proto dependency for these tests. This string is the
@@ -78,6 +78,16 @@ class StrokeInputBatchExtensionsTest {
         */
         // Which has more times encoded than positions.
         Base64.getDecoder().decode("H4sIAAAAAAAA/+Ni5mJkEAIRUixcTAwMACBnCXkQAAAA")
+
+    private val compressedNotAProtoBytes =
+        ByteArrayOutputStream().use { byteArrayStream ->
+            GZIPOutputStream(byteArrayStream).use { gzipOutputStream ->
+                gzipOutputStream.write(byteArrayOf(1))
+            }
+            byteArrayStream.toByteArray()
+        }
+
+    private val notGzipCompressedBytes = byteArrayOf(1)
 
     private fun assertBatchesAreNearEqual(
         batch1: StrokeInputBatch,
@@ -101,11 +111,11 @@ class StrokeInputBatchExtensionsTest {
     }
 
     @Test
-    fun decodeOrThrow_invalid_throwsException() {
+    fun decode_invalidProto_throwsException() {
         val exception =
             assertFailsWith<IllegalArgumentException> {
                 ByteArrayInputStream(compressedInvalidCodedStrokeInputBatchBytes).use {
-                    @Suppress("CheckReturnValue") StrokeInputBatch.decodeOrThrow(it)
+                    @Suppress("CheckReturnValue") StrokeInputBatch.decode(it)
                 }
             }
         assertThat(exception)
@@ -114,23 +124,34 @@ class StrokeInputBatchExtensionsTest {
     }
 
     @Test
-    fun decodeOrNull_invalid_returnsNull() {
-        assertThat(
-                ByteArrayInputStream(compressedInvalidCodedStrokeInputBatchBytes).use {
-                    val result: ImmutableStrokeInputBatch? = StrokeInputBatch.decodeOrNull(it)
-                    result
+    fun decode_gzippedNotAProto_throwsException() {
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                ByteArrayInputStream(compressedNotAProtoBytes).use {
+                    @Suppress("CheckReturnValue") StrokeInputBatch.decode(it)
                 }
-            )
-            .isNull()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Failed to parse ink.proto.CodedStrokeInputBatch")
     }
 
     @Test
-    fun staticDecodeOrThrow_invalid_throwsException() {
+    fun decode_notGzipped_throwsException() {
+        assertFailsWith<IOException> {
+            ByteArrayInputStream(notGzipCompressedBytes).use {
+                @Suppress("CheckReturnValue") StrokeInputBatch.decode(it)
+            }
+        }
+    }
+
+    @Test
+    fun staticDecode_invalidProto_throwsException() {
         // Not the preferred way to call from Kotlin, but it does work.
         val exception =
             assertFailsWith<IllegalArgumentException> {
                 ByteArrayInputStream(compressedInvalidCodedStrokeInputBatchBytes).use {
-                    @Suppress("CheckReturnValue") decodeOrThrow(it)
+                    @Suppress("CheckReturnValue") StrokeInputBatchSerialization.decode(it)
                 }
             }
         assertThat(exception)
@@ -139,14 +160,17 @@ class StrokeInputBatchExtensionsTest {
     }
 
     @Test
-    fun staticDecodeOrNull_invalid_returnsNull() {
+    fun staticDecode_invalidBytes_throwsException() {
         // Not the preferred way to call from Kotlin, but it does work.
-        assertThat(
-                ByteArrayInputStream(compressedInvalidCodedStrokeInputBatchBytes).use {
-                    decodeOrNull(it)
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                ByteArrayInputStream(compressedNotAProtoBytes).use {
+                    @Suppress("CheckReturnValue") StrokeInputBatchSerialization.decode(it)
                 }
-            )
-            .isNull()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Failed to parse ink.proto.CodedStrokeInputBatch")
     }
 
     @Test
@@ -156,23 +180,14 @@ class StrokeInputBatchExtensionsTest {
                 testBatch.encode(it)
                 it.toByteArray()
             }
-        for (decode in DECODE_STROKE_INPUT_BATCH_FUNCTIONS) {
-            val decodedInput = ByteArrayInputStream(encodedInputs).use { decode(it) }
-            assertBatchesAreNearEqual(decodedInput, testBatch)
-        }
-    }
-
-    companion object {
-        private val DECODE_STROKE_INPUT_BATCH_FUNCTIONS:
-            List<(InputStream) -> ImmutableStrokeInputBatch> =
-            listOf(
-                StrokeInputBatch::decodeOrThrow,
-                { input -> StrokeInputBatch.decodeOrNull(input)!! },
-                // Kotlin clients should prefer the extension methods, but the top-level functions
-                // do
-                // work.
-                ::decodeOrThrow,
-                { input -> decodeOrNull(input)!! },
-            )
+        assertBatchesAreNearEqual(
+            ByteArrayInputStream(encodedInputs).use(StrokeInputBatch::decode),
+            testBatch,
+        )
+        // Kotlin clients should prefer the extension methods, but the static wrappers do work.
+        assertBatchesAreNearEqual(
+            ByteArrayInputStream(encodedInputs).use(StrokeInputBatchSerialization::decode),
+            testBatch,
+        )
     }
 }

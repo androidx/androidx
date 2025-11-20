@@ -88,7 +88,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
                 } else {
                     NavigationDrawerItemDefaults.CollapsedDrawerItemWidth
                 },
-            label = "NavigationDrawerItem width open/closed state of the drawer item"
+            label = "NavigationDrawerItem width open/closed state of the drawer item",
         )
     val navDrawerItemHeight =
         if (supportingContent == null) {

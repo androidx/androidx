@@ -97,13 +97,6 @@ interface TileProvider {
     /**
      * Called daily when the renderer sends batched Tile interaction events.
      *
-     * @since version 3
-     */
-    oneway void processRecentInteractionEvents(in List<TileInteractionEventData> events) = 10;
-
-    /**
-     * Called daily when the renderer sends batched Tile interaction events.
-     *
      * @since version 4
      */
     oneway void onRecentInteractionEvents(in List<TileInteractionEventData> events, InteractionEventsCallback callback) = 11;

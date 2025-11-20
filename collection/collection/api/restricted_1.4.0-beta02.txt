@@ -24,9 +24,9 @@ package androidx.collection {
   }
 
   public final class ArraySet<E> implements java.util.Collection<E> kotlin.jvm.internal.markers.KMutableCollection kotlin.jvm.internal.markers.KMutableSet java.util.Set<E> {
+    ctor public ArraySet();
     ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
     ctor public ArraySet(E[]? array);
-    ctor public ArraySet();
     ctor public ArraySet(optional int capacity);
     ctor public ArraySet(java.util.Collection<? extends E>? set);
     method public boolean add(E element);

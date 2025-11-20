@@ -35,7 +35,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.FIELD,
-    AnnotationTarget.ANNOTATION_CLASS
+    AnnotationTarget.ANNOTATION_CLASS,
 )
 public annotation class Size(
     /** An exact size (or -1 if not specified) */
@@ -45,5 +45,5 @@ public annotation class Size(
     /** A maximum size, inclusive */
     val max: Long = Long.MAX_VALUE,
     /** The size must be a multiple of this factor */
-    val multiple: Long = 1
+    val multiple: Long = 1,
 )

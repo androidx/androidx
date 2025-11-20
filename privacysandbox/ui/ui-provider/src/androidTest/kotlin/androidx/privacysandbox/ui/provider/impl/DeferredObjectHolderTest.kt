@@ -20,7 +20,6 @@ import android.os.MessageQueue
 import androidx.core.util.Consumer
 import androidx.core.util.Supplier
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -32,7 +31,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 23)
 class DeferredObjectHolderTest {
 
     private lateinit var messageQueue: StubMessageQueue
@@ -71,7 +69,7 @@ class DeferredObjectHolderTest {
         val exceptionOnCreate = RuntimeException("Error during creation")
         demandObject_beforePreloadObject_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnCreate = exceptionOnCreate),
-            exceptionOnCreate
+            exceptionOnCreate,
         )
     }
 
@@ -80,13 +78,13 @@ class DeferredObjectHolderTest {
         val exceptionOnInit = RuntimeException("Error during initialization")
         demandObject_beforePreloadObject_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnInit = exceptionOnInit),
-            exceptionOnInit
+            exceptionOnInit,
         )
     }
 
     private fun demandObject_beforePreloadObject_createAndInitObject_fail(
         deferredObjectHolder: DeferredObjectHolder<StubObject, StubObject>,
-        expectedError: Throwable
+        expectedError: Throwable,
     ) {
         deferredObjectHolder.demandObjectAndAssertThatSameInstanceAs(errorObject)
         errorHandler.assertErrorAndReset(expectedError)
@@ -122,7 +120,7 @@ class DeferredObjectHolderTest {
         val exceptionOnCreate = RuntimeException("Error during creation")
         demandObject_beforeIdle_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnCreate = exceptionOnCreate),
-            exceptionOnCreate
+            exceptionOnCreate,
         )
     }
 
@@ -131,13 +129,13 @@ class DeferredObjectHolderTest {
         val exceptionOnInit = RuntimeException("Error during initialization")
         demandObject_beforeIdle_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnInit = exceptionOnInit),
-            exceptionOnInit
+            exceptionOnInit,
         )
     }
 
     private fun demandObject_beforeIdle_createAndInitObject_fail(
         deferredObjectHolder: DeferredObjectHolder<StubObject, StubObject>,
-        expectedError: Throwable
+        expectedError: Throwable,
     ) {
         deferredObjectHolder.preloadObject(messageQueue)
         assertThat(messageQueue.handlerRegistered).isTrue()
@@ -322,12 +320,12 @@ class DeferredObjectHolderTest {
 
     private fun createDeferredObjectHolder(
         exceptionOnCreate: Throwable? = null,
-        exceptionOnInit: Throwable? = null
+        exceptionOnInit: Throwable? = null,
     ): DeferredObjectHolder<StubObject, StubObject> =
         createDeferredObjectHolder(
             StubObjectFactory(
                 exceptionOnCreate = exceptionOnCreate,
-                stubObject = StubObject(exceptionOnInit = exceptionOnInit)
+                stubObject = StubObject(exceptionOnInit = exceptionOnInit),
             )
         )
 
@@ -338,7 +336,7 @@ class DeferredObjectHolderTest {
             objectFactory = objectFactory,
             objectInit = StubObject::initialize,
             errorHandler = errorHandler,
-            errorObject = errorObject
+            errorObject = errorObject,
         )
     }
 

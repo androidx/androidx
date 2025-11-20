@@ -209,7 +209,8 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(windowHeight, activity.getWindow().getDecorView().getHeight());
         assertEquals(windowWidth, activity.getWindow().getDecorView().getWidth());
 
-        final View detailsFrame = verticalGridView.findViewById(R.id.details_frame);
+        final View detailsFrame = verticalGridView.findViewById(
+                androidx.leanback.R.id.details_frame);
 
         assertEquals(windowWidth, bitmapDrawable.getBounds().width());
 
@@ -222,7 +223,8 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertEquals(0, bitmapDrawable.getVerticalOffset());
 
         assertTrue("TitleView is visible", detailsFragment.getView()
-                .findViewById(R.id.browse_title_group).getVisibility() == View.VISIBLE);
+                .findViewById(androidx.leanback.R.id.browse_title_group)
+                .getVisibility() == View.VISIBLE);
 
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -236,7 +238,8 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
             public boolean canProceed() {
                 return bitmapDrawable.getVerticalOffset() == PARALLAX_VERTICAL_OFFSET
                         && detailsFragment.getView()
-                        .findViewById(R.id.browse_title_group).getVisibility() != View.VISIBLE;
+                        .findViewById(androidx.leanback.R.id.browse_title_group)
+                        .getVisibility() != View.VISIBLE;
             }
         });
 
@@ -1239,7 +1242,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void startEntranceTransitionAfterDestroyed() {
         SingleFragmentTestActivity activity = launchAndWaitActivity(
                 DetailsFragmentEntranceTransition.class, new Options().uiVisibility(
@@ -1295,7 +1297,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
     @Test
     public void viewLeakTest() throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(

@@ -15,50 +15,44 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("com.squareup.wire")
 }
 
 androidXMultiplatform {
-    jvm()
-    androidTarget()
+    desktop()
+    androidLibrary {
+        namespace = "androidx.tracing.driver"
+    }
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.androidx.annotation)
-
                 implementation("androidx.collection:collection:1.4.5")
-                implementation(libs.wireRuntime)
-                implementation(libs.okio)
             }
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        jvmTest {
+        desktopTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTestJunit)
                 implementation(libs.truth)
             }
         }
-        jvmMain {
+        desktopMain {
             dependsOn(commonMain)
         }
         androidMain {
@@ -67,40 +61,15 @@ androidXMultiplatform {
     }
 }
 
-// Workarounds for Wire's plugin not setting code generation directory as task output correctly
-// See https://github.com/square/wire/issues/3199
-tasks.named("multiplatformSourceJar").configure {
-    dependsOn(tasks.named("generateCommonMainProtos"))
-}
-
-wire {
-    kotlin {
-        mutableTypes = true
-    }
-    sourcePath {
-        srcDir("src/commonMain/proto")
-    }
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        // Make sure to opt-in to expect-actual classes.
-        // https://youtrack.jetbrains.com/issue/KT-61573
-        freeCompilerArgs += [
-                "-Xexpect-actual-classes",
-        ]
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.tracing.driver.DelicateTracingApi")
     }
 }
 
 androidx {
     name = "Tracing Driver"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "AndroidX Tracing Driver"
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
-}
-
-android {
-    namespace = "androidx.tracing.driver"
 }

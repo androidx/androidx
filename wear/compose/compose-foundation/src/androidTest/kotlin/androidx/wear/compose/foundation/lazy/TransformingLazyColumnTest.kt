@@ -59,6 +59,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.Test
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -69,7 +70,7 @@ class TransformingLazyColumnTest {
     private val lastItemTag = "lastItemTag"
     private val lazyListTag = "LazyListTag"
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun firstItemIsDisplayed() {
@@ -259,9 +260,7 @@ class TransformingLazyColumnTest {
     @Test
     fun removalWithMutableStateListOf() {
         val items = mutableStateListOf("1", "2", "3")
-
         val itemSize = with(rule.density) { 15.toDp() }
-
         rule.setContentWithTestViewConfiguration {
             TransformingLazyColumn {
                 items(items.size) { Spacer(Modifier.size(itemSize).testTag(items[it])) }
@@ -271,9 +270,7 @@ class TransformingLazyColumnTest {
         rule.runOnIdle { items.removeAt(items.lastIndex) }
 
         rule.onNodeWithTag("1").assertIsDisplayed()
-
         rule.onNodeWithTag("2").assertIsDisplayed()
-
         rule.onNodeWithTag("3").assertIsNotPlaced()
     }
 
@@ -312,7 +309,7 @@ class TransformingLazyColumnTest {
                     .testTag(lazyListTag)
                     .graphicsLayer()
                     .background(Color.Blue),
-                state = state
+                state = state,
             ) {
                 items(2) {
                     val size = if (it == 0) 5.dp else 100.dp
@@ -425,11 +422,601 @@ class TransformingLazyColumnTest {
         rule.onNodeWithTag("item 8").assertIsDisplayed()
     }
 
+    @Test
+    fun nextItemSnapsToListTop_whenAnchoredItemIsRemoved() {
+        val items =
+            mutableStateListOf("item 0", "item 1", "item 2", "Anchor", "item 4", "item 5", "item 6")
+        val itemSize = 48.dp
+        val anchorSize = itemSize * 3 // Bigger than the TLC height
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                modifier = Modifier.testTag(lazyListTag).height(itemSize * 2),
+                state = state,
+            ) {
+                items(items.size, key = { items[it] }) {
+                    Spacer(
+                        Modifier.height(if (items[it] == "Anchor") anchorSize else itemSize)
+                            .testTag(items[it])
+                    )
+                }
+            }
+        }
+
+        // Scroll to "Anchor item".
+        rule.runOnIdle { runBlocking { state.scrollToItem(3) } }
+        rule.waitForIdle()
+        // Remove the anchor
+        rule.runOnIdle { items.removeAt(3) }
+        rule.waitForIdle()
+
+        // Assert that "item 4" now is aligned to the top of the screen.
+        val finalOffset =
+            state.layoutInfo.visibleItems.first { it.key == "item 4" }.offset.toFloat()
+        assertThat(finalOffset).isEqualTo(0)
+
+        // Assert that the anchor index has been correctly updated.
+        assertThat(state.anchorItemIndex).isEqualTo(3) // The index of "item 4" is now 3.
+    }
+
+    @Test
+    fun scrollPositionMaintained_whenItemBeforeAnchorIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize)
+
+        // Scroll to "item 3".
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(3) // Index of "item 3"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 3".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+
+        // Remove "item 2", which is before the current anchor.
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" is still visible and at the same offset.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the anchor index has been correctly updated to "item 3"'s new position.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    @Test
+    fun listSnapsToNextItem_whenAnchoredItemIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize)
+
+        // Scroll to "item 2"
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(2) // Index of "item 2"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 2".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 2" }.offset
+
+        // Remove the anchored item, "item 2"
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" has the same offset as deleted item.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the new anchor is the next item, "item 3", at its new index.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    @Test
+    fun reverseLayout_compositionsAreDisposed_whenLazyListIsDisposed() {
+        var emitLazyList by mutableStateOf(true)
+        var disposeCalledOnFirstItem = false
+        var disposeCalledOnSecondItem = false
+
+        rule.setContentWithTestViewConfiguration {
+            if (emitLazyList) {
+                TransformingLazyColumn(Modifier.fillMaxSize(), reverseLayout = true) {
+                    items(2) {
+                        Box(Modifier.requiredSize(100.dp))
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                if (it == 1) {
+                                    disposeCalledOnFirstItem = true
+                                } else {
+                                    disposeCalledOnSecondItem = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("First item was incorrectly immediately disposed")
+                .that(disposeCalledOnFirstItem)
+                .isFalse()
+            assertWithMessage("Second item was incorrectly immediately disposed")
+                .that(disposeCalledOnFirstItem)
+                .isFalse()
+            emitLazyList = false
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("First item was not correctly disposed")
+                .that(disposeCalledOnFirstItem)
+                .isTrue()
+            assertWithMessage("Second item was not correctly disposed")
+                .that(disposeCalledOnSecondItem)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun reverseLayout_removeItemsTest() {
+        var itemCount by mutableStateOf(3)
+        val tag = "List"
+        rule.setContentWithTestViewConfiguration {
+            TransformingLazyColumn(Modifier.testTag(tag), reverseLayout = true) {
+                items((0 until itemCount).toList()) { BasicText("$it") }
+            }
+        }
+
+        while (itemCount >= 0) {
+            // Confirm the children's content
+            for (i in 0 until 3) {
+                rule.onNodeWithText("$i").apply {
+                    if (i < itemCount) {
+                        assertIsPlaced()
+                    } else {
+                        assertIsNotPlaced()
+                    }
+                }
+            }
+            itemCount--
+        }
+    }
+
+    @Test
+    fun reverseLayout_changeData() {
+        val dataLists = listOf((1..3).toList(), (4..8).toList(), (3..4).toList())
+        var dataModel by mutableStateOf(dataLists[0])
+        val tag = "List"
+        rule.setContentWithTestViewConfiguration {
+            TransformingLazyColumn(Modifier.testTag(tag), reverseLayout = true) {
+                items(dataModel.size) { BasicText("${dataModel[it]}") }
+            }
+        }
+
+        for (data in dataLists) {
+            rule.runOnIdle { dataModel = data }
+
+            // Confirm the children's content
+            for (index in 1..8) {
+                if (index in data) {
+                    rule.onNodeWithText("$index").assertIsDisplayed()
+                } else {
+                    rule.onNodeWithText("$index").assertIsNotPlaced()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun reverseLayout_changeDataIndexed() {
+        val dataLists = listOf((1..3).toList(), (4..8).toList(), (3..4).toList())
+        var dataModel by mutableStateOf(emptyList<Int>())
+        val tag = "List"
+        rule.setContentWithTestViewConfiguration {
+            TransformingLazyColumn(Modifier.testTag(tag), reverseLayout = true) {
+                itemsIndexed(dataModel) { index, element -> BasicText("$index - $element") }
+            }
+        }
+
+        for (data in dataLists) {
+            rule.runOnIdle { dataModel = data }
+
+            // Confirm the children's content
+            for (index in data.indices) {
+                rule.onNodeWithText("$index - ${data[index]}").assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
+    fun reverseLayout_removalWithMutableStateListOf() {
+        val items = mutableStateListOf("1", "2", "3")
+
+        val itemSize = with(rule.density) { 15.toDp() }
+
+        rule.setContentWithTestViewConfiguration {
+            TransformingLazyColumn(reverseLayout = true) {
+                items(items.size) { Spacer(Modifier.size(itemSize).testTag(items[it])) }
+            }
+        }
+
+        rule.runOnIdle { items.removeAt(items.lastIndex) }
+
+        rule.onNodeWithTag("1").assertIsDisplayed()
+
+        rule.onNodeWithTag("2").assertIsDisplayed()
+
+        rule.onNodeWithTag("3").assertIsNotPlaced()
+    }
+
+    @Test
+    fun reverseLayout_recompositionOrder() {
+        val outerState = mutableStateOf(0)
+        val innerState = mutableStateOf(0)
+        val recompositions = mutableListOf<Pair<Int, Int>>()
+
+        rule.setContent {
+            val localOuterState = outerState.value
+            TransformingLazyColumn(reverseLayout = true) {
+                items(count = 1) {
+                    recompositions.add(localOuterState to innerState.value)
+                    Box(Modifier.fillMaxSize())
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            innerState.value++
+            outerState.value++
+        }
+
+        rule.runOnIdle { assertThat(recompositions).isEqualTo(listOf(0 to 0, 1 to 1)) }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun reverseLayout_scrolledAwayItemIsNotDisplayedAnymore() {
+        lateinit var state: TransformingLazyColumnState
+        rule.setContentWithTestViewConfiguration {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                Modifier.requiredSize(10.dp)
+                    .testTag(lazyListTag)
+                    .graphicsLayer()
+                    .background(Color.Blue),
+                state = state,
+                reverseLayout = true,
+            ) {
+                items(2) {
+                    val size = if (it == 0) 5.dp else 100.dp
+                    val color = if (it == 0) Color.Red else Color.Transparent
+                    Box(Modifier.fillMaxWidth().height(size).background(color).testTag("$it"))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            with(rule.density) {
+                runBlocking {
+                    // Scroll enough to put Red item's center on top.
+                    state.scrollBy(5.dp.toPx())
+
+                    // Scroll half size of the Red item.
+                    state.scrollBy(3.dp.toPx())
+                }
+            }
+        }
+
+        // and verify there is no Red item displayed
+        rule.onNodeWithTag(lazyListTag).captureToImage().assertPixels { Color.Blue }
+    }
+
+    @Test
+    fun reverseLayout_scrollingDeactivatedListIsNotCrashing() {
+        val itemSize = 10f
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+
+        val subcomposeState = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        val state = TransformingLazyColumnState()
+        var compose by mutableStateOf(true)
+        rule.setContent {
+            SubcomposeLayout(state = subcomposeState) { constraints ->
+                val node =
+                    if (compose) {
+                        subcompose(Unit) {
+                                TransformingLazyColumn(
+                                    Modifier.size(itemSizeDp),
+                                    state,
+                                    reverseLayout = true,
+                                ) {
+                                    items(100) { Box(Modifier.size(itemSizeDp)) }
+                                }
+                            }
+                            .first()
+                            .measure(constraints)
+                    } else {
+                        null
+                    }
+                layout(10, 10) { node?.place(0, 0) }
+            }
+        }
+        rule.runOnIdle { compose = false }
+        rule.runOnIdle { runBlocking { state.scrollBy(itemSize) } }
+    }
+
+    @Test
+    fun reverseLayout_isNotFocusedWithDisabledRotary() {
+        var focusSet = false
+
+        rule.setContent {
+            TransformingLazyColumn(
+                modifier = Modifier.onFocusChanged { focusSet = it.isFocused },
+                // Disable rotary and focus as well
+                rotaryScrollableBehavior = null,
+                reverseLayout = true,
+            ) {
+                items(100) { BasicText("item $it") }
+            }
+        }
+
+        assert(!focusSet)
+    }
+
+    @Test
+    fun reverseLayout_rotaryInputWhenScrollEnabled() {
+        testTransformingLazyColumnRotary(
+            userScrollEnabled = true,
+            scrollTarget = 2,
+            reverseLayout = true,
+        )
+    }
+
+    @Test
+    fun reverseLayout_rotaryInputWhenScrollDisabled() {
+        testTransformingLazyColumnRotary(
+            userScrollEnabled = false,
+            scrollTarget = 0,
+            reverseLayout = true,
+        )
+    }
+
+    @Test
+    fun reverseLayout_supportsEmptyItems() {
+        rule.setContent {
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState(),
+                modifier = Modifier.testTag(lazyListTag),
+                reverseLayout = true,
+            ) {
+                items(10) {}
+            }
+        }
+        rule.onNodeWithTag(lazyListTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun reverseLayout_supportsInitialScrollPosition() {
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 8)
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.testTag(lazyListTag).size(90.dp),
+                reverseLayout = true,
+            ) {
+                items(10) { Spacer(Modifier.size(30.dp).testTag("item $it")) }
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("item 8").assertIsDisplayed()
+    }
+
+    @Test
+    fun reverseLayout_nextItemSnapsToListBeginning_whenAnchoredItemIsRemoved() {
+        val items =
+            mutableStateListOf("item 0", "item 1", "item 2", "Anchor", "item 4", "item 5", "item 6")
+        val itemSize = 48.dp
+        val anchorSize = itemSize * 3 // Bigger than the TLC height
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                modifier = Modifier.testTag(lazyListTag).height(itemSize * 2),
+                state = state,
+                reverseLayout = true,
+            ) {
+                items(items.size, key = { items[it] }) {
+                    Spacer(
+                        Modifier.height(if (items[it] == "Anchor") anchorSize else itemSize)
+                            .testTag(items[it])
+                    )
+                }
+            }
+        }
+
+        // Scroll to "Anchor item".
+        rule.runOnIdle { runBlocking { state.scrollToItem(3) } }
+        rule.waitForIdle()
+        // Remove the anchor
+        rule.runOnIdle { items.removeAt(3) }
+        rule.waitForIdle()
+
+        // Assert that "item 4" now is aligned to the top of the screen.
+        val finalOffset =
+            state.layoutInfo.visibleItems.first { it.key == "item 4" }.offset.toFloat()
+        assertThat(finalOffset).isEqualTo(0)
+
+        // Assert that the anchor index has been correctly updated.
+        assertThat(state.anchorItemIndex).isEqualTo(3) // The index of "item 4" is now 3.
+    }
+
+    @Test
+    fun reverseLayout_scrollPositionMaintained_whenItemBeforeAnchorIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize, reverseLayout = true)
+
+        // Scroll to "item 3".
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(3) // Index of "item 3"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 3".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+
+        // Remove "item 2", which is before the current anchor.
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" is still visible and at the same offset.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the anchor index has been correctly updated to "item 3"'s new position.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    @Test
+    fun reverseLayout_listSnapsToNextItem_whenAnchoredItemIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize, reverseLayout = true)
+
+        // Scroll to "item 2"
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(2) // Index of "item 2"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 2".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 2" }.offset
+
+        // Remove the anchored item, "item 2"
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" has the same offset as deleted item.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the new anchor is the next item, "item 3", at its new index.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    @Test
+    fun reverseLayout_firstItemIsDisplayed() {
+        rule.setContent {
+            TransformingLazyColumn(reverseLayout = true) {
+                items(100) {
+                    Box(
+                        Modifier.requiredSize(50.dp)
+                            .testTag(
+                                when (it) {
+                                    0 -> firstItemTag
+                                    99 -> lastItemTag
+                                    else -> "empty"
+                                }
+                            )
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(firstItemTag).assertExists()
+        // TransformingLazyColumn is really lazy and doesn't put on the screen until it's scrolled
+        // to.
+        rule.onNodeWithTag(lastItemTag).assertIsNotPlaced()
+    }
+
+    @Test
+    fun reverseLayout_compositionsAreDisposed_whenDataIsChanged() {
+        var composed = 0
+        var disposals = 0
+        val data1 = (1..3).toList()
+        val data2 = (4..5).toList() // smaller, to ensure removal is handled properly
+
+        var part2 by mutableStateOf(false)
+
+        rule.setContentWithTestViewConfiguration {
+            TransformingLazyColumn(
+                Modifier.testTag(lazyListTag).fillMaxSize(),
+                reverseLayout = true,
+            ) {
+                items(if (!part2) data1 else data2) {
+                    DisposableEffect(NeverEqualObject) {
+                        composed++
+                        onDispose { disposals++ }
+                    }
+
+                    Spacer(Modifier.height(50.dp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Not all items were composed").that(composed).isEqualTo(data1.size)
+            composed = 0
+
+            part2 = true
+        }
+
+        rule.runOnIdle {
+            assertWithMessage(
+                    "No additional items were composed after data change, something didn't work"
+                )
+                .that(composed)
+                .isEqualTo(data2.size)
+
+            // We may need to modify this test once we prefetch/cache items outside the viewport
+            assertWithMessage(
+                    "Not enough compositions were disposed after scrolling, compositions were leaked"
+                )
+                .that(disposals)
+                .isEqualTo(data1.size)
+        }
+    }
+
+    private fun setupTlcWithMutableList(
+        items: MutableList<String>,
+        itemSize: Dp,
+        reverseLayout: Boolean = false,
+    ): TransformingLazyColumnState {
+        lateinit var state: TransformingLazyColumnState
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                modifier = Modifier.testTag(lazyListTag).height(itemSize * 2),
+                state = state,
+                reverseLayout = reverseLayout,
+            ) {
+                items(items, key = { it }) { item ->
+                    Spacer(Modifier.height(itemSize).testTag(item))
+                }
+            }
+        }
+        return state
+    }
+
     @OptIn(ExperimentalTestApi::class)
     private fun testTransformingLazyColumnRotary(
         userScrollEnabled: Boolean,
         scrollTarget: Int,
-        itemsToScroll: Int = 2
+        itemsToScroll: Int = 2,
+        reverseLayout: Boolean = false,
     ) {
         lateinit var state: TransformingLazyColumnState
         val itemSizePx = 50
@@ -439,8 +1026,9 @@ class TransformingLazyColumnTest {
             state = rememberTransformingLazyColumnState()
             TransformingLazyColumn(
                 state = state,
-                modifier = Modifier.testTag(lazyListTag),
-                userScrollEnabled = userScrollEnabled
+                modifier = Modifier.testTag(lazyListTag).size(itemSizeDp * 2),
+                userScrollEnabled = userScrollEnabled,
+                reverseLayout = reverseLayout,
             ) {
                 items(100) {
                     BasicText(text = "item $it", modifier = Modifier.requiredSize(itemSizeDp))
@@ -449,7 +1037,9 @@ class TransformingLazyColumnTest {
         }
         rule.onNodeWithTag(lazyListTag).performRotaryScrollInput {
             // try to scroll by N items
-            rotateToScrollVertically(itemSizePx.toFloat() * itemsToScroll)
+            rotateToScrollVertically(
+                (if (reverseLayout) -1 else 1) * itemSizePx.toFloat() * itemsToScroll
+            )
         }
         rule.waitForIdle()
 

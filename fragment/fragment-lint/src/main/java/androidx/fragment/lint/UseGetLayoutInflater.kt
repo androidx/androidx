@@ -55,7 +55,7 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
                 severity = Severity.WARNING,
                 implementation =
                     Implementation(UseGetLayoutInflater::class.java, Scope.JAVA_FILE_SCOPE),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 
@@ -90,7 +90,7 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             message =
                 "Use of LayoutInflater.from($methodParameter) detected. Consider using " +
                     "${correctMethod(node)} instead",
-            quickfixData = createFix(correctMethod(node), methodParameter)
+            quickfixData = createFix(correctMethod(node), methodParameter),
         )
     }
 
@@ -109,7 +109,7 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
             message =
                 "Use of LayoutInflater.from(Context) detected. Consider using " +
                     "${correctMethod(node)} instead",
-            quickfixData = null
+            quickfixData = null,
         )
     }
 

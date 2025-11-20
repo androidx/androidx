@@ -18,8 +18,6 @@ package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.layout.RootMeasurePolicy.measure
-import androidx.compose.ui.layout.RootMeasurePolicy.minIntrinsicWidth
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastMap
 
@@ -92,11 +90,12 @@ fun interface MeasurePolicy {
     /**
      * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth]. It represents the
      * minimum width this layout can take, given a specific height, such that the content of the
-     * layout can be painted correctly.
+     * layout can be painted correctly. There should be no side-effect from implementers of
+     * [minIntrinsicWidth].
      */
     fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ): Int {
         val mapped =
             measurables.fastMap {
@@ -111,11 +110,12 @@ fun interface MeasurePolicy {
     /**
      * The function used to calculate [IntrinsicMeasurable.minIntrinsicHeight]. It represents the
      * minimum height this layout can take, given a specific width, such that the content of the
-     * layout will be painted correctly.
+     * layout will be painted correctly. There should be no side-effect from implementers of
+     * [minIntrinsicHeight].
      */
     fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ): Int {
         val mapped =
             measurables.fastMap {
@@ -130,10 +130,11 @@ fun interface MeasurePolicy {
     /**
      * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth]. It represents the
      * minimum width such that increasing it further will not decrease the minimum intrinsic height.
+     * There should be no side-effects from implementers of [maxIntrinsicWidth].
      */
     fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ): Int {
         val mapped =
             measurables.fastMap {
@@ -148,10 +149,11 @@ fun interface MeasurePolicy {
     /**
      * The function used to calculate [IntrinsicMeasurable.maxIntrinsicHeight]. It represents the
      * minimum height such that increasing it further will not decrease the minimum intrinsic width.
+     * There should be no side-effects from implementers of [maxIntrinsicHeight].
      */
     fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ): Int {
         val mapped =
             measurables.fastMap {

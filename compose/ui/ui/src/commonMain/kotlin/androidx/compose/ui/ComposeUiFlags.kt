@@ -48,49 +48,143 @@ import kotlin.jvm.JvmName
  * paths being completely removed from the artifact, which can often have nontrivial positive
  * performance impact.
  *
- *      -assumevalues class androidx.compose.runtime.ComposeUiFlags {
+ *      -assumevalues class androidx.compose.ui.ComposeUiFlags {
  *          public static int isRectTrackingEnabled return false
  *      }
  */
 @ExperimentalComposeUiApi
 object ComposeUiFlags {
     /**
-     * With this flag on, during layout we will do some additional work to store the minimum
-     * bounding rectangles for all Layout Nodes. This introduces some additional maintenance burden,
-     * but will be used in the future to enable certain features that are not possible to do
-     * efficiently at this point, as well as speed up some other areas of the system such as
-     * semantics, focus, pointer input, etc. If significant performance overhead is noticed during
-     * layout phases, it is possible that the addition of this tracking is the culprit.
-     */
-    @Suppress("MutableBareField") @JvmField var isRectTrackingEnabled: Boolean = true
-
-    /**
-     * Selecting flag to enable the change new onPostFling nested scroll behavior for ongoing
-     * flings. If a nested scroll node is removed from the tree before sending the onPostFling
-     * callback, we will hold on to the next node in the tree so we have a handle to send the
-     * information after the fling finish/is cancelled.
-     */
-    @Suppress("MutableBareField")
-    @JvmField
-    var NewNestedScrollFlingDispatchingEnabled: Boolean = true
-
-    /**
      * With this flag on, the new semantic version of Autofill APIs will be enabled. Turning this
      * flag off will disable the new Semantic Autofill APIs, and the new refactored semantics.
      */
-    @Suppress("MutableBareField") @JvmField var isSemanticAutofillEnabled: Boolean = true
+    @field:Suppress("MutableBareField") @JvmField var isSemanticAutofillEnabled: Boolean = true
 
     /**
      * This enables fixes for View focus. The changes are large enough to require a flag to allow
      * disabling them.
      */
-    @Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = true
+    @field:Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
 
     /**
-     * With this flag on, the new focus state management implementation is enabled. The new
-     * implementation removes the focus state previously stored in each FocusTargetNode and instead
-     * keeps track of the current active focus node centrally in FocusOwnerImpl. This change reduces
-     * the cost of initializing the focus system.
+     * This flag enables an alternate approach to fixing the issues addressed by the
+     * [isViewFocusFixEnabled] flag.
      */
-    @Suppress("MutableBareField") @JvmField var isTrackFocusEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isBypassUnfocusableComposeViewEnabled: Boolean = true
+
+    /**
+     * This flag enables a fix for b/378570682. For API >=26. We attempt to manually find the next
+     * focusable item for 1-D focus search cases when Compose does not have any focusable content.
+     */
+    @field:Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
+
+    /**
+     * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
+     * when requestFocus is called, so we support this behavior in Compose too.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
+
+    /**
+     * When an embedded view that is focused is removed from the hierarchy, it triggers a
+     * requestFocus() which tries to re-assign focus before the previous composition is complete.
+     * This flag enables a fix for this issue.
+     */
+    @Deprecated("This flag is no longer needed.")
+    @field:Suppress("MutableBareField", "unused")
+    @JvmField
+    var isRemoveFocusedViewFixEnabled: Boolean = false
+
+    /**
+     * Enable WindowInsets rulers:
+     * * `SystemBarsRulers`
+     * * `ImeRulers`
+     * * `StatusBarsRulers`
+     * * `NavigationBarsRulers`
+     * * `CaptionBarRulers`
+     * * `MandatorySystemGesturesRulers`
+     * * `TappableElementRulers`
+     * * `WaterfallRulers`
+     * * `SafeDrawingRulers`
+     * * `SafeGesturesRulers`
+     * * `SafeContentRulers`
+     */
+    // off for b/410868572
+    @field:Suppress("MutableBareField") @JvmField var areWindowInsetsRulersEnabled = true
+
+    /** Enable initial focus when a focusable is added to a screen with no focusable content. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isInitialFocusOnFocusableAvailable: Boolean = false
+
+    /**
+     * With this flag on, requesting focus on a non-focusable focus target will request focus for
+     * one of its children, which makes
+     * [FocusTargetModifierNode.requestFocus][androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus]
+     * consistent with
+     * [FocusRequester.requestFocus][androidx.compose.ui.focus.FocusRequester.requestFocus] and
+     * [FocusRequesterModifierNode.requestFocus][androidx.compose.ui.focus.requestFocus]
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
+
+    /**
+     * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
+     * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
+     */
+    @field:Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
+
+    /** Flag for enabling indirect pointer event navigation gestures in Compose. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
+
+    /** Flag enables optimized focus change dispatching logic. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isOptimizedFocusEventDispatchEnabled: Boolean = true
+
+    /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
+
+    /**
+     * Enable fix to scroll target rect to the center when performing scroll capture, thus generally
+     * avoiding floating content at the top and bottom of the UI.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isScrollCaptureCenteringEnabled: Boolean = true
+
+    /**
+     * Enable performance optimization where coordinates calculations like
+     * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] are using the cached offsets we
+     * already have in RectManager, instead of traversing the whole tree on each call.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
+
+    /**
+     * Enables automatic pinning of interop AndroidViews when they are focused inside lazy
+     * containers.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPinningFocusedAndroidViewsEnabled: Boolean = true
+
+    /**
+     * This flag controls the behavior of Modifier.onPlaced(). When true, it will not called on each
+     * placement anymore, instead it will only be called when some of the coordinates did change. It
+     * will also be called after the layout phase happened instead of being called during the
+     * layout, similarly to how Modifier.onGloballyPositioned() works.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isNewDispatchingMechanismForOnPlacedEnabled: Boolean = true
 }

@@ -20,7 +20,47 @@ import androidx.wear.protolayout.DimensionBuilders.ImageDimension
 import androidx.wear.protolayout.LayoutElementBuilders.ColorFilter
 import androidx.wear.protolayout.LayoutElementBuilders.Image
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.ResourceBuilders.ImageResource
+import androidx.wear.protolayout.layout.basicImage
 import androidx.wear.protolayout.types.LayoutColor
+
+/**
+ * Returns the icon components with the defined style which will be automatically registered as a
+ * resource.
+ *
+ * Material components provide proper defaults for this icon. In order to take advantage of those,
+ * this should be used with the resource ID only: `icon(imageResource)`.
+ *
+ * Note that, by using this method, there's no need to register resource for Tiles in
+ * `androidx.wear.tiles.TileService.onTileResourcesRequest`.
+ *
+ * @param resource An Image resource, used in the layout in the place of this element.
+ * @param protoLayoutResourceId The optional protolayout resource id of the icon.
+ * @param width The width of the icon.
+ * @param height The height of the icon.
+ * @param tintColor The color used to tint the icon.
+ *     @throws IllegalStateException if this method is called without
+ *       [androidx.wear.protolayout.ProtoLayoutScope] set to the [MaterialScope], i.e. when
+ *       [materialScopeWithResources] wasn't used
+ */
+public fun MaterialScope.icon(
+    resource: ImageResource,
+    protoLayoutResourceId: String? = null,
+    width: ImageDimension = defaultIconStyle.width,
+    height: ImageDimension = defaultIconStyle.height,
+    tintColor: LayoutColor = defaultIconStyle.tintColor,
+): LayoutElement {
+    require(hasProtoLayoutScope) {
+        "APIs for automatic resource registration must have ProtoLayoutScope in MaterialScope."
+    }
+    return protoLayoutScope.basicImage(
+        resource = resource,
+        protoLayoutResourceId = protoLayoutResourceId,
+        width = width,
+        height = height,
+        tintColor = tintColor,
+    )
+}
 
 /**
  * Returns the icon components with the defined style.
@@ -28,12 +68,13 @@ import androidx.wear.protolayout.types.LayoutColor
  * Material components provide proper defaults for this icon. In order to take advantage of those,
  * this should be used with the resource ID only: `icon("id")`.
  *
- * @param protoLayoutResourceId The protolayout resource id of the icon. Node that, this is not an
+ * @param protoLayoutResourceId The protolayout resource id of the icon. Note that, this is not an
  *   Android resource id.
  * @param width The width of the icon.
  * @param height The height of the icon.
  * @param tintColor The color used to tint the icon.
  */
+@Suppress("deprecation")
 public fun MaterialScope.icon(
     protoLayoutResourceId: String,
     width: ImageDimension = defaultIconStyle.width,

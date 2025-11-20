@@ -25,6 +25,7 @@ import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
 import androidx.core.app.TaskStackBuilder
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.internal.NavContext
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
 
@@ -51,6 +52,8 @@ import androidx.savedstate.read
  * @see NavDeepLinkBuilder.setComponentName
  */
 public class NavDeepLinkBuilder(private val context: Context) {
+    internal val navContext = NavContext(context)
+
     private class DeepLinkDestination
     constructor(val destinationId: Int, val arguments: SavedState?)
 
@@ -241,7 +244,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
             val destId = destination.destinationId
             val node = findDestination(destId)
             if (node == null) {
-                val dest = NavDestination.getDisplayName(context, destId)
+                val dest = NavDestination.getDisplayName(navContext, destId)
                 throw IllegalArgumentException(
                     "Navigation destination $dest cannot be found in the navigation graph $graph"
                 )
@@ -258,7 +261,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
             val arguments = destination.arguments
             val node = findDestination(destId)
             if (node == null) {
-                val dest = NavDestination.getDisplayName(context, destId)
+                val dest = NavDestination.getDisplayName(navContext, destId)
                 throw IllegalArgumentException(
                     "Navigation destination $dest cannot be found in the navigation graph $graph"
                 )
@@ -344,7 +347,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
         return createTaskStackBuilder()
             .getPendingIntent(
                 requestCode,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )!!
     }
 
@@ -364,7 +367,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
                     destination: NavDestination,
                     args: SavedState?,
                     navOptions: NavOptions?,
-                    navigatorExtras: Extras?
+                    navigatorExtras: Extras?,
                 ): NavDestination? {
                     throw IllegalStateException("navigate is not supported")
                 }

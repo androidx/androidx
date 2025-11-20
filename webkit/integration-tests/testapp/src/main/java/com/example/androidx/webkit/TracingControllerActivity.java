@@ -58,6 +58,7 @@ public class TracingControllerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracing_controller);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.tracing_controller_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

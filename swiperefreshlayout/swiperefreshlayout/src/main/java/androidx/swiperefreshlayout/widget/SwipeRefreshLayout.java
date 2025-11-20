@@ -852,9 +852,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
 
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
-        if (mEnableLegacyRequestDisallowInterceptTouch
-                && ((android.os.Build.VERSION.SDK_INT < 21 && mTarget instanceof AbsListView)
-                || (mTarget != null && !ViewCompat.isNestedScrollingEnabled(mTarget)))) {
+        if (mEnableLegacyRequestDisallowInterceptTouch && mTarget != null
+                && !ViewCompat.isNestedScrollingEnabled(mTarget)) {
             // Legacy behavior: if this is a List < L or another view that doesn't support
             // nested scrolling, ignore this request so that the vertical scroll event
             // isn't stolen

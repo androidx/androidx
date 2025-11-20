@@ -35,7 +35,7 @@ internal class AndroidDefaultTypeface : AndroidTypeface {
     override fun getNativeTypeface(
         fontWeight: FontWeight,
         fontStyle: FontStyle,
-        synthesis: FontSynthesis
+        synthesis: FontSynthesis,
     ): Typeface {
         return if (Build.VERSION.SDK_INT < 28) {
             Typeface.defaultFromStyle(getAndroidTypefaceStyle(fontWeight, fontStyle))
@@ -43,7 +43,7 @@ internal class AndroidDefaultTypeface : AndroidTypeface {
             TypefaceHelperMethodsApi28.create(
                 Typeface.DEFAULT,
                 fontWeight.weight,
-                fontStyle == FontStyle.Italic
+                fontStyle == FontStyle.Italic,
             )
         }
     }

@@ -2115,39 +2115,7 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testEnqueueApi22OrLower_withBatteryNotLowConstraint_expectsOriginalWorker()
-            throws ExecutionException, InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiresBatteryNotLow(true)
-                        .build())
-                .build();
-        mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
-
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
-        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
-    }
-
-    @Test
-    @MediumTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testEnqueueApi22OrLower_withStorageNotLowConstraint_expectsOriginalWorker()
-            throws ExecutionException, InterruptedException {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setConstraints(new Constraints.Builder()
-                        .setRequiresStorageNotLow(true)
-                        .build())
-                .build();
-        mWorkManagerImpl.beginWith(work).enqueue().getResult().get();
-
-        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(work.getStringId());
-        assertThat(workSpec.workerClassName, is(TestWorker.class.getName()));
-    }
-
-    @Test
-    @MediumTest
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    @SdkSuppress(maxSdkVersion = 25)
     public void testEnqueueApi23To25_withBatteryNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -2166,7 +2134,7 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    @SdkSuppress(maxSdkVersion = 25)
     public void testEnqueueApi23To25_withStorageNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -2184,7 +2152,7 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    @SdkSuppress(maxSdkVersion = 25)
     public void testEnqueueApi23To25_withConstraintTrackingWorker_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
         Data data = new Data.Builder()

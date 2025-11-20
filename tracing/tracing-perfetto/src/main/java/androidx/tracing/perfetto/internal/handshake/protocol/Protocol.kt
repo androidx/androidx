@@ -165,7 +165,7 @@ internal object ResponseResultCodes {
     ResponseResultCodes.RESULT_CODE_ERROR_BINARY_MISSING,
     ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
     ResponseResultCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
-    ResponseResultCodes.RESULT_CODE_ERROR_OTHER
+    ResponseResultCodes.RESULT_CODE_ERROR_OTHER,
 )
 private annotation class ResultCode
 
@@ -181,5 +181,5 @@ constructor(
      * context on how to proceed can be found in [resultCode] or [message] properties.
      */
     public val requiredVersion: String?,
-    public val message: String?
+    public val message: String?,
 )

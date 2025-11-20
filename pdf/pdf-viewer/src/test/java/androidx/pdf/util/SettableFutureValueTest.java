@@ -24,15 +24,15 @@ import static org.junit.Assert.fail;
 import androidx.pdf.data.FutureValue.Callback;
 import androidx.pdf.data.FutureValues;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
-import androidx.test.filters.SmallTest;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SettableFutureValueTest {
 
     private static final class TestCallback implements Callback<String> {

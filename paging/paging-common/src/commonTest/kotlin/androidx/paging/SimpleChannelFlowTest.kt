@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
+import androidx.paging.internal.IgnoreWebTarget
 import kotlin.test.Test
 import kotlin.test.fail
 import kotlinx.coroutines.CancellationException
@@ -44,6 +45,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreWebTarget // b/395933428
 class SimpleChannelFlowTest {
     val testScope = TestScope(UnconfinedTestDispatcher())
 
@@ -267,7 +269,7 @@ class SimpleChannelFlowTest {
 
     private fun <T> createFlow(
         impl: Impl,
-        block: suspend TestProducerScope<T>.() -> Unit
+        block: suspend TestProducerScope<T>.() -> Unit,
     ): Flow<T> {
         return when (impl) {
             Impl.ChannelFlow -> channelFlow { ChannelFlowTestProducerScope(this).block() }

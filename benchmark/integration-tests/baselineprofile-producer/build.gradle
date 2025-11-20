@@ -26,7 +26,7 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
@@ -56,7 +56,8 @@ dependencies {
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
     implementation(libs.testRunner)
-    implementation(libs.testUiautomator)
+    implementation(project(":test:uiautomator:uiautomator"))
+    implementation(project(":test:uiautomator:uiautomator-shell"))
     implementation(libs.testExtTruth)
 }
 

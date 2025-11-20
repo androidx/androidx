@@ -74,7 +74,7 @@ class ViewModelActivity : FragmentActivity() {
             activityModel =
                 activityViewModelProvider.get(
                     ViewModelActivity.KEY_ACTIVITY_MODEL,
-                    TestViewModel::class.java
+                    TestViewModel::class.java,
                 )
             defaultActivityModel = activityViewModelProvider.get(TestViewModel::class.java)
             androidModel = viewModelProvider.get(TestAndroidViewModel::class.java)

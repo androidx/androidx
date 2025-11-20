@@ -54,7 +54,7 @@ class UnrememberedStateDetector : Detector(), SourceCodeScanner {
                         UnrememberedState,
                         node,
                         context.getNameLocation(node),
-                        "Creating a state object during composition without using `remember`"
+                        "Creating a state object during composition without using `remember`",
                     )
                 }
             }
@@ -65,7 +65,7 @@ class UnrememberedStateDetector : Detector(), SourceCodeScanner {
                         UnrememberedState,
                         node,
                         context.getNameLocation(node),
-                        "Creating a state object during composition without using `remember`"
+                        "Creating a state object during composition without using `remember`",
                     )
                 }
             }
@@ -101,8 +101,8 @@ class UnrememberedStateDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     UnrememberedStateDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

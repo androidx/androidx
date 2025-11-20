@@ -108,7 +108,7 @@ class FragmentViewLifecycleOwnerTest {
                 ViewModelProvider(
                     viewLifecycleOwner.viewModelStore,
                     viewLifecycleOwner.defaultViewModelProviderFactory,
-                    viewLifecycleOwner.defaultViewModelCreationExtras
+                    viewLifecycleOwner.defaultViewModelCreationExtras,
                 )["test", TestViewModel::class.java]
 
             recreate()
@@ -144,7 +144,7 @@ class FragmentViewLifecycleOwnerTest {
                 ViewModelProvider(
                     viewLifecycleOwner.viewModelStore,
                     viewLifecycleOwner.defaultViewModelProviderFactory,
-                    viewLifecycleOwner.defaultViewModelCreationExtras
+                    viewLifecycleOwner.defaultViewModelCreationExtras,
                 )["test", ViewModelActivity.TestSavedStateViewModel::class.java]
 
             creationViewModel.savedStateHandle["key"] = "value"
@@ -173,7 +173,8 @@ class FragmentViewLifecycleOwnerTest {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass == TestViewModel::class.java)
             createCalled = true
-            @Suppress("UNCHECKED_CAST") return TestViewModel() as T
+            @Suppress("UNCHECKED_CAST")
+            return TestViewModel() as T
         }
     }
 

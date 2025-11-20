@@ -16,8 +16,10 @@ dependencies {
     api(libs.jspecify)
     implementation("androidx.annotation:annotation:1.8.1")
 
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.testExtJunit
+    androidTestImplementation libs.truth
+    androidTestImplementation libs.guavaAndroid
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)

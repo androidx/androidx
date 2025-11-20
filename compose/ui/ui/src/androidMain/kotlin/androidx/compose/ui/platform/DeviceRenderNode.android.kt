@@ -122,5 +122,5 @@ internal data class DeviceRenderNodeData(
     var renderEffect: RenderEffect?,
     var blendMode: BlendMode,
     var colorFilter: ColorFilter?,
-    var compositingStrategy: CompositingStrategy
+    var compositingStrategy: CompositingStrategy,
 )

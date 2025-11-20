@@ -169,7 +169,6 @@ public class AudioFocusRequestCompat {
                 mPauseOnDuck);
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     /* package */ AudioAttributes getAudioAttributes() {
         return (mAudioAttributesCompat != null)
                 ? (AudioAttributes) mAudioAttributesCompat.unwrap()

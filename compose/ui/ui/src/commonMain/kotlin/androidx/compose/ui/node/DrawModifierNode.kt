@@ -41,3 +41,16 @@ fun DrawModifierNode.invalidateDraw() {
         requireCoordinator(Nodes.Any).invalidateLayer()
     }
 }
+
+/**
+ * If the node implements [DrawModifierNode], then this will just call [DrawModifierNode.draw]. if
+ * it does NOT implement [DrawModifierNode], it will dispatch draw recursively to any of its direct
+ * delegates which DO implement [DrawModifierNode]
+ *
+ * This can be useful when there is a DelegatingNode which wants to ensure all draw calls are
+ * executed of any delegates, but the implementation of the node may not have knowledge of which
+ * delegates actually implement [DrawModifierNode].
+ */
+fun DelegatableNode.dispatchDraw(scope: ContentDrawScope) {
+    node.dispatchForKind(Nodes.Draw) { with(it) { with(scope) { draw() } } }
+}

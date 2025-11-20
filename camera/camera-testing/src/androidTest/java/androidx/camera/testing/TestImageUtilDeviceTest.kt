@@ -45,7 +45,6 @@ import org.junit.runner.RunWith
 /** Unit tests for [TestImageUtil] */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class TestImageUtilDeviceTest {
 
     companion object {
@@ -125,7 +124,7 @@ class TestImageUtilDeviceTest {
         val diff =
             getAverageDiff(
                 decodeByteArray(jpegBytes, 0, jpegBytes.size),
-                decodeByteArray(restoredJpegBytes, 0, restoredJpegBytes.size)
+                decodeByteArray(restoredJpegBytes, 0, restoredJpegBytes.size),
             )
         assertThat(diff).isEqualTo(0)
         assertThat(image.format).isEqualTo(ImageFormat.JPEG)
@@ -143,7 +142,7 @@ class TestImageUtilDeviceTest {
         val diff =
             getAverageDiff(
                 decodeByteArray(jpegBytes, 0, jpegBytes.size),
-                decodeByteArray(restoredJpegBytes, 0, restoredJpegBytes.size)
+                decodeByteArray(restoredJpegBytes, 0, restoredJpegBytes.size),
             )
         assertThat(diff).isEqualTo(0)
         assertThat(image.format).isEqualTo(ImageFormat.JPEG_R)

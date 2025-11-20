@@ -48,7 +48,7 @@ public class DrawerNoThemeTest {
                     drawerLayout.getDrawerElevation(), 0.0);
         } else {
             float expectedElevation = activity.getResources()
-                    .getDimension(R.dimen.def_drawer_elevation);
+                    .getDimension(androidx.drawerlayout.R.dimen.def_drawer_elevation);
             assertEquals("Expected elevation and actual elevation", expectedElevation,
                     drawerLayout.getDrawerElevation(), 0.0);
         }

@@ -29,6 +29,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SplitPairFilterTest {
     private val intent1 = Intent()
     private val intent2 = Intent()
@@ -170,7 +171,7 @@ class SplitPairFilterTest {
             SplitPairFilter(
                 COMPONENT_1,
                 WILDCARD_CLASS_COMPONENT,
-                null /* secondaryActivityIntentAction */
+                null, /* secondaryActivityIntentAction */
             )
         intent1.component = COMPONENT_1
         intent2.component = null
@@ -204,7 +205,7 @@ class SplitPairFilterTest {
             SplitPairFilter(
                 WILDCARD_COMPONENT,
                 WILDCARD_COMPONENT,
-                null /* secondaryActivityIntentAction */
+                null, /* secondaryActivityIntentAction */
             )
         intent1.component = null
         intent2.component = null

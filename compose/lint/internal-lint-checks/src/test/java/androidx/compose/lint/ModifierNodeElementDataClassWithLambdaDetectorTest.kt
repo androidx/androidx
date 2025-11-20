@@ -66,7 +66,7 @@ class ModifierNodeElementDataClassWithLambdaDetectorTest : LintDetectorTest() {
         t6iKjIGElbWvmPhirMUSRbckHdymWD07gACTMH9QFZeIuUOcZ7SXS3IKYdl7
         uWxh426Ji2gQxnRqmhrMHMCOMRvjSow5zBPiaowaFg7ActRx7QBBjskc13Pc
         yOHm8HJUy/xmjilKfgGsFXXlPAMAAA==
-        """
+        """,
         )
 
     @Test
@@ -94,7 +94,7 @@ class ModifierNodeElementDataClassWithLambdaDetectorTest : LintDetectorTest() {
                 }
             """
                 ),
-                modifierNodeElementStub
+                modifierNodeElementStub,
             )
             .run()
             .expectClean()
@@ -113,7 +113,7 @@ class ModifierNodeElementDataClassWithLambdaDetectorTest : LintDetectorTest() {
                 data class TestElement(val value: Boolean, val lambda: () -> Unit) : ModifierNodeElement<Boolean>()
             """
                 ),
-                modifierNodeElementStub
+                modifierNodeElementStub,
             )
             .run()
             .expect(

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
+
 package androidx.kruth
 
 import kotlin.test.Test

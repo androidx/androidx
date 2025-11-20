@@ -21,6 +21,14 @@ message TileRequest {
 
   // The ID of the tile being requested.
   uint32 tile_id = 3;
+
+  // The timestamp of the last time the tile was visible.
+  uint64 last_visible_millis = 4;
+
+  // The version of the resources that are currently cached in the renderer.
+  //
+  // If this is empty, the renderer does not have any resources cached.
+  string last_resources_version = 5;
 }
 
 // Parameters passed to a Tile Service when the renderer is requesting a
@@ -46,12 +54,10 @@ message ResourcesRequest {
   uint32 tile_id = 4;
 }
 
-// Parameters passed to a Tile Service when the renderer is requesting a
-// new state bundle.
-message StateRequest {
-  // The current state of the Tile.
-  androidx.wear.protolayout.proto.State state = 1;
-
-  // The ID of the tile for which state is being requested.
-  uint32 tile_id = 2;
+// Parameters passed to UpdateRequesterService when an update is being requested.
+message TileUpdateRequest {
+  oneof optional_tile_id {
+    // The ID of the tile for which the update is being requested.
+    uint32 tile_id = 1;
+  }
 }

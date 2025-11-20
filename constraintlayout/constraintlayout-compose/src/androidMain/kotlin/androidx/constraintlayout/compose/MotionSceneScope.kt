@@ -36,14 +36,14 @@ fun MotionScene(motionSceneContent: MotionSceneScope.() -> Unit): MotionScene {
     val scope = MotionSceneScope().apply(motionSceneContent)
     return MotionSceneDslImpl(
         constraintSetsByName = scope.constraintSetsByName,
-        transitionsByName = scope.transitionsByName
+        transitionsByName = scope.transitionsByName,
     )
 }
 
 @ExperimentalMotionApi
 internal class MotionSceneDslImpl(
     private val constraintSetsByName: Map<String, ConstraintSet>,
-    private val transitionsByName: Map<String, Transition>
+    private val transitionsByName: Map<String, Transition>,
 ) : MotionScene {
     override fun setTransitionContent(elementName: String?, toJSON: String?) {
         // Do Nothing
@@ -149,7 +149,7 @@ class MotionSceneScope internal constructor() {
     fun defaultTransition(
         from: ConstraintSetRef,
         to: ConstraintSetRef,
-        transitionContent: TransitionScope.() -> Unit = {}
+        transitionContent: TransitionScope.() -> Unit = {},
     ) {
         transition(from, to, "default", transitionContent)
     }
@@ -167,15 +167,15 @@ class MotionSceneScope internal constructor() {
     fun constraintSet(
         name: String? = null,
         extendConstraintSet: ConstraintSetRef? = null,
-        constraintSetContent: ConstraintSetScope.() -> Unit
+        constraintSetContent: ConstraintSetScope.() -> Unit,
     ): ConstraintSetRef {
         return addConstraintSet(
             constraintSet =
                 DslConstraintSet(
                     description = constraintSetContent,
-                    extendFrom = extendConstraintSet?.let { constraintSetsByName[it.name] }
+                    extendFrom = extendConstraintSet?.let { constraintSetsByName[it.name] },
                 ),
-            name = name
+            name = name,
         )
     }
 
@@ -189,7 +189,7 @@ class MotionSceneScope internal constructor() {
         from: ConstraintSetRef,
         to: ConstraintSetRef,
         name: String? = null,
-        transitionContent: TransitionScope.() -> Unit
+        transitionContent: TransitionScope.() -> Unit,
     ) {
         val transitionName = name ?: nextName()
         transitionsByName[transitionName] =
@@ -393,4 +393,5 @@ class MotionSceneScope internal constructor() {
     private fun Color.toJsonHexString(): String = String.format("#%08X", this.toArgb())
 }
 
+@Suppress("DataClassDefinition", "DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
 data class ConstraintSetRef internal constructor(internal val name: String)

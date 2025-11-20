@@ -53,4 +53,8 @@ constructor(public val recordId: String) : Change {
     override fun hashCode(): Int {
         return recordId.hashCode()
     }
+
+    override fun toString(): String {
+        return "DeletionChange(recordId='$recordId')"
+    }
 }

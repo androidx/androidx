@@ -379,10 +379,7 @@ class FlowExtTest {
             repeat(1) { value -> launch { combiner.onNext(index = 1, value = value) } }
 
             advanceUntilIdle()
-            assertThat(result.first())
-                .isEqualTo(
-                    SendResult(0, 0, INITIAL),
-                )
+            assertThat(result.first()).isEqualTo(SendResult(0, 0, INITIAL))
         }
     }
 }

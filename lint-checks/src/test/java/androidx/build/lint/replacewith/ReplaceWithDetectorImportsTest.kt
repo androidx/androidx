@@ -29,13 +29,13 @@ class ReplaceWithDetectorImportsTest {
 
         val expected =
             """
-src/replacewith/MethodWithImportsJava.java:38: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithImportsJava.java:38: Hint: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithImportsJava.java:42: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithImportsJava.java:42: Hint: Replacement available [ReplaceWith]
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
         """
                 .trimIndent()
 
@@ -65,18 +65,18 @@ Fix for src/replacewith/MethodWithImportsJava.java line 42: Replace with `newMet
         val input =
             arrayOf(
                 ktSample("replacewith.MethodWithImportsKotlin"),
-                javaSample("replacewith.ReplaceWithUsageJava")
+                javaSample("replacewith.ReplaceWithUsageJava"),
             )
 
         val expected =
             """
-src/replacewith/MethodWithImportsKotlin.kt:25: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithImportsKotlin.kt:25: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImport("hello")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithImportsKotlin.kt:30: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithImportsKotlin.kt:30: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImports("world")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
         """
                 .trimIndent()
 
@@ -107,13 +107,13 @@ Fix for src/replacewith/MethodWithImportsKotlin.kt line 30: Replace with `"world
 
         val expected =
             """
-src/replacewith/MethodWithNoImportsJava.java:37: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithNoImportsJava.java:37: Hint: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithNoImportsJava.java:41: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithNoImportsJava.java:41: Hint: Replacement available [ReplaceWith]
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
         """
                 .trimIndent()
 
@@ -145,18 +145,18 @@ Fix for src/replacewith/MethodWithNoImportsJava.java line 41: Replace with `newM
         val input =
             arrayOf(
                 ktSample("replacewith.MethodWithNoImportsKotlin"),
-                javaSample("replacewith.ReplaceWithUsageJava")
+                javaSample("replacewith.ReplaceWithUsageJava"),
             )
 
         val expected =
             """
-src/replacewith/MethodWithNoImportsKotlin.kt:22: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithNoImportsKotlin.kt:22: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImport("hello")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithNoImportsKotlin.kt:26: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithNoImportsKotlin.kt:26: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImports("world")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
         """
                 .trimIndent()
 
@@ -189,13 +189,13 @@ Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 26: Replace with `"wor
 
         val expected =
             """
-src/MethodWithNoImportsOrPackage.java:35: Information: Replacement available [ReplaceWith]
+src/MethodWithNoImportsOrPackage.java:35: Hint: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/MethodWithNoImportsOrPackage.java:39: Information: Replacement available [ReplaceWith]
+src/MethodWithNoImportsOrPackage.java:39: Hint: Replacement available [ReplaceWith]
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
         """
                 .trimIndent()
 

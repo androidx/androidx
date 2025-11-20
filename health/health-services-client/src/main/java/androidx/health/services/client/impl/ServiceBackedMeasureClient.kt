@@ -44,14 +44,14 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ServiceBackedMeasureClient(
     private val context: Context,
-    connectionManager: ConnectionManager = HsConnectionManager.getInstance(context)
+    connectionManager: ConnectionManager = HsConnectionManager.getInstance(context),
 ) :
     MeasureClient,
     Client<IMeasureApiService>(
         CLIENT_CONFIGURATION,
         connectionManager,
         { binder -> IMeasureApiService.Stub.asInterface(binder) },
-        { service -> service.apiVersion }
+        { service -> service.apiVersion },
     ) {
 
     override fun registerMeasureCallback(dataType: DeltaDataType<*, *>, callback: MeasureCallback) {
@@ -61,7 +61,7 @@ public class ServiceBackedMeasureClient(
     override fun registerMeasureCallback(
         dataType: DeltaDataType<*, *>,
         executor: Executor,
-        callback: MeasureCallback
+        callback: MeasureCallback,
     ) {
         val request = MeasureRegistrationRequest(context.packageName, dataType)
         val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, executor, callback)
@@ -80,14 +80,14 @@ public class ServiceBackedMeasureClient(
                     callback.onRegistrationFailed(t)
                 }
             },
-            executor
+            executor,
         )
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun unregisterMeasureCallbackAsync(
         dataType: DeltaDataType<*, *>,
-        callback: MeasureCallback
+        callback: MeasureCallback,
     ): ListenableFuture<Void> {
         // Cast is unfortunately required as there is no non-null Void in Kotlin.
         val callbackStub =
@@ -105,7 +105,7 @@ public class ServiceBackedMeasureClient(
                 service.getCapabilities(CapabilitiesRequest(context.packageName))
             },
             { response -> response!!.measureCapabilities },
-            ContextCompat.getMainExecutor(context)
+            ContextCompat.getMainExecutor(context),
         )
 
     internal companion object {

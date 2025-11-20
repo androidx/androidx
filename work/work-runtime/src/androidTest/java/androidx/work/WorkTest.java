@@ -114,7 +114,6 @@ public class WorkTest extends WorkManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
         mThrown.expect(IllegalArgumentException.class);
         Constraints constraints = new Constraints.Builder()

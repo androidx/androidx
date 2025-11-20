@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="projected_continue_button" msgid="5174264446308284863">"ଜାରି ରଖନ୍ତୁ"</string>
+    <string name="projected_cancel_button" msgid="6228792819175860740">"ବାତିଲ କରନ୍ତୁ"</string>
+    <string name="go_to_host_projected_activity_text" msgid="3196940006467730617">"ଦୟାକରି ଆପଣଙ୍କ ହୋଷ୍ଟ ଡିଭାଇସରେ ଅନୁମତି ଅନୁରୋଧର ରିଭ୍ୟୁ କରନ୍ତୁ"</string>
+    <string name="request_permission_on_host_activity_label" msgid="5230501762635229968">"ଅନୁମତି ଅନୁରୋଧ"</string>
+</resources>

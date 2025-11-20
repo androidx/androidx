@@ -50,7 +50,6 @@ public fun ComposeUiTest.enableAccessibilityChecks(
     if (HasRobolectricFingerprint) {
         // TODO(b/332778271): Remove this warning when said bug is fixed
         Log.w("ComposeUiTest", "Accessibility checks are currently not supported by Robolectric")
-        return
     }
     setComposeAccessibilityValidator(
         object : ComposeAccessibilityValidator {

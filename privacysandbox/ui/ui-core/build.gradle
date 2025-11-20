@@ -26,16 +26,14 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.13.0")
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -56,5 +54,12 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
-    legacyDisableKotlinStrictApiMode = true
+}
+
+configurations.configureEach { configuration ->
+    if (configuration.name == "releaseRuntimeElements" || configuration.name == "releaseApiElements") {
+        configuration.attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+        }
+    }
 }

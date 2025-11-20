@@ -37,7 +37,7 @@ class SlidingPaneLayoutResizeSample : Activity() {
                         layoutParams =
                             SlidingPaneLayout.LayoutParams(
                                     LayoutParams.WRAP_CONTENT,
-                                    LayoutParams.MATCH_PARENT
+                                    LayoutParams.MATCH_PARENT,
                                 )
                                 .apply { weight = 1f }
                     }
@@ -49,7 +49,7 @@ class SlidingPaneLayoutResizeSample : Activity() {
                         layoutParams =
                             SlidingPaneLayout.LayoutParams(
                                     LayoutParams.WRAP_CONTENT,
-                                    LayoutParams.MATCH_PARENT
+                                    LayoutParams.MATCH_PARENT,
                                 )
                                 .apply { weight = 1f }
                     }
@@ -58,7 +58,7 @@ class SlidingPaneLayoutResizeSample : Activity() {
                 isOverlappingEnabled = false
                 setUserResizingDividerDrawable(R.drawable.divider)
             },
-            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
         )
     }
 }

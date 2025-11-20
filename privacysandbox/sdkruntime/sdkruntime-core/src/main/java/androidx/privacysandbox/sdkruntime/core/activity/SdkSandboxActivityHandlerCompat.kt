@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.core.activity
 
 import android.app.Activity
 import android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * This is used to notify the SDK when an [Activity] is created for it.
  *
  * When an SDK wants to start an [Activity], it should register an implementation of this class by
- * calling [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler] that will return an
- * [android.os.Binder] identifier for the registered [SdkSandboxControllerCompat].
+ * calling
+ * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat.registerSdkSandboxActivityHandler]
+ * that will return an [android.os.Binder] identifier for the registered SdkSandboxControllerCompat.
  *
  * The SDK should be notified about the [Activity] creation through calling
  * [SdkSandboxActivityHandlerCompat.onActivityCreated] which happens when the caller app calls
@@ -34,7 +35,8 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  *
  * @see SdkSandboxActivityHandler
  */
-interface SdkSandboxActivityHandlerCompat {
+@Deprecated("This library is no longer supported.")
+public interface SdkSandboxActivityHandlerCompat {
 
     /**
      * Notifies SDK when an [Activity] gets created.
@@ -48,5 +50,5 @@ interface SdkSandboxActivityHandlerCompat {
      * @param activityHolder the [ActivityHolder] which holds the [Activity] which gets created
      * @see SdkSandboxActivityHandler.onActivityCreated
      */
-    fun onActivityCreated(activityHolder: ActivityHolder)
+    public fun onActivityCreated(activityHolder: ActivityHolder)
 }

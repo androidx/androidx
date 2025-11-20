@@ -25,13 +25,13 @@ internal fun finalConstraints(
     constraints: Constraints,
     softWrap: Boolean,
     overflow: TextOverflow,
-    maxIntrinsicWidth: Float
+    maxIntrinsicWidth: Float,
 ): Constraints =
     Constraints.fitPrioritizingWidth(
         minWidth = 0,
         maxWidth = finalMaxWidth(constraints, softWrap, overflow, maxIntrinsicWidth),
         minHeight = 0,
-        maxHeight = constraints.maxHeight
+        maxHeight = constraints.maxHeight,
     )
 
 /** Find the final max width a Paragraph would use based on all parameters. */
@@ -39,7 +39,7 @@ internal fun finalMaxWidth(
     constraints: Constraints,
     softWrap: Boolean,
     overflow: TextOverflow,
-    maxIntrinsicWidth: Float
+    maxIntrinsicWidth: Float,
 ): Int {
     val widthMatters = softWrap || overflow.isEllipsis
     val maxWidth =

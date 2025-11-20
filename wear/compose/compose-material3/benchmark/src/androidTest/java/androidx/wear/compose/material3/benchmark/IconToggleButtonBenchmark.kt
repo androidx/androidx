@@ -48,28 +48,17 @@ class IconToggleButtonBenchmark(private val type: IconToggleButtonType) {
     }
 }
 
-internal class IconToggleButtonTestCase(
-    private val type: IconToggleButtonType,
-) : LayeredComposeTestCase() {
+internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) :
+    LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
         when (type) {
             IconToggleButtonType.IconToggleButtonOn -> {
-                IconToggleButton(
-                    checked = true,
-                    onCheckedChange = {},
-                ) {
-                    StandardIcon()
-                }
+                IconToggleButton(checked = true, onCheckedChange = {}) { StandardIcon() }
             }
             IconToggleButtonType.IconToggleButtonOff -> {
-                IconToggleButton(
-                    checked = false,
-                    onCheckedChange = {},
-                ) {
-                    StandardIcon()
-                }
+                IconToggleButton(checked = false, onCheckedChange = {}) { StandardIcon() }
             }
         }
     }
@@ -82,5 +71,5 @@ internal class IconToggleButtonTestCase(
 
 enum class IconToggleButtonType {
     IconToggleButtonOn,
-    IconToggleButtonOff
+    IconToggleButtonOff,
 }

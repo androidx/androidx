@@ -15,7 +15,6 @@
  */
 package androidx.wear.compose.foundation
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -44,6 +43,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -51,10 +51,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CurvedScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -117,7 +117,7 @@ class CurvedScreenshotTest {
                 .background(Color.Green)
                 .padding(angular = 5.dp)
                 .background(Color.Blue)
-                .padding(radial = 4.dp)
+                .padding(radial = 4.dp),
         )
     }
 
@@ -131,7 +131,7 @@ class CurvedScreenshotTest {
                     BasicText(
                         text = "Text",
                         style =
-                            TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+                            TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true)),
                     )
                     Box(Modifier.size(15.dp).background(Color.Red))
                 }
@@ -145,13 +145,13 @@ class CurvedScreenshotTest {
         listOf(
                 CurvedAlignment.Angular.Start,
                 CurvedAlignment.Angular.Center,
-                CurvedAlignment.Angular.End
+                CurvedAlignment.Angular.End,
             )
             .forEachIndexed { ix, align ->
                 curvedColumn(
                     CurvedModifier.angularSize(45f)
                         .angularGradientBackground(listOf(Color.Red, Color.Green)),
-                    angularAlignment = align
+                    angularAlignment = align,
                 ) {
                     curvedComposable { Box(Modifier.size(15.dp).background(Color.Blue)) }
                     basicCurvedText(listOf("Start", "Center", "End")[ix])
@@ -167,12 +167,12 @@ class CurvedScreenshotTest {
                     curvedRow(
                         CurvedModifier.size(45f, 20.dp)
                             .radialGradientBackground(listOf(Color.Red, Color.Green)),
-                        radialAlignment = align
+                        radialAlignment = align,
                     ) {
                         curvedComposable { Box(Modifier.size(10.dp).background(Color.Blue)) }
                         basicCurvedText(
                             listOf("Inner", "Center", "Outer")[ix],
-                            style = CurvedTextStyle(fontSize = 10.sp)
+                            style = CurvedTextStyle(fontSize = 10.sp),
                         )
                     }
                 }
@@ -187,18 +187,18 @@ class CurvedScreenshotTest {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             CurvedLayout(
                 Modifier.fillMaxSize(),
-                angularDirection = CurvedDirection.Angular.Clockwise
+                angularDirection = CurvedDirection.Angular.Clockwise,
             ) {
                 curvedRow(
                     CurvedModifier.background(Color.Green),
-                    angularDirection = CurvedDirection.Angular.Normal
+                    angularDirection = CurvedDirection.Angular.Normal,
                 ) {
                     layout_direction_block()
                 }
                 curvedComposable { Spacer(Modifier.size(10.dp)) }
                 curvedRow(
                     CurvedModifier.background(Color.Red),
-                    angularDirection = CurvedDirection.Angular.Clockwise
+                    angularDirection = CurvedDirection.Angular.Clockwise,
                 ) {
                     layout_direction_block()
                 }
@@ -207,18 +207,18 @@ class CurvedScreenshotTest {
             CurvedLayout(
                 Modifier.fillMaxSize(),
                 anchor = 90f,
-                angularDirection = CurvedDirection.Angular.CounterClockwise
+                angularDirection = CurvedDirection.Angular.CounterClockwise,
             ) {
                 curvedRow(
                     CurvedModifier.background(Color.Green),
-                    angularDirection = CurvedDirection.Angular.Reversed
+                    angularDirection = CurvedDirection.Angular.Reversed,
                 ) {
                     layout_direction_block()
                 }
                 curvedComposable { Spacer(Modifier.size(10.dp)) }
                 curvedRow(
                     CurvedModifier.background(Color.Red),
-                    angularDirection = CurvedDirection.Angular.CounterClockwise
+                    angularDirection = CurvedDirection.Angular.CounterClockwise,
                 ) {
                     layout_direction_block()
                 }
@@ -232,7 +232,7 @@ class CurvedScreenshotTest {
             CurvedLayout(
                 Modifier.fillMaxSize(),
                 angularDirection = CurvedDirection.Angular.Clockwise,
-                anchor = 270f
+                anchor = 270f,
             ) {
                 curvedRow(CurvedModifier.background(Color.Green)) {
                     basicCurvedText(
@@ -245,13 +245,13 @@ class CurvedScreenshotTest {
             CurvedLayout(
                 Modifier.fillMaxSize(),
                 angularDirection = CurvedDirection.Angular.CounterClockwise,
-                anchor = 90f
+                anchor = 90f,
             ) {
                 curvedRow(CurvedModifier.background(Color.Green)) {
                     basicCurvedText(
                         "Bottom Text Goes Here",
                         CurvedModifier.angularSize(45f),
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -277,20 +277,14 @@ class CurvedScreenshotTest {
                 CurvedTextStyle(letterSpacing = 0.6.sp, letterSpacingCounterClockwise = 1.4.sp)
             Box {
                 CurvedLayout(modifier = Modifier.fillMaxSize()) {
-                    basicCurvedText(
-                        "Clockwise",
-                        style = style,
-                    )
+                    basicCurvedText("Clockwise", style = style)
                 }
                 CurvedLayout(
                     modifier = Modifier.fillMaxSize(),
                     angularDirection = CurvedDirection.Angular.CounterClockwise,
-                    anchor = 90f
+                    anchor = 90f,
                 ) {
-                    basicCurvedText(
-                        "Counter Clockwise",
-                        style = style,
-                    )
+                    basicCurvedText("Counter Clockwise", style = style)
                 }
             }
         }
@@ -310,6 +304,56 @@ class CurvedScreenshotTest {
                 basicCurvedText("Base", style = baseStyle)
                 curvedBox(CurvedModifier.angularSizeDp(1.dp)) {}
                 basicCurvedText("Line Height 24.sp", style = baseStyle.copy(lineHeight = 24.sp))
+            }
+        }
+    }
+
+    @Test
+    fun warp_test() {
+        verify_composable_screenshot {
+            val baseStyle =
+                CurvedTextStyle(color = Color.White, background = Color.Gray, fontSize = 30.sp)
+            CurvedLayout(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
+                radialAlignment = CurvedAlignment.Radial.Center,
+            ) {
+                listOf(
+                        "No" to CurvedTextStyle.WarpOffset.None,
+                        "D" to CurvedTextStyle.WarpOffset.Descent,
+                        "B" to CurvedTextStyle.WarpOffset.Baseline,
+                        "H" to CurvedTextStyle.WarpOffset.HalfOpticalHeight,
+                        "A2" to CurvedTextStyle.WarpOffset.HalfAscent,
+                        "A" to CurvedTextStyle.WarpOffset.Ascent,
+                    )
+                    .forEachIndexed { ix, (text, offset) ->
+                        if (ix != 0) curvedBox(CurvedModifier.angularSizeDp(5.dp)) {}
+                        curvedColumn(angularAlignment = CurvedAlignment.Angular.Center) {
+                            basicCurvedText("HHH", style = baseStyle.copy(warpOffset = offset))
+                            basicCurvedText(
+                                text,
+                                style = baseStyle.copy(background = Color.Transparent),
+                            )
+                        }
+                    }
+            }
+        }
+    }
+
+    @Test
+    fun arabic_test() {
+        verify_composable_screenshot {
+            val style =
+                CurvedTextStyle(
+                    color = Color.White,
+                    background = Color.Gray,
+                    fontSize = 30.sp,
+                    warpOffset = CurvedTextStyle.WarpOffset.HalfOpticalHeight,
+                )
+            Box(Modifier.fillMaxSize().background(Color.Black)) {
+                CurvedLayout { basicCurvedText("مرحبا 👋 بالعالم 🌏!", style) }
+                CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
+                    basicCurvedText("مرحبا 👋 بالعالم 🌏!", style)
+                }
             }
         }
     }
@@ -342,7 +386,7 @@ class CurvedScreenshotTest {
         rule.setContent {
             Box(
                 modifier = Modifier.size(200.dp).background(Color.White).testTag(TEST_TAG),
-                content = content
+                content = content,
             )
         }
 

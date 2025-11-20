@@ -1,6 +1,6 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.service.AppFunction
 import androidx.appfunctions.AppFunctionContext
 
 class FakeNoArgImpl_IsEnabled_False : FakeNoArg {

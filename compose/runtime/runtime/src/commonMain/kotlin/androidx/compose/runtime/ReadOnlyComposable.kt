@@ -31,4 +31,4 @@ package androidx.compose.runtime
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
-annotation class ReadOnlyComposable
+public annotation class ReadOnlyComposable

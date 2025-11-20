@@ -34,7 +34,7 @@ fun JetsnackDivider(
     color: androidx.compose.ui.graphics.Color =
         JetsnackTheme.colors.uiBorder.copy(alpha = DividerAlpha),
     thickness: Dp = 1.dp,
-    startIndent: Dp = 0.dp
+    startIndent: Dp = 0.dp,
 ) {
     Divider(modifier = modifier, color = color, thickness = thickness, startIndent = startIndent)
 }

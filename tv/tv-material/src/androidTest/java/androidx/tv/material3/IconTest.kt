@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTvMaterial3Api::class)
 @RunWith(AndroidJUnit4::class)
 class IconTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun vector_materialIconSize_dimensions() {
@@ -81,7 +82,7 @@ class IconTest {
                     defaultWidth = width,
                     defaultHeight = height,
                     viewportWidth = width.value,
-                    viewportHeight = height.value
+                    viewportHeight = height.value,
                 )
                 .build()
         val testTag = "testTag"
@@ -182,7 +183,7 @@ class IconTest {
                             this,
                             width.roundToPx(),
                             height.roundToPx(),
-                            Color.Red
+                            Color.Red,
                         )
                 }
                 Icon(
@@ -190,7 +191,7 @@ class IconTest {
                     null,
                     // Force Icon to be 50dp
                     modifier = Modifier.requiredSize(50.dp),
-                    tint = Color.Unspecified
+                    tint = Color.Unspecified,
                 )
                 with(LocalDensity.current) {
                     val dimension = 50.dp.roundToPx()
@@ -222,7 +223,7 @@ class IconTest {
                             this,
                             width.roundToPx(),
                             height.roundToPx(),
-                            Color.Red
+                            Color.Red,
                         )
                 }
                 Icon(image, null, tint = Color.Unspecified)
@@ -249,7 +250,7 @@ class IconTest {
                             this,
                             width.roundToPx(),
                             height.roundToPx(),
-                            Color.Red
+                            Color.Red,
                         )
                 }
                 Icon(image, null, tint = Color.Blue)
@@ -267,7 +268,7 @@ class IconTest {
             Icon(
                 bitmap = ImageBitmap(100, 100),
                 contentDescription = "qwerty",
-                modifier = Modifier.testTag(testTag)
+                modifier = Modifier.testTag(testTag),
             )
         }
 
@@ -281,7 +282,7 @@ class IconTest {
         density: Density,
         width: Int,
         height: Int,
-        color: Color
+        color: Color,
     ): ImageBitmap {
         val size = Size(width.toFloat(), height.toFloat())
         val image = ImageBitmap(width, height)

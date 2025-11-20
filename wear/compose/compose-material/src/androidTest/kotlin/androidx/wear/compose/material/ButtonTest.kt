@@ -53,12 +53,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 public class ButtonBehaviourTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun supports_testtag_on_button_for_image() {
@@ -170,7 +171,7 @@ public class ButtonBehaviourTest {
             CompactButton(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -189,7 +190,7 @@ public class ButtonBehaviourTest {
             Button(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -208,7 +209,7 @@ public class ButtonBehaviourTest {
             CompactButton(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -227,7 +228,7 @@ public class ButtonBehaviourTest {
             Button(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -263,13 +264,7 @@ public class ButtonBehaviourTest {
     @Test
     public fun contains_text_for_button() {
         val text = "Test"
-        rule.setContentWithTheme {
-            Button(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { Button(onClick = {}) { Text("Test") } }
 
         rule.onNodeWithText(text).assertExists()
     }
@@ -277,13 +272,7 @@ public class ButtonBehaviourTest {
     @Test
     public fun contains_text_for_compact_button() {
         val text = "Test"
-        rule.setContentWithTheme {
-            CompactButton(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { CompactButton(onClick = {}) { Text("Test") } }
 
         rule.onNodeWithText(text).assertExists()
     }
@@ -291,13 +280,7 @@ public class ButtonBehaviourTest {
     @Test
     public fun matches_has_text_for_button() {
         val text = "Test"
-        rule.setContentWithTheme {
-            Button(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { Button(onClick = {}) { Text("Test") } }
 
         rule.onNode(hasText(text)).assertExists()
     }
@@ -305,13 +288,7 @@ public class ButtonBehaviourTest {
     @Test
     public fun matches_has_text_for_compactbutton() {
         val text = "Test"
-        rule.setContentWithTheme {
-            CompactButton(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { CompactButton(onClick = {}) { Text("Test") } }
 
         rule.onNode(hasText(text)).assertExists()
     }
@@ -319,10 +296,7 @@ public class ButtonBehaviourTest {
     @Test
     public fun is_circular_under_ltr_for_button() =
         rule.isCircular(LayoutDirection.Ltr) {
-            Button(
-                modifier = Modifier.testTag(TEST_TAG),
-                onClick = {},
-            ) {
+            Button(modifier = Modifier.testTag(TEST_TAG), onClick = {}) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }
@@ -330,38 +304,23 @@ public class ButtonBehaviourTest {
     @Test
     public fun is_circular_under_rtl_for_button() =
         rule.isCircular(LayoutDirection.Rtl) {
-            Button(
-                modifier = Modifier.testTag(TEST_TAG),
-                onClick = {},
-            ) {
+            Button(modifier = Modifier.testTag(TEST_TAG), onClick = {}) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }
 }
 
 public class ButtonSizeTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_compactbutton_correct_tapsize() {
-        rule.verifyTapSize(TapSize.Small) {
-            CompactButton(
-                onClick = {},
-            ) {
-                Text("xs")
-            }
-        }
+        rule.verifyTapSize(TapSize.Small) { CompactButton(onClick = {}) { Text("xs") } }
     }
 
     @Test
     public fun gives_button_correct_tapsize() {
-        rule.verifyTapSize(TapSize.Default) {
-            Button(
-                onClick = {},
-            ) {
-                Text("abc")
-            }
-        }
+        rule.verifyTapSize(TapSize.Default) { Button(onClick = {}) { Text("abc") } }
     }
 
     @Test
@@ -384,7 +343,7 @@ public class ButtonSizeTest {
 }
 
 public class ButtonShapeTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun default_button_shape_is_circle() {
@@ -393,7 +352,7 @@ public class ButtonShapeTest {
                 onClick = {},
                 enabled = true,
                 colors = ButtonDefaults.primaryButtonColors(),
-                modifier = modifier
+                modifier = modifier,
             ) {}
         }
     }
@@ -408,7 +367,7 @@ public class ButtonShapeTest {
                 enabled = true,
                 colors = ButtonDefaults.primaryButtonColors(),
                 modifier = modifier,
-                shape = shape
+                shape = shape,
             ) {}
         }
     }
@@ -421,7 +380,7 @@ public class ButtonShapeTest {
                 enabled = true,
                 colors = ButtonDefaults.primaryButtonColors(),
                 backgroundPadding = 0.dp,
-                modifier = modifier
+                modifier = modifier,
             ) {}
         }
     }
@@ -437,14 +396,14 @@ public class ButtonShapeTest {
                 colors = ButtonDefaults.primaryButtonColors(),
                 backgroundPadding = 0.dp,
                 modifier = modifier,
-                shape = shape
+                shape = shape,
             ) {}
         }
     }
 }
 
 public class ButtonColorTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_enabled_button_primary_colors() =
@@ -471,7 +430,7 @@ public class ButtonColorTest {
             { ButtonDefaults.primaryButtonColors() },
             { MaterialTheme.colors.primary },
             { MaterialTheme.colors.background },
-            applyAlphaForDisabledContent = false
+            applyAlphaForDisabledContent = false,
         )
 
     @Test
@@ -584,7 +543,7 @@ public class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(backgroundColor = overrideColor),
                     enabled = true,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -602,7 +561,7 @@ public class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(backgroundColor = overrideColor),
                     enabled = true,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -620,7 +579,7 @@ public class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(disabledBackgroundColor = overrideColor),
                     enabled = false,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -638,7 +597,7 @@ public class ButtonColorTest {
                     onClick = {},
                     colors = ButtonDefaults.buttonColors(disabledBackgroundColor = overrideColor),
                     enabled = false,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -655,7 +614,7 @@ public class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(contentColor = overrideColor),
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -673,7 +632,7 @@ public class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(contentColor = overrideColor),
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -691,7 +650,7 @@ public class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(disabledContentColor = overrideColor),
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -709,7 +668,7 @@ public class ButtonColorTest {
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(disabledContentColor = overrideColor),
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualContentColor = LocalContentColor.current
             }
@@ -725,18 +684,13 @@ public class ButtonColorTest {
         contentColor: @Composable () -> Color,
         applyAlphaForDisabledContent: Boolean = true,
     ) {
-        verifyColors(
-            status,
-            backgroundColor,
-            contentColor,
-            applyAlphaForDisabledContent,
-        ) {
+        verifyColors(status, backgroundColor, contentColor, applyAlphaForDisabledContent) {
             var actualColor = Color.Transparent
             Button(
                 onClick = {},
                 colors = buttonColors(),
                 enabled = status.enabled(),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualColor = LocalContentColor.current
             }
@@ -750,17 +704,13 @@ public class ButtonColorTest {
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
     ) {
-        verifyColors(
-            status,
-            backgroundColor,
-            contentColor,
-        ) {
+        verifyColors(status, backgroundColor, contentColor) {
             var actualColor = Color.Transparent
             OutlinedButton(
                 onClick = {},
                 colors = buttonColors(),
                 enabled = status.enabled(),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualColor = LocalContentColor.current
             }
@@ -775,19 +725,14 @@ public class ButtonColorTest {
         contentColor: @Composable () -> Color,
         applyAlphaForDisabledContent: Boolean = true,
     ) {
-        verifyColors(
-            status,
-            backgroundColor,
-            contentColor,
-            applyAlphaForDisabledContent,
-        ) {
+        verifyColors(status, backgroundColor, contentColor, applyAlphaForDisabledContent) {
             var actualColor = Color.Transparent
             CompactButton(
                 onClick = {},
                 backgroundPadding = 0.dp,
                 colors = buttonColors(),
                 enabled = status.enabled(),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actualColor = LocalContentColor.current
             }
@@ -835,13 +780,13 @@ public class ButtonColorTest {
             .captureToImage()
             .assertContainsColor(
                 if (expectedBackground != Color.Transparent) expectedBackground else testBackground,
-                threshold
+                threshold,
             )
     }
 }
 
 public class ButtonTextStyleTest {
-    @get:Rule public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     public fun gives_button_correct_font() {
@@ -850,11 +795,7 @@ public class ButtonTextStyleTest {
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.button
-            Button(
-                onClick = {},
-            ) {
-                actualTextStyle = LocalTextStyle.current
-            }
+            Button(onClick = {}) { actualTextStyle = LocalTextStyle.current }
         }
 
         assertEquals(expectedTextStyle, actualTextStyle)
@@ -867,11 +808,7 @@ public class ButtonTextStyleTest {
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.button
-            CompactButton(
-                onClick = {},
-            ) {
-                actualTextStyle = LocalTextStyle.current
-            }
+            CompactButton(onClick = {}) { actualTextStyle = LocalTextStyle.current }
         }
 
         assertEquals(expectedTextStyle, actualTextStyle)
@@ -880,7 +817,7 @@ public class ButtonTextStyleTest {
 
 private fun ComposeContentTestRule.verifyTapSize(
     expected: TapSize,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     setContentWithThemeForSizeAssertions { content() }
         .assertHeightIsEqualTo(expected.size)
@@ -891,7 +828,7 @@ private fun ComposeContentTestRule.verifyTapSize(
 private fun ComposeContentTestRule.isCircular(
     layoutDirection: LayoutDirection,
     padding: Dp = 0.dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var background = Color.Transparent
     var surface = Color.Transparent
@@ -911,14 +848,14 @@ private fun ComposeContentTestRule.isCircular(
             horizontalPadding = padding,
             verticalPadding = padding,
             backgroundColor = surface,
-            shapeColor = background
+            shapeColor = background,
         )
 }
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.isShape(
     expectedShape: Shape,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (Modifier) -> Unit,
 ) {
     var background = Color.Transparent
     var buttonColor = Color.Transparent
@@ -948,7 +885,7 @@ private fun ComposeContentTestRule.isShape(
 internal enum class TapSize(val size: Dp) {
     Small(48.dp),
     Default(52.dp),
-    Large(60.dp)
+    Large(60.dp),
 }
 
 public enum class Status {

@@ -48,7 +48,7 @@ private fun List<ViewInfo>.filterTree(filter: (ViewInfo) -> Boolean = { true }):
 @OptIn(UiToolingDataApi::class)
 internal fun List<ViewInfo>.toDebugString(
     indentation: Int = 0,
-    filter: (ViewInfo) -> Boolean = { true }
+    filter: (ViewInfo) -> Boolean = { true },
 ): String {
     val indentString = ".".repeat(indentation)
     val builder = StringBuilder()

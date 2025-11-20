@@ -22,25 +22,28 @@
  * modifying its settings.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
-import androidx.build.KotlinTarget
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
+    api(project(":xr:runtime:runtime"))
     api(project(":xr:scenecore:scenecore"))
+    api("androidx.core:core-viewtree:1.0.0")
 
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.savedstate:savedstate:1.2.1")
     implementation("androidx.activity:activity:1.9.3")
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-common:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     implementation("androidx.compose.animation:animation-core:1.7.5")
     implementation("androidx.compose.foundation:foundation:1.7.5")
@@ -48,10 +51,13 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.compose.ui:ui-unit:1.7.5")
+    implementation("androidx.compose.ui:ui-util:1.6.0")
 
+    testImplementation(libs.espressoCore)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -60,13 +66,23 @@ dependencies {
     testImplementation("androidx.compose.ui:ui-test:1.7.5")
     testImplementation("androidx.compose.ui:ui-test-junit4:1.7.5")
     testImplementation(project(":xr:compose:compose-testing"))
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
+    testImplementation("com.google.ar:impress:0.0.9")
+
+    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }
 
 android {
     defaultConfig {
-        minSdkVersion 24
+        minSdk = 24
     }
     namespace = "androidx.xr.compose"
+
+    // Only necessary for versions of :compose:ui:ui-test-* dependencies below 1.10.0
+    lint {
+        disable += "ComposeTestRuleDispatcher"
+    }
 }
 
 androidx {
@@ -74,9 +90,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Compose libraries for the androidx.xr namespace."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
-    // b/384785925
-    metalavaK2UastEnabled = false
+    samples(project(":xr:compose:compose:compose-samples"))
+    enableRobolectric()
 }

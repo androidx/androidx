@@ -40,7 +40,7 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
                 object : TestLayoutManager() {
                     override fun onLayoutChildren(
                         recycler: RecyclerView.Recycler,
-                        state: RecyclerView.State
+                        state: RecyclerView.State,
                     ) {
                         detachAndScrapAttachedViews(recycler)
                         layoutRange(recycler, 0, state.itemCount)
@@ -76,7 +76,7 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
             MatcherAssert.assertThat(
                 "Assumption check",
                 recyclerView.childCount,
-                CoreMatchers.`is`(11)
+                CoreMatchers.`is`(11),
             )
 
             // now mangle the order and run the test
@@ -108,38 +108,38 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
             }
             MatcherAssert.assertThat(
                 tlm.findViewByPosition(2),
-                CoreMatchers.sameInstance(updated.itemView)
+                CoreMatchers.sameInstance(updated.itemView),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
 
             // now swap back
             swapViewsAtIndices(recyclerView, index1, index2)
             MatcherAssert.assertThat(
                 tlm.findViewByPosition(2),
-                CoreMatchers.sameInstance(updated.itemView)
+                CoreMatchers.sameInstance(updated.itemView),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(updated)
+                CoreMatchers.sameInstance(updated),
             )
 
             // now remove updated. re-assert fallback to the hidden one
@@ -147,15 +147,15 @@ class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
             MatcherAssert.assertThat(tlm.findViewByPosition(2), CoreMatchers.nullValue())
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForAdapterPosition(2),
-                CoreMatchers.sameInstance(hidden)
+                CoreMatchers.sameInstance(hidden),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForLayoutPosition(2),
-                CoreMatchers.sameInstance(hidden)
+                CoreMatchers.sameInstance(hidden),
             )
             MatcherAssert.assertThat(
                 recyclerView.findViewHolderForItemId(itemId.toLong()),
-                CoreMatchers.sameInstance(hidden)
+                CoreMatchers.sameInstance(hidden),
             )
         }
 }

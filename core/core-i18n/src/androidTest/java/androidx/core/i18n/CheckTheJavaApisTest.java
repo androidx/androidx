@@ -107,10 +107,8 @@ public class CheckTheJavaApisTest {
             expected = "Mo., 23. August 2021 n. Chr., 19:53:47,123 MEZ";
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             expected = "Mo., 23. August 2021 n. Chr., 10:53:47,123 GMT-07:00";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            expected = "Mo., 23. August 2021 n. Chr. 10:53:47,123 GMT-07:00";
         } else {
-            expected = "Mo., 23. August 2021 n. Chr. 10:53:47,123 PDT";
+            expected = "Mo., 23. August 2021 n. Chr. 10:53:47,123 GMT-07:00";
         }
         // TODO: Bug? The hour is very different below M, as if the timezone is not supported.
         // 19 vs 10 is Paris vs California time
@@ -128,8 +126,6 @@ public class CheckTheJavaApisTest {
             expected = "23. Aug. 2021, 19:53:47";
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             expected = "23. Aug. 2021, 10:53:47";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            expected = "23. Aug. 2021 10:53:47";
         } else {
             expected = "23. Aug. 2021 10:53:47";
         }

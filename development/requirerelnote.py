@@ -39,7 +39,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(
         prog="requirerelnote",
         description="Check if RELNOTE is required")
-    parser.add_argument('--file', nargs='+')
+    parser.add_argument('--file', nargs='*')
     parser.add_argument('--module')
     parser.add_argument('--commit')
 

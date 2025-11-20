@@ -35,27 +35,20 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.sqlite.db"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     ios()
     jvm()
     linux()
     mac()
+    tvos()
+    watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
         commonTest {
@@ -66,7 +59,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(commonMain)
         }
-        androidUnitTest {
+        androidHostTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
@@ -91,11 +84,10 @@ androidXMultiplatform {
     }
 }
 
-
 androidx {
     name = "SQLite"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "SQLite API"
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

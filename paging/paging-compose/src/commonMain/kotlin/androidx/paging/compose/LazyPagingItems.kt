@@ -16,14 +16,12 @@
 
 package androidx.paging.compose
 
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.paging.CombinedLoadStates
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
@@ -44,7 +42,7 @@ import kotlinx.coroutines.withContext
 /**
  * The class responsible for accessing the data from a [Flow] of [PagingData]. In order to obtain an
  * instance of [LazyPagingItems] use the [collectAsLazyPagingItems] extension method of [Flow] with
- * [PagingData]. This instance can be used for Lazy foundations such as [LazyListScope.items] to
+ * [PagingData]. This instance can be used for Lazy foundations such as `LazyListScope.items` to
  * display data received from the [Flow] of [PagingData].
  *
  * Previewing [LazyPagingItems] is supported on a list of mock data. See sample for how to preview
@@ -58,7 +56,7 @@ internal constructor(
     /** the [Flow] object which contains a stream of [PagingData] elements. */
     private val flow: Flow<PagingData<T>>
 ) {
-    private val mainDispatcher = AndroidUiDispatcher.Main
+    private val mainDispatcher = uiDispatcher
 
     /**
      * If the [flow] is a SharedFlow, it is expected to be the flow returned by from
@@ -71,11 +69,9 @@ internal constructor(
             PagingDataPresenter<T>(
                 mainContext = mainDispatcher,
                 cachedPagingData =
-                    if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
+                    if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null,
             ) {
-            override suspend fun presentPagingDataEvent(
-                event: PagingDataEvent<T>,
-            ) {
+            override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {
                 updateItemSnapshotList()
             }
         }
@@ -159,7 +155,7 @@ internal constructor(
                     refresh = InitialLoadStates.refresh,
                     prepend = InitialLoadStates.prepend,
                     append = InitialLoadStates.append,
-                    source = InitialLoadStates
+                    source = InitialLoadStates,
                 )
         )
         private set
@@ -180,7 +176,7 @@ private val InitialLoadStates =
 /**
  * Collects values from this [Flow] of [PagingData] and represents them inside a [LazyPagingItems]
  * instance. The [LazyPagingItems] instance can be used for lazy foundations such as
- * [LazyListScope.items] in order to display the data obtained from a [Flow] of [PagingData].
+ * `LazyListScope.items` in order to display the data obtained from a [Flow] of [PagingData].
  *
  * @sample androidx.paging.compose.samples.PagingBackendSample
  * @param context the [CoroutineContext] to perform the collection of [PagingData] and

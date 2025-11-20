@@ -91,13 +91,13 @@ class StateBuildersTest {
         for (i in 0 until maxStateEntryCount) {
             builder.addKeyToValueMapping<DynamicInt32>(
                 intAppDataKey(i.toString()),
-                DynamicDataValue.fromInt(0)
+                DynamicDataValue.fromInt(0),
             )
         }
         assertFailsWith<IllegalStateException> {
             builder.addKeyToValueMapping<DynamicInt32>(
                 intAppDataKey((maxStateEntryCount + 1).toString()),
-                DynamicDataValue.fromInt(0)
+                DynamicDataValue.fromInt(0),
             )
         }
     }
@@ -108,7 +108,7 @@ class StateBuildersTest {
         for (i in 0 until StateBuilders.State.getMaxStateEntryCount()) {
             builder.addKeyToValueMapping<DynamicInt32>(
                 intAppDataKey(i.toString()),
-                DynamicDataValue.fromInt(0)
+                DynamicDataValue.fromInt(0),
             )
         }
         assertThat(builder.build().getKeyToValueMapping()).hasSize(30)

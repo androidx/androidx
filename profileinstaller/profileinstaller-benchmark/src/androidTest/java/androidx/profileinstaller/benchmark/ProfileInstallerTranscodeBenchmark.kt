@@ -67,7 +67,7 @@ class ProfileInstallerTranscodeBenchmark {
                         APK_NAME,
                         PROFILE_LOCATION,
                         PROFILE_META_LOCATION,
-                        mTempCurFile!!
+                        mTempCurFile!!,
                     )
                     .also(block)
         }
@@ -84,11 +84,11 @@ class ProfileInstallerTranscodeBenchmark {
                 APK_NAME,
                 PROFILE_LOCATION,
                 PROFILE_META_LOCATION,
-                mTempCurFile!!
+                mTempCurFile!!,
             )
         assumeTrue(
             "Device must support AOT to run this benchmark",
-            transcoder.deviceAllowsProfileInstallerAotWrites()
+            transcoder.deviceAllowsProfileInstallerAotWrites(),
         )
     }
 
@@ -103,7 +103,7 @@ class ProfileInstallerTranscodeBenchmark {
                 APK_NAME,
                 PROFILE_LOCATION,
                 PROFILE_META_LOCATION,
-                mTempCurFile!!
+                mTempCurFile!!,
             )
         benchmarkRule.measureRepeated { transcoder.deviceAllowsProfileInstallerAotWrites() }
     }
@@ -159,7 +159,7 @@ class ProfileInstallerTranscodeBenchmark {
                     APK_NAME,
                     PROFILE_LOCATION,
                     PROFILE_META_LOCATION,
-                    mTempCurFile!!
+                    mTempCurFile!!,
                 )
             transcoder.deviceAllowsProfileInstallerAotWrites()
 

@@ -23,6 +23,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.view.ViewParent
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.PausableMonotonicFrameClock
@@ -36,6 +37,7 @@ import androidx.compose.ui.R
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.core.os.HandlerCompat
+import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -84,12 +86,12 @@ fun View.findViewTreeCompositionContext(): CompositionContext? {
     var parent: ViewParent? = parent
     while (found == null && parent is View) {
         found = parent.compositionContext
-        parent = parent.getParent()
+        parent = parent.getParentOrViewTreeDisjointParent()
     }
     return found
 }
 
-private val animationScale = mutableMapOf<Context, StateFlow<Float>>()
+private val animationScale = mutableScatterMapOf<Context, StateFlow<Float>>()
 
 // Callers of this function should pass an application context. Passing an activity context might
 // result in activity leaks.
@@ -116,7 +118,7 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                                 Settings.Global.getFloat(
                                     applicationContext.contentResolver,
                                     Settings.Global.ANIMATOR_DURATION_SCALE,
-                                    1f
+                                    1f,
                                 )
                             emit(newValue)
                         }
@@ -130,8 +132,8 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                     Settings.Global.getFloat(
                         applicationContext.contentResolver,
                         Settings.Global.ANIMATOR_DURATION_SCALE,
-                        1f
-                    )
+                        1f,
+                    ),
                 )
         }
     }
@@ -183,7 +185,7 @@ object WindowRecomposerPolicy {
     @PublishedApi
     internal fun compareAndSetFactory(
         expected: WindowRecomposerFactory,
-        factory: WindowRecomposerFactory
+        factory: WindowRecomposerFactory,
     ): Boolean = this.factory.compareAndSet(expected, factory)
 
     fun setFactory(factory: WindowRecomposerFactory) {
@@ -320,7 +322,7 @@ internal val View.windowRecomposer: Recomposer
  */
 fun View.createLifecycleAwareWindowRecomposer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    lifecycle: Lifecycle? = null
+    lifecycle: Lifecycle? = null,
 ): Recomposer {
     // Only access AndroidUiDispatcher.CurrentThread if we would use an element from it,
     // otherwise prevent lazy initialization.

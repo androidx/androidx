@@ -23,28 +23,36 @@ import android.os.IBinder
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.adapter.PdfDocumentRendererFactoryImpl
 import androidx.pdf.service.PdfDocumentRemoteImpl
+import java.util.Queue
+import java.util.concurrent.ConcurrentLinkedQueue
+import kotlinx.coroutines.Job
 
 class FakePdfServiceConnection(
     override val context: Context,
     override val isConnected: Boolean,
     override var documentBinder: PdfDocumentRemote? = null,
     override var needsToReopenDocument: Boolean = false,
-    private val onServiceConnected: () -> Unit = {}
+    private val onServiceConnected: () -> Unit = {},
+    private val onServiceDisconnected: () -> Unit = {},
 ) : PdfServiceConnection {
+
+    override val pendingJobs: Queue<Job> = ConcurrentLinkedQueue()
+
     override suspend fun connect(uri: Uri) {
         documentBinder = PdfDocumentRemoteImpl(PdfDocumentRendererFactoryImpl())
         onServiceConnected(null, null)
     }
 
-    override suspend fun blockUntilConnected() {}
-
     override fun disconnect() {
         documentBinder?.closePdfDocument()
+        onServiceDisconnected(null)
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         onServiceConnected()
     }
 
-    override fun onServiceDisconnected(name: ComponentName?) {}
+    override fun onServiceDisconnected(name: ComponentName?) {
+        onServiceDisconnected()
+    }
 }

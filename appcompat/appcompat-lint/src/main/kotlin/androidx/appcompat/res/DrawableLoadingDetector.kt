@@ -33,12 +33,12 @@ class DrawableLoadingDetector :
         // Suggest using ContextCompat.getDrawable
         DeprecationCondition(
             MethodLocation("android.content.Context", "getDrawable", TYPE_INT),
-            "Use `AppCompatResources.getDrawable()`"
+            "Use `AppCompatResources.getDrawable()`",
         ),
         // Suggest using ResourcesCompat.getDrawable for one-parameter Resources.getDrawable calls
         DeprecationCondition(
             MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT),
-            "Use `ResourcesCompat.getDrawable()`"
+            "Use `ResourcesCompat.getDrawable()`",
         ),
         // Suggest using ResourcesCompat.getDrawable for two-parameter Resources.getDrawable calls
         DeprecationCondition(
@@ -46,10 +46,10 @@ class DrawableLoadingDetector :
                 "android.content.res.Resources",
                 "getDrawable",
                 TYPE_INT,
-                "android.content.res.Resources.Theme"
+                "android.content.res.Resources.Theme",
             ),
-            "Use `ResourcesCompat.getDrawable()`"
-        )
+            "Use `ResourcesCompat.getDrawable()`",
+        ),
     ) {
     companion object {
         internal val NOT_USING_COMPAT_LOADING: Issue =
@@ -60,7 +60,7 @@ class DrawableLoadingDetector :
                 Category.CORRECTNESS,
                 1,
                 Severity.WARNING,
-                Implementation(DrawableLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(DrawableLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

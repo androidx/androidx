@@ -202,7 +202,7 @@ public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() ->
 )
 public suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
-    block: suspend CoroutineScope.() -> T
+    block: suspend CoroutineScope.() -> T,
 ): T =
     withContext(Dispatchers.Main.immediate) {
         val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")

@@ -28,11 +28,11 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.compose.material.catalog"
         versionCode 2500
@@ -49,23 +49,22 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:ui:ui"))
+    implementation("androidx.compose.runtime:runtime:1.9.0")
+    implementation("androidx.compose.ui:ui:1.9.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.9.0")
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
     implementation(project(":compose:material:material"))
-    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material:material:integration-tests:material-catalog"))
     implementation(project(":compose:material3:material3:integration-tests:material3-catalog"))
-    implementation "androidx.activity:activity-compose:1.3.1"
+    implementation "androidx.activity:activity-compose:1.10.1"
     implementation(project(":navigation:navigation-compose"))
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
     // See aosp/1804059
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.9.2"
 }
 
 // We want to publish a release APK of this project for the Compose Material Catalog

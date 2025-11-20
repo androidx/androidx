@@ -33,7 +33,7 @@ class ZoomMathTest {
             getLinearZoomFromZoomRatio(
                 zoomRatio = minZoomRatio,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         assertThat(linearZoom).isEqualTo(0f)
@@ -45,7 +45,7 @@ class ZoomMathTest {
             getLinearZoomFromZoomRatio(
                 zoomRatio = maxZoomRatio,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         assertThat(linearZoom).isEqualTo(1f)
@@ -66,7 +66,7 @@ class ZoomMathTest {
             getZoomRatioFromLinearZoom(
                 linearZoom = 0f,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         assertThat(zoomRatio).isEqualTo(minZoomRatio)
@@ -78,7 +78,7 @@ class ZoomMathTest {
             getZoomRatioFromLinearZoom(
                 linearZoom = 1.0f,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         assertThat(zoomRatio).isEqualTo(maxZoomRatio)
@@ -117,14 +117,14 @@ class ZoomMathTest {
             getLinearZoomFromZoomRatio(
                 zoomRatio = 2f,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         val zoomRatio =
             getZoomRatioFromLinearZoom(
                 linearZoom = linearZoom,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 
         assertThat(zoomRatio).isEqualTo(2f)
@@ -140,7 +140,7 @@ class ZoomMathTest {
             getZoomRatioFromLinearZoom(
                 linearZoom = 0.5f,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
         val cropWidth = sensorRegionWidth / zoomRatio
 
@@ -162,7 +162,7 @@ class ZoomMathTest {
                 getZoomRatioFromLinearZoom(
                     linearZoom = linearZoom,
                     minZoomRatio = minZoomRatio,
-                    maxZoomRatio = maxZoomRatio
+                    maxZoomRatio = maxZoomRatio,
                 )
 
             val cropWidth = sensorRegionWidth / zoomRatio

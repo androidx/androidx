@@ -125,13 +125,16 @@ public final class MediaRouterDynamicProviderTest {
                                     MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
                         });
         Map<String, MediaRouter.RouteInfo> routeSnapshot =
-                mCallback.waitForRoutes(ROUTE_ID_1, ROUTE_ID_1);
+                mCallback.waitForRoutes(ROUTE_ID_1, ROUTE_ID_2, ROUTE_ID_3);
         mRoute1 = routeSnapshot.get(ROUTE_ID_1);
         Objects.requireNonNull(mRoute1);
         MediaRouteDescriptor mediaRouteDescriptor1 = mRoute1.getMediaRouteDescriptor();
         Objects.requireNonNull(mediaRouteDescriptor1);
         assertEquals(ROUTE_ID_1, mediaRouteDescriptor1.getId());
         assertEquals(ROUTE_NAME_1, mediaRouteDescriptor1.getName());
+        assertEquals(
+                StubDynamicMediaRouteProviderService.NEW_CLIENT_MIN_VERSION,
+                mediaRouteDescriptor1.getMinClientVersion());
 
         mRoute2 = routeSnapshot.get(ROUTE_ID_2);
         Objects.requireNonNull(mRoute2);
@@ -139,6 +142,9 @@ public final class MediaRouterDynamicProviderTest {
         Objects.requireNonNull(mediaRouteDescriptor2);
         assertEquals(ROUTE_ID_2, mediaRouteDescriptor2.getId());
         assertEquals(ROUTE_NAME_2, mediaRouteDescriptor2.getName());
+        assertEquals(
+                StubDynamicMediaRouteProviderService.NEW_CLIENT_MIN_VERSION,
+                mediaRouteDescriptor1.getMinClientVersion());
 
         mRoute3 = routeSnapshot.get(ROUTE_ID_3);
         Objects.requireNonNull(mRoute3);

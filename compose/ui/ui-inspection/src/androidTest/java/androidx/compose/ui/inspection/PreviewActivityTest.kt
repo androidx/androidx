@@ -61,7 +61,7 @@ class PreviewActivityTest {
         val intent = Intent(activityTestRule.activity, PreviewActivity::class.java)
         intent.putExtra(
             "composable",
-            "androidx.compose.ui.inspection.PreviewActivityTestKt.MainBlock"
+            "androidx.compose.ui.inspection.PreviewActivityTestKt.MainBlock",
         )
         activityTestRule.launchActivity(intent)
         runBlocking {

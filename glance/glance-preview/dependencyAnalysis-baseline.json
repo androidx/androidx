@@ -1,0 +1,21 @@
+{
+  "projectPath": ":glance:glance-preview",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.compose.runtime:runtime",
+        "resolvedVersion": "1.1.1"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

@@ -125,7 +125,7 @@ public class PdfLoaderCallbacksImpl(
             .getOrCreatePageView(
                 selection.page,
                 pageElevationInPixels,
-                paginatedView.model.getPageSize(selection.page)
+                paginatedView.model.getPageSize(selection.page),
             )
             .setOverlay(selection.overlay)
     }
@@ -161,7 +161,7 @@ public class PdfLoaderCallbacksImpl(
                     override fun onDialogCancelled() {
                         onDocumentLoadFailure(
                             OperationCanceledException("Password cancelled. Cannot open PDF."),
-                            false
+                            false,
                         )
                     }
 
@@ -216,7 +216,7 @@ public class PdfLoaderCallbacksImpl(
                 PdfStatus.REQUIRES_PASSWORD ->
                     Preconditions.checkArgument(
                         false,
-                        "Document not loaded but status " + status.number
+                        "Document not loaded but status " + status.number,
                     )
                 PdfStatus.PDF_ERROR -> {
                     handleError(status)
@@ -238,7 +238,7 @@ public class PdfLoaderCallbacksImpl(
                     .getOrCreatePageView(
                         page,
                         pageElevationInPixels,
-                        paginatedView.model.getPageSize(page)
+                        paginatedView.model.getPageSize(page),
                     )
                     .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
                 // TODO: Track render error.
@@ -275,7 +275,7 @@ public class PdfLoaderCallbacksImpl(
                     position.scrollY,
                     position.zoom,
                     zoomView.height,
-                    true
+                    true,
                 )
             if (newRange.isEmpty) {
                 layoutHandler!!.maybeLayoutPages(newRange.last)

@@ -139,7 +139,7 @@ private fun ResponsiveBox(numItems: Int) {
                 "$index",
                 color,
                 GlanceModifier.size(boxSize),
-                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
+                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 },
             )
         }
     }
@@ -150,7 +150,7 @@ private fun ContentItem(
     text: String,
     color: Color,
     modifier: GlanceModifier,
-    textStyle: TextStyle? = null
+    textStyle: TextStyle? = null,
 ) {
     Box(modifier = modifier) {
         val context = LocalContext.current
@@ -160,14 +160,14 @@ private fun ContentItem(
             colors =
                 ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(color),
-                    contentColor = ColorProvider(Color.White)
+                    contentColor = ColorProvider(Color.White),
                 ),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
             onClick = {
                 Handler(context.mainLooper).post {
                     Toast.makeText(context, "Item clicked: $text", Toast.LENGTH_SHORT).show()
                 }
-            }
+            },
         )
     }
 }

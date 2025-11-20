@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.10.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0-alpha04)" variant="all" version="8.10.0-alpha04">
+
+    <issue
+        id="UnrememberedGetBackStackEntry"
+        message="Calling getBackStackEntry during composition without using `remember` with a NavBackStackEntry key"
+        errorLine1="                        firstViewModel = hiltViewModel(navController.getBackStackEntry(&quot;Main&quot;))"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/hilt/navigation/compose/HiltNavigationViewModelComposeTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedGetBackStackEntry"
+        message="Calling getBackStackEntry during composition without using `remember` with a NavBackStackEntry key"
+        errorLine1="                        secondViewModel = hiltViewModel(navController.getBackStackEntry(&quot;Main&quot;))"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/hilt/navigation/compose/HiltNavigationViewModelComposeTest.kt"/>
+    </issue>
+
+</issues>

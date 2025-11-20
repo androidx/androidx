@@ -1,0 +1,17 @@
+// Signature format: 4.0
+package androidx.core.role {
+
+  public final class RoleManagerCompat {
+    field public static final String ROLE_ASSISTANT = "android.app.role.ASSISTANT";
+    field public static final String ROLE_BROWSER = "android.app.role.BROWSER";
+    field public static final String ROLE_CALL_REDIRECTION = "android.app.role.CALL_REDIRECTION";
+    field public static final String ROLE_CALL_SCREENING = "android.app.role.CALL_SCREENING";
+    field public static final String ROLE_DIALER = "android.app.role.DIALER";
+    field public static final String ROLE_EMERGENCY = "android.app.role.EMERGENCY";
+    field public static final String ROLE_HOME = "android.app.role.HOME";
+    field public static final String ROLE_SMS = "android.app.role.SMS";
+    field public static final String ROLE_SYSTEM_GALLERY = "android.app.role.SYSTEM_GALLERY";
+  }
+
+}
+

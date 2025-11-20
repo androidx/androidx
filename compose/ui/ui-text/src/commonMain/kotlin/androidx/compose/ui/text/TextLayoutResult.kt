@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -81,7 +82,7 @@ private constructor(
     val fontFamilyResolver: FontFamily.Resolver,
 
     /** The minimum width provided while calculating this text layout. */
-    val constraints: Constraints
+    val constraints: Constraints,
 ) {
 
     private var _developerSuppliedResourceLoader = resourceLoader
@@ -103,7 +104,7 @@ private constructor(
                 "TextLayoutInput(text, style, placeholders, " +
                     "maxLines, softWrap, overflow, density, layoutDirection, fontFamilyResolver, " +
                     "constraints"
-            )
+            ),
     )
     @Suppress("DEPRECATION")
     constructor(
@@ -116,7 +117,7 @@ private constructor(
         density: Density,
         layoutDirection: LayoutDirection,
         resourceLoader: Font.ResourceLoader,
-        constraints: Constraints
+        constraints: Constraints,
     ) : this(
         text,
         style,
@@ -128,7 +129,7 @@ private constructor(
         layoutDirection,
         resourceLoader,
         createFontFamilyResolver(resourceLoader),
-        constraints
+        constraints,
     )
 
     constructor(
@@ -141,7 +142,7 @@ private constructor(
         density: Density,
         layoutDirection: LayoutDirection,
         fontFamilyResolver: FontFamily.Resolver,
-        constraints: Constraints
+        constraints: Constraints,
     ) : this(
         text,
         style,
@@ -153,7 +154,7 @@ private constructor(
         layoutDirection,
         @Suppress("DEPRECATION") null,
         fontFamilyResolver,
-        constraints
+        constraints,
     )
 
     @Deprecated(
@@ -163,7 +164,7 @@ private constructor(
                 "TextLayoutInput(text, style, placeholders," +
                     " maxLines, softWrap, overFlow, density, layoutDirection, fontFamilyResolver, " +
                     "constraints)"
-            )
+            ),
     )
     // Unfortunately, there's no way to deprecate and add a parameter to a copy chain such that the
     // resolution is valid.
@@ -180,7 +181,7 @@ private constructor(
         density: Density = this.density,
         layoutDirection: LayoutDirection = this.layoutDirection,
         @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader = this.resourceLoader,
-        constraints: Constraints = this.constraints
+        constraints: Constraints = this.constraints,
     ): TextLayoutInput {
         return TextLayoutInput(
             text = text,
@@ -193,7 +194,7 @@ private constructor(
             layoutDirection = layoutDirection,
             resourceLoader = resourceLoader,
             fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints
+            constraints = constraints,
         )
     }
 
@@ -267,7 +268,7 @@ private constructor(private val fontFamilyResolver: FontFamily.Resolver) : Font.
         // If this map is found to be large in profiling of an app, please modify your code to not
         // call getFontResourceLoader, and evaluate if FontFamily.Resolver is being correctly cached
         // (via e.g. remember)
-        var cache = mutableMapOf<FontFamily.Resolver, Font.ResourceLoader>()
+        var cache = mutableScatterMapOf<FontFamily.Resolver, Font.ResourceLoader>()
         val lock: SynchronizedObject = makeSynchronizedObject()
 
         fun from(fontFamilyResolver: FontFamily.Resolver): Font.ResourceLoader {
@@ -300,7 +301,7 @@ constructor(
     val multiParagraph: MultiParagraph,
 
     /** The amount of space required to paint this text in Int. */
-    val size: IntSize
+    val size: IntSize,
 ) {
     /** The distance from the top to the alphabetic baseline of the first line. */
     val firstBaseline: Float = multiParagraph.firstBaseline
@@ -533,12 +534,12 @@ constructor(
 
     fun copy(
         layoutInput: TextLayoutInput = this.layoutInput,
-        size: IntSize = this.size
+        size: IntSize = this.size,
     ): TextLayoutResult {
         return TextLayoutResult(
             layoutInput = layoutInput,
             multiParagraph = multiParagraph,
-            size = size
+            size = size,
         )
     }
 

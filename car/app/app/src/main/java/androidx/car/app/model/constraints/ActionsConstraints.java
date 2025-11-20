@@ -65,6 +65,7 @@ public final class ActionsConstraints {
                     .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)
                     .build();
+
     /** Conservative constraints for most template types. */
     private static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_CONSERVATIVE =
             new ActionsConstraints.Builder()
@@ -131,12 +132,14 @@ public final class ActionsConstraints {
      * Constraints for additional row actions. Only allows custom actions.
      * Note: From Car API 8 onwards, Rows are allowed to have 2 max actions to be set.
      */
+    @SuppressWarnings("UnsafeOptInUsageError")
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
             new ActionsConstraints.Builder()
                     .setMaxActions(2)
                     .setMaxCustomTitles(2)
                     .setMaxPrimaryActions(1)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .addAllowedActionType(Action.TYPE_MEDIA_PLAYBACK)
                     .setOnClickListenerAllowed(true)
                     .build();
 
@@ -157,7 +160,8 @@ public final class ActionsConstraints {
      *
      * <ul>
      *     <li>Maximum of {@code 2}
-     *     <li>Must be of type {@link Action#TYPE_CUSTOM} or {@link Action#TYPE_COMPOSE_MESSAGE}
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM} or {@link Action#TYPE_COMPOSE_MESSAGE} or
+     *     {@link Action#TYPE_MEDIA_PLAYBACK}
      *     <li>Must have an icon
      *     <li>Must have a background color, though the host may choose to ignore this color
      *     depending on where it appears (eg. usually only the first action is rendered with a
@@ -171,6 +175,7 @@ public final class ActionsConstraints {
                     .setMaxActions(2)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .addAllowedActionType(Action.TYPE_COMPOSE_MESSAGE)
+                    .addAllowedActionType(Action.TYPE_MEDIA_PLAYBACK)
                     .setRequireActionIcons(true)
                     .setRequireActionBackgroundColor(true)
                     .setOnClickListenerAllowed(true)
@@ -181,6 +186,75 @@ public final class ActionsConstraints {
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_TABS =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
                     .addRequiredActionType(Action.TYPE_APP_ICON)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} header action.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 1}
+     *     <li>Must be of type {@link Action#TYPE_APP_ICON}, {@link Action#TYPE_BACK}, or
+     *     {@link Action#TYPE_CUSTOM}
+     *     <li>Must have an icon
+     *     <li>Cannot have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_IN_CALL_HEADER =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addAllowedActionType(Action.TYPE_APP_ICON)
+                    .addAllowedActionType(Action.TYPE_BACK)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} content actions.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 5}
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM}
+     *     <li>Must have an icon
+     *     <li>Cannot have custom titles
+     *     <li>Maximum of {@code 1} primary action
+     *     <li>Can have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_IN_CALL_CONTENT =
+            new ActionsConstraints.Builder()
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
+                    .setMaxActions(5)
+                    .setMaxCustomTitles(0)
+                    .setMaxPrimaryActions(1)
+                    .setOnClickListenerAllowed(true)
+                    .build();
+
+    /**
+     * Constraints for the {@link androidx.car.app.dialer.TelephoneKeypadTemplate} header action.
+     *
+     * <ul>
+     *     <li>Maximum of {@code 1}
+     *     <li>Must be of type {@link Action#TYPE_APP_ICON} or {@link Action#TYPE_BACK}
+     *     <li>Must have an icon
+     *     <li>Cannot have a click listener
+     * </ul>
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_TELEPHONE_KEYPAD_HEADER =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_HEADER)
+                    .addAllowedActionType(Action.TYPE_APP_ICON)
+                    .addAllowedActionType(Action.TYPE_BACK)
+                    .build();
+
+    /**
+     * Constraints for the actions in this template (eg. the call button). Currently, only a single
+     * primary action that consists of an icon is allowed.
+     */
+    public static final ActionsConstraints ACTION_CONSTRAINTS_TELEPHONE_KEYPAD_PRIMARY =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .setOnClickListenerAllowed(true)
+                    .setRequireActionIcons(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .setMaxCustomTitles(0)
                     .build();
 
     private final int mMaxActions;

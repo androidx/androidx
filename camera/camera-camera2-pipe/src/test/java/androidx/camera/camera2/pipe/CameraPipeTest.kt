@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe
 
 import android.content.Context
-import android.os.Build
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
@@ -30,7 +29,7 @@ import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class CameraPipeTest {
 
     @Test
@@ -48,11 +47,11 @@ internal class CameraPipeTest {
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameraGraph =
-            cameraPipe.create(
+            cameraPipe.createCameraGraph(
                 CameraGraph.Config(
                     camera = fakeCameraId,
                     streams = listOf(),
-                    defaultTemplate = RequestTemplate(0)
+                    defaultTemplate = RequestTemplate(0),
                 )
             )
         assertThat(cameraGraph).isNotNull()

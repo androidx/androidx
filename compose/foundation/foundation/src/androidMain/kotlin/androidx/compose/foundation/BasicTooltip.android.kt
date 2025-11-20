@@ -58,7 +58,7 @@ fun BasicTooltipBoxAndroid(
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
     enableUserInput: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     BasicTooltipBox(
         positionProvider = positionProvider,

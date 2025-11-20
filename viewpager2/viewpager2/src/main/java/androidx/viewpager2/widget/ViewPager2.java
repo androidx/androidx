@@ -174,7 +174,6 @@ public final class ViewPager2 extends ViewGroup {
         initialize(context, attrs);
     }
 
-    @RequiresApi(21)
     public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -1441,9 +1440,6 @@ public final class ViewPager2 extends ViewGroup {
         @Override
         public void onSetUserInputEnabled() {
             updatePageAccessibilityActions();
-            if (Build.VERSION.SDK_INT < 21) {
-                sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
-            }
         }
 
         @Override

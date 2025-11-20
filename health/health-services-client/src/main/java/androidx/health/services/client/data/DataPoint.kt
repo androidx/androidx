@@ -23,7 +23,7 @@ import androidx.health.services.client.proto.DataProto.AggregateDataPoint
 public abstract class DataPoint<T : Any>
 internal constructor(
     /** Type of data contained within this [DataPoint]. */
-    public open val dataType: DataType<T, out DataPoint<T>>,
+    public open val dataType: DataType<T, out DataPoint<T>>
 ) {
     internal companion object {
         internal fun fromProto(proto: AggregateDataPoint): DataPoint<*> {

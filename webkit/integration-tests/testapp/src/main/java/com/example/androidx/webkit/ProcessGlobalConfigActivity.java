@@ -36,6 +36,7 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.process_global_config_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         final Context activityContext = this;
@@ -47,6 +48,9 @@ public class ProcessGlobalConfigActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.directory_base_path_activity_title),
                         new Intent(activityContext, DirectoryBasePathsActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.ui_thread_startup_mode_activity_title),
+                        new Intent(activityContext, UiThreadStartupModeActivity.class)),
         };
         listView.setItems(menuItems);
     }

@@ -212,10 +212,8 @@ public final class MediaBrowserCompat {
             mImpl = new MediaBrowserImplApi26(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
         } else {
-            mImpl = new MediaBrowserImplBase(context, serviceComponent, callback, rootHints);
+            mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
         }
     }
 
@@ -507,7 +505,7 @@ public final class MediaBrowserCompat {
          * @return An equivalent {@link MediaItem} object, or null if none.
          */
         public static MediaItem fromMediaItem(Object itemObj) {
-            if (itemObj == null || Build.VERSION.SDK_INT < 21) {
+            if (itemObj == null) {
                 return null;
             }
             MediaBrowser.MediaItem itemFwk = (MediaBrowser.MediaItem) itemObj;
@@ -528,7 +526,7 @@ public final class MediaBrowserCompat {
          * @return An equivalent list of {@link MediaItem} objects, or null if none.
          */
         public static List<MediaItem> fromMediaItemList(List<?> itemList) {
-            if (itemList == null || Build.VERSION.SDK_INT < 21) {
+            if (itemList == null) {
                 return null;
             }
             List<MediaItem> items = new ArrayList<>(itemList.size());
@@ -648,11 +646,7 @@ public final class MediaBrowserCompat {
         ConnectionCallbackInternal mConnectionCallbackInternal;
 
         public ConnectionCallback() {
-            if (Build.VERSION.SDK_INT >= 21) {
-                mConnectionCallbackFwk = new ConnectionCallbackApi21();
-            } else {
-                mConnectionCallbackFwk = null;
-            }
+            mConnectionCallbackFwk = new ConnectionCallbackApi21();
         }
 
         /**
@@ -695,7 +689,6 @@ public final class MediaBrowserCompat {
             void onConnectionFailed();
         }
 
-        @RequiresApi(21)
         private class ConnectionCallbackApi21 extends MediaBrowser.ConnectionCallback {
             ConnectionCallbackApi21() {
             }
@@ -742,10 +735,8 @@ public final class MediaBrowserCompat {
             mToken = new Binder();
             if (Build.VERSION.SDK_INT >= 26) {
                 mSubscriptionCallbackFwk = new SubscriptionCallbackApi26();
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                mSubscriptionCallbackFwk = new SubscriptionCallbackApi21();
             } else {
-                mSubscriptionCallbackFwk = null;
+                mSubscriptionCallbackFwk = new SubscriptionCallbackApi21();
             }
         }
 
@@ -802,7 +793,6 @@ public final class MediaBrowserCompat {
             mSubscriptionRef = new WeakReference<>(subscription);
         }
 
-        @RequiresApi(21)
         private class SubscriptionCallbackApi21 extends MediaBrowser.SubscriptionCallback {
             SubscriptionCallbackApi21() {
             }
@@ -1659,7 +1649,6 @@ public final class MediaBrowserCompat {
         }
     }
 
-    @RequiresApi(21)
     static class MediaBrowserImplApi21 implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl,
             ConnectionCallback.ConnectionCallbackInternal {
         final Context mContext;
@@ -2393,7 +2382,6 @@ public final class MediaBrowserCompat {
         }
     }
 
-    @RequiresApi(21)
     private static class Api21Impl {
         private Api21Impl() {}
 

@@ -17,7 +17,6 @@ package androidx.appcompat.widget;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -51,8 +50,7 @@ public class MenuPopupWindowTest {
 
         final Resources res = mActivity.getResources();
         final Configuration config = res.getConfiguration();
-        if (Build.VERSION.SDK_INT >= 17
-                && View.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
+        if (View.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
             mRetreatEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT);
         } else {
             mRetreatEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT);

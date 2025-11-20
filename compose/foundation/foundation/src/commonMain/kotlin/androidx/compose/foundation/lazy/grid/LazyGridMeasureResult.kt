@@ -50,6 +50,8 @@ internal class LazyGridMeasureResult(
     val slotsPerLine: Int,
     /** Finds items on a line and their measurement constraints. Used for prefetching. */
     val prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
+    /** Finds the line for a given item. */
+    val lineIndexProvider: (itemIndex: Int) -> Int,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyGridLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyGridMeasuredItem>,
@@ -66,7 +68,7 @@ internal class LazyGridMeasureResult(
     /** see [LazyGridLayoutInfo.afterContentPadding] */
     override val afterContentPadding: Int,
     /** see [LazyGridLayoutInfo.mainAxisItemSpacing] */
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
 ) : LazyGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -94,7 +96,7 @@ internal class LazyGridMeasureResult(
      */
     fun copyWithScrollDeltaWithoutRemeasure(
         delta: Int,
-        updateAnimations: Boolean
+        updateAnimations: Boolean,
     ): LazyGridMeasureResult? {
         if (
             remeasureNeeded ||
@@ -145,6 +147,7 @@ internal class LazyGridMeasureResult(
                 density = density,
                 slotsPerLine = slotsPerLine,
                 prefetchInfoRetriever = prefetchInfoRetriever,
+                lineIndexProvider = lineIndexProvider,
                 visibleItemsInfo = visibleItemsInfo,
                 viewportStartOffset = viewportStartOffset,
                 viewportEndOffset = viewportEndOffset,
@@ -152,7 +155,7 @@ internal class LazyGridMeasureResult(
                 reverseLayout = reverseLayout,
                 orientation = orientation,
                 afterContentPadding = afterContentPadding,
-                mainAxisItemSpacing = mainAxisItemSpacing
+                mainAxisItemSpacing = mainAxisItemSpacing,
             )
         } else {
             null

@@ -89,103 +89,103 @@ fun TextToggleButtonDemo() {
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 TextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.ExtraLargeButtonSize,
-                    textStyle = TextToggleButtonDefaults.extraLargeButtonTextStyle,
+                    size = TextToggleButtonDefaults.ExtraLargeSize,
+                    textStyle = TextToggleButtonDefaults.extraLargeTextStyle,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 LargeTextToggleButtonSample()
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 TextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.DefaultButtonSize,
+                    size = TextToggleButtonDefaults.Size,
                 )
             }
         }
         item { ListHeader { Text("Sizes Shape morphing") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.ExtraLargeButtonSize,
-                    textStyle = TextToggleButtonDefaults.extraLargeButtonTextStyle,
+                    size = TextToggleButtonDefaults.ExtraLargeSize,
+                    textStyle = TextToggleButtonDefaults.extraLargeTextStyle,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.LargeButtonSize,
-                    textStyle = TextToggleButtonDefaults.largeButtonTextStyle,
+                    size = TextToggleButtonDefaults.LargeSize,
+                    textStyle = TextToggleButtonDefaults.largeTextStyle,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.DefaultButtonSize,
+                    size = TextToggleButtonDefaults.Size,
                 )
             }
         }
         item { ListHeader { Text("Sizes Shape morphing variant") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.ExtraLargeButtonSize,
-                    textStyle = TextToggleButtonDefaults.extraLargeButtonTextStyle,
+                    size = TextToggleButtonDefaults.ExtraLargeSize,
+                    textStyle = TextToggleButtonDefaults.extraLargeTextStyle,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.LargeButtonSize,
-                    textStyle = TextToggleButtonDefaults.largeButtonTextStyle,
+                    size = TextToggleButtonDefaults.LargeSize,
+                    textStyle = TextToggleButtonDefaults.largeTextStyle,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${TextToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${TextToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedTextToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = TextToggleButtonDefaults.DefaultButtonSize,
+                    size = TextToggleButtonDefaults.Size,
                 )
             }
         }
@@ -196,8 +196,8 @@ fun TextToggleButtonDemo() {
 private fun TextToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = TextToggleButtonDefaults.DefaultButtonSize,
-    textStyle: TextStyle = TextToggleButtonDefaults.defaultButtonTextStyle,
+    size: Dp = TextToggleButtonDefaults.Size,
+    textStyle: TextStyle = TextToggleButtonDefaults.textStyle,
 ) {
     var checked by remember { mutableStateOf(initialChecked) }
     TextToggleButton(
@@ -214,8 +214,8 @@ private fun TextToggleButtonsDemo(
 private fun AnimatedTextToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = TextToggleButtonDefaults.DefaultButtonSize,
-    textStyle: TextStyle = TextToggleButtonDefaults.defaultButtonTextStyle
+    size: Dp = TextToggleButtonDefaults.Size,
+    textStyle: TextStyle = TextToggleButtonDefaults.textStyle,
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
     TextToggleButton(
@@ -233,8 +233,8 @@ private fun AnimatedTextToggleButtonsDemo(
 private fun VariantAnimatedTextToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = TextToggleButtonDefaults.DefaultButtonSize,
-    textStyle: TextStyle = TextToggleButtonDefaults.defaultButtonTextStyle
+    size: Dp = TextToggleButtonDefaults.Size,
+    textStyle: TextStyle = TextToggleButtonDefaults.textStyle,
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
     val interactionSource = remember { MutableInteractionSource() }

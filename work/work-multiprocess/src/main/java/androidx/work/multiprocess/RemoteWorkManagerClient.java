@@ -72,9 +72,6 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
-    /* The session timeout. */
-    private static final long SESSION_TIMEOUT_MILLIS = 6000 * 1000;
-
     // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
 
@@ -97,20 +94,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     private final SessionTracker mSessionTracker;
 
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
-        this(context, workManager, SESSION_TIMEOUT_MILLIS);
-    }
-
-    public RemoteWorkManagerClient(
-            @NonNull Context context,
-            @NonNull WorkManagerImpl workManager,
-            long sessionTimeout) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
         mExecutor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
         mLock = new Object();
         mSession = null;
         mSessionTracker = new SessionTracker(this);
-        mSessionTimeout = sessionTimeout;
+        mSessionTimeout = workManager.getConfiguration().getRemoteSessionTimeoutMillis();
         mRunnableScheduler = mWorkManager.getConfiguration().getRunnableScheduler();
     }
 

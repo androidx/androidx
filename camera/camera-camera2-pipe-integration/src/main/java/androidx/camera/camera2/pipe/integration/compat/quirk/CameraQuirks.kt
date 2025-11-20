@@ -17,9 +17,9 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.QuirkSettingsHolder
@@ -32,7 +32,7 @@ public class CameraQuirks
 @Inject
 constructor(
     private val cameraMetadata: CameraMetadata?,
-    private val streamConfigurationMapCompat: StreamConfigurationMapCompat
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
 ) {
     /**
      * Goes through all defined camera specific quirks, then filters them to retrieve quirks
@@ -42,7 +42,7 @@ constructor(
         val quirkSettings = QuirkSettingsHolder.instance().get()
         val quirks: MutableList<Quirk> = mutableListOf()
         if (cameraMetadata == null) {
-            Log.error { "Failed to enable quirks: camera metadata injection failed" }
+            Camera2Logger.error { "Failed to enable quirks: camera metadata injection failed" }
             return@lazy Quirks(quirks)
         }
 
@@ -51,7 +51,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 AeFpsRangeLegacyQuirk::class.java,
-                AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)
+                AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(AeFpsRangeLegacyQuirk(cameraMetadata))
@@ -59,7 +59,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 AfRegionFlipHorizontallyQuirk::class.java,
-                AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)
+                AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
@@ -67,7 +67,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 AspectRatioLegacyApi21Quirk::class.java,
-                AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata)
+                AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(AspectRatioLegacyApi21Quirk())
@@ -75,7 +75,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 CamcorderProfileResolutionQuirk::class.java,
-                CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)
+                CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
@@ -83,7 +83,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 CameraNoResponseWhenEnablingFlashQuirk::class.java,
-                CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)
+                CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
@@ -91,7 +91,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 CaptureSessionStuckQuirk::class.java,
-                CaptureSessionStuckQuirk.isEnabled()
+                CaptureSessionStuckQuirk.isEnabled(),
             )
         ) {
             quirks.add(CaptureSessionStuckQuirk())
@@ -99,7 +99,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 CloseCaptureSessionOnVideoQuirk::class.java,
-                CloseCaptureSessionOnVideoQuirk.isEnabled()
+                CloseCaptureSessionOnVideoQuirk.isEnabled(),
             )
         ) {
             quirks.add(CloseCaptureSessionOnVideoQuirk())
@@ -107,7 +107,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ConfigureSurfaceToSecondarySessionFailQuirk::class.java,
-                ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)
+                ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
@@ -115,7 +115,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 FinalizeSessionOnCloseQuirk::class.java,
-                FinalizeSessionOnCloseQuirk.isEnabled()
+                FinalizeSessionOnCloseQuirk.isEnabled(),
             )
         ) {
             quirks.add(FinalizeSessionOnCloseQuirk())
@@ -123,7 +123,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 FlashTooSlowQuirk::class.java,
-                FlashTooSlowQuirk.isEnabled(cameraMetadata)
+                FlashTooSlowQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(FlashTooSlowQuirk())
@@ -131,7 +131,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureFailWithAutoFlashQuirk::class.java,
-                ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata)
+                ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(ImageCaptureFailWithAutoFlashQuirk())
@@ -139,7 +139,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureFlashNotFireQuirk::class.java,
-                ImageCaptureFlashNotFireQuirk.isEnabled(cameraMetadata)
+                ImageCaptureFlashNotFireQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(ImageCaptureFlashNotFireQuirk())
@@ -147,7 +147,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureWashedOutImageQuirk::class.java,
-                ImageCaptureWashedOutImageQuirk.isEnabled(cameraMetadata)
+                ImageCaptureWashedOutImageQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(ImageCaptureWashedOutImageQuirk())
@@ -155,7 +155,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureWithFlashUnderexposureQuirk::class.java,
-                ImageCaptureWithFlashUnderexposureQuirk.isEnabled(cameraMetadata)
+                ImageCaptureWithFlashUnderexposureQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(ImageCaptureWithFlashUnderexposureQuirk())
@@ -163,15 +163,23 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 JpegHalCorruptImageQuirk::class.java,
-                JpegHalCorruptImageQuirk.isEnabled()
+                JpegHalCorruptImageQuirk.isEnabled(),
             )
         ) {
             quirks.add(JpegHalCorruptImageQuirk())
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                JpegCaptureDownsizingQuirk::class.java,
+                JpegCaptureDownsizingQuirk.isEnabled(cameraMetadata),
+            )
+        ) {
+            quirks.add(JpegCaptureDownsizingQuirk)
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 PreviewOrientationIncorrectQuirk::class.java,
-                PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata)
+                PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(PreviewOrientationIncorrectQuirk())
@@ -179,7 +187,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 TextureViewIsClosedQuirk::class.java,
-                TextureViewIsClosedQuirk.isEnabled(cameraMetadata)
+                TextureViewIsClosedQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(TextureViewIsClosedQuirk())
@@ -187,7 +195,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 TorchFlashRequiredFor3aUpdateQuirk::class.java,
-                TorchFlashRequiredFor3aUpdateQuirk.isEnabled(cameraMetadata)
+                TorchFlashRequiredFor3aUpdateQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(TorchFlashRequiredFor3aUpdateQuirk(cameraMetadata))
@@ -195,7 +203,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 YuvImageOnePixelShiftQuirk::class.java,
-                YuvImageOnePixelShiftQuirk.isEnabled()
+                YuvImageOnePixelShiftQuirk.isEnabled(),
             )
         ) {
             quirks.add(YuvImageOnePixelShiftQuirk())
@@ -203,7 +211,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 PreviewStretchWhenVideoCaptureIsBoundQuirk::class.java,
-                PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled()
+                PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled(),
             )
         ) {
             quirks.add(PreviewStretchWhenVideoCaptureIsBoundQuirk())
@@ -211,7 +219,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 PreviewDelayWhenVideoCaptureIsBoundQuirk::class.java,
-                PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled()
+                PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled(),
             )
         ) {
             quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
@@ -219,7 +227,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk::class.java,
-                QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk.isEnabled(cameraMetadata)
+                QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk())
@@ -227,7 +235,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureFailedWhenVideoCaptureIsBoundQuirk::class.java,
-                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()
+                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled(),
             )
         ) {
             quirks.add(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk())
@@ -235,7 +243,7 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 TemporalNoiseQuirk::class.java,
-                TemporalNoiseQuirk.isEnabled(cameraMetadata)
+                TemporalNoiseQuirk.isEnabled(cameraMetadata),
             )
         ) {
             quirks.add(TemporalNoiseQuirk())
@@ -243,10 +251,26 @@ constructor(
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCaptureFailedForVideoSnapshotQuirk::class.java,
-                ImageCaptureFailedForVideoSnapshotQuirk.isEnabled()
+                ImageCaptureFailedForVideoSnapshotQuirk.isEnabled(),
             )
         ) {
             quirks.add(ImageCaptureFailedForVideoSnapshotQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
+                AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk::class.java,
+                AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk.isEnabled(),
+            )
+        ) {
+            quirks.add(AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
+                UltraWideFlashCaptureUnderexposureQuirk::class.java,
+                UltraWideFlashCaptureUnderexposureQuirk.isEnabled(cameraMetadata),
+            )
+        ) {
+            quirks.add(UltraWideFlashCaptureUnderexposureQuirk())
         }
 
         Quirks(quirks).also {

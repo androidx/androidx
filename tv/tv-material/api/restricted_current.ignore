@@ -1,7 +1,673 @@
 // Baseline format: 1.0
-AddedMethod: androidx.tv.material3.DrawerState#DrawerState():
-    Added constructor androidx.tv.material3.DrawerState()
-AddedMethod: androidx.tv.material3.Shapes#Shapes():
-    Added constructor androidx.tv.material3.Shapes()
-AddedMethod: androidx.tv.material3.Typography#Typography():
-    Added constructor androidx.tv.material3.Typography()
+BecameUnchecked: androidx.tv.material3.CarouselKt:
+    Removed class androidx.tv.material3.CarouselKt from compatibility checked API surface
+BecameUnchecked: androidx.tv.material3.ChipKt:
+    Removed class androidx.tv.material3.ChipKt from compatibility checked API surface
+
+
+ChangedType: androidx.tv.material3.TabRowDefaults#contentColor():
+    Source breaking change: Method androidx.tv.material3.TabRowDefaults.contentColor has changed return type from long to androidx.compose.ui.graphics.Color
+
+
+RemovedFromBytecode: androidx.tv.material3.Border#copy(androidx.compose.foundation.BorderStroke, androidx.compose.ui.unit.Dp, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: method androidx.tv.material3.Border.copy(androidx.compose.foundation.BorderStroke,androidx.compose.ui.unit.Dp,androidx.compose.ui.graphics.Shape) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.ButtonDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.ButtonDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardContainerKt#StandardCardContainer(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardContainerColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CardContainerKt.StandardCardContainer(kotlin.jvm.functions.Function1<androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardContainerColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardContainerKt#WideCardContainer(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardContainerColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CardContainerKt.WideCardContainer(kotlin.jvm.functions.Function1<androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardContainerColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.CardDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardKt#Card(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardShape, androidx.tv.material3.CardColors, androidx.tv.material3.CardScale, androidx.tv.material3.CardBorder, androidx.tv.material3.CardGlow, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.CardKt.Card(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardShape,androidx.tv.material3.CardColors,androidx.tv.material3.CardScale,androidx.tv.material3.CardBorder,androidx.tv.material3.CardGlow,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardKt#ClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardShape, androidx.tv.material3.CardColors, androidx.tv.material3.CardScale, androidx.tv.material3.CardBorder, androidx.tv.material3.CardGlow, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CardKt.ClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardShape,androidx.tv.material3.CardColors,androidx.tv.material3.CardScale,androidx.tv.material3.CardBorder,androidx.tv.material3.CardGlow,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardKt#CompactCard(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardShape, androidx.tv.material3.CardColors, androidx.tv.material3.CardScale, androidx.tv.material3.CardBorder, androidx.tv.material3.CardGlow, androidx.compose.ui.graphics.Brush, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CardKt.CompactCard(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardShape,androidx.tv.material3.CardColors,androidx.tv.material3.CardScale,androidx.tv.material3.CardBorder,androidx.tv.material3.CardGlow,androidx.compose.ui.graphics.Brush,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CardKt#WideClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.CardShape, androidx.tv.material3.CardColors, androidx.tv.material3.CardScale, androidx.tv.material3.CardBorder, androidx.tv.material3.CardGlow, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CardKt.WideClassicCard(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.CardShape,androidx.tv.material3.CardColors,androidx.tv.material3.CardScale,androidx.tv.material3.CardBorder,androidx.tv.material3.CardGlow,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CheckboxDefaults#colors():
+    Binary breaking change: method androidx.tv.material3.CheckboxDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CheckboxKt#Checkbox(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.tv.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CheckboxKt.Checkbox(boolean,kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.tv.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.CheckboxKt#TriStateCheckbox(androidx.compose.ui.state.ToggleableState, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.tv.material3.CheckboxColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.CheckboxKt.TriStateCheckbox(androidx.compose.ui.state.ToggleableState,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.tv.material3.CheckboxColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.ClickableSurfaceDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.ClickableSurfaceDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.ClickableSurfaceDefaults#shape(androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: method androidx.tv.material3.ClickableSurfaceDefaults.shape(androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.Glow#copy(androidx.compose.ui.graphics.Color, androidx.compose.ui.unit.Dp):
+    Binary breaking change: method androidx.tv.material3.Glow.copy(androidx.compose.ui.graphics.Color,androidx.compose.ui.unit.Dp) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.IconButtonDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.IconButtonDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.IconButtonKt#IconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.ButtonColors, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.IconButtonKt.IconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.ButtonColors,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.IconButtonKt#OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.ButtonColors, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.IconButtonKt.OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.ButtonColors,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.ListItemDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.ListItemDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.ListItemDefaults#shape(androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: method androidx.tv.material3.ListItemDefaults.shape(androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.MaterialThemeKt#MaterialTheme(androidx.tv.material3.ColorScheme, androidx.tv.material3.Shapes, androidx.tv.material3.Typography, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.MaterialThemeKt.MaterialTheme(androidx.tv.material3.ColorScheme,androidx.tv.material3.Shapes,androidx.tv.material3.Typography,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.NavigationDrawerItemDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.NavigationDrawerItemDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.NavigationDrawerKt#ModalNavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit>, androidx.compose.ui.Modifier, androidx.tv.material3.DrawerState, androidx.compose.ui.graphics.Brush, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.NavigationDrawerKt.ModalNavigationDrawer(kotlin.jvm.functions.Function2<androidx.tv.material3.NavigationDrawerScope,androidx.tv.material3.DrawerValue,kotlin.Unit>,androidx.compose.ui.Modifier,androidx.tv.material3.DrawerState,androidx.compose.ui.graphics.Brush,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.NavigationDrawerKt#NavigationDrawer(kotlin.jvm.functions.Function2<? super androidx.tv.material3.NavigationDrawerScope,? super androidx.tv.material3.DrawerValue,kotlin.Unit>, androidx.compose.ui.Modifier, androidx.tv.material3.DrawerState, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.NavigationDrawerKt.NavigationDrawer(kotlin.jvm.functions.Function2<androidx.tv.material3.NavigationDrawerScope,androidx.tv.material3.DrawerValue,kotlin.Unit>,androidx.compose.ui.Modifier,androidx.tv.material3.DrawerState,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.NavigationDrawerKt#rememberDrawerState(androidx.tv.material3.DrawerValue):
+    Binary breaking change: method androidx.tv.material3.NavigationDrawerKt.rememberDrawerState(androidx.tv.material3.DrawerValue) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.OutlinedButtonDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.OutlinedButtonDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.OutlinedIconButtonDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.OutlinedIconButtonDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.RadioButtonDefaults#colors():
+    Binary breaking change: method androidx.tv.material3.RadioButtonDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.RadioButtonKt#RadioButton(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, androidx.tv.material3.RadioButtonColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.RadioButtonKt.RadioButton(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,androidx.tv.material3.RadioButtonColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.SelectableSurfaceDefaults#shape(androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: method androidx.tv.material3.SelectableSurfaceDefaults.shape(androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape,androidx.compose.ui.graphics.Shape) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.SwitchDefaults#colors():
+    Binary breaking change: method androidx.tv.material3.SwitchDefaults.colors() has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.SwitchKt#Switch(boolean, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.SwitchColors, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.SwitchKt.Switch(boolean,kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.SwitchColors,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.TabKt#Tab(androidx.tv.material3.TabRowScope, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.TabColors, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.TabKt.Tab(androidx.tv.material3.TabRowScope,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.TabColors,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.TabRowDefaults#TabSeparator():
+    Binary breaking change: method androidx.tv.material3.TabRowDefaults.TabSeparator() has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.TabRowDefaults#contentColor():
+    Binary breaking change: method androidx.tv.material3.TabRowDefaults.contentColor() has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.TextKt#ProvideTextStyle(androidx.compose.ui.text.TextStyle, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.tv.material3.TextKt.ProvideTextStyle(androidx.compose.ui.text.TextStyle,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.WideButtonDefaults#Background(boolean, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: method androidx.tv.material3.WideButtonDefaults.Background(boolean,androidx.compose.foundation.interaction.MutableInteractionSource) has been removed from bytecode
+RemovedFromBytecode: androidx.tv.material3.WideButtonDefaults#border(androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border, androidx.tv.material3.Border):
+    Binary breaking change: method androidx.tv.material3.WideButtonDefaults.border(androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border,androidx.tv.material3.Border) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.tv.material3.Border#getBorder():
+    Source breaking change: method androidx.tv.material3.Border.getBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Border#getShape():
+    Source breaking change: method androidx.tv.material3.Border.getShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Border.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.Border.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ButtonDefaults#getButtonWithIconContentPadding():
+    Source breaking change: method androidx.tv.material3.ButtonDefaults.getButtonWithIconContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ButtonDefaults#getContentPadding():
+    Source breaking change: method androidx.tv.material3.ButtonDefaults.getContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ButtonScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.ButtonScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.CardDefaults#getScrimBrush():
+    Source breaking change: method androidx.tv.material3.CardDefaults.getScrimBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.CardScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.CardScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ClickableSurfaceScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.ClickableSurfaceScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ContentColorKt#getLocalContentColor():
+    Source breaking change: method androidx.tv.material3.ContentColorKt.getLocalContentColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.DrawerState#getCurrentValue():
+    Source breaking change: method androidx.tv.material3.DrawerState.getCurrentValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.DrawerState.Companion#getSaver():
+    Source breaking change: method androidx.tv.material3.DrawerState.Companion.getSaver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Glow.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.Glow.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getDisabledBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getDisabledBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getFocusedBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getFocusedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getFocusedDisabledBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getFocusedDisabledBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getFocusedSelectedBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getFocusedSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getPressedBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getPressedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getPressedSelectedBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getPressedSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemBorder#getSelectedBorder():
+    Source breaking change: method androidx.tv.material3.ListItemBorder.getSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getFocusedGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getFocusedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getFocusedSelectedGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getFocusedSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getPressedGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getPressedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getPressedSelectedGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getPressedSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemGlow#getSelectedGlow():
+    Source breaking change: method androidx.tv.material3.ListItemGlow.getSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getDisabledScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getDisabledScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getFocusedDisabledScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getFocusedDisabledScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getFocusedScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getFocusedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getFocusedSelectedScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getFocusedSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getPressedScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getPressedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getPressedSelectedScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getPressedSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale#getSelectedScale():
+    Source breaking change: method androidx.tv.material3.ListItemScale.getSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.ListItemScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getDisabledShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getDisabledShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getFocusedDisabledShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getFocusedDisabledShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getFocusedSelectedShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getFocusedSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getFocusedShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getFocusedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getPressedSelectedShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getPressedSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getPressedShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getPressedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getSelectedShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ListItemShape#getShape():
+    Source breaking change: method androidx.tv.material3.ListItemShape.getShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getDisabledBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getDisabledBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getFocusedBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getFocusedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getFocusedDisabledBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getFocusedDisabledBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getFocusedSelectedBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getFocusedSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getPressedBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getPressedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getPressedSelectedBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getPressedSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemBorder#getSelectedBorder():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemBorder.getSelectedBorder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemDefaults#getContentAnimationEnter():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemDefaults.getContentAnimationEnter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemDefaults#getContentAnimationExit():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemDefaults.getContentAnimationExit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getFocusedGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getFocusedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getFocusedSelectedGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getFocusedSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getPressedGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getPressedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getPressedSelectedGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getPressedSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemGlow#getSelectedGlow():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemGlow.getSelectedGlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getDisabledScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getDisabledScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getFocusedDisabledScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getFocusedDisabledScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getFocusedScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getFocusedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getFocusedSelectedScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getFocusedSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getPressedScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getPressedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getPressedSelectedScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getPressedSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale#getSelectedScale():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.getSelectedScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getDisabledShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getDisabledShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getFocusedDisabledShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getFocusedDisabledShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getFocusedSelectedShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getFocusedSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getFocusedShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getFocusedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getPressedSelectedShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getPressedSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getPressedShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getPressedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getSelectedShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getSelectedShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerItemShape#getShape():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerItemShape.getShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.NavigationDrawerScope#getHasFocus():
+    Source breaking change: method androidx.tv.material3.NavigationDrawerScope.getHasFocus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.OutlinedButtonDefaults#getButtonWithIconContentPadding():
+    Source breaking change: method androidx.tv.material3.OutlinedButtonDefaults.getButtonWithIconContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.OutlinedButtonDefaults#getContentPadding():
+    Source breaking change: method androidx.tv.material3.OutlinedButtonDefaults.getContentPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.SelectableSurfaceScale.Companion#getNone():
+    Source breaking change: method androidx.tv.material3.SelectableSurfaceScale.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ShapeDefaults#getExtraLarge():
+    Source breaking change: method androidx.tv.material3.ShapeDefaults.getExtraLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ShapeDefaults#getExtraSmall():
+    Source breaking change: method androidx.tv.material3.ShapeDefaults.getExtraSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ShapeDefaults#getLarge():
+    Source breaking change: method androidx.tv.material3.ShapeDefaults.getLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ShapeDefaults#getMedium():
+    Source breaking change: method androidx.tv.material3.ShapeDefaults.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.ShapeDefaults#getSmall():
+    Source breaking change: method androidx.tv.material3.ShapeDefaults.getSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Shapes#getExtraLarge():
+    Source breaking change: method androidx.tv.material3.Shapes.getExtraLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Shapes#getExtraSmall():
+    Source breaking change: method androidx.tv.material3.Shapes.getExtraSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Shapes#getLarge():
+    Source breaking change: method androidx.tv.material3.Shapes.getLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Shapes#getMedium():
+    Source breaking change: method androidx.tv.material3.Shapes.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Shapes#getSmall():
+    Source breaking change: method androidx.tv.material3.Shapes.getSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.TabRowScope#getHasFocus():
+    Source breaking change: method androidx.tv.material3.TabRowScope.getHasFocus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.TextKt#getLocalTextStyle():
+    Source breaking change: method androidx.tv.material3.TextKt.getLocalTextStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getBodyLarge():
+    Source breaking change: method androidx.tv.material3.Typography.getBodyLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getBodyMedium():
+    Source breaking change: method androidx.tv.material3.Typography.getBodyMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getBodySmall():
+    Source breaking change: method androidx.tv.material3.Typography.getBodySmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getDisplayLarge():
+    Source breaking change: method androidx.tv.material3.Typography.getDisplayLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getDisplayMedium():
+    Source breaking change: method androidx.tv.material3.Typography.getDisplayMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getDisplaySmall():
+    Source breaking change: method androidx.tv.material3.Typography.getDisplaySmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getHeadlineLarge():
+    Source breaking change: method androidx.tv.material3.Typography.getHeadlineLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getHeadlineMedium():
+    Source breaking change: method androidx.tv.material3.Typography.getHeadlineMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getHeadlineSmall():
+    Source breaking change: method androidx.tv.material3.Typography.getHeadlineSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getLabelLarge():
+    Source breaking change: method androidx.tv.material3.Typography.getLabelLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getLabelMedium():
+    Source breaking change: method androidx.tv.material3.Typography.getLabelMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getLabelSmall():
+    Source breaking change: method androidx.tv.material3.Typography.getLabelSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getTitleLarge():
+    Source breaking change: method androidx.tv.material3.Typography.getTitleLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getTitleMedium():
+    Source breaking change: method androidx.tv.material3.Typography.getTitleMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.tv.material3.Typography#getTitleSmall():
+    Source breaking change: method androidx.tv.material3.Typography.getTitleSmall() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.tv.material3.Border#Border(androidx.compose.foundation.BorderStroke, float, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: Removed constructor androidx.tv.material3.Border(androidx.compose.foundation.BorderStroke,float,androidx.compose.ui.graphics.Shape)
+RemovedMethod: androidx.tv.material3.Border#getInset():
+    Binary breaking change: Removed method androidx.tv.material3.Border.getInset()
+RemovedMethod: androidx.tv.material3.ButtonDefaults#colors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ButtonDefaults.colors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.ButtonDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.ButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.tv.material3.ButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.tv.material3.ButtonKt#Button(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.ButtonColors, float, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.ButtonKt.Button(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.ButtonColors,float,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.ButtonKt#OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.ButtonColors, float, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.ButtonKt.OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.ButtonColors,float,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.layout.PaddingValues,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.CardContainerDefaults#contentColor(long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.CardContainerDefaults.contentColor(long,long,long)
+RemovedMethod: androidx.tv.material3.CardDefaults#colors(long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.CardDefaults.colors(long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.CardDefaults#compactCardColors(long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.CardDefaults.compactCardColors(long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.CheckboxColors#CheckboxColors(long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.CheckboxColors(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.CheckboxColors#copy(long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.copy(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedCheckmarkColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledCheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledCheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledIndeterminateBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledIndeterminateBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledIndeterminateBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledIndeterminateBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledUncheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedCheckmarkColor()
+RemovedMethod: androidx.tv.material3.CheckboxDefaults#colors(long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxDefaults.colors(long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ClickableSurfaceDefaults#colors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ClickableSurfaceDefaults.colors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorScheme#ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.ColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorScheme#copy(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.copy(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorScheme#getBackground():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBackground()
+RemovedMethod: androidx.tv.material3.ColorScheme#getBorder():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBorder()
+RemovedMethod: androidx.tv.material3.ColorScheme#getBorderVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBorderVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getError():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getError()
+RemovedMethod: androidx.tv.material3.ColorScheme#getErrorContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getErrorContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInverseOnSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInverseOnSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInversePrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInversePrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInverseSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInverseSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnBackground():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnBackground()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnError():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnError()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnErrorContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnErrorContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnPrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnPrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnPrimaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnPrimaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSecondary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSecondary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSecondaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSecondaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSurfaceVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSurfaceVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnTertiary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnTertiary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnTertiaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnTertiaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getPrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getPrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getPrimaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getPrimaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getScrim():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getScrim()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSecondary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSecondary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSecondaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSecondaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurfaceTint():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurfaceTint()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurfaceVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurfaceVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getTertiary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getTertiary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getTertiaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getTertiaryContainer()
+RemovedMethod: androidx.tv.material3.ColorSchemeKt#contentColorFor(androidx.tv.material3.ColorScheme, long):
+    Binary breaking change: Removed method androidx.tv.material3.ColorSchemeKt.contentColorFor(androidx.tv.material3.ColorScheme,long)
+RemovedMethod: androidx.tv.material3.ColorSchemeKt#contentColorFor(long):
+    Binary breaking change: Removed method androidx.tv.material3.ColorSchemeKt.contentColorFor(long)
+RemovedMethod: androidx.tv.material3.ColorSchemeKt#darkColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ColorSchemeKt.darkColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorSchemeKt#lightColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ColorSchemeKt.lightColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorSchemeKt#surfaceColorAtElevation(androidx.tv.material3.ColorScheme, float):
+    Binary breaking change: Removed method androidx.tv.material3.ColorSchemeKt.surfaceColorAtElevation(androidx.tv.material3.ColorScheme,float)
+RemovedMethod: androidx.tv.material3.Glow#Glow(long, float):
+    Binary breaking change: Removed constructor androidx.tv.material3.Glow(long,float)
+RemovedMethod: androidx.tv.material3.Glow#getElevation():
+    Binary breaking change: Removed method androidx.tv.material3.Glow.getElevation()
+RemovedMethod: androidx.tv.material3.Glow#getElevationColor():
+    Binary breaking change: Removed method androidx.tv.material3.Glow.getElevationColor()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#colors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.colors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getMediumButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getMediumButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getMediumIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getMediumIconSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.tv.material3.IconKt#Icon(androidx.compose.ui.graphics.ImageBitmap, String, androidx.compose.ui.Modifier, long):
+    Binary breaking change: Removed method androidx.tv.material3.IconKt.Icon(androidx.compose.ui.graphics.ImageBitmap,String,androidx.compose.ui.Modifier,long)
+RemovedMethod: androidx.tv.material3.IconKt#Icon(androidx.compose.ui.graphics.painter.Painter, String, androidx.compose.ui.Modifier, long):
+    Binary breaking change: Removed method androidx.tv.material3.IconKt.Icon(androidx.compose.ui.graphics.painter.Painter,String,androidx.compose.ui.Modifier,long)
+RemovedMethod: androidx.tv.material3.IconKt#Icon(androidx.compose.ui.graphics.vector.ImageVector, String, androidx.compose.ui.Modifier, long):
+    Binary breaking change: Removed method androidx.tv.material3.IconKt.Icon(androidx.compose.ui.graphics.vector.ImageVector,String,androidx.compose.ui.Modifier,long)
+RemovedMethod: androidx.tv.material3.ListItemColors#ListItemColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.ListItemColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ListItemColors#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getDisabledContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getDisabledContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getIconSizeDense():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getIconSizeDense()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getTonalElevation():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getTonalElevation()
+RemovedMethod: androidx.tv.material3.ListItemKt#DenseListItem(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, float, androidx.tv.material3.ListItemShape, androidx.tv.material3.ListItemColors, androidx.tv.material3.ListItemScale, androidx.tv.material3.ListItemBorder, androidx.tv.material3.ListItemGlow, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.tv.material3.ListItemKt.DenseListItem(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,float,androidx.tv.material3.ListItemShape,androidx.tv.material3.ListItemColors,androidx.tv.material3.ListItemScale,androidx.tv.material3.ListItemBorder,androidx.tv.material3.ListItemGlow,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.tv.material3.ListItemKt#ListItem(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, float, androidx.tv.material3.ListItemShape, androidx.tv.material3.ListItemColors, androidx.tv.material3.ListItemScale, androidx.tv.material3.ListItemBorder, androidx.tv.material3.ListItemGlow, androidx.compose.foundation.interaction.MutableInteractionSource):
+    Binary breaking change: Removed method androidx.tv.material3.ListItemKt.ListItem(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,float,androidx.tv.material3.ListItemShape,androidx.tv.material3.ListItemColors,androidx.tv.material3.ListItemScale,androidx.tv.material3.ListItemBorder,androidx.tv.material3.ListItemGlow,androidx.compose.foundation.interaction.MutableInteractionSource)
+RemovedMethod: androidx.tv.material3.MaterialTheme#getColorScheme():
+    Binary breaking change: Removed method androidx.tv.material3.MaterialTheme.getColorScheme()
+RemovedMethod: androidx.tv.material3.MaterialTheme#getShapes():
+    Binary breaking change: Removed method androidx.tv.material3.MaterialTheme.getShapes()
+RemovedMethod: androidx.tv.material3.MaterialTheme#getTypography():
+    Binary breaking change: Removed method androidx.tv.material3.MaterialTheme.getTypography()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#NavigationDrawerItemColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.NavigationDrawerItemColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledInactiveContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledInactiveContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getInactiveContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getInactiveContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#TrailingBadge(String, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.TrailingBadge(String,long,long)
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getCollapsedDrawerItemWidth():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getCollapsedDrawerItemWidth()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getContainerHeightOneLine():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getContainerHeightOneLine()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getContainerHeightTwoLine():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getContainerHeightTwoLine()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getDefaultBorder():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getDefaultBorder()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getExpandedDrawerItemWidth():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getExpandedDrawerItemWidth()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getNavigationDrawerItemElevation():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getNavigationDrawerItemElevation()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getTrailingBadgeContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getTrailingBadgeContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getTrailingBadgeContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getTrailingBadgeContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getTrailingBadgeTextStyle():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getTrailingBadgeTextStyle()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemKt#NavigationDrawerItem(androidx.tv.material3.NavigationDrawerScope, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, float, androidx.tv.material3.NavigationDrawerItemShape, androidx.tv.material3.NavigationDrawerItemColors, androidx.tv.material3.NavigationDrawerItemScale, androidx.tv.material3.NavigationDrawerItemBorder, androidx.tv.material3.NavigationDrawerItemGlow, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemKt.NavigationDrawerItem(androidx.tv.material3.NavigationDrawerScope,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,float,androidx.tv.material3.NavigationDrawerItemShape,androidx.tv.material3.NavigationDrawerItemColors,androidx.tv.material3.NavigationDrawerItemScale,androidx.tv.material3.NavigationDrawerItemBorder,androidx.tv.material3.NavigationDrawerItemGlow,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.OutlinedButtonDefaults#colors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedButtonDefaults.colors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.OutlinedButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedButtonDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#colors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.colors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getMediumButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getMediumButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getMediumIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getMediumIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#RadioButtonColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.RadioButtonColors(long,long,long,long)
+RemovedMethod: androidx.tv.material3.RadioButtonColors#copy(long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.copy(long,long,long,long)
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getDisabledSelectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getDisabledSelectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getDisabledUnselectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getDisabledUnselectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getSelectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getSelectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getUnselectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getUnselectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonDefaults#colors(long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonDefaults.colors(long,long,long,long)
+RemovedMethod: androidx.tv.material3.SelectableSurfaceDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.SelectableSurfaceDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.SurfaceDefaults#colors(long, long):
+    Binary breaking change: Removed method androidx.tv.material3.SurfaceDefaults.colors(long,long)
+RemovedMethod: androidx.tv.material3.SurfaceDefaults#getShape():
+    Binary breaking change: Removed method androidx.tv.material3.SurfaceDefaults.getShape()
+RemovedMethod: androidx.tv.material3.SurfaceKt#Surface(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape, androidx.tv.material3.SurfaceColors, androidx.tv.material3.Border, androidx.tv.material3.Glow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.SurfaceKt.Surface(androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape,androidx.tv.material3.SurfaceColors,androidx.tv.material3.Border,androidx.tv.material3.Glow,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.SurfaceKt#Surface(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, float, androidx.tv.material3.SelectableSurfaceShape, androidx.tv.material3.SelectableSurfaceColors, androidx.tv.material3.SelectableSurfaceScale, androidx.tv.material3.SelectableSurfaceBorder, androidx.tv.material3.SelectableSurfaceGlow, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.SurfaceKt.Surface(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,float,androidx.tv.material3.SelectableSurfaceShape,androidx.tv.material3.SelectableSurfaceColors,androidx.tv.material3.SelectableSurfaceScale,androidx.tv.material3.SelectableSurfaceBorder,androidx.tv.material3.SelectableSurfaceGlow,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.SurfaceKt#Surface(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, float, androidx.tv.material3.ClickableSurfaceShape, androidx.tv.material3.ClickableSurfaceColors, androidx.tv.material3.ClickableSurfaceScale, androidx.tv.material3.ClickableSurfaceBorder, androidx.tv.material3.ClickableSurfaceGlow, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.SurfaceKt.Surface(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,float,androidx.tv.material3.ClickableSurfaceShape,androidx.tv.material3.ClickableSurfaceColors,androidx.tv.material3.ClickableSurfaceScale,androidx.tv.material3.ClickableSurfaceBorder,androidx.tv.material3.ClickableSurfaceGlow,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.SwitchColors#SwitchColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.SwitchColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.SwitchColors#copy(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.copy(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchDefaults#colors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.SwitchDefaults.colors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.SwitchDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.TabDefaults#pillIndicatorTabColors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.TabDefaults.pillIndicatorTabColors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.TabDefaults#underlinedIndicatorTabColors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.TabDefaults.underlinedIndicatorTabColors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.TabRowDefaults#PillIndicator(androidx.compose.ui.unit.DpRect, boolean, androidx.compose.ui.Modifier, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.TabRowDefaults.PillIndicator(androidx.compose.ui.unit.DpRect,boolean,androidx.compose.ui.Modifier,long,long)
+RemovedMethod: androidx.tv.material3.TabRowDefaults#UnderlinedIndicator(androidx.compose.ui.unit.DpRect, boolean, androidx.compose.ui.Modifier, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.TabRowDefaults.UnderlinedIndicator(androidx.compose.ui.unit.DpRect,boolean,androidx.compose.ui.Modifier,long,long)
+RemovedMethod: androidx.tv.material3.TabRowDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.TabRowDefaults.getContainerColor()
+RemovedMethod: androidx.tv.material3.TabRowKt#TabRow(int, androidx.compose.ui.Modifier, long, long, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function2<? super java.util.List<androidx.compose.ui.unit.DpRect>,? super java.lang.Boolean,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.tv.material3.TabRowScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.TabRowKt.TabRow(int,androidx.compose.ui.Modifier,long,long,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function2<? super java.util.List<androidx.compose.ui.unit.DpRect>,? super java.lang.Boolean,kotlin.Unit>,kotlin.jvm.functions.Function1<? super androidx.tv.material3.TabRowScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.TextKt#Text(String, androidx.compose.ui.Modifier, long, long, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontFamily, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.text.style.TextAlign, long, int, boolean, int, int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>, androidx.compose.ui.text.TextStyle):
+    Binary breaking change: Removed method androidx.tv.material3.TextKt.Text(String,androidx.compose.ui.Modifier,long,long,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,long,int,boolean,int,int,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>,androidx.compose.ui.text.TextStyle)
+RemovedMethod: androidx.tv.material3.TextKt#Text(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.Modifier, long, long, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontFamily, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.text.style.TextAlign, long, int, boolean, int, int, java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>, androidx.compose.ui.text.TextStyle):
+    Binary breaking change: Removed method androidx.tv.material3.TextKt.Text(androidx.compose.ui.text.AnnotatedString,androidx.compose.ui.Modifier,long,long,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontFamily,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.text.style.TextAlign,long,int,boolean,int,int,java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent>,kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>,androidx.compose.ui.text.TextStyle)
+RemovedMethod: androidx.tv.material3.WideButtonDefaults#contentColor(long, long, long, long):
+    Binary breaking change: Removed method androidx.tv.material3.WideButtonDefaults.contentColor(long,long,long,long)
+RemovedMethod: androidx.tv.material3.WideButtonKt#WideButton(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.WideButtonContentColor, float, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.layout.PaddingValues, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.tv.material3.WideButtonKt.WideButton(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.WideButtonContentColor,float,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.layout.PaddingValues,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>)
+RemovedMethod: androidx.tv.material3.WideButtonKt#WideButton(kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>, boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.tv.material3.ButtonScale, androidx.tv.material3.ButtonGlow, androidx.tv.material3.ButtonShape, androidx.tv.material3.WideButtonContentColor, float, androidx.tv.material3.ButtonBorder, androidx.compose.foundation.layout.PaddingValues):
+    Binary breaking change: Removed method androidx.tv.material3.WideButtonKt.WideButton(kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.Modifier,kotlin.jvm.functions.Function0<kotlin.Unit>,boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.tv.material3.ButtonScale,androidx.tv.material3.ButtonGlow,androidx.tv.material3.ButtonShape,androidx.tv.material3.WideButtonContentColor,float,androidx.tv.material3.ButtonBorder,androidx.compose.foundation.layout.PaddingValues)

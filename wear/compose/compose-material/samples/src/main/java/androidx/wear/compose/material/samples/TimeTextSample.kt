@@ -102,9 +102,9 @@ fun TimeTextAnimation() {
                             else ->
                                 // Fade Out
                                 CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                        }
+                        },
                 )
-            }
+            },
         ) { state ->
             when (state) {
                 true -> Color.White
@@ -114,7 +114,7 @@ fun TimeTextAnimation() {
     val animateSize by
         showTransition.animateFloat(
             label = "animatedSize",
-            transitionSpec = { tween(time, easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)) }
+            transitionSpec = { tween(time, easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)) },
         ) { state ->
             when (state) {
                 true -> 1f
@@ -156,7 +156,7 @@ fun TimeTextAnimation() {
                         text,
                         CurvedModifier.sizeIn(maxSweepDegrees = curvedTextSweep),
                         style = CurvedTextStyle(textStyle),
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             },
@@ -181,7 +181,7 @@ fun TimeTextAnimation() {
                         modifier =
                             Modifier.wrapContentWidth(align = Alignment.Start, unbounded = true)
                                 .widthIn(max = linearTextSize),
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             },

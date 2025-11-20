@@ -31,7 +31,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = -0.5f,
-                bottomOffsetFraction = 0.2f
+                bottomOffsetFraction = 0.2f,
             )
         assertEquals(progress.topOffsetFraction, -0.5f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0.2f, 1e-2f)
@@ -42,7 +42,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = 0f,
-                bottomOffsetFraction = 0f
+                bottomOffsetFraction = 0f,
             )
         assertEquals(progress.topOffsetFraction, 0f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0f, 1e-2f)
@@ -53,7 +53,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = 0.3f,
-                bottomOffsetFraction = 0.7f
+                bottomOffsetFraction = 0.7f,
             )
         assertEquals(progress.topOffsetFraction, 0.3f, 1e-2f)
         assertEquals(progress.bottomOffsetFraction, 0.7f, 1e-2f)
@@ -64,7 +64,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = Float.NaN,
-                bottomOffsetFraction = Float.NaN
+                bottomOffsetFraction = Float.NaN,
             )
         assertEquals(progress.topOffsetFraction, Float.NaN)
         assertEquals(progress.bottomOffsetFraction, Float.NaN)
@@ -75,7 +75,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = Float.NEGATIVE_INFINITY,
-                bottomOffsetFraction = Float.POSITIVE_INFINITY
+                bottomOffsetFraction = Float.POSITIVE_INFINITY,
             )
         assertEquals(progress.topOffsetFraction, Float.NEGATIVE_INFINITY)
         assertEquals(progress.bottomOffsetFraction, Float.POSITIVE_INFINITY)
@@ -86,7 +86,7 @@ class TransformingLazyColumnScrollProgressTest {
         val progress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = 0f,
-                bottomOffsetFraction = 0f
+                bottomOffsetFraction = 0f,
             )
         assertTrue(progress.isSpecified)
     }

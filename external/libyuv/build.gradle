@@ -34,8 +34,7 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                arguments "-DCMAKE_POLICY_DEFAULT_CMP0064=NEW",
-                                "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
                 // Build only the static library target
                 targets "yuv"
             }

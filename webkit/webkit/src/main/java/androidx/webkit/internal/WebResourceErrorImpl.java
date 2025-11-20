@@ -18,7 +18,6 @@ package androidx.webkit.internal;
 
 import android.webkit.WebResourceError;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
 
 import org.chromium.support_lib_boundary.WebResourceErrorBoundaryInterface;
@@ -56,7 +55,6 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
         mFrameworksImpl = error;
     }
 
-    @RequiresApi(23)
     private WebResourceError getFrameworksImpl() {
         if (mFrameworksImpl == null) {
             mFrameworksImpl = WebViewGlueCommunicator.getCompatConverter().convertWebResourceError(
@@ -65,36 +63,13 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
         return mFrameworksImpl;
     }
 
-    private WebResourceErrorBoundaryInterface getBoundaryInterface() {
-        if (mBoundaryInterface == null) {
-            mBoundaryInterface = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    WebResourceErrorBoundaryInterface.class,
-                    WebViewGlueCommunicator.getCompatConverter().convertWebResourceError(
-                            mFrameworksImpl));
-        }
-        return mBoundaryInterface;
-    }
-
     @Override
     public int getErrorCode() {
-        final ApiFeature.M feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_CODE;
-        if (feature.isSupportedByFramework()) {
-            return ApiHelperForM.getErrorCode(getFrameworksImpl());
-        } else if (feature.isSupportedByWebView()) {
-            return getBoundaryInterface().getErrorCode();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
+        return getFrameworksImpl().getErrorCode();
     }
 
     @Override
     public @NonNull CharSequence getDescription() {
-        final ApiFeature.M feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_DESCRIPTION;
-        if (feature.isSupportedByFramework()) {
-            return ApiHelperForM.getDescription(getFrameworksImpl());
-        } else if (feature.isSupportedByWebView()) {
-            return getBoundaryInterface().getDescription();
-        }
-        throw WebViewFeatureInternal.getUnsupportedOperationException();
+        return getFrameworksImpl().getDescription();
     }
 }

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.animation.graphics.res.AnimatedVectorPainterResources_androidKt#rememberAnimatedVectorPainter(androidx.compose.animation.graphics.vector.AnimatedImageVector, boolean):
+    Binary breaking change: method androidx.compose.animation.graphics.res.AnimatedVectorPainterResources_androidKt.rememberAnimatedVectorPainter(androidx.compose.animation.graphics.vector.AnimatedImageVector,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.animation.graphics.res.AnimatedVectorResources_androidKt#animatedVectorResource(androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion, int):
+    Binary breaking change: method androidx.compose.animation.graphics.res.AnimatedVectorResources_androidKt.animatedVectorResource(androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion,int) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.compose.animation.graphics.vector.AnimatedImageVector#getImageVector():
+    Source breaking change: method androidx.compose.animation.graphics.vector.AnimatedImageVector.getImageVector() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.graphics.vector.AnimatedImageVector#getTotalDuration():
+    Source breaking change: method androidx.compose.animation.graphics.vector.AnimatedImageVector.getTotalDuration() can no longer be resolved from Kotlin source

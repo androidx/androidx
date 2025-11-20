@@ -86,7 +86,7 @@ internal fun JavaContext.findMavenCoordinate(member: PsiMember): LintModelMavenN
  */
 internal fun List<LintModelLibrary>.findMavenNameWithJarFileInPath(
     path: String,
-    excludeMavenName: LintModelMavenName? = null
+    excludeMavenName: LintModelMavenName? = null,
 ): LintModelMavenName? {
     return firstNotNullOfOrNull { library ->
         val resolvedCoordinates =

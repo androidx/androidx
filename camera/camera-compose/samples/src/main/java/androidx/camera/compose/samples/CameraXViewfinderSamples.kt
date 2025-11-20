@@ -78,12 +78,12 @@ fun CameraXViewfinderSample() {
                                 viewModel.focusOnPoint(
                                     surfaceRequest.resolution,
                                     surfaceCoords.x,
-                                    surfaceCoords.y
+                                    surfaceCoords.y,
                                 )
                             }
                         }
                     },
-                coordinateTransformer = coordinateTransformer
+                coordinateTransformer = coordinateTransformer,
             )
         }
     }

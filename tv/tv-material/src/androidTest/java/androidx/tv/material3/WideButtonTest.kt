@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class WideButtonTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun wideButton_defaultSemantics() {
@@ -69,7 +70,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -91,7 +92,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -114,7 +115,7 @@ class WideButtonTest {
                     enabled = false,
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -137,7 +138,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -160,7 +161,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -183,7 +184,7 @@ class WideButtonTest {
                     enabled = enabled,
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -259,7 +260,7 @@ class WideButtonTest {
                             modifier =
                                 Modifier.testTag(WideButtonTextTag).semantics(
                                     mergeDescendants = true
-                                ) {}
+                                ) {},
                         )
                     },
                     icon = {
@@ -269,9 +270,9 @@ class WideButtonTest {
                             modifier =
                                 Modifier.size(WideButtonIconSize)
                                     .testTag(WideButtonIconTag)
-                                    .semantics(mergeDescendants = true) {}
+                                    .semantics(mergeDescendants = true) {},
                         )
-                    }
+                    },
                 )
             }
         }
@@ -281,7 +282,7 @@ class WideButtonTest {
 
         (leadingIconBounds.left - buttonBounds.left).assertIsEqualTo(
             16.dp,
-            "padding between the start of the button and the start of the leading icon."
+            "padding between the start of the button and the start of the leading icon.",
         )
     }
 }

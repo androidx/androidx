@@ -137,7 +137,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                                             stateHolder.withLock { state ->
                                                 state.failedHintsByLoadType[loadType]
                                             }
-                                    }
+                                    },
                             )
 
                             // If retrying REFRESH from PagingSource succeeds, start collection on
@@ -524,7 +524,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             when {
                                 endOfPaginationReached -> NotLoading.Complete
                                 else -> NotLoading.Incomplete
-                            }
+                            },
                     )
                 }
 
@@ -556,7 +556,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private fun loadResultLog(
         loadType: LoadType,
         loadKey: Key?,
-        result: LoadResult<Key, Value>?
+        result: LoadResult<Key, Value>?,
     ): String {
         return if (result == null) {
             "End $loadType with loadkey $loadKey. Load CANCELLED."
@@ -568,27 +568,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(loadType: LoadType) {
         if (sourceLoadStates.get(loadType) != Loading) {
             sourceLoadStates.set(type = loadType, state = Loading)
-            pageEventCh.send(
-                LoadStateUpdate(
-                    source = sourceLoadStates.snapshot(),
-                    mediator = null,
-                )
-            )
+            pageEventCh.send(LoadStateUpdate(source = sourceLoadStates.snapshot(), mediator = null))
         }
     }
 
     private suspend fun PageFetcherSnapshotState<Key, Value>.setError(
         loadType: LoadType,
-        error: Error
+        error: Error,
     ) {
         if (sourceLoadStates.get(loadType) != error) {
             sourceLoadStates.set(type = loadType, state = error)
-            pageEventCh.send(
-                LoadStateUpdate(
-                    source = sourceLoadStates.snapshot(),
-                    mediator = null,
-                )
-            )
+            pageEventCh.send(LoadStateUpdate(source = sourceLoadStates.snapshot(), mediator = null))
         }
     }
 
@@ -596,7 +586,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     private fun PageFetcherSnapshotState<Key, Value>.nextLoadKeyOrNull(
         loadType: LoadType,
         generationId: Int,
-        presentedItemsBeyondAnchor: Int
+        presentedItemsBeyondAnchor: Int,
     ): Key? {
         if (generationId != generationId(loadType)) return null
         // Skip load if in error state, unless retrying.
@@ -638,7 +628,7 @@ internal data class GenerationalViewportHint(val generationId: Int, val hint: Vi
  */
 internal fun GenerationalViewportHint.shouldPrioritizeOver(
     previous: GenerationalViewportHint,
-    loadType: LoadType
+    loadType: LoadType,
 ): Boolean {
     return when {
         // Prioritize hints from new generations, which increments after dropping.

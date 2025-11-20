@@ -225,6 +225,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @SuppressWarnings({"StringConcatToTextBlock", "StringSplitter"}) // Not supported in Jetpack.
     public void testDocument_toString() {
         GenericDocument nestedDocValue = new GenericDocument.Builder<GenericDocument.Builder<?>>(
                 "namespace", "id2", "schemaType2")
@@ -285,6 +286,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @SuppressWarnings({"StringConcatToTextBlock", "StringSplitter"}) // Not supported in Jetpack.
     public void testDocumentEmptyProperties_toString() {
         GenericDocument document =
                 new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
@@ -430,7 +432,7 @@ public class GenericDocumentCtsTest {
 
         // Make sure old doc hasn't changed
         assertThat(document1.getId()).isEqualTo("id1");
-        assertThat(document1.getNamespace()).isEqualTo("");
+        assertThat(document1.getNamespace()).isEmpty();
         assertThat(document1.getPropertyLongArray("longKey1")).asList()
                 .containsExactly(1L, 2L, 3L).inOrder();
         assertThat(document1.getPropertyBooleanArray("booleanKey1")).asList()
@@ -692,7 +694,7 @@ public class GenericDocumentCtsTest {
         Exception e = assertThrows(IllegalArgumentException.class,
                 () -> new GenericDocument.Builder<>("namespace", "id1", "schema1")
                         .setPropertyString("", "foo"));
-        assertThat(e.getMessage()).isEqualTo("Property name cannot be blank.");
+        assertThat(e).hasMessageThat().isEqualTo("Property name cannot be blank.");
 
         e = assertThrows(IllegalArgumentException.class,
                 () -> new GenericDocument.Builder<>("namespace", "id1", "schema1")
@@ -700,7 +702,7 @@ public class GenericDocumentCtsTest {
                                 new GenericDocument.Builder<>("namespace", "id2", "schema1")
                                         .setPropertyString("", "Bat", "Hawk")
                                         .build()));
-        assertThat(e.getMessage()).isEqualTo("Property name cannot be blank.");
+        assertThat(e).hasMessageThat().isEqualTo("Property name cannot be blank.");
     }
 
     @Test
@@ -1176,7 +1178,7 @@ public class GenericDocumentCtsTest {
 
         // Make sure old doc hasn't changed
         assertThat(document1.getId()).isEqualTo("id1");
-        assertThat(document1.getNamespace()).isEqualTo("");
+        assertThat(document1.getNamespace()).isEmpty();
         assertThat(document1.getPropertyLongArray("longKey1")).asList()
                 .containsExactly(1L, 2L, 3L).inOrder();
         assertThat(document1.getPropertyBooleanArray("booleanKey1")).asList()

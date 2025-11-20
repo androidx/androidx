@@ -18,7 +18,7 @@ package androidx.webkit;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -50,12 +50,15 @@ public interface WebViewStartUpResult {
     @Nullable Long getMaxTimePerTaskInUiThreadMillis();
 
     /**
-     * Code locations where WebView is started up suboptimally.
+     * Code locations where WebView startup completely blocked the UI thread.
      * <p>
      * This is as a debug tool to enable apps to catch code locations where WebView is suboptimally
      * started up even when
-     * {@link WebViewCompat#startUpWebView(WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+     * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
      * is used.
+     * <p>
+     * Example code location: A `new WebView()` call on the Android main looper before calling
+     * any other API that triggers WebView startup.
      * <p>
      * The list will be chronologically ordered based on the time of creation of the stacktrace.
      * <p>
@@ -63,6 +66,23 @@ public interface WebViewStartUpResult {
      * method.
      */
     @SuppressLint("NullableCollection")
-    @Nullable List<BlockingStartUpLocation> getBlockingStartUpLocations();
+    @Nullable List<StartUpLocation> getUiThreadBlockingStartUpLocations();
+
+    /**
+     * Code locations where WebView startup blocked a non-UI thread.
+     * <p>
+     * This is as a debug tool to enable apps to catch code locations where WebView is started up or
+     * is about to be started up such that it blocks a non-UI thread.
+     * <p>
+     * Example code location: A `WebSettings.getDefaultUserAgent()` call on a background thread
+     * before calling any other API that triggers WebView startup.
+     * <p>
+     * The list will be chronologically ordered based on the time of creation of the stacktrace.
+     * <p>
+     * The return value will be {@code null} if the underlying WebView version doesn't support this
+     * method.
+     */
+    @SuppressLint("NullableCollection")
+    @Nullable List<StartUpLocation> getNonUiThreadBlockingStartUpLocations();
 }
 

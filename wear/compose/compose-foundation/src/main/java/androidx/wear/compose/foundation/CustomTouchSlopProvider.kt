@@ -27,13 +27,13 @@ internal fun CustomTouchSlopProvider(newTouchSlop: Float, content: @Composable (
         value =
             LocalViewConfiguration provides
                 CustomTouchSlop(newTouchSlop, LocalViewConfiguration.current),
-        content = content
+        content = content,
     )
 }
 
 private class CustomTouchSlop(
     private val customTouchSlop: Float,
-    currentConfiguration: ViewConfiguration
+    currentConfiguration: ViewConfiguration,
 ) : ViewConfiguration by currentConfiguration {
     override val touchSlop: Float
         get() = customTouchSlop

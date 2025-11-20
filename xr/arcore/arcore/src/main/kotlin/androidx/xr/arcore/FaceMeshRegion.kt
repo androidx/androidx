@@ -1,0 +1,46 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.xr.arcore
+
+import androidx.annotation.RestrictTo
+
+/** Regions of a TrackableMesh with meshType TRACKABLE_MESH_TYPE_FACE */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class FaceMeshRegion private constructor(private val value: Int) {
+    public companion object {
+        /** The region at the tip of the nose */
+        @JvmField public val NOSE_TIP: FaceMeshRegion = FaceMeshRegion(0)
+
+        /**
+         * The region at the top-left of the face, relative to the center pose's forward direction.
+         */
+        @JvmField public val FOREHEAD_LEFT: FaceMeshRegion = FaceMeshRegion(1)
+
+        /**
+         * The region at the top-right of the face, relative to the center pose's forward direction.
+         */
+        @JvmField public val FOREHEAD_RIGHT: FaceMeshRegion = FaceMeshRegion(2)
+    }
+
+    override fun toString(): String =
+        when (value) {
+            0 -> "NOSE_TIP"
+            1 -> "FOREHEAD_LEFT"
+            2 -> "FOREHEAD_RIGHT"
+            else -> "UNKNOWN"
+        }
+}

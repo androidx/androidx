@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.navigation.fragment.compose.LocalFragmentKt#getLocalFragment():
+    Source breaking change: method androidx.navigation.fragment.compose.LocalFragmentKt.getLocalFragment() can no longer be resolved from Kotlin source

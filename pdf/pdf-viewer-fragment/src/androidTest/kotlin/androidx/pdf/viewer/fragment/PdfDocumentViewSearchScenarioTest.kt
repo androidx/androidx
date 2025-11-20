@@ -74,7 +74,7 @@ class PdfDocumentViewSearchScenarioTest {
         pdfDocumentViewModel =
             PdfDocumentViewModel(
                 savedStateHandle,
-                FakePdfLoader(FakePdfDocument(searchResults = searchResults))
+                FakePdfLoader(FakePdfDocument(searchResults = searchResults)),
             )
     }
 
@@ -334,7 +334,7 @@ class PdfDocumentViewSearchScenarioTest {
             val updatedHighlightData = highlights.last()
             assertEquals(
                 6,
-                updatedHighlightData.currentIndex
+                updatedHighlightData.currentIndex,
             ) // it will be a 7th match, so index will be 6(0-indexed).
             val totalSearchMatches =
                 (pdfDocumentViewModel.searchViewUiState.value as SearchViewUiState.Active)

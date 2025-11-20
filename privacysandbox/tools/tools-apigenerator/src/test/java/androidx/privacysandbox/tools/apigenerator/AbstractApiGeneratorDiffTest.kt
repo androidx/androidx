@@ -35,14 +35,14 @@ abstract class AbstractApiGeneratorDiffTest : AbstractDiffTest() {
         val descriptors =
             compileIntoInterfaceDescriptorsJar(
                 inputSources,
-                mapOf(Metadata.filePath to Metadata.toolMetadata.toByteArray())
+                mapOf(Metadata.filePath to Metadata.toolMetadata.toByteArray()),
             )
         val generator = PrivacySandboxApiGenerator()
         generator.generate(
             descriptors,
             TestEnvironment.aidlCompilerPath,
             TestEnvironment.frameworkAidlPath,
-            outputDirectory
+            outputDirectory,
         )
         return loadSourcesFromDirectory(outputDirectory.toFile())
     }

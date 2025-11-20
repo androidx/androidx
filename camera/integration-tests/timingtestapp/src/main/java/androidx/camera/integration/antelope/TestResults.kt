@@ -315,13 +315,13 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
                 prefix +
                 "_" +
                 generateCSVTimestamp() +
-                ".csv"
+                ".csv",
         )
 
     val csvDir =
         File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-            MainActivity.LOG_DIR
+            MainActivity.LOG_DIR,
         )
     val docsDir =
         File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "")
@@ -346,7 +346,7 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
                 Toast.makeText(
                         activity,
                         "Documents/" + MainActivity.LOG_DIR + " creation failed.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     )
                     .show()
             }
@@ -398,7 +398,7 @@ fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
         ContentValues().apply {
             put(
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                prefix + "_" + generateCSVTimestamp() + ".csv"
+                prefix + "_" + generateCSVTimestamp() + ".csv",
             )
             put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
             put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_PATH)
@@ -467,7 +467,7 @@ fun deleteCSVFilesBeforeQ(activity: MainActivity) {
     val csvDir =
         File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-            MainActivity.LOG_DIR
+            MainActivity.LOG_DIR,
         )
 
     if (csvDir.exists()) {
@@ -504,7 +504,7 @@ fun outputResultLine(
     name: String,
     results: ArrayList<Long>,
     numCommas: Int = 30,
-    isCSV: Boolean = false
+    isCSV: Boolean = false,
 ): String {
     var output = ""
 
@@ -526,7 +526,7 @@ fun outputBooleanResultLine(
     name: String,
     results: ArrayList<Boolean>,
     numCommas: Int = 30,
-    isCSV: Boolean = false
+    isCSV: Boolean = false,
 ): String {
     var output = ""
 

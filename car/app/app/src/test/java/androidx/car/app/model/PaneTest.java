@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.List;
 
 /** Tests for {@link Pane}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class PaneTest {
     @Test

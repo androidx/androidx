@@ -48,7 +48,7 @@ private val colors =
         Color(0xFFffe9d6.toInt()),
         Color(0xFFfffbd0.toInt()),
         Color(0xFFe3ffd9.toInt()),
-        Color(0xFFd0fff8.toInt())
+        Color(0xFFd0fff8.toInt()),
     )
 
 @Sampled
@@ -60,7 +60,7 @@ fun HorizontalScrollSample() {
             listOf(Color.Red, Color.Blue, Color.Green),
             0.0f,
             10000.0f,
-            TileMode.Repeated
+            TileMode.Repeated,
         )
     Box(
         Modifier.horizontalScroll(scrollState)
@@ -78,7 +78,7 @@ fun VerticalScrollExample() {
             listOf(Color.Red, Color.Blue, Color.Green),
             0.0f,
             10000.0f,
-            TileMode.Repeated
+            TileMode.Repeated,
         )
     Box(
         Modifier.verticalScroll(scrollState)
@@ -122,7 +122,7 @@ fun ControlledScrollableRowSample() {
 private fun Square(index: Int) {
     Box(
         Modifier.size(75.dp, 200.dp).background(colors[index % colors.size]),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(index.toString())
     }
@@ -135,7 +135,7 @@ private fun Button(onClick: () -> Unit, content: @Composable () -> Unit) {
             .size(120.dp, 60.dp)
             .clickable(onClick = onClick)
             .background(color = Color.LightGray),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         content()
     }

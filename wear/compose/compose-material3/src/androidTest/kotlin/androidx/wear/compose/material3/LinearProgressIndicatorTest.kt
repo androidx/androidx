@@ -32,11 +32,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class LinearProgressIndicatorTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -57,7 +58,7 @@ class LinearProgressIndicatorTest {
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = { progress.value }
+                progress = { progress.value },
             )
         }
 
@@ -83,7 +84,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -104,7 +105,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -129,7 +130,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }

@@ -18,11 +18,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
+    api(libs.androidx.core)
     api(project(":camera:camera-core"))
     api(project(":camera:camera-view"))
     api("androidx.annotation:annotation:1.8.1")
@@ -31,27 +32,28 @@ dependencies {
             prefer '16.0.0'
         }
     }
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("com.google.android.gms:play-services-tasks:18.0.1")
+    implementation(libs.playServicesBasement)
 
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
-    testImplementation(project(":camera:camera-core"))
-    testImplementation(project(":camera:camera-view"))
     testImplementation(project(":camera:camera-testing"))
+    testImplementation("org.robolectric:annotations:4.14")
+    testImplementation("org.robolectric:shadowapi:4.14")
+    testImplementation(libs.junit)
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
 
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.mlkit.vision"
 }
 
@@ -62,4 +64,5 @@ androidx {
     description = "MLKit vision components for the Jetpack Camera Library, a library providing a " +
             "seamless integration that enables camera driven computer vision features " +
             "across all of Android."
+    enableRobolectric()
 }

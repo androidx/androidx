@@ -70,16 +70,16 @@ fun RoleRequestScreen(roleIntent: Intent, onGrantedStateChanged: (Boolean) -> Un
                 colors =
                     topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary
+                        titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
-                title = { Text("Required Permissions Request") }
+                title = { Text("Required Permissions Request") },
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { contentPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxHeight()
+            modifier = Modifier.padding(contentPadding).padding(12.dp).fillMaxHeight(),
         ) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                 Text(
@@ -92,7 +92,7 @@ fun RoleRequestScreen(roleIntent: Intent, onGrantedStateChanged: (Boolean) -> Un
             Column {
                 ElevatedButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { launcher.launch(roleIntent) }
+                    onClick = { launcher.launch(roleIntent) },
                 ) {
                     Text("Request Permissions")
                 }

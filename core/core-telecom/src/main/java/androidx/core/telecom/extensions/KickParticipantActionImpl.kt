@@ -35,9 +35,8 @@ import kotlinx.coroutines.flow.StateFlow
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalAppActions::class)
-internal class KickParticipantActionImpl(
-    private val participants: StateFlow<Set<Participant>>,
-) : KickParticipantAction {
+internal class KickParticipantActionImpl(private val participants: StateFlow<Set<Participant>>) :
+    KickParticipantAction {
     companion object {
         const val TAG = CallExtensionScopeImpl.TAG + "(KPCA)"
     }

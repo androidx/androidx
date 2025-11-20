@@ -66,6 +66,7 @@ import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.tiles.renderer.TileRenderer
@@ -80,6 +81,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ScreenshotTests {
 
     private val defaultTextColor = ColorProvider(Color.White)
@@ -142,7 +144,7 @@ class ScreenshotTests {
                                 .background(Color.Blue)
                                 .border(
                                     width = R.dimen.border_dimension,
-                                    color = ColorProvider(Color.Green)
+                                    color = ColorProvider(Color.Green),
                                 )
                     ) {}
                     Box(
@@ -151,7 +153,7 @@ class ScreenshotTests {
                                 .background(Color.Cyan)
                                 .border(
                                     width = R.dimen.border_dimension,
-                                    color = ColorProvider(Color.Red)
+                                    color = ColorProvider(Color.Red),
                                 )
                     ) {}
                 }
@@ -167,7 +169,7 @@ class ScreenshotTests {
                 Text(text = "Italic", style = defaultTextStyle.copy(fontStyle = FontStyle.Italic))
                 Text(
                     text = "Underline",
-                    style = defaultTextStyle.copy(textDecoration = TextDecoration.Underline)
+                    style = defaultTextStyle.copy(textDecoration = TextDecoration.Underline),
                 )
                 Text(
                     text = "Everything",
@@ -175,8 +177,8 @@ class ScreenshotTests {
                         defaultTextStyle.copy(
                             fontWeight = FontWeight.Bold,
                             fontStyle = FontStyle.Italic,
-                            textDecoration = TextDecoration.Underline
-                        )
+                            textDecoration = TextDecoration.Underline,
+                        ),
                 )
             }
         }
@@ -189,18 +191,18 @@ class ScreenshotTests {
                     Text(
                         text = "Hello World",
                         style = defaultTextStyle,
-                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green)
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Green),
                     )
                     Text(
                         text = "Hello World",
                         style = defaultTextStyle.copy(textAlign = TextAlign.Start),
-                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue)
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Blue),
                     )
 
                     Text(
                         text = "Hello World",
                         style = defaultTextStyle.copy(textAlign = TextAlign.End),
-                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red)
+                        modifier = GlanceModifier.width(95.dp).height(60.dp).background(Color.Red),
                     )
                 }
                 Column {
@@ -208,7 +210,7 @@ class ScreenshotTests {
                         text = "Hello World! This is a multiline test",
                         style = defaultTextStyle,
                         maxLines = 3,
-                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red)
+                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Red),
                     )
 
                     Text(
@@ -216,14 +218,14 @@ class ScreenshotTests {
                         maxLines = 3,
                         style = defaultTextStyle.copy(textAlign = TextAlign.Start),
                         modifier =
-                            GlanceModifier.width(100.dp).height(60.dp).background(Color.Green)
+                            GlanceModifier.width(100.dp).height(60.dp).background(Color.Green),
                     )
 
                     Text(
                         text = "Hello World! This is a multiline test",
                         maxLines = 3,
                         style = defaultTextStyle.copy(textAlign = TextAlign.End),
-                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue)
+                        modifier = GlanceModifier.width(100.dp).height(60.dp).background(Color.Blue),
                     )
                 }
             }
@@ -236,7 +238,7 @@ class ScreenshotTests {
                 modifier = GlanceModifier.background(Color.Blue),
                 radialAlignment = RadialAlignment.Center,
                 anchorDegrees = -90f,
-                anchorType = AnchorType.Center
+                anchorType = AnchorType.Center,
             ) {
                 curvedText(text = "Hello World")
                 curvedText(text = "This is a test!", style = CurvedTextStyle(fontSize = 24.sp))
@@ -295,7 +297,7 @@ class ScreenshotTests {
             CurvedRow {
                 curvedLine(
                     color = ColorProvider(Color.Cyan),
-                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp),
                 )
                 curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
                 curvedComposable {
@@ -304,7 +306,7 @@ class ScreenshotTests {
                 curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
                 curvedLine(
                     color = ColorProvider(Color.Cyan),
-                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                    curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp),
                 )
             }
         }
@@ -317,21 +319,21 @@ class ScreenshotTests {
                     provider = ImageProvider(R.drawable.oval),
                     contentDescription = "Oval-crop",
                     modifier = GlanceModifier.size(50.dp),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
                 Spacer(modifier = GlanceModifier.height(10.dp))
                 Image(
                     provider = ImageProvider(testBitmap),
                     contentDescription = "Oval-fit",
                     modifier = GlanceModifier.size(50.dp),
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
                 )
                 Spacer(modifier = GlanceModifier.height(10.dp))
                 Image(
                     provider = ImageProvider(R.drawable.oval),
                     contentDescription = "Oval-fill-bounds",
                     modifier = GlanceModifier.size(50.dp),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
                 )
             }
         }
@@ -347,7 +349,7 @@ class ScreenshotTests {
                         "First",
                         modifier =
                             GlanceModifier.visibility(Visibility.Invisible)
-                                .background(ColorProvider(Color.Red))
+                                .background(ColorProvider(Color.Red)),
                     )
                     Text("after", style = defaultTextStyle)
                 }
@@ -398,7 +400,7 @@ class ScreenshotTests {
                 } catch (throwable: Throwable) {
                     CompositionResult(
                         errorUiLayout(),
-                        androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+                        androidx.wear.tiles.ResourceBuilders.Resources.Builder(),
                     )
                 }
 
@@ -410,7 +412,7 @@ class ScreenshotTests {
                         .setRoot(translatedComposition.layout)
                         .build(),
                     translatedComposition.resources.build(),
-                    ContextCompat.getMainExecutor(getApplicationContext())
+                    ContextCompat.getMainExecutor(getApplicationContext()),
                 ) {}
 
             val frame = FrameLayout(getApplicationContext())

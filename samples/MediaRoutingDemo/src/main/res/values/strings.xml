@@ -51,11 +51,6 @@
     <string name="dg_not_unselectable_route_name5"> Dynamic Route 5 - Not unselectable</string>
     <string name="dg_static_group_route_name6"> Dynamic Route 6 - Static Group</string>
 
-    <!-- Preference settings -->
-    <string name="prefs_header_media_route_provider_configuration">Media Route Provider Configurations</string>
-    <string name="prefs_enable_simple_route_provider_title">Enable simple route provider</string>
-    <string name="prefs_enable_wrapper_route_provider_title">Enable wrapper route provider</string>
-
     <string name="sender_driven_route_name1">Sender Driven TV 1</string>
     <string name="sender_driven_route_name2">Sender Driven TV 2</string>
 

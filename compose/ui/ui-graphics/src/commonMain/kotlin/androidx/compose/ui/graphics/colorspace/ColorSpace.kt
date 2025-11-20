@@ -123,7 +123,7 @@ internal constructor(
      * The ID of this color space. Positive IDs match the color spaces enumerated in [ColorSpaces].
      * A negative ID indicates a color space created by calling one of the public constructors.
      */
-    internal val id: Int
+    internal val id: Int,
 ) {
     constructor(name: String, model: ColorModel) : this(name, model, MinId)
 
@@ -261,7 +261,7 @@ internal constructor(
         y: Float,
         z: Float,
         a: Float,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Color {
         val colors = fromXyz(x, y, z)
         return Color(colors[0], colors[1], colors[2], a, colorSpace)
@@ -365,7 +365,7 @@ internal constructor(
 private fun createConnector(
     source: ColorSpace,
     destination: ColorSpace,
-    intent: RenderIntent
+    intent: RenderIntent,
 ): Connector {
     return if (source === destination) {
         Connector.identity(source)
@@ -391,7 +391,7 @@ private fun createConnector(
  */
 fun ColorSpace.connect(
     destination: ColorSpace = ColorSpaces.Srgb,
-    intent: RenderIntent = RenderIntent.Perceptual
+    intent: RenderIntent = RenderIntent.Perceptual,
 ): Connector {
     val srcId = id
     val dstId = destination.id
@@ -421,7 +421,7 @@ fun ColorSpace.connect(
 @kotlin.jvm.JvmOverloads
 fun ColorSpace.adapt(
     whitePoint: WhitePoint,
-    adaptation: Adaptation = Adaptation.Bradford
+    adaptation: Adaptation = Adaptation.Bradford,
 ): ColorSpace {
     if (this.model == ColorModel.Rgb) {
         val rgb = this as Rgb
@@ -458,7 +458,7 @@ internal fun rcpResponse(
     d: Double,
     e: Double,
     f: Double,
-    g: Double
+    g: Double,
 ): Double {
     return if (x >= d * c) ((x - e).pow(1.0 / g) - b) / a else (x - f) / c
 }
@@ -472,7 +472,7 @@ internal fun response(
     d: Double,
     e: Double,
     f: Double,
-    g: Double
+    g: Double,
 ): Double {
     return if (x >= d) (a * x + b).pow(g) + e else c * x + f
 }
@@ -485,7 +485,7 @@ internal fun absRcpResponse(
     b: Double,
     c: Double,
     d: Double,
-    g: Double
+    g: Double,
 ): Double {
     return rcpResponse(if (x < 0.0) -x else x, a, b, c, d, g).withSign(x)
 }
@@ -686,7 +686,7 @@ internal fun mul3x3Diag(lhs: FloatArray, rhs: FloatArray): FloatArray {
         lhs[2] * rhs[5],
         lhs[0] * rhs[6],
         lhs[1] * rhs[7],
-        lhs[2] * rhs[8]
+        lhs[2] * rhs[8],
     )
 }
 
@@ -706,7 +706,7 @@ internal fun mul3x3Diag(lhs: FloatArray, rhs: FloatArray): FloatArray {
 internal fun chromaticAdaptation(
     matrix: FloatArray,
     srcWhitePoint: FloatArray,
-    dstWhitePoint: FloatArray
+    dstWhitePoint: FloatArray,
 ): FloatArray {
     val srcLMS = mul3x3Float3(matrix, srcWhitePoint)
     val dstLMS = mul3x3Float3(matrix, dstWhitePoint)

@@ -29,7 +29,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +36,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Tests for {@link Intents}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @SuppressWarnings("deprecation")
 public class IntentsTest {
     Context mContext;

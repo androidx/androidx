@@ -33,7 +33,7 @@ public final class TileDataTest {
     @Test
     public void toParcelAndBack() {
         Tile tile = Tile.newBuilder().setResourcesVersion("v123").build();
-        TileData wrapper = new TileData(tile.toByteArray(), TileData.VERSION_PROTOBUF);
+        TileData wrapper = new TileData(tile.toByteArray(), TileData.VERSION_PROTOBUF_1);
 
         Parcel parcel = Parcel.obtain();
         wrapper.writeToParcel(parcel, 0);

@@ -20,7 +20,6 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
-import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.GlobalSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
@@ -55,7 +54,7 @@ import kotlin.reflect.KProperty
  * @see mutableFloatStateOf
  */
 @StateFactoryMarker
-fun mutableDoubleStateOf(value: Double): MutableDoubleState =
+public fun mutableDoubleStateOf(value: Double): MutableDoubleState =
     createSnapshotMutableDoubleState(value)
 
 /**
@@ -67,17 +66,17 @@ fun mutableDoubleStateOf(value: Double): MutableDoubleState =
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface DoubleState : State<Double> {
+public interface DoubleState : State<Double> {
     @get:AutoboxingStateValueProperty("doubleValue")
     override val value: Double
         @Suppress("AutoBoxing") get() = doubleValue
 
-    val doubleValue: Double
+    public val doubleValue: Double
 }
 
 /** Permits property delegation of `val`s using `by` for [DoubleState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun DoubleState.getValue(thisObj: Any?, property: KProperty<*>): Double =
+public inline operator fun DoubleState.getValue(thisObj: Any?, property: KProperty<*>): Double =
     doubleValue
 
 /**
@@ -92,7 +91,7 @@ inline operator fun DoubleState.getValue(thisObj: Any?, property: KProperty<*>):
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface MutableDoubleState : DoubleState, MutableState<Double> {
+public interface MutableDoubleState : DoubleState, MutableState<Double> {
     @get:AutoboxingStateValueProperty("doubleValue")
     @set:AutoboxingStateValueProperty("doubleValue")
     override var value: Double
@@ -106,10 +105,10 @@ interface MutableDoubleState : DoubleState, MutableState<Double> {
 
 /** Permits property delegation of `var`s using `by` for [MutableDoubleState]. */
 @Suppress("NOTHING_TO_INLINE")
-inline operator fun MutableDoubleState.setValue(
+public inline operator fun MutableDoubleState.setValue(
     thisObj: Any?,
     property: KProperty<*>,
-    value: Double
+    value: Double,
 ) {
     this.doubleValue = value
 }
@@ -144,7 +143,7 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
         get() = next.readable(this).value
         set(value) =
             next.withCurrent {
-                if (!it.value.equalsWithNanFix(value)) {
+                if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
             }
@@ -165,11 +164,11 @@ internal open class SnapshotMutableDoubleStateImpl(value: Double) :
     override fun mergeRecords(
         previous: StateRecord,
         current: StateRecord,
-        applied: StateRecord
+        applied: StateRecord,
     ): StateRecord? {
         val currentRecord = current as DoubleStateStateRecord
         val appliedRecord = applied as DoubleStateStateRecord
-        return if (currentRecord.value.equalsWithNanFix(appliedRecord.value)) {
+        return if (currentRecord.value == appliedRecord.value) {
             current
         } else {
             null

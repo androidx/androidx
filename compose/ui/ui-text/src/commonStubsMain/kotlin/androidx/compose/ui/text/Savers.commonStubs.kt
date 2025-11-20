@@ -42,7 +42,7 @@ private val LineBreakSaver =
                     LineBreak.Unspecified
                 }
             }
-        }
+        },
     )
 
 internal actual val TextMotion.Companion.Saver: Saver<TextMotion, Any>
@@ -57,5 +57,5 @@ private val TextMotionSaver =
             } else {
                 TextMotion.Animated
             }
-        }
+        },
     )

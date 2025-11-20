@@ -39,7 +39,7 @@ class GestureCancellationException(message: String? = null) : CancellationExcept
  */
 @Deprecated(
     message = "Use awaitEachGesture instead. forEachGesture() can drop events between gestures.",
-    replaceWith = ReplaceWith("awaitEachGesture(block)")
+    replaceWith = ReplaceWith("awaitEachGesture(block)"),
 )
 suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.() -> Unit) {
     val currentContext = currentCoroutineContext()

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.DeprecatedFunction#deprecatedFunction</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <deprecation>
+            <id>unused</id>
+            <message>Deprecated Message</message>
+        </deprecation>
+        <functionId>com.testdata.DeprecatedFunction#deprecatedFunction</functionId>
+    </appfunction>
+</appfunctions>

@@ -21,7 +21,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.transition.AutoTransition;
 import android.transition.ChangeTransform;
 import android.transition.Fade;
@@ -54,98 +53,61 @@ public final class TransitionHelper {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean systemSupportsEntranceTransitions() {
-        return Build.VERSION.SDK_INT >= 21;
-    }
-
-    private static class TransitionStub {
-        TransitionStub() {
-        }
+        return true;
     }
 
     public static @Nullable Object getSharedElementEnterTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getSharedElementEnterTransition();
-        }
-        return null;
+        return window.getSharedElementEnterTransition();
     }
 
     public static void setSharedElementEnterTransition(
             @NonNull Window window,
             @Nullable Object transition
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.setSharedElementEnterTransition((Transition) transition);
-        }
+        window.setSharedElementEnterTransition((Transition) transition);
     }
 
     public static @Nullable Object getSharedElementReturnTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getSharedElementReturnTransition();
-        }
-        return null;
+        return window.getSharedElementReturnTransition();
     }
 
     public static void setSharedElementReturnTransition(
             @NonNull Window window,
             @Nullable Object transition
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.setSharedElementReturnTransition((Transition) transition);
-        }
+        window.setSharedElementReturnTransition((Transition) transition);
     }
 
     public static @Nullable Object getSharedElementExitTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getSharedElementExitTransition();
-        }
-        return null;
+        return window.getSharedElementExitTransition();
     }
 
     public static @Nullable Object getSharedElementReenterTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getSharedElementReenterTransition();
-        }
-        return null;
+        return window.getSharedElementReenterTransition();
     }
 
     public static @Nullable Object getEnterTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getEnterTransition();
-        }
-        return null;
+        return window.getEnterTransition();
     }
 
     public static void setEnterTransition(@NonNull Window window, @Nullable Object transition) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.setEnterTransition((Transition) transition);
-        }
+        window.setEnterTransition((Transition) transition);
     }
 
     public static @Nullable Object getReturnTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getReturnTransition();
-        }
-        return null;
+        return window.getReturnTransition();
     }
 
     public static void setReturnTransition(@NonNull Window window, @Nullable Object transition) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            window.setReturnTransition((Transition) transition);
-        }
+        window.setReturnTransition((Transition) transition);
     }
 
     public static @Nullable Object getExitTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getExitTransition();
-        }
-        return null;
+        return window.getExitTransition();
     }
 
     public static @Nullable Object getReenterTransition(@NonNull Window window) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return window.getReenterTransition();
-        }
-        return null;
+        return window.getReenterTransition();
     }
 
     public static @Nullable Object createScene(@NonNull ViewGroup sceneRoot, @Nullable Runnable r) {
@@ -161,10 +123,7 @@ public final class TransitionHelper {
     }
 
     public static @NonNull Object createChangeTransform() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new ChangeTransform();
-        }
-        return new TransitionStub();
+        return new ChangeTransform();
     }
 
     public static void setChangeBoundsStartDelay(
@@ -212,10 +171,7 @@ public final class TransitionHelper {
     }
 
     public static @NonNull Object createScale() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new ChangeTransform();
-        }
-        return new Scale();
+        return new ChangeTransform();
     }
 
     public static void addTransition(@NonNull Object transitionSet, @NonNull Object transition) {
@@ -335,11 +291,8 @@ public final class TransitionHelper {
     }
 
     public static @Nullable Object createDefaultInterpolator(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return AnimationUtils.loadInterpolator(context,
-                    android.R.interpolator.fast_out_linear_in);
-        }
-        return null;
+        return AnimationUtils.loadInterpolator(context,
+                android.R.interpolator.fast_out_linear_in);
     }
 
     public static @NonNull Object loadTransition(@NonNull Context context, int resId) {
@@ -351,9 +304,7 @@ public final class TransitionHelper {
             @NonNull Fragment fragment,
             @Nullable Object transition
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            fragment.setEnterTransition((Transition) transition);
-        }
+        fragment.setEnterTransition((Transition) transition);
     }
 
     @SuppressLint("ReferencesDeprecated")
@@ -361,9 +312,7 @@ public final class TransitionHelper {
             @NonNull Fragment fragment,
             @Nullable Object transition
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            fragment.setExitTransition((Transition) transition);
-        }
+        fragment.setExitTransition((Transition) transition);
     }
 
     @SuppressLint("ReferencesDeprecated")
@@ -371,9 +320,7 @@ public final class TransitionHelper {
             @NonNull Fragment fragment,
             @Nullable Object transition
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            fragment.setSharedElementEnterTransition((Transition) transition);
-        }
+        fragment.setSharedElementEnterTransition((Transition) transition);
     }
 
     @SuppressLint("ReferencesDeprecated")
@@ -382,58 +329,44 @@ public final class TransitionHelper {
             @NonNull View view,
             @NonNull String transitionName
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            ft.addSharedElement(view, transitionName);
-        }
+        ft.addSharedElement(view, transitionName);
     }
 
     public static @NonNull Object createFadeAndShortSlide(int edge) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new FadeAndShortSlide(edge);
-        }
-        return new TransitionStub();
+        return new FadeAndShortSlide(edge);
     }
 
     public static @NonNull Object createFadeAndShortSlide(int edge, float distance) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            FadeAndShortSlide slide = new FadeAndShortSlide(edge);
-            slide.setDistance(distance);
-            return slide;
-        }
-        return new TransitionStub();
+        FadeAndShortSlide slide = new FadeAndShortSlide(edge);
+        slide.setDistance(distance);
+        return slide;
     }
 
     public static void beginDelayedTransition(
             @NonNull ViewGroup sceneRoot,
             @Nullable Object transitionObject
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            Transition transition = (Transition) transitionObject;
-            TransitionManager.beginDelayedTransition(sceneRoot, transition);
-        }
+        Transition transition = (Transition) transitionObject;
+        TransitionManager.beginDelayedTransition(sceneRoot, transition);
     }
 
     public static void setTransitionGroup(@NonNull ViewGroup viewGroup, boolean transitionGroup) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            viewGroup.setTransitionGroup(transitionGroup);
-        }
+        viewGroup.setTransitionGroup(transitionGroup);
     }
 
     public static void setEpicenterCallback(
             @NonNull Object transition,
             final @Nullable TransitionEpicenterCallback callback
     ) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (callback == null) {
-                ((Transition) transition).setEpicenterCallback(null);
-            } else {
-                ((Transition) transition).setEpicenterCallback(new Transition.EpicenterCallback() {
-                    @Override
-                    public Rect onGetEpicenter(Transition transition11) {
-                        return callback.onGetEpicenter(transition11);
-                    }
-                });
-            }
+        if (callback == null) {
+            ((Transition) transition).setEpicenterCallback(null);
+        } else {
+            ((Transition) transition).setEpicenterCallback(new Transition.EpicenterCallback() {
+                @Override
+                public Rect onGetEpicenter(Transition transition11) {
+                    return callback.onGetEpicenter(transition11);
+                }
+            });
         }
     }
 

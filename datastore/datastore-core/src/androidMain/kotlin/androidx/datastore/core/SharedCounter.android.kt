@@ -19,6 +19,7 @@ package androidx.datastore.core
 import android.os.ParcelFileDescriptor
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 
 /** Put the JNI methods in a separate class to make them internal to the package. */
 internal class NativeSharedCounter {
@@ -37,26 +38,77 @@ internal class NativeSharedCounter {
  * of the `datastore-multiprocess` AAR artifact, users don't need extra steps other than adding it
  * as dependency.
  */
-internal class SharedCounter
-private constructor(
-    /** The memory address to be mapped. */
-    private val mappedAddress: Long
-) {
+internal interface SharedCounter {
+    fun getValue(): Int
 
-    fun getValue(): Int {
-        return nativeSharedCounter.nativeGetCounterValue(mappedAddress)
+    fun incrementAndGetValue(): Int
+
+    private class RealSharedCounter(
+        private val nativeSharedCounter: NativeSharedCounter,
+        /** The memory address to be mapped. */
+        private val mappedAddress: Long,
+    ) : SharedCounter {
+        override fun getValue(): Int {
+            return nativeSharedCounter.nativeGetCounterValue(mappedAddress)
+        }
+
+        override fun incrementAndGetValue(): Int {
+            return nativeSharedCounter.nativeIncrementAndGetCounterValue(mappedAddress)
+        }
     }
 
-    fun incrementAndGetValue(): Int {
-        return nativeSharedCounter.nativeIncrementAndGetCounterValue(mappedAddress)
+    /** Shared counter implementation that is used when running Robolectric tests. */
+    private class ShadowSharedCounter : SharedCounter {
+        private val value = AtomicInteger(0)
+
+        override fun getValue(): Int {
+            return value.get()
+        }
+
+        override fun incrementAndGetValue(): Int {
+            return value.incrementAndGet()
+        }
     }
 
     companion object Factory {
-        internal val nativeSharedCounter = NativeSharedCounter()
-
-        fun loadLib() = System.loadLibrary("datastore_shared_counter")
+        private val nativeSharedCounter: NativeSharedCounter? =
+            try {
+                System.loadLibrary("datastore_shared_counter")
+                NativeSharedCounter()
+            } catch (th: Throwable) {
+                /**
+                 * Currently this native library is only available for Android, it should not be
+                 * loaded on host platforms, e.g. Robolectric.
+                 */
+                if (isDalvik()) {
+                    // we should always be able to load it on dalvik
+                    throw th
+                } else {
+                    // probably running on robolectric, ignore.
+                    null
+                }
+            }
 
         private fun createCounterFromFd(pfd: ParcelFileDescriptor): SharedCounter {
+            if (nativeSharedCounter == null) {
+                // don't remove the following isDalvik check, it helps r8 cleanup the
+                // ShadowSharedCounter code for android.
+                if (!isDalvik()) {
+                    // if it is null, we are not on Android so just use an in
+                    // process shared counter as multi-process is not testable on
+                    // Robolectric.
+                    return ShadowSharedCounter()
+                }
+                // This actually will enver happen, because class creation would throw when
+                // initializing nativeSharedCounter. But having it here helps future proofing as
+                // well as the static analyzer.
+                error(
+                    """
+                    DataStore failed to load the native library to create SharedCounter.
+                """
+                        .trimIndent()
+                )
+            }
             val nativeFd = pfd.getFd()
             if (nativeSharedCounter.nativeTruncateFile(nativeFd) != 0) {
                 throw IOException("Failed to truncate counter file")
@@ -65,7 +117,7 @@ private constructor(
             if (address < 0) {
                 throw IOException("Failed to mmap counter file")
             }
-            return SharedCounter(address)
+            return RealSharedCounter(nativeSharedCounter, address)
         }
 
         internal fun create(produceFile: () -> File): SharedCounter {
@@ -75,12 +127,17 @@ private constructor(
                 pfd =
                     ParcelFileDescriptor.open(
                         file,
-                        ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+                        ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE,
                     )
                 return createCounterFromFd(pfd)
             } finally {
                 pfd?.close()
             }
+        }
+
+        /** If you change this method, make sure to update the proguard rule. */
+        private fun isDalvik(): Boolean {
+            return "dalvik".equals(System.getProperty("java.vm.name"), ignoreCase = true)
         }
     }
 }

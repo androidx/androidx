@@ -88,7 +88,11 @@ public final class FocusMeteringAction {
 
     @MeteringMode
     static final int DEFAULT_METERING_MODE = FLAG_AF | FLAG_AE | FLAG_AWB;
-    static final long DEFAULT_AUTOCANCEL_DURATION = 5000;
+
+    /** The default duration for auto-cancelling a focus-metering action. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final long DEFAULT_AUTO_CANCEL_DURATION_MILLIS = 5000;
+
     private final List<MeteringPoint> mMeteringPointsAf;
     private final List<MeteringPoint> mMeteringPointsAe;
     private final List<MeteringPoint> mMeteringPointsAwb;
@@ -159,7 +163,7 @@ public final class FocusMeteringAction {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final List<MeteringPoint> mMeteringPointsAwb = new ArrayList<>();
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-                long mAutoCancelDurationInMillis = DEFAULT_AUTOCANCEL_DURATION;
+                long mAutoCancelDurationInMillis = DEFAULT_AUTO_CANCEL_DURATION_MILLIS;
 
         /**
          * Creates a Builder from a {@link MeteringPoint} with default mode {@link #FLAG_AF} |

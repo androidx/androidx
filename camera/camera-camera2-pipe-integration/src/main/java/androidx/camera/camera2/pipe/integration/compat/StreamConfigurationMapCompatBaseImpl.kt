@@ -85,8 +85,18 @@ internal open class StreamConfigurationMapCompatBaseImpl(
         return streamConfigurationMap?.getHighSpeedVideoSizesFor(fpsRange)
     }
 
-    override fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
-        return streamConfigurationMap?.getOutputMinFrameDuration(format, size)
+    override fun getOutputMinFrameDuration(format: Int, size: Size): Long {
+        return if (format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+            // This is a little tricky that 0x22 that is internal defined in
+            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
+            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
+            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
+            // retrieve the output sizes information.
+            streamConfigurationMap?.getOutputMinFrameDuration(SurfaceTexture::class.java, size)
+                ?: 0L
+        } else {
+            streamConfigurationMap?.getOutputMinFrameDuration(format, size) ?: 0L
+        }
     }
 
     override fun unwrap(): StreamConfigurationMap? {

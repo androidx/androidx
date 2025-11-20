@@ -27,10 +27,12 @@ import android.content.Intent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link AuthTabColorSchemeParams}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class AuthTabColorSchemeParamsTest {
     @Test

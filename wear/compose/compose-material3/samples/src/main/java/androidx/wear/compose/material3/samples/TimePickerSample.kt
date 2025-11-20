@@ -43,22 +43,47 @@ import java.time.format.FormatStyle
 fun TimePickerSample() {
     var showTimePicker by remember { mutableStateOf(true) }
     var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
-    val formatter =
-        DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-            .withLocale(LocalConfiguration.current.locales[0])
     if (showTimePicker) {
         TimePicker(
             onTimePicked = {
                 timePickerTime = it
                 showTimePicker = false
             },
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val formatter =
+                DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+                    .withLocale(LocalConfiguration.current.locales[0])
+
+            Button(
+                onClick = { showTimePicker = true },
+                label = { Text("Selected Time") },
+                secondaryLabel = { Text(timePickerTime.format(formatter)) },
+                icon = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit") },
+            )
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun TimePickerWithMinutesAndSecondsSample() {
+    var showTimePicker by remember { mutableStateOf(true) }
+    var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
+    if (showTimePicker) {
+        TimePicker(
+            onTimePicked = {
+                timePickerTime = it
+                showTimePicker = false
+            },
+            timePickerType = TimePickerType.MinutesSeconds,
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
+        )
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val formatter = DateTimeFormatter.ofPattern("mm:ss")
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },
@@ -74,7 +99,6 @@ fun TimePickerSample() {
 fun TimePickerWithSecondsSample() {
     var showTimePicker by remember { mutableStateOf(true) }
     var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
-    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
     if (showTimePicker) {
         TimePicker(
             onTimePicked = {
@@ -82,13 +106,11 @@ fun TimePickerWithSecondsSample() {
                 showTimePicker = false
             },
             timePickerType = TimePickerType.HoursMinutesSeconds24H,
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },
@@ -104,7 +126,6 @@ fun TimePickerWithSecondsSample() {
 fun TimePickerWith12HourClockSample() {
     var showTimePicker by remember { mutableStateOf(true) }
     var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
-    val formatter = DateTimeFormatter.ofPattern("hh:mm a")
     if (showTimePicker) {
         TimePicker(
             onTimePicked = {
@@ -112,13 +133,11 @@ fun TimePickerWith12HourClockSample() {
                 showTimePicker = false
             },
             timePickerType = TimePickerType.HoursMinutesAmPm12H,
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val formatter = DateTimeFormatter.ofPattern("hh:mm a")
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },

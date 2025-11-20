@@ -61,9 +61,9 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         AttachAndDetachInSameTransactionDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
 
         // Target method names
@@ -88,7 +88,7 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
     private fun checkTransactionCommits(
         context: JavaContext,
         node: UCallExpression,
-        calledMethod: PsiMethod
+        calledMethod: PsiMethod,
     ) {
         if (isBeginTransaction(context, calledMethod)) {
             val method = node.getParentOfType(UMethod::class.java) ?: return
@@ -125,7 +125,7 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
                     DETACH_ATTACH_OPERATIONS_ISSUE,
                     node,
                     context.getNameLocation(node),
-                    message
+                    message,
                 )
             }
         }
@@ -152,7 +152,7 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         call: UCallExpression,
         fragmentClass: String,
-        returnForUnresolved: Boolean
+        returnForUnresolved: Boolean,
     ): Boolean {
         // If we *can't* resolve the method call, caller can decide
         // whether to consider the method called or not

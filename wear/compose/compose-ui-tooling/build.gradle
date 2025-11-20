@@ -21,18 +21,19 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.ui:ui-tooling-preview:1.7.4")
+    api("androidx.compose.ui:ui-tooling-preview:1.9.0")
 
     implementation("androidx.wear:wear-tooling-preview:1.0.0")
 }

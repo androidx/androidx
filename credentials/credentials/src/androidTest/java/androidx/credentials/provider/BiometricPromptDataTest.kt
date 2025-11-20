@@ -58,7 +58,7 @@ class BiometricPromptDataTest {
         assertThrows(
             "Expected invalid allowed authenticator with cryptoObject to throw " +
                 "IllegalArgumentException",
-            java.lang.IllegalArgumentException::class.java
+            java.lang.IllegalArgumentException::class.java,
         ) {
             BiometricPromptData(TEST_CRYPTO_OBJECT)
         }
@@ -78,7 +78,7 @@ class BiometricPromptDataTest {
     fun construct_authenticatorNotAccepted_throwsIAE() {
         assertThrows(
             "Expected invalid allowed authenticator IllegalArgumentException",
-            java.lang.IllegalArgumentException::class.java
+            java.lang.IllegalArgumentException::class.java,
         ) {
             BiometricPromptData(null, allowedAuthenticators = Int.MIN_VALUE)
         }
@@ -123,7 +123,7 @@ class BiometricPromptDataTest {
     fun build_setInvalidAllowedAuthenticator_success() {
         assertThrows(
             "Expected builder invalid allowed authenticator to throw " + "IllegalArgumentException",
-            java.lang.IllegalArgumentException::class.java
+            java.lang.IllegalArgumentException::class.java,
         ) {
             BiometricPromptData.Builder().setAllowedAuthenticators(-10000).build()
         }

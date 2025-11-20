@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha03" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha03)" variant="all" version="8.11.0-alpha03">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `BaselineProfileRule`"
+        errorLine1="        @get:Rule val baselineProfileRule = BaselineProfileRule()"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/samples/BaselineProfileRuleSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `collect`"
+        errorLine1="            baselineProfileRule.collect(packageName = &quot;com.example.my.application.id&quot;) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/samples/BaselineProfileRuleSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `BaselineProfileRule`"
+        errorLine1="        @get:Rule val baselineProfileRule = BaselineProfileRule()"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/samples/BaselineProfileRuleSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `collect`"
+        errorLine1="            baselineProfileRule.collect("
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/samples/BaselineProfileRuleSample.kt"/>
+    </issue>
+
+</issues>

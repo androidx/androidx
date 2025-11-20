@@ -74,7 +74,7 @@ private fun Item(title: String, content: @Composable () -> Unit) {
     Column {
         BasicText(
             title,
-            style = TextStyle.Default.copy(color = Color(0xFFAAAAAA), fontSize = 20.sp)
+            style = TextStyle.Default.copy(color = Color(0xFFAAAAAA), fontSize = 20.sp),
         )
         content()
     }
@@ -93,7 +93,7 @@ private fun ColorCursor() {
         value = textFieldValue,
         modifier = demoTextFieldModifiers,
         onValueChange = {},
-        cursorBrush = SolidColor(Color.Red)
+        cursorBrush = SolidColor(Color.Red),
     )
 }
 
@@ -120,7 +120,7 @@ private fun RainbowCursor() {
         value = textFieldValue,
         onValueChange = {},
         cursorBrush = SolidColor(color.value),
-        modifier = demoTextFieldModifiers.onFocusChanged { shouldAnimate = it.isFocused }
+        modifier = demoTextFieldModifiers.onFocusChanged { shouldAnimate = it.isFocused },
     )
 }
 
@@ -149,15 +149,11 @@ fun TypingCursorNeverBlinks() {
             }
         }
     }
-    val textFieldValue =
-        TextFieldValue(
-            text = text,
-            selection = TextRange(text.length),
-        )
+    val textFieldValue = TextFieldValue(text = text, selection = TextRange(text.length))
     BasicTextField(
         value = textFieldValue,
         onValueChange = {},
-        modifier = demoTextFieldModifiers.onFocusChanged { animate = it.isFocused }
+        modifier = demoTextFieldModifiers.onFocusChanged { animate = it.isFocused },
     )
 }
 
@@ -178,7 +174,7 @@ fun ChangingSelectionShowsCursor() {
             value = textFieldValue,
             modifier = demoTextFieldModifiers,
             onValueChange = {},
-            textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+            textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace),
         )
     }
 }
@@ -192,7 +188,7 @@ fun CursorNotBlinkingInUnfocusedWindowDemo() {
         var showDialog by remember { mutableStateOf(false) }
         Button(
             onClick = { showDialog = true },
-            modifier = Modifier.focusProperties { canFocus = false }
+            modifier = Modifier.focusProperties { canFocus = false },
         ) {
             Text("Open Dialog")
         }
@@ -204,7 +200,7 @@ fun CursorNotBlinkingInUnfocusedWindowDemo() {
                         "Hello! This is a dialog.",
                         Modifier.padding(20.dp)
                             .focusRequester(dialogFocusRequester)
-                            .background(Color.DarkGray)
+                            .background(Color.DarkGray),
                     )
                     LaunchedEffect(Unit) { dialogFocusRequester.requestFocus() }
                 }

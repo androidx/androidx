@@ -176,13 +176,19 @@ class MutableAffineTransformTest {
     }
 
     @Test
-    fun asImmutable_returnsEquivalentImmutableAffineTransform() {
+    fun toImmutable_returnsEquivalentImmutableAffineTransform() {
         val affineTransform = MutableAffineTransform(A, B, C, D, E, F)
 
-        val output = affineTransform.asImmutable()
+        val output = affineTransform.toImmutable()
 
         assertThat(output).isEqualTo(ImmutableAffineTransform(A, B, C, D, E, F))
         assertThat(output).isInstanceOf(ImmutableAffineTransform::class.java)
+    }
+
+    @Test
+    fun toImmutable_returnsSingletonForIdentity() {
+        assertThat(MutableAffineTransform().toImmutable())
+            .isSameInstanceAs(AffineTransform.IDENTITY)
     }
 
     @Test
@@ -207,7 +213,7 @@ class MutableAffineTransformTest {
     fun populateFromTranslate_correctlyPopulatesAffineTransform() {
         val transform = MutableAffineTransform(A, B, C, D, E, F)
 
-        transform.populateFromTranslate(ImmutableVec(x = 0.1f, y = 0.2f))
+        transform.populateFromTranslation(ImmutableVec(x = 0.1f, y = 0.2f))
 
         assertThat(transform.equals(MutableAffineTransform(1f, 0f, 0.1f, 0f, 1f, 0.2f))).isTrue()
     }
@@ -249,21 +255,21 @@ class MutableAffineTransformTest {
     }
 
     @Test
-    fun shearX_returnsCorrectTransform() {
+    fun skewX_returnsCorrectTransform() {
         val transform = MutableAffineTransform(A, B, C, D, E, F)
-        transform.populateFromShearX(0.0f)
+        transform.populateFromSkewX(0.0f)
         assertThat(transform.equals(AffineTransform.IDENTITY)).isTrue()
-        transform.populateFromShearX(2.2f)
+        transform.populateFromSkewX(2.2f)
         assertThat(transform.equals(MutableAffineTransform(1.0f, 2.2f, 0.0f, 0.0f, 1.0f, 0.0f)))
             .isTrue()
     }
 
     @Test
-    fun shearY_returnsCorrectTransform() {
+    fun skewY_returnsCorrectTransform() {
         val transform = MutableAffineTransform(A, B, C, D, E, F)
-        transform.populateFromShearY(0.0f)
+        transform.populateFromSkewY(0.0f)
         assertThat(transform.equals(AffineTransform.IDENTITY)).isTrue()
-        transform.populateFromShearY(2.2f)
+        transform.populateFromSkewY(2.2f)
         assertThat(transform.equals(MutableAffineTransform(1.0f, 0.0f, 0.0f, 2.2f, 1.0f, 0.0f)))
             .isTrue()
     }
@@ -271,9 +277,9 @@ class MutableAffineTransformTest {
     @Test
     fun rotate_returnsCorrectTransform() {
         val transform = MutableAffineTransform(A, B, C, D, E, F)
-        transform.populateFromRotate(Angle.ZERO)
+        transform.populateFromRotationDegrees(Angle.ZERO_DEGREES)
         assertThat(transform.equals(AffineTransform.IDENTITY)).isTrue()
-        transform.populateFromRotate(Angle.HALF_TURN_RADIANS)
+        transform.populateFromRotationDegrees(Angle.HALF_TURN_DEGREES)
         assertThat(
                 transform.isAlmostEqual(
                     MutableAffineTransform(-1f, 0f, 0f, 0f, -1f, 0.0f),
@@ -281,7 +287,7 @@ class MutableAffineTransformTest {
                 )
             )
             .isTrue()
-        transform.populateFromRotate(Angle.QUARTER_TURN_RADIANS)
+        transform.populateFromRotationDegrees(Angle.QUARTER_TURN_DEGREES)
         assertThat(
                 transform.isAlmostEqual(
                     MutableAffineTransform(0f, -1f, 0f, 1f, 0f, 0.0f),

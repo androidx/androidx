@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults.rememberTooltipPositionProvider
 import androidx.compose.material3.TopAppBar
@@ -50,50 +51,53 @@ fun SampleScrollingTooltipScreen() {
                 title = { Text("Sample Screen") },
                 navigationIcon = {
                     TooltipBox(
-                        positionProvider = rememberTooltipPositionProvider(),
+                        positionProvider =
+                            rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                         tooltip = { PlainTooltip { Text(text = "Navigation icon") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Navigation icon"
+                                contentDescription = "Navigation icon",
                             )
                         }
                     }
                 },
                 actions = {
                     TooltipBox(
-                        positionProvider = rememberTooltipPositionProvider(),
+                        positionProvider =
+                            rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                         tooltip = { PlainTooltip { Text(text = "Search") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search icon"
+                                contentDescription = "Search icon",
                             )
                         }
                     }
                     TooltipBox(
-                        positionProvider = rememberTooltipPositionProvider(),
+                        positionProvider =
+                            rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                         tooltip = { PlainTooltip { Text(text = "Settings") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings icon"
+                                contentDescription = "Settings icon",
                             )
                         }
                     }
-                }
+                },
             )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(paddingValues).fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(40) { index ->
                 Text(text = "Item ${index + 1}", style = MaterialTheme.typography.bodyLarge)

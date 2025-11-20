@@ -31,6 +31,6 @@ class UiTextIssueRegistry : IssueRegistry() {
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.ui.text",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=779818"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=779818",
         )
 }

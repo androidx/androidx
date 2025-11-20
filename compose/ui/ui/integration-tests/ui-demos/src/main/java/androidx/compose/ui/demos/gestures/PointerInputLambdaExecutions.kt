@@ -57,7 +57,7 @@ fun PointerInputLambdaExecutions() {
         Text(
             modifier = Modifier.fillMaxWidth().weight(1f),
             textAlign = TextAlign.Center,
-            text = "See how underlying lambdas are executed"
+            text = "See how underlying lambdas are executed",
         )
 
         Column(modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp)) {
@@ -88,7 +88,7 @@ fun PointerInputLambdaExecutions() {
                         }
                     },
                 textAlign = TextAlign.Center,
-                text = topBoxText
+                text = topBoxText,
             )
 
             Text(
@@ -118,7 +118,7 @@ fun PointerInputLambdaExecutions() {
                         }
                     },
                 textAlign = TextAlign.Center,
-                text = bottomBoxText
+                text = bottomBoxText,
             )
         }
     }
@@ -147,7 +147,7 @@ fun PointerInputLambdaExecutionsUsingExternalFunctions() {
         Text(
             modifier = Modifier.fillMaxWidth().weight(1f),
             textAlign = TextAlign.Center,
-            text = "See how underlying lambdas are executed"
+            text = "See how underlying lambdas are executed",
         )
 
         Column(modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp)) {
@@ -181,10 +181,10 @@ fun PointerInputLambdaExecutionsUsingExternalFunctions() {
                                                 "Release: $firstPointerInputReleaseCounter"
                                     }
                                 }
-                            }
+                            },
                         ),
                 textAlign = TextAlign.Center,
-                text = topBoxText
+                text = topBoxText,
             )
 
             Text(
@@ -217,10 +217,10 @@ fun PointerInputLambdaExecutionsUsingExternalFunctions() {
                                                 "Release: $secondPointerInputReleaseCounter"
                                     }
                                 }
-                            }
+                            },
                         ),
                 textAlign = TextAlign.Center,
-                text = bottomBoxText
+                text = bottomBoxText,
             )
         }
     }

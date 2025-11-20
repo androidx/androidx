@@ -44,7 +44,7 @@ import java.io.File
 public class PerfettoSdkHandshake(
     private val targetPackage: String,
     private val parseJsonMap: (jsonString: String) -> Map<String, String>,
-    private val executeShellCommand: ShellCommandExecutor
+    private val executeShellCommand: ShellCommandExecutor,
 ) {
     /**
      * Attempts to enable tracing in the app. It will wake up (or start) the app process, so it will
@@ -66,7 +66,7 @@ public class PerfettoSdkHandshake(
                                     libraryZip,
                                     tempDirectory,
                                     executeShellCommand,
-                                    moveLibFileFromTmpDirToAppDir
+                                    moveLibFileFromTmpDirToAppDir,
                                 )
                         }
                     }
@@ -90,7 +90,7 @@ public class PerfettoSdkHandshake(
     @JvmOverloads
     public fun enableTracingColdStart(
         persistent: Boolean = false,
-        librarySource: LibrarySource? = null
+        librarySource: LibrarySource? = null,
     ): Response = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
         val libPath =
@@ -102,7 +102,7 @@ public class PerfettoSdkHandshake(
                                 libraryZip,
                                 tempDirectory,
                                 executeShellCommand,
-                                moveLibFileFromTmpDirToAppDir
+                                moveLibFileFromTmpDirToAppDir,
                             )
                     }
                 }
@@ -142,7 +142,7 @@ public class PerfettoSdkHandshake(
     private fun sendTracingBroadcast(
         action: String,
         libPath: File? = null,
-        persistent: Boolean? = null
+        persistent: Boolean? = null,
     ): Response {
         val commandBuilder = StringBuilder("am broadcast -a $action")
         if (persistent != null) commandBuilder.append(" --es $KEY_PERSISTENT $persistent")
@@ -198,7 +198,7 @@ public class PerfettoSdkHandshake(
                     ?: throw PerfettoSdkHandshakeException(
                         "Response missing $KEY_REQUIRED_VERSION" + " value"
                     ),
-                dataMap[KEY_MESSAGE]
+                dataMap[KEY_MESSAGE],
             )
 
         if (broadcastResponseCode != response.resultCode) {
@@ -239,7 +239,7 @@ public class PerfettoSdkHandshake(
         constructor(
             internal val libraryZip: File,
             internal val tempDirectory: File,
-            internal val moveLibFileFromTmpDirToAppDir: FileMover
+            internal val moveLibFileFromTmpDirToAppDir: FileMover,
         ) : LibrarySource()
 
         public companion object {
@@ -258,7 +258,7 @@ public class PerfettoSdkHandshake(
             public fun aarLibrarySource(
                 aarFile: File,
                 tempDirectory: File,
-                moveLibFileFromTmpDirToAppDir: FileMover
+                moveLibFileFromTmpDirToAppDir: FileMover,
             ): LibrarySource =
                 ZipLibrarySource(aarFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
 
@@ -277,7 +277,7 @@ public class PerfettoSdkHandshake(
             public fun apkLibrarySource(
                 apkFile: File,
                 tempDirectory: File,
-                moveLibFileFromTmpDirToAppDir: FileMover
+                moveLibFileFromTmpDirToAppDir: FileMover,
             ): LibrarySource =
                 ZipLibrarySource(apkFile, tempDirectory, moveLibFileFromTmpDirToAppDir)
         }

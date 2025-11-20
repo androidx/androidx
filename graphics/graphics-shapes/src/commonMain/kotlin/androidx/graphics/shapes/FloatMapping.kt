@@ -87,7 +87,7 @@ internal class DoubleMapper(vararg mappings: Pair<Float, Float>) {
                 // We need any 2 points in the (x, x) diagonal, with x in the [0, 1) range,
                 // We spread them as much as possible to minimize float errors.
                 0f to 0f,
-                0.5f to 0.5f
+                0.5f to 0.5f,
             )
     }
 }

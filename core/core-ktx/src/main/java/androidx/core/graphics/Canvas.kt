@@ -39,7 +39,7 @@ public inline fun Canvas.withSave(block: Canvas.() -> Unit) {
 public inline fun Canvas.withTranslation(
     x: Float = 0.0f,
     y: Float = 0.0f,
-    block: Canvas.() -> Unit
+    block: Canvas.() -> Unit,
 ) {
     val checkpoint = save()
     translate(x, y)
@@ -57,7 +57,7 @@ public inline fun Canvas.withRotation(
     degrees: Float = 0.0f,
     pivotX: Float = 0.0f,
     pivotY: Float = 0.0f,
-    block: Canvas.() -> Unit
+    block: Canvas.() -> Unit,
 ) {
     val checkpoint = save()
     rotate(degrees, pivotX, pivotY)
@@ -76,7 +76,7 @@ public inline fun Canvas.withScale(
     y: Float = 1.0f,
     pivotX: Float = 0.0f,
     pivotY: Float = 0.0f,
-    block: Canvas.() -> Unit
+    block: Canvas.() -> Unit,
 ) {
     val checkpoint = save()
     scale(x, y, pivotX, pivotY)
@@ -150,7 +150,7 @@ public inline fun Canvas.withClip(
     top: Int,
     right: Int,
     bottom: Int,
-    block: Canvas.() -> Unit
+    block: Canvas.() -> Unit,
 ) {
     val checkpoint = save()
     clipRect(left, top, right, bottom)
@@ -170,7 +170,7 @@ public inline fun Canvas.withClip(
     top: Float,
     right: Float,
     bottom: Float,
-    block: Canvas.() -> Unit
+    block: Canvas.() -> Unit,
 ) {
     val checkpoint = save()
     clipRect(left, top, right, bottom)

@@ -42,7 +42,6 @@ import org.junit.runner.RunWith
 /** Instrumented tests for [JpegBytes2CroppedBitmap]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class Bitmap2JpegBytesTest {
 
     private val operation = Bitmap2JpegBytes()
@@ -58,7 +57,7 @@ class Bitmap2JpegBytesTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 90,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 
@@ -84,7 +83,7 @@ class Bitmap2JpegBytesTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 90,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 

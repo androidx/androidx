@@ -57,8 +57,7 @@ import kotlin.jvm.JvmInline
 import kotlin.math.max
 
 /**
- * <a href="https://m3.material.io/components/lists/overview" class="external"
- * target="_blank">Material Design list item.</a>
+ * [Material Design list item](https://m3.material.io/components/lists/overview)
  *
  * Lists are continuous, vertical indexes of text or images.
  *
@@ -107,8 +106,8 @@ fun ListItem(
     val decoratedHeadlineContent: @Composable () -> Unit = {
         ProvideTextStyleFromToken(
             colors.headlineColor(enabled = true),
-            ListTokens.ListItemLabelTextFont,
-            headlineContent
+            ListTokens.ItemLabelTextFont,
+            headlineContent,
         )
     }
     val decoratedSupportingContent: @Composable (() -> Unit)? =
@@ -116,20 +115,14 @@ fun ListItem(
             {
                 ProvideTextStyleFromToken(
                     colors.supportingColor(),
-                    ListTokens.ListItemSupportingTextFont,
-                    it
+                    ListTokens.ItemSupportingTextFont,
+                    it,
                 )
             }
         }
     val decoratedOverlineContent: @Composable (() -> Unit)? =
         overlineContent?.let {
-            {
-                ProvideTextStyleFromToken(
-                    colors.overlineColor(),
-                    ListTokens.ListItemOverlineFont,
-                    it
-                )
-            }
+            { ProvideTextStyleFromToken(colors.overlineColor(), ListTokens.ItemOverlineFont, it) }
         }
     val decoratedLeadingContent: @Composable (() -> Unit)? =
         leadingContent?.let {
@@ -137,7 +130,7 @@ fun ListItem(
                 Box(Modifier.padding(end = LeadingContentEndPadding)) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.leadingIconColor(enabled = true),
-                        content = it
+                        content = it,
                     )
                 }
             }
@@ -148,8 +141,8 @@ fun ListItem(
                 Box(Modifier.padding(start = TrailingContentStartPadding)) {
                     ProvideTextStyleFromToken(
                         colors.trailingIconColor(enabled = true),
-                        ListTokens.ListItemTrailingSupportingTextFont,
-                        content = it
+                        ListTokens.ItemTrailingSupportingTextFont,
+                        content = it,
                     )
                 }
             }
@@ -184,13 +177,7 @@ private fun ListItemLayout(
     val measurePolicy = remember { ListItemMeasurePolicy() }
     Layout(
         contents =
-            listOf(
-                headline,
-                overline ?: {},
-                supporting ?: {},
-                leading ?: {},
-                trailing ?: {},
-            ),
+            listOf(headline, overline ?: {}, supporting ?: {}, leading ?: {}, trailing ?: {}),
         measurePolicy = measurePolicy,
     )
 }
@@ -198,7 +185,7 @@ private fun ListItemLayout(
 private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val (
             headlineMeasurable,
@@ -273,7 +260,7 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
                 ?.measure(
                     paddedLooseConstraints.offset(
                         horizontal = -currentTotalWidth,
-                        vertical = -currentTotalHeight
+                        vertical = -currentTotalHeight,
                     )
                 )
         currentTotalHeight += supportingPlaceable.heightOrZero
@@ -287,7 +274,7 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
                 ?.measure(
                     paddedLooseConstraints.offset(
                         horizontal = -currentTotalWidth,
-                        vertical = -currentTotalHeight
+                        vertical = -currentTotalHeight,
                     )
                 )
 
@@ -339,22 +326,22 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<List<IntrinsicMeasurable>>,
-        width: Int
+        width: Int,
     ): Int = calculateIntrinsicHeight(measurables, width, IntrinsicMeasurable::maxIntrinsicHeight)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<List<IntrinsicMeasurable>>,
-        height: Int
+        height: Int,
     ): Int = calculateIntrinsicWidth(measurables, height, IntrinsicMeasurable::maxIntrinsicWidth)
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<List<IntrinsicMeasurable>>,
-        width: Int
+        width: Int,
     ): Int = calculateIntrinsicHeight(measurables, width, IntrinsicMeasurable::minIntrinsicHeight)
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<List<IntrinsicMeasurable>>,
-        height: Int
+        height: Int,
     ): Int = calculateIntrinsicWidth(measurables, height, IntrinsicMeasurable::minIntrinsicWidth)
 
     private fun IntrinsicMeasureScope.calculateIntrinsicWidth(
@@ -467,9 +454,9 @@ private fun IntrinsicMeasureScope.calculateHeight(
 ): Int {
     val defaultMinHeight =
         when (listItemType) {
-            ListItemType.OneLine -> ListTokens.ListItemOneLineContainerHeight
-            ListItemType.TwoLine -> ListTokens.ListItemTwoLineContainerHeight
-            else /* ListItemType.ThreeLine */ -> ListTokens.ListItemThreeLineContainerHeight
+            ListItemType.OneLine -> ListTokens.ItemOneLineContainerHeight
+            ListItemType.TwoLine -> ListTokens.ItemTwoLineContainerHeight
+            else /* ListItemType.ThreeLine */ -> ListTokens.ItemThreeLineContainerHeight
         }
     val minHeight = max(constraints.minHeight, defaultMinHeight.roundToPx())
 
@@ -496,7 +483,7 @@ private fun MeasureScope.place(
         leadingPlaceable?.let {
             it.placeRelative(
                 x = startPadding,
-                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height)
+                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height),
             )
         }
 
@@ -524,7 +511,7 @@ private fun MeasureScope.place(
         trailingPlaceable?.let {
             it.placeRelative(
                 x = width - endPadding - it.width,
-                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height)
+                y = if (isThreeLine) topPadding else CenterVertically.align(it.height, height),
             )
         }
     }
@@ -533,19 +520,19 @@ private fun MeasureScope.place(
 /** Contains the default values used by list items. */
 object ListItemDefaults {
     /** The default elevation of a list item */
-    val Elevation: Dp = ListTokens.ListItemContainerElevation
+    val Elevation: Dp = ListTokens.ItemContainerElevation
 
     /** The default shape of a list item */
     val shape: Shape
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemContainerShape.value
 
     /** The container color of a list item */
     val containerColor: Color
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemContainerColor.value
 
     /** The content color of a list item */
     val contentColor: Color
-        @Composable @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ItemLabelTextColor.value
 
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
@@ -597,21 +584,21 @@ object ListItemDefaults {
         get() {
             return defaultListItemColorsCached
                 ?: ListItemColors(
-                        containerColor = fromToken(ListTokens.ListItemContainerColor),
-                        headlineColor = fromToken(ListTokens.ListItemLabelTextColor),
-                        leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
-                        overlineColor = fromToken(ListTokens.ListItemOverlineColor),
-                        supportingTextColor = fromToken(ListTokens.ListItemSupportingTextColor),
-                        trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                        containerColor = fromToken(ListTokens.ItemContainerColor),
+                        headlineColor = fromToken(ListTokens.ItemLabelTextColor),
+                        leadingIconColor = fromToken(ListTokens.ItemLeadingIconColor),
+                        overlineColor = fromToken(ListTokens.ItemOverlineColor),
+                        supportingTextColor = fromToken(ListTokens.ItemSupportingTextColor),
+                        trailingIconColor = fromToken(ListTokens.ItemTrailingIconColor),
                         disabledHeadlineColor =
-                            fromToken(ListTokens.ListItemDisabledLabelTextColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                            fromToken(ListTokens.ItemDisabledLabelTextColor)
+                                .copy(alpha = ListTokens.ItemDisabledLabelTextOpacity),
                         disabledLeadingIconColor =
-                            fromToken(ListTokens.ListItemDisabledLeadingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledLeadingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledLeadingIconOpacity),
                         disabledTrailingIconColor =
-                            fromToken(ListTokens.ListItemDisabledTrailingIconColor)
-                                .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
+                            fromToken(ListTokens.ItemDisabledTrailingIconColor)
+                                .copy(alpha = ListTokens.ItemDisabledTrailingIconOpacity),
                     )
                     .also { defaultListItemColorsCached = it }
         }
@@ -711,7 +698,7 @@ private fun ProvideTextStyleFromToken(
     ProvideContentColorTextStyle(
         contentColor = color,
         textStyle = textToken.value,
-        content = content
+        content = content,
     )
 
 /** Helper class to define list item type. Used for padding and sizing definition. */

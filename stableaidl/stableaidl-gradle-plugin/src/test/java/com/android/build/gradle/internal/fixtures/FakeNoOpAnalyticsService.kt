@@ -55,20 +55,20 @@ class FakeNoOpAnalyticsService : AnalyticsService() {
                 get() =
                     FakeObjectFactory.factory.mapProperty(
                         String::class.java,
-                        ProjectData::class.java
+                        ProjectData::class.java,
                     )
 
             override val enableProfileJson: Property<Boolean>
                 get() = FakeGradleProperty(true)
 
-            override val profileDir: Property<File?>
-                get() = FakeGradleProperty()
+            override val profileDir: Property<File>
+                get(): Property<File> = FakeGradleProperty()
 
             override val taskMetadata: MapProperty<String, TaskMetadata>
                 get() =
                     FakeObjectFactory.factory.mapProperty(
                         String::class.java,
-                        TaskMetadata::class.java
+                        TaskMetadata::class.java,
                     )
 
             override val rootProjectPath: Property<String>
@@ -93,7 +93,7 @@ class FakeNoOpAnalyticsService : AnalyticsService() {
 
     override fun getVariantBuilder(
         projectPath: String,
-        variantName: String
+        variantName: String,
     ): GradleBuildVariant.Builder {
         return GradleBuildVariant.newBuilder()
     }
@@ -107,7 +107,7 @@ class FakeNoOpAnalyticsService : AnalyticsService() {
         transform: GradleTransformExecution?,
         projectPath: String,
         variantName: String,
-        block: Recorder.VoidBlock
+        block: Recorder.VoidBlock,
     ) {
         block.call()
     }

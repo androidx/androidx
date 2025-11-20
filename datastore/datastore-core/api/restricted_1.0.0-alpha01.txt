@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.datastore {
 
   public final class CorruptionException extends java.io.IOException {
@@ -23,10 +23,10 @@ package androidx.datastore {
 
   public final class DataStoreFactory {
     ctor public DataStoreFactory();
-    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.core.DataMigration<T>>> migrationProducers = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
-    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.core.DataMigration<T>>> migrationProducers = listOf());
-    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null);
     method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer);
+    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
+    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.core.DataMigration<T>>> migrationProducers);
+    method public <T> androidx.datastore.core.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.core.DataMigration<T>>> migrationProducers, optional kotlinx.coroutines.CoroutineScope scope);
   }
 
   public interface Serializer<T> {
@@ -53,7 +53,7 @@ package androidx.datastore.migrations {
   }
 
   public final class SharedPreferencesMigration {
-    method public static <T> kotlin.jvm.functions.Function0<androidx.datastore.core.DataMigration<T>> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, androidx.datastore.migrations.MigrationFromSharedPreferences<T> migration, java.util.Set<java.lang.String>? keysToMigrate = MIGRATE_ALL_KEYS, boolean deleteEmptyPreferences = true);
+    method public static <T> kotlin.jvm.functions.Function0<androidx.datastore.core.DataMigration<T>> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, androidx.datastore.migrations.MigrationFromSharedPreferences<T> migration, optional java.util.Set<java.lang.String>? keysToMigrate, optional boolean deleteEmptyPreferences);
   }
 
   public final class SharedPreferencesView {
@@ -64,8 +64,8 @@ package androidx.datastore.migrations {
     method public float getFloat(String key, float defValue);
     method public int getInt(String key, int defValue);
     method public long getLong(String key, long defValue);
-    method public String? getString(String key, String? defValue = null);
-    method public java.util.Set<java.lang.String>? getStringSet(String key, java.util.Set<java.lang.String>? defValues = null);
+    method public String? getString(String key, optional String? defValue);
+    method public java.util.Set<java.lang.String>? getStringSet(String key, optional java.util.Set<java.lang.String>? defValues);
   }
 
 }

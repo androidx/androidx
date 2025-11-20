@@ -26,19 +26,20 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:viewfinder:viewfinder-core"))
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
+    implementation(libs.guavaListenableFuture)
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.camera.viewfinder.core.samples"
 }
 

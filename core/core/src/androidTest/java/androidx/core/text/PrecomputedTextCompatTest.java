@@ -37,7 +37,6 @@ import android.text.style.TypefaceSpan;
 
 import androidx.core.text.PrecomputedTextCompat.Params;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -89,7 +88,6 @@ public class PrecomputedTextCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testParams_GetDefaultValues() {
         assertEquals(Layout.BREAK_STRATEGY_HIGH_QUALITY,
                 new Params.Builder(PAINT).build().getBreakStrategy());
@@ -104,7 +102,6 @@ public class PrecomputedTextCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testParams_equals() {
         final Params base = new Params.Builder(PAINT)
                 .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
@@ -157,7 +154,6 @@ public class PrecomputedTextCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testParams_equalsWithoutTextDirection() {
         final Params base = new Params.Builder(PAINT)
                 .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)

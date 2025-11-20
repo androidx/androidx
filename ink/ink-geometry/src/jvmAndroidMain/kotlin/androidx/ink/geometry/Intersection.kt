@@ -39,36 +39,14 @@ public object Intersection {
      * Returns true when the point (a [Vec]) intersects with a [Segment]. All points on the segment,
      * including endpoints, intersect with the segment.
      */
-    @JvmStatic
-    public fun Vec.intersects(segment: Segment): Boolean {
-        return nativeVecSegmentIntersects(
-            vecX = this.x,
-            vecY = this.y,
-            segmentStartX = segment.start.x,
-            segmentStartY = segment.start.y,
-            segmentEndX = segment.end.x,
-            segmentEndY = segment.end.y,
-        )
-    }
+    @JvmStatic public fun Vec.intersects(segment: Segment): Boolean = segment.intersects(x, y)
 
     /**
      * Returns true when the point (a [Vec]) intersects with a [Triangle]. All points on the
      * boundary of the triangle (including its vertices) and in the interior of the triangle
      * intersect with it.
      */
-    @JvmStatic
-    public fun Vec.intersects(triangle: Triangle): Boolean {
-        return nativeVecTriangleIntersects(
-            vecX = this.x,
-            vecY = this.y,
-            triangleP0X = triangle.p0.x,
-            triangleP0Y = triangle.p0.y,
-            triangleP1X = triangle.p1.x,
-            triangleP1Y = triangle.p1.y,
-            triangleP2X = triangle.p2.x,
-            triangleP2Y = triangle.p2.y,
-        )
-    }
+    @JvmStatic public fun Vec.intersects(triangle: Triangle): Boolean = triangle.intersects(x, y)
 
     /**
      * Returns true when the point (a [Vec]) intersects with a [Parallelogram]. All points on the
@@ -76,34 +54,14 @@ public object Intersection {
      * parallelogram intersect with it.
      */
     @JvmStatic
-    public fun Vec.intersects(parallelogram: Parallelogram): Boolean {
-        return nativeVecParallelogramIntersects(
-            vecX = this.x,
-            vecY = this.y,
-            parallelogramCenterX = parallelogram.center.x,
-            parallelogramCenterY = parallelogram.center.y,
-            parallelogramWidth = parallelogram.width,
-            parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
-        )
-    }
+    public fun Vec.intersects(parallelogram: Parallelogram): Boolean =
+        parallelogram.intersects(x, y)
 
     /**
      * Returns true when the point (a [Vec]) intersects with a [Box]. All points on the boundary of
      * the box (including its vertices) and in the interior of the box intersect with it.
      */
-    @JvmStatic
-    public fun Vec.intersects(box: Box): Boolean {
-        return nativeVecBoxIntersects(
-            vecX = this.x,
-            vecY = this.y,
-            boxXMin = box.xMin,
-            boxYMin = box.yMin,
-            boxXMax = box.xMax,
-            boxYMax = box.yMax,
-        )
-    }
+    @JvmStatic public fun Vec.intersects(box: Box): Boolean = box.intersects(x, y)
 
     /**
      * Returns true when the point (a [Vec]) intersects with [mesh]. [meshToPoint] transforms the
@@ -116,19 +74,8 @@ public object Intersection {
      * intersection of the point in [mesh]’s object coordinates.
      */
     @JvmStatic
-    public fun Vec.intersects(mesh: PartitionedMesh, meshToPoint: AffineTransform): Boolean {
-        return nativeMeshVecIntersects(
-            nativeMeshAddress = mesh.getNativeAddress(),
-            vecX = this.x,
-            vecY = this.y,
-            meshToVecA = meshToPoint.m00,
-            meshToVecB = meshToPoint.m10,
-            meshToVecC = meshToPoint.m20,
-            meshToVecD = meshToPoint.m01,
-            meshToVecE = meshToPoint.m11,
-            meshToVecF = meshToPoint.m21,
-        )
-    }
+    public fun Vec.intersects(mesh: PartitionedMesh, meshToPoint: AffineTransform): Boolean =
+        mesh.intersects(x, y, meshToPoint)
 
     /**
      * Returns true when a [Segment] intersects with another [Segment] --- when this segment has at
@@ -204,8 +151,8 @@ public object Intersection {
             parallelogramCenterY = parallelogram.center.y,
             parallelogramWidth = parallelogram.width,
             parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
+            parallelogramAngleInRadian = parallelogram.rotationDegrees,
+            parallelogramShearFactor = parallelogram.skew,
         )
     }
 
@@ -218,8 +165,8 @@ public object Intersection {
      */
     @JvmStatic
     public fun Segment.intersects(mesh: PartitionedMesh, meshToSegment: AffineTransform): Boolean {
-        return nativeMeshSegmentIntersects(
-            nativeMeshAddress = mesh.getNativeAddress(),
+        return nativePartitionedMeshSegmentIntersects(
+            partitionedMeshNativePointer = mesh.nativePointer,
             segmentStartX = this.start.x,
             segmentStartY = this.start.y,
             segmentEndX = this.end.x,
@@ -296,8 +243,8 @@ public object Intersection {
             parallelogramCenterY = parallelogram.center.y,
             parallelogramWidth = parallelogram.width,
             parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
+            parallelogramAngleInRadian = parallelogram.rotationDegrees,
+            parallelogramShearFactor = parallelogram.skew,
         )
     }
 
@@ -311,10 +258,10 @@ public object Intersection {
     @JvmStatic
     public fun Triangle.intersects(
         mesh: PartitionedMesh,
-        meshToTriangle: AffineTransform
+        meshToTriangle: AffineTransform,
     ): Boolean {
-        return nativeMeshTriangleIntersects(
-            nativeMeshAddress = mesh.getNativeAddress(),
+        return nativePartitionedMeshTriangleIntersects(
+            partitionedMeshNativePointer = mesh.nativePointer,
             triangleP0X = this.p0.x,
             triangleP0Y = this.p0.y,
             triangleP1X = this.p1.x,
@@ -366,8 +313,8 @@ public object Intersection {
             parallelogramCenterY = parallelogram.center.y,
             parallelogramWidth = parallelogram.width,
             parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
+            parallelogramAngleInRadian = parallelogram.rotationDegrees,
+            parallelogramShearFactor = parallelogram.skew,
         )
     }
 
@@ -380,8 +327,8 @@ public object Intersection {
      */
     @JvmStatic
     public fun Box.intersects(mesh: PartitionedMesh, meshToBox: AffineTransform): Boolean {
-        return nativeMeshBoxIntersects(
-            nativeMeshAddress = mesh.getNativeAddress(),
+        return nativePartitionedMeshBoxIntersects(
+            partitionedMeshNativePointer = mesh.nativePointer,
             boxXMin = this.xMin,
             boxYMin = this.yMin,
             boxXMax = this.xMax,
@@ -403,23 +350,22 @@ public object Intersection {
     public fun Parallelogram.intersects(other: Parallelogram): Boolean {
         // Return true without calling the native code when this [Parallelogram] and [other] are
         // equal
-        // --- i.e.
-        // when they have same parameters like [center], [width], [height], [rotation] and
-        // [shearFactor].
+        // (when they have the same parameters like [center], [width], [height], [rotation] and
+        // [skew]).
         if (this == other) return true
         return nativeParallelogramParallelogramIntersects(
             parallelogram1CenterX = this.center.x,
             parallelogram1CenterY = this.center.y,
             parallelogram1Width = this.width,
             parallelogram1Height = this.height,
-            parallelogram1AngleInRadian = this.rotation,
-            parallelogram1ShearFactor = this.shearFactor,
+            parallelogram1AngleInRadian = this.rotationDegrees,
+            parallelogram1ShearFactor = this.skew,
             parallelogram2CenterX = other.center.x,
             parallelogram2CenterY = other.center.y,
             parallelogram2Width = other.width,
             parallelogram2Height = other.height,
-            parallelogram2AngleInRadian = other.rotation,
-            parallelogram2ShearFactor = other.shearFactor,
+            parallelogram2AngleInRadian = other.rotationDegrees,
+            parallelogram2ShearFactor = other.skew,
         )
     }
 
@@ -436,14 +382,14 @@ public object Intersection {
         mesh: PartitionedMesh,
         meshToParallelogram: AffineTransform,
     ): Boolean {
-        return nativeMeshParallelogramIntersects(
-            nativeMeshAddress = mesh.getNativeAddress(),
+        return nativePartitionedMeshParallelogramIntersects(
+            partitionedMeshNativePointer = mesh.nativePointer,
             parallelogramCenterX = this.center.x,
             parallelogramCenterY = this.center.y,
             parallelogramWidth = this.width,
             parallelogramHeight = this.height,
-            parallelogramAngleInRadian = this.rotation,
-            parallelogramShearFactor = this.shearFactor,
+            parallelogramAngleInRadian = this.rotationDegrees,
+            parallelogramShearFactor = this.skew,
             meshToParallelogramA = meshToParallelogram.m00,
             meshToParallelogramB = meshToParallelogram.m10,
             meshToParallelogramC = meshToParallelogram.m20,
@@ -464,18 +410,18 @@ public object Intersection {
     @JvmStatic
     public fun PartitionedMesh.intersects(
         other: PartitionedMesh,
-        thisToCommonTransForm: AffineTransform,
+        thisToCommonTransform: AffineTransform,
         otherToCommonTransform: AffineTransform,
     ): Boolean {
-        return nativeMeshPartitionedMeshIntersects(
-            thisPartitionedMeshAddress = this.getNativeAddress(),
-            otherPartitionedMeshAddress = other.getNativeAddress(),
-            thisToCommonTransformA = thisToCommonTransForm.m00,
-            thisToCommonTransformB = thisToCommonTransForm.m10,
-            thisToCommonTransformC = thisToCommonTransForm.m20,
-            thisToCommonTransformD = thisToCommonTransForm.m01,
-            thisToCommonTransformE = thisToCommonTransForm.m11,
-            thisToCommonTransformF = thisToCommonTransForm.m21,
+        return nativePartitionedMeshPartitionedMeshIntersects(
+            thisPartitionedMeshNativePointer = this.nativePointer,
+            otherPartitionedMeshNativePointer = other.nativePointer,
+            thisToCommonTransformA = thisToCommonTransform.m00,
+            thisToCommonTransformB = thisToCommonTransform.m10,
+            thisToCommonTransformC = thisToCommonTransform.m20,
+            thisToCommonTransformD = thisToCommonTransform.m01,
+            thisToCommonTransformE = thisToCommonTransform.m11,
+            thisToCommonTransformF = thisToCommonTransform.m21,
             otherToCommonTransformA = otherToCommonTransform.m00,
             otherToCommonTransformB = otherToCommonTransform.m10,
             otherToCommonTransformC = otherToCommonTransform.m20,
@@ -489,14 +435,47 @@ public object Intersection {
      * Returns true when the [Segment] intersects with a point (a [Vec]). All points on the segment,
      * including endpoints, intersect with the segment.
      */
-    @JvmStatic public fun Segment.intersects(point: Vec): Boolean = point.intersects(this)
+    @JvmStatic public fun Segment.intersects(point: Vec): Boolean = intersects(point.x, point.y)
+
+    /**
+     * Returns true when the [Segment] intersects with a point (x, y). All points on the segment,
+     * including endpoints, intersect with the segment.
+     */
+    @JvmStatic
+    public fun Segment.intersects(x: Float, y: Float): Boolean =
+        nativeVecSegmentIntersects(
+            vecX = x,
+            vecY = y,
+            segmentStartX = start.x,
+            segmentStartY = start.y,
+            segmentEndX = end.x,
+            segmentEndY = end.y,
+        )
 
     /**
      * Returns true when the [Triangle] intersects with a point (a [Vec]). All points on the
      * boundary of the triangle (including its vertices) and in the interior of the triangle
      * intersect with it.
      */
-    @JvmStatic public fun Triangle.intersects(point: Vec): Boolean = point.intersects(this)
+    @JvmStatic public fun Triangle.intersects(point: Vec): Boolean = intersects(point.x, point.y)
+
+    /**
+     * Returns true when the [Triangle] intersects with a point (x, y). All points on the boundary
+     * of the triangle (including its vertices) and in the interior of the triangle intersect with
+     * it.
+     */
+    @JvmStatic
+    public fun Triangle.intersects(x: Float, y: Float): Boolean =
+        nativeVecTriangleIntersects(
+            vecX = x,
+            vecY = y,
+            triangleP0X = p0.x,
+            triangleP0Y = p0.y,
+            triangleP1X = p1.x,
+            triangleP1Y = p1.y,
+            triangleP2X = p2.x,
+            triangleP2Y = p2.y,
+        )
 
     /**
      * Returns true when a [Triangle] intersects with a [Segment] --- when the [segment] has at
@@ -509,7 +488,26 @@ public object Intersection {
      * boundary of the parallelogram (including its vertices) and in the interior of the
      * parallelogram intersect with it.
      */
-    @JvmStatic public fun Parallelogram.intersects(point: Vec): Boolean = point.intersects(this)
+    @JvmStatic
+    public fun Parallelogram.intersects(point: Vec): Boolean = intersects(point.x, point.y)
+
+    /**
+     * Returns true when the [Parallelogram] intersects with a point (x, y). All points on the
+     * boundary of the parallelogram (including its vertices) and in the interior of the
+     * parallelogram intersect with it.
+     */
+    @JvmStatic
+    public fun Parallelogram.intersects(x: Float, y: Float): Boolean =
+        nativeVecParallelogramIntersects(
+            vecX = x,
+            vecY = y,
+            parallelogramCenterX = center.x,
+            parallelogramCenterY = center.y,
+            parallelogramWidth = width,
+            parallelogramHeight = height,
+            parallelogramAngleInRadian = rotationDegrees,
+            parallelogramShearFactor = skew,
+        )
 
     /**
      * Returns true when a [Parallelogram] intersects with a [Segment] --- when the [segment] has at
@@ -535,7 +533,22 @@ public object Intersection {
      * Returns true when the [Box] intersects with a point (a [Vec]). All points on the boundary of
      * the box (including its vertices) and in the interior of the box intersect with it.
      */
-    @JvmStatic public fun Box.intersects(point: Vec): Boolean = point.intersects(this)
+    @JvmStatic public fun Box.intersects(point: Vec): Boolean = intersects(point.x, point.y)
+
+    /**
+     * Returns true when the [Box] intersects with a point (x, y). All points on the boundary of the
+     * box (including its vertices) and in the interior of the box intersect with it.
+     */
+    @JvmStatic
+    public fun Box.intersects(x: Float, y: Float): Boolean =
+        nativeVecBoxIntersects(
+            vecX = x,
+            vecY = y,
+            boxXMin = xMin,
+            boxYMin = yMin,
+            boxXMax = xMax,
+            boxYMax = yMax,
+        )
 
     /**
      * Returns true when a [Box] intersects with a [Segment] --- when the [segment] has at least one
@@ -557,11 +570,39 @@ public object Intersection {
      *
      * Performance note: it is expensive to apply a transform to a mesh. To avoid unnecessary
      * calculations, the inverse of [meshToPoint] is used to perform the mathematically equivalent
-     * intersection of the point in [mesh]’s object coordinates.
+     * intersection of the point in [mesh]'s object coordinates.
      */
     @JvmStatic
     public fun PartitionedMesh.intersects(point: Vec, meshToPoint: AffineTransform): Boolean =
-        point.intersects(this, meshToPoint)
+        intersects(point.x, point.y, meshToPoint)
+
+    /**
+     * Returns true when the [PartitionedMesh] intersects with the point (x, y). [meshToPoint]
+     * transforms the coordinate space of [mesh] to the coordinate space that the intersection
+     * should be checked in (that of the point). All points along the boundary of the [mesh] and the
+     * [mesh]s interior are considered for intersection.
+     *
+     * Performance note: it is expensive to apply a transform to a mesh. To avoid unnecessary
+     * calculations, the inverse of [meshToPoint] is used to perform the mathematically equivalent
+     * intersection of the point in [mesh]'s object coordinates.
+     */
+    @JvmStatic
+    public fun PartitionedMesh.intersects(
+        x: Float,
+        y: Float,
+        meshToPoint: AffineTransform,
+    ): Boolean =
+        nativePartitionedMeshVecIntersects(
+            partitionedMeshNativePointer = nativePointer,
+            vecX = x,
+            vecY = y,
+            meshToVecA = meshToPoint.m00,
+            meshToVecB = meshToPoint.m10,
+            meshToVecC = meshToPoint.m20,
+            meshToVecD = meshToPoint.m01,
+            meshToVecE = meshToPoint.m11,
+            meshToVecF = meshToPoint.m21,
+        )
 
     /**
      * Returns true when a [PartitionedMesh] intersects with a [Segment].
@@ -573,7 +614,7 @@ public object Intersection {
     @JvmStatic
     public fun PartitionedMesh.intersects(
         segment: Segment,
-        meshToSegment: AffineTransform
+        meshToSegment: AffineTransform,
     ): Boolean = segment.intersects(this, meshToSegment)
 
     /**
@@ -799,8 +840,8 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshVecIntersects(
-        nativeMeshAddress: Long,
+    private external fun nativePartitionedMeshVecIntersects(
+        partitionedMeshNativePointer: Long,
         vecX: Float,
         vecY: Float,
         meshToVecA: Float,
@@ -812,8 +853,8 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshSegmentIntersects(
-        nativeMeshAddress: Long,
+    private external fun nativePartitionedMeshSegmentIntersects(
+        partitionedMeshNativePointer: Long,
         segmentStartX: Float,
         segmentStartY: Float,
         segmentEndX: Float,
@@ -827,8 +868,8 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshTriangleIntersects(
-        nativeMeshAddress: Long,
+    private external fun nativePartitionedMeshTriangleIntersects(
+        partitionedMeshNativePointer: Long,
         triangleP0X: Float,
         triangleP0Y: Float,
         triangleP1X: Float,
@@ -844,8 +885,8 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshBoxIntersects(
-        nativeMeshAddress: Long,
+    private external fun nativePartitionedMeshBoxIntersects(
+        partitionedMeshNativePointer: Long,
         boxXMin: Float,
         boxYMin: Float,
         boxXMax: Float,
@@ -859,8 +900,8 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshParallelogramIntersects(
-        nativeMeshAddress: Long,
+    private external fun nativePartitionedMeshParallelogramIntersects(
+        partitionedMeshNativePointer: Long,
         parallelogramCenterX: Float,
         parallelogramCenterY: Float,
         parallelogramWidth: Float,
@@ -876,9 +917,9 @@ public object Intersection {
     ): Boolean
 
     @UsedByNative
-    private external fun nativeMeshPartitionedMeshIntersects(
-        thisPartitionedMeshAddress: Long,
-        otherPartitionedMeshAddress: Long,
+    private external fun nativePartitionedMeshPartitionedMeshIntersects(
+        thisPartitionedMeshNativePointer: Long,
+        otherPartitionedMeshNativePointer: Long,
         thisToCommonTransformA: Float,
         thisToCommonTransformB: Float,
         thisToCommonTransformC: Float,

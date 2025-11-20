@@ -43,7 +43,7 @@ internal fun RectListDebugger(modifier: Modifier = Modifier) {
 private object EmptyFillMeasurePolicy : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return layout(constraints.maxWidth, constraints.maxHeight) {}
     }

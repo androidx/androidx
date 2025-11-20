@@ -36,7 +36,7 @@ internal class TranslateInsetsAnimationCallback(
     private val view: View,
     private val windowManager: WindowManager?,
     private val pdfContainer: View?,
-    dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE
+    dispatchMode: Int = DISPATCH_MODE_CONTINUE_ON_SUBTREE,
 ) : WindowInsetsAnimationCompat.Callback(dispatchMode) {
 
     init {
@@ -45,10 +45,7 @@ internal class TranslateInsetsAnimationCallback(
                 insets.getInsets(WindowInsetsCompat.Type.ime()).run {
                     Insets.of(left, top, right, bottom)
                 }
-            // Avoid consuming null ime events which are set as zero on configuration changes.
-            if (keyboardInsets.bottom > 0) {
-                translateViewWithKeyboard(keyboardInsets)
-            }
+            translateViewWithKeyboard(keyboardInsets)
 
             insets
         }
@@ -56,7 +53,7 @@ internal class TranslateInsetsAnimationCallback(
 
     override fun onProgress(
         insets: WindowInsetsCompat,
-        runningAnimations: List<WindowInsetsAnimationCompat>
+        runningAnimations: List<WindowInsetsAnimationCompat>,
     ): WindowInsetsCompat {
         // onProgress() is called when any of the running animations progress...
 
@@ -65,6 +62,14 @@ internal class TranslateInsetsAnimationCallback(
     }
 
     private fun translateViewWithKeyboard(keyboardInsets: Insets) {
+        // If keyboard insets are zero, reset the view's translation and return early as no keyboard
+        // adjustment is needed in this scenario.
+        // This prevents incorrect translation if container metrics are stale during UI changes
+        // (e.g., rotation).
+        if (keyboardInsets.bottom == 0) {
+            view.translationY = 0f
+            return
+        }
 
         var absoluteContainerBottom = 0
         /*

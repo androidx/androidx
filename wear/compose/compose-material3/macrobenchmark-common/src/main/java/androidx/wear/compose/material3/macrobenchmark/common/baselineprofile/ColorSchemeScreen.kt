@@ -41,147 +41,147 @@ val ColorSchemeScreen =
                     ButtonWithColor(
                         "Primary",
                         MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.onPrimary,
                     )
                     ButtonWithColor(
                         "Primary Dim",
                         MaterialTheme.colorScheme.primaryDim,
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.onPrimary,
                     )
                     ButtonWithColor(
                         "Primary Container",
                         MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.onPrimaryContainer
+                        MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                     ButtonWithColor(
                         "On Primary",
                         MaterialTheme.colorScheme.onPrimary,
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.primary,
                     )
                     ButtonWithColor(
                         "On Primary Container",
                         MaterialTheme.colorScheme.onPrimaryContainer,
-                        MaterialTheme.colorScheme.primaryContainer
+                        MaterialTheme.colorScheme.primaryContainer,
                     )
                     ButtonWithColor(
                         "Secondary",
                         MaterialTheme.colorScheme.secondary,
-                        MaterialTheme.colorScheme.onSecondary
+                        MaterialTheme.colorScheme.onSecondary,
                     )
                     ButtonWithColor(
                         "Secondary Dim",
                         MaterialTheme.colorScheme.secondaryDim,
-                        MaterialTheme.colorScheme.onSecondary
+                        MaterialTheme.colorScheme.onSecondary,
                     )
                     ButtonWithColor(
                         "Secondary Container",
                         MaterialTheme.colorScheme.secondaryContainer,
-                        MaterialTheme.colorScheme.onSecondaryContainer
+                        MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                     ButtonWithColor(
                         "On Secondary",
                         MaterialTheme.colorScheme.onSecondary,
-                        MaterialTheme.colorScheme.secondary
+                        MaterialTheme.colorScheme.secondary,
                     )
                     ButtonWithColor(
                         "On Secondary Container",
                         MaterialTheme.colorScheme.onSecondaryContainer,
-                        MaterialTheme.colorScheme.secondaryContainer
+                        MaterialTheme.colorScheme.secondaryContainer,
                     )
                     ButtonWithColor(
                         "Tertiary",
                         MaterialTheme.colorScheme.tertiary,
-                        MaterialTheme.colorScheme.onTertiary
+                        MaterialTheme.colorScheme.onTertiary,
                     )
                     ButtonWithColor(
                         "Tertiary Dim",
                         MaterialTheme.colorScheme.tertiaryDim,
-                        MaterialTheme.colorScheme.onTertiary
+                        MaterialTheme.colorScheme.onTertiary,
                     )
                     ButtonWithColor(
                         "Tertiary Container",
                         MaterialTheme.colorScheme.tertiaryContainer,
-                        MaterialTheme.colorScheme.onTertiaryContainer
+                        MaterialTheme.colorScheme.onTertiaryContainer,
                     )
                     ButtonWithColor(
                         "On Tertiary",
                         MaterialTheme.colorScheme.onTertiary,
-                        MaterialTheme.colorScheme.tertiary
+                        MaterialTheme.colorScheme.tertiary,
                     )
                     ButtonWithColor(
                         "On Tertiary Container",
                         MaterialTheme.colorScheme.onTertiaryContainer,
-                        MaterialTheme.colorScheme.tertiaryContainer
+                        MaterialTheme.colorScheme.tertiaryContainer,
                     )
                     ButtonWithColor(
                         "Surface Container",
                         MaterialTheme.colorScheme.surfaceContainer,
-                        MaterialTheme.colorScheme.onSurface
+                        MaterialTheme.colorScheme.onSurface,
                     )
                     ButtonWithColor(
                         "Surface Container Low",
                         MaterialTheme.colorScheme.surfaceContainerLow,
-                        MaterialTheme.colorScheme.onSurface
+                        MaterialTheme.colorScheme.onSurface,
                     )
                     ButtonWithColor(
                         "Surface Container High",
                         MaterialTheme.colorScheme.surfaceContainerHigh,
-                        MaterialTheme.colorScheme.onSurface
+                        MaterialTheme.colorScheme.onSurface,
                     )
                     ButtonWithColor(
                         "On Surface",
                         MaterialTheme.colorScheme.onSurface,
-                        MaterialTheme.colorScheme.surfaceContainer
+                        MaterialTheme.colorScheme.surfaceContainer,
                     )
                     ButtonWithColor(
                         "On Surface Variant",
                         MaterialTheme.colorScheme.onSurfaceVariant,
-                        MaterialTheme.colorScheme.surfaceContainer
+                        MaterialTheme.colorScheme.surfaceContainer,
                     )
                     ButtonWithColor(
                         "Background",
                         MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.onBackground
+                        MaterialTheme.colorScheme.onBackground,
                     )
                     ButtonWithColor(
                         "On Background",
                         MaterialTheme.colorScheme.onBackground,
-                        MaterialTheme.colorScheme.background
+                        MaterialTheme.colorScheme.background,
                     )
                     ButtonWithColor(
                         "Outline",
                         MaterialTheme.colorScheme.outline,
-                        MaterialTheme.colorScheme.surfaceContainer
+                        MaterialTheme.colorScheme.surfaceContainer,
                     )
                     ButtonWithColor(
                         "Outline Variant",
                         MaterialTheme.colorScheme.outlineVariant,
-                        MaterialTheme.colorScheme.surfaceContainer
+                        MaterialTheme.colorScheme.surfaceContainer,
                     )
                     ButtonWithColor(
                         "Error",
                         MaterialTheme.colorScheme.error,
-                        MaterialTheme.colorScheme.onError
+                        MaterialTheme.colorScheme.onError,
                     )
                     ButtonWithColor(
                         "ErrorDim",
                         MaterialTheme.colorScheme.errorDim,
-                        MaterialTheme.colorScheme.onError
+                        MaterialTheme.colorScheme.onError,
                     )
                     ButtonWithColor(
                         "Error Container",
                         MaterialTheme.colorScheme.errorContainer,
-                        MaterialTheme.colorScheme.onErrorContainer
+                        MaterialTheme.colorScheme.onErrorContainer,
                     )
                     ButtonWithColor(
                         "On Error",
                         MaterialTheme.colorScheme.onError,
-                        MaterialTheme.colorScheme.error
+                        MaterialTheme.colorScheme.error,
                     )
                     ButtonWithColor(
                         "On Error Container",
                         MaterialTheme.colorScheme.onErrorContainer,
-                        MaterialTheme.colorScheme.errorContainer
+                        MaterialTheme.colorScheme.errorContainer,
                     )
                 }
             }
@@ -204,7 +204,7 @@ private fun ButtonWithColor(text: String, containerColor: Color, contentColor: C
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = containerColor,
-                contentColor = contentColor
-            )
+                contentColor = contentColor,
+            ),
     )
 }

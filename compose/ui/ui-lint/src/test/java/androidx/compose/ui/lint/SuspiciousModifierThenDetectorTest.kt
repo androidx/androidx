@@ -72,7 +72,7 @@ class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
                 }
 """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -99,7 +99,7 @@ class SuspiciousModifierThenDetectorTest : LintDetectorTest() {
                 fun Modifier.test4() = this.then(if (true) test() else TestModifier)
 """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(

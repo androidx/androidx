@@ -35,7 +35,6 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -340,6 +339,17 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
+    public void testJpegWithFillBytes() throws Throwable {
+        // Fill bytes are added before APP1 and SOS markers.
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_fill_bytes, "jpeg_with_fill_bytes.jpg");
+        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_BYTES);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_BYTES);
+    }
+
+    @Test
+    @LargeTest
     public void testDngWithExifAndXmp() throws Throwable {
         File imageFile =
                 copyFromResourceToFile(R.raw.dng_with_exif_with_xmp, "dng_with_exif_with_xmp.dng");
@@ -526,7 +536,7 @@ public class ExifInterfaceTest {
     // https://issuetracker.google.com/342697059
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = 22) // Parsing the large image causes OOM on API 21 FTL emulators.
+    @SdkSuppress(minSdkVersion = 24) // Parsing the large image causes OOM on API 23 FTL emulators.
     public void testWebpWithoutExifHeight8192px() throws Throwable {
         File imageFile =
                 copyFromResourceToFile(
@@ -2037,19 +2047,16 @@ public class ExifInterfaceTest {
             compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
         }
 
-        // Creates via FileDescriptor.
-        if (Build.VERSION.SDK_INT >= 21) {
-            FileDescriptor fd = null;
-            try {
-                fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDONLY,
-                        OsConstants.S_IRWXU);
-                exifInterface = new ExifInterface(fd);
-                compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
-            } catch (Exception e) {
-                throw new IOException("Failed to open file descriptor", e);
-            } finally {
-                closeQuietly(fd);
-            }
+        FileDescriptor fd = null;
+        try {
+            fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDONLY,
+                    OsConstants.S_IRWXU);
+            exifInterface = new ExifInterface(fd);
+            compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        } catch (Exception e) {
+            throw new IOException("Failed to open file descriptor", e);
+        } finally {
+            closeQuietly(fd);
         }
     }
 
@@ -2149,27 +2156,25 @@ public class ExifInterfaceTest {
         expectSavingPersistsModifications(ExifInterface::new, srcFile, expectedAttributes);
 
         // Creates via FileDescriptor.
-        if (Build.VERSION.SDK_INT >= 21) {
-            AtomicReference<FileDescriptor> fileDescriptor = new AtomicReference<>();
-            ExifInterfaceFactory createFromFileDescriptor =
-                    f -> {
-                        try {
-                            fileDescriptor.set(
-                                    Os.open(
-                                            f.getAbsolutePath(),
-                                            OsConstants.O_RDWR,
-                                            OsConstants.S_IRWXU));
-                        } catch (ErrnoException e) {
-                            throw new IOException("Failed to open file descriptor", e);
-                        }
-                        return new ExifInterface(fileDescriptor.get());
-                    };
-            try {
-                expectSavingPersistsModifications(
-                        createFromFileDescriptor, srcFile, expectedAttributes);
-            } finally {
-                closeQuietly(fileDescriptor.get());
-            }
+        AtomicReference<FileDescriptor> fileDescriptor = new AtomicReference<>();
+        ExifInterfaceFactory createFromFileDescriptor =
+                f -> {
+                    try {
+                        fileDescriptor.set(
+                                Os.open(
+                                        f.getAbsolutePath(),
+                                        OsConstants.O_RDWR,
+                                        OsConstants.S_IRWXU));
+                    } catch (ErrnoException e) {
+                        throw new IOException("Failed to open file descriptor", e);
+                    }
+                    return new ExifInterface(fileDescriptor.get());
+                };
+        try {
+            expectSavingPersistsModifications(
+                    createFromFileDescriptor, srcFile, expectedAttributes);
+        } finally {
+            closeQuietly(fileDescriptor.get());
         }
     }
 
@@ -2239,6 +2244,21 @@ public class ExifInterfaceTest {
                     expectedAttributes, exifInterface);
             expectThumbnailMatchesFileBytes(imageFile, exifInterface, expectedAttributes);
         }
+
+        // Clear the properties we overwrote to check passing null results in clearing.
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, null);
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, null);
+
+        expectedAttributes = expectedAttributesBuilder.setMake(null).clearXmp().build();
+        // Check expected modifications are visible without saving to disk.
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+
+        // Check expected modifications are visible without re-parsing the file.
+        exifInterface.saveAttributes();
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        // Re-parse the file to confirm the changes are persisted to disk
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
     }
 
     private void readFromFilesWithExif(File imageFile, ExpectedAttributes expectedAttributes)
@@ -2298,7 +2318,6 @@ public class ExifInterfaceTest {
         expectBitmapsEquivalent(thumbnailBitmapFromFile, exifInterface.getThumbnailBitmap());
     }
 
-    @RequiresApi(21)
     private void closeQuietly(FileDescriptor fd) {
         if (fd != null) {
             try {

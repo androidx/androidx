@@ -56,9 +56,6 @@ open class BaseActivity : AppCompatActivity() {
                         latchForState.countDown()
                     }
                 }
-                else -> {
-                    Log.e(TAG, "Wrong PreviewView.StreamState! Return IDLE still.")
-                }
             }
         }
 

@@ -20,7 +20,6 @@ import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
-import android.os.Build
 import androidx.camera.view.transform.TransformTestUtils.createFakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -34,7 +33,7 @@ private const val FLOAT_ERROR = 1E-4F
 /** Unit tests for [CoordinateTransform]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 public class CoordinateTransformTest {
 
     @Test

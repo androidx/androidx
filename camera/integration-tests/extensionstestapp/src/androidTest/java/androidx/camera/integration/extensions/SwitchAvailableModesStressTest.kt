@@ -35,6 +35,7 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.StressTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -64,7 +65,7 @@ import org.junit.runners.Parameterized
 class SwitchAvailableModesStressTest(
     private val configName: String,
     private val cameraXConfig: CameraXConfig,
-    private val cameraId: String
+    private val cameraId: String,
 ) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -99,7 +100,7 @@ class SwitchAvailableModesStressTest(
                     arrayOf(
                         CAMERA_PIPE_IMPLEMENTATION_OPTION,
                         CameraPipeConfig.defaultConfig(),
-                        cameraId
+                        cameraId,
                     ),
                 )
             }
@@ -109,17 +110,16 @@ class SwitchAvailableModesStressTest(
     private var isTestStarted = false
 
     @Before
-    fun setup() {
+    fun setup(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumePcsSupportedForImageCapture(context)
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        val extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         // Checks whether any extension mode can be supported first before launching the activity.
         CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(extensionsManager, cameraId)
@@ -144,9 +144,7 @@ class SwitchAvailableModesStressTest(
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         withContext(Dispatchers.Main) { cameraProvider.shutdownAsync() }
 
-        val extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         extensionsManager.shutdown()
 
         if (isTestStarted) {

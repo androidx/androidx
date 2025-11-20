@@ -63,6 +63,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Deque;
@@ -70,6 +71,7 @@ import java.util.Locale;
 
 /** Tests for {@link CarAppBinder} and related classes for establishing a host connection. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppBinderTest {
     @Rule

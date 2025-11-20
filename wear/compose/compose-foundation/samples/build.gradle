@@ -21,28 +21,30 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.compose.foundation:foundation:1.6.0")
-    implementation("androidx.compose.foundation:foundation-layout:1.6.0")
-    implementation("androidx.compose.material:material-icons-core:1.6.0")
-    implementation("androidx.compose.runtime:runtime:1.6.0")
-    implementation("androidx.compose.ui:ui:1.6.0")
-    implementation("androidx.compose.ui:ui-text:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
+    implementation("androidx.compose.foundation:foundation:1.8.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.8.0")
+    implementation("androidx.compose.material:material-icons-core:1.7.7")
+    implementation("androidx.compose.runtime:runtime:1.8.0")
+    implementation("androidx.compose.ui:ui:1.8.2")
+    implementation("androidx.compose.ui:ui-text:1.8.0")
+    implementation("androidx.compose.ui:ui-tooling:1.8.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.8.0")
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material"))
+    implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-ui-tooling"))
 }
 

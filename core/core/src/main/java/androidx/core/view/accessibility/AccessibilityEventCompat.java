@@ -287,7 +287,6 @@ public final class AccessibilityEventCompat {
      */
     public static final int CONTENT_CHANGE_TYPE_ERROR = 1 << 11;
 
-
     /**
      * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
      * The source node changed its ability to interact returned by
@@ -299,6 +298,58 @@ public final class AccessibilityEventCompat {
      * @see AccessibilityNodeInfoCompat#setEnabled(boolean)
      */
     public static final int CONTENT_CHANGE_TYPE_ENABLED = 1 << 12;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * The source node changed its checked state, which is returned by
+     * {@link AccessibilityNodeInfoCompat#getChecked()}.
+     * The view changing its checked state should call
+     * {@link AccessibilityNodeInfoCompat#setChecked(int)} and then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#getChecked()
+     * @see AccessibilityNodeInfoCompat#setChecked(int)
+     */
+    public static final int CONTENT_CHANGE_TYPE_CHECKED = 1 << 13;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event: The source node changed its
+     * expanded state which is returned by
+     * {@link AccessibilityNodeInfoCompat#getExpandedState()}. The view changing
+     * the node's expanded state should call
+     * {@link AccessibilityNodeInfoCompat#setExpandedState(int)} and then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#getExpandedState()
+     * @see AccessibilityNodeInfoCompat#setExpandedState(int)
+     */
+    public static final int CONTENT_CHANGE_TYPE_EXPANDED = 1 << 14;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event:
+     * The source node changed its supplemental description, which is returned by
+     * {@link AccessibilityNodeInfoCompat#getSupplementalDescription()}.
+     * The view changing its supplemental description should call
+     * {@link AccessibilityNodeInfoCompat#setSupplementalDescription(CharSequence)} and
+     * then send this event.
+     *
+     * @see AccessibilityNodeInfoCompat#getSupplementalDescription()
+     * @see AccessibilityNodeInfoCompat#setSupplementalDescription(CharSequence)
+     */
+    public static final int CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION = 1 << 15;
+
+    /**
+     * Change type for {@link #TYPE_WINDOW_CONTENT_CHANGED} event: The source node's collection
+     * item info changed its sort direction state for the data corresponding to this collection
+     * item, which is returned by
+     * {@link AccessibilityNodeInfoCompat.CollectionItemInfoCompat#getSortDirection()}. The view changing its
+     * collection item info's sort direction should set a
+     * {@link AccessibilityNodeInfoCompat.CollectionItemInfoCompat} created with
+     * {@link AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder#setSortDirection(int)} and then send
+     * this event.
+     *
+     * @see AccessibilityNodeInfoCompat.CollectionItemInfoCompat#getSortDirection()
+     * @see AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder#setSortDirection(int)
+     */
+    public static final int CONTENT_CHANGE_TYPE_SORT_DIRECTION = 1 << 16;
 
     /**
      * Mask for {@link AccessibilityEvent} all types.
@@ -343,7 +394,11 @@ public final class AccessibilityEventCompat {
                     CONTENT_CHANGE_TYPE_DRAG_CANCELLED,
                     CONTENT_CHANGE_TYPE_CONTENT_INVALID,
                     CONTENT_CHANGE_TYPE_ERROR,
-                    CONTENT_CHANGE_TYPE_ENABLED
+                    CONTENT_CHANGE_TYPE_ENABLED,
+                    CONTENT_CHANGE_TYPE_CHECKED,
+                    CONTENT_CHANGE_TYPE_EXPANDED,
+                    CONTENT_CHANGE_TYPE_SUPPLEMENTAL_DESCRIPTION,
+                    CONTENT_CHANGE_TYPE_SORT_DIRECTION
             })
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
@@ -435,6 +490,9 @@ public final class AccessibilityEventCompat {
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "event.setContentChangeTypes(changeTypes)")
+    // TODO(b/452382850): Remove this suppression after we update the
+    // ContentChangeType intdef in the framework.
+    @SuppressLint("WrongConstant")
     public static void setContentChangeTypes(@NonNull AccessibilityEvent event,
             @ContentChangeType int changeTypes) {
         event.setContentChangeTypes(changeTypes);
@@ -457,6 +515,8 @@ public final class AccessibilityEventCompat {
      */
     @Deprecated
     @androidx.annotation.ReplaceWith(expression = "event.getContentChangeTypes()")
+    // TODO(b/452382850): Remove this suppression after we update the
+    // ContentChangeType intdef in the framework.
     @SuppressLint("WrongConstant")
     @ContentChangeType
     public static int getContentChangeTypes(@NonNull AccessibilityEvent event) {

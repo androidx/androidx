@@ -55,7 +55,7 @@ internal class FileCache(context: Context) {
     /** Get cache for a given file name, or write to a new file using the [defaultValue] factory. */
     internal fun getOrPut(
         key: String,
-        defaultValue: () -> List<EmojiViewItem>
+        defaultValue: () -> List<EmojiViewItem>,
     ): List<EmojiViewItem> {
         synchronized(lock) {
             val targetDir = File(emojiPickerCacheDir, currentProperty)
@@ -81,7 +81,7 @@ internal class FileCache(context: Context) {
 
     private fun writeTo(
         targetFile: File,
-        defaultValue: () -> List<EmojiViewItem>
+        defaultValue: () -> List<EmojiViewItem>,
     ): List<EmojiViewItem> {
         val data = defaultValue.invoke()
         if (targetFile.exists()) {

@@ -23,7 +23,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.unit.Meter.Companion.centimeters
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.Meter.Companion.millimeters
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -31,14 +34,20 @@ import org.junit.runner.RunWith
 class MeterTest {
     private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
 
+    @Before
+    fun setUp() {
+        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
+            .setDefaultDpPerMeter(1f)
+    }
+
     @Test
     fun meter_toDp() {
-        assertThat(1.meters.toDp()).isEqualTo(1151.856f.dp)
+        assertThat(1.meters.toDp()).isEqualTo(1.dp)
     }
 
     @Test
     fun roundToPx_roundsToNearestPixel() {
-        assertThat(1.meters.roundToPx(UNIT_DENSITY)).isEqualTo(1152)
+        assertThat(1.meters.roundToPx(UNIT_DENSITY)).isEqualTo(1)
     }
 
     @Test
@@ -46,12 +55,12 @@ class MeterTest {
         val DOUBLE_DENSITY = Density(density = 2.0f, fontScale = 2.0f)
 
         // Twice the density, twice the pixels.
-        assertThat(1.meters.roundToPx(DOUBLE_DENSITY)).isEqualTo(2304)
+        assertThat(1.meters.roundToPx(DOUBLE_DENSITY)).isEqualTo(2)
     }
 
     @Test
     fun dp_toMeter() {
-        assertThat(10.dp.toMeter()).isEqualTo(Meter(0.008681641f))
+        assertThat(10.dp.toMeter()).isEqualTo(Meter(10f))
         assertThat(Dp.Infinity.toMeter()).isEqualTo(Meter.Infinity)
         assertThat(Dp.Unspecified.toMeter()).isEqualTo(Meter.NaN)
 
@@ -80,17 +89,17 @@ class MeterTest {
 
     @Test
     fun meter_toPx() {
-        assertThat(5.meters.toPx(UNIT_DENSITY)).isEqualTo(5759.28f)
+        assertThat(5.meters.toPx(UNIT_DENSITY)).isEqualTo(5f)
     }
 
     @Test
     fun meter_roundToPx() {
-        assertThat(5.meters.roundToPx(UNIT_DENSITY)).isEqualTo(5759)
+        assertThat(5.meters.roundToPx(UNIT_DENSITY)).isEqualTo(5)
     }
 
     @Test
     fun meter_todp() {
-        assertThat(5.meters.toDp()).isEqualTo(5759.28f.dp)
+        assertThat(5.meters.toDp()).isEqualTo(5.dp)
     }
 
     @Test
@@ -199,5 +208,19 @@ class MeterTest {
     fun px_toMeter_toPx() {
         val density = Density(2.789f)
         assertThat(Meter.fromPixel(28.9f, density).toPx(density)).isWithin(1.0e-5f).of(28.9f)
+    }
+
+    @Test
+    fun dpPerMeter_getterReevaluatedOnEachCall() {
+        val extensions = XrExtensionsProvider.getXrExtensions()!!
+        val shadowConfig = ShadowConfig.extract(extensions.config!!)
+
+        shadowConfig.setDefaultDpPerMeter(100f)
+
+        assertThat(1.meters.toDp()).isEqualTo(100.dp)
+
+        shadowConfig.setDefaultDpPerMeter(500f)
+
+        assertThat(1.meters.toDp()).isEqualTo(500.dp)
     }
 }

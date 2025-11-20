@@ -45,8 +45,8 @@ class OnBackPressedDetector : Detector(), Detector.UastScanner {
                         Implementation(
                             OnBackPressedDetector::class.java,
                             EnumSet.of(Scope.JAVA_FILE),
-                            Scope.JAVA_FILE_SCOPE
-                        )
+                            Scope.JAVA_FILE_SCOPE,
+                        ),
                 )
                 .addMoreInfo(
                     "https://developer.android.com/guide/navigation/custom-back/" +
@@ -62,7 +62,7 @@ class OnBackPressedDetector : Detector(), Detector.UastScanner {
             context.report(
                 ISSUE,
                 context.getLocation(node),
-                "Should not call onBackPressed inside of OnBackPressedCallback.handledOnBackPressed"
+                "Should not call onBackPressed inside of OnBackPressedCallback.handledOnBackPressed",
             )
         }
     }

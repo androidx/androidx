@@ -33,7 +33,7 @@ object AndroidFontScaleHelper {
             InstrumentationRegistry.getInstrumentation().context.contentResolver,
             Settings.System.FONT_SCALE,
             /* Must default to 1 because when a test is first spun up it's not initialized. */
-            /* def= */ 1f
+            /* def= */ 1f,
         )
     }
 
@@ -71,7 +71,7 @@ object AndroidFontScaleHelper {
         @JvmStatic
         fun <A : Activity> setSystemFontScale(
             fontScale: Float,
-            activityScenario: ActivityScenario<A>
+            activityScenario: ActivityScenario<A>,
         ) {
             val instrumentationContext = InstrumentationRegistry.getInstrumentation().context
 
@@ -79,7 +79,7 @@ object AndroidFontScaleHelper {
                 Settings.System.putFloat(
                     instrumentationContext.contentResolver,
                     Settings.System.FONT_SCALE,
-                    fontScale
+                    fontScale,
                 )
             }
 

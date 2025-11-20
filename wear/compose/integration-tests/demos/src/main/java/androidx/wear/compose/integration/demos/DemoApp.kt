@@ -69,7 +69,7 @@ private fun DisplayDemo(
     currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     SwipeToDismissBox(
         state = state,
@@ -86,7 +86,7 @@ private fun BoxScope.BoxDemo(
     state: SwipeToDismissBoxState,
     demo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     when (demo) {
         is ActivityDemo<*> -> {
@@ -136,7 +136,7 @@ internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Dem
                         style = MaterialTheme.typography.caption1,
                         color = Color.White,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -149,10 +149,10 @@ internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Dem
                             Text(
                                 text = demo.title,
                                 modifier = Modifier.fillMaxWidth(),
-                                maxLines = 2
+                                maxLines = 2,
                             )
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 demo.description?.let { description ->
@@ -163,7 +163,7 @@ internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Dem
                             Text(
                                 text = description,
                                 modifier = Modifier.fillMaxWidth().align(Alignment.Center),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }

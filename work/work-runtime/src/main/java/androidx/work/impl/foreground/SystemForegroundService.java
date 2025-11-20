@@ -77,7 +77,7 @@ public class SystemForegroundService extends LifecycleService implements
         }
 
         if (intent != null) {
-            mDispatcher.onStartCommand(intent);
+            mDispatcher.onStartCommand(intent, startId);
         }
 
         // If the service were to crash, we want all unacknowledged Intents to get redelivered.
@@ -100,16 +100,19 @@ public class SystemForegroundService extends LifecycleService implements
 
     @MainThread
     @Override
-    public void stop() {
+    public void stop(int startId) {
         mIsShutdown = true;
         Logger.get().debug(TAG, "Shutting down.");
-        // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
-        // of all startCommands. This is the behavior we want.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         }
         sForegroundService = null;
-        stopSelf();
+        // It is possible to receive a start command after we decide to stop. By passing in the
+        // start id associated with the stop, the system knows to ignore the stop request since
+        // there is a more recent start id. This avoids weird OS behavior around setting the
+        // "foreground required" bit on a stopping service which could lead to throwing an
+        // exception.
+        stopSelf(startId);
     }
 
     @Override

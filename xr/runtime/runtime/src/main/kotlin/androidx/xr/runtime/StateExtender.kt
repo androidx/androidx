@@ -17,13 +17,16 @@
 package androidx.xr.runtime
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.internal.Runtime
+import androidx.xr.runtime.internal.JxrRuntime
 
-/** Class in charge of extending [CoreState] with a sub-state by using the [Runtime]. */
+/**
+ * Class in charge of extending [CoreState] with a sub-state by using a
+ * [androidx.xr.runtime.internal.JxrRuntime].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface StateExtender {
     /** Initializes the [StateExtender]. */
-    public fun initialize(runtime: Runtime)
+    public fun initialize(runtimes: List<JxrRuntime>)
 
     /** Extends [CoreState] with a package-specific sub-state. */
     public suspend fun extend(coreState: CoreState)

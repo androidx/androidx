@@ -19,7 +19,6 @@ package androidx.car.app.sample.navigation.common.car;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -31,6 +30,8 @@ import androidx.car.app.model.SectionedItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 import androidx.car.app.sample.navigation.common.R;
+
+import org.jspecify.annotations.NonNull;
 
 /** Settings screen demo. */
 public final class SettingsScreen extends Screen {

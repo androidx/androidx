@@ -65,7 +65,7 @@ class ResourceResolutionTest {
                     modifier =
                         GlanceModifier.fillMaxSize()
                             .padding(horizontal = 15.dp)
-                            .padding(vertical = R.dimen.testDimension)
+                            .padding(vertical = R.dimen.testDimension),
                 )
             }
         }

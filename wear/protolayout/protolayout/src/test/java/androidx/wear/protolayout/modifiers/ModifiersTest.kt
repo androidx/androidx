@@ -16,15 +16,27 @@
 
 package androidx.wear.protolayout.modifiers
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.Color
+import androidx.core.os.BundleCompat
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.wear.protolayout.ActionBuilders.LaunchAction
 import androidx.wear.protolayout.ActionBuilders.LoadAction
-import androidx.wear.protolayout.DimensionBuilders.dp
-import androidx.wear.protolayout.ModifiersBuilders.Corner
+import androidx.wear.protolayout.ColorBuilders.LinearGradient
+import androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeInSlideIn
+import androidx.wear.protolayout.ModifiersBuilders.DefaultContentTransitions.fadeOutSlideOut
+import androidx.wear.protolayout.ModifiersBuilders.FadeInTransition
+import androidx.wear.protolayout.ModifiersBuilders.FadeOutTransition
 import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_BUTTON
 import androidx.wear.protolayout.ModifiersBuilders.SEMANTICS_ROLE_NONE
+import androidx.wear.protolayout.ModifiersBuilders.SLIDE_DIRECTION_BOTTOM_TO_TOP
+import androidx.wear.protolayout.ProtoLayoutScope
+import androidx.wear.protolayout.ProtoLayoutScope.RendererCapability.PENDING_INTENT_ACTION
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
+import androidx.wear.protolayout.expression.VersionBuilders
 import androidx.wear.protolayout.expression.dynamicDataMapOf
 import androidx.wear.protolayout.expression.intAppDataKey
 import androidx.wear.protolayout.expression.mapTo
@@ -42,7 +54,7 @@ class ModifiersTest {
         val modifiers =
             LayoutModifier.contentDescription(
                     STATIC_CONTENT_DESCRIPTION,
-                    DYNAMIC_CONTENT_DESCRIPTION
+                    DYNAMIC_CONTENT_DESCRIPTION,
                 )
                 .toProtoLayoutModifiers()
 
@@ -66,7 +78,7 @@ class ModifiersTest {
         val modifiers =
             LayoutModifier.contentDescription(
                     STATIC_CONTENT_DESCRIPTION,
-                    DYNAMIC_CONTENT_DESCRIPTION
+                    DYNAMIC_CONTENT_DESCRIPTION,
                 )
                 .semanticsRole(SEMANTICS_ROLE_BUTTON)
                 .toProtoLayoutModifiers()
@@ -76,6 +88,28 @@ class ModifiersTest {
         assertThat(modifiers.semantics?.contentDescription?.dynamicValue?.toDynamicStringProto())
             .isEqualTo(DYNAMIC_CONTENT_DESCRIPTION.toDynamicStringProto())
         assertThat(modifiers.semantics?.role).isEqualTo(SEMANTICS_ROLE_BUTTON)
+    }
+
+    @Test
+    fun semanticsHeading_toModifier() {
+        val modifiers = LayoutModifier.semanticsHeading(true).toProtoLayoutModifiers()
+
+        assertThat(modifiers.semantics?.isHeading).isTrue()
+    }
+
+    @Test
+    fun clearSemantics_fromModifier() {
+        val modifiers =
+            LayoutModifier.contentDescription(
+                    STATIC_CONTENT_DESCRIPTION,
+                    DYNAMIC_CONTENT_DESCRIPTION,
+                )
+                .semanticsRole(SEMANTICS_ROLE_BUTTON)
+                .semanticsHeading(true)
+                .clearSemantics()
+                .toProtoLayoutModifiers()
+
+        assertThat(modifiers.semantics).isNull()
     }
 
     @Test
@@ -104,13 +138,13 @@ class ModifiersTest {
     }
 
     @Test
-    fun background_withCorner_toModifier() {
-        val modifiers =
-            LayoutModifier.background(COLOR, Corner.Builder().setRadius(dp(CORNER_RADIUS)).build())
-                .toProtoLayoutModifiers()
+    fun backgroundBrush_toModifier() {
+        val brush = LinearGradient.Builder(COLOR.prop, COLOR1.prop).build()
+        val modifiers = LayoutModifier.background(brush).toProtoLayoutModifiers()
 
-        assertThat(modifiers.background?.color?.argb).isEqualTo(COLOR.prop.argb)
-        assertThat(modifiers.background?.corner?.radius?.value).isEqualTo(CORNER_RADIUS)
+        assertThat(modifiers.background?.brush).isInstanceOf(LinearGradient::class.java)
+        assertThat((modifiers.background?.brush as LinearGradient).colorStops.map { it.color.argb })
+            .containsExactlyElementsIn(listOf(COLOR.staticArgb, COLOR1.staticArgb))
     }
 
     @Test
@@ -177,7 +211,7 @@ class ModifiersTest {
                         loadAction(dynamicDataMapOf(statePair1, statePair2)),
                         id = id,
                         minClickableWidth = minTouchWidth,
-                        minClickableHeight = minTouchHeight
+                        minClickableHeight = minTouchHeight,
                     )
                 )
                 .toProtoLayoutModifiers()
@@ -189,6 +223,70 @@ class ModifiersTest {
         val action = modifiers.clickable?.onClick as LoadAction
         assertThat(action.requestState?.keyToValueMapping)
             .containsExactlyEntriesIn(mapOf(statePair1.asPair(), statePair2.asPair()))
+    }
+
+    @Test
+    fun pendingIntent_clickable_toModifier() {
+        val scope =
+            ProtoLayoutScope(
+                rendererVersionInfo =
+                    VersionBuilders.VersionInfo.Builder().setMajor(2).setMinor(0).build()
+            )
+        val id = "ID"
+        val minTouchWidth = 51f
+        val minTouchHeight = 52f
+        val pendingIntent = TEST_PENDING_INTENT
+
+        val modifiers =
+            LayoutModifier.clickable(scope.clickable(pendingIntent = pendingIntent, id = id))
+                .minimumTouchTargetSize(minTouchWidth, minTouchHeight)
+                .toProtoLayoutModifiers()
+        val collectedPendingIntents = scope.collectPendingIntents()
+
+        assertThat(modifiers.clickable?.id).isEqualTo(id)
+        assertThat(modifiers.clickable?.minimumClickableWidth?.value).isEqualTo(minTouchWidth)
+        assertThat(modifiers.clickable?.minimumClickableHeight?.value).isEqualTo(minTouchHeight)
+        // PendingIntentAction has package private access, so it is not accessible for the test here
+        assertThat(modifiers.clickable?.onClick).isNotNull()
+        assertThat(modifiers.clickable?.onClick).isNotInstanceOf(LoadAction::class.java)
+        assertThat(modifiers.clickable?.onClick).isNotInstanceOf(LaunchAction::class.java)
+
+        assertThat(collectedPendingIntents.containsKey(id)).isTrue()
+        assertThat(
+                BundleCompat.getParcelable<PendingIntent?>(
+                    collectedPendingIntents,
+                    id,
+                    PendingIntent::class.java,
+                )
+            )
+            .isEqualTo(pendingIntent)
+    }
+
+    @Test
+    fun pendingIntent_clickable_useFallbackAction_toModifier() {
+        val scope =
+            ProtoLayoutScope(
+                rendererVersionInfo =
+                    VersionBuilders.VersionInfo.Builder().setMajor(1).setMinor(500).build()
+            )
+        val id = "ID"
+        val modifiers =
+            LayoutModifier.clickable(
+                    scope.clickable(
+                        pendingIntent = TEST_PENDING_INTENT,
+                        id = id,
+                        fallbackAction = loadAction(),
+                    )
+                )
+                .toProtoLayoutModifiers()
+        val collectedPendingIntents = scope.collectPendingIntents()
+
+        assertThat(modifiers.clickable?.id).isEqualTo(id)
+        assertThat(modifiers.clickable?.onClick).isNotNull()
+
+        assertThat(scope.hasCapability(PENDING_INTENT_ACTION)).isFalse()
+        assertThat(modifiers.clickable?.onClick).isInstanceOf(LoadAction::class.java)
+        assertThat(collectedPendingIntents.isEmpty()).isTrue()
     }
 
     @Test
@@ -213,7 +311,7 @@ class ModifiersTest {
                     top = TOP_PADDING,
                     end = END_PADDING,
                     bottom = BOTTOM_PADDING,
-                    rtlAware = true
+                    rtlAware = true,
                 )
                 .padding(PADDING_ALL)
                 .toProtoLayoutModifiers()
@@ -252,10 +350,37 @@ class ModifiersTest {
             .isEqualTo(DYNAMIC_BOOL.toDynamicBoolProto())
     }
 
+    @Test
+    fun enterTransition_toModifier() {
+        val modifier =
+            LayoutModifier.enterTransition(fadeInSlideIn(SLIDE_DIRECTION_BOTTOM_TO_TOP))
+                .enterTransition(fadeIn = FadeInTransition.Builder().setInitialAlpha(ALPHA).build())
+                .toProtoLayoutModifiers()
+
+        assertThat(modifier.contentUpdateAnimation?.enterTransition?.fadeIn?.initialAlpha)
+            .isEqualTo(ALPHA)
+        assertThat(modifier.contentUpdateAnimation?.enterTransition?.slideIn?.direction)
+            .isEqualTo(SLIDE_DIRECTION_BOTTOM_TO_TOP)
+    }
+
+    @Test
+    fun exitTransition_toModifier() {
+        val modifier =
+            LayoutModifier.exitTransition(fadeOutSlideOut(SLIDE_DIRECTION_BOTTOM_TO_TOP))
+                .exitTransition(fadeOut = FadeOutTransition.Builder().setTargetAlpha(ALPHA).build())
+                .toProtoLayoutModifiers()
+
+        assertThat(modifier.contentUpdateAnimation?.exitTransition?.fadeOut?.targetAlpha)
+            .isEqualTo(ALPHA)
+        assertThat(modifier.contentUpdateAnimation?.exitTransition?.slideOut?.direction)
+            .isEqualTo(SLIDE_DIRECTION_BOTTOM_TO_TOP)
+    }
+
     companion object {
         const val STATIC_CONTENT_DESCRIPTION = "content desc"
         val DYNAMIC_CONTENT_DESCRIPTION = DynamicString.constant("dynamic content")
         val COLOR = LayoutColor(Color.RED)
+        val COLOR1 = LayoutColor(Color.GREEN)
         const val CORNER_RADIUS_X = 1.2f
         const val CORNER_RADIUS_Y = 3.4f
         const val CORNER_RADIUS = 5.6f
@@ -268,5 +393,13 @@ class ModifiersTest {
         val METADATA_BYTE_ARRAY = METADATA.toByteArray()
         const val WIDTH_DP = 5f
         val DYNAMIC_BOOL = DynamicBool.constant(true)
+        const val ALPHA = 0.7f
+        val TEST_PENDING_INTENT: PendingIntent =
+            PendingIntent.getActivity(
+                /* context = */ ApplicationProvider.getApplicationContext(),
+                /*requestCode = */ 0,
+                /* intent = */ Intent(),
+                /* flags = */ 1,
+            )
     }
 }

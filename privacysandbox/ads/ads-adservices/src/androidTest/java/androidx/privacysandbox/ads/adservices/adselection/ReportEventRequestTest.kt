@@ -48,7 +48,7 @@ class ReportEventRequestTest {
                 eventKey,
                 eventData,
                 reportingDestinations,
-                inputEvent
+                inputEvent,
             )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -61,7 +61,7 @@ class ReportEventRequestTest {
                 eventKey,
                 eventData,
                 reportingDestinations,
-                inputEvent
+                inputEvent,
             )
         var reportEventRequest2 =
             ReportEventRequest(
@@ -69,7 +69,7 @@ class ReportEventRequestTest {
                 "click",
                 "{\"key\":\"value\"}",
                 ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER,
-                inputEvent
+                inputEvent,
             )
 
         Truth.assertThat(reportEventRequest == reportEventRequest2).isTrue()
@@ -82,7 +82,7 @@ class ReportEventRequestTest {
                     adSelectionId,
                     eventKey,
                     eventData,
-                    0 /* unset reporting destinations */
+                    0, /* unset reporting destinations */
                 )
             }
             .hasMessageThat()
@@ -93,7 +93,7 @@ class ReportEventRequestTest {
                     adSelectionId,
                     eventKey,
                     eventData,
-                    4 /* undefined reporting destinations */
+                    4, /* undefined reporting destinations */
                 )
             }
             .hasMessageThat()

@@ -21,5 +21,5 @@ import androidx.compose.ui.semantics.SemanticsNode
 internal actual inline fun <R> wrapAssertionErrorsWithNodeInfo(
     selector: SemanticsSelector,
     node: SemanticsNode,
-    block: () -> R
+    block: () -> R,
 ): R = implementedInJetBrainsFork()

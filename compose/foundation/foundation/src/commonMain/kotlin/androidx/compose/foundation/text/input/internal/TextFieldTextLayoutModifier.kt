@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.relocation.BringIntoViewRequesterNode
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.ceilToIntPx
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -113,10 +114,13 @@ internal class TextFieldTextLayoutModifierNode(
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?,
     keyboardOptions: KeyboardOptions,
 ) :
-    Modifier.Node(),
+    DelegatingNode(),
     LayoutModifierNode,
     GlobalPositionAwareModifierNode,
     CompositionLocalConsumerModifierNode {
+
+    private val bringIntoViewRequesterNode =
+        delegate(BringIntoViewRequesterNode(textLayoutState.bringIntoViewRequester))
 
     init {
         textLayoutState.onTextLayout = onTextLayout
@@ -141,6 +145,8 @@ internal class TextFieldTextLayoutModifierNode(
         onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?,
         keyboardOptions: KeyboardOptions,
     ) {
+        val previousTextLayoutState = this.textLayoutState
+
         this.textLayoutState = textLayoutState
         this.textLayoutState.onTextLayout = onTextLayout
         this.singleLine = singleLine
@@ -151,6 +157,10 @@ internal class TextFieldTextLayoutModifierNode(
             softWrap = !singleLine,
             keyboardOptions = keyboardOptions,
         )
+
+        if (previousTextLayoutState != textLayoutState) {
+            bringIntoViewRequesterNode.updateRequester(textLayoutState.bringIntoViewRequester)
+        }
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
@@ -159,7 +169,7 @@ internal class TextFieldTextLayoutModifierNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val result =
             textLayoutState.layoutWithNewMeasureInputs(
@@ -175,7 +185,7 @@ internal class TextFieldTextLayoutModifierNode(
                     minWidth = result.size.width,
                     maxWidth = result.size.width,
                     minHeight = result.size.height,
-                    maxHeight = result.size.height
+                    maxHeight = result.size.height,
                 )
             )
 
@@ -198,7 +208,7 @@ internal class TextFieldTextLayoutModifierNode(
         return layout(
             width = result.size.width,
             height = result.size.height,
-            alignmentLines = baselineCache!!
+            alignmentLines = baselineCache!!,
         ) {
             placeable.place(0, 0)
         }

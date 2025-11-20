@@ -24,7 +24,7 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberLazyListBeyondBoundsState(
     state: LazyListState,
-    beyondBoundsItemCount: Int
+    beyondBoundsItemCount: Int,
 ): LazyLayoutBeyondBoundsState {
     return remember(state, beyondBoundsItemCount) {
         LazyListBeyondBoundsState(state, beyondBoundsItemCount)
@@ -47,13 +47,14 @@ internal class LazyListBeyondBoundsState(val state: LazyListState, val beyondBou
         get() =
             minOf(
                 itemCount - 1,
-                state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount
+                state.layoutInfo.visibleItemsInfo.last().index + beyondBoundsItemCount,
             )
 
     override fun itemsPerViewport(): Int {
         if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0
         val viewportSize = state.layoutInfo.singleAxisViewportSize
         val averageItemSize = state.layoutInfo.visibleItemsAverageSize()
+        if (averageItemSize == 0) return 1
         return (viewportSize / averageItemSize).coerceAtLeast(1)
     }
 }

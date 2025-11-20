@@ -141,7 +141,7 @@ internal class LazyStaggeredGridMeasureResult(
     override val beforeContentPadding: Int,
     override val afterContentPadding: Int,
     override val mainAxisItemSpacing: Int,
-    val coroutineScope: CoroutineScope
+    val coroutineScope: CoroutineScope,
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -164,7 +164,7 @@ internal class LazyStaggeredGridMeasureResult(
      */
     fun copyWithScrollDeltaWithoutRemeasure(
         delta: Int,
-        updateAnimations: Boolean
+        updateAnimations: Boolean,
     ): LazyStaggeredGridMeasureResult? {
         if (
             remeasureNeeded ||
@@ -270,7 +270,7 @@ internal val EmptyLazyStaggeredGridLayoutInfo =
         spanProvider = LazyStaggeredGridSpanProvider(MutableIntervalList()),
         density = Density(1f),
         scrollBackAmount = 0f,
-        coroutineScope = CoroutineScope(EmptyCoroutineContext)
+        coroutineScope = CoroutineScope(EmptyCoroutineContext),
     )
 
 internal fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
@@ -285,6 +285,16 @@ internal fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
             }
         }
     return itemSizeSum / visibleItems.size + mainAxisItemSpacing
+}
+
+internal fun LazyStaggeredGridLayoutInfo.calculateContentSize(laneCount: Int): Int {
+    val contentPadding = beforeContentPadding + afterContentPadding
+    if (totalItemsCount == 0 || laneCount <= 0) return contentPadding
+
+    val contentSizeWithSpacing =
+        (visibleItemsAverageSize() * totalItemsCount) / laneCount - mainAxisItemSpacing
+
+    return contentSizeWithSpacing + contentPadding
 }
 
 internal val LazyStaggeredGridLayoutInfo.singleAxisViewportSize: Int

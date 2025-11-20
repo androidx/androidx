@@ -10,13 +10,13 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.16.0")
     implementation("androidx.collection:collection:1.4.2")
     api("androidx.customview:customview:1.0.0")
     implementation("androidx.customview:customview-poolingcontainer:1.0.0")
@@ -31,7 +31,6 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
@@ -39,7 +38,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.kotlinStdlib)
     lintPublish(project(":recyclerview:recyclerview-lint"))
 
     constraints {
@@ -48,13 +46,12 @@ dependencies {
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
     defaultConfig {
         compileSdk = 35
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
+        consumerProguardFiles("proguard-rules.pro")
     }
+    testOptions.unitTests.returnDefaultValues = true
     namespace = "androidx.recyclerview"
 }
 

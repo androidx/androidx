@@ -22,21 +22,30 @@
  * modifying its settings.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     namespace = "androidx.xr.assets"
+
+    sourceSets {
+        main {
+            assets {
+                srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/assets")
+            }
+        }
+    }
 }
 
 androidx {
     name = "XR Assets"
     type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2024"
-    description = "Collection of assets for use across the XR libraries."
+    description = "Collection of test assets for use across the XR libraries."
 }

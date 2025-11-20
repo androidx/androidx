@@ -49,6 +49,6 @@ fun ImageBlurSample() {
         painter = painterResource(R.drawable.circus),
         contentDescription = "sample blurred image",
         // Blur content within the original bounds, clipping the result to a rounded rectangle
-        modifier = Modifier.blur(30.dp, BlurredEdgeTreatment(RoundedCornerShape(5.dp)))
+        modifier = Modifier.blur(30.dp, BlurredEdgeTreatment(RoundedCornerShape(5.dp))),
     )
 }

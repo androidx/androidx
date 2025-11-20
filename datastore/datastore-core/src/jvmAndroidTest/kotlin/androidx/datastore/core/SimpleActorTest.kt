@@ -81,7 +81,7 @@ class SimpleActorTest {
                 SimpleActor<Int>(
                     scope,
                     onComplete = { called.complete(Unit) },
-                    onUndeliveredElement = { _, _ -> }
+                    onUndeliveredElement = { _, _ -> },
                 ) {
                     // do nothing
                 }
@@ -171,7 +171,7 @@ class SimpleActorTest {
                 SimpleActor<CompletableDeferred<Unit>>(
                     scope,
                     onComplete = {},
-                    onUndeliveredElement = { msg, ex -> msg.completeExceptionally(ex!!) }
+                    onUndeliveredElement = { msg, ex -> msg.completeExceptionally(ex!!) },
                 ) {
                     awaitCancellation()
                 }
@@ -201,7 +201,7 @@ class SimpleActorTest {
                 SimpleActor<CompletableDeferred<Unit>>(
                     actorScope,
                     onComplete = {},
-                    onUndeliveredElement = { msg, _ -> msg.complete(Unit) }
+                    onUndeliveredElement = { msg, _ -> msg.complete(Unit) },
                 ) {
                     try {
                         awaitCancellation()
@@ -244,7 +244,7 @@ class SimpleActorTest {
                 SimpleActor<CompletableDeferred<Unit?>>(
                     actorScope,
                     onComplete = {},
-                    onUndeliveredElement = { msg, _ -> msg.complete(null) }
+                    onUndeliveredElement = { msg, _ -> msg.complete(null) },
                 ) {
                     it.complete(Unit)
                 }

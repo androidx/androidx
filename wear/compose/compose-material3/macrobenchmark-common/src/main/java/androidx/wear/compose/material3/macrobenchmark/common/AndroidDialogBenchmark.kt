@@ -59,11 +59,11 @@ object AndroidDialogBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = OPEN_DIALOG }
+                    modifier = Modifier.semantics { contentDescription = OPEN_DIALOG },
                 ) {
                     Text("Open Android Dialog")
                 }
@@ -75,7 +75,7 @@ object AndroidDialogBenchmark : MacrobenchmarkScreen {
                             Modifier.align(Alignment.Center).semantics {
                                 contentDescription = DIALOG_CONFIRM
                             },
-                        onClick = { showDialog.value = false }
+                        onClick = { showDialog.value = false },
                     ) {
                         Text("Close Android dialog")
                     }
@@ -118,7 +118,7 @@ class CustomDialogFragment(private val content: @Composable () -> Unit) : Dialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View =
         ComposeView(requireContext()).also {
             it.setViewTreeLifecycleOwner(this)

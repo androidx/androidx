@@ -47,7 +47,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CarAppViewModel} */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = {"androidx.car.app.activity"})
+@Config(instrumentedPackages = {"androidx.car.app.activity"}, sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppViewModelTest {
     private static final ComponentName TEST_COMPONENT_NAME = new ComponentName(

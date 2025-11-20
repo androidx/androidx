@@ -28,5 +28,5 @@ public enum class AnimationEndReason {
      */
     BoundReached,
     /** Animation has finished successfully without any interruption. */
-    Finished
+    Finished,
 }

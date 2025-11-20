@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
  *
  * @param identifier The identifier.
  */
-class AdTechIdentifier public constructor(val identifier: String) {
+public class AdTechIdentifier public constructor(public val identifier: String) {
 
     /**
      * Compares this AdTechIdentifier to the specified object. The result is true if and only if the

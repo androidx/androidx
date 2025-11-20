@@ -16,6 +16,8 @@
 
 package androidx.mediarouter.media;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
@@ -49,6 +51,8 @@ public class MediaRouteDescriptorTest {
     private static final String FAKE_CONTROL_ACTION_1 = "fakeControlAction1";
     private static final String FAKE_CONTROL_ACTION_2 = "fakeControlAction2";
     private static final String FAKE_PACKAGE_NAME = "com.sample.example";
+    private static final String FAKE_PERMISSION_ONE = "some.permission.one";
+    private static final String FAKE_PERMISSION_TWO = "some.permission.two";
 
     @Test
     @SmallTest
@@ -167,6 +171,32 @@ public class MediaRouteDescriptorTest {
 
         assertEquals(sampleAllowedPackages, allowedPackages);
         assertNotSame(sampleAllowedPackages, allowedPackages);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetRequiredPermissions_withNoneSet_IsNotNull() {
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME).build();
+
+        List<Set<String>> requiredPermissions = routeDescriptor.getRequiredPermissions();
+
+        assertThat(requiredPermissions).isNotNull();
+        assertThat(requiredPermissions).isEmpty();
+    }
+
+    @Test
+    @SmallTest
+    public void testSetRequiredPermissions() {
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .setRequiredPermissions(List.of(Set.of(FAKE_PERMISSION_ONE, FAKE_PERMISSION_TWO)))
+                .build();
+
+        List<Set<String>> requiredPermissions = routeDescriptor.getRequiredPermissions();
+
+        assertThat(requiredPermissions).containsExactlyElementsIn(
+                List.of(Set.of(FAKE_PERMISSION_TWO, FAKE_PERMISSION_ONE)));
     }
 
     @Test

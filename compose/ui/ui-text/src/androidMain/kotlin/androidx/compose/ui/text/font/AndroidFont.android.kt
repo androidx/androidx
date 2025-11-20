@@ -46,7 +46,7 @@ fun Font(
     assetManager: AssetManager,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidAssetFont(assetManager, path, weight, style, variationSettings)
 
 /**
@@ -66,7 +66,7 @@ fun Font(
     file: File,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidFileFont(file, weight, style, variationSettings)
 
 /**
@@ -86,7 +86,7 @@ fun Font(
     fileDescriptor: ParcelFileDescriptor,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidFileDescriptorFont(fileDescriptor, weight, style, variationSettings)
 
 /**
@@ -122,6 +122,7 @@ fun Font(
  * @param loadingStrategy loadingStrategy this font will provide in fallback chains
  * @param typefaceLoader a loader that knows how to load this [AndroidFont], may be shared between
  *   several fonts
+ * @param variationSettings the settings that will be applied to this font, if supported by the font
  */
 abstract class AndroidFont
 constructor(
@@ -132,7 +133,7 @@ constructor(
 
     @Deprecated(
         "Replaced with fontVariation constructor",
-        ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())")
+        ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())"),
     )
     constructor(
         loadingStrategy: FontLoadingStrategy,

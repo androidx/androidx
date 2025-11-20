@@ -10,19 +10,13 @@ export ANDROIDX_PROJECTS=KMP
 
 echo "Starting $0 at $(date)"
 
-cd "$(dirname $0)"
+BUILD_SCRIPT="impl/build.sh"
+HOST_TEST_TASKS="allHostTests"
+# simulator tests disabled due to b/350735930
+EXTRA_PARAMS="--no-configuration-cache -Pandroidx.lowMemory -x tvosSimulatorArm64Test -x watchosSimulatorArm64Test"
 
 # Setup simulators
-impl/androidx-native-mac-simulator-setup.sh
-
-# simulator tests disabled due to b/350735930
-impl/build.sh allHostTests \
-    --no-configuration-cache \
-    -Pandroidx.ignoreTestFailures \
-    -Pandroidx.displayTestOutput=false \
-    -Pandroidx.lowMemory \
-    -x tvosSimulatorArm64Test \
-    -x watchosSimulatorArm64Test \
-    "$@"
+"$(dirname "$0")/impl/androidx-native-mac-simulator-setup.sh"
+"$(dirname "$0")/impl/host_test_common_test_runner.sh" "$BUILD_SCRIPT" "$HOST_TEST_TASKS" "$EXTRA_PARAMS" "$@"
 
 echo "Completing $0 at $(date)"

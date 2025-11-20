@@ -60,27 +60,27 @@ fun ButtonGroupDemo() {
             Button(
                 onClick = {},
                 Modifier.animateWidth(interactionSource1),
-                interactionSource = interactionSource1
+                interactionSource = interactionSource1,
             ) {
                 Text("<", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             FilledIconButton(
                 onClick = {},
                 Modifier.animateWidth(interactionSource2),
-                interactionSource = interactionSource2
+                interactionSource = interactionSource2,
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite icon",
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
                     )
                 }
             }
             Button(
                 onClick = {},
                 Modifier.animateWidth(interactionSource3),
-                interactionSource = interactionSource3
+                interactionSource = interactionSource3,
             ) {
                 Text(">", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
@@ -98,7 +98,7 @@ fun ButtonGroupToggleButtonsDemo() {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Favorite icon",
-                        modifier = Modifier.size(iconSize)
+                        modifier = Modifier.size(iconSize),
                     )
                 }
                 MyIconToggleButton(IconToggleButtonDefaults.animatedShapes()) { checked ->
@@ -114,16 +114,16 @@ fun ButtonGroupToggleButtonsDemo() {
                 MyTextToggleButton(TextToggleButtonDefaults.shapes()) { checked ->
                     Text(
                         text = if (checked) "On" else "Off",
-                        style = TextToggleButtonDefaults.defaultButtonTextStyle
+                        style = TextToggleButtonDefaults.textStyle,
                     )
                 }
                 MyTextToggleButton(
                     TextToggleButtonDefaults.animatedShapes(),
-                    Modifier.weight(1.2f)
+                    Modifier.weight(1.2f),
                 ) { checked ->
                     Text(
                         text = if (checked) "On" else "Off",
-                        style = TextToggleButtonDefaults.defaultButtonTextStyle
+                        style = TextToggleButtonDefaults.textStyle,
                     )
                 }
             }
@@ -135,7 +135,7 @@ fun ButtonGroupToggleButtonsDemo() {
 private fun ButtonGroupScope.MyIconToggleButton(
     shapes: IconToggleButtonShapes,
     modifier: Modifier = Modifier,
-    content: @Composable (Boolean) -> Unit
+    content: @Composable (Boolean) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(false) }
@@ -143,12 +143,12 @@ private fun ButtonGroupScope.MyIconToggleButton(
         checked = checked,
         modifier =
             modifier
-                .height(IconToggleButtonDefaults.SmallButtonSize)
+                .height(IconToggleButtonDefaults.SmallSize)
                 .fillMaxWidth()
                 .animateWidth(interactionSource),
         onCheckedChange = { checked = !checked },
         shapes = shapes,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         content(checked)
     }
@@ -158,7 +158,7 @@ private fun ButtonGroupScope.MyIconToggleButton(
 private fun ButtonGroupScope.MyTextToggleButton(
     shapes: TextToggleButtonShapes,
     modifier: Modifier = Modifier,
-    content: @Composable (Boolean) -> Unit
+    content: @Composable (Boolean) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var checked by remember { mutableStateOf(false) }
@@ -166,12 +166,12 @@ private fun ButtonGroupScope.MyTextToggleButton(
         checked = checked,
         modifier =
             modifier
-                .height(TextToggleButtonDefaults.DefaultButtonSize)
+                .height(TextToggleButtonDefaults.Size)
                 .fillMaxWidth()
                 .animateWidth(interactionSource),
         onCheckedChange = { checked = !checked },
         shapes = shapes,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         content(checked)
     }

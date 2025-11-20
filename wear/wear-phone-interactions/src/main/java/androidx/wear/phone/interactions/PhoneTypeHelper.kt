@@ -111,7 +111,7 @@ public class PhoneTypeHelper private constructor() {
             DEVICE_TYPE_ANDROID,
             DEVICE_TYPE_IOS,
             DEVICE_TYPE_UNKNOWN,
-            DEVICE_TYPE_NONE
+            DEVICE_TYPE_NONE,
         )
         internal annotation class DeviceFamily
     }

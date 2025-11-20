@@ -54,7 +54,7 @@ import kotlin.math.round
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
-    element: EmittableImage
+    element: EmittableImage,
 ) {
     val selector = element.getLayoutSelector()
     val viewDef = insertView(translationContext, selector, element.modifier)
@@ -120,7 +120,7 @@ private fun applyColorFilter(
     translationContext: TranslationContext,
     rv: RemoteViews,
     colorFilterParams: ColorFilterParams,
-    viewDef: InsertedViewInfo
+    viewDef: InsertedViewInfo,
 ) {
     when (colorFilterParams) {
         is TintColorFilterParams -> {
@@ -130,12 +130,12 @@ private fun applyColorFilter(
                     translationContext,
                     rv,
                     colorProvider,
-                    viewDef.mainViewId
+                    viewDef.mainViewId,
                 )
             } else {
                 rv.setImageViewColorFilter(
                     viewDef.mainViewId,
-                    colorProvider.getColor(translationContext.context).toArgb()
+                    colorProvider.getColor(translationContext.context).toArgb(),
                 )
             }
         }
@@ -150,7 +150,7 @@ private fun applyColorFilter(
                 Log.e(
                     GlanceAppWidgetTag,
                     "There is no use case yet to support this colorFilter in S+ versions.",
-                    trace
+                    trace,
                 )
             }
         }
@@ -178,7 +178,7 @@ private object ImageTranslatorApi31Impl {
         translationContext: TranslationContext,
         rv: RemoteViews,
         colorProvider: ColorProvider,
-        viewId: Int
+        viewId: Int,
     ) {
         when (colorProvider) {
             is DayNightColorProvider ->
@@ -188,7 +188,7 @@ private object ImageTranslatorApi31Impl {
             else ->
                 rv.setImageViewColorFilter(
                     viewId,
-                    colorProvider.getColor(translationContext.context).toArgb()
+                    colorProvider.getColor(translationContext.context).toArgb(),
                 )
         }
     }

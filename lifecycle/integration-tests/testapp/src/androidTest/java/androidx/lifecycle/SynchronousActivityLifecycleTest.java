@@ -32,13 +32,12 @@ import android.content.pm.ActivityInfo;
 
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.testapp.LifecycleTestActivity;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.UiThreadTestRule;
 
 import org.jspecify.annotations.NonNull;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -52,29 +51,31 @@ import java.lang.reflect.Method;
 @RunWith(AndroidJUnit4.class)
 public class SynchronousActivityLifecycleTest {
 
-    @Rule
-    public UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
-
+    @UiThreadTest
     @Test
     public void testOnCreateCall() throws Throwable {
-        testSynchronousCall(Event.ON_CREATE,
-                activity -> {
-                },
+        testSynchronousCall(
+                Event.ON_CREATE,
+                activity -> {},
                 activity -> getInstrumentation().callActivityOnCreate(activity, null));
     }
 
+    @UiThreadTest
     @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnStartCall() throws Throwable {
-        testSynchronousCall(Lifecycle.Event.ON_START,
+        testSynchronousCall(
+                Lifecycle.Event.ON_START,
                 activity -> getInstrumentation().callActivityOnCreate(activity, null),
                 SynchronousActivityLifecycleTest::performStart);
     }
 
+    @UiThreadTest
     @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnResumeCall() throws Throwable {
-        testSynchronousCall(Lifecycle.Event.ON_RESUME,
+        testSynchronousCall(
+                Lifecycle.Event.ON_RESUME,
                 activity -> {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
@@ -82,10 +83,12 @@ public class SynchronousActivityLifecycleTest {
                 SynchronousActivityLifecycleTest::performResume);
     }
 
+    @UiThreadTest
     @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testOnStopCall() throws Throwable {
-        testSynchronousCall(Lifecycle.Event.ON_STOP,
+        testSynchronousCall(
+                Lifecycle.Event.ON_STOP,
                 activity -> {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
@@ -93,39 +96,50 @@ public class SynchronousActivityLifecycleTest {
                 SynchronousActivityLifecycleTest::performStop);
     }
 
+    @UiThreadTest
     @Test
     public void testOnDestroyCall() throws Throwable {
-        testSynchronousCall(Lifecycle.Event.ON_DESTROY,
+        testSynchronousCall(
+                Lifecycle.Event.ON_DESTROY,
                 activity -> getInstrumentation().callActivityOnCreate(activity, null),
                 activity -> getInstrumentation().callActivityOnDestroy(activity));
     }
 
-    public void testSynchronousCall(Event event, ActivityCall preInit, ActivityCall call)
+    private void testSynchronousCall(Event event, ActivityCall preInit, ActivityCall call)
             throws Throwable {
-        uiThreadTestRule.runOnUiThread(() -> {
-            Intent intent = new Intent();
-            ComponentName cn = new ComponentName(LifecycleTestActivity.class.getPackage().getName(),
-                    LifecycleTestActivity.class.getName());
-            intent.setComponent(cn);
-            Instrumentation instrumentation = getInstrumentation();
-            try {
-                Application app =
-                        (Application) instrumentation.getTargetContext().getApplicationContext();
-                LifecycleTestActivity testActivity =
-                        (LifecycleTestActivity) instrumentation.newActivity(
-                                LifecycleTestActivity.class, instrumentation.getTargetContext(),
-                                null, app, intent, new ActivityInfo(), "bla", null, null, null);
-                preInit.call(testActivity);
-                TestObserver testObserver = new TestObserver(testActivity, event);
-                testActivity.getLifecycle().addObserver(testObserver);
-                testObserver.unmute();
-                call.call(testActivity);
+        Intent intent = new Intent();
+        ComponentName cn =
+                new ComponentName(
+                        LifecycleTestActivity.class.getPackage().getName(),
+                        LifecycleTestActivity.class.getName());
+        intent.setComponent(cn);
+        Instrumentation instrumentation = getInstrumentation();
+        try {
+            Application app =
+                    (Application) instrumentation.getTargetContext().getApplicationContext();
+            LifecycleTestActivity testActivity =
+                    (LifecycleTestActivity)
+                            instrumentation.newActivity(
+                                    LifecycleTestActivity.class,
+                                    instrumentation.getTargetContext(),
+                                    null,
+                                    app,
+                                    intent,
+                                    new ActivityInfo(),
+                                    "bla",
+                                    null,
+                                    null,
+                                    null);
+            preInit.call(testActivity);
+            TestObserver testObserver = new TestObserver(testActivity, event);
+            testActivity.getLifecycle().addObserver(testObserver);
+            testObserver.unmute();
+            call.call(testActivity);
 
-                assertThat(testObserver.mEventReceived, is(true));
-            } catch (Exception e) {
-                throw new Error(e);
-            }
-        });
+            assertThat(testObserver.mEventReceived, is(true));
+        } catch (Exception e) {
+            throw new Error(e);
+        }
     }
 
     // Instrumentation.callOnActivityCreate calls performCreate on mActivity,
@@ -149,7 +163,6 @@ public class SynchronousActivityLifecycleTest {
             throw new Error(e);
         }
     }
-
 
     private static void performStop(Activity activity) {
         try {

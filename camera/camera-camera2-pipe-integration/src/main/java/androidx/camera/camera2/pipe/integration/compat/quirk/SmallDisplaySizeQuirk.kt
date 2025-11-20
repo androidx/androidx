@@ -63,7 +63,7 @@ public class SmallDisplaySizeQuirk : Quirk {
                 "SM-A037F" to Size(720, 1600),
                 "NOKIA 2.4" to Size(720, 1600),
                 "SM-A125M" to Size(720, 1600),
-                "INFINIX X670" to Size(1080, 2400)
+                "INFINIX X670" to Size(1080, 2400),
             )
 
         public fun load(): Boolean {

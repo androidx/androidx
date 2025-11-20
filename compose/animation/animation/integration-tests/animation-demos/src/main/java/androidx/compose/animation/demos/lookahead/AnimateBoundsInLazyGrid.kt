@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.demos.layoutanimation.turquoiseColors
 import androidx.compose.foundation.background
@@ -40,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun AnimateBoundsInLazyGrid() {
@@ -55,7 +53,7 @@ fun AnimateBoundsInLazyGrid() {
     LookaheadScope {
         LazyVerticalGrid(
             GridCells.Adaptive(160.dp),
-            Modifier.padding(3.dp).fillMaxHeight().width(width).border(2.dp, Color.Blue)
+            Modifier.padding(3.dp).fillMaxHeight().width(width).border(2.dp, Color.Blue),
         ) {
             items(40, key = { it }) { id ->
                 Box(
@@ -64,7 +62,7 @@ fun AnimateBoundsInLazyGrid() {
                         .padding(10.dp)
                         .background(
                             turquoiseColors[id % turquoiseColors.size],
-                            RoundedCornerShape(10.dp)
+                            RoundedCornerShape(10.dp),
                         )
                         .fillMaxWidth()
                         .aspectRatio(1f)

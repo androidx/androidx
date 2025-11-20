@@ -30,7 +30,7 @@ private fun mergeAndVerifyMethods(
     processingEnv: ProcessingEnvironment,
     type: TypeElement,
     classMethods: List<EventMethod>,
-    parentMethods: List<EventMethod>
+    parentMethods: List<EventMethod>,
 ): List<EventMethod> {
     // need to update parent methods like that because:
     // 1. visibility can be expanded
@@ -46,7 +46,7 @@ private fun mergeAndVerifyMethods(
                     processingEnv.messager.printMessage(
                         Diagnostic.Kind.ERROR,
                         ErrorMessages.INVALID_STATE_OVERRIDE_METHOD,
-                        overrideMethod.method
+                        overrideMethod.method,
                     )
                 }
                 overrideMethod
@@ -59,7 +59,7 @@ private fun mergeAndVerifyMethods(
 
 fun flattenObservers(
     processingEnv: ProcessingEnvironment,
-    world: Map<TypeElement, LifecycleObserverInfo>
+    world: Map<TypeElement, LifecycleObserverInfo>,
 ): List<LifecycleObserverInfo> {
     val flattened: MutableMap<LifecycleObserverInfo, LifecycleObserverInfo> = mutableMapOf()
 
@@ -82,7 +82,7 @@ fun flattenObservers(
         flattened[observer] =
             LifecycleObserverInfo(
                 observer.type,
-                mergeAndVerifyMethods(processingEnv, observer.type, observer.methods, methods)
+                mergeAndVerifyMethods(processingEnv, observer.type, observer.methods, methods),
             )
     }
 
@@ -100,7 +100,7 @@ private fun validateMethod(
     processingEnv: ProcessingEnvironment,
     world: InputModel,
     type: TypeElement,
-    eventMethod: EventMethod
+    eventMethod: EventMethod,
 ): Boolean {
     if (!needsSyntheticAccess(type, eventMethod)) {
         // no synthetic calls - no problems
@@ -120,7 +120,7 @@ private fun validateMethod(
     processingEnv.messager.printMessage(
         Diagnostic.Kind.WARNING,
         ErrorMessages.failedToGenerateAdapter(type, eventMethod),
-        type
+        type,
     )
     return false
 }

@@ -86,12 +86,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
                 "androidx.paging.PagingConfig",
                 "androidx.paging.Pager",
-                "androidx.paging.rxjava2.getFlowable"
-            )
+                "androidx.paging.rxjava2.getFlowable",
+            ),
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
-        @Suppress("DEPRECATION") config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
         this.pagingSourceFactory = pagingSourceFactory
         this.dataSourceFactory = null
@@ -124,12 +124,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ).flowable""",
                 "androidx.paging.PagingConfig",
                 "androidx.paging.Pager",
-                "androidx.paging.rxjava2.getFlowable"
-            )
+                "androidx.paging.rxjava2.getFlowable",
+            ),
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
-        pageSize: Int
+        pageSize: Int,
     ) : this(pagingSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
@@ -156,12 +156,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.PagingConfig",
                 "androidx.paging.Pager",
                 "androidx.paging.rxjava2.getFlowable",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        @Suppress("DEPRECATION") config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
         this.pagingSourceFactory = null
         this.dataSourceFactory = dataSourceFactory
@@ -195,12 +195,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.PagingConfig",
                 "androidx.paging.Pager",
                 "androidx.paging.rxjava2.getFlowable",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        pageSize: Int
+        pageSize: Int,
     ) : this(dataSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
@@ -305,7 +305,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     boundaryCallback,
                     pagingSourceFactory,
                     notifyDispatcher,
-                    fetchDispatcher
+                    fetchDispatcher,
                 )
             )
             .observeOn(notifyScheduler)
@@ -334,7 +334,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
         private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
         private val pagingSourceFactory: () -> PagingSource<Key, Value>,
         private val notifyDispatcher: CoroutineDispatcher,
-        private val fetchDispatcher: CoroutineDispatcher
+        private val fetchDispatcher: CoroutineDispatcher,
     ) : ObservableOnSubscribe<PagedList<Value>>, Cancellable {
         private var firstSubscribe = true
         private var currentData: PagedList<Value>
@@ -352,7 +352,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     notifyDispatcher = notifyDispatcher,
                     backgroundDispatcher = fetchDispatcher,
                     config = config,
-                    initialLastKey = initialLoadKey
+                    initialLastKey = initialLoadKey,
                 )
             currentData.setRetryCallback(refreshRetryCallback)
         }
@@ -397,14 +397,14 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                         is PagingSource.LoadResult.Invalid -> {
                             currentData.setInitialLoadState(
                                 LoadType.REFRESH,
-                                LoadState.NotLoading(endOfPaginationReached = false)
+                                LoadState.NotLoading(endOfPaginationReached = false),
                             )
                             pagingSource.invalidate()
                         }
                         is PagingSource.LoadResult.Error -> {
                             currentData.setInitialLoadState(
                                 LoadType.REFRESH,
-                                LoadState.Error(initialResult.throwable)
+                                LoadState.Error(initialResult.throwable),
                             )
                         }
                         is PagingSource.LoadResult.Page -> {
@@ -417,7 +417,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                                     fetchDispatcher,
                                     boundaryCallback,
                                     config,
-                                    lastKey
+                                    lastKey,
                                 )
                             onItemUpdate(currentData, pagedList)
                             currentData = pagedList

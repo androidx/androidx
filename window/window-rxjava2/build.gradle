@@ -22,13 +22,12 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -36,7 +35,6 @@ android {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(libs.kotlinCoroutinesRx2)
     api(libs.rxjava2)
@@ -57,6 +55,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
-    legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -75,7 +75,7 @@ fun AnimatedNav() {
                         .clickable(onClick = { navController.navigate(SharedElement) })
                         .padding(horizontal = 16.dp)
                         .wrapContentHeight(Alignment.CenterVertically),
-                    contentAlignment = Alignment.CenterStart
+                    contentAlignment = Alignment.CenterStart,
                 ) {
                     Text("AnimationNav")
                 }
@@ -85,7 +85,7 @@ fun AnimatedNav() {
                         .clickable(onClick = { navController.navigate(TopAppBarShared) })
                         .padding(horizontal = 16.dp)
                         .wrapContentHeight(Alignment.CenterVertically),
-                    contentAlignment = Alignment.CenterStart
+                    contentAlignment = Alignment.CenterStart,
                 ) {
                     Text("Top Bar Shared Element")
                 }
@@ -123,14 +123,14 @@ fun RedBox(
     sharedScope: SharedTransitionScope,
     scope: AnimatedContentScope,
     selectFirst: MutableState<Boolean>,
-    onNavigate: () -> Unit
+    onNavigate: () -> Unit,
 ) {
     with(sharedScope) {
         Box(
             Modifier.sharedBounds(
                     rememberSharedContentState("name"),
                     scope,
-                    renderInOverlayDuringTransition = selectFirst.value
+                    renderInOverlayDuringTransition = selectFirst.value,
                 )
                 .clickable(
                     onClick = {
@@ -152,7 +152,7 @@ fun BlueBox(
     sharedScope: SharedTransitionScope,
     scope: AnimatedContentScope,
     selectFirst: MutableState<Boolean>,
-    onPopBack: () -> Unit
+    onPopBack: () -> Unit,
 ) {
     with(sharedScope) {
         Box(
@@ -160,7 +160,7 @@ fun BlueBox(
                 .sharedBounds(
                     rememberSharedContentState("name"),
                     scope,
-                    renderInOverlayDuringTransition = !selectFirst.value
+                    renderInOverlayDuringTransition = !selectFirst.value,
                 )
                 .clickable(
                     onClick = {
@@ -186,7 +186,7 @@ fun TopAppBarElement() {
             composable<First>(
                 enterTransition = { slideIntoContainer(SlideDirection.Right) },
                 exitTransition = { slideOutOfContainer(SlideDirection.Left) },
-                popExitTransition = { slideOutOfContainer(SlideDirection.Right) }
+                popExitTransition = { slideOutOfContainer(SlideDirection.Right) },
             ) {
                 Column {
                     TopAppBar(
@@ -194,8 +194,8 @@ fun TopAppBarElement() {
                         modifier =
                             Modifier.sharedElement(
                                 rememberSharedContentState("appBar"),
-                                this@composable
-                            )
+                                this@composable,
+                            ),
                     )
                     Text("first", color = Color.White)
                     Button(onClick = { navController.navigate(Second) }) {
@@ -206,7 +206,7 @@ fun TopAppBarElement() {
             composable<Second>(
                 enterTransition = { slideIntoContainer(SlideDirection.Right) },
                 exitTransition = { slideOutOfContainer(SlideDirection.Left) },
-                popExitTransition = { slideOutOfContainer(SlideDirection.Right) }
+                popExitTransition = { slideOutOfContainer(SlideDirection.Right) },
             ) {
                 Column {
                     TopAppBar(
@@ -214,8 +214,8 @@ fun TopAppBarElement() {
                         modifier =
                             Modifier.sharedElement(
                                 rememberSharedContentState("appBar"),
-                                this@composable
-                            )
+                                this@composable,
+                            ),
                     )
                     Text("second", color = Color.White)
                     Button(onClick = { navController.navigate(Third) }) {
@@ -226,7 +226,7 @@ fun TopAppBarElement() {
             composable<Third>(
                 enterTransition = { slideIntoContainer(SlideDirection.Right) },
                 exitTransition = { slideOutOfContainer(SlideDirection.Left) },
-                popExitTransition = { slideOutOfContainer(SlideDirection.Right) }
+                popExitTransition = { slideOutOfContainer(SlideDirection.Right) },
             ) {
                 Column {
                     Text("third", color = Color.White)

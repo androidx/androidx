@@ -2559,6 +2559,7 @@ package androidx.core.view {
 
   public final class DisplayCompat {
     method public static androidx.core.view.DisplayCompat.ModeCompat getMode(android.content.Context, android.view.Display);
+    method public static androidx.core.view.RoundedCornerCompat? getRoundedCorner(android.view.Display, int);
     method public static androidx.core.view.DisplayCompat.ModeCompat![] getSupportedModes(android.content.Context, android.view.Display);
   }
 
@@ -2951,6 +2952,19 @@ package androidx.core.view {
     field public static final int TYPE_WAIT = 1004; // 0x3ec
     field public static final int TYPE_ZOOM_IN = 1018; // 0x3fa
     field public static final int TYPE_ZOOM_OUT = 1019; // 0x3fb
+  }
+
+  public final class RoundedCornerCompat {
+    ctor public RoundedCornerCompat(int, int, int, int);
+    method public android.graphics.Point getCenter();
+    method public int getCenterX();
+    method public int getCenterY();
+    method public int getPosition();
+    method public int getRadius();
+    field public static final int POSITION_BOTTOM_LEFT = 3; // 0x3
+    field public static final int POSITION_BOTTOM_RIGHT = 2; // 0x2
+    field public static final int POSITION_TOP_LEFT = 0; // 0x0
+    field public static final int POSITION_TOP_RIGHT = 1; // 0x1
   }
 
   public final class ScaleGestureDetectorCompat {
@@ -3405,6 +3419,7 @@ package androidx.core.view {
     method public androidx.core.graphics.Insets getInsets(int);
     method public androidx.core.graphics.Insets getInsetsIgnoringVisibility(int);
     method @Deprecated public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
+    method public androidx.core.view.RoundedCornerCompat? getRoundedCorner(int);
     method @Deprecated public int getStableInsetBottom();
     method @Deprecated public int getStableInsetLeft();
     method @Deprecated public int getStableInsetRight();
@@ -3441,6 +3456,7 @@ package androidx.core.view {
     method public androidx.core.view.WindowInsetsCompat.Builder setInsets(int, androidx.core.graphics.Insets);
     method public androidx.core.view.WindowInsetsCompat.Builder setInsetsIgnoringVisibility(int, androidx.core.graphics.Insets);
     method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setMandatorySystemGestureInsets(androidx.core.graphics.Insets);
+    method public androidx.core.view.WindowInsetsCompat.Builder setRoundedCorner(int, androidx.core.view.RoundedCornerCompat?);
     method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setStableInsets(androidx.core.graphics.Insets);
     method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setSystemGestureInsets(androidx.core.graphics.Insets);
     method @Deprecated public androidx.core.view.WindowInsetsCompat.Builder setSystemWindowInsets(androidx.core.graphics.Insets);
@@ -4143,17 +4159,26 @@ package androidx.core.view.inputmethod {
 
 }
 
-package androidx.core.view.insetscontrast {
+package androidx.core.view.insets {
 
-  public class ColorProtection extends androidx.core.view.insetscontrast.ContrastProtection {
+  public class ColorProtection extends androidx.core.view.insets.Protection {
     ctor public ColorProtection(int);
     ctor public ColorProtection(int, @ColorInt int);
     method @ColorInt public int getColor();
     method public void setColor(@ColorInt int);
   }
 
-  public abstract class ContrastProtection {
-    ctor public ContrastProtection(int);
+  public class GradientProtection extends androidx.core.view.insets.Protection {
+    ctor public GradientProtection(int);
+    ctor public GradientProtection(int, @ColorInt int);
+    method @ColorInt public int getColor();
+    method public float getScale();
+    method public void setColor(@ColorInt int);
+    method public void setScale(float);
+  }
+
+  public abstract class Protection {
+    ctor public Protection(int);
     method public void animateAlpha(float);
     method public void animateInsetsAmount(float);
     method @FloatRange(from=0.0, to=1.0) public float getAlpha();
@@ -4163,23 +4188,13 @@ package androidx.core.view.insetscontrast {
     method public void setInsetAmount(@FloatRange(from=0.0, to=1.0) float);
   }
 
-  public class GradientProtection extends androidx.core.view.insetscontrast.ContrastProtection {
-    ctor public GradientProtection(int);
-    ctor public GradientProtection(int, @ColorInt int);
-    method @ColorInt public int getColor();
-    method public float getScale();
-    method public void setColor(@ColorInt int);
-    method public void setScale(float);
-  }
-
-  public class ProtectionView extends android.widget.FrameLayout {
-    ctor public ProtectionView(android.content.Context, androidx.core.view.insetscontrast.SystemBarStateMonitor, java.util.List<androidx.core.view.insetscontrast.ContrastProtection!>);
-    method public void dispose();
-  }
-
-  public class SystemBarStateMonitor {
-    ctor public SystemBarStateMonitor(android.view.Window);
-    method public void dispose();
+  public class ProtectionLayout extends android.widget.FrameLayout {
+    ctor public ProtectionLayout(android.content.Context);
+    ctor public ProtectionLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public ProtectionLayout(android.content.Context, android.util.AttributeSet?, @AttrRes int);
+    ctor public ProtectionLayout(android.content.Context, android.util.AttributeSet?, @AttrRes int, @StyleRes int);
+    ctor public ProtectionLayout(android.content.Context, java.util.List<androidx.core.view.insets.Protection!>);
+    method public void setProtections(java.util.List<androidx.core.view.insets.Protection!>);
   }
 
 }

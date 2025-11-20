@@ -16,6 +16,10 @@
 
 package androidx.camera.video.internal;
 
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_0;
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_1;
+import static androidx.camera.video.internal.utils.MediaFormatExt.KEY_CSD_2;
+
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
@@ -31,6 +35,7 @@ import androidx.core.util.Preconditions;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -355,5 +360,51 @@ public final class DebugUtils {
         }
         return String.format("{level=%d, profile=%d}", codecProfileLevel.level,
                 codecProfileLevel.profile);
+    }
+
+    /** Converts the given byte array to a hex string. */
+    @NonNull
+    public static String bytesToHexString(byte @Nullable [] bytes) {
+        if (bytes == null) return "null";
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X ", b));
+        }
+        return sb.toString().trim();
+    }
+
+    /** Converts the given ByteBuffer to a hex string. */
+    @NonNull
+    public static String byteBufferToHex(@Nullable ByteBuffer byteBuffer) {
+        if (byteBuffer == null) return "null";
+
+        int originalPosition = byteBuffer.position();
+        try {
+            byte[] bytes = new byte[byteBuffer.remaining()];
+            byteBuffer.get(bytes);
+            return bytesToHexString(bytes);
+        } finally {
+            byteBuffer.position(originalPosition);
+        }
+    }
+
+    /** Returns a string of CSD (Codec-Specific Data) in hex format from the given MediaFormat. */
+    @NonNull
+    public static String getCsdHex(@NonNull MediaFormat mediaFormat) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+        // Always get csd-0 even if it is null.
+        builder.append(KEY_CSD_0).append(" = ")
+                .append(byteBufferToHex(mediaFormat.getByteBuffer(KEY_CSD_0)));
+        if (mediaFormat.containsKey(KEY_CSD_1)) {
+            builder.append(", ").append(KEY_CSD_1).append(" = ")
+                    .append(byteBufferToHex(mediaFormat.getByteBuffer(KEY_CSD_1)));
+        }
+        if (mediaFormat.containsKey(KEY_CSD_2)) {
+            builder.append(", ").append(KEY_CSD_2).append(" = ")
+                    .append(byteBufferToHex(mediaFormat.getByteBuffer(KEY_CSD_2)));
+        }
+        builder.append("}");
+        return builder.toString();
     }
 }

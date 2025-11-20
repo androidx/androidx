@@ -79,7 +79,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             item = lastItem,
             expectedLabel = "$lastItem",
             numberOfMoves = 0,
-            numberOfFingers = 3
+            numberOfFingers = 3,
         )
     }
 
@@ -107,7 +107,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             item = lastItem,
             expectedLabel = "$lastItem",
             numberOfMoves = 6,
-            numberOfFingers = 3
+            numberOfFingers = 3,
         )
     }
 
@@ -120,7 +120,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             item = lastItem,
             expectedLabel = "$lastItem",
             numberOfMoves = 100,
-            numberOfFingers = 3
+            numberOfFingers = 3,
         )
     }
 
@@ -133,7 +133,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             expectedLabel = "0",
             numberOfMoves = 6,
             numberOfFingers = 3,
-            enableHistory = true
+            enableHistory = true,
         )
     }
 
@@ -146,7 +146,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             expectedLabel = "0",
             numberOfMoves = 100,
             numberOfFingers = 3,
-            enableHistory = true
+            enableHistory = true,
         )
     }
 
@@ -161,7 +161,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             expectedLabel = "$lastItem",
             numberOfMoves = 6,
             numberOfFingers = 3,
-            enableHistory = true
+            enableHistory = true,
         )
     }
 
@@ -175,7 +175,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             expectedLabel = "$lastItem",
             numberOfMoves = 100,
             numberOfFingers = 3,
-            enableHistory = true
+            enableHistory = true,
         )
     }
 
@@ -184,7 +184,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
         expectedLabel: String,
         numberOfMoves: Int,
         numberOfFingers: Int,
-        enableHistory: Boolean = false
+        enableHistory: Boolean = false,
     ) {
         val initialTimeForFirstEvent = 0
         val initialXForFirstEvent = 0f
@@ -228,7 +228,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
                     BenchmarkSimplifiedPointerInputPointer(
                         id = lastDown.getPointerId(index),
                         x = lastDown.getX(index) + DefaultPointerInputMoveAmountPx,
-                        y = lastDown.getY(index)
+                        y = lastDown.getY(index),
                     )
                 }
 
@@ -238,7 +238,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
                     initialPointers = initialMoveDataSimplified,
                     rootView = rootView,
                     numberOfMoveEvents = numberOfMoves,
-                    enableFlingStyleHistory = enableHistory
+                    enableFlingStyleHistory = enableHistory,
                 )
 
             // 2. Create ups
@@ -257,7 +257,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
                     BenchmarkSimplifiedPointerInputPointer(
                         id = lastMove.getPointerId(index),
                         x = lastMove.getX(index),
-                        y = lastMove.getY(index)
+                        y = lastMove.getY(index),
                     )
                 }
 
@@ -357,7 +357,7 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
                             }
                         }
                         .fillMaxWidth()
-                        .requiredHeight(itemHeightDp!!)
+                        .requiredHeight(itemHeightDp!!),
             )
         }
     }

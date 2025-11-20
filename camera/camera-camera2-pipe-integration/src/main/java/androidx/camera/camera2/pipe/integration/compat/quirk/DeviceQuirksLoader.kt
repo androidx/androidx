@@ -33,7 +33,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 CloseCameraDeviceOnCameraGraphCloseQuirk::class.java,
-                CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled()
+                CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled(),
             )
         ) {
             quirks.add(CloseCameraDeviceOnCameraGraphCloseQuirk())
@@ -41,7 +41,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 CloseCaptureSessionOnDisconnectQuirk::class.java,
-                CloseCaptureSessionOnDisconnectQuirk.isEnabled()
+                CloseCaptureSessionOnDisconnectQuirk.isEnabled(),
             )
         ) {
             quirks.add(CloseCaptureSessionOnDisconnectQuirk())
@@ -49,7 +49,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 CrashWhenTakingPhotoWithAutoFlashAEModeQuirk::class.java,
-                CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled()
+                CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled(),
             )
         ) {
             quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
@@ -57,7 +57,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ControlZoomRatioRangeAssertionErrorQuirk::class.java,
-                ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()
+                ControlZoomRatioRangeAssertionErrorQuirk.isEnabled(),
             )
         ) {
             quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
@@ -65,7 +65,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 DisableAbortCapturesOnStopQuirk::class.java,
-                DisableAbortCapturesOnStopQuirk.isEnabled()
+                DisableAbortCapturesOnStopQuirk.isEnabled(),
             )
         ) {
             quirks.add(DisableAbortCapturesOnStopQuirk())
@@ -73,7 +73,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java,
-                DisableAbortCapturesOnStopWithSessionProcessorQuirk.isEnabled()
+                DisableAbortCapturesOnStopWithSessionProcessorQuirk.isEnabled(),
             )
         ) {
             quirks.add(DisableAbortCapturesOnStopWithSessionProcessorQuirk())
@@ -81,7 +81,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 FlashAvailabilityBufferUnderflowQuirk::class.java,
-                FlashAvailabilityBufferUnderflowQuirk.isEnabled()
+                FlashAvailabilityBufferUnderflowQuirk.isEnabled(),
             )
         ) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
@@ -89,7 +89,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ImageCapturePixelHDRPlusQuirk::class.java,
-                ImageCapturePixelHDRPlusQuirk.isEnabled()
+                ImageCapturePixelHDRPlusQuirk.isEnabled(),
             )
         ) {
             quirks.add(ImageCapturePixelHDRPlusQuirk())
@@ -97,7 +97,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 InvalidVideoProfilesQuirk::class.java,
-                InvalidVideoProfilesQuirk.isEnabled()
+                InvalidVideoProfilesQuirk.isEnabled(),
             )
         ) {
             quirks.add(InvalidVideoProfilesQuirk())
@@ -105,7 +105,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ExcludedSupportedSizesQuirk::class.java,
-                ExcludedSupportedSizesQuirk.isEnabled()
+                ExcludedSupportedSizesQuirk.isEnabled(),
             )
         ) {
             quirks.add(ExcludedSupportedSizesQuirk())
@@ -113,7 +113,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ExtraCroppingQuirk::class.java,
-                ExtraCroppingQuirk.isEnabled()
+                ExtraCroppingQuirk.isEnabled(),
             )
         ) {
             quirks.add(ExtraCroppingQuirk())
@@ -121,7 +121,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ExtraSupportedOutputSizeQuirk::class.java,
-                ExtraSupportedOutputSizeQuirk.isEnabled()
+                ExtraSupportedOutputSizeQuirk.isEnabled(),
             )
         ) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
@@ -129,7 +129,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 ExtraSupportedSurfaceCombinationsQuirk::class.java,
-                ExtraSupportedSurfaceCombinationsQuirk.isEnabled()
+                ExtraSupportedSurfaceCombinationsQuirk.isEnabled(),
             )
         ) {
             quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
@@ -137,7 +137,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 Nexus4AndroidLTargetAspectRatioQuirk::class.java,
-                Nexus4AndroidLTargetAspectRatioQuirk.isEnabled()
+                Nexus4AndroidLTargetAspectRatioQuirk.isEnabled(),
             )
         ) {
             quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
@@ -145,7 +145,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 PreviewPixelHDRnetQuirk::class.java,
-                PreviewPixelHDRnetQuirk.isEnabled()
+                PreviewPixelHDRnetQuirk.isEnabled(),
             )
         ) {
             quirks.add(PreviewPixelHDRnetQuirk())
@@ -153,7 +153,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 RepeatingStreamConstraintForVideoRecordingQuirk::class.java,
-                RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()
+                RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled(),
             )
         ) {
             quirks.add(RepeatingStreamConstraintForVideoRecordingQuirk())
@@ -161,7 +161,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 StillCaptureFlashStopRepeatingQuirk::class.java,
-                StillCaptureFlashStopRepeatingQuirk.isEnabled()
+                StillCaptureFlashStopRepeatingQuirk.isEnabled(),
             )
         ) {
             quirks.add(StillCaptureFlashStopRepeatingQuirk())
@@ -169,7 +169,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 TorchIsClosedAfterImageCapturingQuirk::class.java,
-                TorchIsClosedAfterImageCapturingQuirk.isEnabled()
+                TorchIsClosedAfterImageCapturingQuirk.isEnabled(),
             )
         ) {
             quirks.add(TorchIsClosedAfterImageCapturingQuirk())
@@ -177,7 +177,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 SurfaceOrderQuirk::class.java,
-                SurfaceOrderQuirk.isEnabled()
+                SurfaceOrderQuirk.isEnabled(),
             )
         ) {
             quirks.add(SurfaceOrderQuirk())
@@ -185,7 +185,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 CaptureSessionOnClosedNotCalledQuirk::class.java,
-                CaptureSessionOnClosedNotCalledQuirk.isEnabled()
+                CaptureSessionOnClosedNotCalledQuirk.isEnabled(),
             )
         ) {
             quirks.add(CaptureSessionOnClosedNotCalledQuirk())
@@ -198,7 +198,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 SmallDisplaySizeQuirk::class.java,
-                SmallDisplaySizeQuirk.load()
+                SmallDisplaySizeQuirk.load(),
             )
         ) {
             quirks.add(SmallDisplaySizeQuirk())
@@ -206,7 +206,7 @@ public object DeviceQuirksLoader {
         if (
             quirkSettings.shouldEnableQuirk(
                 PreviewUnderExposureQuirk::class.java,
-                PreviewUnderExposureQuirk.load()
+                PreviewUnderExposureQuirk.load(),
             )
         ) {
             quirks.add(PreviewUnderExposureQuirk)

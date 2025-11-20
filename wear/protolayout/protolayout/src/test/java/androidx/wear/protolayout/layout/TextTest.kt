@@ -106,7 +106,6 @@ class TextTest {
         const val FONT_LETTER_SPACING = 0.5f
         const val FONT_FAMILY = "ABC"
         const val FONT_FAMILY_FALLBACK = "XYZ"
-        const val FONT_AXIS_TAG = "wght"
         const val FONT_AXIS_VALUE = 100
     }
 }

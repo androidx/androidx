@@ -446,4 +446,25 @@ public interface ActivityEmbeddingComponent {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
+
+    /**
+     * Sets whether to auto save the embedding state to the system, which can be used to restore the
+     * app embedding state once the app process is restarted (if applicable).
+     *
+     * The embedding state is not saved by default, in which case the embedding state and the
+     * embedded activities are removed once the app process is killed.
+     *
+     * **Note** that the applications should set the {@link EmbeddingRule}s using
+     * {@link #setEmbeddingRules} when the application is initializing, such as configured in
+     * [android.app.Application.onCreate], in order to allow the library to restore the state
+     * properly. Otherwise, the state may not be restored and the activities may not be started
+     * and layout as expected.
+     *
+     * @param saveEmbeddingState whether to save the embedding state.
+     */
+    @RequiresVendorApiLevel(level = 8)
+    default void setAutoSaveEmbeddingState(boolean saveEmbeddingState) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }

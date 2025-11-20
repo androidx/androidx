@@ -31,7 +31,7 @@ object Stubs {
             open class View {
                 fun <T: View> findViewById(id: Int) : T? = TODO()
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -47,7 +47,7 @@ object Stubs {
 
             }
         }
-    """
+    """,
             )
             .indented()
             .within("src")

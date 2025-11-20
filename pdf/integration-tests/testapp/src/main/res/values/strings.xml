@@ -1,8 +1,29 @@
 <resources>
     <string name="app_name">PDF Viewer Sample App</string>
-    <string name="launch_string">Open Pdf</string>
+    <string name="launch_string">Open</string>
     <string name="search_string">Search</string>
-    <string name="tab_view_string">Tab View</string>
-    <string name="pdf_fragment_v2_string">Pdf Fragment v2</string>
-    <string name="single_pdf_string">Single Pdf</string>
+    <string name="save_string">Save</string>
+    <string name="undo_string">Undo</string>
+    <string name="redo_string">Redo</string>
+    <string name="tab_view_string">Tab View V1</string>
+    <string name="pdf_fragment_v2_string">Single PDF V2</string>
+    <string name="tab_view_string_v2">Tab View V2</string>
+    <string name="single_pdf_string">Single PDF V1</string>
+    <string name="editable_pdf_fragment_name">Editable PDF Fragment</string>
+    <string name="styled_pdf_fragment_name">Single Styled PDF V2</string>
+    <string name="xml_styled_pdf_fragment_name">Single XML Styled PDF V2</string>
+    <string name="page_object_pdf_string">PageObject Pdf</string>
+    <string name="save_pdf_string">Save Pdf</string>
+    <string name="compose_fragment">Compose PDF</string>
+    <string name="thumbnail_content_description">Page thumbnail</string>
+    <string name="thumbnail_content_description_page_n">Page thumbnail %1$d</string>
+    <string name="two_page_layout">Two Page Layout</string>
+    <string name="toggle_thumbnails_view">Toggle thumbnails view</string>
+    <string name="preference_string">Feature flags</string>
+    <string name="external_input">External Hardware Interaction</string>
+    <string name="custom_link">Custom Link Handling</string>
+    <string name="thumbnail_preview">Thumbnail Preview</string>"
+    <string name="layout_strategy">Layout Strategy</string>"
+    <string name="enable_form_filling">Enable Form Filling</string>"
+    <string name="comment_menu_item">Comment</string>
 </resources>

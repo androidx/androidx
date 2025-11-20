@@ -48,7 +48,7 @@ class WorkerStepTest {
                 @AssistedInject
                 MyWorker(@Assisted Context context, @Assisted WorkerParameters params) { }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -57,9 +57,9 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorCount(1)
             it.hasErrorContaining(
@@ -97,7 +97,7 @@ class WorkerStepTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -106,9 +106,9 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorCount(1)
             it.hasErrorContaining(
@@ -140,7 +140,7 @@ class WorkerStepTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -149,9 +149,9 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorCount(1)
             it.hasErrorContaining("@AssistedInject annotated constructors must not be private.")
@@ -182,7 +182,7 @@ class WorkerStepTest {
                     }
                 }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -191,9 +191,9 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorCount(1)
             it.hasErrorContaining(
@@ -226,7 +226,7 @@ class WorkerStepTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -235,9 +235,9 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorContaining(
                 "Worker constructor should be annotated with @AssistedInject instead of @Inject."
@@ -268,7 +268,7 @@ class WorkerStepTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -277,13 +277,13 @@ class WorkerStepTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.hasErrorContaining(
                 "The 'Context' parameter must be declared before the 'WorkerParameters' in the " +
-                    "@AssistedInject constructor of a @HiltWorker annotated class.",
+                    "@AssistedInject constructor of a @HiltWorker annotated class."
             )
         }
     }

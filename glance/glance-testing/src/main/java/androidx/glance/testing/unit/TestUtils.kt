@@ -26,28 +26,28 @@ import androidx.glance.testing.matcherToSelector
 
 // Equivalent to calling GlanceNodeAssertionsProvider.onNode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getGlanceNodeAssertionFor(
+public fun getGlanceNodeAssertionFor(
     emittable: Emittable,
-    onNodeMatcher: GlanceNodeMatcher<MappedNode>
+    onNodeMatcher: GlanceNodeMatcher<MappedNode>,
 ): GlanceNodeAssertion<MappedNode, GlanceMappedNode> {
     val testContext = TestContext<MappedNode, GlanceMappedNode>()
     testContext.rootGlanceNode = GlanceMappedNode(emittable)
     return GlanceNodeAssertion(
         testContext = testContext,
-        selector = onNodeMatcher.matcherToSelector()
+        selector = onNodeMatcher.matcherToSelector(),
     )
 }
 
 // Equivalent to calling GlanceNodeAssertionsProvider.onAllNodes
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun getGlanceNodeAssertionCollectionFor(
+public fun getGlanceNodeAssertionCollectionFor(
     emittable: Emittable,
-    onAllNodesMatcher: GlanceNodeMatcher<MappedNode>
+    onAllNodesMatcher: GlanceNodeMatcher<MappedNode>,
 ): GlanceNodeAssertionCollection<MappedNode, GlanceMappedNode> {
     val testContext = TestContext<MappedNode, GlanceMappedNode>()
     testContext.rootGlanceNode = GlanceMappedNode(emittable)
     return GlanceNodeAssertionCollection(
         testContext = testContext,
-        selector = onAllNodesMatcher.matcherToSelector()
+        selector = onAllNodesMatcher.matcherToSelector(),
     )
 }

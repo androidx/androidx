@@ -52,7 +52,7 @@ fun EllipsizeRedrawDemo() {
                 .border(1.dp, Color.Blue)
                 .padding(24.dp)
                 .border(1.dp, Color.Cyan),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             BasicText("If b/389707025 fixed, the following should display with no animation")
@@ -71,12 +71,12 @@ fun EllipsizeRedrawDemo() {
                                 LineHeightStyle(
                                     alignment = LineHeightStyle.Alignment.Center,
                                     trim = LineHeightStyle.Trim.None,
-                                    mode = LineHeightStyle.Mode.Fixed
+                                    mode = LineHeightStyle.Mode.Fixed,
                                 ),
                         ),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
-                    color = { Color.Black }
+                    color = { Color.Black },
                 )
                 BasicText(
                     text = "I will definitely fill the screen!".repeat(10),
@@ -90,12 +90,12 @@ fun EllipsizeRedrawDemo() {
                                 LineHeightStyle(
                                     alignment = LineHeightStyle.Alignment.Center,
                                     trim = LineHeightStyle.Trim.None,
-                                    mode = LineHeightStyle.Mode.Fixed
+                                    mode = LineHeightStyle.Mode.Fixed,
                                 ),
                         ),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 3,
-                    color = { Color.Black }
+                    color = { Color.Black },
                 )
             }
         }

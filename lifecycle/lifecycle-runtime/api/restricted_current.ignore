@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+RemovedFromJava: androidx.lifecycle.ViewKt#findViewTreeLifecycleOwner(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewKt.findViewTreeLifecycleOwner(android.view.View) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.lifecycle.LifecycleRegistry#getObserverCount():
+    Source breaking change: method androidx.lifecycle.LifecycleRegistry.getObserverCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleRegistry#setCurrentState(androidx.lifecycle.Lifecycle.State):
+    Source breaking change: method androidx.lifecycle.LifecycleRegistry.setCurrentState(androidx.lifecycle.Lifecycle.State) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ReportFragment#get(android.app.Activity):
+    Source breaking change: method androidx.lifecycle.ReportFragment.get(android.app.Activity) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ReportFragment.Companion#get(android.app.Activity):
+    Source breaking change: method androidx.lifecycle.ReportFragment.Companion.get(android.app.Activity) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewKt#findViewTreeLifecycleOwner(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewKt.findViewTreeLifecycleOwner(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeLifecycleOwner#get(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewTreeLifecycleOwner.get(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeLifecycleOwner#set(android.view.View, androidx.lifecycle.LifecycleOwner):
+    Source breaking change: method androidx.lifecycle.ViewTreeLifecycleOwner.set(android.view.View,androidx.lifecycle.LifecycleOwner) can no longer be resolved from Kotlin source

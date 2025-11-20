@@ -54,7 +54,7 @@ import androidx.wear.compose.material.ToggleChipDefaults
 @Composable
 fun SelectableChips(
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    description: String = "Selectable Chips"
+    description: String = "Selectable Chips",
 ) {
     val scrollState: ScalingLazyListState = rememberScalingLazyListState()
     var enabled by remember { mutableStateOf(true) }
@@ -73,7 +73,7 @@ fun SelectableChips(
                     text = description,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption1,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         }
@@ -114,8 +114,8 @@ fun SelectableChips(
                     colors =
                         SelectableChipDefaults.selectableChipColors(
                             selectedSelectionControlColor = AlternatePrimaryColor3,
-                            selectedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
-                        )
+                            selectedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f),
+                        ),
                 )
             }
         }
@@ -125,7 +125,7 @@ fun SelectableChips(
                     text = "Split Selectable Chips",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption1,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         }
@@ -136,7 +136,7 @@ fun SelectableChips(
                     selected = splitRadioIndex == 0,
                     onSelectionClick = { splitRadioIndex = 0 },
                     primaryLabel = "Primary label",
-                    enabled = enabled
+                    enabled = enabled,
                 )
             }
         }
@@ -147,7 +147,7 @@ fun SelectableChips(
                     selected = splitRadioIndex == 1,
                     onSelectionClick = { splitRadioIndex = 1 },
                     primaryLabel = "Primary label",
-                    enabled = enabled
+                    enabled = enabled,
                 )
             }
         }
@@ -165,11 +165,7 @@ fun SelectableChips(
                             uncheckedToggleControlColor =
                                 ToggleChipDefaults.SwitchUncheckedIconColor
                         ),
-                    toggleControl = {
-                        Switch(
-                            checked = enabled,
-                        )
-                    },
+                    toggleControl = { Switch(checked = enabled) },
                 )
             }
         }
@@ -197,8 +193,8 @@ private fun DemoSplitSelectableChip(
             RadioButton(
                 selected = selected,
                 enabled = true,
-                modifier = Modifier.semantics { contentDescription = primaryLabel }
+                modifier = Modifier.semantics { contentDescription = primaryLabel },
             )
-        }
+        },
     )
 }

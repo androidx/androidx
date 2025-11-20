@@ -44,7 +44,7 @@ class CredentialProviderServiceTest {
         val outcome =
             OutcomeReceiver<
                 android.service.credentials.BeginCreateCredentialResponse,
-                android.credentials.CreateCredentialException
+                android.credentials.CreateCredentialException,
             > {
                 fun onResult(response: android.service.credentials.BeginCreateCredentialResponse) {
                     Log.i(LOG_TAG, "create request: " + response.toString())
@@ -74,7 +74,7 @@ class CredentialProviderServiceTest {
         val outcome =
             OutcomeReceiver<
                 android.service.credentials.BeginGetCredentialResponse,
-                android.credentials.GetCredentialException
+                android.credentials.GetCredentialException,
             > {
                 fun onResult(response: android.service.credentials.BeginGetCredentialResponse) {
                     Log.i(LOG_TAG, "get request: " + response.toString())
@@ -99,7 +99,7 @@ class CredentialProviderServiceTest {
         var request =
             android.service.credentials.ClearCredentialStateRequest(
                 android.service.credentials.CallingAppInfo("name", SigningInfo()),
-                Bundle()
+                Bundle(),
             )
         val outcome =
             OutcomeReceiver<Void, android.credentials.ClearCredentialStateException> {

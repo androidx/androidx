@@ -42,7 +42,7 @@ import kotlin.math.roundToInt
 internal fun Modifier.horizontalCenterOptically(
     shape: CornerBasedShape,
     maxStartOffset: Dp = 0.dp,
-    maxEndOffset: Dp = 0.dp
+    maxEndOffset: Dp = 0.dp,
 ) =
     this.layout { measureable, constraints ->
         val placeable = measureable.measure(constraints)
@@ -62,7 +62,7 @@ internal fun Modifier.horizontalCenterOptically(
         val paddingCorrection = CenterOpticallyCoefficient * (avgStart - avgEnd)
         layout(width, height) {
             val coercedCorrection = paddingCorrection.coerceIn(maxStartOffsetPx, maxEndOffsetPx)
-            placeable.place(coercedCorrection.roundToInt(), 0)
+            placeable.placeRelative(coercedCorrection.roundToInt(), 0)
         }
     }
 
@@ -70,7 +70,7 @@ internal fun Modifier.horizontalCenterOptically(
 internal fun Modifier.horizontalCenterOptically(
     shape: ShapeWithHorizontalCenterOptically,
     maxStartOffset: Dp = 0.dp,
-    maxEndOffset: Dp = 0.dp
+    maxEndOffset: Dp = 0.dp,
 ) =
     this.layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
@@ -80,7 +80,7 @@ internal fun Modifier.horizontalCenterOptically(
         val maxEndOffsetPx = maxEndOffset.toPx()
         layout(width, height) {
             val coercedOffset = shape.offset().coerceIn(maxStartOffsetPx, maxEndOffsetPx)
-            placeable.place(coercedOffset.roundToInt(), 0)
+            placeable.placeRelative(coercedOffset.roundToInt(), 0)
         }
     }
 

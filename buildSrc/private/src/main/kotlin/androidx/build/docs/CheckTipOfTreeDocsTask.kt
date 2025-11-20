@@ -103,7 +103,7 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
                 val checkDocs =
                     project.tasks.register(
                         "checkDocsTipOfTree",
-                        CheckTipOfTreeDocsTask::class.java
+                        CheckTipOfTreeDocsTask::class.java,
                     ) { task ->
                         task.tipOfTreeBuildFile.set(
                             project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")

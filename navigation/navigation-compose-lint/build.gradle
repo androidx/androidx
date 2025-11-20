@@ -32,7 +32,7 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly(libs.androidLintApiPrevKotlin)
+    compileOnly(libs.androidLintApiStableAnalysis)
     compileOnly(libs.kotlinStdlib)
     compileOnly(libs.intellijCore)
     compileOnly(libs.uast)
@@ -44,9 +44,8 @@ dependencies {
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(project(":navigation:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.kotlinStdlibJdk8)
-    testImplementation(libs.androidLintApiPrevKotlin)
-    testImplementation(libs.androidLintTestsPrevKotlin)
+    testImplementation(libs.androidLintApiStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
 }
 

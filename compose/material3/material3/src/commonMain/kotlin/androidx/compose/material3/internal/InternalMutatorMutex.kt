@@ -92,7 +92,7 @@ internal class InternalMutatorMutex {
      */
     suspend fun <R> mutate(
         priority: MutatePriority = MutatePriority.Default,
-        block: suspend () -> R
+        block: suspend () -> R,
     ) = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 
@@ -131,7 +131,7 @@ internal class InternalMutatorMutex {
     suspend fun <T, R> mutateWith(
         receiver: T,
         priority: MutatePriority = MutatePriority.Default,
-        block: suspend T.() -> R
+        block: suspend T.() -> R,
     ) = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 

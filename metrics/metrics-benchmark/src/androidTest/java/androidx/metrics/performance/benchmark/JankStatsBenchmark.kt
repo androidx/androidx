@@ -69,7 +69,10 @@ class JankStatsBenchmark {
     @Before
     fun setup() {
         activityRule.runOnUiThread {
-            textview = activityRule.activity.findViewById(R.id.textview)
+            textview =
+                activityRule.activity.findViewById(
+                    androidx.metrics.performance.benchmark.R.id.textview
+                )
             metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(textview)
             jankStats = JankStats.createAndTrack(activityRule.activity.window, frameListener)
             jankStatsImpl = JankStatsInternalsForTesting(jankStats)
@@ -118,7 +121,7 @@ class JankStatsBenchmark {
             activityRule: androidx.test.rule.ActivityTestRule<MainActivity>,
             benchmarkRule: BenchmarkRule,
             textview: TextView,
-            jankStatsImpl: JankStatsInternalsForTesting
+            jankStatsImpl: JankStatsInternalsForTesting,
         ) {
             var frameMetrics: FrameMetrics? = null
             val frameMetricsLatch = CountDownLatch(1)
@@ -134,7 +137,7 @@ class JankStatsBenchmark {
             activityRule.runOnUiThread {
                 activityRule.activity.window.addOnFrameMetricsAvailableListener(
                     listener,
-                    Handler(thread.looper)
+                    Handler(thread.looper),
                 )
                 textview.invalidate()
             }

@@ -1,0 +1,12 @@
+// Signature format: 4.0
+package androidx.window.rxjava3.layout {
+
+  public final class WindowInfoTrackerRx {
+    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.layout.WindowInfoTracker, android.app.Activity activity);
+    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.layout.WindowInfoTracker, @UiContext android.content.Context context);
+    method public static io.reactivex.rxjava3.core.Observable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.layout.WindowInfoTracker, android.app.Activity activity);
+    method public static io.reactivex.rxjava3.core.Observable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.layout.WindowInfoTracker, @UiContext android.content.Context context);
+  }
+
+}
+

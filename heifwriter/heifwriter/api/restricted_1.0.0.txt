@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.heifwriter {
 
   public final class HeifWriter implements java.lang.AutoCloseable {
@@ -16,8 +16,8 @@ package androidx.heifwriter {
   }
 
   public static final class HeifWriter.Builder {
-    ctor public HeifWriter.Builder(String, int, int, int);
     ctor public HeifWriter.Builder(java.io.FileDescriptor, int, int, int);
+    ctor public HeifWriter.Builder(String, int, int, int);
     method public androidx.heifwriter.HeifWriter! build() throws java.io.IOException;
     method public androidx.heifwriter.HeifWriter.Builder! setGridEnabled(boolean);
     method public androidx.heifwriter.HeifWriter.Builder! setHandler(android.os.Handler?);

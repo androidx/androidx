@@ -46,7 +46,7 @@ internal interface VibratorWrapper {
     enum class EffectSupport {
         UNKNOWN,
         YES,
-        NO
+        NO,
     }
 }
 
@@ -57,10 +57,8 @@ internal sealed interface VibrationWrapper
 internal sealed interface AttributesWrapper
 
 /** Represents vibrations defined by on-off patterns. */
-internal data class PatternVibrationWrapper(
-    val timings: LongArray,
-    val repeatIndex: Int,
-) : VibrationWrapper {
+internal data class PatternVibrationWrapper(val timings: LongArray, val repeatIndex: Int) :
+    VibrationWrapper {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -81,16 +79,10 @@ internal data class PatternVibrationWrapper(
 }
 
 /** Represents vibrations defined by an instance of [android.os.VibrationEffect]. */
-internal data class VibrationEffectWrapper(
-    val vibrationEffect: Any,
-) : VibrationWrapper
+internal data class VibrationEffectWrapper(val vibrationEffect: Any) : VibrationWrapper
 
 /** Represents vibrations defined by an instance of [android.media.AudioAttributes]. */
-internal data class AudioAttributesWrapper(
-    val audioAttributes: Any,
-) : AttributesWrapper
+internal data class AudioAttributesWrapper(val audioAttributes: Any) : AttributesWrapper
 
 /** Represents vibrations defined by an instance of [android.os.VibrationAttributes]. */
-internal data class VibrationAttributesWrapper(
-    val vibrationAttributes: Any,
-) : AttributesWrapper
+internal data class VibrationAttributesWrapper(val vibrationAttributes: Any) : AttributesWrapper

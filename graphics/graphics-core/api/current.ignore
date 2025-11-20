@@ -1,7 +1,135 @@
 // Baseline format: 1.0
+AddedMethod: androidx.graphics.CanvasBufferedRenderer#releaseBuffer$default(androidx.graphics.CanvasBufferedRenderer, android.hardware.HardwareBuffer, androidx.hardware.SyncFenceCompat, int, Object):
+    Added method androidx.graphics.CanvasBufferedRenderer.releaseBuffer$default(androidx.graphics.CanvasBufferedRenderer,android.hardware.HardwareBuffer,androidx.hardware.SyncFenceCompat,int,Object)
+AddedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#draw$default(androidx.graphics.CanvasBufferedRenderer.RenderRequest, boolean, kotlin.coroutines.Continuation, int, Object):
+    Added method androidx.graphics.CanvasBufferedRenderer.RenderRequest.draw$default(androidx.graphics.CanvasBufferedRenderer.RenderRequest,boolean,kotlin.coroutines.Continuation,int,Object)
+AddedMethod: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#CanvasFrontBufferedRenderer(android.view.SurfaceView, androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.lowlatency.CanvasFrontBufferedRenderer(android.view.SurfaceView,androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#release$default(androidx.graphics.lowlatency.CanvasFrontBufferedRenderer, boolean, kotlin.jvm.functions.Function0, int, Object):
+    Added method androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.release$default(androidx.graphics.lowlatency.CanvasFrontBufferedRenderer,boolean,kotlin.jvm.functions.Function0,int,Object)
+AddedMethod: androidx.graphics.lowlatency.GLFrontBufferedRenderer#GLFrontBufferedRenderer(android.view.SurfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback, androidx.graphics.opengl.GLRenderer, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.lowlatency.GLFrontBufferedRenderer(android.view.SurfaceView,androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback,androidx.graphics.opengl.GLRenderer,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.lowlatency.GLFrontBufferedRenderer#release$default(androidx.graphics.lowlatency.GLFrontBufferedRenderer, boolean, kotlin.jvm.functions.Function0, int, Object):
+    Added method androidx.graphics.lowlatency.GLFrontBufferedRenderer.release$default(androidx.graphics.lowlatency.GLFrontBufferedRenderer,boolean,kotlin.jvm.functions.Function0,int,Object)
+AddedMethod: androidx.graphics.lowlatency.LowLatencyCanvasView#LowLatencyCanvasView(android.content.Context, android.util.AttributeSet, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.lowlatency.LowLatencyCanvasView(android.content.Context,android.util.AttributeSet,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.opengl.FrameBufferRenderer#FrameBufferRenderer(androidx.graphics.opengl.FrameBufferRenderer.RenderCallback, androidx.graphics.opengl.SyncStrategy, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.opengl.FrameBufferRenderer(androidx.graphics.opengl.FrameBufferRenderer.RenderCallback,androidx.graphics.opengl.SyncStrategy,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.opengl.GLFrameBufferRenderer#release$default(androidx.graphics.opengl.GLFrameBufferRenderer, boolean, kotlin.jvm.functions.Function0, int, Object):
+    Added method androidx.graphics.opengl.GLFrameBufferRenderer.release$default(androidx.graphics.opengl.GLFrameBufferRenderer,boolean,kotlin.jvm.functions.Function0,int,Object)
 AddedMethod: androidx.graphics.opengl.GLRenderer#GLRenderer():
     Added constructor androidx.graphics.opengl.GLRenderer()
+AddedMethod: androidx.graphics.opengl.GLRenderer#GLRenderer(kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.opengl.GLRenderer(kotlin.jvm.functions.Function0,kotlin.jvm.functions.Function1,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.opengl.GLRenderer#detach$default(androidx.graphics.opengl.GLRenderer, androidx.graphics.opengl.GLRenderer.RenderTarget, boolean, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.detach$default(androidx.graphics.opengl.GLRenderer,androidx.graphics.opengl.GLRenderer.RenderTarget,boolean,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer#requestRender$default(androidx.graphics.opengl.GLRenderer, androidx.graphics.opengl.GLRenderer.RenderTarget, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.requestRender$default(androidx.graphics.opengl.GLRenderer,androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer#resize$default(androidx.graphics.opengl.GLRenderer, androidx.graphics.opengl.GLRenderer.RenderTarget, int, int, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.resize$default(androidx.graphics.opengl.GLRenderer,androidx.graphics.opengl.GLRenderer.RenderTarget,int,int,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer#start$default(androidx.graphics.opengl.GLRenderer, String, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.start$default(androidx.graphics.opengl.GLRenderer,String,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer#stop$default(androidx.graphics.opengl.GLRenderer, boolean, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.stop$default(androidx.graphics.opengl.GLRenderer,boolean,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#detach$default(androidx.graphics.opengl.GLRenderer.RenderTarget, boolean, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.RenderTarget.detach$default(androidx.graphics.opengl.GLRenderer.RenderTarget,boolean,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#requestRender$default(androidx.graphics.opengl.GLRenderer.RenderTarget, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.RenderTarget.requestRender$default(androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.opengl.GLRenderer.RenderTarget#resize$default(androidx.graphics.opengl.GLRenderer.RenderTarget, int, int, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.opengl.GLRenderer.RenderTarget.resize$default(androidx.graphics.opengl.GLRenderer.RenderTarget,int,int,kotlin.jvm.functions.Function1,int,Object)
 AddedMethod: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#Builder():
     Added constructor androidx.graphics.opengl.egl.EGLConfigAttributes.Builder()
+AddedMethod: androidx.graphics.opengl.egl.EGLException#EGLException(int, String, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.opengl.egl.EGLException(int,String,int,kotlin.jvm.internal.DefaultConstructorMarker)
 AddedMethod: androidx.graphics.opengl.egl.EGLManager#EGLManager():
     Added constructor androidx.graphics.opengl.egl.EGLManager()
+AddedMethod: androidx.graphics.opengl.egl.EGLManager#EGLManager(androidx.graphics.opengl.egl.EGLSpec, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.opengl.egl.EGLManager(androidx.graphics.opengl.egl.EGLSpec,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.opengl.egl.EGLManager#makeCurrent$default(androidx.graphics.opengl.egl.EGLManager, android.opengl.EGLSurface, android.opengl.EGLSurface, int, Object):
+    Added method androidx.graphics.opengl.egl.EGLManager.makeCurrent$default(androidx.graphics.opengl.egl.EGLManager,android.opengl.EGLSurface,android.opengl.EGLSurface,int,Object)
+AddedMethod: androidx.graphics.opengl.egl.EGLVersion#copy$default(androidx.graphics.opengl.egl.EGLVersion, int, int, int, Object):
+    Added method androidx.graphics.opengl.egl.EGLVersion.copy$default(androidx.graphics.opengl.egl.EGLVersion,int,int,int,Object)
+AddedMethod: androidx.graphics.surface.SurfaceControlCompat.Transaction#setBuffer$default(androidx.graphics.surface.SurfaceControlCompat.Transaction, androidx.graphics.surface.SurfaceControlCompat, android.hardware.HardwareBuffer, androidx.hardware.SyncFenceCompat, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.surface.SurfaceControlCompat.Transaction.setBuffer$default(androidx.graphics.surface.SurfaceControlCompat.Transaction,androidx.graphics.surface.SurfaceControlCompat,android.hardware.HardwareBuffer,androidx.hardware.SyncFenceCompat,kotlin.jvm.functions.Function1,int,Object)
+
+
+RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#to(int, int):
+    Source breaking change: method androidx.graphics.opengl.egl.EGLConfigAttributes.Builder.to(int,int) can no longer be resolved from Java source
+RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributesKt#EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit>):
+    Source breaking change: method androidx.graphics.opengl.egl.EGLConfigAttributesKt.EGLConfigAttributes(kotlin.jvm.functions.Function1<androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer#getBufferFormat():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.getBufferFormat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer#getMaxBuffers():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.getMaxBuffers() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer#getUsageFlags():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.getUsageFlags() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer#isClosed():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.isClosed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer.RenderResult#getFence():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.RenderResult.getFence() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer.RenderResult#getHardwareBuffer():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.RenderResult.getHardwareBuffer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.CanvasBufferedRenderer.RenderResult#getStatus():
+    Source breaking change: method androidx.graphics.CanvasBufferedRenderer.RenderResult.getStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.BufferInfo#getFrameBufferId():
+    Source breaking change: method androidx.graphics.lowlatency.BufferInfo.getFrameBufferId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.BufferInfo#getHeight():
+    Source breaking change: method androidx.graphics.lowlatency.BufferInfo.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.BufferInfo#getWidth():
+    Source breaking change: method androidx.graphics.lowlatency.BufferInfo.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#getBufferFormat():
+    Source breaking change: method androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.getBufferFormat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#getColorSpace():
+    Source breaking change: method androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.getColorSpace() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.CanvasFrontBufferedRenderer#setColorSpace(android.graphics.ColorSpace):
+    Source breaking change: method androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.setColorSpace(android.graphics.ColorSpace) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.FrontBufferSyncStrategy#isVisible():
+    Source breaking change: method androidx.graphics.lowlatency.FrontBufferSyncStrategy.isVisible() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.FrontBufferSyncStrategy#setVisible(boolean):
+    Source breaking change: method androidx.graphics.lowlatency.FrontBufferSyncStrategy.setVisible(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.lowlatency.GLFrontBufferedRenderer#getBufferFormat():
+    Source breaking change: method androidx.graphics.lowlatency.GLFrontBufferedRenderer.getBufferFormat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.FrameBuffer#getHardwareBuffer():
+    Source breaking change: method androidx.graphics.opengl.FrameBuffer.getHardwareBuffer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.FrameBuffer#isClosed():
+    Source breaking change: method androidx.graphics.opengl.FrameBuffer.isClosed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.GLFrameBufferRenderer#getBufferFormat():
+    Source breaking change: method androidx.graphics.opengl.GLFrameBufferRenderer.getBufferFormat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.GLFrameBufferRenderer#getGLRenderer():
+    Source breaking change: method androidx.graphics.opengl.GLFrameBufferRenderer.getGLRenderer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.GLFrameBufferRenderer#getMaxBuffers():
+    Source breaking change: method androidx.graphics.opengl.GLFrameBufferRenderer.getMaxBuffers() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.GLFrameBufferRenderer#getSyncStrategy():
+    Source breaking change: method androidx.graphics.opengl.GLFrameBufferRenderer.getSyncStrategy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.GLFrameBufferRenderer#getUsageFlags():
+    Source breaking change: method androidx.graphics.opengl.GLFrameBufferRenderer.getUsageFlags() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLException#getError():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLException.getError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLException#getMsg():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLException.getMsg() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getCurrentDrawSurface():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getCurrentDrawSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getCurrentReadSurface():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getCurrentReadSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getDefaultSurface():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getDefaultSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getEGLConfig():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getEGLConfig() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getEGLContext():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getEGLContext() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getEGLSpec():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getEGLSpec() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLManager#getEGLVersion():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLManager.getEGLVersion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLVersion#getMajor():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLVersion.getMajor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.graphics.opengl.egl.EGLVersion#getMinor():
+    Source breaking change: method androidx.graphics.opengl.egl.EGLVersion.getMinor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.opengl.EGLHandle#getNativeHandle():
+    Source breaking change: method androidx.opengl.EGLHandle.getNativeHandle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.opengl.EGLImageKHR#getNativeHandle():
+    Source breaking change: method androidx.opengl.EGLImageKHR.getNativeHandle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.opengl.EGLSyncKHR#getNativeHandle():
+    Source breaking change: method androidx.opengl.EGLSyncKHR.getNativeHandle() can no longer be resolved from Kotlin source

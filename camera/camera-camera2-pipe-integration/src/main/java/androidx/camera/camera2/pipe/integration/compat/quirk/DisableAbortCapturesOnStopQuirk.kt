@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
+import android.os.Build
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -24,7 +25,7 @@ import androidx.camera.core.impl.Quirk
  * behaviors such as camera HAL crashing.
  *
  * QuirkSummary
- * - Bug Id: 356792947
+ * - Bug Id: 356792947, 431912245
  * - Description: Instructs CameraPipe to not abort captures when stopping.
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
@@ -34,7 +35,13 @@ public class DisableAbortCapturesOnStopQuirk : Quirk {
     public companion object {
         @JvmStatic
         public fun isEnabled(): Boolean {
-            return Device.isTecnoDevice()
+            return Device.isTecnoDevice() || isSamsungNote10PlusDevice || isPocoX3ProDevice
         }
+
+        private val isSamsungNote10PlusDevice: Boolean =
+            Device.isSamsungDevice() && "d2q".equals(Build.DEVICE, true)
+
+        private val isPocoX3ProDevice: Boolean =
+            Device.isPocoDevice() && "M2102J20SG".equals(Build.MODEL, true)
     }
 }

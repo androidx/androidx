@@ -69,7 +69,7 @@ fun LastClippedCharacterDemo() {
                                 box.topLeft,
                                 box.size,
                                 CornerRadius(4f, 4f),
-                                Stroke(2f)
+                                Stroke(2f),
                             )
                         }
                     },

@@ -27,11 +27,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
 
     compileOnly(project(":annotation:annotation-sampled"))
@@ -61,6 +60,6 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.activity.compose.samples"
 }

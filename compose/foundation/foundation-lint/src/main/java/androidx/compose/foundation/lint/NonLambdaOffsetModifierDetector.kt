@@ -56,7 +56,7 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> =
         listOf(
             FoundationNames.Layout.Offset.shortName,
-            FoundationNames.Layout.AbsoluteOffset.shortName
+            FoundationNames.Layout.AbsoluteOffset.shortName,
         )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
@@ -68,7 +68,7 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
                 UseOfNonLambdaOverload,
                 node,
                 context.getNameLocation(node),
-                ReportMainMessage
+                ReportMainMessage,
             )
         }
     }
@@ -136,8 +136,8 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     NonLambdaOffsetModifierDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

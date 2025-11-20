@@ -59,7 +59,7 @@ AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingSe
     </application>
 </manifest>
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         check(input).expectClean()

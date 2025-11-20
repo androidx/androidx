@@ -56,7 +56,7 @@ class FragmentArchLifecycleTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_STOP) {
                                 fm.beginTransaction().add(second, "second").commitNow()
@@ -88,7 +88,7 @@ class FragmentArchLifecycleTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_STOP) {
                                 fm.beginTransaction().add(second, "second").commitNow()
@@ -124,7 +124,7 @@ class FragmentArchLifecycleTest {
                     "activity" to Lifecycle.Event.ON_RESUME,
                     "post_activity" to Lifecycle.Event.ON_RESUME,
                     "parent" to Lifecycle.Event.ON_RESUME,
-                    "child" to Lifecycle.Event.ON_RESUME
+                    "child" to Lifecycle.Event.ON_RESUME,
                 )
                 .inOrder()
 
@@ -143,7 +143,7 @@ class FragmentArchLifecycleTest {
                     "activity" to Lifecycle.Event.ON_STOP,
                     "child" to Lifecycle.Event.ON_DESTROY,
                     "parent" to Lifecycle.Event.ON_DESTROY,
-                    "activity" to Lifecycle.Event.ON_DESTROY
+                    "activity" to Lifecycle.Event.ON_DESTROY,
                 )
                 .inOrder()
         }
@@ -170,7 +170,7 @@ class FragmentArchLifecycleTest {
                     "activity" to Lifecycle.Event.ON_RESUME,
                     "post_activity" to Lifecycle.Event.ON_RESUME,
                     "parent" to Lifecycle.Event.ON_RESUME,
-                    "child" to Lifecycle.Event.ON_RESUME
+                    "child" to Lifecycle.Event.ON_RESUME,
                 )
                 .inOrder()
 
@@ -187,7 +187,7 @@ class FragmentArchLifecycleTest {
                     "child" to Lifecycle.Event.ON_STOP,
                     "parent" to Lifecycle.Event.ON_STOP,
                     "child" to Lifecycle.Event.ON_DESTROY,
-                    "parent" to Lifecycle.Event.ON_DESTROY
+                    "parent" to Lifecycle.Event.ON_DESTROY,
                 )
                 .inOrder()
         }

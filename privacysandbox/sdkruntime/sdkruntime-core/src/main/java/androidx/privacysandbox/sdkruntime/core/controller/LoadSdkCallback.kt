@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.core.controller
 
@@ -20,10 +21,10 @@ import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 
-/** Callback for [SdkSandboxControllerCompat.loadSdk] */
+/** Callback for[SdkSandboxControllerBackend.loadSdk] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface LoadSdkCallback {
-    fun onResult(result: SandboxedSdkCompat)
+public interface LoadSdkCallback {
+    public fun onResult(result: SandboxedSdkCompat)
 
-    fun onError(error: LoadSdkCompatException)
+    public fun onError(error: LoadSdkCompatException)
 }

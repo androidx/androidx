@@ -21,7 +21,6 @@ import groovy.xml.XmlUtil
 
 class ConfigBuilder {
     lateinit var configName: String
-    lateinit var configType: TestConfigType
     var appApksModel: AppApksModel? = null
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
@@ -36,8 +35,6 @@ class ConfigBuilder {
     val instrumentationArgsMap = mutableMapOf<String, String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
-
-    fun configType(configType: TestConfigType) = apply { this.configType = configType }
 
     fun appApksModel(appApksModel: AppApksModel) = apply { this.appApksModel = appApksModel }
 
@@ -81,11 +78,6 @@ class ConfigBuilder {
                 listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
             }
         )
-        if (configType.isAddedToInstrumentationArgs()) {
-            instrumentationArgsList.add(
-                InstrumentationArg("androidx.testConfigType", configType.toString())
-            )
-        }
         val appApk = singleAppApk()
         val values =
             mapOf(
@@ -97,7 +89,7 @@ class ConfigBuilder {
                 "appApk" to appApk?.name,
                 "appApkSha256" to appApk?.sha256,
                 "instrumentationArgs" to instrumentationArgsList,
-                "additionalApkKeys" to additionalApkKeys
+                "additionalApkKeys" to additionalApkKeys,
             )
         return gson.toJson(values)
     }
@@ -129,18 +121,13 @@ class ConfigBuilder {
                             "androidx.benchmark.output.payload.appApkSha256",
                             checkNotNull(appApksModel?.sha256()) {
                                 "app apk sha should be provided for macrobenchmarks."
-                            }
+                            },
                         ),
                         // suppress BaselineProfileRule in CI to save time
-                        InstrumentationArg("androidx.benchmark.enabledRules", "Macrobenchmark")
+                        InstrumentationArg("androidx.benchmark.enabledRules", "Macrobenchmark"),
                     )
                 )
             }
-        }
-        if (configType.isAddedToInstrumentationArgs()) {
-            instrumentationArgsList.add(
-                InstrumentationArg("androidx.testConfigType", configType.toString())
-            )
         }
         instrumentationArgsList.forEach { (key, value) ->
             sb.append(
@@ -155,7 +142,7 @@ class ConfigBuilder {
         sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         appApksModel?.apkGroups?.forEach { group ->
             if (group.isUsingApkSplits()) {
-                val apkList = group.apks.map(ApkFile::name).joinToString(",")
+                val apkList = group.apks.joinToString(",", transform = ApkFile::name)
                 sb.append(APK_WITH_SPLITS_INSTALL_OPTION.replace("APK_LIST", apkList))
             } else {
                 sb.append(APK_INSTALL_OPTION.replace("APK_NAME", group.apks.single().name))
@@ -165,9 +152,6 @@ class ConfigBuilder {
         // Post install commands after SuiteApkInstaller is declared
         if (isMicrobenchmark) {
             sb.append(benchmarkPostInstallCommandOption(applicationId))
-        }
-        if (configType == TestConfigType.PRIVACY_SANDBOX_MAIN) {
-            sb.append(PRIVACY_SANDBOX_ENABLE_PREPARER)
         }
         sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
@@ -194,58 +178,6 @@ class ConfigBuilder {
         }
         return apkGroups.single().apks.single()
     }
-}
-
-private fun mediaInstrumentationArgsForJson(
-    isClientPrevious: Boolean,
-    isServicePrevious: Boolean
-): List<InstrumentationArg> {
-    return listOf(
-        if (isClientPrevious) {
-            InstrumentationArg(key = "client_version", value = "previous")
-        } else {
-            InstrumentationArg(key = "client_version", value = "tot")
-        },
-        if (isServicePrevious) {
-            InstrumentationArg(key = "service_version", value = "previous")
-        } else {
-            InstrumentationArg(key = "service_version", value = "tot")
-        }
-    )
-}
-
-fun buildMediaJson(
-    configName: String,
-    forClient: Boolean,
-    clientApkName: String,
-    clientApkSha256: String,
-    isClientPrevious: Boolean,
-    isServicePrevious: Boolean,
-    minSdk: String,
-    serviceApkName: String,
-    serviceApkSha256: String,
-    tags: List<String>,
-): String {
-    val gson = GsonBuilder().setPrettyPrinting().create()
-    val instrumentationArgs =
-        listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")) +
-            mediaInstrumentationArgsForJson(
-                isClientPrevious = isClientPrevious,
-                isServicePrevious = isServicePrevious
-            )
-    val values =
-        mapOf(
-            "name" to configName,
-            "minSdkVersion" to minSdk,
-            "testSuiteTags" to tags,
-            "testApk" to if (forClient) clientApkName else serviceApkName,
-            "testApkSha256" to if (forClient) clientApkSha256 else serviceApkSha256,
-            "appApk" to if (forClient) serviceApkName else clientApkName,
-            "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
-            "instrumentationArgs" to instrumentationArgs,
-            "additionalApkKeys" to listOf<String>()
-        )
-    return gson.toJson(values)
 }
 
 private data class InstrumentationArg(val key: String, val value: String)
@@ -431,18 +363,6 @@ private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
 private val FLAKY_TEST_OPTION =
     """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
-
-"""
-        .trimIndent()
-
-private val PRIVACY_SANDBOX_ENABLE_PREPARER =
-    """
-    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
-    <option name="run-command" value="cmd sdk_sandbox set-state --enabled"/>
-    <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
-    <option name="teardown-command" value="cmd sdk_sandbox set-state --reset"/>
-    <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
-    </target_preparer>
 
 """
         .trimIndent()

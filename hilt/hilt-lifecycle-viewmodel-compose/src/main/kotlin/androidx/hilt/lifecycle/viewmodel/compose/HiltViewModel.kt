@@ -1,0 +1,93 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.hilt.lifecycle.viewmodel.compose
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dagger.hilt.android.lifecycle.withCreationCallback
+
+/**
+ * Returns an existing
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated [ViewModel] or creates a new one scoped to the current [ViewModelStoreOwner].
+ */
+@Composable
+public inline fun <reified VM : ViewModel> hiltViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) {
+            "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+        },
+    key: String? = null,
+): VM {
+    val factory = createHiltViewModelFactory(viewModelStoreOwner)
+    return viewModel(viewModelStoreOwner, key, factory = factory)
+}
+
+/**
+ * Returns an existing
+ * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
+ * -annotated [ViewModel] with an [@AssistedInject]-annotated constructor or creates a new one
+ * scoped to the current [ViewModelStoreOwner].
+ */
+@Composable
+public inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner =
+        checkNotNull(LocalViewModelStoreOwner.current) {
+            "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+        },
+    key: String? = null,
+    noinline creationCallback: (VMF) -> VM,
+): VM {
+    val factory = createHiltViewModelFactory(viewModelStoreOwner)
+    return viewModel(
+        viewModelStoreOwner = viewModelStoreOwner,
+        key = key,
+        factory = factory,
+        extras =
+            viewModelStoreOwner.run {
+                if (this is HasDefaultViewModelProviderFactory) {
+                    this.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
+                } else {
+                    CreationExtras.Empty.withCreationCallback(creationCallback)
+                }
+            },
+    )
+}
+
+@Composable
+@PublishedApi
+internal fun createHiltViewModelFactory(
+    viewModelStoreOwner: ViewModelStoreOwner
+): ViewModelProvider.Factory? =
+    if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
+        HiltViewModelFactory(
+            context = LocalContext.current,
+            delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory,
+        )
+    } else {
+        // Use the default factory provided by the ViewModelStoreOwner
+        // and assume it is an @AndroidEntryPoint annotated fragment or activity
+        null
+    }

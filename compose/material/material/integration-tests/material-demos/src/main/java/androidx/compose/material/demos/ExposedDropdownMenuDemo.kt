@@ -67,7 +67,7 @@ fun ExposedDropdownMenuImpl(isOutlined: Boolean, isReadOnly: Boolean) {
                 onValueChange = { selectedOptionText = it },
                 label = { Text("Label") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             )
         } else {
             TextField(
@@ -76,7 +76,7 @@ fun ExposedDropdownMenuImpl(isOutlined: Boolean, isReadOnly: Boolean) {
                 onValueChange = { selectedOptionText = it },
                 label = { Text("Label") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
             )
         }
         if (options.any { it.contains(selectedOptionText, ignoreCase = true) } || isReadOnly) {

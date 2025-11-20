@@ -78,7 +78,7 @@ open class OngoingActivityStatusTest {
 
         assertEquals(
             "The time on your Workout is 01:00",
-            status.getText(context, t0 + 60 * 1000).toString()
+            status.getText(context, t0 + 60 * 1000).toString(),
         )
     }
 
@@ -94,7 +94,7 @@ open class OngoingActivityStatusTest {
                 "#1##Long##Foo#" to "OneLongValueBar",
                 // Unclosed variables are ignored
                 "#1# #2# #3" to "One Two #3",
-                "#1##" to "One#"
+                "#1##" to "One#",
             )
             .forEach { (template, expected) ->
                 assertEquals(expected, Status.processTemplate(template, values).toString())

@@ -21,14 +21,13 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.BatteryManager.BATTERY_STATUS_CHARGING
 import android.os.BatteryManager.BATTERY_STATUS_FULL
-import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.work.Logger
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /** Tracks whether or not the device's battery is charging. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
+public class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
     override fun readSystemState(): Boolean {
@@ -46,13 +45,8 @@ class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     override val intentFilter: IntentFilter
         get() {
             val intentFilter = IntentFilter()
-            if (Build.VERSION.SDK_INT >= 23) {
-                intentFilter.addAction(BatteryManager.ACTION_CHARGING)
-                intentFilter.addAction(BatteryManager.ACTION_DISCHARGING)
-            } else {
-                intentFilter.addAction(Intent.ACTION_POWER_CONNECTED)
-                intentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED)
-            }
+            intentFilter.addAction(BatteryManager.ACTION_CHARGING)
+            intentFilter.addAction(BatteryManager.ACTION_DISCHARGING)
             return intentFilter
         }
 
@@ -68,12 +62,8 @@ class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     }
 
     private fun isBatteryChangedIntentCharging(intent: Intent): Boolean {
-        return if (Build.VERSION.SDK_INT >= 23) {
-            val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-            (status == BATTERY_STATUS_CHARGING || status == BATTERY_STATUS_FULL)
-        } else {
-            intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
-        }
+        val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+        return (status == BATTERY_STATUS_CHARGING || status == BATTERY_STATUS_FULL)
     }
 }
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
+
 package androidx.wear.watchface.complications.data
 
 import android.icu.util.ULocale
@@ -280,7 +282,7 @@ constructor(
      * ```
      */
     private fun DynamicString.evaluateToTextSetter(
-        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
+        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
     ): Flow<WireComplicationDataSetter> =
         evaluate()
             .toDataSetter(
@@ -331,7 +333,7 @@ constructor(
      * [DynamicTypeValueReceiverToChannel].
      */
     private fun <T : Any> evaluateDynamicType(
-        bindingRequest: (Executor, DynamicTypeValueReceiver<T>) -> DynamicTypeBindingRequest,
+        bindingRequest: (Executor, DynamicTypeValueReceiver<T>) -> DynamicTypeBindingRequest
     ): Flow<T?> =
         callbackFlow {
                 // Binding DynamicTypeEvaluator to the provided binding request.
@@ -340,7 +342,7 @@ constructor(
                         bindingRequest(
                             currentCoroutineContext().asExecutor(),
                             // Emitting values to the callbackFlow's channel.
-                            DynamicTypeValueReceiverToChannel(channel)
+                            DynamicTypeValueReceiverToChannel(channel),
                         )
                     )
                 // Start evaluation.
@@ -358,9 +360,8 @@ constructor(
      *
      * [onData] emits the value, [onInvalidated] emits `null`.
      */
-    private class DynamicTypeValueReceiverToChannel<T : Any>(
-        private val channel: SendChannel<T?>,
-    ) : DynamicTypeValueReceiver<T> {
+    private class DynamicTypeValueReceiverToChannel<T : Any>(private val channel: SendChannel<T?>) :
+        DynamicTypeValueReceiver<T> {
         override fun onData(newData: T) {
             channel
                 .trySend(newData)

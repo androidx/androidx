@@ -54,7 +54,7 @@ internal actual fun textFieldDragAndDropNode(
                     dragAndDropRequestPermission(event)
                     return onDrop.invoke(
                         event.toAndroidDragEvent().clipData.toClipEntry(),
-                        event.toAndroidDragEvent().clipDescription.toClipMetadata()
+                        event.toAndroidDragEvent().clipDescription.toClipMetadata(),
                     )
                 }
 
@@ -70,6 +70,6 @@ internal actual fun textFieldDragAndDropNode(
                 override fun onChanged(event: DragAndDropEvent) = onChanged?.invoke(event) ?: Unit
 
                 override fun onEnded(event: DragAndDropEvent) = onEnded?.invoke(event) ?: Unit
-            }
+            },
     )
 }

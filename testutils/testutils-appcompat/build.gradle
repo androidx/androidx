@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -37,7 +37,6 @@ dependencies {
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
     implementation(libs.testRules)
-    implementation(libs.kotlinStdlib)
 }
 
 android {

@@ -21,7 +21,7 @@ import androidx.camera.integration.camera2.pipe.extensions.get1DRunnable
 /** Manages all the threads generating data */
 class DataGenerator(
     private val dataListener: DataListener,
-    private val visualizationDefaults: VisualizationDefaults
+    private val visualizationDefaults: VisualizationDefaults,
 ) {
 
     /** Saves the timestamp from when data generation starts */
@@ -50,7 +50,7 @@ class DataGenerator(
                             entry.key,
                             point.frameNumber,
                             point.timestampNanos,
-                            point.value
+                            point.value,
                         )
                         dataListener.newKeyValueData(entry.key, point.value)
                     } else if (visualizationDefaults.keysVisualizedAsKeyValuePair.contains(key))

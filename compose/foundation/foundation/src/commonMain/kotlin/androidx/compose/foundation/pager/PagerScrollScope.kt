@@ -61,7 +61,7 @@ fun LazyLayoutScrollScope(state: PagerState, scrollScope: ScrollScope): LazyLayo
             val currentScrollWithDisplacementApplied =
                 (state.currentAbsoluteScrollOffset() + displacement).coerceIn(
                     state.minScrollOffset,
-                    state.maxScrollOffset
+                    state.maxScrollOffset,
                 )
 
             // this will return a displacement that doesn't exceed the max scroll offsets

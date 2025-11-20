@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 
@@ -23,9 +24,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 
+import androidx.core.os.BundleCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.ActionBuilders.LoadAction;
+import androidx.wear.protolayout.ActionBuilders.PendingIntentAction;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.ColorBuilders.LinearGradient;
 import androidx.wear.protolayout.ColorBuilders.SweepGradient;
@@ -45,6 +52,10 @@ public class ModifiersBuildersTest {
             new ColorProp.Builder(Color.RED)
                     .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
+
+    private static final PendingIntent TEST_PENDING_INTENT =
+            PendingIntent.getActivity(
+                    getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
     @Test
     public void borderSupportsDynamicColor() {
@@ -268,5 +279,48 @@ public class ModifiersBuildersTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new Background.Builder().setBrush(sweep).build());
+    }
+
+    @Test
+    public void clickable_withPendingIntent_withoutScope_throws() {
+        ModifiersBuilders.Clickable.Builder builder = new ModifiersBuilders.Clickable.Builder();
+
+        assertThrows(IllegalStateException.class, () -> builder.setOnClick(TEST_PENDING_INTENT));
+    }
+
+    @Test
+    public void clickable_withPendingIntent_registeredToScope() {
+        ProtoLayoutScope scope = new ProtoLayoutScope();
+        String clickableId = "test_id";
+        ModifiersBuilders.Clickable clickable =
+                new ModifiersBuilders.Clickable.Builder(scope, clickableId)
+                        .setOnClick(TEST_PENDING_INTENT)
+                        .build();
+
+        Bundle collectedPendingIntents = scope.collectPendingIntents();
+
+        assertThat(clickable.getOnClick()).isInstanceOf(PendingIntentAction.class);
+        assertThat(collectedPendingIntents.containsKey(clickableId)).isTrue();
+        assertThat(
+                        BundleCompat.getParcelable(
+                                collectedPendingIntents, clickableId, PendingIntent.class))
+                .isEqualTo(TEST_PENDING_INTENT);
+    }
+
+    @Test
+    public void clickable_withPendingIntent_overrideByLoadAction() {
+        ProtoLayoutScope scope = new ProtoLayoutScope();
+        String clickableId = "test_id";
+        ModifiersBuilders.Clickable clickable =
+                new ModifiersBuilders.Clickable.Builder(scope, clickableId)
+                        .setOnClick(TEST_PENDING_INTENT)
+                        .setOnClick(new LoadAction.Builder().build())
+                        .build();
+
+        Bundle collectedPendingIntents = scope.collectPendingIntents();
+
+        // verify that the setOnClick(loadAction) clears the PendingIntent
+        assertThat(clickable.getOnClick()).isInstanceOf(LoadAction.class);
+        assertThat(collectedPendingIntents.containsKey(clickableId)).isFalse();
     }
 }

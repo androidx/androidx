@@ -36,7 +36,7 @@ class WorkManagerIssueRegistry : IssueRegistry() {
             RxWorkerSetProgressDetector.ISSUE,
             SpecifyForegroundServiceTypeIssueDetector.ISSUE,
             SpecifyJobSchedulerIdRangeIssueDetector.ISSUE,
-            WorkerHasPublicModifierDetector.ISSUE
+            WorkerHasPublicModifierDetector.ISSUE,
         )
     override val vendor =
         Vendor(

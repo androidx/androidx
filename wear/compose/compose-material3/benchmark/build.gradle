@@ -21,13 +21,14 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
@@ -38,7 +39,7 @@ android {
         minSdk = 25
     }
     buildTypes.configureEach {
-        consumerProguardFiles "benchmark-proguard-rules.pro"
+        testProguardFile "benchmark-proguard-rules.pro"
     }
     namespace = "androidx.wear.compose.material3.benchmark"
 }
@@ -53,11 +54,11 @@ dependencies {
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":wear:compose:compose-foundation"))
     androidTestImplementation(project(":wear:compose:compose-material3"))
+    androidTestImplementation("androidx.compose.material:material-icons-core:1.6.7")
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinReflect)
-    androidTestImplementation(libs.kotlinTestCommon)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
 }
 androidx {

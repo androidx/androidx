@@ -36,5 +36,5 @@ public enum class LoadType {
     PREPEND,
 
     /** Load at the end of a [PagingData]. */
-    APPEND
+    APPEND,
 }

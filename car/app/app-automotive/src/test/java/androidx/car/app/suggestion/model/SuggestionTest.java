@@ -30,11 +30,13 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.Objects;
 
 /** Tests for {@link Suggestion}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SuggestionTest {
     private final String mIdentifier = "1";
     private final String mTitle = "car";

@@ -128,7 +128,7 @@ value class Matrix(
             fastMinOf(x0, x1, x2, x3),
             fastMinOf(y0, y1, y2, y3),
             fastMaxOf(x0, x1, x2, x3),
-            fastMaxOf(y0, y1, y2, y3)
+            fastMaxOf(y0, y1, y2, y3),
         )
     }
 
@@ -533,7 +533,7 @@ value class Matrix(
         rotationZ: Float = 0f,
         scaleX: Float = 1f,
         scaleY: Float = 1f,
-        scaleZ: Float = 1f
+        scaleZ: Float = 1f,
     ) {
         // X
         val rx = rotationX * (PI / 180.0)

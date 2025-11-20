@@ -75,14 +75,14 @@ fun MultitouchCustomMagnifierDemo() {
         Text(
             "Tap and drag below to activate magnifier. Try multiple fingers!",
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         if (Build.VERSION.SDK_INT < 28) {
             Text(
                 "Magnifier not supported on this platform.",
                 color = Color.Red,
                 style = TextStyle(textAlign = TextAlign.Center),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         Divider()

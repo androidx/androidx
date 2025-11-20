@@ -33,7 +33,7 @@ internal class AnimateXAsStateClock<T, V : AnimationVector>(
         set(value) {
             field = value
             currAnimation = getCurrentAnimation()
-            setClockTime(0)
+            setClockTime(clockTimeNanos)
         }
 
     private var currentValue: T = animation.toolingState.value
@@ -82,7 +82,7 @@ internal class AnimateXAsStateClock<T, V : AnimationVector>(
             initialValue = state.initial,
             targetValue = state.target,
             typeConverter = animation.animationObject.typeConverter,
-            initialVelocity = animation.animationObject.velocity
+            initialVelocity = animation.animationObject.velocity,
         )
     }
 }

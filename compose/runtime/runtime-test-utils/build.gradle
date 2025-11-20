@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.SoftwareType
+
 import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -24,26 +28,24 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.runtime.testutils"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
-    jvmStubs()
-    linuxX64Stubs()
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
                 implementation(project(":compose:runtime:runtime"))
-                implementation kotlin("test")
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
             }
@@ -51,24 +53,48 @@ androidXMultiplatform {
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
         }
 
         androidMain {
             dependsOn(jvmMain)
-            dependencies {
-            }
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-        jvmStubsMain {
+        desktopMain {
             dependsOn(jvmMain)
         }
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
+
+        nativeMain {
+            dependsOn(commonMain)
+        }
+
+        unixMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
+        linuxMain {
+            dependsOn(unixMain)
+        }
+
+        webMain {
+            dependsOn(commonMain)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+            }
         }
     }
 }
@@ -79,5 +105,6 @@ androidx {
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2024"
     description = "Compose runtime test utils shared between runtime and compiler tests."
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }
 

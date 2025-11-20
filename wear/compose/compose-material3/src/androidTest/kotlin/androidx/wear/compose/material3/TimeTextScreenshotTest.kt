@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -38,9 +37,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.CurvedModifier
-import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.weight
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -48,9 +47,9 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TimeTextScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -71,29 +70,31 @@ class TimeTextScreenshotTest {
 
     @Test
     fun time_text_with_status() = verifyScreenshot {
+        val style = TimeTextDefaults.timeTextStyle()
         TimeText(
             modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) { time ->
-            curvedText("ETA 12:48")
-            timeTextSeparator()
-            curvedText(time)
+            timeTextCurvedText("ETA 12:48")
+            timeTextSeparator(curvedTextStyle = style)
+            timeTextCurvedText(time)
         }
     }
 
     @Test
     fun time_text_with_icon() = verifyScreenshot {
+        val style = TimeTextDefaults.timeTextStyle()
         TimeText(
             modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) { time ->
-            curvedText(time)
-            timeTextSeparator()
+            timeTextCurvedText(time)
+            timeTextSeparator(style)
             curvedComposable {
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = "Favorite",
-                    modifier = Modifier.size(13.dp)
+                    modifier = Modifier.size(13.dp),
                 )
             }
         }
@@ -118,7 +119,7 @@ class TimeTextScreenshotTest {
 
     @Test
     fun time_text_with_long_status() = verifyScreenshot {
-        val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+        val greenStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
         TimeText(
             modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
@@ -127,10 +128,10 @@ class TimeTextScreenshotTest {
                 "Long status that should be ellipsized.",
                 CurvedModifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                style = timeTextStyle
+                style = greenStyle,
             )
             curvedComposable { Spacer(modifier = Modifier.size(4.dp)) }
-            curvedText(time, style = timeTextStyle)
+            curvedText(time, style = greenStyle)
         }
     }
 
@@ -149,7 +150,7 @@ class TimeTextScreenshotTest {
                 CurvedModifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
                 maxSweepAngle = 180f,
-                style = customStyle
+                style = customStyle,
             )
             timeTextSeparator(separatorStyle)
             curvedText(time, style = timeTextStyle)
@@ -170,7 +171,7 @@ class TimeTextScreenshotTest {
                 "Very long text to ensure we are respecting the maxSweep parameter",
                 CurvedModifier.weight(1f),
                 overflow = TextOverflow.Ellipsis,
-                style = customStyle
+                style = customStyle,
             )
             timeTextSeparator(separatorStyle)
             curvedText(time, style = timeTextStyle)
@@ -178,43 +179,50 @@ class TimeTextScreenshotTest {
     }
 
     @Test
-    fun time_text_long_text_before_time() = TimeTextWithDefaults { time ->
-        curvedText(
-            "Very long text to ensure we are respecting the weight parameter",
-            CurvedModifier.weight(1f),
-            overflow = TextOverflow.Ellipsis
-        )
-        timeTextSeparator()
-        curvedText(time)
-        timeTextSeparator()
-        curvedText("More")
-    }
-
-    @Test
-    fun time_text_long_text_after_time() = TimeTextWithDefaults { time ->
-        curvedText("More")
-        timeTextSeparator()
-        curvedText(time)
-        timeTextSeparator()
-        curvedText(
-            "Very long text to ensure we are respecting the weight parameter",
-            CurvedModifier.weight(1f),
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-
-    private fun TimeTextWithDefaults(content: CurvedScope.(String) -> Unit) = verifyScreenshot {
+    fun time_text_long_text_before_time() = verifyScreenshot {
+        val style = TimeTextDefaults.timeTextStyle()
         TimeText(
             maxSweepAngle = 180f,
             modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
-            content = content
-        )
+        ) { time ->
+            curvedText(
+                "Very long text to ensure we are respecting the weight parameter",
+                CurvedModifier.weight(1f),
+                overflow = TextOverflow.Ellipsis,
+                style = style,
+            )
+            timeTextSeparator(style)
+            timeTextCurvedText(time)
+            timeTextSeparator(style)
+            timeTextCurvedText("More")
+        }
+    }
+
+    @Test
+    fun time_text_long_text_after_time() = verifyScreenshot {
+        val style = TimeTextDefaults.timeTextStyle()
+        TimeText(
+            maxSweepAngle = 180f,
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
+            timeSource = MockTimeSource,
+        ) { time ->
+            timeTextCurvedText("More")
+            timeTextSeparator(style)
+            timeTextCurvedText(time)
+            timeTextSeparator(style)
+            curvedText(
+                "Very long text to ensure we are respecting the weight parameter",
+                CurvedModifier.weight(1f),
+                overflow = TextOverflow.Ellipsis,
+                style = style,
+            )
+        }
     }
 
     private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 val screenSize = LocalContext.current.resources.configuration.smallestScreenWidthDp
@@ -223,7 +231,7 @@ class TimeTextScreenshotTest {
                 ) {
                     content()
                 }
-            }
+            },
         )
     }
 }

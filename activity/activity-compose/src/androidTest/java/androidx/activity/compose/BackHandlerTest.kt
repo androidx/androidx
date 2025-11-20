@@ -34,6 +34,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BackHandlerTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testBackHandler() {
@@ -104,6 +105,7 @@ class BackHandlerTest {
     @Test
     fun testBackHandlerLifecycle() {
         var interceptedBack = false
+        // The initial state is Started by default.
         val lifecycleOwner = TestLifecycleOwner()
 
         composeTestRule.setContent {
@@ -115,7 +117,7 @@ class BackHandlerTest {
             dispatcher.addCallback(lifecycleOwner) {}
             CompositionLocalProvider(
                 LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
-                LocalLifecycleOwner provides lifecycleOwner
+                LocalLifecycleOwner provides lifecycleOwner,
             ) {
                 BackHandler { interceptedBack = true }
             }

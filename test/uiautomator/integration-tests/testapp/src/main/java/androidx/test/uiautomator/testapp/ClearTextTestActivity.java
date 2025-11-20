@@ -16,12 +16,11 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import org.jspecify.annotations.Nullable;
 
-public class ClearTextTestActivity extends Activity {
+public class ClearTextTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

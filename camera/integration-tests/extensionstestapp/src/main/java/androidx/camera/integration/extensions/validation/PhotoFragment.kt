@@ -54,7 +54,7 @@ class PhotoFragment constructor() : Fragment() {
     constructor(
         imageUri: Uri,
         rotationDegrees: Int,
-        scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener?
+        scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener?,
     ) : this() {
         this.imageUri = imageUri
         this.rotationDegrees = rotationDegrees
@@ -64,7 +64,7 @@ class PhotoFragment constructor() : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View = inflater.inflate(R.layout.single_photo_viewer, container, false)
 
     private lateinit var photoViewer: ImageView
@@ -81,7 +81,7 @@ class PhotoFragment constructor() : Fragment() {
             decodeImageToBitmap(
                 (requireActivity() as Activity).contentResolver,
                 imageUri,
-                rotationDegrees
+                rotationDegrees,
             )
         )
 
@@ -99,7 +99,7 @@ class PhotoFragment constructor() : Fragment() {
         fun decodeImageToBitmap(
             contentResolver: ContentResolver,
             imageUri: Uri,
-            rotationDegrees: Int
+            rotationDegrees: Int,
         ): Bitmap {
             val parcelFileDescriptor = contentResolver.openFileDescriptor(imageUri, "r")
             val bitmap = BitmapFactory.decodeFileDescriptor(parcelFileDescriptor?.fileDescriptor)

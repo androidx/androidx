@@ -18,14 +18,23 @@ package androidx.xr.compose.unit
 
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.scenecore.Dimensions
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IntVolumeSizeTest {
     private val UNIT_DENSITY = Density(density = 1.0f, fontScale = 1.0f)
+
+    @Before
+    fun setUp() {
+        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
+            .setDefaultDpPerMeter(1f)
+    }
 
     @Test
     fun intVolumeSize_toString_returnsString() {
@@ -38,7 +47,7 @@ class IntVolumeSizeTest {
 
     @Test
     fun toDimensionsInMeters_returnsCorrectDimensions() {
-        val intVolumeSize = IntVolumeSize(10367, 10367, 10367)
+        val intVolumeSize = IntVolumeSize(9, 9, 9)
 
         val dimensions = intVolumeSize.toDimensionsInMeters(UNIT_DENSITY)
 
@@ -49,7 +58,7 @@ class IntVolumeSizeTest {
 
     @Test
     fun toDimensionsInMeters_returnsCorrectDimensions_doubleDensity() {
-        val intVolumeSize = IntVolumeSize(10367, 10367, 10367)
+        val intVolumeSize = IntVolumeSize(9, 9, 9)
         val DOUBLE_DENSITY = Density(density = 2.0f, fontScale = 2.0f)
 
         val dimensions = intVolumeSize.toDimensionsInMeters(DOUBLE_DENSITY)
@@ -69,11 +78,11 @@ class IntVolumeSizeTest {
 
     @Test
     fun intVolumeSize_fromMeters_returnsCorrectIntVolumeSize() {
-        val dimensions = Dimensions(9.0f, 9.0f, 9.0f)
+        val dimensions = FloatSize3d(9.0f, 9.0f, 9.0f)
 
         val intVolumeSize = dimensions.toIntVolumeSize(UNIT_DENSITY)
 
-        assertThat(intVolumeSize).isEqualTo(IntVolumeSize(10367, 10367, 10367))
+        assertThat(intVolumeSize).isEqualTo(IntVolumeSize(9, 9, 9))
     }
 
     @Test

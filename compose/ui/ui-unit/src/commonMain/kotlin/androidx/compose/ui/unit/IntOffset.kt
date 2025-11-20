@@ -72,7 +72,7 @@ value class IntOffset(val packedValue: Long) {
         IntOffset(
             packInts(
                 unpackInt1(packedValue) - unpackInt1(other.packedValue),
-                unpackInt2(packedValue) - unpackInt2(other.packedValue)
+                unpackInt2(packedValue) - unpackInt2(other.packedValue),
             )
         )
 
@@ -82,7 +82,7 @@ value class IntOffset(val packedValue: Long) {
         IntOffset(
             packInts(
                 unpackInt1(packedValue) + unpackInt1(other.packedValue),
-                unpackInt2(packedValue) + unpackInt2(other.packedValue)
+                unpackInt2(packedValue) + unpackInt2(other.packedValue),
             )
         )
 
@@ -103,7 +103,7 @@ value class IntOffset(val packedValue: Long) {
         IntOffset(
             packInts(
                 (unpackInt1(packedValue) * operand).fastRoundToInt(),
-                (unpackInt2(packedValue) * operand).fastRoundToInt()
+                (unpackInt2(packedValue) * operand).fastRoundToInt(),
             )
         )
 
@@ -119,7 +119,7 @@ value class IntOffset(val packedValue: Long) {
         IntOffset(
             packInts(
                 (unpackInt1(packedValue) / operand).fastRoundToInt(),
-                (unpackInt2(packedValue) / operand).fastRoundToInt()
+                (unpackInt2(packedValue) / operand).fastRoundToInt(),
             )
         )
 

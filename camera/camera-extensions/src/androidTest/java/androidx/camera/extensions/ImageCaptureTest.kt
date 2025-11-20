@@ -19,9 +19,7 @@ package androidx.camera.extensions
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
 import android.util.Log
-import android.util.Size
 import android.view.Surface
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -40,13 +38,12 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExifUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.SurfaceTextureProvider
-import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
@@ -71,13 +68,12 @@ import org.mockito.Mockito
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class ImageCaptureTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
-    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 
     @get:Rule
@@ -109,14 +105,13 @@ class ImageCaptureTest(
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
+        assumePcsSupportedForImageCapture(context)
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         ExtensionsTestlibControl.getInstance().setImplementationType(implType)
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeTrue(
             ExtensionsTestUtil.isExtensionAvailable(extensionsManager, lensFacing, extensionMode)
@@ -209,12 +204,10 @@ class ImageCaptureTest(
         val latency =
             extensionsManager.getEstimatedCaptureLatencyRange(
                 extensionsCameraSelector,
-                extensionMode
+                extensionMode,
             )
         assumeTrue(latency != null && latency.lower >= 2000)
-        canInterruptTakePictureAndResumeInternal(
-            delayForStopLifecycle = latency!!.lower,
-        )
+        canInterruptTakePictureAndResumeInternal(delayForStopLifecycle = latency!!.lower)
     }
 
     // TODO(b/322416654): Enable test after it can pass on most devices
@@ -224,7 +217,7 @@ class ImageCaptureTest(
 
     private fun canInterruptTakePictureAndResumeInternal(
         enablePostview: Boolean = false,
-        delayForStopLifecycle: Long
+        delayForStopLifecycle: Long,
     ): Unit = runBlocking {
         if (enablePostview) {
             assumeTrue(isPostviewSupported())
@@ -267,7 +260,7 @@ class ImageCaptureTest(
 
     private fun verifyCanTakePictureWithoutError(
         imageCapture: ImageCapture,
-        verifyPostview: Boolean = false
+        verifyPostview: Boolean = false,
     ) {
         val mockOnImageCapturedCallback =
             Mockito.mock(ImageCapture.OnImageCapturedCallback::class.java)
@@ -357,7 +350,7 @@ class ImageCaptureTest(
         imageCapture: ImageCapture? = null,
         targetRotation: Int? = null,
         enablePostview: Boolean = false,
-        outputFormat: Int = ImageCapture.OUTPUT_FORMAT_JPEG
+        outputFormat: Int = ImageCapture.OUTPUT_FORMAT_JPEG,
     ): Camera {
         // To test bind/unbind and take picture.
         val imageCaptureUsecase =
@@ -372,34 +365,20 @@ class ImageCaptureTest(
         val preview = Preview.Builder().build()
         return withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
-            preview.setSurfaceProvider(
-                SurfaceTextureProvider.createSurfaceTextureProvider(
-                    object : SurfaceTextureCallback {
-                        override fun onSurfaceTextureReady(
-                            surfaceTexture: SurfaceTexture,
-                            resolution: Size
-                        ) {
-                            // No-op.
-                        }
-
-                        override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                            // No-op.
-                        }
-                    }
-                )
-            )
+            preview.surfaceProvider =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
 
             val camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
                     extensionsCameraSelector,
                     preview,
-                    imageCaptureUsecase
+                    imageCaptureUsecase,
                 )
 
             imageCaptureUsecase.takePicture(
                 CameraXExecutors.mainThreadExecutor(),
-                onImageCaptureCallback
+                onImageCaptureCallback,
             )
             camera
         }
@@ -408,7 +387,7 @@ class ImageCaptureTest(
     private suspend fun bindAndAwaitPreviewReady(
         imageCapture: ImageCapture? = null,
         targetRotation: Int? = null,
-        enablePostview: Boolean = false
+        enablePostview: Boolean = false,
     ): Camera {
         // To test bind/unbind and take picture.
         val imageCaptureUseCase =
@@ -434,7 +413,7 @@ class ImageCaptureTest(
                     fakeLifecycleOwner,
                     extensionsCameraSelector,
                     preview,
-                    imageCaptureUseCase
+                    imageCaptureUseCase,
                 )
 
             assertThat(withTimeoutOrNull(5000) { previewReady.await() }).isTrue()
@@ -446,7 +425,7 @@ class ImageCaptureTest(
         onImageSavedCallback: ImageCapture.OnImageSavedCallback,
         targetRotation: Int? = null,
         enablePostview: Boolean = false,
-        outputFormat: Int = ImageCapture.OUTPUT_FORMAT_JPEG
+        outputFormat: Int = ImageCapture.OUTPUT_FORMAT_JPEG,
     ): Camera {
         // To test bind/unbind and take picture.
         val imageCapture =
@@ -460,29 +439,15 @@ class ImageCaptureTest(
         val preview = Preview.Builder().build()
         return withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
-            preview.setSurfaceProvider(
-                SurfaceTextureProvider.createSurfaceTextureProvider(
-                    object : SurfaceTextureCallback {
-                        override fun onSurfaceTextureReady(
-                            surfaceTexture: SurfaceTexture,
-                            resolution: Size
-                        ) {
-                            // No-op.
-                        }
-
-                        override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                            // No-op.
-                        }
-                    }
-                )
-            )
+            preview.surfaceProvider =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
 
             val camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
                     extensionsCameraSelector,
                     preview,
-                    imageCapture
+                    imageCapture,
                 )
 
             val saveLocation = temporaryFolder.newFile("test.jpg")
@@ -490,7 +455,7 @@ class ImageCaptureTest(
             imageCapture.takePicture(
                 outputFileOptions,
                 CameraXExecutors.mainThreadExecutor(),
-                onImageSavedCallback
+                onImageSavedCallback,
             )
             camera
         }
@@ -529,7 +494,7 @@ class ImageCaptureTest(
                     }
                 },
                 enablePostview = true,
-                targetRotation = targetRotation
+                targetRotation = targetRotation,
             )
         val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
         val isFlipped = (rotationDegree % 180) != 0
@@ -589,7 +554,7 @@ class ImageCaptureTest(
                     }
                 },
                 enablePostview = true,
-                targetRotation = targetRotation
+                targetRotation = targetRotation,
             )
         val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
         val isFlipped = (rotationDegree % 180) != 0
@@ -622,7 +587,7 @@ class ImageCaptureTest(
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                imageCapture
+                imageCapture,
             )
         }
 
@@ -637,7 +602,7 @@ class ImageCaptureTest(
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                imageCapture
+                imageCapture,
             )
         }
 

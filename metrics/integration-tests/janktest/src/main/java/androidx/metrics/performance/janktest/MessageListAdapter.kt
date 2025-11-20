@@ -32,7 +32,9 @@ class MessageListAdapter(val messageList: Array<String>) :
 
         fun bind(headerText: String) {
             itemView.setOnClickListener {
-                val bundle = bundleOf("title" to headerText)
+                val bundle =
+                    @Suppress("DEPRECATION") // bundleOf is deprecated
+                    bundleOf("title" to headerText)
                 Navigation.findNavController(it)
                     .navigate(R.id.action_MessageList_to_messageContent, bundle)
             }

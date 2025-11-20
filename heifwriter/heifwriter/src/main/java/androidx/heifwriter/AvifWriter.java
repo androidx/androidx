@@ -128,6 +128,9 @@ public final class AvifWriter extends WriterBase {
         private int mRotation = 0;
         private Handler mHandler;
         private boolean mHighBitDepthEnabled = false;
+        private EncoderPreference mEncoderPreference =
+                EncoderPreference.getDefaultEncoderPreference();
+
 
         /**
          * Construct a Builder with output specified by its path.
@@ -271,6 +274,21 @@ public final class AvifWriter extends WriterBase {
         }
 
         /**
+         * Sets the encoder preference for this builder.
+         *
+         * <p>This method allows you to configure the desired encoding type (hardware or software)
+         * and the bitrate mode (e.g., constant quality).
+         *
+         * @param preference The non-null {@link EncoderPreference} object used to specify
+         *                   the encoder's configuration.
+         * @return This {@code Builder} instance for method chaining.
+         */
+        public @NonNull Builder setEncoderPreference(@NonNull EncoderPreference preference) {
+            mEncoderPreference = preference;
+            return this;
+        }
+
+        /**
          * Build a AvifWriter object.
          *
          * @return a AvifWriter object built according to the specifications.
@@ -279,7 +297,8 @@ public final class AvifWriter extends WriterBase {
          */
         public @NonNull AvifWriter build() throws IOException {
             return new AvifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
-                mMaxImages, mPrimaryIndex, mInputMode, mHandler, mHighBitDepthEnabled);
+                mMaxImages, mPrimaryIndex, mInputMode, mEncoderPreference, mHandler,
+                mHighBitDepthEnabled);
         }
     }
 
@@ -391,7 +410,7 @@ public final class AvifWriter extends WriterBase {
 
     @SuppressLint("WrongConstant")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    AvifWriter(@NonNull String path,
+        AvifWriter(@NonNull String path,
         @NonNull FileDescriptor fd,
         int width,
         int height,
@@ -401,9 +420,10 @@ public final class AvifWriter extends WriterBase {
         int maxImages,
         int primaryIndex,
         @InputMode int inputMode,
+        @NonNull EncoderPreference preference,
         @Nullable Handler handler,
         boolean highBitDepthEnabled) throws IOException {
-        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality,
+        super(rotation, inputMode, maxImages, primaryIndex, gridEnabled, quality, preference,
             handler, highBitDepthEnabled);
 
         if (DEBUG) {
@@ -414,16 +434,17 @@ public final class AvifWriter extends WriterBase {
                 + ", quality: " + quality
                 + ", maxImages: " + maxImages
                 + ", primaryIndex: " + primaryIndex
-                + ", inputMode: " + inputMode);
+                + ", inputMode: " + inputMode
+                + ", encoder preference: " + preference);
         }
+
+        mEncoder = new AvifEncoder(width, height, gridEnabled, quality,
+            mInputMode, preference, mHandler, new WriterCallback(), highBitDepthEnabled);
 
         // set to 1 initially, and wait for output format to know for sure
         mNumTiles = 1;
 
         mMuxer = (path != null) ? new MediaMuxer(path, MUXER_OUTPUT_HEIF)
             : new MediaMuxer(fd, MUXER_OUTPUT_HEIF);
-
-        mEncoder = new AvifEncoder(width, height, gridEnabled, quality,
-            mInputMode, mHandler, new WriterCallback(), highBitDepthEnabled);
     }
 }

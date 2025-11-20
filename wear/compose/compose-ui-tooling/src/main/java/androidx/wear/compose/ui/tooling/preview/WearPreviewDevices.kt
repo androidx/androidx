@@ -32,13 +32,13 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Large Round",
-    showSystemUi = true
+    showSystemUi = true,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Small Round",
-    showSystemUi = true
+    showSystemUi = true,
 )
 public annotation class WearPreviewDevices

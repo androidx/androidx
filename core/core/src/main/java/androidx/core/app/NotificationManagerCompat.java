@@ -101,12 +101,6 @@ public final class NotificationManagerCompat {
     public static final String ACTION_BIND_SIDE_CHANNEL =
             "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
 
-    /**
-     * Maximum sdk build version which needs support for side channeled notifications.
-     * Currently the only needed use is for side channeling group children before KITKAT_WATCH.
-     */
-    static final int MAX_SIDE_CHANNEL_SDK_VERSION = 19;
-
     /** Base time delay for a side channel listener queue retry. */
     private static final int SIDE_CHANNEL_RETRY_BASE_INTERVAL_MS = 1000;
     /** Maximum retries for a side channel listener before dropping tasks. */
@@ -246,17 +240,11 @@ public final class NotificationManagerCompat {
      */
     public void cancel(@Nullable String tag, int id) {
         mNotificationManager.cancel(tag, id);
-        if (Build.VERSION.SDK_INT <= MAX_SIDE_CHANNEL_SDK_VERSION) {
-            pushSideChannelQueue(new CancelTask(mContext.getPackageName(), id, tag));
-        }
     }
 
     /** Cancel all previously shown notifications. */
     public void cancelAll() {
         mNotificationManager.cancelAll();
-        if (Build.VERSION.SDK_INT <= MAX_SIDE_CHANNEL_SDK_VERSION) {
-            pushSideChannelQueue(new CancelTask(mContext.getPackageName()));
-        }
     }
 
     /**
@@ -345,18 +333,11 @@ public final class NotificationManagerCompat {
      * app's notification delegate via
      * {@link NotificationManager#notifyAsPackage(String, String, int, Notification)}.
      * </p>
-     * <p>
-     *     Returns an empty list on {@link Build.VERSION_CODES#LOLLIPOP_MR1} and earlier.
-     * </p>
      *
      * @return A list of {@link StatusBarNotification}.
      */
     public @NonNull List<StatusBarNotification> getActiveNotifications() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getActiveNotifications(mNotificationManager);
-        } else {
-            return new ArrayList<>();
-        }
+        return Api23Impl.getActiveNotifications(mNotificationManager);
     }
 
     /**
@@ -831,6 +812,22 @@ public final class NotificationManagerCompat {
         return Api34Impl.canUseFullScreenIntent(mNotificationManager);
     }
 
+     /**
+     * Returns whether the calling app's properly formatted notifications can appear in a promoted
+     * format, which may result in higher ranking, appearances on additional surfaces, and richer
+     * presentation.
+     *
+     * Apps can request this permission by sending the user to the activity that matches the system
+     * intent action {@link android.provider.Settings#ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS}.
+     */
+    public boolean canPostPromotedNotifications() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.canPostPromotedNotifications(mNotificationManager);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Returns true if this notification should use the side channel for delivery.
      */
@@ -847,12 +844,7 @@ public final class NotificationManagerCompat {
      * globally.
      */
     public @InterruptionFilter int getCurrentInterruptionFilter() {
-        if (Build.VERSION.SDK_INT < 23) {
-            // Prior to API 23, Interruption Filters were not implemented, so we return
-            // unknown filter level.
-            return INTERRUPTION_FILTER_UNKNOWN;
-        }
-        return Api23Impl.getCurrentInterruptionFilter(mNotificationManager);
+        return mNotificationManager.getCurrentInterruptionFilter();
     }
 
     /**
@@ -1183,53 +1175,11 @@ public final class NotificationManagerCompat {
         }
     }
 
-    private static class CancelTask implements Task {
-        final String packageName;
-        final int id;
-        final String tag;
-        final boolean all;
-
-        CancelTask(String packageName) {
-            this.packageName = packageName;
-            this.id = 0;
-            this.tag = null;
-            this.all = true;
-        }
-
-        CancelTask(String packageName, int id, String tag) {
-            this.packageName = packageName;
-            this.id = id;
-            this.tag = tag;
-            this.all = false;
-        }
-
-        @Override
-        public void send(INotificationSideChannel service) throws RemoteException {
-            if (all) {
-                service.cancelAll(packageName);
-            } else {
-                service.cancel(packageName, id, tag);
-            }
-        }
-
-        @Override
-        public @NonNull String toString() {
-            StringBuilder sb = new StringBuilder("CancelTask[");
-            sb.append("packageName:").append(packageName);
-            sb.append(", id:").append(id);
-            sb.append(", tag:").append(tag);
-            sb.append(", all:").append(all);
-            sb.append("]");
-            return sb.toString();
-        }
-    }
-
     /**
      * A class for wrapping calls to {@link NotificationManager} methods which
      * were added in API 23; these calls must be wrapped to avoid performance issues.
      * See the UnsafeNewApiCall lint rule for more details.
      */
-    @RequiresApi(23)
     static class Api23Impl {
         private Api23Impl() { }
 
@@ -1240,11 +1190,6 @@ public final class NotificationManagerCompat {
                 return new ArrayList<>();
             }
             return Arrays.asList(notifs);
-        }
-
-        static int getCurrentInterruptionFilter(
-                NotificationManager notificationManager) {
-            return notificationManager.getCurrentInterruptionFilter();
         }
     }
 
@@ -1377,6 +1322,20 @@ public final class NotificationManagerCompat {
 
         static boolean canUseFullScreenIntent(NotificationManager notificationManager) {
             return notificationManager.canUseFullScreenIntent();
+        }
+    }
+    /**
+     * A class for wrapping calls to {@link Notification.Builder} methods which
+     * were added in API 36; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(36)
+    static class Api36Impl {
+        private Api36Impl() { }
+
+        static boolean canPostPromotedNotifications(
+            @NonNull NotificationManager notificationManager) {
+            return notificationManager.canPostPromotedNotifications();
         }
     }
 }

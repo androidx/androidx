@@ -53,7 +53,7 @@ class RoomInvalidationHookTest {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .setQueryExecutor { it.run() }
                 .setTransactionExecutor { it.run() }
@@ -84,7 +84,7 @@ class RoomInvalidationHookTest {
             val testEnv =
                 DefaultTestInspectorEnvironment(
                     artTooling = testArtTI,
-                    testInspectorExecutors = testInspectorExecutors
+                    testInspectorExecutors = testInspectorExecutors,
                 )
             val tester =
                 InspectorTester(inspectorId = "androidx.sqlite.inspection", environment = testEnv)
@@ -147,7 +147,7 @@ class TestArtTooling(private val roomDatabase: RoomDatabase, private val sqliteD
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtTooling.EntryHook
+        entryHook: ArtTooling.EntryHook,
     ) {
         // no-op
     }
@@ -164,7 +164,7 @@ class TestArtTooling(private val roomDatabase: RoomDatabase, private val sqliteD
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtTooling.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>,
     ) {
         // no-op
     }

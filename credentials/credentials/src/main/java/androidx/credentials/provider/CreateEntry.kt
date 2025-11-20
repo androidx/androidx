@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
-import androidx.credentials.provider.CreateEntry.Api28Impl.addToSlice
 import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
@@ -112,7 +111,7 @@ internal constructor(
         @Suppress("AutoBoxing") passwordCredentialCount: Int? = null,
         @Suppress("AutoBoxing") publicKeyCredentialCount: Int? = null,
         @Suppress("AutoBoxing") totalCredentialCount: Int? = null,
-        isAutoSelectAllowed: Boolean = false
+        isAutoSelectAllowed: Boolean = false,
     ) : this(
         accountName = accountName,
         pendingIntent = pendingIntent,
@@ -123,9 +122,9 @@ internal constructor(
             mutableMapOf(
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
-                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount,
             ),
-        isAutoSelectAllowed = isAutoSelectAllowed
+        isAutoSelectAllowed = isAutoSelectAllowed,
     )
 
     /**
@@ -180,7 +179,7 @@ internal constructor(
             mutableMapOf(
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
-                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount,
             ),
         isAutoSelectAllowed = isAutoSelectAllowed,
         biometricPromptData = biometricPromptData,
@@ -343,7 +342,7 @@ internal constructor(
                 lastUsedTime = lastUsedTime,
                 credentialCountInformationMap = credentialCountInformationMap,
                 isAutoSelectAllowed = autoSelectAllowed,
-                biometricPromptData = biometricPromptData
+                biometricPromptData = biometricPromptData,
             )
         }
     }
@@ -366,20 +365,20 @@ internal constructor(
                 sliceBuilder.addInt(
                     biometricPromptData.allowedAuthenticators,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS),
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
                         getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
-                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                        listOf(SLICE_HINT_CRYPTO_OP_ID),
                     )
                 }
                 val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
                 sliceBuilder.addBundle(
                     biometricBundle,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA),
                 )
             }
         }
@@ -420,7 +419,7 @@ internal constructor(
                     biometricPromptData =
                         if (biometricPromptDataBundle != null)
                             BiometricPromptData.fromBundle(biometricPromptDataBundle!!)
-                        else null
+                        else null,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -458,7 +457,7 @@ internal constructor(
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS),
                 )
             }
             if (description != null) {
@@ -473,7 +472,7 @@ internal constructor(
                 sliceBuilder.addBundle(
                     convertCredentialCountInfoToBundle(credentialCountInformationMap),
                     null,
-                    listOf(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)
+                    listOf(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION),
                 )
             }
             sliceBuilder
@@ -482,12 +481,12 @@ internal constructor(
                     Slice.Builder(sliceBuilder)
                         .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                         .build(),
-                    /*subType=*/ null
+                    /*subType=*/ null,
                 )
                 .addText(
                     autoSelectAllowed,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
+                    listOf(SLICE_HINT_AUTO_SELECT_ALLOWED),
                 )
             return sliceBuilder
         }
@@ -665,8 +664,8 @@ internal constructor(
             "androidx.credentials.provider.extra.PENDING_INTENT_"
         private const val EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX =
             "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_"
-        private const val EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX =
-            "androidx.credentials.provider.extra.LAST_USED_TIME_"
+        private const val EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX =
+            "androidx.credentials.provider.extra.LAST_USED_TIME_MILLIS_"
         private const val EXTRA_CREATE_DESCRIPTION_PREFIX =
             "androidx.credentials.provider.extra.DESCRIPTION_"
         private const val EXTRA_CREATE_TYPE_ICON_PREFIX =
@@ -675,13 +674,14 @@ internal constructor(
             "androidx.credentials.provider.extra.CREDENTIAL_COUNT_INFO_"
 
         @RequiresApi(23)
-        internal fun List<CreateEntry>.marshall(bundle: Bundle) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun List<CreateEntry>.marshall(bundle: Bundle) {
             bundle.putInt(EXTRA_CREATE_ENTRY_SIZE, this.size)
             this.forEachIndexed { index, entry ->
                 bundle.putCharSequence("$EXTRA_CREATE_ACCOUNT_NAME_PREFIX$index", entry.accountName)
                 bundle.putParcelable(
                     "$EXTRA_CREATE_ENTRY_PENDING_INTENT_PREFIX$index",
-                    entry.pendingIntent
+                    entry.pendingIntent,
                 )
                 entry.icon?.let { bundle.putParcelable("$EXTRA_CREATE_TYPE_ICON_PREFIX$index", it) }
                 entry.description?.let {
@@ -690,9 +690,9 @@ internal constructor(
                 // TODO: b/356939416 - provide backward compatible timestamp API.
                 if (Build.VERSION.SDK_INT >= 26) {
                     entry.lastUsedTime?.let {
-                        bundle.putSerializable(
-                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index",
-                            it
+                        bundle.putLong(
+                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index",
+                            it.toEpochMilli(),
                         )
                     }
                 }
@@ -703,13 +703,14 @@ internal constructor(
                 }
                 bundle.putBoolean(
                     "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                    entry.isAutoSelectAllowed
+                    entry.isAutoSelectAllowed,
                 )
             }
         }
 
         @RequiresApi(23)
-        internal fun Bundle.unmarshallCreateEntries(): List<CreateEntry> {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun Bundle.unmarshallCreateEntries(): List<CreateEntry> {
             try {
                 val entries = mutableListOf<CreateEntry>()
                 val size = this.getInt(EXTRA_CREATE_ENTRY_SIZE, 0)
@@ -731,13 +732,28 @@ internal constructor(
                     val isAutoSelectAllowed =
                         this.getBoolean(
                             "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                            false
+                            false,
                         )
                     // TODO: b/356939416 - provide backward compatible timestamp API.
                     if (Build.VERSION.SDK_INT >= 26) {
                         val lastUsedTime: Instant? =
-                            this.getSerializable("$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index")
-                                as Instant?
+                            if (
+                                this.containsKey(
+                                    "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                                )
+                            ) {
+                                try {
+                                    Instant.ofEpochMilli(
+                                        this.getLong(
+                                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_MILLIS_PREFIX$index"
+                                        )
+                                    )
+                                } catch (_: Exception) {
+                                    null
+                                }
+                            } else {
+                                null
+                            }
                         entries.add(
                             CreateEntry(
                                 accountName = accountName,
@@ -764,7 +780,7 @@ internal constructor(
                     }
                 }
                 return entries
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return emptyList()
             }
         }

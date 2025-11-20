@@ -35,7 +35,7 @@ import org.junit.runners.model.Statement
  * By default [ActivityEmbeddingRule] has values as if the developer has not opted in to the
  * ActivityEmbedding feature. There are no set rules, and each [Activity] is not embedded.
  */
-class ActivityEmbeddingRule : TestRule {
+public class ActivityEmbeddingRule : TestRule {
 
     private val stubEmbeddingBackend = StubEmbeddingBackend()
     private val decorator = StubEmbeddingBackendDecorator(stubEmbeddingBackend)
@@ -44,7 +44,7 @@ class ActivityEmbeddingRule : TestRule {
         @Suppress("InvalidNullabilityOverride") // JUnit missing annotations
         base: Statement,
         @Suppress("InvalidNullabilityOverride") // JUnit missing annotations
-        description: Description
+        description: Description,
     ): Statement {
         return object : Statement() {
             override fun evaluate() {
@@ -67,7 +67,7 @@ class ActivityEmbeddingRule : TestRule {
      * @param isActivityEmbedded whether [ActivityEmbeddingController.isActivityEmbedded] should
      *   return `true` for the `activity`.
      */
-    fun overrideIsActivityEmbedded(activity: Activity, isActivityEmbedded: Boolean) {
+    public fun overrideIsActivityEmbedded(activity: Activity, isActivityEmbedded: Boolean) {
         stubEmbeddingBackend.overrideIsActivityEmbedded(activity, isActivityEmbedded)
     }
 
@@ -76,7 +76,7 @@ class ActivityEmbeddingRule : TestRule {
      *
      * @param status the global [SplitController.SplitSupportStatus] that will be returned instead.
      */
-    fun overrideSplitSupportStatus(status: SplitController.SplitSupportStatus) {
+    public fun overrideSplitSupportStatus(status: SplitController.SplitSupportStatus) {
         stubEmbeddingBackend.splitSupportStatus = status
     }
 
@@ -88,7 +88,7 @@ class ActivityEmbeddingRule : TestRule {
      * @param splitInfoList a list of [SplitInfo] that will be emitted through
      *   [SplitController.splitInfoList].
      */
-    fun overrideSplitInfo(activity: Activity, splitInfoList: List<SplitInfo>) {
+    public fun overrideSplitInfo(activity: Activity, splitInfoList: List<SplitInfo>) {
         stubEmbeddingBackend.overrideSplitInfo(activity, splitInfoList)
     }
 }

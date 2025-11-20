@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407927787
 
 package androidx.compose.foundation.lazy.grid
 
@@ -50,6 +50,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +59,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class LazyGridItemAppearanceAnimationTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val itemSize: Int = 4
     private var itemSizeDp: Dp = Dp.Infinity
@@ -310,7 +311,7 @@ class LazyGridItemAppearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        expectedColorProvider: (x: Int, y: Int) -> Color?
+        expectedColorProvider: (x: Int, y: Int) -> Color?,
     ) {
         rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
             IntSize(crossAxisSize, mainAxisSize)
@@ -341,7 +342,7 @@ class LazyGridItemAppearanceAnimationTest {
         containerSize: Dp? = containerSizeDp,
         startIndex: Int = 0,
         crossAxisSize: Dp = crossAxisSizeDp,
-        content: LazyGridScope.() -> Unit
+        content: LazyGridScope.() -> Unit,
     ) {
         state = rememberLazyGridState(startIndex)
 
@@ -365,7 +366,7 @@ class LazyGridItemAppearanceAnimationTest {
                         }
                     )
                     .testTag(ContainerTag),
-            content = content
+            content = content,
         )
     }
 
@@ -374,7 +375,7 @@ class LazyGridItemAppearanceAnimationTest {
         color: Color,
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = crossAxisSizeDp,
-        animSpec: FiniteAnimationSpec<Float>? = AnimSpec
+        animSpec: FiniteAnimationSpec<Float>? = AnimSpec,
     ) {
         Box(
             Modifier.animateItem(fadeInSpec = animSpec, placementSpec = null, fadeOutSpec = null)

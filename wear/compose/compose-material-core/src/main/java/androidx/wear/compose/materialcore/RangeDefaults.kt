@@ -56,12 +56,12 @@ public object RangeDefaults {
     public fun calculateCurrentStepValue(
         currentStep: Int,
         steps: Int,
-        valueRange: ClosedFloatingPointRange<Float>
+        valueRange: ClosedFloatingPointRange<Float>,
     ): Float =
         lerp(
                 valueRange.start,
                 valueRange.endInclusive,
-                currentStep.toFloat() / (steps + 1).toFloat()
+                currentStep.toFloat() / (steps + 1).toFloat(),
             )
             .coerceIn(valueRange)
 
@@ -69,7 +69,7 @@ public object RangeDefaults {
     public fun snapValueToStep(
         value: Float,
         valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int
+        steps: Int,
     ): Int =
         ((value - valueRange.start) / (valueRange.endInclusive - valueRange.start) * (steps + 1))
             .roundToInt()

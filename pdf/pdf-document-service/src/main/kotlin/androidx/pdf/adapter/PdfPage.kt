@@ -17,14 +17,21 @@
 package androidx.pdf.adapter
 
 import android.graphics.Bitmap
+import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.pdf.RenderParams
+import android.graphics.pdf.component.PdfAnnotation
+import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
 import android.graphics.pdf.content.PdfPageLinkContent
 import android.graphics.pdf.content.PdfPageTextContent
+import android.graphics.pdf.models.FormEditRecord
+import android.graphics.pdf.models.FormWidgetInfo
 import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
+import android.util.Pair
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -66,7 +73,7 @@ public interface PdfPage : AutoCloseable {
         left: Int,
         top: Int,
         scaledPageWidth: Int,
-        scaledPageHeight: Int
+        scaledPageHeight: Int,
     )
 
     /**
@@ -82,6 +89,22 @@ public interface PdfPage : AutoCloseable {
      * @return A list of [PdfPageImageContent] objects representing the images on the page.
      */
     public fun getPageImageContents(): List<PdfPageImageContent>
+
+    /**
+     * Retrieves information about all form widgets on the page, returns an empty list if there are
+     * no form widgets on the page.
+     *
+     * @return A list of [FormWidgetInfo] objects representing the form widgets on the page.
+     */
+    public fun getFormWidgetInfos(): List<FormWidgetInfo>
+
+    /**
+     * Retrieves a list of [FormWidgetInfo] objects for all the form widgets of the given types.
+     *
+     * @param types an array of the types of form widgets to retrieve
+     * @return A list of [FormWidgetInfo] objects representing the form widgets of the given types.
+     */
+    public fun getFormWidgetInfos(types: IntArray): List<FormWidgetInfo>
 
     /**
      * Selects text on the page based on the given boundaries.
@@ -125,4 +148,91 @@ public interface PdfPage : AutoCloseable {
      * @return The [RenderParams] for this page.
      */
     public fun getRenderParams(): RenderParams
+
+    /**
+     * Applies a [FormEditRecord] to the given PDF.
+     *
+     * @param editRecord The [FormEditRecord] to apply to the PDF.
+     * @return Rectangular areas of the page bitmap that have been invalidated by this action.
+     */
+    public fun applyEdit(editRecord: FormEditRecord): List<Rect>
+
+    /**
+     * Adds a [PdfPageObject] to the current page.
+     *
+     * @param pageObject The [PdfPageObject] to add to the page.
+     * @return The ID of the newly added [PdfPageObject].
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun addPageObject(pageObject: PdfPageObject): Int
+
+    /**
+     * Returns all the [PdfPageObject]s on the current page as a List of pairs of the ID and the
+     * corresponding [PdfPageObject].
+     *
+     * @return a list of Pairs of IDs and [PdfPageObject]s.
+     */
+    public fun getPageObjects(): List<Pair<Int, PdfPageObject>>
+
+    /**
+     * Updates a [PdfPageObject] on the current page.
+     *
+     * @param objectId The ID of the [PdfPageObject] to update.
+     * @param pageObject The new [PdfPageObject] to replace the existing one.
+     * @return `true` if the object was successfully updated, `false` otherwise.
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun updatePageObject(objectId: Int, pageObject: PdfPageObject): Boolean
+
+    /**
+     * Removes a [PdfPageObject] from the current page.
+     *
+     * @param objectId The ID of the [PdfPageObject] to remove.
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun removePageObject(objectId: Int)
+
+    /**
+     * Adds a [PdfAnnotation] to the current page.
+     *
+     * @param annotation The [PdfAnnotation] to add to the page.
+     * @return The ID of the newly added [PdfAnnotation].
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun addPageAnnotation(annotation: PdfAnnotation): Int
+
+    /**
+     * Returns all the [PdfAnnotation]s on the current page as a List of pairs of the ID and the
+     * corresponding [PdfAnnotation].
+     *
+     * @return a list of Pairs of IDs and [PdfAnnotation]s.
+     */
+    public fun getPageAnnotations(): List<Pair<Int, PdfAnnotation>>
+
+    /**
+     * Updates a [PdfAnnotation] on the current page.
+     *
+     * @param annotationId The ID of the [PdfAnnotation] to update.
+     * @param annotation The new [PdfAnnotation] to replace the existing one.
+     * @return `true` if the annotation was successfully updated, `false` otherwise.
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun updatePageAnnotation(annotationId: Int, annotation: PdfAnnotation): Boolean
+
+    /**
+     * Removes a [PdfAnnotation] from the current page.
+     *
+     * @param annotationId The ID of the [PdfAnnotation] to remove.
+     * @throws IllegalStateException if this page is already closed.
+     */
+    public fun removePageAnnotation(annotationId: Int)
+
+    /**
+     * Returns the topmost [PdfPageObject] at the specified coordinates on the page.
+     *
+     * @param point The [PointF] coordinates on the page.
+     * @param types An array of [PdfPageObject] types to consider.
+     * @return A [Pair] containing the ID and the [PdfPageObject] if found, otherwise `null`.
+     */
+    public fun getTopPageObjectAtPosition(point: PointF, types: IntArray): Pair<Int, PdfPageObject>?
 }

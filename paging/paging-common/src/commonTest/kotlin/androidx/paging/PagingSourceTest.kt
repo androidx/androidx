@@ -37,15 +37,9 @@ class PagingSourceTest {
         pagingSource: ItemDataSource,
         key: Key?,
         initialLoadSize: Int,
-        enablePlaceholders: Boolean
+        enablePlaceholders: Boolean,
     ): LoadResult<Key, Item> {
-        return pagingSource.load(
-            LoadParams.Refresh(
-                key,
-                initialLoadSize,
-                enablePlaceholders,
-            )
-        )
+        return pagingSource.load(LoadParams.Refresh(key, initialLoadSize, enablePlaceholders))
     }
 
     @Test
@@ -289,20 +283,20 @@ class PagingSourceTest {
 
     internal class ItemDataSource(
         private val counted: Boolean = true,
-        private val items: List<Item> = ITEMS_BY_NAME_ID
+        private val items: List<Item> = ITEMS_BY_NAME_ID,
     ) : PagingSource<Key, Item>() {
         fun Item.key() = Key(name, id)
 
         private fun List<Item>.asPage(
             itemsBefore: Int = COUNT_UNDEFINED,
-            itemsAfter: Int = COUNT_UNDEFINED
+            itemsAfter: Int = COUNT_UNDEFINED,
         ): LoadResult.Page<Key, Item> =
             LoadResult.Page(
                 data = this,
                 prevKey = firstOrNull()?.key(),
                 nextKey = lastOrNull()?.key(),
                 itemsBefore = itemsBefore,
-                itemsAfter = itemsAfter
+                itemsAfter = itemsAfter,
             )
 
         private var error = false
@@ -407,7 +401,7 @@ class PagingSourceTest {
                         names[it % 10],
                         it,
                         Random.nextDouble(1000.0),
-                        Random.nextInt(200).toString() + " fake st."
+                        Random.nextInt(200).toString() + " fake st.",
                     )
                 }
                 .sortedWith(ITEM_COMPARATOR)

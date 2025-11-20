@@ -6,10 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.LocusIdCompat
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -23,7 +23,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(PatchedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(sdk = [Build.VERSION_CODES.Q])
-@RequiresApi(Build.VERSION_CODES.Q) // Lint doesn't understand @Config b/236744544
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q) // Lint doesn't understand @Config b/236744544
 open class OngoingActivityTest {
     private val AnimatedIconResourceId = 123
     private val StaticIconResourceId = 456
@@ -175,7 +175,7 @@ open class OngoingActivityTest {
             statuses.add(status)
             OngoingActivity.recoverOngoingActivity(context, i)!!.update(
                 context,
-                Status.forPart(Status.TextPart(status))
+                Status.forPart(Status.TextPart(status)),
             )
         }
         assertEquals(n, statuses.size) // Just in case.

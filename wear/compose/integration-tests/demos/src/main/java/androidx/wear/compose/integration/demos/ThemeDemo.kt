@@ -66,7 +66,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.background,
                 backgroundColorName = "background",
                 foregroundColor = MaterialTheme.colors.onBackground,
-                foregroundColorName = "onBackground"
+                foregroundColorName = "onBackground",
             )
         }
         item {
@@ -74,7 +74,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.surface,
                 backgroundColorName = "surface",
                 foregroundColor = MaterialTheme.colors.onSurface,
-                foregroundColorName = "onSurface"
+                foregroundColorName = "onSurface",
             )
         }
         item {
@@ -82,7 +82,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.surface,
                 backgroundColorName = "surface",
                 foregroundColor = MaterialTheme.colors.onSurfaceVariant,
-                foregroundColorName = "onSurfaceVariant"
+                foregroundColorName = "onSurfaceVariant",
             )
         }
         item {
@@ -90,7 +90,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.primary,
                 backgroundColorName = "primary",
                 foregroundColor = MaterialTheme.colors.onPrimary,
-                foregroundColorName = "onPrimary"
+                foregroundColorName = "onPrimary",
             )
         }
         item {
@@ -98,7 +98,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.primaryVariant,
                 backgroundColorName = "primaryVariant",
                 foregroundColor = MaterialTheme.colors.onPrimary,
-                foregroundColorName = "onPrimary"
+                foregroundColorName = "onPrimary",
             )
         }
         item {
@@ -106,7 +106,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.secondary,
                 backgroundColorName = "secondary",
                 foregroundColor = MaterialTheme.colors.onSecondary,
-                foregroundColorName = "onSecondary"
+                foregroundColorName = "onSecondary",
             )
         }
         item {
@@ -114,7 +114,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.secondaryVariant,
                 backgroundColorName = "secondaryVariant",
                 foregroundColor = MaterialTheme.colors.onSecondary,
-                foregroundColorName = "onSecondary"
+                foregroundColorName = "onSecondary",
             )
         }
         item {
@@ -122,7 +122,7 @@ fun ThemeColors() {
                 backgroundColor = MaterialTheme.colors.error,
                 backgroundColorName = "error",
                 foregroundColor = MaterialTheme.colors.onError,
-                foregroundColorName = "onError"
+                foregroundColorName = "onError",
             )
         }
     }
@@ -133,7 +133,7 @@ fun ThemeColorRow(
     backgroundColor: Color,
     backgroundColorName: String,
     foregroundColor: Color,
-    foregroundColorName: String
+    foregroundColorName: String,
 ) {
     Row(
         modifier =

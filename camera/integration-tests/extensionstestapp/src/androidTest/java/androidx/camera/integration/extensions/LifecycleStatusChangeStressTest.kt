@@ -34,6 +34,7 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -90,22 +91,20 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
     private var isTestStarted = false
 
     @Before
-    fun setup() {
+    fun setup(): Unit = runBlocking {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         CoreAppTestUtil.assumeCompatibleDevice()
         ProcessCameraProvider.configureInstance(config.cameraXConfig)
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        val extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         // Checks whether the extension mode can be supported first before launching the activity.
         CameraXExtensionsTestUtil.assumeExtensionModeSupported(
             extensionsManager,
             config.cameraId,
-            config.extensionMode
+            config.extensionMode,
         )
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
@@ -125,9 +124,7 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         withContext(Dispatchers.Main) { cameraProvider.shutdownAsync() }
 
-        val extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         extensionsManager.shutdown()
 
         if (isTestStarted) {
@@ -147,12 +144,13 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
 
     @Test
     fun pauseResumeActivity_checkImageCaptureInEachTime() {
+        assumePcsSupportedForImageCapture(context)
         pauseResumeActivity_checkOutput_repeatedly(VERIFICATION_TARGET_IMAGE_CAPTURE)
     }
 
     private fun pauseResumeActivity_checkOutput_repeatedly(
         verificationTarget: Int,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ) {
         val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
@@ -187,12 +185,13 @@ class LifecycleStatusChangeStressTest(private val config: CameraXExtensionTestPa
 
     @Test
     fun checkImageCapture_afterPauseResumeActivityRepeatedly() {
+        assumePcsSupportedForImageCapture(context)
         pauseResumeActivityRepeatedly_thenCheckOutput(VERIFICATION_TARGET_IMAGE_CAPTURE)
     }
 
     private fun pauseResumeActivityRepeatedly_thenCheckOutput(
         verificationTarget: Int,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ) {
         val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 

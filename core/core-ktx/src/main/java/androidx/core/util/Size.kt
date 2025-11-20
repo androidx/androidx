@@ -20,7 +20,6 @@ package androidx.core.util
 
 import android.util.Size
 import android.util.SizeF
-import androidx.annotation.RequiresApi
 
 /**
  * Returns "width", the first component of this [Size].
@@ -30,7 +29,7 @@ import androidx.annotation.RequiresApi
  * val (w, h) = mySize
  * ```
  */
-@RequiresApi(21) public inline operator fun Size.component1(): Int = width
+public inline operator fun Size.component1(): Int = width
 
 /**
  * Returns "height", the second component of this [Size].
@@ -40,7 +39,7 @@ import androidx.annotation.RequiresApi
  * val (w, h) = mySize
  * ```
  */
-@RequiresApi(21) public inline operator fun Size.component2(): Int = height
+public inline operator fun Size.component2(): Int = height
 
 /**
  * Returns "width", the first component of this [SizeF].
@@ -50,7 +49,7 @@ import androidx.annotation.RequiresApi
  * val (w, h) = mySize
  * ```
  */
-@RequiresApi(21) public inline operator fun SizeF.component1(): Float = width
+public inline operator fun SizeF.component1(): Float = width
 
 /**
  * Returns "height", the second component of this [SizeF].
@@ -60,7 +59,7 @@ import androidx.annotation.RequiresApi
  * val (w, h) = mySize
  * ```
  */
-@RequiresApi(21) public inline operator fun SizeF.component2(): Float = height
+public inline operator fun SizeF.component2(): Float = height
 
 /**
  * Returns "width", the first component of this [SizeFCompat].

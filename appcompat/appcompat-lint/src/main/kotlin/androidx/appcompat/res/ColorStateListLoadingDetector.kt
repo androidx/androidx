@@ -44,7 +44,7 @@ class ColorStateListLoadingDetector :
             MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
             "Use `AppCompatResources.getColorStateList()`",
             constraint = minSdkLessThan(24),
-        )
+        ),
     ) {
     companion object {
         internal val NOT_USING_COMPAT_LOADING: Issue =
@@ -55,7 +55,7 @@ class ColorStateListLoadingDetector :
                 Category.CORRECTNESS,
                 1,
                 Severity.WARNING,
-                Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

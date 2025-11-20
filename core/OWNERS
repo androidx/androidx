@@ -5,26 +5,16 @@ cinek@google.com
 clarabayarri@google.com
 juliacr@google.com
 
-# For fingerprint related files
-jaggies@google.com
-joshmccloskey@google.com
-curtislb@google.com
-
 # For text related files
-grantapher@google.com
 halilibo@google.com
 haoyuchang@google.com
-justinghan@google.com
-mnuzen@google.com
 nona@google.com
-ryanmentley@google.com
 seanmcq@google.com
-siyamed@google.com
 soboleva@google.com
 
 # For shortcut related files
 sunnygoyal@google.com
-pinyaoting@google.com
+wvk@google.com
 
 # For insets related files
 rgl@google.com
@@ -35,7 +25,7 @@ caseyburkhardt@google.com
 
 # Per-file for platform Storage
 # Bug component: 46626 = per-file src/main/java/androidx/core/content/FileProvider.java
-per-file src/main/java/androidx/core/content/FileProvider.java = maco@google.com, shikhamalhotra@google.com, sergeynv@google.com
+per-file src/main/java/androidx/core/content/FileProvider.java = maco@google.com, shikhamalhotra@google.com
 
 # Per-file for Playground infra
 per-file settings.gradle = dustinlam@google.com, rahulrav@google.com

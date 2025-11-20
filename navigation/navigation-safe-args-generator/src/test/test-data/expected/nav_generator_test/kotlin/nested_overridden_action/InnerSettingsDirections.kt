@@ -25,7 +25,6 @@ public class InnerSettingsDirections private constructor() {
     public fun exit(exitReason: Int): NavDirections = Exit(exitReason)
 
     @CheckResult
-    public fun main(enterReason: String = "DEFAULT"): NavDirections =
-        SettingsDirections.main(enterReason)
+    public fun main(enterReason: String = "DEFAULT"): NavDirections = SettingsDirections.main(enterReason)
   }
 }

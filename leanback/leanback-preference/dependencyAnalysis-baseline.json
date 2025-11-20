@@ -1,0 +1,100 @@
+{
+  "projectPath": ":leanback:leanback-preference",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.activity:activity",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appcompat:appcompat-resources",
+        "resolvedVersion": "1.1.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.7.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.customview:customview",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.drawerlayout:drawerlayout",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.fragment:fragment",
+        "resolvedVersion": "1.1.0"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.loader:loader",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.media:media",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.vectordrawable:vectordrawable-animated",
+        "resolvedVersion": "1.1.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.vectordrawable:vectordrawable",
+        "resolvedVersion": "1.1.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.viewpager:viewpager",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":leanback:leanback-grid"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

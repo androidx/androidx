@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe
 
 import android.view.Surface
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.CameraController.ControllerState.CLOSED
 import androidx.camera.camera2.pipe.graph.GraphListener
 
 /**
@@ -71,6 +70,16 @@ public interface CameraController {
     public fun close()
 
     /**
+     * Wait for the camera controller to be finalized, releasing all its resources. This method is
+     * internally used by [CameraBackend] and should only be called after the controller is closed.
+     * If not closed, this should return false to indicate failure. A default implementation is
+     * provided here to provide temporary backwards compatibility.
+     */
+    public suspend fun awaitClosed(): Boolean {
+        return true
+    }
+
+    /**
      * Tell the [CameraController] the current mapping between [StreamId] and [Surface]s. This map
      * should always contain at least one entry, and should never contain [StreamId]s that were
      * missing from the [StreamGraph] that was used to create this [CameraController].
@@ -88,7 +97,7 @@ public interface CameraController {
      * to make sure we only invoke [CameraController] methods under the right conditions.
      *
      * The following diagram illustrates the state transitions (all states also have a permissible
-     * transition to [CLOSED]).
+     * transition to [CLOSING]).
      *
      *   ```
      *   [STOPPED] --> [STARTED] --> [STOPPING] ---------.--------.
@@ -115,7 +124,10 @@ public interface CameraController {
         /** When the camera shuts down with an unrecoverable error. */
         public object ERROR : ControllerState()
 
-        /** When the CameraController is closed, and no further operations can done on it. */
+        /** When the CameraController is being closed, and no further operations can done on it. */
+        public object CLOSING : ControllerState()
+
+        /** When the CameraController is closed, with all its tracked resources released. */
         public object CLOSED : ControllerState()
     }
 }

@@ -18,6 +18,7 @@ package androidx.window.demo.embedding
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
 import androidx.window.demo.common.EdgeToEdgeActivity
@@ -31,13 +32,15 @@ open class SplitActivityDetail : EdgeToEdgeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val color = Color.parseColor("#fff3e0")
         viewBinding = ActivitySplitActivityListDetailLayoutBinding.inflate(layoutInflater)
-        viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#fff3e0"))
+        viewBinding.rootSplitActivityLayout.setBackgroundColor(color)
         setContentView(viewBinding.root)
         itemDetailTextView = viewBinding.itemDetailText
 
         itemDetailTextView.text = intent.getStringExtra(EXTRA_SELECTED_ITEM)
 
+        window.setBackgroundDrawable(ColorDrawable(color))
         window.decorView.setOnFocusChangeListener { _, focus ->
             itemDetailTextView.text = "${itemDetailTextView.text} focus=$focus"
         }

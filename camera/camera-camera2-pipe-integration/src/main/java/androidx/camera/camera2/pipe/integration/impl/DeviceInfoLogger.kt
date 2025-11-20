@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCharacteristics
-import androidx.camera.camera2.pipe.core.Log.info
 
 /**
  * Logs the required device info, e.g. camera hardware level required by CameraXHardwareLevelPlugin.
@@ -33,7 +32,7 @@ public object DeviceInfoLogger {
         val deviceLevel =
             cameraProperties.metadata.getOrDefault(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                -1
+                -1,
             )
 
         levelString =
@@ -51,6 +50,6 @@ public object DeviceInfoLogger {
                 else -> "Unknown value: $deviceLevel"
             }
 
-        info { "Device Level: $levelString" }
+        Camera2Logger.info { "Device Level: $levelString" }
     }
 }

@@ -45,6 +45,11 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
     /** `true` when the alignment lines were used by the modifier of the node during measurement. */
     internal var usedByModifierLayout = false
 
+    /**
+     * `true` when the alignment lines were used by [androidx.compose.ui.layout.LayoutCoordinates].
+     */
+    internal var usedByLayoutCoordinates = false
+
     /** `true` when the direct parent or our modifier relies on our alignment lines. */
     internal val queried
         get() =
@@ -107,7 +112,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
     private fun addAlignmentLine(
         alignmentLine: AlignmentLine,
         initialPosition: Int,
-        initialCoordinator: NodeCoordinator
+        initialCoordinator: NodeCoordinator,
     ) {
         var position = Offset(initialPosition.toFloat(), initialPosition.toFloat())
         var coordinator = initialCoordinator
@@ -141,7 +146,8 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
     fun recalculate() {
         alignmentLineMap.clear()
         alignmentLinesOwner.forEachChildAlignmentLinesOwner { childOwner ->
-            if (!childOwner.isPlaced) return@forEachChildAlignmentLinesOwner
+            if (childOwner.placeOrder == LayoutNode.NotPlacedPlaceOrder)
+                return@forEachChildAlignmentLinesOwner
             if (childOwner.alignmentLines.dirty) {
                 // It did not need relayout, but we still call layout to recalculate
                 // alignment lines.
@@ -173,6 +179,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
         usedDuringParentLayout = false
         usedByModifierMeasurement = false
         usedByModifierLayout = false
+        usedByLayoutCoordinates = false
         queryOwner = null
     }
 
@@ -190,6 +197,9 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
         }
         if (usedByModifierLayout) {
             alignmentLinesOwner.requestLayout()
+        }
+        if (usedByLayoutCoordinates) {
+            alignmentLinesOwner.invalidateRectCallbacks()
         }
         parent.alignmentLines.onAlignmentsChanged()
     }

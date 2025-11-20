@@ -78,7 +78,7 @@ internal constructor(
                 exerciseGoalType,
                 dataTypeCondition.dataType,
                 dataTypeCondition.comparisonType,
-                period
+                period,
             )
         }
     }
@@ -112,7 +112,7 @@ internal constructor(
                 ExerciseGoalType.fromProto(proto.exerciseGoalType)
                     ?: throw IllegalStateException("${proto.exerciseGoalType} not found"),
                 condition,
-                if (proto.hasPeriod()) condition.dataType.toValueFromProto(proto.period) else null
+                if (proto.hasPeriod()) condition.dataType.toValueFromProto(proto.period) else null,
             )
         }
 
@@ -135,14 +135,14 @@ internal constructor(
         @JvmStatic
         fun <T : Number> createMilestone(
             condition: DataTypeCondition<T, AggregateDataType<T, *>>,
-            period: T
+            period: T,
         ): ExerciseGoal<T> = ExerciseGoal(ExerciseGoalType.MILESTONE, condition, period)
 
         /** Creates a new goal that is the same as a given goal but with a new threshold value. */
         @JvmStatic
         fun <T : Number> createMilestoneGoalWithUpdatedThreshold(
             goal: ExerciseGoal<T>,
-            newThreshold: T
+            newThreshold: T,
         ): ExerciseGoal<T> {
             require(ExerciseGoalType.MILESTONE == goal.exerciseGoalType) {
                 "The goal to update should be of MILESTONE type."
@@ -153,7 +153,7 @@ internal constructor(
             return ExerciseGoal(
                 ExerciseGoalType.MILESTONE,
                 DataTypeCondition(dataType, newThreshold, comparisonType),
-                goal.period
+                goal.period,
             )
         }
     }

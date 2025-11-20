@@ -15,9 +15,7 @@
  */
 package androidx.work
 
-import java.lang.IllegalArgumentException
 import java.lang.reflect.Array
-import java.util.HashMap
 
 /**
  * An [InputMerger] that attempts to merge the inputs, creating arrays when necessary. For each
@@ -36,7 +34,7 @@ import java.util.HashMap
  * If a value by a key is `null`, it is considered to have type `String`, because it is the only
  * nullable typed allowed in [Data].
  */
-class ArrayCreatingInputMerger : InputMerger() {
+public class ArrayCreatingInputMerger : InputMerger() {
     @Suppress("DocumentExceptions")
     override fun merge(inputs: List<Data>): Data {
         val output = Data.Builder()

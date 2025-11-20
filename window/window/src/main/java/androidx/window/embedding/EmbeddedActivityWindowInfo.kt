@@ -29,23 +29,23 @@ import android.graphics.Rect
  *
  * @see ActivityEmbeddingController.embeddedActivityWindowInfo
  */
-class EmbeddedActivityWindowInfo
+public class EmbeddedActivityWindowInfo
 internal constructor(
     /**
      * Whether this activity is embedded and its presentation may be customized by the host process
      * of the task it is associated with.
      */
-    val isEmbedded: Boolean,
+    public val isEmbedded: Boolean,
     /**
      * The bounds of the host container in display coordinate space, which should be the Task bounds
      * for regular embedding use case, or if the activity is not embedded.
      */
-    val parentHostBounds: Rect,
+    public val parentHostBounds: Rect,
     /**
      * The relative bounds of the embedded [ActivityStack] in the host container coordinate space.
      * It has the same size as [parentHostBounds] if the activity is not embedded.
      */
-    val boundsInParentHost: Rect,
+    public val boundsInParentHost: Rect,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

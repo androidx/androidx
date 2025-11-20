@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha03" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha03)" variant="all" version="8.11.0-alpha03">
+
+    <issue
+        id="MultipleAwaitPointerEventScopes"
+        message="Suspicious use of multiple awaitPointerEventScope blocks. Using multiple awaitPointerEventScope blocks may cause some input events to be dropped."
+        errorLine1="                        awaitPointerEventScope {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/core/samples/AnimatableSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                    val offset = awaitPointerEventScope { awaitFirstDown().position }"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/core/samples/AnimatableSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                        val pointerId = awaitPointerEventScope { awaitFirstDown().id }"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/core/samples/AnimatableSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="        val alpha = remember { mutableStateOf(1f) }"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/core/samples/SuspendAnimationSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="    Box(Modifier.offset(x = offsetX)) {"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/core/samples/InfiniteTransitionSamples.kt"/>
+    </issue>
+
+</issues>

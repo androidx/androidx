@@ -85,5 +85,5 @@ public class AsyncTraceEvent(private val traceName: String) : Closeable {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun CoroutineScope.launchWithTracing(
     traceEventName: String,
-    block: suspend CoroutineScope.() -> Unit
+    block: suspend CoroutineScope.() -> Unit,
 ): Job = launch { TraceEvent(traceEventName).use { block.invoke(this) } }

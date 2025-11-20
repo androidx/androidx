@@ -53,7 +53,7 @@ class ReadDataRangeResponseTest {
                                         .setInstantTimeMillis(1247L)
                                         .putValues(
                                             "bpm",
-                                            DataProto.Value.newBuilder().setLongVal(120).build()
+                                            DataProto.Value.newBuilder().setLongVal(120).build(),
                                         )
                                         .build()
                                 )
@@ -62,7 +62,7 @@ class ReadDataRangeResponseTest {
                                         .setInstantTimeMillis(1247L)
                                         .putValues(
                                             "bpm",
-                                            DataProto.Value.newBuilder().setLongVal(140).build()
+                                            DataProto.Value.newBuilder().setLongVal(140).build(),
                                         )
                                         .build()
                                 )
@@ -74,7 +74,7 @@ class ReadDataRangeResponseTest {
                                         .setInstantTimeMillis(2346L)
                                         .putValues(
                                             "bpm",
-                                            DataProto.Value.newBuilder().setLongVal(130).build()
+                                            DataProto.Value.newBuilder().setLongVal(130).build(),
                                         )
                                         .build()
                                 )
@@ -83,11 +83,11 @@ class ReadDataRangeResponseTest {
                                         .setInstantTimeMillis(2347L)
                                         .putValues(
                                             "bpm",
-                                            DataProto.Value.newBuilder().setLongVal(150).build()
+                                            DataProto.Value.newBuilder().setLongVal(150).build(),
                                         )
                                         .build()
                                 )
-                                .build()
+                                .build(),
                         )
                     )
                     .setPageToken("somePageToken")

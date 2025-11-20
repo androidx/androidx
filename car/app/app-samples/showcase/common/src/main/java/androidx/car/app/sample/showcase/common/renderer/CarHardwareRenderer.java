@@ -356,6 +356,7 @@ public final class CarHardwareRenderer implements Renderer {
 
             Paint.FontMetrics fm = mCarInfoPaint.getFontMetrics();
             float verticalPos = stableArea.top - fm.ascent;
+            float leftPos = LEFT_MARGIN + stableArea.left;
 
             // Prepare text for Toll card status
             StringBuilder info = new StringBuilder();
@@ -368,7 +369,7 @@ public final class CarHardwareRenderer implements Renderer {
                         generateCarValueText(mCarContext.getString(R.string.toll_card_state),
                                 mTollCard.getCardState(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Energy Level
@@ -391,7 +392,7 @@ public final class CarHardwareRenderer implements Renderer {
                         generateCarValueText(mCarContext.getString(R.string.battery),
                                 mEnergyLevel.getBatteryPercent(), " %. "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Speed
@@ -409,7 +410,7 @@ public final class CarHardwareRenderer implements Renderer {
                 info.append(generateCarValueText(mCarContext.getString(R.string.unit),
                         mSpeed.getSpeedDisplayUnit(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Odometer, skip for AAOS
@@ -423,12 +424,12 @@ public final class CarHardwareRenderer implements Renderer {
                 } else {
                     info.append(
                             generateCarValueText(mCarContext.getString(R.string.odometer),
-                                    mMileage.getOdometerMeters(), " m. "));
+                                    mMileage.getOdometerInKilometers(), " km. "));
                     info.append(
                             generateCarValueText(mCarContext.getString(R.string.unit),
                                     mMileage.getDistanceDisplayUnit(), ". "));
                 }
-                canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+                canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
                 verticalPos += height;
             }
 
@@ -447,7 +448,7 @@ public final class CarHardwareRenderer implements Renderer {
                     info.append(generateCarValueText(mCarContext.getString(R.string.ev_open),
                             mEvStatus.getEvChargePortOpen(), ". "));
                 }
-                canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+                canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
                 verticalPos += height;
             }
 
@@ -462,7 +463,7 @@ public final class CarHardwareRenderer implements Renderer {
                         generateCarValueText(mCarContext.getString(R.string.accelerometer),
                                 mAccelerometer.getForces(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Gyroscope
@@ -475,7 +476,7 @@ public final class CarHardwareRenderer implements Renderer {
                 info.append(generateCarValueText(mCarContext.getString(R.string.gyroscope),
                         mGyroscope.getRotations(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Compass
@@ -488,7 +489,7 @@ public final class CarHardwareRenderer implements Renderer {
                 info.append(generateCarValueText(mCarContext.getString(R.string.compass),
                         mCompass.getOrientations(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
             verticalPos += height;
 
             // Prepare text for Location
@@ -502,7 +503,7 @@ public final class CarHardwareRenderer implements Renderer {
                         generateCarValueText(mCarContext.getString(R.string.car_hardware_location),
                                 mCarHardwareLocation.getLocation(), ". "));
             }
-            canvas.drawText(info.toString(), LEFT_MARGIN, verticalPos, mCarInfoPaint);
+            canvas.drawText(info.toString(), leftPos, verticalPos, mCarInfoPaint);
         }
     }
 

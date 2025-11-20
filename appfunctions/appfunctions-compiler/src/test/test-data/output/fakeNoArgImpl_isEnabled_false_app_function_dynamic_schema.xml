@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <appfunctions>
     <appfunction>
-        <components>
-            <id>unused</id>
-        </components>
         <id>com.testdata.FakeNoArgImpl_IsEnabled_False#noArg</id>
         <enabledByDefault>false</enabledByDefault>
         <response>
@@ -14,12 +11,9 @@
                 <type>0</type>
             </valueType>
         </response>
-        <schema>
-            <id>unused</id>
-            <schemaCategory>fake_schema_category</schemaCategory>
-            <schemaName>noArg</schemaName>
-            <schemaVersion>1</schemaVersion>
-        </schema>
+        <schemaCategory>fake_schema_category</schemaCategory>
+        <schemaName>noArg</schemaName>
+        <schemaVersion>1</schemaVersion>
         <functionId>com.testdata.FakeNoArgImpl_IsEnabled_False#noArg</functionId>
     </appfunction>
 </appfunctions>

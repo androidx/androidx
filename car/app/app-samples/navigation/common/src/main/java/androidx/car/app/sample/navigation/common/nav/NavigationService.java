@@ -40,8 +40,6 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
 import androidx.car.app.AppManager;
 import androidx.car.app.CarContext;
@@ -68,6 +66,9 @@ import androidx.car.app.sample.navigation.common.model.Script;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;

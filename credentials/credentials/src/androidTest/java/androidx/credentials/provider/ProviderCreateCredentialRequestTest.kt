@@ -22,13 +22,11 @@ import androidx.credentials.assertEquals
 import androidx.credentials.getTestCallingAppInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ProviderCreateCredentialRequestTest {
@@ -45,7 +43,7 @@ class ProviderCreateCredentialRequestTest {
         val request =
             ProviderCreateCredentialRequest(
                 CreatePasswordRequest("id", "password", "origin"),
-                getTestCallingAppInfo("origin")
+                getTestCallingAppInfo("origin"),
             )
 
         val actualRequest =

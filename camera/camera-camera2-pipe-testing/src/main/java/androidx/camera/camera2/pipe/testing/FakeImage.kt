@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.graphics.Rect
+import android.hardware.HardwareBuffer
+import android.os.Build
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
 import kotlin.reflect.KClass
@@ -26,22 +29,31 @@ public class FakeImage(
     override val width: Int,
     override val height: Int,
     override val format: Int,
-    override val timestamp: Long
+    override val timestamp: Long,
+    override val hardwareBuffer: HardwareBuffer? = null,
+    override var cropRect: Rect = Rect(0, 0, width, height),
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
     public val isClosed: Boolean
         get() = closed.value
 
+    public var numberOfTimesClosed: Int = 0
+        private set
+
     override val planes: List<ImagePlane>
         get() = throw UnsupportedOperationException("FakeImage does not support planes.")
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? {
-        // FakeImage cannot be unwrapped
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1 && type == HardwareBuffer::class) {
+            return hardwareBuffer as T?
+        }
         return null
     }
 
     override fun close() {
+        numberOfTimesClosed++
         if (closed.compareAndSet(expect = false, update = true)) {
             // FakeImage close is a NoOp
         }

@@ -49,7 +49,7 @@ public inline fun <reified VM : ViewModel> viewModel(
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
     key: String? = null,
-    factory: ViewModelProvider.Factory? = null
+    factory: ViewModelProvider.Factory? = null,
 ): VM = viewModel(VM::class, viewModelStoreOwner, key, factory)
 
 /**
@@ -77,7 +77,7 @@ public fun <VM : ViewModel> viewModel(
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
     key: String? = null,
-    factory: ViewModelProvider.Factory? = null
+    factory: ViewModelProvider.Factory? = null,
 ): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory)
 
 /**
@@ -115,5 +115,5 @@ public fun <VM : ViewModel> viewModel(
             viewModelStoreOwner.defaultViewModelCreationExtras
         } else {
             CreationExtras.Empty
-        }
+        },
 ): VM = viewModelStoreOwner.get(modelClass.kotlin, key, factory, extras)

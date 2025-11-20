@@ -45,7 +45,6 @@ import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -159,7 +158,6 @@ public class ForceStopRunnableTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testReconcileJobs() {
         ForceStopRunnable runnable = spy(mRunnable);
         doReturn(false).when(runnable).shouldRescheduleWorkers();

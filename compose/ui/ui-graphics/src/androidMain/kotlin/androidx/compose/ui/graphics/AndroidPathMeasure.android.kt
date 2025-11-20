@@ -34,13 +34,13 @@ internal constructor(private val internalPathMeasure: android.graphics.PathMeasu
         startDistance: Float,
         stopDistance: Float,
         destination: Path,
-        startWithMoveTo: Boolean
+        startWithMoveTo: Boolean,
     ): Boolean {
         return internalPathMeasure.getSegment(
             startDistance,
             stopDistance,
             destination.asAndroidPath(),
-            startWithMoveTo
+            startWithMoveTo,
         )
     }
 

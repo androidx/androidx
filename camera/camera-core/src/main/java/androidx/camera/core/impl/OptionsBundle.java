@@ -114,11 +114,17 @@ public class OptionsBundle implements Config {
     @SuppressWarnings("unchecked")
     public <ValueT> @Nullable ValueT retrieveOption(@NonNull Option<ValueT> id,
             @Nullable ValueT valueIfMissing) {
-        try {
-            return retrieveOption(id);
-        } catch (IllegalArgumentException e) {
+        // For performance reason, do not catch IllegalArgumentException from retrieveOption(id)
+        // to return valueIfMissing.
+        Map<OptionPriority, Object> values = mOptions.get(id);
+        if (values == null) {
             return valueIfMissing;
         }
+        OptionPriority highestPrirotiy = Collections.min(values.keySet());
+
+        @SuppressWarnings("unchecked")
+        ValueT value = (ValueT) values.get(highestPrirotiy);
+        return value;
     }
 
     @Override

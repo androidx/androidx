@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.UserAgentMetadata;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
@@ -26,7 +27,6 @@ import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
-import java.util.Set;
 
 /**
  * No-op adapter for WebSettingsCompat.
@@ -157,24 +157,6 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
-     */
-    @Override
-    public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        return Collections.emptySet();
-    }
-
-    /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
-     * WebSettings, Set)}.
-     */
-    @Override
-    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-    }
-
-    /**
-     * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
      */
     @Override
@@ -186,7 +168,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
     /**
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
-     * WebSettings, UserAgentMetadata)}.
+     *WebSettings, UserAgentMetadata)}.
      */
     @Override
     public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
@@ -258,6 +240,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}
      */
+    @WebSettingsCompat.ExperimentalSpeculativeLoading
     @Override
     public int getSpeculativeLoadingStatus() {
         return WebSettingsCompat.SPECULATIVE_LOADING_DISABLED;
@@ -279,4 +262,73 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
     public boolean getBackForwardCacheEnabled() {
         return false;
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)}
+     */
+    @Override
+    public void setPaymentRequestEnabled(boolean enabled) {
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getPaymentRequestEnabled(WebSettings)}
+     */
+    @Override
+    public boolean getPaymentRequestEnabled() {
+        return false;
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}
+     */
+    @Override
+    public void setHasEnrolledInstrumentEnabled(boolean enabled) {
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getHasEnrolledInstrumentEnabled(WebSettings)}
+     */
+    @Override
+    public boolean getHasEnrolledInstrumentEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setCookieAccessForShouldInterceptRequestEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean getCookieAccessForShouldInterceptRequestEnabled() {
+        return false;
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)}
+     */
+    @Override
+    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {}
+
+    /**
+     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public @NonNull BackForwardCacheSettings getBackForwardCacheSettings() {
+        return new BackForwardCacheSettings.Builder().build();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public void setBackForwardCacheSettings(@NonNull BackForwardCacheSettings settings) {
+    }
+
 }

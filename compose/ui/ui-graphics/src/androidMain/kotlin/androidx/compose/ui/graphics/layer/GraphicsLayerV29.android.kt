@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.toSize
 internal class GraphicsLayerV29(
     override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
-    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
+    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope(),
 ) : GraphicsLayerImpl {
     private val renderNode: RenderNode = RenderNode("graphicsLayer")
 
@@ -236,7 +236,7 @@ internal class GraphicsLayerV29(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         val recordingCanvas = renderNode.beginRecording()
         try {

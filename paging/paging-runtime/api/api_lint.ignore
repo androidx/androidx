@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback):
+    Registration methods should have overload that accepts delivery Executor: `AsyncPagingDataDiffer`
+
+
+TypeParameterName: androidx.paging.LoadStateAdapter:
+    Invalid type parameter name "VH". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.PagingDataAdapter:
+    Invalid type parameter name "VH". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.PagingLiveData#getLiveData(androidx.paging.Pager<Key,Value>):
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

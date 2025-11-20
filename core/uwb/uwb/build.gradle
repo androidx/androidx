@@ -26,29 +26,28 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.stableaidl")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core-ktx:1.2.0")
     api(libs.kotlinCoroutinesAndroid)
     implementation(libs.guavaAndroid)
     implementation("com.google.android.gms:play-services-base:18.0.1")
     implementation(libs.kotlinCoroutinesPlayServices)
-    implementation('com.google.android.gms:play-services-nearby:19.2.0', {
-        exclude group: "androidx.core"
-    })
+    implementation('com.google.android.gms:play-services-nearby:19.2.0')
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.dexmakerMockitoInline)
+    androidTestImplementation(libs.dexmakerMockitoInlineExtended)
 }
 
 androidx {
@@ -60,6 +59,7 @@ androidx {
 
 android {
     namespace = "androidx.core.uwb"
+    compileSdk = 36
     buildFeatures {
         aidl = true
     }
@@ -67,8 +67,5 @@ android {
         stableAidl {
             version = 1
         }
-    }
-    defaultConfig {
-        minSdk = 23
     }
 }

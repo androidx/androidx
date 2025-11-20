@@ -76,7 +76,7 @@ fun LazyListScope.bezierCurveList(coroutineScope: CoroutineScope) {
 fun EasingInfo(
     easing: EasingItemDemo,
     coroutineScope: CoroutineScope,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(16.dp)) {
         Text(easing.description)
@@ -112,7 +112,7 @@ fun EasingGraph(
             launch {
                 listPoints[i].animateTo(
                     point,
-                    animationSpec = tween(durationMillis = 300, easing = LinearEasing)
+                    animationSpec = tween(durationMillis = 300, easing = LinearEasing),
                 )
             }
         }
@@ -129,7 +129,7 @@ fun EasingGraph(
                     drawGraphAxis()
                     updateGraphPath(easing, path, listPoints)
                     drawEasingPath(path, easing, time)
-                }
+                },
             )
             Text("time", modifier = Modifier.align(Alignment.BottomEnd), fontSize = 12.sp)
         }
@@ -140,7 +140,7 @@ fun EasingGraph(
 private fun DrawScope.drawEasingPath(
     path: Path,
     easing: Easing,
-    time: Animatable<Float, AnimationVector1D>
+    time: Animatable<Float, AnimationVector1D>,
 ) {
     translate(0f, this.size.height) {
         // draw animation path
@@ -151,7 +151,7 @@ private fun DrawScope.drawEasingPath(
         drawCircle(
             androidGreen,
             8.dp.toPx(),
-            center = Offset(time.value * this.size.width, -transformedYValue * this.size.height)
+            center = Offset(time.value * this.size.width, -transformedYValue * this.size.height),
         )
     }
 }
@@ -159,7 +159,7 @@ private fun DrawScope.drawEasingPath(
 private fun DrawScope.updateGraphPath(
     easing: Easing,
     path: Path,
-    listPoints: SnapshotStateList<Animatable<Float, AnimationVector1D>>
+    listPoints: SnapshotStateList<Animatable<Float, AnimationVector1D>>,
 ) {
     val initialPoint = easing.transform(0f)
     path.reset()
@@ -192,20 +192,20 @@ private fun runAnimation(
     coroutineScope: CoroutineScope,
     time: Animatable<Float, AnimationVector1D>,
     easedValue: Animatable<Float, AnimationVector1D>,
-    easing: Easing
+    easing: Easing,
 ) {
     coroutineScope.launch {
         time.snapTo(0f)
         time.animateTo(
             1f,
-            animationSpec = tween(easing = LinearEasing, durationMillis = EASING_DURATION_MILLIS)
+            animationSpec = tween(easing = LinearEasing, durationMillis = EASING_DURATION_MILLIS),
         )
     }
     coroutineScope.launch {
         easedValue.snapTo(0f)
         easedValue.animateTo(
             1f,
-            animationSpec = tween(easing = easing, durationMillis = EASING_DURATION_MILLIS)
+            animationSpec = tween(easing = easing, durationMillis = EASING_DURATION_MILLIS),
         )
     }
 }
@@ -220,7 +220,7 @@ private fun DrawScope.drawGraphAxis() {
         lineColor,
         start = Offset.Zero,
         end = Offset(0f, this.size.height),
-        strokeWidth = lineThickness
+        strokeWidth = lineThickness,
     )
 
     // x axis
@@ -228,7 +228,7 @@ private fun DrawScope.drawGraphAxis() {
         lineColor,
         start = Offset(0f, this.size.height),
         end = Offset(this.size.width, this.size.height),
-        strokeWidth = lineThickness
+        strokeWidth = lineThickness,
     )
 }
 

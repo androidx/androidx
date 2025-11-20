@@ -15,7 +15,6 @@
  */
 package androidx.wear.compose.material
 
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
@@ -31,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -38,10 +38,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ToggleChipScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -63,7 +63,7 @@ class ToggleChipScreenshotTest {
             toggleControl = {
                 Icon(imageVector = ToggleChipDefaults.radioIcon(checked), contentDescription = "")
             },
-            checked = checked
+            checked = checked,
         )
     }
 
@@ -107,12 +107,7 @@ class ToggleChipScreenshotTest {
         )
     }
 
-    @Test
-    fun toggle_chip_disabled() = verifyScreenshot {
-        sampleToggleChip(
-            enabled = false,
-        )
-    }
+    @Test fun toggle_chip_disabled() = verifyScreenshot { sampleToggleChip(enabled = false) }
 
     @Test fun split_toggle_chip() = verifyScreenshot { sampleSplitToggleChip() }
 
@@ -131,7 +126,7 @@ class ToggleChipScreenshotTest {
         toggleControl: @Composable () -> Unit = {
             Icon(
                 imageVector = ToggleChipDefaults.checkboxIcon(checked = checked),
-                contentDescription = ""
+                contentDescription = "",
             )
         },
     ) {
@@ -153,9 +148,7 @@ class ToggleChipScreenshotTest {
     }
 
     @Composable
-    private fun sampleSplitToggleChip(
-        enabled: Boolean = true,
-    ) {
+    private fun sampleSplitToggleChip(enabled: Boolean = true) {
         SplitToggleChip(
             label = { Text("Split chip", maxLines = 1, overflow = TextOverflow.Ellipsis) },
             secondaryLabel = { Text("Secondary", maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -164,7 +157,7 @@ class ToggleChipScreenshotTest {
             toggleControl = {
                 Icon(
                     imageVector = ToggleChipDefaults.checkboxIcon(checked = true),
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             onCheckedChange = {},
@@ -175,7 +168,7 @@ class ToggleChipScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

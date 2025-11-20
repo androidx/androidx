@@ -22,18 +22,16 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":paging:paging-common"))
-    api(libs.kotlinStdlib)
     api(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesGuava)
 
@@ -50,7 +48,6 @@ androidx {
     inceptionYear = "2019"
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     samples(project(":paging:paging-samples"))
 }
 

@@ -22,7 +22,14 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
 
-public interface SubspaceSemanticsInfo {
+/**
+ * Provides semantic information about a node in the Subspace layout hierarchy.
+ *
+ * This interface defines the properties that are accessible for semantics-related purposes, such as
+ * accessibility services and testing. Each `SubspaceSemanticsInfo` node represents a composable in
+ * the UI tree that has semantics attached.
+ */
+public sealed interface SubspaceSemanticsInfo {
 
     /** The unique ID of this semantics node. */
     public val semanticsId: Int

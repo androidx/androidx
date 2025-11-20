@@ -67,7 +67,7 @@ class PrimitiveSnapshotStateTests {
             val kClass: KClass<S>,
             val creator: (T) -> S,
             val valueProperty: KMutableProperty1<S, T>,
-            val sampleValues: Sequence<T>
+            val sampleValues: Sequence<T>,
         ) {
             val creatorFunctionName: String
                 get() = (creator as? KCallable<*>)?.name ?: "(Unknown Function)"
@@ -80,7 +80,7 @@ class PrimitiveSnapshotStateTests {
                 kClass = MutableIntState::class,
                 creator = ::mutableIntStateOf,
                 valueProperty = MutableIntState::intValue,
-                sampleValues = generateSequence(1) { it + 1 }
+                sampleValues = generateSequence(1) { it + 1 },
             )
 
         private val longImpl =
@@ -88,7 +88,7 @@ class PrimitiveSnapshotStateTests {
                 kClass = MutableLongState::class,
                 creator = ::mutableLongStateOf,
                 valueProperty = MutableLongState::longValue,
-                sampleValues = generateSequence(1L) { it + 1 }
+                sampleValues = generateSequence(1L) { it + 1 },
             )
 
         private val floatImpl =
@@ -96,7 +96,7 @@ class PrimitiveSnapshotStateTests {
                 kClass = MutableFloatState::class,
                 creator = ::mutableFloatStateOf,
                 valueProperty = MutableFloatState::floatValue,
-                sampleValues = generateSequence(1f) { it + 1 }
+                sampleValues = generateSequence(1f) { it + 1 },
             )
 
         private val doubleImpl =
@@ -104,7 +104,7 @@ class PrimitiveSnapshotStateTests {
                 kClass = MutableDoubleState::class,
                 creator = ::mutableDoubleStateOf,
                 valueProperty = MutableDoubleState::doubleValue,
-                sampleValues = generateSequence(1.0) { it + 1 }
+                sampleValues = generateSequence(1.0) { it + 1 },
             )
 
         private fun <S : Any, T> testCreation(impl: PrimitiveSnapshotStateImplementation<S, T>) {
@@ -127,7 +127,7 @@ class PrimitiveSnapshotStateTests {
                 expected = initialValue,
                 actual = actualValue,
                 message =
-                    "Expected $initialValue, but got $actualValue for ${impl.kClass.simpleName}"
+                    "Expected $initialValue, but got $actualValue for ${impl.kClass.simpleName}",
             )
         }
 
@@ -145,7 +145,7 @@ class PrimitiveSnapshotStateTests {
                 expected = nextValue,
                 actual = actualValue,
                 message =
-                    "Expected $nextValue after writing, but got $actualValue for ${impl.kClass.simpleName}"
+                    "Expected $nextValue after writing, but got $actualValue for ${impl.kClass.simpleName}",
             )
         }
 

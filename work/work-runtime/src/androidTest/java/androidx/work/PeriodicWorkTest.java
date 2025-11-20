@@ -39,7 +39,6 @@ public class PeriodicWorkTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 23)
     public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
         mThrown.expect(IllegalArgumentException.class);
         new PeriodicWorkRequest.Builder(

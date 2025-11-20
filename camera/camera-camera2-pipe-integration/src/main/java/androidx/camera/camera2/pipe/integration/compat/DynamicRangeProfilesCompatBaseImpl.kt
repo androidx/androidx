@@ -30,7 +30,7 @@ internal class DynamicRangeProfilesCompatBaseImpl :
     ): Set<DynamicRange> {
         Preconditions.checkArgument(
             DynamicRange.SDR == dynamicRange,
-            "DynamicRange is not supported: $dynamicRange"
+            "DynamicRange is not supported: $dynamicRange",
         )
         return SDR_ONLY
     }
@@ -38,7 +38,7 @@ internal class DynamicRangeProfilesCompatBaseImpl :
     override fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean {
         Preconditions.checkArgument(
             DynamicRange.SDR == dynamicRange,
-            "DynamicRange is not supported: $dynamicRange"
+            "DynamicRange is not supported: $dynamicRange",
         )
         return false
     }

@@ -27,7 +27,7 @@ expect class PlatformTextStyle {
 
 internal expect fun createPlatformTextStyle(
     spanStyle: PlatformSpanStyle?,
-    paragraphStyle: PlatformParagraphStyle?
+    paragraphStyle: PlatformParagraphStyle?,
 ): PlatformTextStyle
 
 /**
@@ -65,7 +65,7 @@ expect class PlatformSpanStyle {
 expect fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformParagraphStyle
 
 /**
@@ -83,5 +83,5 @@ expect fun lerp(
 expect fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformSpanStyle

@@ -35,7 +35,7 @@ import androidx.annotation.IdRes
 public inline fun <reified F : Fragment> FragmentTransaction.add(
     @IdRes containerViewId: Int,
     tag: String? = null,
-    args: Bundle? = null
+    args: Bundle? = null,
 ): FragmentTransaction = add(containerViewId, F::class.java, args, tag)
 
 /**
@@ -51,7 +51,7 @@ public inline fun <reified F : Fragment> FragmentTransaction.add(
  */
 public inline fun <reified F : Fragment> FragmentTransaction.add(
     tag: String,
-    args: Bundle? = null
+    args: Bundle? = null,
 ): FragmentTransaction = add(F::class.java, args, tag)
 
 /**
@@ -71,5 +71,5 @@ public inline fun <reified F : Fragment> FragmentTransaction.add(
 public inline fun <reified F : Fragment> FragmentTransaction.replace(
     @IdRes containerViewId: Int,
     tag: String? = null,
-    args: Bundle? = null
+    args: Bundle? = null,
 ): FragmentTransaction = replace(containerViewId, F::class.java, args, tag)

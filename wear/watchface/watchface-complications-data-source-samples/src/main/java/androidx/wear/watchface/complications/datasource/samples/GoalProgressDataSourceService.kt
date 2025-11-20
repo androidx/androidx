@@ -30,13 +30,13 @@ class GoalProgressDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             GoalProgressComplicationData.Builder(
                     value = 12345.0f,
                     targetValue = 10000.0f,
-                    plainText("12345 steps")
+                    plainText("12345 steps"),
                 )
                 .setText(plainText("12345"))
                 .setTitle(plainText("Steps"))
@@ -50,7 +50,7 @@ class GoalProgressDataSourceService : ComplicationDataSourceService() {
                 GoalProgressComplicationData.Builder(
                         value = 1024.0f,
                         targetValue = 10000.0f,
-                        plainText("Steps complication")
+                        plainText("Steps complication"),
                     )
                     .setText(plainText("1024"))
                     .setTitle(plainText("Steps"))

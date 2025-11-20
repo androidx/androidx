@@ -81,7 +81,7 @@ private fun MyText() {
             } else {
                 longText
             },
-            style = LocalTextStyle.current.copy(color = Color.White)
+            style = LocalTextStyle.current.copy(color = Color.White),
         )
     }
 }
@@ -99,7 +99,7 @@ private fun MyButton() {
                 longText
             },
             style = LocalTextStyle.current.copy(color = Color.White),
-            modifier = Modifier.animateContentSize()
+            modifier = Modifier.animateContentSize(),
         )
     }
 }
@@ -120,7 +120,7 @@ private fun Image() {
             } else {
                 "16 : 9"
             },
-            style = LocalTextStyle.current.copy(color = Color.Black)
+            style = LocalTextStyle.current.copy(color = Color.Black),
         )
     }
 }

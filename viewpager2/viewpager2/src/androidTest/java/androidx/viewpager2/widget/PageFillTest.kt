@@ -77,7 +77,7 @@ class PageFillTest : BaseTest() {
                 } catch (e: IllegalStateException) {
                     assertThat(
                         e.message,
-                        containsString("Pages must fill the whole ViewPager2 (use match_parent)")
+                        containsString("Pages must fill the whole ViewPager2 (use match_parent)"),
                     )
                 }
             }

@@ -41,6 +41,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -48,7 +49,7 @@ import org.junit.Test
 //  supports property nested scrolling, but the tests should all still be valid.
 @OptIn(ExperimentalWearMaterialApi::class)
 class SwipeableTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun hasHorizontalScrollSemantics_atMaxValue_whenUnswiped() {
@@ -120,7 +121,7 @@ class SwipeableTest {
                     state = SwipeableState(false),
                     anchors = mapOf(0f to false, size.width to true),
                     orientation = Horizontal,
-                    reverseDirection = true
+                    reverseDirection = true,
                 )
             }
         }
@@ -136,7 +137,7 @@ class SwipeableTest {
                     orientation = Horizontal,
                     value = 0.75f,
                     maxValue = 1f,
-                    reverseScrolling = true
+                    reverseScrolling = true,
                 )
             )
 
@@ -148,7 +149,7 @@ class SwipeableTest {
                     orientation = Horizontal,
                     value = 0.5f,
                     maxValue = 1f,
-                    reverseScrolling = true
+                    reverseScrolling = true,
                 )
             )
     }
@@ -161,7 +162,7 @@ class SwipeableTest {
                     state = SwipeableState(false),
                     anchors = mapOf(0f to false, size.width to true),
                     orientation = Horizontal,
-                    enabled = false
+                    enabled = false,
                 )
             }
         }
@@ -208,7 +209,7 @@ class SwipeableTest {
         orientation: Orientation,
         value: Float,
         maxValue: Float,
-        reverseScrolling: Boolean = false
+        reverseScrolling: Boolean = false,
     ): SemanticsMatcher =
         SemanticsMatcher(
             "has $orientation scroll range [0,$maxValue] with " +

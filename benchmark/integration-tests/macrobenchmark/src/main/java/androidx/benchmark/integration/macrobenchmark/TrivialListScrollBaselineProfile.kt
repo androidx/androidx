@@ -22,9 +22,8 @@ import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.simpleViewResourceName
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,56 +42,44 @@ class TrivialListScrollBaselineProfile {
     }
 
     @Test
-    fun baselineProfiles() {
+    fun baselineProfiles() =
         baselineRule.collect(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             profileBlock = {
-                val intent = Intent()
-                intent.action = ACTION
-                startActivityAndWait(intent)
-                val recycler =
-                    device.wait(Until.findObject(By.res(PACKAGE_NAME, RESOURCE_ID)), TIMEOUT)
+                startActivityAndWait(Intent(ACTION))
+                val recycler = onElement { simpleViewResourceName() == RESOURCE_ID }
                 // Setting a gesture margin is important otherwise gesture nav is triggered.
                 recycler.setGestureMargin(device.displayWidth / 5)
                 repeat(10) {
                     // From center we scroll 2/3 of it which is 1/3 of the screen.
                     recycler.drag(Point(0, recycler.visibleCenter.y / 3))
-                    device.waitForIdle()
+                    waitForStableInActiveWindow()
                 }
-            }
+            },
         )
-    }
 
     @Test
-    fun stableBaselineProfiles() {
+    fun stableBaselineProfiles() =
         baselineRule.collect(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             stableIterations = 3,
             maxIterations = 10,
             profileBlock = {
-                val intent = Intent()
-                intent.action = ACTION
-                startActivityAndWait(intent)
-                val recycler =
-                    device.wait(Until.findObject(By.res(PACKAGE_NAME, RESOURCE_ID)), TIMEOUT)
+                startActivityAndWait(Intent(ACTION))
+                val recycler = onElement { simpleViewResourceName() == RESOURCE_ID }
                 // Setting a gesture margin is important otherwise gesture nav is triggered.
                 recycler.setGestureMargin(device.displayWidth / 5)
                 repeat(10) {
                     // From center we scroll 2/3 of it which is 1/3 of the screen.
                     recycler.drag(Point(0, recycler.visibleCenter.y / 3))
-                    device.waitForIdle()
+                    waitForStableInActiveWindow()
                 }
-            }
+            },
         )
-    }
 
     companion object {
-        private const val PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
         private const val RESOURCE_ID = "recycler"
-
-        // The timeout
-        private const val TIMEOUT = 2000L
     }
 }

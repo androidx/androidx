@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.SettableFuture
 
 /** Wrapper to convert [IFilterGrantedPermissionsCallback] to listenable futures. */
 internal class FilterGrantedPermissionsCallback(
-    private val resultFuture: SettableFuture<Set<PermissionProto.Permission>>,
+    private val resultFuture: SettableFuture<Set<PermissionProto.Permission>>
 ) : IFilterGrantedPermissionsCallback.Stub() {
     override fun onSuccess(response: List<Permission>) {
         resultFuture.set(response.map { it.proto }.toSet())

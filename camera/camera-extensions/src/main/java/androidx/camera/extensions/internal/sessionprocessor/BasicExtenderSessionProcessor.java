@@ -40,6 +40,7 @@ import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -102,10 +103,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
-            @NonNull List<CaptureRequest.Key> supportedRequestKeys,
+            @NonNull List<CaptureRequest.Key<?>> supportedRequestKeys,
             @NonNull VendorExtender vendorExtender,
-            @NonNull Context context) {
-        super(supportedRequestKeys);
+            @NonNull Context context,
+            @ExtensionMode.Mode int mode) {
+        super(supportedRequestKeys, mode);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
         mContext = context;

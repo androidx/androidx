@@ -17,7 +17,6 @@
 package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallException
 import androidx.core.telecom.CallException.Companion.ERROR_BLUETOOTH_DEVICE_IS_NULL
 import androidx.core.telecom.CallException.Companion.ERROR_CALL_CANNOT_BE_SET_TO_ACTIVE
@@ -26,12 +25,13 @@ import androidx.core.telecom.CallException.Companion.ERROR_CALL_IS_NOT_BEING_TRA
 import androidx.core.telecom.CallException.Companion.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME
 import androidx.core.telecom.CallException.Companion.ERROR_CANNOT_HOLD_CURRENT_ACTIVE_CALL
 import androidx.core.telecom.CallException.Companion.ERROR_OPERATION_TIMED_OUT
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-@RequiresApi(VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O)
 class CallExceptionTest {
 
     @Test

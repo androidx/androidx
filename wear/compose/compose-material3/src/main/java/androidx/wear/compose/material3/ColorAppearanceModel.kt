@@ -76,7 +76,7 @@ internal class Cam(
     /** a* coordinate in CAM16-UCS */
     val astar: Float,
     /** b* coordinate in CAM16-UCS */
-    val bstar: Float
+    val bstar: Float,
 ) {
 
     /**
@@ -332,7 +332,7 @@ internal class Cam(
                 return HctSolver.solveToInt(
                     huePrime.toDouble(),
                     chroma.toDouble(),
-                    lstar.toDouble()
+                    lstar.toDouble(),
                 )
             }
 
@@ -492,7 +492,7 @@ private constructor(
     @get:VisibleForTesting val rgbD: FloatArray,
     val fl: Float,
     @get:VisibleForTesting val flRoot: Float,
-    val z: Float
+    val z: Float,
 ) {
     companion object {
         // Standard viewing conditions assumed in RGB specification - Stokes, Anderson,
@@ -523,7 +523,7 @@ private constructor(
                 (200.0f / PI * CamUtils.yFromLstar(50.0) / 100.0).toFloat(),
                 50.0f,
                 2.0f,
-                false
+                false,
             )
 
         /** Create a custom frame. */
@@ -532,7 +532,7 @@ private constructor(
             adaptingLuminance: Float,
             backgroundLstar: Float,
             surround: Float,
-            discountingIlluminant: Boolean
+            discountingIlluminant: Boolean,
         ): Frame {
             // Transform white point XYZ to 'cone'/'rgb' responses
             val matrix = CamUtils.XYZ_TO_CAM16RGB
@@ -608,7 +608,7 @@ private constructor(
                 floatArrayOf(
                     (fl * rgbD[0] * rW / 100f).pow(0.42f),
                     (fl * rgbD[1] * gW / 100f).pow(0.42f),
-                    (fl * rgbD[2] * bW / 100f).pow(0.42f)
+                    (fl * rgbD[2] * bW / 100f).pow(0.42f),
                 )
 
             val rgbA =
@@ -671,7 +671,7 @@ internal object CamUtils {
         arrayOf(
             floatArrayOf(0.401288f, 0.650173f, -0.051461f),
             floatArrayOf(-0.250268f, 1.204414f, 0.045854f),
-            floatArrayOf(-0.002079f, 0.048952f, 0.953127f)
+            floatArrayOf(-0.002079f, 0.048952f, 0.953127f),
         )
 
     // Transforms 'cone'/'RGB' responses in CAM16 to XYZ color space coordinates.
@@ -679,7 +679,7 @@ internal object CamUtils {
         arrayOf(
             floatArrayOf(1.86206786f, -1.01125463f, 0.14918677f),
             floatArrayOf(0.38752654f, 0.62144744f, -0.00897398f),
-            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f)
+            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f),
         )
 
     // Need this, XYZ coordinates in internal ColorUtils are private  sRGB specification has D65
@@ -699,21 +699,9 @@ internal object CamUtils {
 
     private val XYZ_TO_SRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                3.2413774792388685,
-                -1.5376652402851851,
-                -0.49885366846268053,
-            ),
-            doubleArrayOf(
-                -0.9691452513005321,
-                1.8758853451067872,
-                0.04156585616912061,
-            ),
-            doubleArrayOf(
-                0.05562093689691305,
-                -0.20395524564742123,
-                1.0571799111220335,
-            ),
+            doubleArrayOf(3.2413774792388685, -1.5376652402851851, -0.49885366846268053),
+            doubleArrayOf(-0.9691452513005321, 1.8758853451067872, 0.04156585616912061),
+            doubleArrayOf(0.05562093689691305, -0.20395524564742123, 1.0571799111220335),
         )
 
     /**
@@ -828,7 +816,7 @@ internal object CamUtils {
         return ColorUtils.XYZToColor(
             (xT * WHITE_POINT_D65[0]).toDouble(),
             (yT * WHITE_POINT_D65[1]).toDouble(),
-            (zT * WHITE_POINT_D65[2]).toDouble()
+            (zT * WHITE_POINT_D65[2]).toDouble(),
         )
     }
 
@@ -922,41 +910,17 @@ internal object HctSolver {
     // Matrix used when converting from linear RGB to CAM16.
     private val SCALED_DISCOUNT_FROM_LINRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                0.001200833568784504,
-                0.002389694492170889,
-                0.0002795742885861124,
-            ),
-            doubleArrayOf(
-                0.0005891086651375999,
-                0.0029785502573438758,
-                0.0003270666104008398,
-            ),
-            doubleArrayOf(
-                0.00010146692491640572,
-                0.0005364214359186694,
-                0.0032979401770712076,
-            ),
+            doubleArrayOf(0.001200833568784504, 0.002389694492170889, 0.0002795742885861124),
+            doubleArrayOf(0.0005891086651375999, 0.0029785502573438758, 0.0003270666104008398),
+            doubleArrayOf(0.00010146692491640572, 0.0005364214359186694, 0.0032979401770712076),
         )
 
     // Matrix used when converting from CAM16 to linear RGB.
     private val LINRGB_FROM_SCALED_DISCOUNT: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                1373.2198709594231,
-                -1100.4251190754821,
-                -7.278681089101213,
-            ),
-            doubleArrayOf(
-                -271.815969077903,
-                559.6580465940733,
-                -32.46047482791194,
-            ),
-            doubleArrayOf(
-                1.9622899599665666,
-                -57.173814538844006,
-                308.7233197812385,
-            ),
+            doubleArrayOf(1373.2198709594231, -1100.4251190754821, -7.278681089101213),
+            doubleArrayOf(-271.815969077903, 559.6580465940733, -32.46047482791194),
+            doubleArrayOf(1.9622899599665666, -57.173814538844006, 308.7233197812385),
         )
 
     // Weights for transforming a set of linear RGB coordinates to Y in XYZ.
@@ -1343,7 +1307,7 @@ internal object HctSolver {
         source: DoubleArray,
         coordinate: Double,
         target: DoubleArray,
-        axis: Int
+        axis: Int,
     ): DoubleArray {
         val t = intercept(source[axis], coordinate, target[axis])
         return lerpPoint(source, t, target)
@@ -1490,7 +1454,7 @@ internal object HctSolver {
         return CamUtils.argbFromLinrgbComponents(
             (left[0] + right[0]) / 2,
             (left[1] + right[1]) / 2,
-            (left[2] + right[2]) / 2
+            (left[2] + right[2]) / 2,
         )
     }
 

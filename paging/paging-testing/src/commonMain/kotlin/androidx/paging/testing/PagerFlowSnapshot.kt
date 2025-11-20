@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 @VisibleForTesting
 public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     onError: LoadErrorHandler = LoadErrorHandler { THROW },
-    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit = {}
+    loadOperations: suspend SnapshotLoader<Value>.() -> @JvmSuppressWildcards Unit = {},
 ): @JvmSuppressWildcards List<Value> = coroutineScope {
     lateinit var loader: SnapshotLoader<Value>
 
@@ -80,7 +80,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
                     loader.onDataSetChanged(
                         loader.generations.value,
                         LoaderCallback(LoadType.REFRESH, lastLoadedIndex, event.newList.size),
-                        this@coroutineScope
+                        this@coroutineScope,
                     )
                 }
                 /**
@@ -98,7 +98,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
                         loader.onDataSetChanged(
                             loader.generations.value,
                             LoaderCallback(LoadType.PREPEND, itemsInsertedPos, itemsInsertedCount),
-                            null
+                            null,
                         )
                     }
                 }
@@ -142,9 +142,8 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     presenter.snapshot().items
 }
 
-internal abstract class CompletablePagingDataPresenter<Value : Any>(
-    mainContext: CoroutineContext,
-) : PagingDataPresenter<Value>(mainContext) {
+internal abstract class CompletablePagingDataPresenter<Value : Any>(mainContext: CoroutineContext) :
+    PagingDataPresenter<Value>(mainContext) {
     /**
      * Marker that the underlying Flow<PagingData> has completed - e.g., every possible generation
      * of data has been loaded completely.
@@ -162,8 +161,8 @@ internal abstract class CompletablePagingDataPresenter<Value : Any>(
                         LoadStates(
                             refresh = LoadState.NotLoading(true),
                             prepend = LoadState.NotLoading(true),
-                            append = LoadState.NotLoading(true)
-                        )
+                            append = LoadState.NotLoading(true),
+                        ),
                 )
             } else {
                 loadStates
@@ -194,7 +193,7 @@ internal suspend fun <Value : Any> CompletablePagingDataPresenter<Value>.awaitNo
 
 internal fun <Value : Any> PagingDataPresenter<Value>.handleLoadError(
     state: CombinedLoadStates,
-    errorHandler: LoadErrorHandler
+    errorHandler: LoadErrorHandler,
 ) {
     val recovery = errorHandler.onError(state)
     when (recovery) {

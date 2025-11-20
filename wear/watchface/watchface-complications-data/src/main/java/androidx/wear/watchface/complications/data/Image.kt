@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.utility.iconEquals
 import androidx.wear.watchface.utility.iconHashCode
+import com.google.wear.services.complications.ComplicationData as WearSdkComplicationData
 import java.util.Objects
 
 internal const val PLACEHOLDER_IMAGE_RESOURCE_ID = -1
@@ -127,7 +128,7 @@ public enum class SmallImageType {
      * this style may be cropped to fit the shape of the complication - in particular, the image may
      * be cropped to a circle. Photos must not be recolored.
      */
-    PHOTO
+    PHOTO,
 }
 
 /**
@@ -146,7 +147,7 @@ public class SmallImage
 internal constructor(
     public val image: Icon,
     public val type: SmallImageType,
-    public val ambientImage: Icon?
+    public val ambientImage: Icon?,
 ) {
     /**
      * Builder for [SmallImage].
@@ -178,6 +179,19 @@ internal constructor(
                 when (this@SmallImage.type) {
                     SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
                     SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
+                }
+            )
+            setBurnInProtectionSmallImage(ambientImage)
+        }
+
+    /** Adds a [SmallImage] to a builder for [WearSdkComplicationData]. */
+    internal fun addToWearSdkComplicationData(builder: WearSdkComplicationData.Builder) =
+        builder.apply {
+            setSmallImage(image)
+            setSmallImageStyle(
+                when (this@SmallImage.type) {
+                    SmallImageType.ICON -> WearSdkComplicationData.IMAGE_STYLE_ICON
+                    SmallImageType.PHOTO -> WearSdkComplicationData.IMAGE_STYLE_PHOTO
                 }
             )
             setBurnInProtectionSmallImage(ambientImage)

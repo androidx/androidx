@@ -33,7 +33,6 @@ import androidx.work.Clock;
 import androidx.work.Constraints;
 import androidx.work.Logger;
 import androidx.work.NetworkType;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 
 import org.jspecify.annotations.NonNull;
@@ -43,7 +42,6 @@ import org.jspecify.annotations.NonNull;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(api = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 class SystemJobInfoConverter {
     private static final String TAG = Logger.tagWithPrefix("SystemJobInfoConverter");
 

@@ -119,11 +119,6 @@ class EffectsBenchmark(private val count: Int) : ComposeBenchmarkBase() {
     companion object {
         @Parameterized.Parameters(name = "count={0}")
         @JvmStatic
-        fun parameters() =
-            listOf<Array<Any?>>(
-                arrayOf(1),
-                arrayOf(10),
-                arrayOf(100),
-            )
+        fun parameters() = listOf<Array<Any?>>(arrayOf(1), arrayOf(10), arrayOf(100))
     }
 }

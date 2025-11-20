@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.os.Build
-import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -38,14 +37,14 @@ class DeviceInfoTest {
         InstrumentationResults.clearIdeWarningPrefix()
     }
 
-    @SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
+    @SdkSuppress(minSdkVersion = 24) // b/441743079 move back to PerfettoHelper.MIN_SDK_VERSION
     @Test
     fun misconfiguredForTracing() {
         // NOTE: tests device capability, not implementation of DeviceInfo
         assertFalse(
             DeviceInfo.misconfiguredForTracing,
             "${DeviceInfo.typeLabel} is incorrectly configured for tracing," +
-                " and is not CTS compatible. All Perfetto/Atrace capture will fail."
+                " and is not CTS compatible. All Perfetto/Atrace capture will fail.",
         )
     }
 
@@ -103,7 +102,7 @@ fun validateArtMainlineVersion(artMainlineVersion: Long?) {
         if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(
                 artMainlineVersion!! > 300000000,
-                "observed $artMainlineVersion, expected over 300000000"
+                "observed $artMainlineVersion, expected over 300000000",
             )
         } else {
             assertEquals(1, artMainlineVersion)
@@ -121,7 +120,7 @@ fun validateArtMainlineVersion(artMainlineVersion: Long?) {
             "package:com(\\.google)?\\.android(\\.go)?\\.art" + " versionCode:$artMainlineVersion"
         assertTrue(
             expectedRegExStr.toRegex().matches(shellVersion),
-            "Expected shell version ($shellVersion) to match $expectedRegExStr"
+            "Expected shell version ($shellVersion) to match $expectedRegExStr",
         )
     } else {
         assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, artMainlineVersion)

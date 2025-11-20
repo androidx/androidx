@@ -41,6 +41,7 @@ import androidx.wear.compose.material3.samples.DatePickerYearMonthDaySample
 import com.google.common.truth.Truth.assertThat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DatePickerTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -81,26 +82,26 @@ class DatePickerTest {
             DatePicker(
                 onDatePicked = {},
                 initialDate = initialDate,
-                datePickerType = DatePickerType.DayMonthYear
+                datePickerType = DatePickerType.DayMonthYear,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .assertIsFocused()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .assertIsDisplayed()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .assertExists()
         rule.nextButton().assertIsDisplayed()
@@ -114,26 +115,26 @@ class DatePickerTest {
             DatePicker(
                 onDatePicked = {},
                 initialDate = initialDate,
-                datePickerType = DatePickerType.MonthDayYear
+                datePickerType = DatePickerType.MonthDayYear,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .assertIsFocused()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .assertIsDisplayed()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .assertExists()
         rule.nextButton().assertIsDisplayed()
@@ -147,26 +148,26 @@ class DatePickerTest {
             DatePicker(
                 onDatePicked = {},
                 initialDate = initialDate,
-                datePickerType = DatePickerType.YearMonthDay
+                datePickerType = DatePickerType.YearMonthDay,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .assertIsFocused()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .assertIsDisplayed()
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .assertExists()
         rule.nextButton().assertIsDisplayed()
@@ -180,21 +181,21 @@ class DatePickerTest {
             DatePicker(
                 initialDate = initialDate,
                 onDatePicked = {},
-                datePickerType = DatePickerType.DayMonthYear
+                datePickerType = DatePickerType.DayMonthYear,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performClick()
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .assertIsFocused()
     }
@@ -206,7 +207,7 @@ class DatePickerTest {
             DatePicker(
                 initialDate = initialDate,
                 onDatePicked = {},
-                datePickerType = DatePickerType.DayMonthYear
+                datePickerType = DatePickerType.DayMonthYear,
             )
         }
 
@@ -214,14 +215,14 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performClick()
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .assertIsFocused()
     }
@@ -235,26 +236,26 @@ class DatePickerTest {
             DatePicker(
                 onDatePicked = { pickedDate = it },
                 initialDate = initialDate,
-                datePickerType = DatePickerType.DayMonthYear
+                datePickerType = DatePickerType.DayMonthYear,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .performScrollToIndex(expectedDate.dayOfMonth - 1)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(expectedDate.monthValue - 1)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(expectedDate.year - 1900)
         rule.confirmButton().performClick()
@@ -276,26 +277,26 @@ class DatePickerTest {
                 initialDate = initialDate,
                 datePickerType = DatePickerType.DayMonthYear,
                 minValidDate = minDate,
-                maxValidDate = maxDate
+                maxValidDate = maxDate,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .performScrollToIndex(expectedDate.dayOfMonth - 1)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(expectedDate.monthValue - 1)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(expectedDate.year - 1900)
         rule.confirmButton().performClick()
@@ -322,7 +323,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(0)
         rule.nextButton().performClick()
@@ -349,7 +350,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.nextButton().performClick()
@@ -376,7 +377,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(0)
         rule.nextButton().performClick()
@@ -396,14 +397,14 @@ class DatePickerTest {
                 onDatePicked = { pickedDate = it },
                 initialDate = initialDate,
                 datePickerType = DatePickerType.YearMonthDay,
-                maxValidDate = maxDate
+                maxValidDate = maxDate,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.nextButton().performClick()
@@ -431,7 +432,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(7)
         rule.waitForIdle()
@@ -455,14 +456,14 @@ class DatePickerTest {
                 onDatePicked = { pickedDate = it },
                 initialDate = initialDate,
                 datePickerType = DatePickerType.YearMonthDay,
-                maxValidDate = maxDate
+                maxValidDate = maxDate,
             )
         }
 
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.nextButton().performClick()
@@ -490,7 +491,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(0)
         rule.nextButton().performClick()
@@ -518,7 +519,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.nextButton().performClick()
@@ -547,13 +548,13 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(6)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .performScrollToIndex(14)
         rule.confirmButton().performClick()
@@ -580,13 +581,13 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(8)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .performScrollToIndex(16)
         rule.confirmButton().performClick()
@@ -612,7 +613,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.waitForIdle()
@@ -644,7 +645,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2025 - 1900)
         rule.nextButton().performClick()
@@ -674,7 +675,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             .performClick()
         rule.waitForIdle()
@@ -702,13 +703,13 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(8)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             // Scroll to day 30.
             .performScrollToIndex(29)
@@ -736,13 +737,13 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.monthValue,
-                selectionMode = SelectionMode.Month
+                selectionMode = SelectionMode.Month,
             )
             .performScrollToIndex(9)
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.dayOfMonth,
-                selectionMode = SelectionMode.Day
+                selectionMode = SelectionMode.Day,
             )
             // Scroll to 20th.
             .performScrollToIndex(20)
@@ -772,7 +773,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             // Over scroll to reach the max month.
             .performScrollToIndex(0)
@@ -802,7 +803,7 @@ class DatePickerTest {
         rule
             .onNodeWithDateValue(
                 selectedValue = initialDate.year,
-                selectionMode = SelectionMode.Year
+                selectionMode = SelectionMode.Year,
             )
             .performScrollToIndex(2)
         rule.nextButton().performClick()
@@ -822,7 +823,7 @@ class DatePickerTest {
                     contentDescriptionForValue(
                         InstrumentationRegistry.getInstrumentation().context.resources,
                         selectedValue,
-                        selectionMode.contentDescriptionResource
+                        selectionMode.contentDescriptionResource,
                     )
                 }
             )

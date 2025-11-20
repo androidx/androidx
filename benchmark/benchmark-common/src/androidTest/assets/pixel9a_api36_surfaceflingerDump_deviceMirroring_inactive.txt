@@ -1,0 +1,22 @@
+Display 4619827612623940864
+    port=0
+    connectionType=Internal
+    colorModes=
+        ColorMode::NATIVE
+        ColorMode::SRGB
+        ColorMode::DISPLAY_P3
+    deviceProductInfo={name="TG4C-40B-00", manufacturerPnpId=GGL, productId=0, manufactureWeek=1, manufactureYear=1990, relativeAddress=[]}
+    name="TG4C-40B-00"
+    powerMode=On
+    optimizationPolicy=optimizeForPerformance
+    renderRate=60.00 Hz
+    activeMode={id=0, hwcId=36, resolution=1080x2424, vsyncRate=60.00 Hz, dpi=428.62x424.62, group=0, vrrConfig=N/A, supportedHdrTypes=SYSTEM}
+    displayModes=
+        {id=0, hwcId=36, resolution=1080x2424, vsyncRate=60.00 Hz, dpi=428.62x424.62, group=0, vrrConfig=N/A, supportedHdrTypes=SYSTEM}
+        {id=1, hwcId=37, resolution=1080x2424, vsyncRate=120.00 Hz, dpi=428.62x424.62, group=0, vrrConfig=N/A, supportedHdrTypes=SYSTEM}
+    displayManagerPolicy={defaultModeId=1, allowGroupSwitching=false, primaryRanges={physical=[0.00 Hz, 120.00 Hz], render=[0.00 Hz, 120.00 Hz]}, appRequestRanges={physical=[0.00 Hz, 120.00 Hz], render=[0.00 Hz, 120.00 Hz]} idleScreenConfig=IdleScreenRefreshRateConfig{timeoutMillis: 1000}}
+    frameRateOverrideConfig=Enabled
+    idleTimer=
+        interval=1000.000 ms
+        controller=Platform
+

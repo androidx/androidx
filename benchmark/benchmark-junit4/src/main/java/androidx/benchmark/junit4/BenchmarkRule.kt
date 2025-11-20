@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.benchmark.junit4
 
 import android.Manifest
@@ -53,11 +55,8 @@ import org.junit.runners.model.Statement
  *
  * @sample androidx.benchmark.samples.benchmarkRuleSample
  */
-class BenchmarkRule
-@ExperimentalBenchmarkConfigApi
-constructor(
-    val config: MicrobenchmarkConfig,
-) : TestRule {
+class BenchmarkRule @ExperimentalBenchmarkConfigApi constructor(val config: MicrobenchmarkConfig) :
+    TestRule {
     constructor() : this(config = MicrobenchmarkConfig())
 
     @PublishedApi
@@ -152,7 +151,7 @@ constructor(
          */
         @Deprecated(
             "Renamed to runWithMeasurementDisabled to clarify all measurements are paused",
-            replaceWith = ReplaceWith("runWithMeasurementDisabled")
+            replaceWith = ReplaceWith("runWithMeasurementDisabled"),
         )
         inline fun <T> runWithTimingDisabled(block: () -> T): T {
             return runWithMeasurementDisabled(block)
@@ -187,7 +186,7 @@ constructor(
         if (Arguments.skipBenchmarksOnEmulator) {
             assumeFalse(
                 "Skipping test because it's running on emulator and `skipOnEmulator` is enabled",
-                DeviceInfo.isEmulator
+                DeviceInfo.isEmulator,
             )
         }
 
@@ -195,7 +194,7 @@ constructor(
             TestDefinition(
                 fullClassName = description.className,
                 simpleClassName = description.testClass.simpleName,
-                methodName = description.methodName
+                methodName = description.methodName,
             )
 
         // only used with legacy getState() API, which is intended to be deprecated in the future,
@@ -233,7 +232,7 @@ public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule
                 block.invoke(ruleScope)
                 remainingIterations--
             } while (remainingIterations > 0)
-        }
+        },
     )
 }
 
@@ -270,7 +269,7 @@ inline fun BenchmarkRule.measureRepeatedOnMainThread(
                 block.invoke(ruleScope)
                 remainingIterations--
             } while (remainingIterations > 0)
-        }
+        },
     )
 }
 

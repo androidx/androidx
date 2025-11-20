@@ -54,7 +54,7 @@ class ColumnTest {
                 Column(
                     modifier = GlanceModifier.padding(2.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {}
             }
 

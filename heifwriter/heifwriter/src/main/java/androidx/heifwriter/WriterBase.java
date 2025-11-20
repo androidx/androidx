@@ -105,7 +105,7 @@ public class WriterBase implements AutoCloseable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ResultWaiter mResultWaiter = new ResultWaiter();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-protected @NonNull MediaMuxer mMuxer;
+    protected @NonNull MediaMuxer mMuxer;
     protected @NonNull EncoderBase mEncoder;
     final AtomicBoolean mMuxerStarted = new AtomicBoolean(false);
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -114,6 +114,8 @@ protected @NonNull MediaMuxer mMuxer;
     int mOutputIndex;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mGridEnabled;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @NonNull EncoderPreference mEncoderPreference;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mQuality;
     private boolean mStarted;
@@ -126,6 +128,7 @@ protected @NonNull MediaMuxer mMuxer;
         int primaryIndex,
         boolean gridEnabled,
         int quality,
+        @NonNull EncoderPreference preference,
         @Nullable Handler handler,
         boolean highBitDepthEnabled) throws IOException {
         if (primaryIndex >= maxImages) {
@@ -140,6 +143,7 @@ protected @NonNull MediaMuxer mMuxer;
         mGridEnabled = gridEnabled;
         mQuality = quality;
         mHighBitDepthEnabled = highBitDepthEnabled;
+        mEncoderPreference = preference;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
         if (looper == null) {
@@ -568,5 +572,14 @@ protected @NonNull MediaMuxer mMuxer;
      */
     public boolean isHighBitDepthEnabled() {
         return mHighBitDepthEnabled;
+    }
+
+    /**
+     * Gets the configured encoder preference.
+     *
+     * @return The {@link EncoderPreference} object containing the current encoding configuration.
+     */
+    public @NonNull EncoderPreference getEncoderPreference() {
+        return mEncoderPreference;
     }
 }

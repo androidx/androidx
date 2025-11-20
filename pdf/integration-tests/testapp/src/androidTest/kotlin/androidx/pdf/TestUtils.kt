@@ -26,6 +26,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import org.hamcrest.Matcher
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 
 object TestUtils {
     private val TEMP_FILE_NAME = "temp"
@@ -47,5 +49,28 @@ object TestUtils {
                 uiController.loopMainThreadForAtLeast(delay)
             }
         }
+    }
+
+    fun extractFromLabel(value: String, onExtractionCompleted: (Int, Int) -> Unit) {
+        val regex = "(\\d+)\\s?/\\s?(\\d+)".toRegex()
+        val matchResult = regex.find(value)
+
+        assertNotNull("No results found for matching page indicator label $value", matchResult)
+        assertTrue("Invalid page indicator label $value", matchResult!!.groups.size >= 3)
+        assertNotNull("Could not extract current page number $value", matchResult.groups[1])
+        assertNotNull("Could not extract total pages $value", matchResult.groups[2])
+        assertNotNull(
+            "Invalid current page number string $value",
+            matchResult.groups[1]!!.value.toIntOrNull(),
+        )
+        assertNotNull(
+            "Invalid total pages string $value",
+            matchResult.groups[2]!!.value.toIntOrNull(),
+        )
+
+        onExtractionCompleted(
+            matchResult.groups[1]!!.value.toInt(),
+            matchResult.groups[2]!!.value.toInt(),
+        )
     }
 }

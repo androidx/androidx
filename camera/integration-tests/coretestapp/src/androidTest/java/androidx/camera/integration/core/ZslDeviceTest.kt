@@ -61,16 +61,15 @@ private const val TAG = "ZslDeviceTest"
 @LargeTest
 @RunWith(Parameterized::class)
 class ZslDeviceTest(
+    private val testName: String,
+    private val cameraSelector: CameraSelector,
     private val implName: String,
-    private var cameraSelector: CameraSelector,
     private val cameraConfig: CameraXConfig,
 ) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -85,28 +84,27 @@ class ZslDeviceTest(
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =
-            listOf(
-                arrayOf(
-                    "back+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "front+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "back+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                ),
-                arrayOf(
-                    "front+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                ),
-            )
+            mutableListOf<Array<Any?>>().apply {
+                CameraUtil.getAvailableCameraSelectors().forEach { selector ->
+                    val lens = selector.lensFacing
+                    add(
+                        arrayOf(
+                            "config=${Camera2Config::class.simpleName} lensFacing={$lens}",
+                            selector,
+                            Camera2Config::class.simpleName,
+                            Camera2Config.defaultConfig(),
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
+                            selector,
+                            CameraPipeConfig::class.simpleName,
+                            CameraPipeConfig.defaultConfig(),
+                        )
+                    )
+                }
+            }
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -177,7 +175,7 @@ class ZslDeviceTest(
         // Assert. Verify captures.
         callback.awaitCapturesAndAssert(
             timeout = captureTimeout.times(numImages),
-            capturedImagesCount = numImages
+            capturedImagesCount = numImages,
         )
     }
 
@@ -212,7 +210,7 @@ class ZslDeviceTest(
         // Assert. Verify captures.
         callback.awaitCapturesAndAssert(
             timeout = captureTimeout.times(numImages),
-            capturedImagesCount = numImages
+            capturedImagesCount = numImages,
         )
     }
 

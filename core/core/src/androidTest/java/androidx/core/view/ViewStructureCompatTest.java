@@ -24,7 +24,6 @@ import android.support.v4.BaseInstrumentationTestCase;
 import android.view.ViewStructure;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 23)
 @SmallTest
 public class ViewStructureCompatTest extends
         BaseInstrumentationTestCase<ViewCompatActivity> {

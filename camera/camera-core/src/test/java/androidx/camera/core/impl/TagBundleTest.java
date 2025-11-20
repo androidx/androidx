@@ -18,8 +18,6 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +28,7 @@ import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class TagBundleTest {
 
     private static final String TAG_0 = "Tag_00";

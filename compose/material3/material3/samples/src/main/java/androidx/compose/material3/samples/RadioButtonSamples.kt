@@ -54,12 +54,12 @@ fun RadioButtonSample() {
         RadioButton(
             selected = state,
             onClick = { state = true },
-            modifier = Modifier.semantics { contentDescription = "Localized Description" }
+            modifier = Modifier.semantics { contentDescription = "Localized Description" },
         )
         RadioButton(
             selected = !state,
             onClick = { state = false },
-            modifier = Modifier.semantics { contentDescription = "Localized Description" }
+            modifier = Modifier.semantics { contentDescription = "Localized Description" },
         )
     }
 }
@@ -79,19 +79,19 @@ fun RadioGroupSample() {
                     .selectable(
                         selected = (text == selectedOption),
                         onClick = { onOptionSelected(text) },
-                        role = Role.RadioButton
+                        role = Role.RadioButton,
                     )
                     .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = null // null recommended for accessibility with screenreaders
+                    onClick = null, // null recommended for accessibility with screenreaders
                 )
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp),
                 )
             }
         }

@@ -16,11 +16,9 @@
 
 package androidx.pdf.content
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents the content associated with an image type in a page of a PDF document.
  *
  * @param altText: Alternate text for the image.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY) public class PdfPageImageContent(public val altText: String)
+public class PdfPageImageContent(public val altText: String)

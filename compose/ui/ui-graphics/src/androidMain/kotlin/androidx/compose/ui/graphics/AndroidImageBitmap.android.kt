@@ -39,7 +39,7 @@ internal actual fun ActualImageBitmap(
     height: Int,
     config: ImageBitmapConfig,
     hasAlpha: Boolean,
-    colorSpace: ColorSpace
+    colorSpace: ColorSpace,
 ): ImageBitmap {
     val bitmapConfig = config.toBitmapConfig()
     val bitmap: Bitmap
@@ -88,7 +88,7 @@ internal class AndroidImageBitmap(internal val bitmap: Bitmap) : ImageBitmap {
         width: Int,
         height: Int,
         bufferOffset: Int,
-        stride: Int
+        stride: Int,
     ) {
         // Internal Android implementation that copies the pixels from the underlying
         // android.graphics.Bitmap if the configuration supports it
@@ -180,7 +180,7 @@ internal object Api26Bitmap {
         height: Int,
         bitmapConfig: ImageBitmapConfig,
         hasAlpha: Boolean,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Bitmap {
         // Note intentionally ignoring density in all cases
         return Bitmap.createBitmap(
@@ -189,7 +189,7 @@ internal object Api26Bitmap {
             height,
             bitmapConfig.toBitmapConfig(),
             hasAlpha,
-            colorSpace.toAndroidColorSpace()
+            colorSpace.toAndroidColorSpace(),
         )
     }
 

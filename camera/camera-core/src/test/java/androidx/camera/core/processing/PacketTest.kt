@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
-import android.os.Build
 import android.util.Size
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.ExifUtil.createExif
@@ -35,7 +34,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit test for [Packet]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class PacketTest {
 
     @Test
@@ -53,7 +52,7 @@ class PacketTest {
                 Rect(0, 0, 100, 200),
                 0,
                 Matrix(),
-                FakeCameraCaptureResult()
+                FakeCameraCaptureResult(),
             )
 
         // Assert.

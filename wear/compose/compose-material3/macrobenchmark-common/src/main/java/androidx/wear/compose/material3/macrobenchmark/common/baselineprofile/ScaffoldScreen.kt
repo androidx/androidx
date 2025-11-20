@@ -19,11 +19,11 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
-import androidx.wear.compose.material3.samples.ScaffoldWithEdgeButtonSample
+import androidx.wear.compose.material3.samples.ScaffoldWithSLCEdgeButtonSample
 
 val ScaffoldScreen =
     object : MacrobenchmarkScreen {
 
         override val content: @Composable BoxScope.() -> Unit
-            get() = { ScaffoldWithEdgeButtonSample() }
+            get() = { ScaffoldWithSLCEdgeButtonSample() }
     }

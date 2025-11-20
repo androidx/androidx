@@ -31,6 +31,7 @@ import kotlin.math.min
  * given origin.
  */
 @Immutable
+@Suppress("DataClassDefinition")
 data class Rect(
     /** The offset of the left edge of this rectangle from the x axis. */
     @Stable val left: Float,
@@ -42,7 +43,7 @@ data class Rect(
     @Stable val right: Float,
 
     /** The offset of the bottom edge of this rectangle from the y axis. */
-    @Stable val bottom: Float
+    @Stable val bottom: Float,
 ) {
 
     companion object {
@@ -129,7 +130,7 @@ data class Rect(
             max(left, other.left),
             max(top, other.top),
             min(right, other.right),
-            min(bottom, other.bottom)
+            min(bottom, other.bottom),
         )
     }
 
@@ -144,7 +145,7 @@ data class Rect(
             max(left, otherLeft),
             max(top, otherTop),
             min(right, otherRight),
-            min(bottom, otherBottom)
+            min(bottom, otherBottom),
         )
     }
 
@@ -282,5 +283,5 @@ fun lerp(start: Rect, stop: Rect, fraction: Float): Rect =
         lerp(start.left, stop.left, fraction),
         lerp(start.top, stop.top, fraction),
         lerp(start.right, stop.right, fraction),
-        lerp(start.bottom, stop.bottom, fraction)
+        lerp(start.bottom, stop.bottom, fraction),
     )

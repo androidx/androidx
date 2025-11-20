@@ -100,7 +100,7 @@ private object ColorSpaceVerificationHelper {
                                 transferParams.d,
                                 transferParams.e,
                                 transferParams.f,
-                                transferParams.gamma
+                                transferParams.gamma,
                             )
                         } else {
                             null
@@ -110,7 +110,7 @@ private object ColorSpaceVerificationHelper {
                             this.name,
                             this.primaries,
                             whitePointArray,
-                            androidTransferParams
+                            androidTransferParams,
                         )
                     } else {
                         android.graphics.ColorSpace.Rgb(
@@ -120,7 +120,7 @@ private object ColorSpaceVerificationHelper {
                             this.oetf,
                             this.eotf,
                             this.getMinValue(0),
-                            this.getMaxValue(0)
+                            this.getMaxValue(0),
                         )
                     }
                 } else {
@@ -177,7 +177,7 @@ private object ColorSpaceVerificationHelper {
                                 c = transferParams.c,
                                 d = transferParams.d,
                                 e = transferParams.e,
-                                f = transferParams.f
+                                f = transferParams.f,
                             )
                         } else {
                             null
@@ -192,7 +192,7 @@ private object ColorSpaceVerificationHelper {
                         min = this.getMinValue(0),
                         max = this.getMaxValue(0),
                         transferParameters = composeTransferParams,
-                        id = this.id
+                        id = this.id,
                     )
                 } else {
                     ColorSpaces.Srgb

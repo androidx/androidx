@@ -109,7 +109,7 @@ fun LazyListChildFocusDemos() {
 @Composable
 private fun FocusableBox(
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit = {}
+    content: @Composable BoxScope.() -> Unit = {},
 ) {
     var borderColor by remember { mutableStateOf(Color.Black) }
     Box(
@@ -120,6 +120,6 @@ private fun FocusableBox(
                 .onFocusChanged { borderColor = if (it.isFocused) Color.Red else Color.Black }
                 .border(2.dp, borderColor)
                 .focusable(),
-        content = content
+        content = content,
     )
 }

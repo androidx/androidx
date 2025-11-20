@@ -1,0 +1,37 @@
+// Baseline format: 1.0
+AddedMethod: androidx.core.i18n.DateTimeFormatter#DateTimeFormatter(android.content.Context, androidx.core.i18n.DateTimeFormatterSkeletonOptions, java.util.Locale, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.core.i18n.DateTimeFormatter(android.content.Context,androidx.core.i18n.DateTimeFormatterSkeletonOptions,java.util.Locale,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.core.i18n.DateTimeFormatter#DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions, java.util.Locale, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.core.i18n.DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions,java.util.Locale,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder#Builder(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day, androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second, androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day,androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second,androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond,androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.core.i18n.MessageFormat.Companion#format$default(androidx.core.i18n.MessageFormat.Companion, android.content.Context, java.util.Locale, String, java.util.Map, int, Object):
+    Added method androidx.core.i18n.MessageFormat.Companion.format$default(androidx.core.i18n.MessageFormat.Companion,android.content.Context,java.util.Locale,String,java.util.Map,int,Object)
+
+
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterJdkStyleOptions#getDateStyle():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterJdkStyleOptions.getDateStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterJdkStyleOptions#getTimeStyle():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterJdkStyleOptions.getTimeStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year#getValue():
+    Source breaking change: method androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year.getValue() can no longer be resolved from Kotlin source

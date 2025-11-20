@@ -18,6 +18,7 @@
 
 package androidx.annotation
 
+import android.annotation.SuppressLint
 import java.lang.annotation.ElementType
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
@@ -39,8 +40,11 @@ import kotlin.reflect.KClass
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.FILE,
-    AnnotationTarget.TYPEALIAS
+    AnnotationTarget.TYPEALIAS,
 )
+// Needed due to Kotlin's lack of PACKAGE annotation target
+// https://youtrack.jetbrains.com/issue/KT-45921
+@SuppressLint("SupportAnnotationUsage")
 @java.lang.annotation.Target(
     ElementType.CONSTRUCTOR,
     ElementType.FIELD,
@@ -48,6 +52,7 @@ import kotlin.reflect.KClass
     ElementType.METHOD,
     ElementType.PACKAGE,
     ElementType.TYPE,
+    ElementType.PARAMETER,
 )
 public annotation class OptIn(
     /** Defines the opt-in API(s) whose usage this annotation allows. */

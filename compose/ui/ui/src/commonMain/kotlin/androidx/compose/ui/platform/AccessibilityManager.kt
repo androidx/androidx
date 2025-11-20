@@ -47,6 +47,6 @@ interface AccessibilityManager {
         originalTimeoutMillis: Long,
         containsIcons: Boolean = false,
         containsText: Boolean = false,
-        containsControls: Boolean = false
+        containsControls: Boolean = false,
     ): Long
 }

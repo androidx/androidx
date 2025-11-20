@@ -128,10 +128,7 @@ fun findFirstRoot(segment: PathSegment, fraction: Float): Float {
     return when (segment.type) {
         PathSegment.Type.Move -> Float.NaN
         PathSegment.Type.Line -> {
-            findFirstLineRoot(
-                points[0] - fraction,
-                points[2] - fraction,
-            )
+            findFirstLineRoot(points[0] - fraction, points[2] - fraction)
         }
         PathSegment.Type.Quadratic ->
             findFirstQuadraticRoot(points[0] - fraction, points[2] - fraction, points[4] - fraction)
@@ -143,7 +140,7 @@ fun findFirstRoot(segment: PathSegment, fraction: Float): Float {
                 points[0] - fraction,
                 points[2] - fraction,
                 points[4] - fraction,
-                points[6] - fraction
+                points[6] - fraction,
             )
         PathSegment.Type.Close -> Float.NaN
         PathSegment.Type.Done -> Float.NaN
@@ -287,7 +284,7 @@ private fun findQuadraticRoots(
     p1: Float,
     p2: Float,
     roots: FloatArray,
-    index: Int = 0
+    index: Int = 0,
 ): Int {
     val a = p0.toDouble()
     val b = p1.toDouble()
@@ -333,7 +330,7 @@ private fun findDerivativeRoots(
     segment: PathSegment,
     horizontal: Boolean,
     roots: FloatArray,
-    index: Int
+    index: Int,
 ): Int {
     val offset = if (horizontal) 0 else 1
     val points = segment.points
@@ -375,7 +372,7 @@ private fun findDerivativeRoots(
 fun computeHorizontalBounds(
     segment: PathSegment,
     roots: FloatArray,
-    index: Int = 0
+    index: Int = 0,
 ): FloatFloatPair {
     val count = findDerivativeRoots(segment, true, roots, index)
     var minX = min(segment.startX, segment.endX)
@@ -400,7 +397,7 @@ fun computeHorizontalBounds(
 internal fun computeVerticalBounds(
     segment: PathSegment,
     roots: FloatArray,
-    index: Int = 0
+    index: Int = 0,
 ): FloatFloatPair {
     val count = findDerivativeRoots(segment, false, roots, index)
     var minY = min(segment.startY, segment.endY)
@@ -423,7 +420,7 @@ fun computeCubicVerticalBounds(
     p2y: Float,
     p3y: Float,
     roots: FloatArray,
-    index: Int = 0
+    index: Int = 0,
 ): FloatFloatPair {
     // Quadratic derivative of a cubic function
     // We do the computation inline to avoid using arrays of other data
@@ -551,7 +548,7 @@ internal fun quadraticWinding(
     x: Float,
     y: Float,
     tmpQuadratics: FloatArray,
-    tmpRoots: FloatArray
+    tmpRoots: FloatArray,
 ): Int {
     val y0 = points[1]
     val y1 = points[3]
@@ -584,7 +581,7 @@ private fun monotonicQuadraticWinding(
     offset: Int,
     x: Float,
     y: Float,
-    tmpRoots: FloatArray
+    tmpRoots: FloatArray,
 ): Int {
     var y0 = points[offset + 1]
     var y2 = points[offset + 5]
@@ -740,7 +737,7 @@ internal fun cubicWinding(
     x: Float,
     y: Float,
     tmpCubics: FloatArray,
-    tmpRoots: FloatArray
+    tmpRoots: FloatArray,
 ): Int {
     val splits = cubicToMonotonicCubics(points, tmpCubics, tmpRoots)
 
@@ -792,13 +789,7 @@ private fun monotonicCubicWinding(points: FloatArray, offset: Int, x: Float, y: 
     val y2 = points[offset + 5]
     y3 = points[offset + 7]
 
-    val root =
-        findFirstCubicRoot(
-            y0 - y,
-            y1 - y,
-            y2 - y,
-            y3 - y,
-        )
+    val root = findFirstCubicRoot(y0 - y, y1 - y, y2 - y, y3 - y)
     if (root.isNaN()) return 0
 
     val xt = evaluateCubic(x0, x1, x2, x3, root)
@@ -885,7 +876,7 @@ private fun splitCubicAt(
     srcOffset: Int,
     dst: FloatArray,
     dstOffset: Int,
-    t: Float
+    t: Float,
 ) {
     if (src.size < srcOffset + 8) return
     if (dst.size < dstOffset + 14) return
@@ -972,7 +963,7 @@ internal fun cubicArea(
     x2: Float,
     y2: Float,
     x3: Float,
-    y3: Float
+    y3: Float,
 ): Float {
     // See "Computing the area and winding number for a Bézier curve", Jackowski 2012
     // https://tug.org/TUGboat/tb33-1/tb103jackowski.pdf

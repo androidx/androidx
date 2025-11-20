@@ -53,6 +53,7 @@ package androidx.privacysandbox.tools
  * restrictions on allowed methods and types. See [PrivacySandboxInterface] documentation for
  * details.
  */
+@Deprecated("This library is no longer supported.")
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 public annotation class PrivacySandboxService

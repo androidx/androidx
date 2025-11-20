@@ -21,5 +21,5 @@ import androidx.privacysandbox.ui.core.IRemoteSharedUiSessionClient;
  @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
  oneway interface ISharedUiAdapter {
     @JavaPassthrough(annotation="@androidx.annotation.RequiresApi(34)")
-    void openRemoteSession(IRemoteSharedUiSessionClient remoteSessionClient);
+    void openRemoteSession(int clientVersion, IRemoteSharedUiSessionClient remoteSessionClient);
  }

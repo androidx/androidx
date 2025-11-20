@@ -125,7 +125,7 @@ fun <S> AnimatedContent(
                 i2PCZPb/N721d+r9qQ9GO6ndXeEI0dxs1pl8VKUk3L5stFOVbNZLOdXauOaw
                 bXl3nOA3GK4b7OHG15E/feqzlSJIECZoJ+gg8hRnCc5xkYIsLnGVglnEFt0f
                 0vO5tnUBAAA=
-                """
+                """,
         )
 
     private val SharedTransitionScopeStub =
@@ -235,7 +235,7 @@ class SharedContentState internal constructor(val key: Any)
                 x7jxbGHxJW4NuB/HhWCFOIjL0H/ULDmfI9JZOn1JZ4t8fUy/a5WC+Cq+9All
                 A7RJX6MK3t5CqoU7LdxtYR73WljAYgv38WALTOEh7C1cUphUqCtMKZQVLGqD
                 QkPBVPhQYULh0X8DbMCoJggAAA==
-                """
+                """,
         )
 
     private val LazyListStub =
@@ -642,7 +642,7 @@ inline fun <T> LazyListScope.itemsIndexed(
                 xXbrcsq6MgWAQAMGT4BDEjiu/QnqSRWWURpo5RG6CJOwIi89BhvXCu4Po9eR
                 XVBdGHXBdCENFqow5sIdGN8FImAC7u7CmICMgEkBA1JmBdwTMCXgvoBpATMC
                 ZgUYAh7I04cC5gTkBMwLWPgNvv/FeEAHAAA=
-                """
+                """,
         )
 
     @Test
@@ -668,7 +668,7 @@ fun Test() {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -702,7 +702,7 @@ fun Test() {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -743,7 +743,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -788,7 +788,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -836,7 +836,7 @@ fun Modifier.size(size: Int): Modifier = this
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -899,7 +899,7 @@ fun MyNotComposable(modifier: Modifier = Modifier) {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -938,7 +938,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 SharedTransitionScopeStub,
                 AnimatedContentStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -1050,7 +1050,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 AnimatedContentStub,
                 LazyListStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -1145,7 +1145,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 AnimatedContentStub,
                 LazyListStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -1236,7 +1236,7 @@ fun MyLayoutComposable(modifier: Modifier = Modifier) {
                 AnimatedContentStub,
                 LazyListStub,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()

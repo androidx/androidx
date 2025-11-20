@@ -16,133 +16,154 @@
 
 package androidx.appfunctions.compiler.core
 
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctions.Companion.SUPPORTED_TYPES
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctions.Companion.isAppFunctionSerializableType
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctions.Companion.isSupportedType
-import com.google.devtools.ksp.getVisibility
+import androidx.appfunctions.compiler.AppFunctionCompiler
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableFactoryClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.RESTRICT_API_TO_33_ANNOTATION
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper.Companion.buildFromAppFunctionDataFunction
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper.Companion.buildToAppFunctionDataFunction
+import androidx.appfunctions.compiler.processors.AppFunctionSerializableFactoryCodeBuilderHelper.Companion.setGenericPrimaryConstructor
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
-import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.KSValueParameter
-import com.google.devtools.ksp.symbol.Visibility
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.LIST
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.Modifier
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeSpec
 
-/** Represents a class annotated with [androidx.appfunctions.AppFunctionSerializable]. */
-data class AnnotatedAppFunctionSerializable(val appFunctionSerializableClass: KSClassDeclaration) {
+// TODO(b/410764334): Re-evaluate the abstraction layer.
+/** Represents a class annotated with `androidx.appfunctions.AppFunctionSerializable`. */
+open class AnnotatedAppFunctionSerializable(override val classDeclaration: KSClassDeclaration) :
+    AppFunctionSerializableType {
+
+    /** The name to be assigned to the serializable factory's instance. */
+    override val factoryVariableName: String by lazy {
+        "${appFunctionSerializableTypeClassDeclaration.jvmClassName.replace("$", "").replaceFirstChar {  it.lowercase() } }Factory"
+    }
+
+    override val isDescribedByKdoc: Boolean by lazy {
+        val annotation =
+            classDeclaration.annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionSerializableAnnotation.CLASS_NAME
+            )
+        return@lazy annotation?.requirePropertyValueOfType(
+            AppFunctionAnnotation.PROPERTY_IS_DESCRIBED_BY_KDOC,
+            Boolean::class,
+        ) ?: false
+    }
+
+    /** A description of the AppFunctionSerializable class and its intended use. */
+    override fun getDescription(sharedDataTypeDescriptionMap: Map<String, String>): String {
+        return docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" }
+    }
+
+    /**
+     * Parameterize [AnnotatedAppFunctionSerializable] with [arguments].
+     *
+     * If [arguments] is empty, the original [AnnotatedAppFunctionSerializable] would be returned
+     * directly.
+     */
+    fun parameterizedBy(arguments: List<KSTypeArgument>): AnnotatedAppFunctionSerializable {
+        if (arguments.isEmpty()) {
+            return this
+        }
+        return AnnotatedParameterizedAppFunctionSerializable(classDeclaration, arguments)
+    }
+
     // TODO(b/392587953): throw an error if a property has the same name as one of the factory
     //  method parameters
     /**
      * Validates that the class annotated with AppFunctionSerializable follows app function's spec.
      *
-     * The annotated class must adhere to the following requirements:
-     * 1. **Primary Constructor:** The class must have a public primary constructor.
-     * 2. **Property Parameters:** Only properties (declared with `val`) can be passed as parameters
-     *    to the primary constructor.
-     * 3. **Supported Types:** All properties must be of one of the [SUPPORTED_TYPES].
-     *
+     * @param allowSerializableInterfaceTypes Whether to allow the serializable to use serializable
+     *   interface types. The @AppFunctionSerializableInterface should only be considered as a
+     *   supported type when processing schema definitions.
      * @throws ProcessingException if the class does not adhere to the requirements
      */
-    fun validate(): AnnotatedAppFunctionSerializable {
-        val primaryConstructor = appFunctionSerializableClass.primaryConstructor
-        if (primaryConstructor == null || primaryConstructor.parameters.isEmpty()) {
-            throw ProcessingException(
-                "Classes annotated with AppFunctionSerializable must have a primary constructor with one or more properties.",
-                appFunctionSerializableClass
-            )
-        }
-
-        if (primaryConstructor.getVisibility() != Visibility.PUBLIC) {
-            throw ProcessingException(
-                "The primary constructor of @AppFunctionSerializable must be public.",
-                appFunctionSerializableClass
-            )
-        }
-
-        for (ksValueParameter in primaryConstructor.parameters) {
-            if (!ksValueParameter.isVal) {
-                throw ProcessingException(
-                    "All parameters in @AppFunctionSerializable primary constructor must have getters",
-                    ksValueParameter
-                )
-            }
-
-            if (!isSupportedType(ksValueParameter.type)) {
-                throw ProcessingException(
-                    "AppFunctionSerializable properties must be one of the following types:\n" +
-                        SUPPORTED_TYPES.joinToString(",") +
-                        ", an @AppFunctionSerializable or a list of @AppFunctionSerializable\nbut found " +
-                        ksValueParameter.type.toTypeName(),
-                    ksValueParameter
-                )
-            }
-        }
+    override fun validate(
+        allowSerializableInterfaceTypes: Boolean
+    ): AnnotatedAppFunctionSerializable {
+        val validateHelper = AppFunctionSerializableValidateHelper(this)
+        validateHelper.validatePrimaryConstructor()
+        validateHelper.validateParameters(allowSerializableInterfaceTypes)
         return this
     }
 
-    /** Returns the annotated class's properties as defined in its primary constructor. */
-    fun getProperties(): List<KSValueParameter> {
-        return checkNotNull(appFunctionSerializableClass.primaryConstructor).parameters
-    }
-
-    /** Returns the properties that have @AppFunctionSerializable class types. */
-    fun getSerializablePropertyTypes(): Set<KSTypeReference> {
-        return getProperties()
-            .map { property -> property.type }
-            .filter { type -> isAppFunctionSerializableType(type) }
-            .map { type -> if (type.isOfType(LIST)) type.resolveListParameterizedType() else type }
-            .toSet()
-    }
-
-    /**
-     * Returns the set of source files that contain the definition of the
-     * [appFunctionSerializableClass] and all the @AppFunctionSerializable classes that it contains.
-     */
-    // TODO(b/392587953): include sources of serializable properties
-    fun getSourceFiles(): Set<KSFile> {
-        val sourceFileSet: MutableSet<KSFile> = mutableSetOf()
-        val visitedSerializableSet: MutableSet<ClassName> = mutableSetOf()
-
-        // Add the file containing the AppFunctionSerializable class definition immediately it's
-        // seen
-        appFunctionSerializableClass.containingFile?.let { sourceFileSet.add(it) }
-        visitedSerializableSet.add(originalClassName)
-        traverseSerializableClassSourceFiles(
-            appFunctionSerializableClass,
-            sourceFileSet,
-            visitedSerializableSet
+    override fun getFactoryCodeBuilder(
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies
+    ): AppFunctionSerializableType.FactoryCodeBuilder =
+        AnnotatedAppFunctionSerializableFactoryCodeBuilder(
+            this,
+            resolvedAnnotatedSerializableProxies,
         )
-        return sourceFileSet
-    }
 
-    private fun traverseSerializableClassSourceFiles(
-        serializableClassDefinition: KSClassDeclaration,
-        sourceFileSet: MutableSet<KSFile>,
-        visitedSerializableSet: MutableSet<ClassName>
-    ) {
-        val parameters: List<KSValueParameter> =
-            serializableClassDefinition.primaryConstructor?.parameters ?: emptyList()
-        for (ksValueParameter in parameters) {
-            if (isAppFunctionSerializableType(ksValueParameter.type)) {
-                val appFunctionSerializableDefinition =
-                    ksValueParameter.type.resolve().declaration as KSClassDeclaration
-                // Skip serializable that have been seen before
-                if (visitedSerializableSet.contains(originalClassName)) {
-                    continue
-                }
-                // Process newly found serializable
-                sourceFileSet.addAll(
-                    AnnotatedAppFunctionSerializable(appFunctionSerializableDefinition)
-                        .getSourceFiles()
+    private class AnnotatedAppFunctionSerializableFactoryCodeBuilder(
+        val annotatedClass: AnnotatedAppFunctionSerializable,
+        val resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+    ) : AppFunctionSerializableType.FactoryCodeBuilder {
+        override fun buildAppFunctionSerializableFactoryClass(): FileSpec {
+            val superInterfaceClass =
+                AppFunctionSerializableFactoryClass.CLASS_NAME.parameterizedBy(
+                    listOf(annotatedClass.appFunctionSerializableTypeClassDeclaration.typeName)
                 )
-            }
-        }
-    }
 
-    val originalClassName: ClassName by lazy {
-        ClassName(
-            appFunctionSerializableClass.packageName.asString(),
-            appFunctionSerializableClass.simpleName.asString()
-        )
+            val factoryCodeBuilder =
+                AppFunctionSerializableFactoryCodeBuilderHelper(
+                    annotatedClass,
+                    resolvedAnnotatedSerializableProxies,
+                )
+
+            val generatedFactoryClassName = annotatedClass.factoryClassName.simpleName
+            return FileSpec.builder(
+                    annotatedClass.appFunctionSerializableTypeClassDeclaration.originalClassName
+                        .packageName,
+                    generatedFactoryClassName,
+                )
+                .addType(
+                    TypeSpec.classBuilder(generatedFactoryClassName)
+                        .addAnnotation(RESTRICT_API_TO_33_ANNOTATION)
+                        .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
+                        .addSuperinterface(superInterfaceClass)
+                        .apply {
+                            if (
+                                annotatedClass.appFunctionSerializableTypeClassDeclaration.modifiers
+                                    .contains(Modifier.INTERNAL)
+                            ) {
+                                addModifiers(KModifier.INTERNAL)
+                            }
+
+                            if (
+                                annotatedClass.appFunctionSerializableTypeClassDeclaration
+                                    .typeParameters
+                                    .isNotEmpty()
+                            ) {
+                                setGenericPrimaryConstructor(
+                                    annotatedClass.appFunctionSerializableTypeClassDeclaration
+                                        .typeParameters
+                                )
+                            }
+                        }
+                        .addFunction(
+                            buildFromAppFunctionDataFunction(
+                                factoryCodeBuilder.buildFromAppFunctionDataMethodBody(),
+                                returnType =
+                                    annotatedClass.appFunctionSerializableTypeClassDeclaration
+                                        .typeName,
+                            )
+                        )
+                        .addFunction(
+                            buildToAppFunctionDataFunction(
+                                factoryCodeBuilder.buildToAppFunctionDataMethodBody(),
+                                parameterType =
+                                    annotatedClass.appFunctionSerializableTypeClassDeclaration
+                                        .typeName,
+                            )
+                        )
+                        .build()
+                )
+                .build()
+        }
     }
 }

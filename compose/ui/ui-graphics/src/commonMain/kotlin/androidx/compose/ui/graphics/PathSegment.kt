@@ -38,7 +38,7 @@ class PathSegment
 internal constructor(
     val type: Type,
     @get:Suppress("ArrayReturn") val points: FloatArray,
-    val weight: Float
+    val weight: Float,
 ) {
 
     /**
@@ -99,7 +99,7 @@ internal constructor(
          * Done command, which indicates that no further segment will be found in the path. It
          * typically indicates the end of an iteration over a path and can be ignored.
          */
-        Done
+        Done,
     }
 
     override fun equals(other: Any?): Boolean {

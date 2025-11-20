@@ -67,7 +67,7 @@ class PrivacySandboxApiPackagerTest {
                     |
                     |data class DataClassThatShouldBeIgnored(val id: Int)
                 """
-                        .trimMargin()
+                        .trimMargin(),
                 )
             )
 
@@ -113,7 +113,7 @@ class PrivacySandboxApiPackagerTest {
                     |    fun wrapToMySdk(): MySdk = throw RuntimeException("Stub!")
                     |}
                 """
-                        .trimMargin()
+                        .trimMargin(),
                 )
             )
 
@@ -134,9 +134,10 @@ class PrivacySandboxApiPackagerTest {
                 |    val callback: MySdkCallback,
                 |)
             """
-                    .trimMargin()
+                    .trimMargin(),
             )
-        assertThat(compileWithExtraClasspath(appSource, packagedSdkClasspath)).succeeds()
+        assertThat(compileWithExtraClasspath(appSource, packagedSdkClasspath))
+            .succeedsExcludingOptInWarnings()
     }
 
     @Test
@@ -149,7 +150,7 @@ class PrivacySandboxApiPackagerTest {
             |package com.mysdk
             |interface Valid
         """
-                    .trimMargin()
+                    .trimMargin(),
             )
         val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
 
@@ -182,7 +183,7 @@ class PrivacySandboxApiPackagerTest {
             |package com.mysdk
             |interface Valid
         """
-                    .trimMargin()
+                    .trimMargin(),
             )
         val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
         sdkClasspath.resolve("otherdir.class").createDirectories()
@@ -212,7 +213,7 @@ class PrivacySandboxApiPackagerTest {
                     |  }
                     |}
                 """
-                        .trimMargin()
+                        .trimMargin(),
                 )
             )
 
@@ -223,10 +224,7 @@ class PrivacySandboxApiPackagerTest {
                 .map { packagedSdkClasspath.toPath().relativize(it.toPath()).toString() }
                 .toList()
         assertThat(relativeDescriptorPaths)
-            .containsExactly(
-                "com/mysdk/MySdk.class",
-                "com/mysdk/MySdk\$MyCompanion.class",
-            )
+            .containsExactly("com/mysdk/MySdk.class", "com/mysdk/MySdk\$MyCompanion.class")
     }
 
     @Test
@@ -259,7 +257,7 @@ class PrivacySandboxApiPackagerTest {
             |package com.mysdk
             |interface Valid
         """
-                    .trimMargin()
+                    .trimMargin(),
             )
         val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
         val descriptorPathThatAlreadyExists =
@@ -273,7 +271,7 @@ class PrivacySandboxApiPackagerTest {
     /** Compiles the given source file and returns a classpath with the results. */
     private fun compileAndReturnUnzippedPackagedClasspath(source: Source): File {
         val result = compileAll(listOf(source))
-        assertThat(result).succeeds()
+        assertThat(result).succeedsExcludingOptInWarnings()
         assertThat(result.outputClasspath).hasSize(1)
 
         val originalClasspath = result.outputClasspath.first().toPath()
@@ -299,11 +297,8 @@ class PrivacySandboxApiPackagerTest {
 
     private fun compileWithExtraClasspath(
         source: Source,
-        extraClasspath: File
+        extraClasspath: File,
     ): TestCompilationResult {
-        return compileAll(
-            listOf(source),
-            extraClasspath = listOf(extraClasspath),
-        )
+        return compileAll(listOf(source), extraClasspath = listOf(extraClasspath))
     }
 }

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.compose.ui.text.googlefonts.GoogleFont#getBestEffort():
+    Source breaking change: method androidx.compose.ui.text.googlefonts.GoogleFont.getBestEffort() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.googlefonts.GoogleFont#getName():
+    Source breaking change: method androidx.compose.ui.text.googlefonts.GoogleFont.getName() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.ui.text.googlefonts.GoogleFontKt#Font(androidx.compose.ui.text.googlefonts.GoogleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider, androidx.compose.ui.text.font.FontWeight, int):
+    Binary breaking change: Removed method androidx.compose.ui.text.googlefonts.GoogleFontKt.Font(androidx.compose.ui.text.googlefonts.GoogleFont,androidx.compose.ui.text.googlefonts.GoogleFont.Provider,androidx.compose.ui.text.font.FontWeight,int)

@@ -27,6 +27,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -183,25 +184,40 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
+    /**
+     * @deprecated See {@link ServiceWorkerWebSettingsCompat}
+     */
     @Override
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("removal")
     public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        final ApiFeature.NoFramework feature =
-                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
-        if (feature.isSupportedByWebView()) {
-            return getBoundaryInterface().getRequestedWithHeaderOriginAllowList();
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
+        return Collections.emptySet();
+    }
+
+    /**
+     * @deprecated See {@link ServiceWorkerWebSettingsCompat}
+     */
+    @Override
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("removal")
+    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
     }
 
     @Override
-    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-        final ApiFeature.NoFramework feature =
-                WebViewFeatureInternal.REQUESTED_WITH_HEADER_ALLOW_LIST;
-        if (feature.isSupportedByWebView()) {
-            getBoundaryInterface().setRequestedWithHeaderOriginAllowList(allowList);
-        } else {
+    public void setIncludeCookiesOnShouldInterceptRequestEnabled(boolean enabled) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.COOKIE_INTERCEPT;
+        if (!feature.isSupportedByWebView()) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+        getBoundaryInterface().setIncludeCookiesOnIntercept(enabled);
+    }
+
+    @Override
+    public boolean isIncludeCookiesOnShouldInterceptRequestEnabled() {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.COOKIE_INTERCEPT;
+        if (!feature.isSupportedByWebView()) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+        return getBoundaryInterface().getIncludeCookiesOnIntercept();
     }
 }

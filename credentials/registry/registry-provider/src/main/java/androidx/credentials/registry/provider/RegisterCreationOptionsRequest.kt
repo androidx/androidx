@@ -1,0 +1,57 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.credentials.registry.provider
+
+import androidx.annotation.RestrictTo
+
+/**
+ * A request to register creation options with Credential Manager.
+ *
+ * @property type the type of the credentials to be created being registered
+ * @property id the unique id that identifies this registry, such that it won't be overwritten by
+ *   other different registries of the same `type`
+ * @property creationOptions the data to be stored in the registry, later to be passed to the
+ *   [matcher].
+ * @property matcher the matcher wasm binary in bytes; the matcher will be interpreted and run in a
+ *   safe and privacy-preserving sandbox upon an incoming request and it should output the qualified
+ *   entries given the [creationOptions] and the request; an invalid matcher (e.g. one that fails
+ *   wasm interpretation or causes exceptions) will mean that your application will never be
+ *   surfaced to the user during creation
+ * @property intentAction the intent action that will be used to launch your fulfillment activity
+ *   when your app was chosen by the user to create the given credential, default to
+ *   [RegistryManager.ACTION_CREATE_CREDENTIAL] when unspecified; when Credential Manager launches
+ *   your fulfillment activity, it will build an intent with the given `intentAction` targeting your
+ *   package, so this is useful when you need to define different fulfillment activities for
+ *   different registries
+ * @constructor
+ * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64 characters
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RegisterCreationOptionsRequest
+@JvmOverloads
+constructor(
+    public val type: String,
+    public val id: String,
+    public val creationOptions: ByteArray,
+    public val matcher: ByteArray,
+    public val intentAction: String = RegistryManager.ACTION_CREATE_CREDENTIAL,
+) {
+    init {
+        require(id.length <= 64) { "`id` length must be less than 64" }
+        require(intentAction.length <= 64) { "`intentAction` length must be less than 64" }
+    }
+}

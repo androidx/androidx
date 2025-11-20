@@ -32,14 +32,14 @@ class ExerciseLapTest {
                 ExerciseLap(
                     startTime = Instant.ofEpochMilli(1234L),
                     endTime = Instant.ofEpochMilli(5678L),
-                    length = 1.meters
+                    length = 1.meters,
                 )
             )
             .isEqualTo(
                 ExerciseLap(
                     startTime = Instant.ofEpochMilli(1234L),
                     endTime = Instant.ofEpochMilli(5678L),
-                    length = 1.meters
+                    length = 1.meters,
                 )
             )
     }
@@ -84,7 +84,7 @@ class ExerciseLapTest {
                 ExerciseLap(
                         startTime = Instant.ofEpochMilli(1234L),
                         endTime = Instant.ofEpochMilli(1236L),
-                        length = 100.0.meters
+                        length = 100.0.meters,
                     )
                     .toString()
             )

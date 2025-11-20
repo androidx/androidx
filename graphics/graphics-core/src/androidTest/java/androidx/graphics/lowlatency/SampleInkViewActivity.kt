@@ -86,12 +86,7 @@ class SampleInkViewActivity : Activity() {
         LowLatencyCanvasView(context).apply {
             setBackgroundColor(Color.WHITE)
 
-            data class Line(
-                val x1: Float,
-                val y1: Float,
-                val x2: Float,
-                val y2: Float,
-            )
+            data class Line(val x1: Float, val y1: Float, val x2: Float, val y2: Float)
             // Thread safe collection to support creation of new lines from the UI thread as well as
             // consumption of lines from the background drawing thread
             val lines = Collections.synchronizedList(ArrayList<Line>())

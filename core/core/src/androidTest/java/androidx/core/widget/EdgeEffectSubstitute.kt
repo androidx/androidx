@@ -121,6 +121,6 @@ class EdgeEffectSubstitute(context: Context) : EdgeEffect(context) {
     enum class State {
         Idle,
         Pull,
-        Animating
+        Animating,
     }
 }

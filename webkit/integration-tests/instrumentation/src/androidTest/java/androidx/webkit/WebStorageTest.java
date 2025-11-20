@@ -21,7 +21,6 @@ import static android.webkit.WebSettings.LOAD_DEFAULT;
 import android.os.Build;
 import android.webkit.WebStorage;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -63,7 +62,7 @@ public class WebStorageTest {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     @MediumTest
     public void testDeleteBrowsingDataDeletesCache() throws Exception {
@@ -103,7 +102,7 @@ public class WebStorageTest {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     @MediumTest
     public void testDeleteBrowsingDataForSiteDeletesCache() throws Exception {

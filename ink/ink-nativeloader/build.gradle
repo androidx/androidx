@@ -20,19 +20,25 @@ import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
   jvm()
-  androidTarget()
+  androidLibrary {
+    namespace = "androidx.ink.nativeloader"
+    optimization {
+      it.consumerKeepRules.publish = true
+      it.consumerKeepRules.files.add(new File("used_by_native.pgcfg"))
+      it.consumerKeepRules.files.add(new File("external_referenced_by_native.pgcfg"))
+    }
+    androidResources.enable = true
+  }
 
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
     commonMain {
       dependencies {
-        api(libs.kotlinStdlib)
 
         implementation("androidx.annotation:annotation:1.8.0")
       }
@@ -51,15 +57,13 @@ androidXMultiplatform {
   }
 }
 
-android {
-  namespace = "androidx.ink.nativeloader"
-  sourceSets {
-    main.jniLibs.srcDirs += new File(
-        AndroidXConfig.getPrebuiltsRoot(project),
-        "androidx/ink/android")
-  }
-  defaultConfig {
-    consumerProguardFiles('used_by_native.pgcfg', 'external_referenced_by_native.pgcfg')
+androidComponents {
+  onVariants(selector().all()) { variant ->
+    variant.sources.jniLibs.addStaticSourceDirectory(
+            new File(
+                    AndroidXConfig.getPrebuiltsRoot(project),
+                    "androidx/ink/android").absolutePath
+    )
   }
 }
 

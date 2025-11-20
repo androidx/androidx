@@ -1,0 +1,51 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#getCropRectBottom():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.getCropRectBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#getCropRectLeft():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.getCropRectLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#getCropRectRight():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.getCropRectRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#getCropRectTop():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.getCropRectTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#getSourceRotation():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.getSourceRotation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#isSourceMirroredHorizontally():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.isSourceMirroredHorizontally() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.TransformationInfo#isSourceMirroredVertically():
+    Source breaking change: method androidx.camera.viewfinder.core.TransformationInfo.isSourceMirroredVertically() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceRequest#getHeight():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceRequest#getImplementationMode():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.getImplementationMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceRequest#getRequestId():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.getRequestId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceRequest#getWidth():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceRequest.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceSession#getRequest():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceSession.getRequest() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceSession#getSurface():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceSession.getSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope#getRequest():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope.getRequest() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope#getSurface():
+    Source breaking change: method androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope.getSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector#getTimeDelta():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.getTimeDelta() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector#isQuickZoomEnabled():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.isQuickZoomEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector#isStylusZoomEnabled():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.isStylusZoomEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector#setQuickZoomEnabled(boolean):
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.setQuickZoomEnabled(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector#setStylusZoomEnabled(boolean):
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.setStylusZoomEnabled(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent#getEventTime():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.getEventTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent#getFocusX():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.getFocusX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent#getFocusY():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.getFocusY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.End#getIncrementalScaleFactor():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.End.getIncrementalScaleFactor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.Move#getIncrementalScaleFactor():
+    Source breaking change: method androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent.Move.getIncrementalScaleFactor() can no longer be resolved from Kotlin source

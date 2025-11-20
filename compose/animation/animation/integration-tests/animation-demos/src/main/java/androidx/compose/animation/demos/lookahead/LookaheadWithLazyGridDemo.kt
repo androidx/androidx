@@ -18,7 +18,6 @@ package androidx.compose.animation.demos.lookahead
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.demos.gesture.pastelColors
 import androidx.compose.animation.demos.layoutanimation.summerColors
@@ -83,21 +82,20 @@ fun LookaheadSmallerThanApproach() {
             Modifier.layout { m, c ->
                 val constraints = if (isLookingAhead) c.copy(maxHeight = c.maxHeight - 100) else c
                 m.measure(constraints).run { layout(width, height) { place(0, 0) } }
-            }
+            },
         ) {
             items(20) {
                 Text(
                     "item + $it",
                     Modifier.background(summerColors[it % summerColors.size])
                         .height(100.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @SuppressLint("PrimitiveInCollection")
 @Preview
 @Composable
@@ -119,7 +117,7 @@ fun ShuffleLazyGridWithItemAnimationAndLookaheadAnimation() {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 Modifier.animateBounds(this@LookaheadScope, Modifier.fillMaxHeight(percent))
-                    .border(BorderStroke(2.dp, Color.Blue))
+                    .border(BorderStroke(2.dp, Color.Blue)),
             ) {
                 items(list, key = { it }) {
                     Text(
@@ -127,7 +125,7 @@ fun ShuffleLazyGridWithItemAnimationAndLookaheadAnimation() {
                         Modifier.animateItem()
                             .padding(5.dp)
                             .height(80.dp)
-                            .background(pastelColors[it % pastelColors.size])
+                            .background(pastelColors[it % pastelColors.size]),
                     )
                 }
             }

@@ -30,11 +30,10 @@ internal fun ProvideCompositionLocals(
 ) {
     val subspace =
         checkNotNull(owner.spatialComposeScene) { "Owner element must be attached to a subspace." }
-    val context = subspace.ownerActivity
 
     CompositionLocalProvider(
-        LocalContext provides context,
-        LocalLifecycleOwner provides subspace.ownerActivity,
+        LocalContext provides subspace.context,
+        LocalLifecycleOwner provides subspace.lifecycleOwner,
         LocalSession provides subspace.jxrSession,
         content = content,
     )

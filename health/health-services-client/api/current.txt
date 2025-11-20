@@ -58,9 +58,9 @@ package androidx.health.services.client {
   }
 
   public interface HealthServicesClient {
-    method public androidx.health.services.client.ExerciseClient getExerciseClient();
-    method public androidx.health.services.client.MeasureClient getMeasureClient();
-    method public androidx.health.services.client.PassiveMonitoringClient getPassiveMonitoringClient();
+    method @InaccessibleFromKotlin public androidx.health.services.client.ExerciseClient getExerciseClient();
+    method @InaccessibleFromKotlin public androidx.health.services.client.MeasureClient getMeasureClient();
+    method @InaccessibleFromKotlin public androidx.health.services.client.PassiveMonitoringClient getPassiveMonitoringClient();
     property public abstract androidx.health.services.client.ExerciseClient exerciseClient;
     property public abstract androidx.health.services.client.MeasureClient measureClient;
     property public abstract androidx.health.services.client.PassiveMonitoringClient passiveMonitoringClient;
@@ -140,7 +140,7 @@ package androidx.health.services.client.data {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Availability {
-    method public int getId();
+    method @InaccessibleFromKotlin public int getId();
     property public abstract int id;
     field public static final androidx.health.services.client.data.Availability.Companion Companion;
   }
@@ -158,8 +158,8 @@ package androidx.health.services.client.data {
   }
 
   public final class ComparisonType {
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.ComparisonType.Companion Companion;
@@ -180,16 +180,16 @@ package androidx.health.services.client.data {
 
   public final class CumulativeDataPoint<T extends java.lang.Number> extends androidx.health.services.client.data.DataPoint<T> {
     ctor public CumulativeDataPoint(androidx.health.services.client.data.AggregateDataType<T,androidx.health.services.client.data.CumulativeDataPoint<T>> dataType, T total, java.time.Instant start, java.time.Instant end);
-    method public java.time.Instant getEnd();
-    method public java.time.Instant getStart();
-    method public T getTotal();
+    method @InaccessibleFromKotlin public java.time.Instant getEnd();
+    method @InaccessibleFromKotlin public java.time.Instant getStart();
+    method @InaccessibleFromKotlin public T getTotal();
     property public java.time.Instant end;
     property public java.time.Instant start;
     property public T total;
   }
 
   public abstract class DataPoint<T> {
-    method public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.DataPoint<T>> getDataType();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.DataPoint<T>> getDataType();
     property public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.DataPoint<T>> dataType;
   }
 
@@ -200,13 +200,13 @@ package androidx.health.services.client.data {
   public final class DataPointContainer {
     ctor public DataPointContainer(java.util.List<? extends androidx.health.services.client.data.DataPoint<? extends java.lang.Object?>> dataPointList);
     ctor public DataPointContainer(java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.List<? extends androidx.health.services.client.data.DataPoint<? extends java.lang.Object?>>> dataPoints);
-    method public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object?>> getCumulativeDataPoints();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object?>> getCumulativeDataPoints();
     method public <T extends java.lang.Number, D extends androidx.health.services.client.data.DataPoint<T>> D? getData(androidx.health.services.client.data.AggregateDataType<T,D> type);
     method public <T, D extends androidx.health.services.client.data.DataPoint<T>> java.util.List<D> getData(androidx.health.services.client.data.DeltaDataType<T,D> type);
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
-    method public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> getIntervalDataPoints();
-    method public java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?>> getSampleDataPoints();
-    method public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object?>> getStatisticalDataPoints();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> getIntervalDataPoints();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?>> getSampleDataPoints();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object?>> getStatisticalDataPoints();
     property public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object?>> cumulativeDataPoints;
     property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
     property public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?>> intervalDataPoints;
@@ -216,8 +216,8 @@ package androidx.health.services.client.data {
 
   public abstract class DataType<T, D extends androidx.health.services.client.data.DataPoint<T>> {
     ctor public DataType(String name, androidx.health.services.client.data.DataType.TimeType timeType, Class<T> valueClass, boolean isAggregate);
-    method public final String getName();
-    method public final Class<T> getValueClass();
+    method @InaccessibleFromKotlin public final String getName();
+    method @InaccessibleFromKotlin public final Class<T> getValueClass();
     property public final String name;
     property public final Class<T> valueClass;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> ABSOLUTE_ELEVATION;
@@ -357,8 +357,8 @@ package androidx.health.services.client.data {
   }
 
   public static final class DataType.TimeType {
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.DataType.TimeType.Companion Companion;
@@ -375,8 +375,8 @@ package androidx.health.services.client.data {
 
   public final class DataTypeAvailability implements androidx.health.services.client.data.Availability {
     method public static androidx.health.services.client.data.DataTypeAvailability? fromId(int id);
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.DataTypeAvailability ACQUIRING;
@@ -398,9 +398,9 @@ package androidx.health.services.client.data {
 
   public final class DataTypeCondition<T extends java.lang.Number, D extends androidx.health.services.client.data.DataType<T, ? extends androidx.health.services.client.data.DataPoint<T>>> {
     ctor public DataTypeCondition(D dataType, T threshold, androidx.health.services.client.data.ComparisonType comparisonType);
-    method public androidx.health.services.client.data.ComparisonType getComparisonType();
-    method public D getDataType();
-    method public T getThreshold();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ComparisonType getComparisonType();
+    method @InaccessibleFromKotlin public D getDataType();
+    method @InaccessibleFromKotlin public T getThreshold();
     property public androidx.health.services.client.data.ComparisonType comparisonType;
     property public D dataType;
     property public T threshold;
@@ -409,11 +409,11 @@ package androidx.health.services.client.data {
   public final class DebouncedDataTypeCondition<T extends java.lang.Number, D extends androidx.health.services.client.data.DataType<T, ? extends androidx.health.services.client.data.DataPoint<T>>> {
     method public static <T extends java.lang.Number, D extends androidx.health.services.client.data.DeltaDataType<T, ? extends androidx.health.services.client.data.SampleDataPoint<T>>> androidx.health.services.client.data.DebouncedDataTypeCondition<T,D> createDebouncedDataTypeCondition(D dataType, T threshold, androidx.health.services.client.data.ComparisonType comparisonType, int initialDelaySeconds, int durationAtThresholdSeconds);
     method public static <T extends java.lang.Number, D extends androidx.health.services.client.data.AggregateDataType<T, ? extends androidx.health.services.client.data.StatisticalDataPoint<T>>> androidx.health.services.client.data.DebouncedDataTypeCondition<T,D> createDebouncedDataTypeCondition(D dataType, T threshold, androidx.health.services.client.data.ComparisonType comparisonType, int initialDelaySeconds, int durationAtThresholdSeconds);
-    method public androidx.health.services.client.data.ComparisonType getComparisonType();
-    method public D getDataType();
-    method public int getDurationAtThresholdSeconds();
-    method public int getInitialDelaySeconds();
-    method public T getThreshold();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ComparisonType getComparisonType();
+    method @InaccessibleFromKotlin public D getDataType();
+    method @InaccessibleFromKotlin public int getDurationAtThresholdSeconds();
+    method @InaccessibleFromKotlin public int getInitialDelaySeconds();
+    method @InaccessibleFromKotlin public T getThreshold();
     property public androidx.health.services.client.data.ComparisonType comparisonType;
     property public D dataType;
     property public int durationAtThresholdSeconds;
@@ -430,7 +430,7 @@ package androidx.health.services.client.data {
   public final class DebouncedGoal<T extends java.lang.Number> {
     method public static <T extends java.lang.Number> androidx.health.services.client.data.DebouncedGoal<T> createAggregateDebouncedGoal(androidx.health.services.client.data.DebouncedDataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,androidx.health.services.client.data.StatisticalDataPoint<T>>> condition);
     method public static <T extends java.lang.Number> androidx.health.services.client.data.DebouncedGoal<T> createSampleDebouncedGoal(androidx.health.services.client.data.DebouncedDataTypeCondition<T,androidx.health.services.client.data.DeltaDataType<T,androidx.health.services.client.data.SampleDataPoint<T>>> condition);
-    method public androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> getDebouncedDataTypeCondition();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> getDebouncedDataTypeCondition();
     property public androidx.health.services.client.data.DebouncedDataTypeCondition<T,? extends java.lang.Object?> debouncedDataTypeCondition;
     field public static final androidx.health.services.client.data.DebouncedGoal.Companion Companion;
   }
@@ -445,13 +445,14 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseCapabilities {
+    ctor @BytecodeOnly public ExerciseCapabilities(java.util.Map!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseCapabilities(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities);
     ctor public ExerciseCapabilities(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities, optional java.util.Set<androidx.health.services.client.data.BatchingMode> supportedBatchingModeOverrides);
-    method public java.util.Set<androidx.health.services.client.data.ExerciseType> getAutoPauseAndResumeEnabledExercises();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseType> getAutoPauseAndResumeEnabledExercises();
     method public androidx.health.services.client.data.ExerciseTypeCapabilities getExerciseTypeCapabilities(androidx.health.services.client.data.ExerciseType exercise);
-    method public java.util.Set<androidx.health.services.client.data.BatchingMode> getSupportedBatchingModeOverrides();
-    method public java.util.Set<androidx.health.services.client.data.ExerciseType> getSupportedExerciseTypes();
-    method public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> getTypeToCapabilities();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.BatchingMode> getSupportedBatchingModeOverrides();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseType> getSupportedExerciseTypes();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> getTypeToCapabilities();
     property public java.util.Set<androidx.health.services.client.data.ExerciseType> autoPauseAndResumeEnabledExercises;
     property public java.util.Set<androidx.health.services.client.data.BatchingMode> supportedBatchingModeOverrides;
     property public java.util.Set<androidx.health.services.client.data.ExerciseType> supportedExerciseTypes;
@@ -459,6 +460,7 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
+    ctor @BytecodeOnly public ExerciseConfig(androidx.health.services.client.data.ExerciseType!, java.util.Set!, boolean, boolean, java.util.List!, android.os.Bundle!, float, androidx.health.services.client.data.ExerciseTypeConfig!, java.util.Set!, java.util.Set!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals, optional android.os.Bundle exerciseParams);
@@ -468,17 +470,17 @@ package androidx.health.services.client.data {
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig, optional java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides, optional java.util.Set<? extends androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> exerciseEventTypes);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig, optional java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides, optional java.util.Set<? extends androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> exerciseEventTypes, optional java.util.List<? extends androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> debouncedGoals);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
-    method public java.util.Set<androidx.health.services.client.data.BatchingMode> getBatchingModeOverrides();
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
-    method public java.util.List<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> getDebouncedGoals();
-    method public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> getExerciseEventTypes();
-    method public java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> getExerciseGoals();
-    method public android.os.Bundle getExerciseParams();
-    method public androidx.health.services.client.data.ExerciseType getExerciseType();
-    method public androidx.health.services.client.data.ExerciseTypeConfig? getExerciseTypeConfig();
-    method public float getSwimmingPoolLengthMeters();
-    method public boolean isAutoPauseAndResumeEnabled();
-    method public boolean isGpsEnabled();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.BatchingMode> getBatchingModeOverrides();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> getDebouncedGoals();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> getExerciseEventTypes();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> getExerciseGoals();
+    method @InaccessibleFromKotlin public android.os.Bundle getExerciseParams();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseTypeConfig? getExerciseTypeConfig();
+    method @InaccessibleFromKotlin public float getSwimmingPoolLengthMeters();
+    method @InaccessibleFromKotlin public boolean isAutoPauseAndResumeEnabled();
+    method @InaccessibleFromKotlin public boolean isGpsEnabled();
     property public java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides;
     property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
     property public java.util.List<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Object?>> debouncedGoals;
@@ -489,7 +491,7 @@ package androidx.health.services.client.data {
     property public androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig;
     property public boolean isAutoPauseAndResumeEnabled;
     property public boolean isGpsEnabled;
-    property @FloatRange(from=0.0) public float swimmingPoolLengthMeters;
+    property public float swimmingPoolLengthMeters;
     field public static final androidx.health.services.client.data.ExerciseConfig.Companion Companion;
     field public static final float SWIMMING_POOL_LENGTH_UNSPECIFIED = 0.0f;
   }
@@ -522,7 +524,7 @@ package androidx.health.services.client.data {
   }
 
   public abstract class ExerciseEventCapabilities {
-    method public abstract boolean isSupported();
+    method @InaccessibleFromKotlin public abstract boolean isSupported();
     property public abstract boolean isSupported;
     field public static final androidx.health.services.client.data.ExerciseEventCapabilities.Companion Companion;
   }
@@ -546,9 +548,9 @@ package androidx.health.services.client.data {
     method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal<T> goal, T newThreshold);
     method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> condition);
     method public int describeContents();
-    method public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> getDataTypeCondition();
-    method public androidx.health.services.client.data.ExerciseGoalType getExerciseGoalType();
-    method public T? getPeriod();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> getDataTypeCondition();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseGoalType getExerciseGoalType();
+    method @InaccessibleFromKotlin public T? getPeriod();
     method public void writeToParcel(android.os.Parcel dest, int flags);
     property public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object?>> dataTypeCondition;
     property public androidx.health.services.client.data.ExerciseGoalType exerciseGoalType;
@@ -566,8 +568,8 @@ package androidx.health.services.client.data {
 
   public final class ExerciseGoalType {
     method public static androidx.health.services.client.data.ExerciseGoalType? fromId(int id);
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.ExerciseGoalType.Companion Companion;
@@ -583,19 +585,19 @@ package androidx.health.services.client.data {
 
   public final class ExerciseInfo {
     ctor public ExerciseInfo(int exerciseTrackedStatus, androidx.health.services.client.data.ExerciseType exerciseType);
-    method public int getExerciseTrackedStatus();
-    method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method @InaccessibleFromKotlin public int getExerciseTrackedStatus();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseType getExerciseType();
     property public int exerciseTrackedStatus;
     property public androidx.health.services.client.data.ExerciseType exerciseType;
   }
 
   public final class ExerciseLapSummary {
     ctor public ExerciseLapSummary(int lapCount, java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, androidx.health.services.client.data.DataPointContainer lapMetrics);
-    method public java.time.Duration getActiveDuration();
-    method public java.time.Instant getEndTime();
-    method public int getLapCount();
-    method public androidx.health.services.client.data.DataPointContainer getLapMetrics();
-    method public java.time.Instant getStartTime();
+    method @InaccessibleFromKotlin public java.time.Duration getActiveDuration();
+    method @InaccessibleFromKotlin public java.time.Instant getEndTime();
+    method @InaccessibleFromKotlin public int getLapCount();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointContainer getLapMetrics();
+    method @InaccessibleFromKotlin public java.time.Instant getStartTime();
     property public java.time.Duration activeDuration;
     property public java.time.Instant endTime;
     property public int lapCount;
@@ -605,12 +607,12 @@ package androidx.health.services.client.data {
 
   public final class ExerciseState {
     method public static androidx.health.services.client.data.ExerciseState? fromId(int id);
-    method public int getId();
-    method public String getName();
-    method public boolean isEnded();
-    method public boolean isEnding();
-    method public boolean isPaused();
-    method public boolean isResuming();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public boolean isEnded();
+    method @InaccessibleFromKotlin public boolean isEnding();
+    method @InaccessibleFromKotlin public boolean isPaused();
+    method @InaccessibleFromKotlin public boolean isResuming();
     property public int id;
     property public boolean isEnded;
     property public boolean isEnding;
@@ -648,8 +650,8 @@ package androidx.health.services.client.data {
 
   public final class ExerciseStateInfo {
     ctor public ExerciseStateInfo(androidx.health.services.client.data.ExerciseState exerciseState, int exerciseEndReason);
-    method public int getEndReason();
-    method public androidx.health.services.client.data.ExerciseState getState();
+    method @InaccessibleFromKotlin public int getEndReason();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseState getState();
     property public int endReason;
     property public androidx.health.services.client.data.ExerciseState state;
     field public static final androidx.health.services.client.data.ExerciseStateInfo.Companion Companion;
@@ -660,8 +662,8 @@ package androidx.health.services.client.data {
 
   public final class ExerciseType {
     method public static androidx.health.services.client.data.ExerciseType fromId(int id);
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.ExerciseType ALPINE_SKIING;
@@ -842,16 +844,17 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseTypeCapabilities {
+    ctor @BytecodeOnly public ExerciseTypeCapabilities(java.util.Set!, java.util.Map!, java.util.Map!, boolean, java.util.Map!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, optional java.util.Map<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>,? extends androidx.health.services.client.data.ExerciseEventCapabilities> exerciseEventCapabilities);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, optional java.util.Map<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>,? extends androidx.health.services.client.data.ExerciseEventCapabilities> exerciseEventCapabilities, optional java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedDebouncedGoals);
     method public <C extends androidx.health.services.client.data.ExerciseEventCapabilities> C? getExerciseEventCapabilityDetails(androidx.health.services.client.data.ExerciseEventType<C> exerciseEventType);
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypes();
-    method public java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedDebouncedGoals();
-    method public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> getSupportedExerciseEvents();
-    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
-    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
-    method public boolean getSupportsAutoPauseAndResume();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypes();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedDebouncedGoals();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> getSupportedExerciseEvents();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
+    method @InaccessibleFromKotlin public boolean getSupportsAutoPauseAndResume();
     property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes;
     property public java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedDebouncedGoals;
     property public java.util.Set<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>> supportedExerciseEvents;
@@ -870,14 +873,14 @@ package androidx.health.services.client.data {
   public final class ExerciseUpdate {
     method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object?> dataPoint);
     method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object?> dataPoint);
-    method public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? getActiveDurationCheckpoint();
-    method public androidx.health.services.client.data.ExerciseConfig? getExerciseConfig();
-    method public androidx.health.services.client.data.ExerciseStateInfo getExerciseStateInfo();
-    method public java.util.Set<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Number>> getLatestAchievedDebouncedGoals();
-    method public java.util.Set<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> getLatestAchievedGoals();
-    method public androidx.health.services.client.data.DataPointContainer getLatestMetrics();
-    method public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> getLatestMilestoneMarkerSummaries();
-    method public java.time.Instant? getStartTime();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? getActiveDurationCheckpoint();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseConfig? getExerciseConfig();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseStateInfo getExerciseStateInfo();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DebouncedGoal<? extends java.lang.Number>> getLatestAchievedDebouncedGoals();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number>> getLatestAchievedGoals();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointContainer getLatestMetrics();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> getLatestMilestoneMarkerSummaries();
+    method @InaccessibleFromKotlin public java.time.Instant? getStartTime();
     method public java.time.Duration getUpdateDurationFromBoot();
     property public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint;
     property public androidx.health.services.client.data.ExerciseConfig? exerciseConfig;
@@ -892,8 +895,8 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseUpdate.ActiveDurationCheckpoint {
     ctor public ExerciseUpdate.ActiveDurationCheckpoint(java.time.Instant time, java.time.Duration activeDuration);
-    method public java.time.Duration getActiveDuration();
-    method public java.time.Instant getTime();
+    method @InaccessibleFromKotlin public java.time.Duration getActiveDuration();
+    method @InaccessibleFromKotlin public java.time.Instant getTime();
     property public java.time.Duration activeDuration;
     property public java.time.Instant time;
   }
@@ -904,12 +907,13 @@ package androidx.health.services.client.data {
   public final class GolfExerciseTypeConfig extends androidx.health.services.client.data.ExerciseTypeConfig {
     ctor public GolfExerciseTypeConfig();
     ctor public GolfExerciseTypeConfig(optional androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo);
-    method public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
+    ctor @BytecodeOnly public GolfExerciseTypeConfig(androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
     property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;
   }
 
   public static final class GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo {
-    method public int getPlaceInfoId();
+    method @InaccessibleFromKotlin public int getPlaceInfoId();
     property public int placeInfoId;
     field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo.Companion Companion;
     field public static final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY;
@@ -927,8 +931,8 @@ package androidx.health.services.client.data {
 
   public final class GolfShotEvent extends androidx.health.services.client.data.ExerciseEvent {
     ctor public GolfShotEvent(java.time.Duration durationSinceBoot, androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType swingType);
-    method public java.time.Duration getDurationSinceBoot();
-    method public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType getSwingType();
+    method @InaccessibleFromKotlin public java.time.Duration getDurationSinceBoot();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType getSwingType();
     property public java.time.Duration durationSinceBoot;
     property public androidx.health.services.client.data.GolfShotEvent.GolfShotSwingType swingType;
   }
@@ -950,25 +954,25 @@ package androidx.health.services.client.data {
 
   public final class GolfShotEventCapabilities extends androidx.health.services.client.data.ExerciseEventCapabilities {
     ctor public GolfShotEventCapabilities(boolean isSupported, boolean isSwingTypeClassificationSupported);
-    method public boolean isSupported();
-    method public boolean isSwingTypeClassificationSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSwingTypeClassificationSupported();
     property public boolean isSupported;
     property public boolean isSwingTypeClassificationSupported;
   }
 
   public final class HealthEvent {
     ctor public HealthEvent(androidx.health.services.client.data.HealthEvent.Type type, java.time.Instant eventTime, androidx.health.services.client.data.DataPointContainer metrics);
-    method public java.time.Instant getEventTime();
-    method public androidx.health.services.client.data.DataPointContainer getMetrics();
-    method public androidx.health.services.client.data.HealthEvent.Type getType();
+    method @InaccessibleFromKotlin public java.time.Instant getEventTime();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointContainer getMetrics();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.HealthEvent.Type getType();
     property public java.time.Instant eventTime;
     property public androidx.health.services.client.data.DataPointContainer metrics;
     property public androidx.health.services.client.data.HealthEvent.Type type;
   }
 
   public static final class HealthEvent.Type {
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.HealthEvent.Type.Companion Companion;
@@ -983,13 +987,13 @@ package androidx.health.services.client.data {
 
   public final class HeartRateAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
     ctor public HeartRateAccuracy(androidx.health.services.client.data.HeartRateAccuracy.SensorStatus sensorStatus);
-    method public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus getSensorStatus();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus getSensorStatus();
     property public androidx.health.services.client.data.HeartRateAccuracy.SensorStatus sensorStatus;
   }
 
   public static final class HeartRateAccuracy.SensorStatus {
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.HeartRateAccuracy.SensorStatus ACCURACY_HIGH;
@@ -1011,15 +1015,16 @@ package androidx.health.services.client.data {
   }
 
   public final class IntervalDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
+    ctor @BytecodeOnly public IntervalDataPoint(androidx.health.services.client.data.DataType!, Object!, java.time.Duration!, java.time.Duration!, android.os.Bundle!, androidx.health.services.client.data.DataPointAccuracy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public IntervalDataPoint(androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> dataType, T value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle metadata, optional androidx.health.services.client.data.DataPointAccuracy? accuracy);
-    method public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
-    method public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> getDataType();
-    method public java.time.Duration getEndDurationFromBoot();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> getDataType();
+    method @InaccessibleFromKotlin public java.time.Duration getEndDurationFromBoot();
     method public java.time.Instant getEndInstant(java.time.Instant bootInstant);
-    method public android.os.Bundle getMetadata();
-    method public java.time.Duration getStartDurationFromBoot();
+    method @InaccessibleFromKotlin public android.os.Bundle getMetadata();
+    method @InaccessibleFromKotlin public java.time.Duration getStartDurationFromBoot();
     method public java.time.Instant getStartInstant(java.time.Instant bootInstant);
-    method public T getValue();
+    method @InaccessibleFromKotlin public T getValue();
     property public androidx.health.services.client.data.DataPointAccuracy? accuracy;
     property public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> dataType;
     property public java.time.Duration endDurationFromBoot;
@@ -1030,10 +1035,11 @@ package androidx.health.services.client.data {
 
   public final class LocationAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
     ctor public LocationAccuracy(@FloatRange(from=0.0) double horizontalPositionErrorMeters, optional @FloatRange(from=0.0) double verticalPositionErrorMeters);
-    method public double getHorizontalPositionErrorMeters();
-    method public double getVerticalPositionErrorMeters();
-    property @FloatRange(from=0.0) public double horizontalPositionErrorMeters;
-    property @FloatRange(from=0.0) public double verticalPositionErrorMeters;
+    ctor @BytecodeOnly public LocationAccuracy(double, double, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public double getHorizontalPositionErrorMeters();
+    method @InaccessibleFromKotlin public double getVerticalPositionErrorMeters();
+    property public double horizontalPositionErrorMeters;
+    property public double verticalPositionErrorMeters;
     field public static final androidx.health.services.client.data.LocationAccuracy.Companion Companion;
   }
 
@@ -1042,8 +1048,8 @@ package androidx.health.services.client.data {
 
   public final class LocationAvailability implements androidx.health.services.client.data.Availability {
     method public static androidx.health.services.client.data.LocationAvailability? fromId(int id);
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.LocationAvailability ACQUIRED_TETHERED;
@@ -1067,31 +1073,32 @@ package androidx.health.services.client.data {
 
   public final class LocationData {
     ctor public LocationData(@FloatRange(from=-90.0, to=90.0) double latitude, @FloatRange(from=-180.0, to=180.0) double longitude, optional double altitude, optional double bearing);
-    method public double getAltitude();
-    method public double getBearing();
-    method public double getLatitude();
-    method public double getLongitude();
+    ctor @BytecodeOnly public LocationData(double, double, double, double, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public double getAltitude();
+    method @InaccessibleFromKotlin public double getBearing();
+    method @InaccessibleFromKotlin public double getLatitude();
+    method @InaccessibleFromKotlin public double getLongitude();
     property public double altitude;
     property public double bearing;
-    property @FloatRange(from=-90.0, to=90.0) public double latitude;
-    property @FloatRange(from=-180.0, to=180.0) public double longitude;
+    property public double latitude;
+    property public double longitude;
     field public static final double ALTITUDE_UNAVAILABLE = (0.0/0.0);
     field public static final double BEARING_UNAVAILABLE = (0.0/0.0);
   }
 
   public final class MeasureCapabilities {
     ctor public MeasureCapabilities(java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesMeasure);
-    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesMeasure();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesMeasure();
     property public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesMeasure;
   }
 
   public final class MilestoneMarkerSummary {
     ctor public MilestoneMarkerSummary(java.time.Instant startTime, java.time.Instant endTime, java.time.Duration activeDuration, androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> achievedGoal, androidx.health.services.client.data.DataPointContainer summaryMetrics);
-    method public androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> getAchievedGoal();
-    method public java.time.Duration getActiveDuration();
-    method public java.time.Instant getEndTime();
-    method public java.time.Instant getStartTime();
-    method public androidx.health.services.client.data.DataPointContainer getSummaryMetrics();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> getAchievedGoal();
+    method @InaccessibleFromKotlin public java.time.Duration getActiveDuration();
+    method @InaccessibleFromKotlin public java.time.Instant getEndTime();
+    method @InaccessibleFromKotlin public java.time.Instant getStartTime();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointContainer getSummaryMetrics();
     property public androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Number> achievedGoal;
     property public java.time.Duration activeDuration;
     property public java.time.Instant endTime;
@@ -1101,17 +1108,17 @@ package androidx.health.services.client.data {
 
   public final class PassiveGoal {
     ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> dataTypeCondition);
-    method public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> getDataTypeCondition();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> getDataTypeCondition();
     property public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object?>> dataTypeCondition;
   }
 
   public final class PassiveListenerConfig {
     ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
-    method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
-    method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
-    method public boolean shouldUserActivityInfoBeRequested();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
+    method @InaccessibleFromKotlin public boolean shouldUserActivityInfoBeRequested();
     property public java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
     property public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
@@ -1134,10 +1141,10 @@ package androidx.health.services.client.data {
 
   public final class PassiveMonitoringCapabilities {
     ctor public PassiveMonitoringCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveMonitoring, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes, java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates);
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesPassiveGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesPassiveMonitoring();
-    method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getSupportedHealthEventTypes();
-    method public java.util.Set<androidx.health.services.client.data.UserActivityState> getSupportedUserActivityStates();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesPassiveGoals();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> getSupportedDataTypesPassiveMonitoring();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getSupportedHealthEventTypes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.UserActivityState> getSupportedUserActivityStates();
     property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveGoals;
     property public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypesPassiveMonitoring;
     property public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes;
@@ -1146,20 +1153,21 @@ package androidx.health.services.client.data {
 
   public final class PassiveMonitoringUpdate {
     ctor public PassiveMonitoringUpdate(androidx.health.services.client.data.DataPointContainer dataPoints, java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates);
-    method public androidx.health.services.client.data.DataPointContainer getDataPoints();
-    method public java.util.List<androidx.health.services.client.data.UserActivityInfo> getUserActivityInfoUpdates();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointContainer getDataPoints();
+    method @InaccessibleFromKotlin public java.util.List<androidx.health.services.client.data.UserActivityInfo> getUserActivityInfoUpdates();
     property public androidx.health.services.client.data.DataPointContainer dataPoints;
     property public java.util.List<androidx.health.services.client.data.UserActivityInfo> userActivityInfoUpdates;
   }
 
   public final class SampleDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
+    ctor @BytecodeOnly public SampleDataPoint(androidx.health.services.client.data.DataType!, Object!, java.time.Duration!, android.os.Bundle!, androidx.health.services.client.data.DataPointAccuracy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SampleDataPoint(androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> dataType, T value, java.time.Duration timeDurationFromBoot, optional android.os.Bundle metadata, optional androidx.health.services.client.data.DataPointAccuracy? accuracy);
-    method public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
-    method public androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> getDataType();
-    method public android.os.Bundle getMetadata();
-    method public java.time.Duration getTimeDurationFromBoot();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> getDataType();
+    method @InaccessibleFromKotlin public android.os.Bundle getMetadata();
+    method @InaccessibleFromKotlin public java.time.Duration getTimeDurationFromBoot();
     method public java.time.Instant getTimeInstant(java.time.Instant bootInstant);
-    method public T getValue();
+    method @InaccessibleFromKotlin public T getValue();
     property public androidx.health.services.client.data.DataPointAccuracy? accuracy;
     property public androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> dataType;
     property public android.os.Bundle metadata;
@@ -1169,11 +1177,11 @@ package androidx.health.services.client.data {
 
   public final class StatisticalDataPoint<T extends java.lang.Number> extends androidx.health.services.client.data.DataPoint<T> {
     ctor public StatisticalDataPoint(androidx.health.services.client.data.AggregateDataType<T,androidx.health.services.client.data.StatisticalDataPoint<T>> dataType, T min, T max, T average, java.time.Instant start, java.time.Instant end);
-    method public T getAverage();
-    method public java.time.Instant getEnd();
-    method public T getMax();
-    method public T getMin();
-    method public java.time.Instant getStart();
+    method @InaccessibleFromKotlin public T getAverage();
+    method @InaccessibleFromKotlin public java.time.Instant getEnd();
+    method @InaccessibleFromKotlin public T getMax();
+    method @InaccessibleFromKotlin public T getMin();
+    method @InaccessibleFromKotlin public java.time.Instant getStart();
     property public T average;
     property public java.time.Instant end;
     property public T max;
@@ -1191,9 +1199,9 @@ package androidx.health.services.client.data {
     method public static androidx.health.services.client.data.UserActivityInfo createAsleepState(java.time.Instant stateChangeTime);
     method public static androidx.health.services.client.data.UserActivityInfo createPassiveActivityState(java.time.Instant stateChangeTime);
     method public static androidx.health.services.client.data.UserActivityInfo createUnknownTypeState(java.time.Instant stateChangeTime);
-    method public androidx.health.services.client.data.ExerciseInfo? getExerciseInfo();
-    method public java.time.Instant getStateChangeTime();
-    method public androidx.health.services.client.data.UserActivityState getUserActivityState();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseInfo? getExerciseInfo();
+    method @InaccessibleFromKotlin public java.time.Instant getStateChangeTime();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.UserActivityState getUserActivityState();
     property public androidx.health.services.client.data.ExerciseInfo? exerciseInfo;
     property public java.time.Instant stateChangeTime;
     property public androidx.health.services.client.data.UserActivityState userActivityState;
@@ -1209,8 +1217,8 @@ package androidx.health.services.client.data {
 
   public final class UserActivityState {
     ctor public UserActivityState(int id, String name);
-    method public int getId();
-    method public String getName();
+    method @InaccessibleFromKotlin public int getId();
+    method @InaccessibleFromKotlin public String getName();
     property public int id;
     property public String name;
     field public static final androidx.health.services.client.data.UserActivityState.Companion Companion;
@@ -1229,8 +1237,8 @@ package androidx.health.services.client.data {
 
   public final class WarmUpConfig {
     ctor public WarmUpConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes);
-    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
-    method public androidx.health.services.client.data.ExerciseType getExerciseType();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> getDataTypes();
+    method @InaccessibleFromKotlin public androidx.health.services.client.data.ExerciseType getExerciseType();
     property public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes;
     property public androidx.health.services.client.data.ExerciseType exerciseType;
   }

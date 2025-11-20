@@ -33,7 +33,7 @@ internal class FakeCamera2DeviceManager : Camera2DeviceManager {
         sharedCameraIds: List<CameraId>,
         graphListener: GraphListener,
         isPrewarm: Boolean,
-        isForegroundObserver: (Unit) -> Boolean
+        isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera {
         return FakeVirtualCamera(cameraId).also { fakeVirtualCameraMap[cameraId] = it }
     }
@@ -47,7 +47,7 @@ internal class FakeCamera2DeviceManager : Camera2DeviceManager {
         return CompletableDeferred(Unit)
     }
 
-    override fun closeAll(): Deferred<Unit> {
+    override fun closeAll(forceCancelOpen: Boolean): Deferred<Unit> {
         fakeVirtualCameraMap.clear()
         return CompletableDeferred(Unit)
     }

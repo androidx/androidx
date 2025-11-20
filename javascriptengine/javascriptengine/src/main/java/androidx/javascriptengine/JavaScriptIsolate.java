@@ -23,17 +23,20 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -67,6 +70,10 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @GuardedBy("mLock")
     @NonNull
     private IsolateState mIsolateState;
+
+    @GuardedBy("mLock")
+    @NonNull
+    final Set<String> mMessagePorts = new HashSet<>();
 
     private final class JsSandboxIsolateClient extends IJsSandboxIsolateClient.Stub {
         JsSandboxIsolateClient() {}
@@ -174,6 +181,18 @@ public final class JavaScriptIsolate implements AutoCloseable {
             } else {
                 return null;
             }
+        }
+    }
+
+    boolean containsMessagePort(String name) {
+        synchronized (mLock) {
+            return mMessagePorts.contains(name);
+        }
+    }
+
+    void addMessagePort(String name) {
+        synchronized (mLock) {
+            mMessagePorts.add(name);
         }
     }
 
@@ -372,7 +391,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      */
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
             enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
-    public void provideNamedData(@NonNull String name, @NonNull byte[] inputBytes) {
+    public void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(inputBytes);
         synchronized (mLock) {
@@ -508,6 +527,37 @@ public final class JavaScriptIsolate implements AutoCloseable {
         Objects.requireNonNull(callback);
         synchronized (mLock) {
             mIsolateState.removeOnTerminatedCallback(callback);
+        }
+    }
+
+    /**
+     * Sets up a MessagePorts pair between the app and isolate.
+     * <p>
+     * If the isolate/sandbox is dead, the request is silently discarded,
+     * and an unentangled MessagePort will be returned.
+     * <p>
+     * Sets the callback to handle incoming messages from the other end of the channel.
+     * <p>
+     * Sets the executor on which the callback is run.
+     *
+     * @param name The name used by JavaScript to access the port paired with the returned port.
+     * @param executor The executor on which the callback will be invoked.
+     * @param client Execution logic to process the {@link Message}.
+     * @throws IllegalStateException If the name has been already used by another MessagePort.
+     * @throws IllegalStateException If the isolate is closed.
+     * @return the MessagePort used to send data to the isolate.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_MESSAGE_PORTS,
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+    @NonNull
+    public MessagePort provideMessagePort(@NonNull String name, @NonNull Executor executor,
+            @NonNull MessagePortClient client) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(executor);
+        Objects.requireNonNull(client);
+        synchronized (mLock) {
+            return mIsolateState.provideMessagePort(name, executor, client);
         }
     }
 }

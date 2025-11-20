@@ -74,7 +74,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 0,
                 data = createItems(0, 10),
-                placeholdersAfter = 0
+                placeholdersAfter = 0,
             )
         adapter.setItems(storage)
         measureAndLayout()
@@ -84,7 +84,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                 createExpectedSnapshot(
                     firstItemTopOffset = 0,
                     startItemIndex = 0,
-                    backingList = storage
+                    backingList = storage,
                 )
             )
     }
@@ -95,18 +95,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 100, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -115,13 +112,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 10),
-                placeholdersAfter = 10
+                placeholdersAfter = 10,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 5,
                 data = createItems(startId = 5, count = 5),
-                placeholdersAfter = 20
+                placeholdersAfter = 20,
             )
         distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
@@ -132,18 +129,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 0, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 15,
                 data = createItems(startId = 100, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -152,18 +146,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 15,
                 data = createItems(startId = 100, count = 3),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -172,18 +163,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 0,
                 data = createItems(startId = 100, count = 3),
-                placeholdersAfter = 0
+                placeholdersAfter = 0,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -192,18 +180,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 3),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 100, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -212,18 +197,15 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(startId = 10, count = 3),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 15,
                 data = createItems(startId = 100, count = 8),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
@@ -232,34 +214,27 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(10, 10),
-                placeholdersAfter = 20
+                placeholdersAfter = 20,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 0,
                 data = createItems(100, 1),
-                placeholdersAfter = 0
+                placeholdersAfter = 0,
             )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post,
-        )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     /** Runs a state restoration test with various "current scroll positions". */
     private fun distinctListTest_withVariousInitialPositions(
         pre: PlaceholderPaddedStorage,
-        post: PlaceholderPaddedStorage
+        post: PlaceholderPaddedStorage,
     ) {
         // try restoring positions in different list states
         val minSize = minOf(pre.size, post.size)
         val lastTestablePosition = (minSize - (RV_HEIGHT / ITEM_HEIGHT)).coerceAtLeast(0)
         (0..lastTestablePosition).forEach { initialPos ->
-            distinctListTest(
-                pre = pre,
-                post = post,
-                initialListPos = initialPos,
-            )
+            distinctListTest(pre = pre, post = post, initialListPos = initialPos)
             reset()
             distinctListTest(
                 pre = post, // intentional, we are trying to test going in reverse direction
@@ -276,13 +251,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(10, 10),
-                placeholdersAfter = 30
+                placeholdersAfter = 30,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 0,
                 data = createItems(100, 4),
-                placeholdersAfter = 20
+                placeholdersAfter = 20,
             )
         swapListTest(
             pre = pre,
@@ -293,10 +268,10 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                     .containsExactlyElementsIn(
                         createExpectedSnapshot(
                             startItemIndex = post.size - RV_HEIGHT / ITEM_HEIGHT,
-                            backingList = post
+                            backingList = post,
                         )
                     )
-            }
+            },
         )
     }
 
@@ -306,13 +281,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 10,
                 data = createItems(10, 10), // their positions won't be in the new list
-                placeholdersAfter = 20
+                placeholdersAfter = 20,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 0,
                 data = createItems(100, 1),
-                placeholdersAfter = 0
+                placeholdersAfter = 0,
             )
         updateDiffTest(pre, post)
     }
@@ -327,12 +302,12 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = rand.nextInt(0, 20),
                 data = createItems(startId = startId, count = rand.nextInt(0, 20)),
-                placeholdersAfter = rand.nextInt(0, 20)
+                placeholdersAfter = rand.nextInt(0, 20),
             )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             updateDiffTest(
                 pre = randomPlaceholderPaddedStorage(0),
-                post = randomPlaceholderPaddedStorage(1_000)
+                post = randomPlaceholderPaddedStorage(1_000),
             )
         }
     }
@@ -343,13 +318,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 4,
                 data = createItems(startId = 0, count = 16),
-                placeholdersAfter = 1
+                placeholdersAfter = 1,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 1,
                 data = createItems(startId = 13, count = 4),
-                placeholdersAfter = 19
+                placeholdersAfter = 19,
             )
         updateDiffTest(pre, post)
     }
@@ -360,13 +335,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 6,
                 data = createItems(startId = 0, count = 9),
-                placeholdersAfter = 19
+                placeholdersAfter = 19,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 14,
                 data = createItems(startId = 4, count = 3),
-                placeholdersAfter = 11
+                placeholdersAfter = 11,
             )
         updateDiffTest(pre, post)
     }
@@ -377,13 +352,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 11,
                 data = createItems(startId = 0, count = 4),
-                placeholdersAfter = 6
+                placeholdersAfter = 6,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 7,
                 data = createItems(startId = 0, count = 1),
-                placeholdersAfter = 11
+                placeholdersAfter = 11,
             )
         updateDiffTest(pre, post)
     }
@@ -394,13 +369,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             PlaceholderPaddedStorage(
                 placeholdersBefore = 4,
                 data = createItems(startId = 0, count = 15),
-                placeholdersAfter = 18
+                placeholdersAfter = 18,
             )
         val post =
             PlaceholderPaddedStorage(
                 placeholdersBefore = 11,
                 data = createItems(startId = 5, count = 17),
-                placeholdersAfter = 9
+                placeholdersAfter = 9,
             )
         updateDiffTest(pre, post)
     }
@@ -432,7 +407,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                     createItems(startId = startId, count = rand.nextInt(0, 20)).let {
                         if (shuffle) it.shuffled() else it
                     },
-                placeholdersAfter = rand.nextInt(0, 20)
+                placeholdersAfter = rand.nextInt(0, 20),
             )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             val pre = randomPlaceholderPaddedStorage(0)
@@ -461,7 +436,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         pre: PlaceholderPaddedStorage,
         post: PlaceholderPaddedStorage,
         initialListPos: Int,
-        finalListPos: Int = initialListPos
+        finalListPos: Int = initialListPos,
     ) {
         // try with various initial list positioning.
         // in every case, we should preserve our position
@@ -483,7 +458,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                     .containsExactlyElementsIn(
                         createExpectedSnapshot(startItemIndex = finalListPos, backingList = post)
                     )
-            }
+            },
         )
     }
 
@@ -497,7 +472,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         post: PlaceholderPaddedStorage,
         preSwapAction: () -> Unit = {},
         postSwapAction: () -> Unit = {},
-        validate: (preCapture: List<UIItemSnapshot>, postCapture: List<UIItemSnapshot>) -> Unit
+        validate: (preCapture: List<UIItemSnapshot>, postCapture: List<UIItemSnapshot>) -> Unit,
     ) {
         adapter.setItems(pre)
         measureAndLayout()
@@ -520,7 +495,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                 UIItemSnapshot(
                     top = view.top,
                     boundItem = viewHolder.boundItem,
-                    boundPos = viewHolder.boundPos
+                    boundPos = viewHolder.boundPos,
                 )
             } else {
                 null
@@ -552,7 +527,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
         override fun onCreateViewHolder(
             parent: ViewGroup,
-            viewType: Int
+            viewType: Int,
         ): PlaceholderPaddedListViewHolder {
             return PlaceholderPaddedListViewHolder(parent.context).also {
                 it.itemView.layoutParams =
@@ -577,14 +552,14 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
                 object : DiffUtil.ItemCallback<PlaceholderPaddedListItem>() {
                     override fun areItemsTheSame(
                         oldItem: PlaceholderPaddedListItem,
-                        newItem: PlaceholderPaddedListItem
+                        newItem: PlaceholderPaddedListItem,
                     ): Boolean {
                         return oldItem.id == newItem.id
                     }
 
                     override fun areContentsTheSame(
                         oldItem: PlaceholderPaddedListItem,
-                        newItem: PlaceholderPaddedListItem
+                        newItem: PlaceholderPaddedListItem,
                     ): Boolean {
                         return oldItem == newItem
                     }
@@ -608,13 +583,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         // the item it is bound to, unless it was a placeholder
         val boundItem: PlaceholderPaddedListItem?,
         // the position it was bound to
-        val boundPos: Int
+        val boundPos: Int,
     )
 
     private class PlaceholderPaddedStorage(
         override val placeholdersBefore: Int,
         private val data: List<PlaceholderPaddedListItem>,
-        override val placeholdersAfter: Int
+        override val placeholdersAfter: Int,
     ) : PlaceholderPaddedList<PlaceholderPaddedListItem> {
         private val stringRepresentation by lazy {
             """
@@ -645,7 +620,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
     private fun createExpectedSnapshot(
         firstItemTopOffset: Int = 0,
         startItemIndex: Int,
-        backingList: PlaceholderPaddedList<PlaceholderPaddedListItem>
+        backingList: PlaceholderPaddedList<PlaceholderPaddedListItem>,
     ): List<UIItemSnapshot> {
         check(firstItemTopOffset <= 0) { "first item offset should not be negative" }
         var remainingHeight = RV_HEIGHT - firstItemTopOffset
@@ -668,7 +643,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
      */
     private class ValidatingListUpdateCallback<T>(
         previousList: PlaceholderPaddedList<T>?,
-        private val newList: PlaceholderPaddedList<T>
+        private val newList: PlaceholderPaddedList<T>,
     ) : ListUpdateCallback {
         // used in assertion messages
         val msg =
@@ -766,7 +741,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     private class TrackingAdapterObserver<T>(
         previousList: PlaceholderPaddedList<T>?,
-        postList: PlaceholderPaddedList<T>
+        postList: PlaceholderPaddedList<T>,
     ) : RecyclerView.AdapterDataObserver() {
         private val callback = ValidatingListUpdateCallback(previousList, postList)
 

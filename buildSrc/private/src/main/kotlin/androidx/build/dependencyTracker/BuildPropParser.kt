@@ -39,7 +39,7 @@ object BuildPropParser {
     fun getShaForThisBuild(
         appliedPropsFile: File,
         repoPropsFile: File,
-        logger: Logger? = null
+        logger: Logger? = null,
     ): BuildRange? {
         if (!appliedPropsFile.canRead()) {
             logger?.error("cannot read applied props file from ${appliedPropsFile.absolutePath}")

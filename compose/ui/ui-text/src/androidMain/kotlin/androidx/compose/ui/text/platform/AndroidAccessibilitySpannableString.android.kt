@@ -68,7 +68,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
             ttsAnnotation.toSpan(),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
 
@@ -78,7 +78,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
             urlSpanCache.toURLSpan(urlAnnotation),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
 
@@ -90,14 +90,14 @@ fun AnnotatedString.toAccessibilitySpannableString(
                     urlSpanCache.toURLSpan(linkRange.toUrlLink()),
                     linkRange.start,
                     linkRange.end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                 )
             } else {
                 spannableString.setSpan(
                     urlSpanCache.toClickableSpan(linkRange),
                     linkRange.start,
                     linkRange.end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                 )
             }
         }
@@ -111,7 +111,7 @@ private fun SpannableString.setSpanStyle(
     start: Int,
     end: Int,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ) {
     setColor(spanStyle.color, start, end)
 
@@ -127,7 +127,7 @@ private fun SpannableString.setSpanStyle(
             StyleSpan(getAndroidTypefaceStyle(fontWeight, fontStyle)),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
 
@@ -140,7 +140,7 @@ private fun SpannableString.setSpanStyle(
                 TypefaceSpan(spanStyle.fontFamily.name),
                 start,
                 end,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
             )
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -149,14 +149,14 @@ private fun SpannableString.setSpanStyle(
                     fontFamilyResolver
                         .resolve(
                             fontFamily = spanStyle.fontFamily,
-                            fontSynthesis = spanStyle.fontSynthesis ?: FontSynthesis.All
+                            fontSynthesis = spanStyle.fontSynthesis ?: FontSynthesis.All,
                         )
                         .value as Typeface
                 setSpan(
                     Api28Impl.createTypefaceSpan(typeface),
                     start,
                     end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                 )
             }
         }
@@ -179,7 +179,7 @@ private fun SpannableString.setSpanStyle(
             ScaleXSpan(spanStyle.textGeometricTransform.scaleX),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
 

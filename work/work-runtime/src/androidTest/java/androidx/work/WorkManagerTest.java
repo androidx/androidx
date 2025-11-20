@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.work.impl.WorkManagerImpl;
 
 import org.junit.After;
 
@@ -30,14 +29,12 @@ public abstract class WorkManagerTest {
     @After
     public void clearJobs() {
         // Note: @SdkSuppress doesn't seem to work here.
-        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            JobScheduler jobScheduler = (JobScheduler) ApplicationProvider.getApplicationContext()
-                    .getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            if (Build.VERSION.SDK_INT < 34) {
-                jobScheduler.cancelAll();
-            } else {
-                jobScheduler.cancelInAllNamespaces();
-            }
+        JobScheduler jobScheduler = (JobScheduler) ApplicationProvider.getApplicationContext()
+                .getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (Build.VERSION.SDK_INT < 34) {
+            jobScheduler.cancelAll();
+        } else {
+            jobScheduler.cancelInAllNamespaces();
         }
     }
 }

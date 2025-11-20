@@ -23,10 +23,11 @@ import androidx.stableaidl.tasks.UpdateStableAidlApiTask
 import com.android.build.api.variant.SourceDirectories
 import java.io.File
 import org.gradle.api.Task
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.TaskProvider
 
 /** Internal implementation of [StableAidlExtension] that wraps task providers. */
-open class StableAidlExtensionImpl : StableAidlExtension {
+abstract class StableAidlExtensionImpl : StableAidlExtension {
     override val checkAction: Action =
         object : Action {
             override fun <T : Task> before(task: TaskProvider<T>) {
@@ -54,6 +55,9 @@ open class StableAidlExtensionImpl : StableAidlExtension {
             dirs.forEach { dir -> importSourceDir.addStaticSourceDirectory(dir.absolutePath) }
         }
     }
+
+    override abstract val shadowFrameworkDir: DirectoryProperty
+    override var version: Int? = null
 
     internal lateinit var updateTaskProvider: TaskProvider<UpdateStableAidlApiTask>
     internal lateinit var checkTaskProvider: TaskProvider<StableAidlCheckApi>

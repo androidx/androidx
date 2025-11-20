@@ -17,6 +17,7 @@
 package androidx.appsearch.util;
 
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.JoinSpec;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -33,10 +34,20 @@ public class DocumentIdUtil {
     private static final String NAMESPACE_DELIMITER = "#";
 
     /**
-     * In regex, 4 backslashes in Java represent a single backslash in Regex. This will escape
-     * the namespace delimiter.
+     * Replacement for the namespace delimiter.
+     *
+     * <p>We are using literal replace, so this is the literal replacement String, not a regex. We
+     * want to replace "#" with "\\#".
      */
-    private static final String NAMESPACE_DELIMITER_REPLACEMENT_REGEX = "\\\\#";
+    private static final String NAMESPACE_DELIMITER_REPLACEMENT = "\\#";
+
+    /**
+     * Replacement for backslash.
+     *
+     * <p>We are using literal replace, so this is the literal replacement String, not a regex. We
+     * want to replace "\" with "\\".
+     */
+    private static final String BACKSLASH_REPLACEMENT = "\\\\";
 
     /**
      * Generates a qualified id based on package, database, and a {@link GenericDocument}.
@@ -59,15 +70,17 @@ public class DocumentIdUtil {
      *
      * <p> A qualified id is a String referring to the combined package name, database name,
      * namespace, and id of the document. It is useful for linking one document to another in order
-     * to perform a join operation.
+     * to perform a join operation with {@link JoinSpec}.
      *
      * @param packageName The package the document belongs to.
      * @param databaseName The database containing the document.
      * @param namespace The namespace of the document.
      * @param id The id of the document.
      * @return the qualified id of a document
+     *
+     * @see JoinSpec
+     * @see JoinSpec#QUALIFIED_ID
      */
-     // TODO(b/256022027): Add @link to QUALIFIED_ID and JoinSpec
     public static @NonNull String createQualifiedId(@NonNull String packageName,
             @NonNull String databaseName, @NonNull String namespace, @NonNull String id) {
         Preconditions.checkNotNull(packageName);
@@ -98,9 +111,23 @@ public class DocumentIdUtil {
      * @return An escaped string
      */
     private static String escapeNsDelimiters(@NonNull String original) {
-        // Four backslashes represent a single backslash in regex.
-        return original
-                .replaceAll("\\\\", "\\\\\\\\")
-                .replaceAll(NAMESPACE_DELIMITER, NAMESPACE_DELIMITER_REPLACEMENT_REGEX);
+        StringBuilder escapedString = null;
+        for (int i = 0; i < original.length(); i++) {
+            char currentChar = original.charAt(i);
+            if (currentChar == '\\') {
+                if (escapedString == null) {
+                    escapedString = new StringBuilder(original.substring(0, i));
+                }
+                escapedString.append(BACKSLASH_REPLACEMENT);
+            } else if (currentChar == '#') {
+                if (escapedString == null) {
+                    escapedString = new StringBuilder(original.substring(0, i));
+                }
+                escapedString.append(NAMESPACE_DELIMITER_REPLACEMENT);
+            } else if (escapedString != null) {
+                escapedString.append(currentChar);
+            }
+        }
+        return escapedString == null ? original : escapedString.toString();
     }
 }

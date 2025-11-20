@@ -25,6 +25,7 @@ class ValuesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
     override val relativePathsToExpectedAidlClasses =
         listOf(
             "com/sdkwithvalues/IMyInterface.java",
+            "com/sdkwithvalues/IMySharedUiInterface.java",
             "com/sdkwithvalues/IMyUiInterface.java",
             "com/sdkwithvalues/ISdkInterface.java",
             "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
@@ -37,6 +38,7 @@ class ValuesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
             "com/sdkwithvalues/ICancellationSignal.java",
             "com/sdkwithvalues/ParcelableStackFrame.java",
             "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",
-            "com/sdkwithvalues/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java"
+            "com/sdkwithvalues/IMySharedUiInterfaceCoreLibInfoAndBinderWrapper.java",
+            "com/sdkwithvalues/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java",
         )
 }

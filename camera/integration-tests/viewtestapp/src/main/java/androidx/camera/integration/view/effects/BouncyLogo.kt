@@ -91,6 +91,6 @@ class BouncyLogo(private val width: Int, private val height: Int) {
         TOP,
         RIGHT,
         BOTTOM,
-        LEFT
+        LEFT,
     }
 }

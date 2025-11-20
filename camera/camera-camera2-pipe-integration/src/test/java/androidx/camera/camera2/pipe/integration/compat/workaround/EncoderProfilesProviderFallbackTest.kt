@@ -27,7 +27,6 @@ import android.media.CamcorderProfile.QUALITY_480P
 import android.media.CamcorderProfile.QUALITY_720P
 import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
-import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
@@ -62,7 +61,7 @@ private const val CAMERA_ID_EXTERNAL_1 = "101"
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class EncoderProfilesProviderFallbackTest {
 
     private lateinit var cameraDevices: CameraDevices
@@ -134,7 +133,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_0,
                 quirks,
-                cameraDevices
+                cameraDevices,
             )
 
         assertThat(result).isSameInstanceAs(profilesProviderExternal0)
@@ -150,7 +149,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_1,
                 quirks,
-                cameraDevices
+                cameraDevices,
             )
 
         // Assert.
@@ -213,7 +212,7 @@ class EncoderProfilesProviderFallbackTest {
                     mapOf(
                         backendId to
                             listOf(metadata0, metadata1, metadataExternal0, metadataExternal1)
-                    )
+                    ),
             )
     }
 

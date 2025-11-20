@@ -32,6 +32,7 @@ import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.R
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
+import androidx.compose.ui.platform.LifecycleRetainedValuesStoreOwner.FrameEndScheduler
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -56,7 +57,7 @@ internal actual fun createApplier(container: LayoutNode): AbstractApplier<Layout
  */
 internal fun AbstractComposeView.setContent(
     parent: CompositionContext,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Composition {
     GlobalSnapshotManager.ensureStarted()
     val composeView =
@@ -75,12 +76,12 @@ internal fun AbstractComposeView.setContent(
 private fun doSetContent(
     owner: AndroidComposeView,
     parent: CompositionContext,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Composition {
     if (isDebugInspectorInfoEnabled && owner.getTag(R.id.inspection_slot_table_set) == null) {
         owner.setTag(
             R.id.inspection_slot_table_set,
-            Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
+            Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>()),
         )
     }
 
@@ -100,6 +101,7 @@ private fun doSetContent(
         owner.coroutineContext = parent.effectCoroutineContext
     }
 
+    owner.frameEndScheduler = FrameEndScheduler(parent::scheduleFrameEndCallback)
     return wrapped
 }
 

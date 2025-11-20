@@ -16,7 +16,7 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Indicates that an evaluation failed due to a syntax error or exception produced by the script.

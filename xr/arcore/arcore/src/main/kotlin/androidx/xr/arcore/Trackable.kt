@@ -16,10 +16,11 @@
 
 package androidx.xr.arcore
 
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.StateFlow
 
-/** An object that ARCore for Jetpack XR can track and that [Anchors] can be attached to. */
+/** An object that ARCore for Jetpack XR can track and that an [Anchor] can be attached to. */
 public interface Trackable<out State> {
 
     /** The subset of data that is common to the state of all [Trackable] instances. */

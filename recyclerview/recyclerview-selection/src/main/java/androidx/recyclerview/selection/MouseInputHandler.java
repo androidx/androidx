@@ -17,10 +17,7 @@
 package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
-import static androidx.recyclerview.selection.Shared.DEBUG;
-import static androidx.recyclerview.selection.Shared.VERBOSE;
 
-import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
@@ -41,11 +38,6 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
     private final OnContextClickListener mOnContextClickListener;
     private final OnItemActivatedListener<K> mOnItemActivatedListener;
     private final FocusDelegate<K> mFocusDelegate;
-
-    // The event has been handled in onSingleTapUp
-    private boolean mHandledTapUp;
-    // true when the previous event has consumed a right click motion event
-    private boolean mHandledOnDown;
 
     MouseInputHandler(
             @NonNull SelectionTracker<K> selectionTracker,
@@ -69,10 +61,8 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
 
     @Override
     public boolean onDown(@NonNull MotionEvent e) {
-        if (VERBOSE) Log.v(TAG, "Delegated onDown event.");
-        if ((MotionEvents.isAltKeyPressed(e) && MotionEvents.isPrimaryMouseButtonPressed(e))
+        if ((MotionEvents.isAltKeyPressed(e) && MotionEvents.isPrimaryMouseButtonPressed(e, true))
                 || MotionEvents.isSecondaryMouseButtonPressed(e)) {
-            mHandledOnDown = true;
             return onRightClick(e);
         }
 
@@ -87,141 +77,112 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
         return !MotionEvents.isTouchpadScroll(e2);
     }
 
-    @Override
-    public boolean onSingleTapUp(@NonNull MotionEvent e) {
-        // See b/27377794. Since we don't get a button state back from UP events, we have to
-        // explicitly save this state to know whether something was previously handled by
-        // DOWN events or not.
-        if (mHandledOnDown) {
-            if (VERBOSE) Log.v(TAG, "Ignoring onSingleTapUp, previously handled in onDown.");
-            mHandledOnDown = false;
-            return false;
-        }
-
-        if (!mDetailsLookup.overItemWithSelectionKey(e)) {
-            if (DEBUG) Log.d(TAG, "Tap not associated w/ model item. Clearing selection.");
-            mSelectionTracker.clearSelection();
-            mFocusDelegate.clearFocus();
-            return false;
-        }
-
-        if (MotionEvents.isTertiaryMouseButtonPressed(e)) {
-            if (DEBUG) Log.d(TAG, "Ignoring middle click");
-            return false;
-        }
-
-        if (mSelectionTracker.hasSelection()) {
-            onItemClick(e, mDetailsLookup.getItemDetails(e));
-            mHandledTapUp = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    // tap on an item when there is an existing selection. We could extend
-    // a selection, we could clear selection (then launch)
-    private void onItemClick(@NonNull MotionEvent e, @NonNull ItemDetails<K> item) {
-        if (!mSelectionTracker.hasSelection()) {
-            Log.e(TAG, "Call to onItemClick w/o selection.");
-            if (DEBUG) throw new IllegalStateException("Call to onItemClick w/o selection.");
-            return;
-        }
+    // Called when left-clicking on an item and there is an existing selection (which may or may
+    // not include that item). We extend / clear / modify the selection (and adjust focus).
+    private void onLeftClickWhenSomethingSelected(
+            @NonNull MotionEvent e, @NonNull ItemDetails<K> item) {
         checkArgument(item != null);
 
         if (shouldExtendRange(e)) {
             extendSelectionRange(item);
-        } else {
-            if (shouldClearSelection(e, item)) {
-                mSelectionTracker.clearSelection();
-            }
-            if (mSelectionTracker.isSelected(item.getSelectionKey())) {
-                if (mSelectionTracker.deselect(item.getSelectionKey())) {
+            return;
+        }
+
+        K key = item.getSelectionKey();
+        int hotspotness = MotionEvents.isCtrlKeyPressed(e)
+                ? ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
+                : item.classifySelectionHotspot(e);
+
+        switch (hotspotness) {
+            case ItemDetails.SELECTION_HOTSPOT_OUTSIDE:
+                if (!mSelectionTracker.isSelected(key)) {
+                    focusItem(item);
+                } else if (mSelectionTracker.deselect(key)) {
                     mFocusDelegate.clearFocus();
                 }
-            } else {
-                selectOrFocusItem(item, e);
-            }
+                return;
+
+            case ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI:
+                if (!mSelectionTracker.isSelected(key)) {
+                    selectItem(item);
+                } else if (mSelectionTracker.deselect(key)) {
+                    mFocusDelegate.clearFocus();
+                }
+                return;
+
+            case ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO:
+                boolean wasTheOnlyThingSelected = mSelectionTracker.isSelected(key)
+                        && (mSelectionTracker.getSelection().size() == 1);
+                mSelectionTracker.clearSelection();
+                if (!wasTheOnlyThingSelected) {
+                    selectItem(item);
+                }
+                return;
+
+            case ItemDetails.SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET:
+                mSelectionTracker.clearSelection();
+                selectItem(item);
+                return;
         }
     }
 
     @Override
     public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-        if (mHandledTapUp) {
-            if (VERBOSE) {
-                Log.v(TAG,
-                        "Ignoring onSingleTapConfirmed, previously handled in onSingleTapUp.");
-            }
-            mHandledTapUp = false;
+        if (MotionEvents.isAltKeyPressed(e)
+                || !MotionEvents.isPrimaryMouseButtonPressed(e, true)) {
+            return false;
+        }
+
+        ItemDetails<K> item = mDetailsLookup.overItemWithSelectionKeyAsItem(e);
+        if (item == null) {
+            mSelectionTracker.clearSelection();
+            mFocusDelegate.clearFocus();
             return false;
         }
 
         if (mSelectionTracker.hasSelection()) {
-            return false;  // should have been handled by onSingleTapUp.
-        }
-
-        if (!mDetailsLookup.overItem(e)) {
-            if (DEBUG) Log.d(TAG, "Ignoring Confirmed Tap on non-item.");
-            return false;
-        }
-
-        if (MotionEvents.isTertiaryMouseButtonPressed(e)) {
-            if (DEBUG) Log.d(TAG, "Ignoring middle click");
-            return false;
-        }
-
-        ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
-        if (item == null || !item.hasSelectionKey()) {
-            return false;
+            onLeftClickWhenSomethingSelected(e, item);
+            return true;
         }
 
         if (mFocusDelegate.hasFocusedItem() && MotionEvents.isShiftKeyPressed(e)) {
             mSelectionTracker.startRange(mFocusDelegate.getFocusedPosition());
             mSelectionTracker.extendRange(item.getPosition());
         } else {
-            selectOrFocusItem(item, e);
+            int hotspotness = MotionEvents.isCtrlKeyPressed(e)
+                    ? ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
+                    : item.classifySelectionHotspot(e);
+
+            if (hotspotness == ItemDetails.SELECTION_HOTSPOT_OUTSIDE) {
+                focusItem(item);
+            } else {
+                selectItem(item);
+            }
         }
         return true;
     }
 
     @Override
     public boolean onDoubleTap(@NonNull MotionEvent e) {
-        mHandledTapUp = false;
-
-        if (!mDetailsLookup.overItemWithSelectionKey(e)) {
-            if (DEBUG) Log.d(TAG, "Ignoring DoubleTap on non-model-backed item.");
+        if (MotionEvents.isAltKeyPressed(e)
+                || !MotionEvents.isPrimaryMouseButtonPressed(e, true)) {
             return false;
         }
 
-        if (MotionEvents.isTertiaryMouseButtonPressed(e)) {
-            if (DEBUG) Log.d(TAG, "Ignoring middle click");
-            return false;
-        }
-
-        ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
+        ItemDetails<K> item = mDetailsLookup.overItemWithSelectionKeyAsItem(e);
         return (item != null) && mOnItemActivatedListener.onItemActivated(item, e);
     }
 
     private boolean onRightClick(@NonNull MotionEvent e) {
-        if (mDetailsLookup.overItemWithSelectionKey(e)) {
-            ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
-            if (item != null && !mSelectionTracker.isSelected(item.getSelectionKey())) {
-                mSelectionTracker.clearSelection();
-                selectItem(item);
-            }
+        ItemDetails<K> item = mDetailsLookup.overItemWithSelectionKeyAsItem(e);
+        if ((item != null) && !mSelectionTracker.isSelected(item.getSelectionKey())) {
+            mSelectionTracker.clearSelection();
+            selectItem(item);
         }
 
         // We always delegate final handling of the event,
         // since the handler might want to show a context menu
         // in an empty area or some other weirdo view.
         return mOnContextClickListener.onContextClick(e);
-    }
-
-    private void selectOrFocusItem(@NonNull ItemDetails<K> item, @NonNull MotionEvent e) {
-        if (item.inSelectionHotspot(e) || MotionEvents.isCtrlKeyPressed(e)) {
-            selectItem(item);
-        } else {
-            focusItem(item);
-        }
     }
 }

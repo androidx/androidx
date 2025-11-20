@@ -358,6 +358,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Returns the playback controls row managed by the glue layer.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable PlaybackControlsRow getControlsRow() {
         return mControlsRow;
     }

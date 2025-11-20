@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.runtime.saveable/androidx_compose_runtime_saveable_SaveableStateRegistryWrapper$stableprop from androidx.compose.runtime:runtime-saveable
+[linuxX64]: Removed declaration androidx.compose.runtime.saveable/androidx_compose_runtime_saveable_SaveableStateRegistryWrapper$stableprop_getter() from androidx.compose.runtime:runtime-saveable

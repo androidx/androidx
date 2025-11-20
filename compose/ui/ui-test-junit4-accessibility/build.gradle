@@ -23,7 +23,6 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
@@ -35,17 +34,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.test.junit4.accessibility"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-
         compileSdk = 35
-        aarMetadata.minCompileSdk = 35
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -63,14 +52,13 @@ androidXMultiplatform {
 
         androidMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api(project(":compose:ui:ui-test-junit4"))
                 api("androidx.annotation:annotation:1.8.1")
                 api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -86,8 +74,6 @@ androidx {
     type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2025"
     description = "Compose testing library for accessibility checks in integration with JUnit4"
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     samples(project(":compose:ui:ui-test-junit4-accessibility:ui-test-junit4-accessibility-samples"))
 
 }

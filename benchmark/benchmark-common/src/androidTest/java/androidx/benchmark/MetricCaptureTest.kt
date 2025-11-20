@@ -52,9 +52,9 @@ class MetricCaptureTest {
                 listOf("instructions", "cpuCycles"),
                 CpuEventCounterCapture(
                         it,
-                        listOf(CpuEventCounter.Event.Instructions, CpuEventCounter.Event.CpuCycles)
+                        listOf(CpuEventCounter.Event.Instructions, CpuEventCounter.Event.CpuCycles),
                     )
-                    .names
+                    .names,
             )
         }
     }

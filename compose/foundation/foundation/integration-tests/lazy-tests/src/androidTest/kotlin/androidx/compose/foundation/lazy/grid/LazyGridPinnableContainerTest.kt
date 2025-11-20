@@ -39,6 +39,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +47,7 @@ import org.junit.Test
 @MediumTest
 class LazyGridPinnableContainerTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var pinnableContainer: PinnableContainer? = null
 
@@ -77,7 +78,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 1) {
@@ -116,7 +117,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 1) {
@@ -153,7 +154,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 4) {
@@ -201,7 +202,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 1) {
@@ -240,7 +241,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 3),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { index ->
                     if (index == 2) {
@@ -278,7 +279,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 2) {
@@ -322,7 +323,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 0) {
@@ -358,7 +359,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 repeat(100) { index ->
                     item {
@@ -397,7 +398,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(itemCount) { index ->
                     if (index == 3) {
@@ -438,7 +439,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(items) { index ->
                     if (index == 1) {
@@ -469,7 +470,7 @@ class LazyGridPinnableContainerTest {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.size(itemSize * 2),
-                state = state
+                state = state,
             ) {
                 items(100) { index ->
                     if (index == 1) {

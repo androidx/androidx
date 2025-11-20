@@ -75,12 +75,12 @@ private constructor(
     constructor(
         packageName: String,
         signingInfo: SigningInfo,
-        origin: String? = null
+        origin: String? = null,
     ) : this(
         packageName = packageName,
         signingInfo = signingInfo,
         origin = origin,
-        signingInfoCompat = SigningInfoCompat.fromSigningInfo(signingInfo)
+        signingInfoCompat = SigningInfoCompat.fromSigningInfo(signingInfo),
     )
 
     /**
@@ -102,7 +102,7 @@ private constructor(
     constructor(
         packageName: String,
         signatures: List<Signature>,
-        origin: String? = null
+        origin: String? = null,
     ) : this(packageName, origin, SigningInfoCompat.fromSignatures(signatures), null)
 
     companion object {
@@ -150,6 +150,13 @@ private constructor(
         private const val EXTRA_CREDENTIAL_REQUEST_SIGNATURES =
             "androidx.credentials.provider.extra.CREDENTIAL_REQUEST_SIGNATURES"
 
+        /**
+         * Sets the [info] object to the [Bundle] object in question. The [info] object must then be
+         * retrieved using [extractCallingAppInfo].
+         *
+         * @param info the [androidx.credentials.provider.CallingAppInfo] object to be set on the
+         *   bundle
+         */
         internal fun Bundle.setCallingAppInfo(info: CallingAppInfo) {
             this.putString(EXTRA_CREDENTIAL_REQUEST_ORIGIN, info.origin)
             this.putString(EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME, info.packageName)
@@ -158,12 +165,21 @@ private constructor(
             } else {
                 this.putParcelableArray(
                     EXTRA_CREDENTIAL_REQUEST_SIGNATURES,
-                    info.signingInfoCompat.signingCertificateHistory.toTypedArray()
+                    info.signingInfoCompat.signingCertificateHistory.toTypedArray(),
                 )
             }
         }
 
-        internal fun extractCallingAppInfo(bundle: Bundle): CallingAppInfo? {
+        /**
+         * Retrieves the [androidx.credentials.provider.CallingAppInfo] object from a [Bundle]
+         * instance, only if the [androidx.credentials.provider.CallingAppInfo] object was
+         * previously set through [setCallingAppInfo].
+         *
+         * @param bundle the [Bundle] object that holds a
+         *   [androidx.credentials.provider.CallingAppInfo] object
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun extractCallingAppInfo(bundle: Bundle): CallingAppInfo? {
             val origin = bundle.getString(EXTRA_CREDENTIAL_REQUEST_ORIGIN)
             val packageName = bundle.getString(EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME) ?: return null
             return if (Build.VERSION.SDK_INT >= 28) {

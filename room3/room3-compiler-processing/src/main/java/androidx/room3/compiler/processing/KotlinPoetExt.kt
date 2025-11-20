@@ -1,0 +1,136 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.compiler.processing
+
+import androidx.room3.compiler.codegen.XTypeName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.OriginatingElementsHolder
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+
+internal val KOTLIN_NONE_TYPE_NAME: KClassName =
+    KClassName("androidx.room3.compiler.processing.error", "NotAType")
+
+/**
+ * Adds the given element as an originating element for compilation. see
+ * [OriginatingElementsHolder.Builder.addOriginatingElement].
+ */
+fun <T : OriginatingElementsHolder.Builder<T>> T.addOriginatingElement(element: XElement): T {
+    addOriginatingElement(element.originatingElementForPoet())
+    return this
+}
+
+internal fun TypeName.rawTypeName(): TypeName {
+    return if (this is ParameterizedTypeName) {
+        this.rawType
+    } else {
+        this
+    }
+}
+
+object FunSpecHelper {
+    fun overriding(elm: XMethodElement, owner: XType): FunSpec.Builder {
+        val asMember = elm.asMemberOf(owner)
+        return overriding(executableElement = elm, resolvedType = asMember)
+    }
+
+    private fun overriding(
+        executableElement: XMethodElement,
+        resolvedType: XMethodType,
+    ): FunSpec.Builder {
+        return FunSpec.builder(executableElement.name).apply {
+            addModifiers(KModifier.OVERRIDE)
+            if (executableElement.isInternal()) {
+                addModifiers(KModifier.INTERNAL)
+            } else if (executableElement.isProtected()) {
+                addModifiers(KModifier.PROTECTED)
+            } else if (executableElement.isPublic()) {
+                addModifiers(KModifier.PUBLIC)
+            }
+            if (executableElement.isSuspendFunction()) {
+                addModifiers(KModifier.SUSPEND)
+            }
+            addTypeVariables(
+                resolvedType.typeVariables.map { it.asTypeName().kotlin as KTypeVariableName }
+            )
+            val parameterTypes =
+                resolvedType.parameterTypes.let {
+                    // Drop the synthetic Continuation param of suspend functions, always at the
+                    // last position.
+                    // TODO(b/254135327): Revisit with the introduction of a target language.
+                    if (resolvedType.isSuspendFunction()) it.dropLast(1) else it
+                }
+            parameterTypes.forEachIndexed { index, paramType ->
+                val param = executableElement.parameters[index]
+                val typeName: XTypeName
+                val modifiers: Array<KModifier>
+                // TODO(b/253268357): In Kotlin the vararg is not always the last param
+                // When the vararg is from Kotlin the override must also be a vararg param, but
+                // otherwise it can be an array parameter.
+                if (param.isVarArgs() && executableElement.closestMemberContainer.isFromKotlin()) {
+                    typeName = (paramType as XArrayType).componentType.asTypeName()
+                    modifiers = arrayOf(KModifier.VARARG)
+                } else {
+                    typeName = paramType.asTypeName()
+                    modifiers = emptyArray()
+                }
+                addParameter(param.name, typeName.kotlin, *modifiers)
+            }
+            returns(
+                if (resolvedType.isSuspendFunction()) {
+                        resolvedType.getSuspendFunctionReturnType()
+                    } else {
+                        resolvedType.returnType
+                    }
+                    .asTypeName()
+                    .kotlin
+            )
+        }
+    }
+}
+
+object PropertySpecHelper {
+    fun overriding(elm: XMethodElement, owner: XType): PropertySpec.Builder {
+        require(elm.isKotlinPropertyMethod())
+        val asMember = elm.asMemberOf(owner)
+        return overriding(executableElement = elm, resolvedType = asMember)
+    }
+
+    private fun overriding(
+        executableElement: XMethodElement,
+        resolvedType: XMethodType,
+    ): PropertySpec.Builder {
+        return PropertySpec.builder(
+                name = checkNotNull(executableElement.propertyName),
+                type = resolvedType.returnType.asTypeName().kotlin,
+            )
+            .apply {
+                addModifiers(KModifier.OVERRIDE)
+                if (executableElement.isInternal()) {
+                    addModifiers(KModifier.INTERNAL)
+                } else if (executableElement.isProtected()) {
+                    addModifiers(KModifier.PROTECTED)
+                } else if (executableElement.isPublic()) {
+                    addModifiers(KModifier.PUBLIC)
+                }
+            }
+    }
+}

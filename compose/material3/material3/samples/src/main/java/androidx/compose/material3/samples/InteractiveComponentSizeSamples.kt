@@ -61,7 +61,7 @@ fun MinimumInteractiveComponentSizeSample() {
             modifier =
                 Modifier.clickable { /* do something */ }
                     // Component is now interactable, so it should enforce a sufficient touch target
-                    .minimumInteractiveComponentSize()
+                    .minimumInteractiveComponentSize(),
         )
 
         Widget(
@@ -72,7 +72,7 @@ fun MinimumInteractiveComponentSizeSample() {
                     .minimumInteractiveComponentSize()
                     // Any size modifiers should come after `minimumInteractiveComponentSize`
                     // so as not to interfere with layout expansion
-                    .size(36.dp)
+                    .size(36.dp),
         )
     }
 }
@@ -93,7 +93,7 @@ fun MinimumInteractiveComponentSizeCheckboxRowSample() {
                     onValueChange = { checked = it },
                     role = Role.Checkbox,
                 )
-                .minimumInteractiveComponentSize()
+                .minimumInteractiveComponentSize(),
     ) {
         // Cannot rely on Checkbox for touch target expansion because it only enforces
         // `minimumInteractiveComponentSize` if onCheckedChange is non-null

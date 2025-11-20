@@ -79,7 +79,7 @@ class AdIdManagerFuturesTest {
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 4,
                 /* minExtServicesVersionS=*/ 9,
-            )
+            ),
         )
         Truth.assertThat(AdIdManagerFutures.from(mContext)).isEqualTo(null)
     }
@@ -91,7 +91,7 @@ class AdIdManagerFuturesTest {
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 4,
                 /* minExtServicesVersionS=*/ 9,
-            )
+            ),
         )
 
         val adIdManager = mockAdIdManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -136,7 +136,7 @@ class AdIdManagerFuturesTest {
                 .`when`(adIdManager)
                 .getAdId(
                     any<Executor>(),
-                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>(),
                 )
         }
 
@@ -145,7 +145,7 @@ class AdIdManagerFuturesTest {
             Mockito.verify(adIdManager)
                 .getAdId(
                     any<Executor>(),
-                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>(),
                 )
         }
 

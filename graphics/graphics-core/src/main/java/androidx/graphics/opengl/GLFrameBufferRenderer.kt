@@ -56,7 +56,7 @@ internal constructor(
     private val mUsage: Long,
     private val mMaxBuffers: Int,
     private val mSyncStrategy: SyncStrategy,
-    glRenderer: GLRenderer?
+    glRenderer: GLRenderer?,
 ) {
 
     /** Builder used to create a [GLFrameBufferRenderer] with various configurations */
@@ -105,7 +105,7 @@ internal constructor(
             width: Int,
             height: Int,
             transformHint: Int,
-            callback: Callback
+            callback: Callback,
         ) {
             mSurfaceControlProvider =
                 DefaultSurfaceControlProvider(parentSurfaceControl, width, height, transformHint)
@@ -213,7 +213,7 @@ internal constructor(
                 mUsageFlags,
                 mMaxBuffers,
                 mSyncStrategy,
-                mGLRenderer
+                mGLRenderer,
             )
         }
     }
@@ -269,7 +269,7 @@ internal constructor(
                     width: Int,
                     height: Int,
                     bufferTransformer: BufferTransformer,
-                    inverseTransform: Int
+                    inverseTransform: Int,
                 ) {
                     val frameBufferPool =
                         FrameBufferPool(
@@ -277,7 +277,7 @@ internal constructor(
                             bufferTransformer.bufferHeight,
                             this@GLFrameBufferRenderer.mFormat,
                             mUsage,
-                            mMaxBuffers
+                            mMaxBuffers,
                         )
                     val renderCallback =
                         createFrameBufferRenderer(
@@ -285,7 +285,7 @@ internal constructor(
                             inverseTransform,
                             bufferTransformer,
                             frameBufferPool,
-                            callback
+                            callback,
                         )
                     mBufferPool = frameBufferPool
                     mSurfaceControl = surfaceControl
@@ -311,7 +311,7 @@ internal constructor(
         } else {
             Log.w(
                 TAG,
-                "Attempt to execute runnable after " + "GLFrameBufferRenderer has been released"
+                "Attempt to execute runnable after " + "GLFrameBufferRenderer has been released",
             )
         }
     }
@@ -363,7 +363,7 @@ internal constructor(
         inverseTransform: Int,
         bufferTransformer: BufferTransformer,
         frameBufferPool: FrameBufferPool,
-        callback: Callback
+        callback: Callback,
     ): FrameBufferRenderer =
         FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
@@ -399,14 +399,14 @@ internal constructor(
                             width,
                             height,
                             bufferInfo,
-                            bufferTransformer.transform
+                            bufferTransformer.transform,
                         )
                     }
                 }
 
                 override fun onDrawComplete(
                     frameBuffer: FrameBuffer,
-                    syncFenceCompat: SyncFenceCompat?
+                    syncFenceCompat: SyncFenceCompat?,
                 ) {
                     if (surfaceControl.isValid() && !frameBuffer.isClosed) {
                         val transaction =
@@ -415,7 +415,7 @@ internal constructor(
                                 .setBuffer(
                                     surfaceControl,
                                     frameBuffer.hardwareBuffer,
-                                    syncFenceCompat
+                                    syncFenceCompat,
                                 ) { releaseFence ->
                                     if (mGLRenderer.isRunning()) {
                                         mGLRenderer.execute {
@@ -436,13 +436,13 @@ internal constructor(
                             surfaceControl,
                             transaction,
                             frameBuffer,
-                            syncFenceCompat
+                            syncFenceCompat,
                         )
                         transaction.commit()
                     }
                 }
             },
-            mSyncStrategy
+            mSyncStrategy,
         )
 
     internal fun drawAsync(onComplete: Runnable? = null) {
@@ -603,7 +603,7 @@ internal constructor(
             width: Int,
             height: Int,
             bufferInfo: BufferInfo,
-            transform: FloatArray
+            transform: FloatArray,
         )
 
         /**
@@ -631,7 +631,7 @@ internal constructor(
             targetSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction,
             frameBuffer: FrameBuffer,
-            syncFence: SyncFenceCompat?
+            syncFence: SyncFenceCompat?,
         ) {
             // NO-OP
         }
@@ -690,7 +690,7 @@ internal constructor(
                 width: Int,
                 height: Int,
                 bufferTransformer: BufferTransformer,
-                inverseTransform: Int
+                inverseTransform: Int,
             )
 
             /**
@@ -725,7 +725,7 @@ internal constructor(
                 width,
                 height,
                 bufferTransformer,
-                inverse
+                inverse,
             )
             mSurfaceControlCallback = callback
         }
@@ -751,7 +751,7 @@ internal constructor(
 
         internal fun createSurfaceControl(
             surfaceView: SurfaceView,
-            callback: SurfaceControlProvider.Callback
+            callback: SurfaceControlProvider.Callback,
         ) {
             // Destroy previously created SurfaceControl as we are creating a new instance
             callback.onSurfaceControlDestroyed()
@@ -773,7 +773,7 @@ internal constructor(
                 width,
                 height,
                 bufferTransformer,
-                inverse
+                inverse,
             )
 
             mSurfaceControl = surfaceControl
@@ -792,7 +792,7 @@ internal constructor(
                             holder: SurfaceHolder,
                             surfaceFormat: Int,
                             width: Int,
-                            height: Int
+                            height: Int,
                         ) {
                             if (width > 0 && height > 0) {
                                 createSurfaceControl(target, callback)
@@ -800,7 +800,7 @@ internal constructor(
                                 Log.w(
                                     TAG,
                                     "Invalid dimensions provided, width and height must be > 0. " +
-                                        "width: $width height: $height"
+                                        "width: $width height: $height",
                                 )
                             }
                         }
@@ -817,7 +817,7 @@ internal constructor(
 
                         override fun surfaceRedrawNeededAsync(
                             holder: SurfaceHolder,
-                            drawingFinished: Runnable
+                            drawingFinished: Runnable,
                         ) {
                             callback.requestRender(drawingFinished)
                         }

@@ -61,12 +61,12 @@ private fun TimeRangeFilter.sanitize(clock: Clock): TimeRangeFilter {
             startTime =
                 localStartTime ?: LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.systemDefault()),
             endTime =
-                localEndTime ?: LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())
+                localEndTime ?: LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault()),
         )
     }
     return TimeRangeFilter.between(
         startTime = startTime ?: Instant.EPOCH,
-        endTime = endTime ?: clock.instant()
+        endTime = endTime ?: clock.instant(),
     )
 }
 

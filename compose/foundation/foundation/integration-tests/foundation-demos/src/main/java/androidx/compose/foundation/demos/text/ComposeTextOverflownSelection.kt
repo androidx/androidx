@@ -75,13 +75,13 @@ fun TextOverflowedSelectionDemo() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
                     selected = overflow == TextOverflow.Clip,
-                    onClick = { overflow = TextOverflow.Clip }
+                    onClick = { overflow = TextOverflow.Clip },
                 )
                 Text(text = "Clip")
                 Spacer(modifier = Modifier.width(8.dp))
                 RadioButton(
                     selected = overflow == TextOverflow.Ellipsis,
-                    onClick = { overflow = TextOverflow.Ellipsis }
+                    onClick = { overflow = TextOverflow.Ellipsis },
                 )
                 Text(text = "Ellipsis")
             }
@@ -90,7 +90,7 @@ fun TextOverflowedSelectionDemo() {
                 text = loremIpsum(Language.Latin, wordCount = 50),
                 modifier = Modifier.fillMaxWidth().background(Color.Green),
                 softWrap = false,
-                overflow = overflow
+                overflow = overflow,
             )
             DisableSelection { Text(text = "Softwrap true, maxLines 1, in a row") }
             Row {
@@ -99,7 +99,7 @@ fun TextOverflowedSelectionDemo() {
                         text = loremIpsum(Language.Latin, wordCount = 50),
                         modifier = Modifier.background(Color.Green),
                         overflow = overflow,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
                 Box(modifier = Modifier.weight(1f), propagateMinConstraints = false) {
@@ -107,7 +107,7 @@ fun TextOverflowedSelectionDemo() {
                         text = loremIpsum(Language.Latin, wordCount = 50),
                         modifier = Modifier.background(Color.Green),
                         overflow = overflow,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
             }
@@ -117,14 +117,14 @@ fun TextOverflowedSelectionDemo() {
                     OverflowToggleText(
                         text = loremIpsum(Language.Latin, wordCount = 50),
                         modifier = Modifier.background(Color.Green).heightIn(max = 36.dp),
-                        overflow = overflow
+                        overflow = overflow,
                     )
                 }
                 Box(modifier = Modifier.weight(1f), propagateMinConstraints = false) {
                     OverflowToggleText(
                         text = loremIpsum(Language.Latin, wordCount = 50),
                         modifier = Modifier.background(Color.Green).heightIn(max = 36.dp),
-                        overflow = overflow
+                        overflow = overflow,
                     )
                 }
             }
@@ -133,20 +133,20 @@ fun TextOverflowedSelectionDemo() {
                 text = loremIpsum(Language.Latin, wordCount = 50),
                 modifier = Modifier.background(Color.Green).fillMaxWidth(0.5f),
                 overflow = overflow,
-                maxLines = 1
+                maxLines = 1,
             )
             DisableSelection { Text(text = "Softwrap true, maxLines 1") }
             OverflowToggleText(
                 text = loremIpsum(Language.Latin, wordCount = 50),
                 modifier = Modifier.fillMaxWidth().background(Color.Red),
                 maxLines = 1,
-                overflow = overflow
+                overflow = overflow,
             )
 
             DisableSelection {
                 Text(
                     text = "BiDi, softwrap true, maxLines 1",
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 16.dp),
                 )
             }
             OverflowToggleText(
@@ -155,7 +155,7 @@ fun TextOverflowedSelectionDemo() {
                         loremIpsum(Language.Arabic, wordCount = 20),
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 1,
-                overflow = overflow
+                overflow = overflow,
             )
 
             DisableSelection {
@@ -188,7 +188,7 @@ private fun OverflowToggleText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     var toggleOverflow by remember(overflow) { mutableStateOf(overflow) }
     Text(
@@ -217,6 +217,6 @@ private fun OverflowToggleText(
         maxLines = if (toggleOverflow == TextOverflow.Visible) Int.MAX_VALUE else maxLines,
         minLines = minLines,
         onTextLayout = onTextLayout,
-        style = style
+        style = style,
     )
 }

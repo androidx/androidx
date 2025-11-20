@@ -22,8 +22,10 @@ import android.os.IBinder
  * Interface that allows SDKs running in the Privacy Sandbox to launch activities.
  *
  * Apps can create launchers by calling
- * [createActivityLauncher][androidx.privacysandbox.activity.client.createSdkActivityLauncher] from
- * one of their activities.
+ * [createManagedSdkActivityLauncher][androidx.privacysandbox.activity.client.createManagedSdkActivityLauncher]
+ * or
+ * [createUnmanagedSdkActivityLauncher][androidx.privacysandbox.activity.client.createUnmanagedSdkActivityLauncher]
+ * from one of their activities.
  *
  * To send an [SdkActivityLauncher] to another process, they can call
  * [toLauncherInfo][androidx.privacysandbox.activity.client.toLauncherInfo] and send the resulting
@@ -32,7 +34,8 @@ import android.os.IBinder
  * SDKs can create launchers from an app-provided bundle by calling
  * [fromLauncherInfo][androidx.privacysandbox.activity.provider.SdkActivityLauncherFactory.fromLauncherInfo].
  */
-interface SdkActivityLauncher {
+@Deprecated("This library is no longer supported.")
+public interface SdkActivityLauncher {
 
     /**
      * Tries to launch a new SDK activity using the given [sdkActivityHandlerToken].
@@ -43,5 +46,5 @@ interface SdkActivityLauncher {
      * A valid [sdkActivityHandlerToken] can be obtained by registering an SDK activity with
      * [registerSdkSandboxActivityHandler][androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.registerSdkSandboxActivityHandler].
      */
-    suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean
+    public suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean
 }

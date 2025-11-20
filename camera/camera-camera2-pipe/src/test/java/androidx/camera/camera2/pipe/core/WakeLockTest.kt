@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.core
 
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,7 +27,6 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 internal class WakeLockTest {
 
     @Test

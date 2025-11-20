@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 9.0.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha01)" variant="all" version="9.0.0-alpha01">
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `new android.view.inputmethod.InputContentInfo`"
+        message="Call requires API level 25 (current min is 23): `new android.view.inputmethod.InputContentInfo`"
         errorLine1="        final InputContentInfo contentInfo = new InputContentInfo("
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `android.view.inputmethod.InputConnection#commitContent`"
+        message="Call requires API level 25 (current min is 23): `android.view.inputmethod.InputConnection#commitContent`"
         errorLine1="        return ic.commitContent(contentInfo, flags, null);"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 26 (current min is 21): `android.view.textclassifier.TextClassifier`"
+        message="Class requires API level 26 (current min is 23): `android.view.textclassifier.TextClassifier`"
         errorLine1="    private static class NoOpTextClassifier implements TextClassifier {}"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
@@ -299,233 +299,8 @@
     </issue>
 
     <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    fun testTileifyLayerDrawable() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatProgressBarHelperTest.kt"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarBackgroundDrawable.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarBackgroundDrawable.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21 &amp;&amp; !mLastInnerInsets.equals(mInnerInsets)) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        } else if (Build.VERSION.SDK_INT &lt; 21 &amp;&amp; !mLastInnerInsetsRect.equals(mInnerInsetsRect)) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="    private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT &lt; 21;"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="            } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatDelegateImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatImageHelper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="    private static final boolean COMPAT_OVERLAP_ANCHOR = Build.VERSION.SDK_INT &lt; 21;"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatPopupWindow.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="            } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 26` is never true here (`SDK_INT` ≥ 26 and &lt; 28)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 26` is always true here (`SDK_INT` ≥ 26 and &lt; 28)"
         errorLine1="            } else if (Build.VERSION.SDK_INT >= 26) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -534,146 +309,84 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/DropDownListView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ResourcesFlusher.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/ResourcesFlusher.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ShareActionProvider.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TintTypedArray.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TintTypedArray.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TintTypedArray.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `color`.">
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `color`.">
         <location
             file="src/main/res/color-v21"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `drawable`.">
+        message="This folder configuration (`v23`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `color`.">
+        <location
+            file="src/main/res/color-v23"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
         <location
             file="src/main/res/drawable-v21"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values-ldltr`.">
+        message="This folder configuration (`v23`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
+        <location
+            file="src/main/res/drawable-v23"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values-ldltr`.">
         <location
             file="src/main/res/values-ldltr-v21"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v16"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v17`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v17`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v17"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v18"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v21"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values-watch`.">
+        message="This folder configuration (`v22`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v22"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v23`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v23"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values-watch`.">
         <location
             file="src/main/res/values-watch-v21"/>
     </issue>
@@ -702,8 +415,8 @@
     <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`ActionBar`) and setter parameter type (`Toolbar`) getter and setter methods for property `supportActionBar` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public ActionBar getSupportActionBar() {"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public @Nullable ActionBar getSupportActionBar() {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"/>
         <location
@@ -714,8 +427,8 @@
     <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`ActionBar`) and setter parameter type (`Toolbar`) getter and setter methods for property `supportActionBar` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public abstract ActionBar getSupportActionBar();"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public abstract @Nullable ActionBar getSupportActionBar();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"/>
         <location
@@ -1551,8 +1264,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setActionView(View actionView) {"
-        errorLine2="                                         ~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setActionView(View actionView) {"
+        errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/ActionMenuItem.java"/>
     </issue>
@@ -1605,8 +1318,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/ActionMenuItem.java"/>
     </issue>
@@ -1632,8 +1345,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setContentDescription(CharSequence contentDescription) {"
-        errorLine2="                                                 ~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setContentDescription(CharSequence contentDescription) {"
+        errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/ActionMenuItem.java"/>
     </issue>
@@ -1650,8 +1363,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setTooltipText(CharSequence tooltipText) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setTooltipText(CharSequence tooltipText) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/ActionMenuItem.java"/>
     </issue>
@@ -1677,8 +1390,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        errorLine1="    public @NonNull MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/ActionMenuItem.java"/>
     </issue>
@@ -3405,8 +3118,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    @Nullable ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatCallback.java"/>
     </issue>
@@ -3585,8 +3298,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public @Nullable ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatDialog.java"/>
     </issue>
@@ -3702,8 +3415,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatTextView createTextView(Context context, AttributeSet attrs) {"
-        errorLine2="                                               ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatTextView createTextView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3711,8 +3424,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatTextView createTextView(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatTextView createTextView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3720,8 +3433,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatImageView createImageView(Context context, AttributeSet attrs) {"
-        errorLine2="                                                 ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatImageView createImageView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3729,8 +3442,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatImageView createImageView(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatImageView createImageView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3738,8 +3451,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatButton createButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                           ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatButton createButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3747,8 +3460,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatButton createButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                            ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatButton createButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3756,8 +3469,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatEditText createEditText(Context context, AttributeSet attrs) {"
-        errorLine2="                                               ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatEditText createEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3765,8 +3478,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatEditText createEditText(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatEditText createEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3774,8 +3487,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {"
-        errorLine2="                                             ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {"
+        errorLine2="                                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3783,8 +3496,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {"
-        errorLine2="                                                              ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatSpinner createSpinner(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3792,8 +3505,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                     ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3801,8 +3514,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                      ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatImageButton createImageButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3810,8 +3523,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {"
-        errorLine2="                                               ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {"
+        errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3819,8 +3532,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatCheckBox createCheckBox(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3828,8 +3541,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                     ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3837,8 +3550,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                      ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatRadioButton createRadioButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3846,26 +3559,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatCheckedTextView createCheckedTextView(Context context, AttributeSet attrs) {"
-        errorLine2="                                                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatCheckedTextView createCheckedTextView(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatAutoCompleteTextView createAutoCompleteTextView(Context context,"
-        errorLine2="                                                                       ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatCheckedTextView createCheckedTextView(Context context,"
+        errorLine2="                                                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3882,8 +3577,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(Context context,"
-        errorLine2="                                                                                 ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatAutoCompleteTextView createAutoCompleteTextView(Context context,"
+        errorLine2="                                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3900,8 +3595,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {"
-        errorLine2="                                                 ~~~~~~~">
+        errorLine1="            Context context, AttributeSet attrs) {"
+        errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3909,8 +3604,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
+        errorLine1="            Context context, AttributeSet attrs) {"
+        errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3918,8 +3613,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {"
-        errorLine2="                                             ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {"
+        errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3927,8 +3622,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {"
-        errorLine2="                                                              ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatRatingBar createRatingBar(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3936,8 +3631,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                       ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {"
+        errorLine2="                                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3945,8 +3640,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected AppCompatToggleButton createToggleButton(Context context, AttributeSet attrs) {"
-        errorLine2="                                                                        ~~~~~~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatSeekBar createSeekBar(Context context, AttributeSet attrs) {"
+        errorLine2="                                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3954,8 +3649,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View createView(Context context, String name, AttributeSet attrs) {"
-        errorLine2="                              ~~~~~~~">
+        errorLine1="    protected @NonNull AppCompatToggleButton createToggleButton(Context context,"
+        errorLine2="                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3963,8 +3658,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View createView(Context context, String name, AttributeSet attrs) {"
-        errorLine2="                                               ~~~~~~">
+        errorLine1="            AttributeSet attrs) {"
+        errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -3972,8 +3667,26 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View createView(Context context, String name, AttributeSet attrs) {"
-        errorLine2="                                                            ~~~~~~~~~~~~">
+        errorLine1="    protected @Nullable View createView(Context context, String name, AttributeSet attrs) {"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected @Nullable View createView(Context context, String name, AttributeSet attrs) {"
+        errorLine2="                                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected @Nullable View createView(Context context, String name, AttributeSet attrs) {"
+        errorLine2="                                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"/>
     </issue>
@@ -5718,8 +5431,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        errorLine1="    public @NonNull MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
     </issue>
@@ -5790,8 +5503,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setActionView(View view) {"
-        errorLine2="                                         ~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setActionView(View view) {"
+        errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
     </issue>
@@ -5844,8 +5557,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setSupportActionProvider(ActionProvider actionProvider) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
     </issue>
@@ -5871,8 +5584,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setContentDescription(CharSequence contentDescription) {"
-        errorLine2="                                                 ~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setContentDescription(CharSequence contentDescription) {"
+        errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
     </issue>
@@ -5889,8 +5602,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SupportMenuItem setTooltipText(CharSequence tooltipText) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
+        errorLine1="    public @NonNull SupportMenuItem setTooltipText(CharSequence tooltipText) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"/>
     </issue>

@@ -82,9 +82,9 @@ class SampleCustomBenchmark {
                             override fun captureResumed() {
                                 pausedOffset += counter - valueAtPause
                             }
-                        }
+                        },
                     ),
-                profiler = ProfilerConfig.MethodTracing()
+                profiler = ProfilerConfig.MethodTracing(),
             )
         )
 

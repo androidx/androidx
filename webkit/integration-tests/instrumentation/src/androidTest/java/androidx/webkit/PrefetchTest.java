@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.test.common.WebkitUtils;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,9 +60,23 @@ public class PrefetchTest {
         builder.setMaxPrefetches(1);
         assertEquals(1, builder.build().getMaxPrefetches());
 
-        builder.setMaxPrefetches(SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES);
-        assertEquals(SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES,
-                builder.build().getMaxPrefetches());
+        builder.setMaxPrefetches(Integer.MAX_VALUE - 1);
+        assertEquals(Integer.MAX_VALUE - 1, builder.build().getMaxPrefetches());
+    }
+
+    /**
+     * Test setting valid values for
+     * {@link SpeculativeLoadingConfig.Builder#setMaxPrerenders(int)} (int)}
+     */
+    @Test
+    public void testMaxPrerendersValidValues() {
+        WebkitUtils.checkFeature(WebViewFeature.SPECULATIVE_LOADING_CONFIG);
+        SpeculativeLoadingConfig.Builder builder = new SpeculativeLoadingConfig.Builder();
+        builder.setMaxPrerenders(1);
+        assertEquals(1, builder.build().getMaxPrerenders());
+
+        builder.setMaxPrerenders(Integer.MAX_VALUE - 1);
+        assertEquals(Integer.MAX_VALUE - 1, builder.build().getMaxPrerenders());
     }
 
     /**
@@ -91,13 +106,43 @@ public class PrefetchTest {
         IllegalArgumentException expectedException = assertThrows(IllegalArgumentException.class,
                 () -> builder.setMaxPrefetches(0));
         assertEquals("Max prefetches must be greater than 0", expectedException.getMessage());
-
-        // upper bound
-        expectedException = assertThrows(IllegalArgumentException.class,
-                () -> builder.setMaxPrefetches(
-                        SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES + 1));
-        assertEquals("Max prefetches cannot exceed"
-                + SpeculativeLoadingConfig.ABSOLUTE_MAX_PREFETCHES, expectedException.getMessage());
     }
+
+    /**
+     * Test setting out-of-range values for
+     * {@link SpeculativeLoadingConfig.Builder#setMaxPrerenders(int)}
+     */
+    @Test
+    public void testMaxPrerendersLimit() {
+        WebkitUtils.checkFeature(WebViewFeature.SPECULATIVE_LOADING_CONFIG);
+        SpeculativeLoadingConfig.Builder builder = new SpeculativeLoadingConfig.Builder();
+
+        // lower bound
+        IllegalArgumentException expectedException = assertThrows(IllegalArgumentException.class,
+                () -> builder.setMaxPrerenders(0));
+        assertEquals("Max prerenders must be greater than 0", expectedException.getMessage());
+    }
+
+    /**
+     * Test to make sure that calling the API won't cause any obvious errors.
+     */
+    @Test
+    public void testSettingCacheConfig() {
+        WebkitUtils.checkFeature(WebViewFeature.SPECULATIVE_LOADING_CONFIG);
+        SpeculativeLoadingConfig.Builder builder =
+                new SpeculativeLoadingConfig.Builder().setMaxPrefetches(1).setMaxPrerenders(
+                        1).setPrefetchTtlSeconds(60);
+        WebkitUtils.onMainThreadSync(() -> {
+            Profile testProfile = ProfileStore.getInstance().getProfile(
+                    Profile.DEFAULT_PROFILE_NAME);
+            try {
+                testProfile.setSpeculativeLoadingConfig(builder.build());
+            } catch (Exception exception) {
+                Assert.fail(exception.getMessage());
+            }
+        });
+
+    }
+
 
 }

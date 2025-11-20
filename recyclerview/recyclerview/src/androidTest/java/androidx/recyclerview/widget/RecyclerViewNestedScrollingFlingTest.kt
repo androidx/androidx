@@ -28,7 +28,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.ActivityScenarioResetRule
 import androidx.testutils.ResettableActivityScenarioRule
-import java.util.ArrayList
 import java.util.Arrays
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
@@ -50,7 +49,7 @@ class RecyclerViewNestedScrollingFlingTest(
     private val scrollDirectionForward: Boolean,
     private val rvIntercepts: Boolean,
     private val preScrollConsumption: Int,
-    private val postScrollConsumption: Int
+    private val postScrollConsumption: Int,
 ) {
 
     private lateinit var mNestedScrollingParent: NestedScrollingParent
@@ -167,11 +166,11 @@ class RecyclerViewNestedScrollingFlingTest(
 
         assertThat(
             velocities[0].toDouble(),
-            closeTo(expected[0].toDouble(), errorRange[0].toDouble())
+            closeTo(expected[0].toDouble(), errorRange[0].toDouble()),
         )
         assertThat(
             velocities[1].toDouble(),
-            closeTo(expected[1].toDouble(), errorRange[1].toDouble())
+            closeTo(expected[1].toDouble(), errorRange[1].toDouble()),
         )
     }
 
@@ -197,7 +196,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int,
-            type: Int
+            type: Int,
         ) {}
 
         override fun onNestedPreScroll(
@@ -205,7 +204,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dx: Int,
             dy: Int,
             consumed: IntArray,
-            type: Int
+            type: Int,
         ) {
             val toScrollX = amountOfScrollToConsume(dx, preScrollX)
             preScrollX -= toScrollX
@@ -234,7 +233,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dxUnconsumed: Int,
             dyUnconsumed: Int,
             offsetInWindow: IntArray?,
-            type: Int
+            type: Int,
         ): Boolean {
             return false
         }
@@ -244,7 +243,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dy: Int,
             consumed: IntArray?,
             offsetInWindow: IntArray?,
-            type: Int
+            type: Int,
         ): Boolean {
             return false
         }
@@ -256,7 +255,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dxUnconsumed: Int,
             dyUnconsumed: Int,
             type: Int,
-            consumed: IntArray
+            consumed: IntArray,
         ) {
             val toScrollX = amountOfScrollToConsume(dxUnconsumed, postScrollX)
             postScrollX -= toScrollX
@@ -276,7 +275,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dyUnconsumed: Int,
             offsetInWindow: IntArray?,
             type: Int,
-            consumed: IntArray
+            consumed: IntArray,
         ) {}
 
         override fun setNestedScrollingEnabled(enabled: Boolean) {}
@@ -300,7 +299,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int,
-            offsetInWindow: IntArray?
+            offsetInWindow: IntArray?,
         ): Boolean {
             return false
         }
@@ -309,7 +308,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dx: Int,
             dy: Int,
             consumed: IntArray?,
-            offsetInWindow: IntArray?
+            offsetInWindow: IntArray?,
         ): Boolean {
             return false
         }
@@ -317,7 +316,7 @@ class RecyclerViewNestedScrollingFlingTest(
         override fun dispatchNestedFling(
             velocityX: Float,
             velocityY: Float,
-            consumed: Boolean
+            consumed: Boolean,
         ): Boolean {
             return false
         }
@@ -339,7 +338,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dxConsumed: Int,
             dyConsumed: Int,
             dxUnconsumed: Int,
-            dyUnconsumed: Int
+            dyUnconsumed: Int,
         ) {}
 
         override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {}
@@ -348,7 +347,7 @@ class RecyclerViewNestedScrollingFlingTest(
             target: View,
             velocityX: Float,
             velocityY: Float,
-            consumed: Boolean
+            consumed: Boolean,
         ): Boolean {
             return false
         }
@@ -375,7 +374,7 @@ class RecyclerViewNestedScrollingFlingTest(
     internal constructor(
         private val mContext: Context,
         private val itemSize: Int,
-        private val rvIntercepts: Boolean
+        private val rvIntercepts: Boolean,
     ) : RecyclerView.Adapter<TestViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TestViewHolder {
@@ -421,71 +420,71 @@ class RecyclerViewNestedScrollingFlingTest(
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
-                                    0
+                                    0,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
-                                    0
+                                    0,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     50,
-                                    0
+                                    0,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     100,
-                                    0
+                                    0,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
-                                    25
+                                    25,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
-                                    50
+                                    50,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
-                                    100
+                                    100,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     12,
-                                    13
+                                    13,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
-                                    25
+                                    25,
                                 ),
                                 arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     50,
-                                    50
-                                )
+                                    50,
+                                ),
                             )
                         )
                     }

@@ -26,4 +26,5 @@ internal expect class SynchronizedObject
 internal expect inline fun makeSynchronizedObject(ref: Any? = null): SynchronizedObject
 
 @PublishedApi
+@Suppress("LESS_VISIBLE_TYPE_ACCESS_IN_INLINE_WARNING") // b/446705238
 internal expect inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R

@@ -25,8 +25,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.leanback.R;
 import androidx.leanback.media.PlaybackControlGlue;
-import androidx.leanback.test.R;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.ClassPresenterSelector;

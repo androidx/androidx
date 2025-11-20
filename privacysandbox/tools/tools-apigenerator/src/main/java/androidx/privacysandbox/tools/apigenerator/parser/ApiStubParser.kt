@@ -66,7 +66,7 @@ internal object ApiStubParser {
 
     private fun parseInterface(
         interfaceAndConstants: ClassAndConstants,
-        annotationName: String
+        annotationName: String,
     ): AnnotatedInterface {
         val service = interfaceAndConstants.kClass
         val type = parseClassName(service.name)
@@ -120,13 +120,13 @@ internal object ApiStubParser {
             AnnotatedDataClass(
                 type,
                 constants = classAndConstants.constants,
-                properties = parseProperties(type, value)
+                properties = parseProperties(type, value),
             )
         } else {
             AnnotatedEnumClass(
                 type,
                 constants = classAndConstants.constants,
-                variants = value.enumEntries.toList()
+                variants = @Suppress("deprecation") value.enumEntries.toList(),
             )
         }
     }
@@ -158,7 +158,7 @@ internal object ApiStubParser {
             function.name,
             function.valueParameters.map { Parameter(it.name, parseType(it.type)) },
             parseType(function.returnType),
-            function.isSuspend
+            function.isSuspend,
         )
     }
 
@@ -175,7 +175,7 @@ internal object ApiStubParser {
     private fun parseClassName(
         className: ClassName,
         typeArguments: List<Type> = emptyList(),
-        isNullable: Boolean = false
+        isNullable: Boolean = false,
     ): Type {
         // Package names are separated with slashes and nested classes are separated with dots.
         // (e.g com/example/OuterClass.InnerClass).

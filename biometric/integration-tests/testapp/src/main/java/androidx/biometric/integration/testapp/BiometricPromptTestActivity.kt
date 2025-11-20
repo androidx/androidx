@@ -158,12 +158,6 @@ class BiometricPromptTestActivity : FragmentActivity() {
     /** Launches the [BiometricPrompt] to begin crypto-based authentication. */
     @Suppress("DEPRECATION")
     private fun authenticateWithCrypto(info: BiometricPrompt.PromptInfo) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            log("Error: Key-gen not supported prior to API 23. Falling back to non-crypto auth.")
-            biometricPrompt.authenticate(info)
-            return
-        }
-
         try {
             val cryptoObject = createCryptoObject(isBiometricAllowed, isCredentialAllowed)
             biometricPrompt.authenticate(info, cryptoObject)

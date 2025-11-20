@@ -44,7 +44,7 @@ fun SimpleNavigationWithSaveableStateSample() {
     fun <T : Any> Navigation(
         currentScreen: T,
         modifier: Modifier = Modifier,
-        content: @Composable (T) -> Unit
+        content: @Composable (T) -> Unit,
     ) {
         // create SaveableStateHolder.
         val saveableStateHolder = rememberSaveableStateHolder()

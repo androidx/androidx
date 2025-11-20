@@ -58,7 +58,7 @@ class FragmentStateManagerTest {
         val fragment = StrictFragment()
         fragmentStore.setSavedState(
             fragment.mWho,
-            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState(),
         )
 
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
@@ -68,7 +68,7 @@ class FragmentStateManagerTest {
                 fragmentStore,
                 classLoader,
                 FragmentFactory(),
-                stateBundle
+                stateBundle,
             )
 
         val restoredFragment = fragmentStateManager.fragment
@@ -82,7 +82,7 @@ class FragmentStateManagerTest {
         val fragment = StrictFragment()
         fragmentStore.setSavedState(
             fragment.mWho,
-            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState(),
         )
         assertThat(fragment.mSavedFragmentState).isNull()
 
@@ -154,7 +154,7 @@ class FragmentStateManagerTest {
 
         fragmentStore.setSavedState(
             fragment.mWho,
-            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+            FragmentStateManager(dispatcher, fragmentStore, fragment).saveState(),
         )
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
         val fragmentStateManager =
@@ -163,7 +163,7 @@ class FragmentStateManagerTest {
                 fragmentStore,
                 classLoader,
                 FragmentFactory(),
-                stateBundle
+                stateBundle,
             )
 
         val restoredFragment = fragmentStateManager.fragment

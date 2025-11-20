@@ -55,7 +55,7 @@ class AndroidViewPagerBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val pager = device.findObject(By.res(PackageName, ResourceId))
             // Setting a gesture margin is important otherwise gesture nav is triggered.

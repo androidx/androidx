@@ -16,7 +16,6 @@
 
 package androidx.core.view;
 
-import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -24,8 +23,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
-
-import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 
@@ -220,16 +217,11 @@ public final class ViewParentCompat {
                     nestedScrollAxes, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
             // Else if the type is the default (touch), try the NestedScrollingParent API
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    return Api21Impl.onStartNestedScroll(parent, child, target, nestedScrollAxes);
-                } catch (AbstractMethodError e) {
-                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                            + "method onStartNestedScroll", e);
-                }
-            } else if (parent instanceof NestedScrollingParent) {
-                return ((NestedScrollingParent) parent).onStartNestedScroll(child, target,
-                        nestedScrollAxes);
+            try {
+                return parent.onStartNestedScroll(child, target, nestedScrollAxes);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onStartNestedScroll", e);
             }
         }
         return false;
@@ -262,16 +254,11 @@ public final class ViewParentCompat {
                     nestedScrollAxes, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
             // Else if the type is the default (touch), try the NestedScrollingParent API
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    Api21Impl.onNestedScrollAccepted(parent, child, target, nestedScrollAxes);
-                } catch (AbstractMethodError e) {
-                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                            + "method onNestedScrollAccepted", e);
-                }
-            } else if (parent instanceof NestedScrollingParent) {
-                ((NestedScrollingParent) parent).onNestedScrollAccepted(child, target,
-                        nestedScrollAxes);
+            try {
+                parent.onNestedScrollAccepted(child, target, nestedScrollAxes);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedScrollAccepted", e);
             }
         }
     }
@@ -297,15 +284,11 @@ public final class ViewParentCompat {
             ((NestedScrollingParent2) parent).onStopNestedScroll(target, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
             // Else if the type is the default (touch), try the NestedScrollingParent API
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    Api21Impl.onStopNestedScroll(parent, target);
-                } catch (AbstractMethodError e) {
-                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                            + "method onStopNestedScroll", e);
-                }
-            } else if (parent instanceof NestedScrollingParent) {
-                ((NestedScrollingParent) parent).onStopNestedScroll(target);
+            try {
+                parent.onStopNestedScroll(target);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onStopNestedScroll", e);
             }
         }
     }
@@ -355,17 +338,12 @@ public final class ViewParentCompat {
                         dxUnconsumed, dyUnconsumed, type);
             } else if (type == ViewCompat.TYPE_TOUCH) {
                 // Else if the type is the default (touch), try the NestedScrollingParent API
-                if (Build.VERSION.SDK_INT >= 21) {
-                    try {
-                        Api21Impl.onNestedScroll(parent, target, dxConsumed, dyConsumed,
-                                dxUnconsumed, dyUnconsumed);
-                    } catch (AbstractMethodError e) {
-                        Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                                + "method onNestedScroll", e);
-                    }
-                } else if (parent instanceof NestedScrollingParent) {
-                    ((NestedScrollingParent) parent).onNestedScroll(target, dxConsumed, dyConsumed,
+                try {
+                    parent.onNestedScroll(target, dxConsumed, dyConsumed,
                             dxUnconsumed, dyUnconsumed);
+                } catch (AbstractMethodError e) {
+                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                            + "method onNestedScroll", e);
                 }
             }
         }
@@ -401,15 +379,11 @@ public final class ViewParentCompat {
             ((NestedScrollingParent2) parent).onNestedPreScroll(target, dx, dy, consumed, type);
         } else if (type == ViewCompat.TYPE_TOUCH) {
             // Else if the type is the default (touch), try the NestedScrollingParent API
-            if (Build.VERSION.SDK_INT >= 21) {
-                try {
-                    Api21Impl.onNestedPreScroll(parent, target, dx, dy, consumed);
-                } catch (AbstractMethodError e) {
-                    Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                            + "method onNestedPreScroll", e);
-                }
-            } else if (parent instanceof NestedScrollingParent) {
-                ((NestedScrollingParent) parent).onNestedPreScroll(target, dx, dy, consumed);
+            try {
+                parent.onNestedPreScroll(target, dx, dy, consumed);
+            } catch (AbstractMethodError e) {
+                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                        + "method onNestedPreScroll", e);
             }
         }
     }
@@ -437,16 +411,11 @@ public final class ViewParentCompat {
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean onNestedFling(@NonNull ViewParent parent, @NonNull View target,
             float velocityX, float velocityY, boolean consumed) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            try {
-                return Api21Impl.onNestedFling(parent, target, velocityX, velocityY, consumed);
-            } catch (AbstractMethodError e) {
-                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                        + "method onNestedFling", e);
-            }
-        } else if (parent instanceof NestedScrollingParent) {
-            return ((NestedScrollingParent) parent).onNestedFling(target, velocityX, velocityY,
-                    consumed);
+        try {
+            return parent.onNestedFling(target, velocityX, velocityY, consumed);
+        } catch (AbstractMethodError e) {
+            Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                    + "method onNestedFling", e);
         }
         return false;
     }
@@ -475,16 +444,11 @@ public final class ViewParentCompat {
     @SuppressWarnings("RedundantCast") // Intentionally invoking interface method.
     public static boolean onNestedPreFling(@NonNull ViewParent parent, @NonNull View target,
             float velocityX, float velocityY) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            try {
-                return Api21Impl.onNestedPreFling(parent, target, velocityX, velocityY);
-            } catch (AbstractMethodError e) {
-                Log.e(TAG, "ViewParent " + parent + " does not implement interface "
-                        + "method onNestedPreFling", e);
-            }
-        } else if (parent instanceof NestedScrollingParent) {
-            return ((NestedScrollingParent) parent).onNestedPreFling(target, velocityX,
-                    velocityY);
+        try {
+            return parent.onNestedPreFling(target, velocityX, velocityY);
+        } catch (AbstractMethodError e) {
+            Log.e(TAG, "ViewParent " + parent + " does not implement interface "
+                    + "method onNestedPreFling", e);
         }
         return false;
     }
@@ -522,42 +486,5 @@ public final class ViewParentCompat {
             sTempNestedScrollConsumed[1] = 0;
         }
         return sTempNestedScrollConsumed;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean onStartNestedScroll(ViewParent viewParent, View view, View view1, int i) {
-            return viewParent.onStartNestedScroll(view, view1, i);
-        }
-
-        static void onNestedScrollAccepted(ViewParent viewParent, View view, View view1, int i) {
-            viewParent.onNestedScrollAccepted(view, view1, i);
-        }
-
-        static void onStopNestedScroll(ViewParent viewParent, View view) {
-            viewParent.onStopNestedScroll(view);
-        }
-
-        static void onNestedScroll(ViewParent viewParent, View view, int i, int i1, int i2,
-                int i3) {
-            viewParent.onNestedScroll(view, i, i1, i2, i3);
-        }
-
-        static void onNestedPreScroll(ViewParent viewParent, View view, int i, int i1, int[] ints) {
-            viewParent.onNestedPreScroll(view, i, i1, ints);
-        }
-
-        static boolean onNestedFling(ViewParent viewParent, View view, float v, float v1,
-                boolean b) {
-            return viewParent.onNestedFling(view, v, v1, b);
-        }
-
-        static boolean onNestedPreFling(ViewParent viewParent, View view, float v, float v1) {
-            return viewParent.onNestedPreFling(view, v, v1);
-        }
     }
 }

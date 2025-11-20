@@ -18,12 +18,13 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     namespace = "androidx.core.telecom.test"
-
+    compileSdk = 36
+    compileSdkMinor = 1
     defaultConfig {
         applicationId = "androidx.core.telecom.icstest"
         minSdk = 29 // Move down to 23 if we support CallingApp:checkDialerRole for < Q
@@ -42,13 +43,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     //@Serialize
     implementation(libs.kotlinSerializationCore)
     // Test package
     implementation(project(":core:core-telecom"))
     // Compose
     implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.compose.runtime:runtime:1.7.8")
     // Themes and Dynamic coloring
     implementation("androidx.compose.material3:material3:1.2.1")
     // Icons

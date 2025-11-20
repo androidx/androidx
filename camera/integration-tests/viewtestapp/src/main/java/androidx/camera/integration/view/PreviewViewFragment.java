@@ -30,6 +30,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -454,6 +456,23 @@ public class PreviewViewFragment extends Fragment {
 
     // region For preview updates testing
     private @Nullable CountDownLatch mPreviewUpdatingLatch;
+    private Handler mUiThreadHandler = new Handler(Looper.getMainLooper());
+    private @Nullable CountDownLatch mPreviewNotUpdatingLatch;
+    private long mLastOnPreDrawTime = -1;
+
+    private Runnable mPreviewNotUpdatingRunnable = () -> {
+        if (mLastOnPreDrawTime == -1) {
+            return;
+        }
+        if (System.currentTimeMillis() - mLastOnPreDrawTime > 1000) {
+            if (mPreviewNotUpdatingLatch != null && mPreviewNotUpdatingLatch.getCount() > 0) {
+                mPreviewNotUpdatingLatch.countDown();
+            }
+        } else {
+            // Post the runnable in 50 ms to check again.
+            mUiThreadHandler.postDelayed(this.mPreviewNotUpdatingRunnable, 50);
+        }
+    };
 
     // Here we use OnPreDrawListener in ViewTreeObserver to detect if view is being updating.
     // If yes, preview should be working to update the view. We could use more precise approach
@@ -464,6 +483,10 @@ public class PreviewViewFragment extends Fragment {
         if (mPreviewUpdatingLatch != null) {
             mPreviewUpdatingLatch.countDown();
         }
+
+        // Records the last OnPreDrawListener event time.
+        mLastOnPreDrawTime = System.currentTimeMillis();
+
         return true;
     };
 
@@ -484,6 +507,18 @@ public class PreviewViewFragment extends Fragment {
     @VisibleForTesting
     void setPreviewUpdatingLatch(@NonNull CountDownLatch previewUpdatingLatch) {
         mPreviewUpdatingLatch = previewUpdatingLatch;
+    }
+
+    /**
+     * The given count down latch will be counted down if no OnPreDrawListener event is received
+     * in the recent 1000 ms.
+     */
+    @VisibleForTesting
+    void setPreviewNotUpdatingLatch(@NonNull CountDownLatch previewNotUpdatingLatch) {
+        mPreviewNotUpdatingLatch = previewNotUpdatingLatch;
+        // Post the runnable to check whether there is no OnPreDrawListener event received in
+        // 1000 ms.
+        mUiThreadHandler.postDelayed(mPreviewNotUpdatingRunnable, 1000);
     }
     // endregion
 }

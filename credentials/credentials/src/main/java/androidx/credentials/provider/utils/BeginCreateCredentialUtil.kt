@@ -38,7 +38,7 @@ internal class BeginCreateCredentialUtil {
                 request.data,
                 request.callingAppInfo?.let {
                     CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
-                }
+                },
             )
         }
 
@@ -58,7 +58,7 @@ internal class BeginCreateCredentialUtil {
         @RequiresApi(34)
         private fun populateRemoteEntry(
             frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
-            remoteEntry: RemoteEntry?
+            remoteEntry: RemoteEntry?,
         ) {
             if (remoteEntry == null) {
                 return
@@ -71,7 +71,7 @@ internal class BeginCreateCredentialUtil {
         @RequiresApi(34)
         private fun populateCreateEntries(
             frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
-            createEntries: List<CreateEntry>
+            createEntries: List<CreateEntry>,
         ) {
             createEntries.forEach {
                 val entrySlice = CreateEntry.toSlice(it)
@@ -93,13 +93,13 @@ internal class BeginCreateCredentialUtil {
                     android.service.credentials.CallingAppInfo(
                         request.callingAppInfo.packageName,
                         request.callingAppInfo.signingInfo,
-                        request.callingAppInfo.origin
+                        request.callingAppInfo.origin,
                     )
             }
             return android.service.credentials.BeginCreateCredentialRequest(
                 request.type,
                 request.candidateQueryData,
-                callingAppInfo
+                callingAppInfo,
             )
         }
 
@@ -116,7 +116,7 @@ internal class BeginCreateCredentialUtil {
                         .map { entry -> entry!! }
                         .collect(Collectors.toList()),
                 remoteEntry =
-                    frameworkResponse.remoteCreateEntry?.let { RemoteEntry.fromSlice(it.slice) }
+                    frameworkResponse.remoteCreateEntry?.let { RemoteEntry.fromSlice(it.slice) },
             )
         }
     }

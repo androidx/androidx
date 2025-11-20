@@ -44,7 +44,7 @@ class RemoveWorkManagerInitializerDetectorTest {
 
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -74,7 +74,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                 // Source files
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
-                customApplication
+                customApplication,
             )
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
@@ -97,7 +97,7 @@ class RemoveWorkManagerInitializerDetectorTest {
 
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -126,7 +126,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                 // Source files
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
-                customApplication
+                customApplication,
             )
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
@@ -151,7 +151,7 @@ class RemoveWorkManagerInitializerDetectorTest {
 
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -175,7 +175,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                 // Source files
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
-                customApplication
+                customApplication,
             )
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
@@ -208,7 +208,7 @@ class RemoveWorkManagerInitializerDetectorTest {
 
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -240,7 +240,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                 // Source files
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
-                customApplication
+                customApplication,
             )
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
@@ -275,7 +275,7 @@ class RemoveWorkManagerInitializerDetectorTest {
 
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -307,7 +307,7 @@ class RemoveWorkManagerInitializerDetectorTest {
                 // Source files
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
-                customApplication
+                customApplication,
             )
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()

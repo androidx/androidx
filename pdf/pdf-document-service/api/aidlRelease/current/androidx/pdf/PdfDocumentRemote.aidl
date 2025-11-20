@@ -49,4 +49,16 @@ interface PdfDocumentRemote {
   int getFormType();
   void releasePage(int pageNum);
   void closePdfDocument();
+  List<android.graphics.pdf.models.FormWidgetInfo> getFormWidgetInfos(int pageNum);
+  List<android.graphics.pdf.models.FormWidgetInfo> getFormWidgetInfosOfType(int pageNum, in int[] types);
+  List<android.graphics.Rect> applyEdit(int pageNum, in android.graphics.pdf.models.FormEditRecord editRecord);
+  void write(in ParcelFileDescriptor destination, boolean removePasswordProtection);
+  androidx.pdf.annotation.models.AnnotationResult addAnnotations(in ParcelFileDescriptor pfd);
+  List<androidx.pdf.annotation.models.PdfAnnotation> getPageAnnotations(int pageNum);
+  androidx.pdf.annotation.models.AnnotationResult applyEdits(in List<androidx.pdf.annotation.models.PdfAnnotationData> annots);
+  androidx.pdf.annotation.models.AddEditResult addEdit(in List<androidx.pdf.annotation.models.PdfAnnotationData> annots);
+  androidx.pdf.annotation.models.ModifyEditResult updateEdit(in List<androidx.pdf.annotation.models.PdfAnnotationData> annots);
+  androidx.pdf.annotation.models.ModifyEditResult removeEdit(in List<androidx.pdf.annotation.models.EditId> editIds);
+  androidx.pdf.annotation.models.PaginatedAnnotations getAllPageAnnotations(int pageNum);
+  androidx.pdf.annotation.models.PaginatedAnnotations getBatchedPageAnnotations(int pageNum, in int batchIndex);
 }

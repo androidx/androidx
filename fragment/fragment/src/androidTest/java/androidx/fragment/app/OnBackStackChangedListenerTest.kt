@@ -18,7 +18,6 @@ package androidx.fragment.app
 
 import android.os.Build
 import androidx.activity.BackEventCompat
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -497,7 +496,6 @@ class OnBackStackChangedListenerTest {
         }
     }
 
-    @RequiresApi(34)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testBackStackHandledOnBackChange() {
@@ -575,7 +573,6 @@ class OnBackStackChangedListenerTest {
         }
     }
 
-    @RequiresApi(34)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testBackStackCancelledOnBackChange() {

@@ -16,8 +16,17 @@
 
 package androidx.xr.scenecore
 
-import android.app.Activity
 import android.media.MediaPlayer
+import androidx.activity.ComponentActivity
+import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
+import androidx.xr.runtime.Session
+import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
+import androidx.xr.scenecore.runtime.Entity as RtEntity
+import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper as RtMediaPlayerExtensionsWrapper
+import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SoundFieldAttributes as RtSoundFieldAttributes
+import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,49 +42,57 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SpatialMediaPlayerTest {
 
-    private var mockRuntime: JxrPlatformAdapter = mock()
-    private var mockRtMediaPlayerExtensions: JxrPlatformAdapter.MediaPlayerExtensionsWrapper =
-        mock()
+    private val fakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
+    private var mockSceneRuntime: SceneRuntime = mock()
 
-    private val mockContentlessEntity = mock<JxrPlatformAdapter.Entity>()
-    private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
+    private var mockRtMediaPlayerExtensions: RtMediaPlayerExtensionsWrapper = mock()
+
+    private val mockGroupEntity = mock<RtEntity>()
+    private val activity =
+        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    private val mockActivitySpace = mock<RtActivitySpace>()
 
     private lateinit var session: Session
 
     @Before
     fun setUp() {
-        mockRuntime.stub {
+        mockSceneRuntime.stub {
             on { spatialEnvironment } doReturn mock()
-            on { activitySpace } doReturn mock()
-            on { activitySpaceRootImpl } doReturn mock()
+            on { activitySpace } doReturn mockActivitySpace
             on { headActivityPose } doReturn mock()
             on { perceptionSpaceActivityPose } doReturn mock()
             on { mainPanelEntity } doReturn mock()
-            on { createEntity(any(), any(), any()) } doReturn mockContentlessEntity
+            on { createGroupEntity(any(), any(), any()) } doReturn mockGroupEntity
+            on { spatialCapabilities } doReturn RtSpatialCapabilities(0)
         }
 
         mockRtMediaPlayerExtensions = mock()
-        whenever(mockRuntime.mediaPlayerExtensionsWrapper).thenReturn(mockRtMediaPlayerExtensions)
-        session = Session.create(activity, mockRuntime)
+        whenever(mockSceneRuntime.mediaPlayerExtensionsWrapper)
+            .thenReturn(mockRtMediaPlayerExtensions)
+        session =
+            Session(
+                activity,
+                runtimes =
+                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
+            )
     }
 
     @Test
     fun setWithPointSource_callsRuntimeMediaPlayerSetPointSource() {
         val mediaPlayer = MediaPlayer()
 
-        val entity = ContentlessEntity.create(session, "test")
-        val pointSourceAttributes = PointSourceAttributes(entity)
+        val entity = GroupEntity.create(session, "test")
+        val pointSourceAttributes = PointSourceParams(entity)
 
-        SpatialMediaPlayer.setPointSourceAttributes(session, mediaPlayer, pointSourceAttributes)
+        SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceAttributes)
 
         verify(mockRtMediaPlayerExtensions)
-            .setPointSourceAttributes(
+            .setPointSourceParams(
                 eq(mediaPlayer),
-                argWhere<JxrPlatformAdapter.PointSourceAttributes> {
-                    it.entity == mockContentlessEntity
-                },
+                argWhere<RtPointSourceParams> { it.entity == mockGroupEntity },
             )
     }
 
@@ -84,15 +101,16 @@ class SpatialMediaPlayerTest {
         val mediaPlayer = MediaPlayer()
 
         val soundFieldAttributes =
-            SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.THIRD_ORDER)
 
         SpatialMediaPlayer.setSoundFieldAttributes(session, mediaPlayer, soundFieldAttributes)
 
         verify(mockRtMediaPlayerExtensions)
             .setSoundFieldAttributes(
                 eq(mediaPlayer),
-                argWhere<JxrPlatformAdapter.SoundFieldAttributes> {
-                    it.ambisonicsOrder == SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+                argWhere<RtSoundFieldAttributes> {
+                    it.ambisonicsOrder.ambisonicsOrderToJxr() ==
+                        SpatializerConstants.AmbisonicsOrder.THIRD_ORDER
                 },
             )
     }

@@ -33,14 +33,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 
 /**
  * Execute horizontal slide of 1/4 width and fade (to workaround bug 23718734)
  */
-@RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FadeAndShortSlide extends Visibility {
 

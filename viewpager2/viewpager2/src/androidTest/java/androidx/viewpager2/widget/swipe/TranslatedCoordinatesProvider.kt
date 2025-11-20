@@ -22,7 +22,7 @@ import androidx.test.espresso.action.CoordinatesProvider
 class TranslatedCoordinatesProvider(
     private val provider: CoordinatesProvider,
     private val dx: Float,
-    private val dy: Float
+    private val dy: Float,
 ) : CoordinatesProvider {
     override fun calculateCoordinates(view: View?): FloatArray {
         val coords = provider.calculateCoordinates(view)

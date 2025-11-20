@@ -61,9 +61,9 @@ fun StampedPathEffectSample() {
                                 shape = square,
                                 style = StampedPathEffectStyle.Morph,
                                 phase = 0f,
-                                advance = 30f
+                                advance = 30f,
                             )
-                    )
+                    ),
             )
         }
 
@@ -83,9 +83,9 @@ fun StampedPathEffectSample() {
                                 shape = square,
                                 style = StampedPathEffectStyle.Rotate,
                                 phase = 0f,
-                                advance = 30f
+                                advance = 30f,
                             )
-                    )
+                    ),
             )
         }
 
@@ -104,9 +104,9 @@ fun StampedPathEffectSample() {
                                 shape = square,
                                 style = StampedPathEffectStyle.Translate,
                                 phase = 0f,
-                                advance = 30f
+                                advance = 30f,
                             )
-                    )
+                    ),
             )
         }
     }

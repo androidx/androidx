@@ -32,10 +32,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link TabTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TabTemplateTest {
     @Rule
@@ -260,21 +262,35 @@ public class TabTemplateTest {
     public void notEquals_differentActiveTab() {
         TabTemplate template1 = new TabTemplate.Builder(mMockTabCallback)
                 .setHeaderAction(Action.APP_ICON)
-                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_1", "ID_1"))
                 .addTab(getTab("TAB_2", "ID_2"))
                 .setTabContents(TAB_CONTENTS)
-                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setActiveTabContentId("ID_1")
                 .build();
 
         TabTemplate template2 = new TabTemplate.Builder(mMockTabCallback)
                 .setHeaderAction(Action.APP_ICON)
                 .addTab(getTab("TAB_1", "ID_1"))
-                .addTab(getTab("TAB_2", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
                 .setTabContents(TAB_CONTENTS)
-                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setActiveTabContentId("ID_2")
                 .build();
 
         assertNotEquals(template1, template2);
+    }
+
+    @Test
+    public void equals_bothIsLoading() {
+        TabTemplate templateWithActiveTab =
+                new TabTemplate.Builder(mMockTabCallback)
+                        .setLoading(true)
+                        .build();
+        TabTemplate templateWithoutActiveTab =
+                new TabTemplate.Builder(mMockTabCallback)
+                        .setLoading(true)
+                        .build();
+
+        assertEquals(templateWithActiveTab, templateWithoutActiveTab);
     }
 
     @Test

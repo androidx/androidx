@@ -238,7 +238,7 @@ class ActivityEmbeddingRuleTest {
                             throw TestException
                         }
                     },
-                    Description.EMPTY
+                    Description.EMPTY,
                 )
                 .evaluate()
         } catch (e: TestException) {

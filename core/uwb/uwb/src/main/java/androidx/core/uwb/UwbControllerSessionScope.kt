@@ -38,8 +38,8 @@ public interface UwbControllerSessionScope : UwbClientSessionScope {
      *   of a unicast profile.
      *
      * Otherwise, this method will return successfully, and clients are expected to handle either
-     * [RangingResult.RangingResultPosition] or [RangingResult.RangingResultPeerDisconnected] to
-     * listen for starts or failures.
+     * [RangingResult.RangingResultPosition] or [RangingResult.RangingResultFailure] to listen for
+     * starts or failures.
      */
     public suspend fun addControlee(address: UwbAddress)
 

@@ -58,7 +58,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
             GridRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -70,7 +70,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                useStickyHeader = true
+                useStickyHeader = true,
             )
         }
     }
@@ -81,7 +81,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
             GridRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -93,7 +93,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -106,7 +106,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
                 content = testCase.content,
                 isVertical = testCase.isVertical,
                 usePointerInput = true,
-                useStickyHeader = true
+                useStickyHeader = true,
             )
         }
     }
@@ -118,7 +118,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -132,7 +132,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
             GridRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -146,7 +146,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
             GridRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -167,7 +167,7 @@ class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase
 class LazyGridScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
-    val content: @Composable GridRemeasureTestCase.(LazyGridState, Boolean) -> Unit
+    val content: @Composable GridRemeasureTestCase.(LazyGridState, Boolean) -> Unit,
 ) {
     override fun toString(): String {
         return name
@@ -180,7 +180,7 @@ private val Vertical =
             columns = GridCells.Fixed(2),
             state = state,
             modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             if (useStickyHeader) {
                 stickyHeader { FirstLargeItem() }
@@ -197,7 +197,7 @@ private val Horizontal =
             rows = GridCells.Fixed(2),
             state = state,
             modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             if (useStickyHeader) {
                 stickyHeader { FirstLargeItem() }
@@ -213,7 +213,7 @@ class GridRemeasureTestCase(
     val content: @Composable GridRemeasureTestCase.(LazyGridState, Boolean) -> Unit,
     val isVertical: Boolean,
     val usePointerInput: Boolean = false,
-    val useStickyHeader: Boolean = false
+    val useStickyHeader: Boolean = false,
 ) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(300) { LazyItem(it) }

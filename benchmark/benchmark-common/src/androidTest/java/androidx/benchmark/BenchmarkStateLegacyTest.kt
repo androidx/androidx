@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.Manifest
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
@@ -78,7 +77,7 @@ class BenchmarkStateLegacyTest {
         val medianTime = state.peekTestResult().metrics["timeNs"]!!.median.toLong()
         assertTrue(
             "median time (ns) $medianTime should be roughly 300us",
-            medianTime in us2ns(280)..us2ns(900)
+            medianTime in us2ns(280)..us2ns(900),
         )
         val medianAlloc = state.peekTestResult().metrics["allocationCount"]!!.median.toInt()
         assertTrue("median allocs $medianAlloc should be approximately 40", medianAlloc in 40..50)
@@ -108,7 +107,7 @@ class BenchmarkStateLegacyTest {
         assertEquals(
             "JIT priority should not yet be modified",
             ThreadPriority.JIT_INITIAL_PRIORITY,
-            ThreadPriority.getJit()
+            ThreadPriority.getJit(),
         )
 
         // verify priority is only bumped during loop (NOTE: lower number means higher priority)
@@ -118,7 +117,7 @@ class BenchmarkStateLegacyTest {
             assertTrue(
                 "JIT priority should be bumped," +
                     " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
-                currentJitPriority < ThreadPriority.JIT_INITIAL_PRIORITY
+                currentJitPriority < ThreadPriority.JIT_INITIAL_PRIORITY,
             )
         }
         assertEquals(ThreadPriority.JIT_INITIAL_PRIORITY, ThreadPriority.getJit())
@@ -130,7 +129,7 @@ class BenchmarkStateLegacyTest {
         assertNotEquals(
             "Priority should not be max",
             ThreadPriority.HIGH_PRIORITY,
-            ThreadPriority.get()
+            ThreadPriority.get(),
         )
 
         // verify priority is only bumped during loop (NOTE: lower number means higher priority)
@@ -139,7 +138,7 @@ class BenchmarkStateLegacyTest {
             val currentPriority = ThreadPriority.get()
             assertTrue(
                 "Priority should be bumped, is $currentPriority",
-                currentPriority < initialPriority
+                currentPriority < initialPriority,
             )
         }
         assertEquals(initialPriority, ThreadPriority.get())
@@ -205,7 +204,7 @@ class BenchmarkStateLegacyTest {
                 .getFullStatusReport(
                     key = "foo",
                     reportMetrics = true,
-                    tracePath = Outputs.outputDirectory.absolutePath + "/bar"
+                    tracePath = Outputs.outputDirectory.absolutePath + "/bar",
                 )
 
         val displayStringV1 = (bundle.get("android.studio.display.benchmark") as String)
@@ -214,7 +213,7 @@ class BenchmarkStateLegacyTest {
         assertTrue("$displayStringV2 should contain foo", displayStringV2.contains("foo"))
         assertTrue(
             "$displayStringV2 should contain [Trace](file://bar)",
-            displayStringV2.contains("[Trace](file://bar)")
+            displayStringV2.contains("[Trace](file://bar)"),
         )
 
         // check attribute presence and naming
@@ -258,7 +257,6 @@ class BenchmarkStateLegacyTest {
         }
     }
 
-    @RequiresApi(22) // 21 profiler has flaky platform crashes, see b/353716346
     private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
         val config = MicrobenchmarkConfig(profiler = ProfilerConfig.StackSamplingLegacy())
 
@@ -266,7 +264,7 @@ class BenchmarkStateLegacyTest {
             if (simplifiedTimingOnlyMode != null) {
                 BenchmarkStateLegacy(
                     config = config,
-                    simplifiedTimingOnlyMode = simplifiedTimingOnlyMode
+                    simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
                 )
             } else {
                 BenchmarkStateLegacy(config)
@@ -304,17 +302,11 @@ class BenchmarkStateLegacyTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
-    @Test
-    fun profiler_default() = validateProfilerUsage(null)
+    @Test fun profiler_default() = validateProfilerUsage(null)
 
-    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
-    @Test
-    fun profiler_false() = validateProfilerUsage(false)
+    @Test fun profiler_false() = validateProfilerUsage(false)
 
-    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
-    @Test
-    fun profiler_true() = validateProfilerUsage(true)
+    @Test fun profiler_true() = validateProfilerUsage(true)
 
     @OptIn(ExperimentalBenchmarkStateApi::class)
     @Test

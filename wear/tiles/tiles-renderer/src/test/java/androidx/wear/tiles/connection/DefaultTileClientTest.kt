@@ -61,7 +61,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
-@Config(manifest = Config.NONE)
+@org.robolectric.annotation.Config(
+    manifest = Config.NONE,
+    sdk = [org.robolectric.annotation.Config.TARGET_SDK],
+)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(TilesTestRunner::class)
 public class DefaultTileClientTest {
@@ -90,7 +93,7 @@ public class DefaultTileClientTest {
                 appContext,
                 TILE_PROVIDER,
                 fakeCoroutineScope,
-                fakeCoroutineDispatcher
+                fakeCoroutineDispatcher,
             )
     }
 
@@ -323,7 +326,7 @@ public class DefaultTileClientTest {
     private class FakeTileService : TileProvider.Stub() {
         var shouldReturnTile = true
         var returnTile = ByteArray(0)
-        var returnTileVersion = TileData.VERSION_PROTOBUF
+        var returnTileVersion = TileData.VERSION_PROTOBUF_1
 
         var shouldReturnResources = true
         var returnResources = ByteArray(0)
@@ -341,7 +344,7 @@ public class DefaultTileClientTest {
         override fun onTileRequest(
             id: Int,
             requestData: TileRequestData?,
-            callback: TileCallback?
+            callback: TileCallback?,
         ) {
             if (shouldReturnTile) {
                 callback!!.updateTileData(TileData(returnTile, returnTileVersion))
@@ -351,7 +354,7 @@ public class DefaultTileClientTest {
         override fun onResourcesRequest(
             id: Int,
             requestData: ResourcesRequestData?,
-            callback: ResourcesCallback?
+            callback: ResourcesCallback?,
         ) {
             if (shouldReturnResources) {
                 callback!!.updateResources(ResourcesData(returnResources, returnResourcesVersion))
@@ -374,13 +377,9 @@ public class DefaultTileClientTest {
             onTileLeaveCalled = true
         }
 
-        override fun processRecentInteractionEvents(
-            events: MutableList<TileInteractionEventData>?
-        ) {}
-
         override fun onRecentInteractionEvents(
             events: List<TileInteractionEventData?>?,
-            callback: InteractionEventsCallback?
+            callback: InteractionEventsCallback?,
         ) {
             callback!!.finish()
         }

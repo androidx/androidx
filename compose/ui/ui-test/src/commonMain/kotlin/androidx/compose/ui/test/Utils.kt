@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.SemanticsNode
  */
 internal fun SemanticsNode.findClosestParentNode(
     includeSelf: Boolean = false,
-    selector: (SemanticsNode) -> Boolean
+    selector: (SemanticsNode) -> Boolean,
 ): SemanticsNode? {
     var currentParent = if (includeSelf) this else parent
     while (currentParent != null) {

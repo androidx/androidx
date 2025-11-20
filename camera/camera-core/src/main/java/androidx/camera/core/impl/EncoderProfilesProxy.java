@@ -38,6 +38,7 @@ import android.media.EncoderProfiles;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
+import android.util.Size;
 
 import androidx.annotation.IntDef;
 
@@ -149,6 +150,12 @@ public interface EncoderProfilesProxy {
 
         /** @see EncoderProfiles.VideoProfile#getHdrFormat() */
         public abstract int getHdrFormat();
+
+        /** Returns video resolution equivalent to {@code new Size(getWidth(), getHeight())}. */
+        @NonNull
+        public Size getResolution() {
+            return new Size(getWidth(), getHeight());
+        }
     }
 
     /**

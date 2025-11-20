@@ -55,7 +55,7 @@ class ProfileRuleParserTests {
         assertEquals(profileRule.flags, "HP")
         assertEquals(
             profileRule.classDescriptor,
-            "androidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo"
+            "androidx/lifecycle/ClassesInfoCache${dollar}CallbackInfo",
         )
         assertEquals(profileRule.methodDescriptor, "<init>(Ljava/util/Map;)V")
     }

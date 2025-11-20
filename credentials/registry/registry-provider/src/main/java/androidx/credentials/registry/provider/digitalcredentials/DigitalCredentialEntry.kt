@@ -34,9 +34,13 @@ package androidx.credentials.registry.provider.digitalcredentials
  * @property id the provider unique identifier of this credential entry, which can be used to
  *   identify the exact credential that the user has chosen
  * @property entryDisplayPropertySet the display properties associated with the given entry
+ * @throws IllegalArgumentException if [id] length is greater than 64 characters
  */
-public abstract class DigitalCredentialEntry
-constructor(
+public abstract class DigitalCredentialEntry(
     public val id: String,
     public val entryDisplayPropertySet: Set<EntryDisplayProperties>,
-)
+) {
+    init {
+        require(id.length <= 64) { "`id` length must be less than 64" }
+    }
+}

@@ -212,7 +212,7 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
         isDestinationHistoryAware,
-        initialDestinationHistory
+        initialDestinationHistory,
     )
 
 /**
@@ -280,7 +280,7 @@ fun <T> rememberSupportingPaneScaffoldNavigator(
         scaffoldDirective,
         adaptStrategies,
         isDestinationHistoryAware,
-        initialDestinationHistory
+        initialDestinationHistory,
     )
 
 /**
@@ -319,21 +319,21 @@ internal fun <T> rememberThreePaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     isDestinationHistoryAware: Boolean,
-    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>
+    initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>,
 ): ThreePaneScaffoldNavigator<T> =
     rememberSaveable(
             saver =
                 DefaultThreePaneScaffoldNavigator.saver(
                     scaffoldDirective,
                     adaptStrategies,
-                    isDestinationHistoryAware
+                    isDestinationHistoryAware,
                 )
         ) {
             DefaultThreePaneScaffoldNavigator(
                 initialDestinationHistory = initialDestinationHistory,
                 initialScaffoldDirective = scaffoldDirective,
                 initialAdaptStrategies = adaptStrategies,
-                initialIsDestinationHistoryAware = isDestinationHistoryAware
+                initialIsDestinationHistoryAware = isDestinationHistoryAware,
             )
         }
         .apply {
@@ -347,7 +347,7 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
     initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>,
     initialScaffoldDirective: PaneScaffoldDirective,
     initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
-    initialIsDestinationHistoryAware: Boolean
+    initialIsDestinationHistoryAware: Boolean,
 ) : ThreePaneScaffoldNavigator<T> {
 
     private val destinationHistory =
@@ -386,9 +386,7 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
     override fun canNavigateBack(backNavigationBehavior: BackNavigationBehavior): Boolean =
         getPreviousDestinationIndex(backNavigationBehavior) >= 0
 
-    override suspend fun navigateBack(
-        backNavigationBehavior: BackNavigationBehavior,
-    ): Boolean {
+    override suspend fun navigateBack(backNavigationBehavior: BackNavigationBehavior): Boolean {
         val previousDestinationIndex = getPreviousDestinationIndex(backNavigationBehavior)
         if (previousDestinationIndex < 0) {
             destinationHistory.clear()
@@ -457,21 +455,24 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
     private fun calculateScaffoldValue(destinationIndex: Int) =
         if (destinationIndex == -1) {
             calculateThreePaneScaffoldValue(
-                scaffoldDirective.maxHorizontalPartitions,
-                adaptStrategies,
-                null
+                maxHorizontalPartitions = scaffoldDirective.maxHorizontalPartitions,
+                maxVerticalPartitions = scaffoldDirective.maxVerticalPartitions,
+                adaptStrategies = adaptStrategies,
+                currentDestination = null,
             )
         } else if (isDestinationHistoryAware) {
             calculateThreePaneScaffoldValue(
-                scaffoldDirective.maxHorizontalPartitions,
-                adaptStrategies,
-                destinationHistory.subList(0, destinationIndex + 1)
+                maxHorizontalPartitions = scaffoldDirective.maxHorizontalPartitions,
+                maxVerticalPartitions = scaffoldDirective.maxVerticalPartitions,
+                adaptStrategies = adaptStrategies,
+                destinationHistory = destinationHistory.subList(0, destinationIndex + 1),
             )
         } else {
             calculateThreePaneScaffoldValue(
-                scaffoldDirective.maxHorizontalPartitions,
-                adaptStrategies,
-                destinationHistory[destinationIndex]
+                maxHorizontalPartitions = scaffoldDirective.maxHorizontalPartitions,
+                maxVerticalPartitions = scaffoldDirective.maxVerticalPartitions,
+                adaptStrategies = adaptStrategies,
+                currentDestination = destinationHistory[destinationIndex],
             )
         }
 
@@ -480,7 +481,7 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
         fun <T> saver(
             initialScaffoldDirective: PaneScaffoldDirective,
             initialAdaptStrategies: ThreePaneScaffoldAdaptStrategies,
-            initialDestinationHistoryAware: Boolean
+            initialDestinationHistoryAware: Boolean,
         ): Saver<DefaultThreePaneScaffoldNavigator<T>, *> {
             val destinationItemSaver = destinationItemSaver<T>()
             return listSaver(
@@ -497,9 +498,9 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
                             },
                         initialScaffoldDirective = initialScaffoldDirective,
                         initialAdaptStrategies = initialAdaptStrategies,
-                        initialIsDestinationHistoryAware = initialDestinationHistoryAware
+                        initialIsDestinationHistoryAware = initialDestinationHistoryAware,
                     )
-                }
+                },
             )
         }
     }
@@ -513,9 +514,9 @@ internal fun <T> destinationItemSaver(): Saver<ThreePaneScaffoldDestinationItem<
             @Suppress("UNCHECKED_CAST")
             (ThreePaneScaffoldDestinationItem(
                 pane = it[0] as ThreePaneScaffoldRole,
-                contentKey = it[1] as T?
+                contentKey = it[1] as T?,
             ))
-        }
+        },
     )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

@@ -78,7 +78,7 @@ class RearDisplayPresentationActivity :
                 windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
                     infoLogAdapter.appendAndNotify(
                         getCurrentTimeString(),
-                        "number of areas: " + windowAreaInfos.size
+                        "number of areas: " + windowAreaInfos.size,
                     )
                     windowAreaInfos.forEach { windowAreaInfo ->
                         if (windowAreaInfo.type == TYPE_REAR_FACING) {
@@ -89,7 +89,7 @@ class RearDisplayPresentationActivity :
                                 getCurrentTimeString(),
                                 presentCapability.status.toString() +
                                     " : " +
-                                    windowAreaInfo.metrics.toString()
+                                    windowAreaInfo.metrics.toString(),
                             )
                             updateRearDisplayPresentationButton()
                         }
@@ -108,7 +108,7 @@ class RearDisplayPresentationActivity :
                         it.token,
                         this@RearDisplayPresentationActivity,
                         { obj: Runnable -> obj.run() },
-                        this@RearDisplayPresentationActivity
+                        this@RearDisplayPresentationActivity,
                     )
                 }
             }
@@ -118,7 +118,7 @@ class RearDisplayPresentationActivity :
     override fun onSessionStarted(session: WindowAreaSessionPresenter) {
         infoLogAdapter.appendAndNotify(
             getCurrentTimeString(),
-            "Presentation session has been started"
+            "Presentation session has been started",
         )
 
         activePresentation = session
@@ -133,14 +133,14 @@ class RearDisplayPresentationActivity :
     override fun onContainerVisibilityChanged(isVisible: Boolean) {
         infoLogAdapter.appendAndNotify(
             getCurrentTimeString(),
-            "Presentation content is visible: $isVisible"
+            "Presentation content is visible: $isVisible",
         )
     }
 
     override fun onSessionEnded(t: Throwable?) {
         infoLogAdapter.appendAndNotify(
             getCurrentTimeString(),
-            "Presentation session has been ended"
+            "Presentation session has been ended",
         )
         activePresentation = null
     }

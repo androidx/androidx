@@ -45,14 +45,7 @@ fun SplitSwitchButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
-                secondary = "Monday"
-            )
-        }
-        item {
-            DemoSplitSwitchButton(
-                enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label with at most three lines of content"
+                secondary = "Monday",
             )
         }
         item {
@@ -60,7 +53,14 @@ fun SplitSwitchButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label with at most three lines of content",
-                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoSplitSwitchButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Primary label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text",
             )
         }
         item {
@@ -78,7 +78,7 @@ fun SplitSwitchButtonDemo() {
                     enabled = false,
                     initiallyChecked = initiallyChecked,
                     primary = "Primary label",
-                    secondary = "Secondary label"
+                    secondary = "Secondary label",
                 )
             }
         }
@@ -101,18 +101,10 @@ private fun DemoSplitSwitchButton(
             Text(
                 primary,
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines,
             )
         },
-        secondaryLabel =
-            secondary?.let {
-                {
-                    Text(
-                        secondary,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
+        secondaryLabel = secondary?.let { { Text(secondary, modifier = Modifier.fillMaxWidth()) } },
         checked = checked,
         onCheckedChange = { checked = it },
         toggleContentDescription = primary,

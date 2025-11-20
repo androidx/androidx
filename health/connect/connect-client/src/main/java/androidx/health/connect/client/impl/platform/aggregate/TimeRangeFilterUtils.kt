@@ -55,7 +55,7 @@ internal fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
         startTime = startTime?.minus(RECORD_START_TIME_BUFFER),
         endTime = endTime,
         localStartTime = localStartTime?.minus(RECORD_START_TIME_BUFFER),
-        localEndTime = localEndTime
+        localEndTime = localEndTime,
     )
 }
 

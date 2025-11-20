@@ -48,11 +48,11 @@ fun ToggleButtons() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = "Singular", style = MaterialTheme.typography.body2, color = Color.White)
             Spacer(modifier = Modifier.size(4.dp))
@@ -62,14 +62,14 @@ fun ToggleButtons() {
                 enabled = toggleButtonsEnabled,
                 colors =
                     ToggleButtonDefaults.toggleButtonColors(
-                        checkedBackgroundColor = AlternatePrimaryColor2,
+                        checkedBackgroundColor = AlternatePrimaryColor2
                     ),
-                modifier = Modifier.size(ButtonDefaults.SmallButtonSize)
+                modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
                 if (singularButton1Enabled) {
-                    DemoIcon(R.drawable.ic_volume_up_24px)
+                    DemoIcon(R.drawable.icon_volume_up_24px)
                 } else {
-                    DemoIcon(R.drawable.ic_volume_off_24px)
+                    DemoIcon(R.drawable.icon_volume_off_24px)
                 }
             }
             Spacer(modifier = Modifier.size(4.dp))
@@ -79,11 +79,11 @@ fun ToggleButtons() {
                 enabled = toggleButtonsEnabled,
                 colors =
                     ToggleButtonDefaults.toggleButtonColors(
-                        checkedBackgroundColor = AlternatePrimaryColor3,
+                        checkedBackgroundColor = AlternatePrimaryColor3
                     ),
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
-                DemoIcon(R.drawable.ic_airplanemode_active_24px)
+                DemoIcon(R.drawable.icon_airplanemode_active_24px)
             }
             Spacer(modifier = Modifier.size(4.dp))
             ToggleButton(
@@ -95,20 +95,20 @@ fun ToggleButtons() {
                         checkedBackgroundColor = AlternatePrimaryColor3
                     ),
                 modifier = Modifier,
-                shape = CutCornerShape(4.dp)
+                shape = CutCornerShape(4.dp),
             ) {
-                DemoIcon(R.drawable.ic_airplanemode_active_24px)
+                DemoIcon(R.drawable.icon_airplanemode_active_24px)
             }
         }
         Spacer(modifier = Modifier.size(4.dp))
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "Buttons Enabled",
                 style = MaterialTheme.typography.caption2,
-                color = Color.White
+                color = Color.White,
             )
             Spacer(modifier = Modifier.size(4.dp))
             ToggleButton(
@@ -116,7 +116,7 @@ fun ToggleButtons() {
                 onCheckedChange = { toggleButtonsEnabled = it },
                 modifier = Modifier.size(ButtonDefaults.SmallButtonSize),
             ) {
-                DemoIcon(R.drawable.ic_check_24px)
+                DemoIcon(R.drawable.icon_check_24px)
             }
         }
     }

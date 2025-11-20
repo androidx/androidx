@@ -1,10 +1,10 @@
 // Baseline format: 1.0
 BannedThrow: androidx.core.animation.AnimatorInflater#loadAnimator(android.content.Context, int):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.content.res.Resources.NotFoundException does not need to be listed in the method throws clause (only in documentation)
 BannedThrow: androidx.core.animation.AnimatorInflater#loadAnimator(android.content.res.Resources, android.content.res.Resources.Theme, int):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.content.res.Resources.NotFoundException does not need to be listed in the method throws clause (only in documentation)
 BannedThrow: androidx.core.animation.AnimatorInflater#loadInterpolator(android.content.Context, int):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.content.res.Resources.NotFoundException does not need to be listed in the method throws clause (only in documentation)
 
 
 BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#after(androidx.core.animation.Animator):
@@ -15,10 +15,6 @@ BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#before(androidx.cor
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.before(androidx.core.animation.Animator)
 BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#with(androidx.core.animation.Animator):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.with(androidx.core.animation.Animator)
-
-
-GetterSetterNames: androidx.core.animation.Keyframe#setValue(T):
-    Symmetric method for `hasValue` must be named `setHasValue`; was `setValue`
 
 
 StaticFinalBuilder: androidx.core.animation.AnimatorSet.Builder:

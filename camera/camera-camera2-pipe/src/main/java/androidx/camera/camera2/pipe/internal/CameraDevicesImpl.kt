@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
 
 /** Provides utilities for querying cameras and accessing metadata about those cameras. */
 @Singleton
@@ -36,21 +37,21 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
     @Deprecated(
         "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override fun findAll(): List<CameraId> = awaitCameraIds() ?: emptyList()
 
     @Deprecated(
         "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override suspend fun ids(): List<CameraId> = getCameraIds() ?: emptyList()
 
     @Deprecated(
         "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override suspend fun getMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(getCameraMetadata(camera))
@@ -58,10 +59,13 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
     @Deprecated(
         "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(awaitCameraMetadata(camera))
+
+    override fun cameraIdsFlow(cameraBackendId: CameraBackendId?): Flow<List<CameraId>> =
+        getCameraBackend(cameraBackendId).cameraIds
 
     override suspend fun getCameraIds(cameraBackendId: CameraBackendId?): List<CameraId>? {
         val cameraBackend = getCameraBackend(cameraBackendId)
@@ -95,7 +99,7 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
 
     override suspend fun getCameraMetadata(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): CameraMetadata? {
         val cameraBackend = getCameraBackend(cameraBackendId)
         val metadata = cameraBackend.getCameraMetadata(cameraId)
@@ -107,7 +111,7 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
 
     override fun awaitCameraMetadata(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): CameraMetadata? {
         val cameraBackend = getCameraBackend(cameraBackendId)
         val metadata = cameraBackend.awaitCameraMetadata(cameraId)
@@ -129,7 +133,7 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
 
     override fun disconnectAsync(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): Deferred<Unit> {
         val cameraBackend = getCameraBackend(cameraBackendId)
         return cameraBackend.disconnectAsync(cameraId)

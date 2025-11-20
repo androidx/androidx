@@ -26,20 +26,16 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":wear:wear-remote-interactions"))
 
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     namespace = "androidx.wear.remote.interactions.samples"
 }
 

@@ -22,6 +22,7 @@ import androidx.core.telecom.extensions.ICallIconStateListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.ILocalSilenceStateListener
+import androidx.core.telecom.extensions.IMeetingSummaryStateListener
 import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,7 +49,7 @@ class ExtensionAidlTest {
 
         override fun beginExchange(
             capabilities: MutableList<Capability>?,
-            l: ICapabilityExchangeListener?
+            l: ICapabilityExchangeListener?,
         ) {
             capabilities?.let { l?.let { onBeginExchange(capabilities, l) } }
         }
@@ -62,12 +63,12 @@ class ExtensionAidlTest {
             { _: Int, _: IntArray?, _: ICallDetailsListener?, _: String ->
             },
         val unsubscribeFromParticipantExtensionUpdatse: () -> Unit = {},
-        val unsubscribeFromCallDetailsExtensionUpdates: () -> Unit = {}
+        val unsubscribeFromCallDetailsExtensionUpdates: () -> Unit = {},
     ) : ICapabilityExchangeListener.Stub() {
         override fun onCreateParticipantExtension(
             version: Int,
             actions: IntArray?,
-            l: IParticipantStateListener?
+            l: IParticipantStateListener?,
         ) {
             createParticipantExtension(version, actions, l)
         }
@@ -76,7 +77,7 @@ class ExtensionAidlTest {
             version: Int,
             actions: IntArray?,
             l: ICallDetailsListener?,
-            packageName: String
+            packageName: String,
         ) {
             createCallDetailsExtension(version, actions, l, packageName)
         }
@@ -84,7 +85,7 @@ class ExtensionAidlTest {
         override fun onCreateLocalCallSilenceExtension(
             version: Int,
             actions: IntArray?,
-            l: ILocalSilenceStateListener?
+            l: ILocalSilenceStateListener?,
         ) {
             TODO("Not yet implemented")
         }
@@ -93,7 +94,14 @@ class ExtensionAidlTest {
             version: Int,
             actions: IntArray?,
             remoteName: String,
-            l: ICallIconStateListener?
+            l: ICallIconStateListener?,
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun onCreateMeetingSummaryExtension(
+            version: Int,
+            l: IMeetingSummaryStateListener?,
         ) {
             TODO("Not yet implemented")
         }

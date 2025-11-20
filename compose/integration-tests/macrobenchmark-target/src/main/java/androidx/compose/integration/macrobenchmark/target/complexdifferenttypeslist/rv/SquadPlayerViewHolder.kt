@@ -25,11 +25,9 @@ import androidx.compose.integration.macrobenchmark.target.databinding.ItemSquadP
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 
-class SquadPlayerViewHolder(
-    parent: ViewGroup,
-) :
+class SquadPlayerViewHolder(parent: ViewGroup) :
     BaseViewBindingHolder<ItemSquadPlayerBinding, SquadPlayerUiModel>(
-        parent.inflateBinding(ItemSquadPlayerBinding::inflate),
+        parent.inflateBinding(ItemSquadPlayerBinding::inflate)
     ) {
     override fun ItemSquadPlayerBinding.bind(viewModel: SquadPlayerUiModel) =
         with(viewModel) {

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.lifecycle.testing.TestLifecycleOwner#getCurrentState():
+    Source breaking change: method androidx.lifecycle.testing.TestLifecycleOwner.getCurrentState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.testing.TestLifecycleOwner#getLifecycle():
+    Source breaking change: method androidx.lifecycle.testing.TestLifecycleOwner.getLifecycle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.testing.TestLifecycleOwner#getObserverCount():
+    Source breaking change: method androidx.lifecycle.testing.TestLifecycleOwner.getObserverCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.testing.TestLifecycleOwner#setCurrentState(androidx.lifecycle.Lifecycle.State):
+    Source breaking change: method androidx.lifecycle.testing.TestLifecycleOwner.setCurrentState(androidx.lifecycle.Lifecycle.State) can no longer be resolved from Kotlin source

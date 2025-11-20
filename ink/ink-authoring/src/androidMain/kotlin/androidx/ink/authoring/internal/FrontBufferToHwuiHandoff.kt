@@ -30,14 +30,15 @@ import androidx.ink.authoring.InProgressStrokeId
  * [androidx.graphics.lowlatency.CanvasFrontBufferedRenderer].
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-internal interface FrontBufferToHwuiHandoff {
+internal interface FrontBufferToHwuiHandoff<CompletedShapeT : Any> {
 
     @UiThread fun setup()
 
     @UiThread fun cleanup()
 
     /** Call from [InProgressStrokesRenderHelper.requestStrokeCohortHandoffToHwui]. */
-    @UiThread fun requestCohortHandoff(handingOff: Map<InProgressStrokeId, FinishedStroke>)
+    @UiThread
+    fun requestCohortHandoff(handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>)
 
     companion object {
 
@@ -52,17 +53,18 @@ internal interface FrontBufferToHwuiHandoff {
          * @param onCohortHandoffComplete Calls
          *   [InProgressStrokesRenderHelper.Callback.onStrokeCohortHandoffToHwuiComplete].
          */
-        fun create(
+        fun <CompletedShapeT : Any> create(
             mainView: ViewGroup,
             surfaceView: SurfaceView,
-            @UiThread onCohortHandoff: (Map<InProgressStrokeId, FinishedStroke>) -> Unit,
+            @UiThread
+            onCohortHandoff: (Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>) -> Unit,
             @UiThread onCohortHandoffComplete: () -> Unit,
-        ): FrontBufferToHwuiHandoff =
+        ): FrontBufferToHwuiHandoff<CompletedShapeT> =
             FrontBufferToHwuiHandoffV29(
                 mainView,
                 surfaceView,
                 onCohortHandoff,
-                onCohortHandoffComplete
+                onCohortHandoffComplete,
             )
     }
 }

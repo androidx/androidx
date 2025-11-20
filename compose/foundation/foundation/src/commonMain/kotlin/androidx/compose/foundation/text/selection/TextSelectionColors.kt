@@ -70,5 +70,5 @@ private val DefaultSelectionColor = Color(0xFF4286F4)
 private val DefaultTextSelectionColors =
     TextSelectionColors(
         handleColor = DefaultSelectionColor,
-        backgroundColor = DefaultSelectionColor.copy(alpha = 0.4f)
+        backgroundColor = DefaultSelectionColor.copy(alpha = 0.4f),
     )

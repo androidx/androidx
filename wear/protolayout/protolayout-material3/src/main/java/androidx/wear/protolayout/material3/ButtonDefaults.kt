@@ -20,7 +20,6 @@ import android.graphics.Color
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.DP
 import androidx.annotation.FloatRange
-import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.DimensionBuilders.ContainerDimension
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.LayoutElementBuilders.Box
@@ -37,13 +36,19 @@ import androidx.wear.protolayout.material3.Typography.TypographyToken
 import androidx.wear.protolayout.modifiers.padding
 import androidx.wear.protolayout.types.LayoutColor
 import androidx.wear.protolayout.types.argb
+import androidx.wear.protolayout.types.dp
 
 /**
  * Represents the container and content colors used in buttons, such as [textEdgeButton] or
  * [iconEdgeButton].
+ *
+ * @param containerColor The container color to be used for a button's background.
+ * @param iconColor The icon tint color to be used for a button.
+ * @param labelColor The label color to be used for a button.
+ * @param secondaryLabelColor The secondary label color to be used for a button.
  */
 public class ButtonColors(
-    /** The container color to be used for a button. */
+    /** The container color to be used for a button's background. */
     public val containerColor: LayoutColor = Color.BLACK.argb,
     /** The icon tint color to be used for a button. */
     public val iconColor: LayoutColor = Color.BLACK.argb,
@@ -51,7 +56,29 @@ public class ButtonColors(
     public val labelColor: LayoutColor = Color.BLACK.argb,
     /** The secondary label color to be used for a button. */
     public val secondaryLabelColor: LayoutColor = Color.BLACK.argb,
-)
+) {
+    /**
+     * Returns a copy of this [androidx.wear.protolayout.material3.ButtonColors], optionally
+     * overriding some of the values.
+     *
+     * @param containerColor The container color to be used for a button's background.
+     * @param iconColor The icon tint color to be used for a button.
+     * @param labelColor The label color to be used for a button.
+     * @param secondaryLabelColor The secondary label color to be used for a button.
+     */
+    public fun copy(
+        containerColor: LayoutColor = this.containerColor,
+        iconColor: LayoutColor = this.iconColor,
+        labelColor: LayoutColor = this.labelColor,
+        secondaryLabelColor: LayoutColor = this.secondaryLabelColor,
+    ): ButtonColors =
+        ButtonColors(
+            containerColor = containerColor,
+            iconColor = iconColor,
+            labelColor = labelColor,
+            secondaryLabelColor = secondaryLabelColor,
+        )
+}
 
 public object ButtonDefaults {
     /**
@@ -67,15 +94,14 @@ public object ButtonDefaults {
         secondaryLabel: LayoutElement?,
         icon: LayoutElement?,
         @HorizontalAlignment horizontalAlignment: Int,
-        style: ButtonStyle
+        style: ButtonStyle,
     ): LayoutElement {
-        val labels: Column.Builder =
-            Column.Builder().setWidth(expand()).setHorizontalAlignment(horizontalAlignment)
+        val labels: Column.Builder = Column.Builder().setHorizontalAlignment(horizontalAlignment)
 
         val row: Row.Builder = Row.Builder()
 
         ContainerWithSpacersBuilder<LayoutElement>(labels::addContent, label)
-            .addElement(secondaryLabel, horizontalSpacer(style.labelsSpaceDp))
+            .addElement(secondaryLabel)
 
         ContainerWithSpacersBuilder<LayoutElement>(row::addContent, icon)
             .addElement(labels.build(), verticalSpacer(style.iconToLabelsSpaceDp))
@@ -101,7 +127,7 @@ public object ButtonDefaults {
         secondaryLabel: LayoutElement?,
         @HorizontalAlignment horizontalAlignment: Int,
         style: AvatarButtonStyle,
-        height: ContainerDimension
+        height: ContainerDimension,
     ): LayoutElement {
         val verticalElementBuilder: Column.Builder =
             Column.Builder().setWidth(expand()).setHorizontalAlignment(HORIZONTAL_ALIGN_START)
@@ -109,31 +135,28 @@ public object ButtonDefaults {
             Row.Builder().setWidth(expand()).setHeight(height)
 
         ContainerWithSpacersBuilder<LayoutElement>(
-                { it: LayoutElement? -> verticalElementBuilder.addContent(it!!) },
-                label
+                { element: LayoutElement? -> verticalElementBuilder.addContent(element!!) },
+                label,
             )
-            .addElement(secondaryLabel, horizontalSpacer(style.labelsSpaceDp))
+            .addElement(secondaryLabel)
 
         // Side padding - start
         horizontalElementBuilder.addContent(
             verticalSpacer(
-                deviceConfiguration.weightForSpacer(
-                    if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
-                        style.avatarPaddingWeight
-                    } else {
-                        style.labelsPaddingWeight
-                    }
-                )
+                (deviceConfiguration.screenWidthDp *
+                        (if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
+                            style.avatarPaddingPercentage
+                        } else {
+                            style.labelsPaddingPercentage
+                        }) / 100f)
+                    .dp
             )
         )
 
         // Wrap avatar in expandable box with weights
+        val avatarSize = (deviceConfiguration.screenWidthDp * style.avatarSizePercentage / 100f).dp
         val wrapAvatar =
-            Box.Builder()
-                .setWidth(deviceConfiguration.weightForContainer(style.avatarSizeWeight))
-                .setHeight(height)
-                .addContent(avatar)
-                .build()
+            Box.Builder().setWidth(avatarSize).setHeight(avatarSize).addContent(avatar).build()
 
         if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
             horizontalElementBuilder.addContent(wrapAvatar)
@@ -144,15 +167,7 @@ public object ButtonDefaults {
         horizontalElementBuilder.addContent(
             Box.Builder()
                 .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
-                // Remaining % from 100% is for labels
-                .setWidth(
-                    weightAsExpand(
-                        100 -
-                            style.avatarPaddingWeight -
-                            style.labelsPaddingWeight -
-                            style.avatarSizeWeight
-                    )
-                )
+                .setWidth(expand())
                 .addContent(verticalElementBuilder.build())
                 .build()
         )
@@ -165,13 +180,13 @@ public object ButtonDefaults {
         // Side padding - end
         horizontalElementBuilder.addContent(
             verticalSpacer(
-                deviceConfiguration.weightForSpacer(
-                    if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
-                        style.labelsPaddingWeight
-                    } else {
-                        style.avatarPaddingWeight
-                    }
-                )
+                (deviceConfiguration.screenWidthDp *
+                        (if (horizontalAlignment == HORIZONTAL_ALIGN_START) {
+                            style.labelsPaddingPercentage
+                        } else {
+                            style.avatarPaddingPercentage
+                        }) / 100f)
+                    .dp
             )
         )
 
@@ -190,7 +205,6 @@ public object ButtonDefaults {
         label: LayoutElement?,
         icon: LayoutElement?,
         @HorizontalAlignment horizontalAlignment: Int,
-        width: DimensionBuilders.ContainerDimension
     ): LayoutElement {
         val row: Row.Builder = Row.Builder()
 
@@ -203,9 +217,6 @@ public object ButtonDefaults {
             .addElement(secondElement, verticalSpacer(COMPACT_BUTTON_ICON_LABEL_SPACE_DP))
 
         return Box.Builder()
-            // No need to set height specifically as that is done by the container that has it
-            // fixed.
-            .setWidth(width)
             .addContent(row.build())
             .setHorizontalAlignment(horizontalAlignment)
             .build()
@@ -216,42 +227,44 @@ public object ButtonDefaults {
      * common action on a screen.
      *
      * These colors are using [ColorScheme.primary] for background color and [ColorScheme.onPrimary]
-     * for content color.
+     * for content color from the given [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledButtonColors(): ButtonColors =
         ButtonColors(
             containerColor = theme.colorScheme.primary,
             iconColor = theme.colorScheme.onPrimary,
             labelColor = theme.colorScheme.onPrimary,
-            secondaryLabelColor = theme.colorScheme.onPrimary.withOpacity(0.8f)
+            secondaryLabelColor = theme.colorScheme.onPrimary.withOpacity(0.8f),
         )
 
     /**
      * [ButtonColors] for the medium-emphasis button.
      *
      * These colors are using [ColorScheme.surfaceContainer] for background color,
-     * [ColorScheme.onSurface] for content color and [ColorScheme.primary] for icon.
+     * [ColorScheme.onSurface] for content color and [ColorScheme.primary] for icon from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledTonalButtonColors(): ButtonColors =
         ButtonColors(
             containerColor = theme.colorScheme.surfaceContainer,
             iconColor = theme.colorScheme.primary,
             labelColor = theme.colorScheme.onSurface,
-            secondaryLabelColor = theme.colorScheme.onSurfaceVariant
+            secondaryLabelColor = theme.colorScheme.onSurfaceVariant,
         )
 
     /**
      * Alternative [ButtonColors] for the high-emphasis button.
      *
      * These colors are using [ColorScheme.primaryContainer] for background color and
-     * [ColorScheme.onPrimaryContainer] for content color.
+     * [ColorScheme.onPrimaryContainer] for content color from the given [MaterialScope]'s
+     * [ColorScheme].
      */
     public fun MaterialScope.filledVariantButtonColors(): ButtonColors =
         ButtonColors(
             containerColor = theme.colorScheme.primaryContainer,
             iconColor = theme.colorScheme.onPrimaryContainer,
             labelColor = theme.colorScheme.onPrimaryContainer,
-            secondaryLabelColor = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f)
+            secondaryLabelColor = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f),
         )
 
     internal const val METADATA_TAG_BUTTON: String = "BTN"
@@ -273,7 +286,7 @@ internal object CompactButtonStyle {
 public class IconButtonStyle
 internal constructor(
     @Dimension(unit = DP) internal val iconSize: Float,
-    internal val innerPadding: Padding = DEFAULT_CONTENT_PADDING
+    internal val innerPadding: Padding = DEFAULT_CONTENT_PADDING,
 ) {
     public companion object {
         /**
@@ -294,7 +307,7 @@ internal constructor(
 public class TextButtonStyle
 internal constructor(
     @TypographyToken internal val labelTypography: Int,
-    internal val innerPadding: Padding = DEFAULT_CONTENT_PADDING
+    internal val innerPadding: Padding = DEFAULT_CONTENT_PADDING,
 ) {
     public companion object {
         /**
@@ -334,7 +347,6 @@ internal constructor(
     @TypographyToken internal val secondaryLabelTypography: Int,
     @Dimension(DP) internal val iconSize: Float,
     internal val innerPadding: Padding,
-    @Dimension(DP) internal val labelsSpaceDp: Int,
     @Dimension(DP) internal val iconToLabelsSpaceDp: Int,
 ) {
     public companion object {
@@ -348,8 +360,7 @@ internal constructor(
                 secondaryLabelTypography = Typography.BODY_SMALL,
                 iconSize = 24f,
                 innerPadding = padding(horizontal = 14f, vertical = 10f),
-                labelsSpaceDp = 2,
-                iconToLabelsSpaceDp = 6
+                iconToLabelsSpaceDp = 6,
             )
 
         /**
@@ -362,8 +373,7 @@ internal constructor(
                 secondaryLabelTypography = Typography.LABEL_SMALL,
                 iconSize = 26f,
                 innerPadding = padding(horizontal = 14f, vertical = 6f),
-                labelsSpaceDp = 0,
-                iconToLabelsSpaceDp = 8
+                iconToLabelsSpaceDp = 8,
             )
 
         /**
@@ -376,8 +386,7 @@ internal constructor(
                 secondaryLabelTypography = Typography.LABEL_SMALL,
                 iconSize = 32f,
                 innerPadding = padding(horizontal = 14f, vertical = 8f),
-                labelsSpaceDp = 0,
-                iconToLabelsSpaceDp = 10
+                iconToLabelsSpaceDp = 10,
             )
     }
 }
@@ -387,12 +396,13 @@ public class AvatarButtonStyle
 internal constructor(
     @TypographyToken internal val labelTypography: Int,
     @TypographyToken internal val secondaryLabelTypography: Int,
-    @FloatRange(from = 0.0, to = 100.0) internal val avatarSizeWeight: Float,
-    @FloatRange(from = 0.0, to = 100.0) internal val avatarPaddingWeight: Float,
-    @FloatRange(from = 0.0, to = 100.0) internal val labelsPaddingWeight: Float,
+    // These are percentages of the total screen size because avatar slot should stay the same if we
+    // have multiple buttons on the screen.
+    @FloatRange(from = 0.0, to = 100.0) internal val avatarSizePercentage: Float,
+    @FloatRange(from = 0.0, to = 100.0) internal val avatarPaddingPercentage: Float,
+    @FloatRange(from = 0.0, to = 100.0) internal val labelsPaddingPercentage: Float,
     internal val innerVerticalPadding: Padding,
     @Dimension(DP) internal val avatarToLabelsSpaceDp: Int,
-    @Dimension(DP) internal val labelsSpaceDp: Int,
 ) {
     public companion object {
         /**
@@ -403,12 +413,11 @@ internal constructor(
             AvatarButtonStyle(
                 labelTypography = Typography.LABEL_MEDIUM,
                 secondaryLabelTypography = Typography.BODY_SMALL,
-                avatarSizeWeight = 19.6f,
-                avatarPaddingWeight = 4.16f,
-                labelsPaddingWeight = 7.1f,
+                avatarSizePercentage = 19.6f,
+                avatarPaddingPercentage = 4.16f,
+                labelsPaddingPercentage = 7.1f,
                 innerVerticalPadding = padding(vertical = 8f, horizontal = Float.NaN),
                 avatarToLabelsSpaceDp = 6,
-                labelsSpaceDp = 0
             )
 
         /**
@@ -419,12 +428,11 @@ internal constructor(
             AvatarButtonStyle(
                 labelTypography = Typography.TITLE_MEDIUM,
                 secondaryLabelTypography = Typography.LABEL_SMALL,
-                avatarSizeWeight = 23.15f,
-                avatarPaddingWeight = 2.1f,
-                labelsPaddingWeight = 6f,
+                avatarSizePercentage = 23.15f,
+                avatarPaddingPercentage = 2.1f,
+                labelsPaddingPercentage = 7.1f,
                 innerVerticalPadding = padding(vertical = 6f, horizontal = Float.NaN),
-                avatarToLabelsSpaceDp = 8,
-                labelsSpaceDp = 0
+                avatarToLabelsSpaceDp = 6,
             )
     }
 }

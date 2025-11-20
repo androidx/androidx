@@ -16,6 +16,10 @@
 
 package androidx.webkit.internal;
 
+import androidx.webkit.WebViewStartUpConfig;
+
+import java.util.Set;
+
 /**
  * Class containing all the startup features the AndroidX library can support.
  * The constants defined in this file should not be modified as their value is used in the
@@ -37,4 +41,22 @@ public class StartupFeatures {
     // ProcessGlobalConfig#setPartitionedCookiesEnabled(boolean)
     public static final String STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES =
             "STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES";
+
+    /**
+     * The feature covers {@link WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)}.
+     */
+    public static final String STARTUP_FEATURE_SET_PROFILES_TO_LOAD =
+            "STARTUP_FEATURE_SET_PROFILES_TO_LOAD";
+
+    /**
+     * ProcessGlobalConfig#setUiThreadStartupMode(int)
+     * @deprecated Use {@link #STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2} instead.
+     */
+    @Deprecated
+    public static final String STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE =
+            "STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE";
+
+    // ProcessGlobalConfig#setUiThreadStartupMode(int)
+    public static final String STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2 =
+            "STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2";
 }

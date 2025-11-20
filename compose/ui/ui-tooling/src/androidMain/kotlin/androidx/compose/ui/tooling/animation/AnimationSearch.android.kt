@@ -94,10 +94,7 @@ internal class AnimationSearch(
 
     /** All supported animations. */
     private fun supportedSearch() =
-        setOf(
-            transitionSearch,
-            animatedVisibilitySearch,
-        ) +
+        setOf(transitionSearch, animatedVisibilitySearch) +
             animateXAsStateSearch() +
             infiniteTransitionSearch() +
             (if (AnimatedContentComposeAnimation.apiAvailable) setOf(animatedContentSearch)
@@ -108,7 +105,7 @@ internal class AnimationSearch(
             setOf(
                 AnimateContentSizeSearch { clock().trackAnimateContentSize(it) },
                 TargetBasedSearch { clock().trackTargetBasedAnimations(it) },
-                DecaySearch { clock().trackDecayAnimations(it) }
+                DecaySearch { clock().trackDecayAnimations(it) },
             )
         else emptyList()
 
@@ -216,7 +213,7 @@ internal class AnimationSearch(
 
     data class InfiniteTransitionSearchInfo(
         val infiniteTransition: InfiniteTransition,
-        val toolingState: ToolingState<Long>
+        val toolingState: ToolingState<Long>,
     )
 
     class InfiniteTransitionSearch(trackAnimation: (InfiniteTransitionSearchInfo) -> Unit) :
@@ -251,7 +248,7 @@ internal class AnimationSearch(
                         }
                         InfiniteTransitionSearchInfo(
                             infiniteTransition,
-                            (toolingOverride.value as? ToolingState<Long>) ?: ToolingState(0L)
+                            (toolingOverride.value as? ToolingState<Long>) ?: ToolingState(0L),
                         )
                     } else null
                 }
@@ -270,7 +267,7 @@ internal class AnimationSearch(
     data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
         val animatable: Animatable<T, V>,
         val animationSpec: AnimationSpec<T>,
-        val toolingState: ToolingState<T>
+        val toolingState: ToolingState<T>,
     )
 
     /** Search for animateXAsState() and animateValueAsState() animations. */
@@ -323,7 +320,7 @@ internal class AnimationSearch(
                             animatable,
                             spec,
                             (toolingOverride.value as? ToolingState<T>)
-                                ?: ToolingState(animatable.value)
+                                ?: ToolingState(animatable.value),
                         )
                     } else null
                 }

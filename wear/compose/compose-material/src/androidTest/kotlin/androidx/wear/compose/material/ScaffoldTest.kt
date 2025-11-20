@@ -28,13 +28,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalAnimationApi::class)
 class ScaffoldTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -57,7 +58,7 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             Scaffold(
                 modifier = Modifier.testTag(TEST_TAG),
-                timeText = { Text(TIME_TEXT_MESSAGE) }
+                timeText = { Text(TIME_TEXT_MESSAGE) },
             ) {
                 Text("Some text")
             }
@@ -76,7 +77,7 @@ class ScaffoldTest {
                 vignette = {
                     Vignette(
                         vignettePosition = showVignette.value,
-                        modifier = Modifier.testTag("VIGNETTE")
+                        modifier = Modifier.testTag("VIGNETTE"),
                     )
                 },
             ) {
@@ -109,9 +110,9 @@ class ScaffoldTest {
                 positionIndicator = {
                     PositionIndicator(
                         scalingLazyListState = scrollState,
-                        modifier = Modifier.testTag("POSITION_INDICATOR")
+                        modifier = Modifier.testTag("POSITION_INDICATOR"),
                     )
-                }
+                },
             ) {
                 ScalingLazyColumn(modifier = Modifier.testTag("ScalingLazyColumn")) {
                     items(20) { Text("" + it, modifier = Modifier.testTag("" + it)) }

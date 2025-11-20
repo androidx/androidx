@@ -50,7 +50,7 @@ private val db: TestBackend =
 private val pager =
     Pager(
             config = PagingConfig(pageSize = 5, initialLoadSize = 15, enablePlaceholders = true),
-            pagingSourceFactory = { db.getAllData() }
+            pagingSourceFactory = { db.getAllData() },
         )
         .flow
 
@@ -65,7 +65,7 @@ public fun PagingWithHorizontalPager() {
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
         pageSize = PageSize.Fixed(200.dp),
-        key = lazyPagingItems.itemKey { it }
+        key = lazyPagingItems.itemKey { it },
     ) { index ->
         val item = lazyPagingItems[index]
         PagingItem(item = item)
@@ -82,7 +82,7 @@ public fun PagingWithVerticalPager() {
         modifier = Modifier.fillMaxSize(),
         state = pagerState,
         pageSize = PageSize.Fixed(200.dp),
-        key = lazyPagingItems.itemKey { it }
+        key = lazyPagingItems.itemKey { it },
     ) { index ->
         val item = lazyPagingItems[index]
         PagingItem(item = item)
@@ -98,7 +98,7 @@ public fun PagingWithLazyGrid() {
         items(
             count = lazyPagingItems.itemCount,
             key = lazyPagingItems.itemKey { it },
-            contentType = lazyPagingItems.itemContentType { "MyPagingItems" }
+            contentType = lazyPagingItems.itemContentType { "MyPagingItems" },
         ) { index ->
             val item = lazyPagingItems[index]
             PagingItem(item = item)
@@ -113,13 +113,10 @@ public fun PagingWithLazyList() {
     val lazyPagingItems = pager.collectAsLazyPagingItems()
 
     LazyColumn {
-        stickyHeader(
-            key = "Header",
-            contentType = "My Header",
-        ) {
+        stickyHeader(key = "Header", contentType = "My Header") {
             Box(
                 modifier = Modifier.padding(bottom = 10.dp).background(Color.Red).fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(text = "Header", fontSize = 32.sp)
             }
@@ -127,7 +124,7 @@ public fun PagingWithLazyList() {
         items(
             count = lazyPagingItems.itemCount,
             key = lazyPagingItems.itemKey { it },
-            contentType = lazyPagingItems.itemContentType { "MyPagingItems" }
+            contentType = lazyPagingItems.itemContentType { "MyPagingItems" },
         ) { index ->
             val item = lazyPagingItems[index]
             PagingItem(item = item)
@@ -139,7 +136,7 @@ public fun PagingWithLazyList() {
 private fun PagingItem(item: String?) {
     Box(
         modifier = Modifier.padding(10.dp).background(Color.Blue).fillMaxWidth().aspectRatio(1f),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         if (item != null) {
             Text(text = item, fontSize = 32.sp)

@@ -26,6 +26,10 @@ import androidx.health.platform.client.proto.DataProto
 class ExerciseRoute(override val proto: DataProto.DataPoint.SubTypeDataList) :
     ProtoParcelable<DataProto.DataPoint.SubTypeDataList>() {
 
+    // ExerciseRoute is passed as an Intent extra, where shared memory isn't supported. See
+    // b/442348082
+    override fun shouldStoreInPlace() = true
+
     companion object {
         @JvmField
         val CREATOR: Parcelable.Creator<ExerciseRoute> = newCreator {

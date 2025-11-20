@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BloodGlucoseRecord.SPECIMEN_SOURCE_INTERSTITIAL_FLUID, BloodGlucoseRecord.SPECIMEN_SOURCE_CAPILLARY_BLOOD, BloodGlucoseRecord.SPECIMEN_SOURCE_PLASMA, BloodGlucoseRecord.SPECIMEN_SOURCE_SERUM, BloodGlucoseRecord.SPECIMEN_SOURCE_TEARS, BloodGlucoseRecord.SPECIMEN_SOURCE_WHOLE_BLOOD"
+        errorLine1="    @property:SpecimenSources public val specimenSource: Int = SPECIMEN_SOURCE_UNKNOWN,"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/records/BloodGlucoseRecord.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: BloodGlucoseRecord.RELATION_TO_MEAL_GENERAL, BloodGlucoseRecord.RELATION_TO_MEAL_FASTING, BloodGlucoseRecord.RELATION_TO_MEAL_BEFORE_MEAL, BloodGlucoseRecord.RELATION_TO_MEAL_AFTER_MEAL"
+        errorLine1="    @property:RelationToMeals public val relationToMeal: Int = RELATION_TO_MEAL_UNKNOWN,"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/records/BloodGlucoseRecord.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: SexualActivityRecord.PROTECTION_USED_PROTECTED, SexualActivityRecord.PROTECTION_USED_UNPROTECTED"
+        errorLine1="    @property:Protections public val protectionUsed: Int = PROTECTION_USED_UNKNOWN,"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/records/SexualActivityRecord.kt"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

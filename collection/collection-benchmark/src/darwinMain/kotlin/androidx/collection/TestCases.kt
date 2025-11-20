@@ -129,7 +129,7 @@ private class CollectionTestCase(
         options.iterationCount = 5.toULong()
         context.measureWithMetrics(
             listOf(XCTCPUMetric(), XCTMemoryMetric(), XCTClockMetric()),
-            options
+            options,
         ) {
             benchmark.measuredBlock()
         }

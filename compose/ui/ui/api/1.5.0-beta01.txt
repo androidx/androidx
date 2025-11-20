@@ -124,7 +124,7 @@ package androidx.compose.ui {
   @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalComposeUiApi {
   }
 
-  @kotlin.RequiresOptIn(message="Unstable API for use only between compose-ui modules sharing the same exact version, " + "subject to change without notice in major, minor, or patch releases.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalComposeUiApi {
+  @kotlin.RequiresOptIn(message="Unstable API for use only between compose-ui modules sharing the same exact version, subject to change without notice in major, minor, or patch releases.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalComposeUiApi {
   }
 
   @androidx.compose.runtime.Stable @kotlin.jvm.JvmDefaultWithCompatibility public interface Modifier {
@@ -215,8 +215,6 @@ package androidx.compose.ui.autofill {
   }
 
   @androidx.compose.ui.ExperimentalComposeUiApi public enum AutofillType {
-    method public static androidx.compose.ui.autofill.AutofillType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressCountry;
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressLocality;
@@ -1709,8 +1707,6 @@ package androidx.compose.ui.input.pointer {
   }
 
   public enum PointerEventPass {
-    method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.input.pointer.PointerEventPass[] values();
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Final;
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Initial;
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Main;
@@ -2831,8 +2827,6 @@ package androidx.compose.ui.platform {
   }
 
   public enum TextToolbarStatus {
-    method public static androidx.compose.ui.platform.TextToolbarStatus valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.platform.TextToolbarStatus[] values();
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Hidden;
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Shown;
   }
@@ -3389,8 +3383,6 @@ package androidx.compose.ui.semantics {
 package androidx.compose.ui.state {
 
   public enum ToggleableState {
-    method public static androidx.compose.ui.state.ToggleableState valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.state.ToggleableState[] values();
     enum_constant public static final androidx.compose.ui.state.ToggleableState Indeterminate;
     enum_constant public static final androidx.compose.ui.state.ToggleableState Off;
     enum_constant public static final androidx.compose.ui.state.ToggleableState On;
@@ -3477,8 +3469,6 @@ package androidx.compose.ui.window {
   }
 
   public enum SecureFlagPolicy {
-    method public static androidx.compose.ui.window.SecureFlagPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.window.SecureFlagPolicy[] values();
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy Inherit;
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy SecureOff;
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy SecureOn;

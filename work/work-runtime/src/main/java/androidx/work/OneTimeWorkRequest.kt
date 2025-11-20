@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.work
 
-import android.os.Build
 import androidx.annotation.NonNull
 import kotlin.reflect.KClass
 
@@ -25,14 +27,14 @@ import kotlin.reflect.KClass
  * OneTimeWorkRequests can be put in simple or complex graphs of work by using methods like
  * [WorkManager.enqueue] or [WorkManager.beginWith].
  */
-class OneTimeWorkRequest internal constructor(builder: Builder) :
+public class OneTimeWorkRequest internal constructor(builder: Builder) :
     WorkRequest(builder.id, builder.workSpec, builder.tags) {
     /**
      * Builder for [OneTimeWorkRequest]s.
      *
      * @param workerClass The [ListenableWorker] class to run for this work
      */
-    class Builder(workerClass: Class<out ListenableWorker>) :
+    public class Builder(workerClass: Class<out ListenableWorker>) :
         WorkRequest.Builder<Builder, OneTimeWorkRequest>(workerClass) {
 
         /**
@@ -40,7 +42,7 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
          *
          * @param workerClass The [ListenableWorker] class to run for this work
          */
-        constructor(workerClass: KClass<out ListenableWorker>) : this(workerClass.java)
+        public constructor(workerClass: KClass<out ListenableWorker>) : this(workerClass.java)
 
         /**
          * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].
@@ -54,17 +56,13 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
          * @param inputMerger The class name of the [InputMerger] for this [OneTimeWorkRequest]
          * @return The current [Builder]
          */
-        fun setInputMerger(inputMerger: Class<out InputMerger>): Builder {
+        public fun setInputMerger(inputMerger: Class<out InputMerger>): Builder {
             workSpec.inputMergerClassName = inputMerger.name
             return this
         }
 
         override fun buildInternal(): OneTimeWorkRequest {
-            require(
-                !(backoffCriteriaSet &&
-                    Build.VERSION.SDK_INT >= 23 &&
-                    workSpec.constraints.requiresDeviceIdle())
-            ) {
+            require(!(backoffCriteriaSet && workSpec.constraints.requiresDeviceIdle())) {
                 "Cannot set backoff criteria on an idle mode job"
             }
             return OneTimeWorkRequest(this)
@@ -74,7 +72,7 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
             get() = this
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a [OneTimeWorkRequest] with defaults from a [ListenableWorker] class name.
          *
@@ -82,7 +80,7 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
          * @return A [OneTimeWorkRequest] constructed by using defaults in the [Builder]
          */
         @JvmStatic
-        fun from(workerClass: Class<out ListenableWorker>): OneTimeWorkRequest {
+        public fun from(workerClass: Class<out ListenableWorker>): OneTimeWorkRequest {
             return Builder(workerClass).build()
         }
 
@@ -94,7 +92,9 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
          * @return A list of [OneTimeWorkRequest] constructed by using defaults in the [ ]
          */
         @JvmStatic
-        fun from(workerClasses: List<Class<out ListenableWorker>>): List<OneTimeWorkRequest> {
+        public fun from(
+            workerClasses: List<Class<out ListenableWorker>>
+        ): List<OneTimeWorkRequest> {
             return workerClasses.map { Builder(it).build() }
         }
     }

@@ -770,7 +770,7 @@ class SaveStateFragmentTest {
         enter: Int,
         exit: Int,
         popEnter: Int,
-        popExit: Int
+        popExit: Int,
     ) {
         val record = fm.mBackStack[fm.mBackStack.size - 1]
 

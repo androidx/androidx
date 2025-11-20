@@ -48,7 +48,7 @@ private const val DEBUG_CLASS = "RecordingInputConnection"
 internal class RecordingInputConnection(
     initState: TextFieldValue,
     @Suppress("DEPRECATION") val eventCallback: InputEventCallback2,
-    val autoCorrect: Boolean
+    val autoCorrect: Boolean,
 ) : InputConnection {
 
     // The depth of the batch session. 0 means no session.
@@ -112,7 +112,7 @@ internal class RecordingInputConnection(
         if (extractedTextMonitorMode) {
             inputMethodManager.updateExtractedText(
                 currentExtractedTextRequestToken,
-                state.toExtractedText()
+                state.toExtractedText(),
             )
         }
 
@@ -130,7 +130,7 @@ internal class RecordingInputConnection(
             state.selection.min,
             state.selection.max,
             compositionStart,
-            compositionEnd
+            compositionEnd,
         )
     }
 
@@ -342,7 +342,7 @@ internal class RecordingInputConnection(
             includeInsertionMarker,
             includeCharacterBounds,
             includeEditorBounds,
-            includeLineBounds
+            includeLineBounds,
         )
         return true
     }
@@ -498,7 +498,7 @@ internal class RecordingInputConnection(
     override fun commitContent(
         inputContentInfo: InputContentInfo,
         flags: Int,
-        opts: Bundle?
+        opts: Bundle?,
     ): Boolean = ensureActive {
         if (DEBUG) {
             logDebug("commitContent($inputContentInfo, $flags, $opts)")

@@ -15,7 +15,6 @@
  */
 package androidx.constraintlayout.motion.utils;
 
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
@@ -89,9 +88,7 @@ public abstract class ViewOscillator extends KeyCycleOscillator {
     static class ElevationSet extends ViewOscillator {
         @Override
         public void setProperty(View view, float t) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setElevation(get(t));
-            }
+            view.setElevation(get(t));
         }
     }
 
@@ -171,9 +168,7 @@ public abstract class ViewOscillator extends KeyCycleOscillator {
     static class TranslationZset extends ViewOscillator {
         @Override
         public void setProperty(View view, float t) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setTranslationZ(get(t));
-            }
+            view.setTranslationZ(get(t));
         }
     }
 

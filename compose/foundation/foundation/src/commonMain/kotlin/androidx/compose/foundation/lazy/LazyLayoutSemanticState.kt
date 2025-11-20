@@ -20,19 +20,24 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
 import androidx.compose.foundation.lazy.layout.estimatedLazyScrollOffset
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.semantics.CollectionInfo
 
 internal fun LazyLayoutSemanticState(
     state: LazyListState,
-    isVertical: Boolean
+    isVertical: Boolean,
 ): LazyLayoutSemanticState =
     object : LazyLayoutSemanticState {
+
+        // The total number of items in the list, derived from layout info.
+        private val totalItemsCount by derivedStateOf { state.layoutInfo.totalItemsCount }
 
         override val scrollOffset: Float
             get() =
                 estimatedLazyScrollOffset(
                     state.firstVisibleItemIndex,
-                    state.firstVisibleItemScrollOffset
+                    state.firstVisibleItemScrollOffset,
                 )
 
         override val maxScrollOffset: Float
@@ -40,7 +45,7 @@ internal fun LazyLayoutSemanticState(
                 estimatedLazyMaxScrollOffset(
                     state.firstVisibleItemIndex,
                     state.firstVisibleItemScrollOffset,
-                    state.canScrollForward
+                    state.canScrollForward,
                 )
 
         override suspend fun scrollToItem(index: Int) {
@@ -49,9 +54,9 @@ internal fun LazyLayoutSemanticState(
 
         override fun collectionInfo(): CollectionInfo =
             if (isVertical) {
-                CollectionInfo(rowCount = -1, columnCount = 1)
+                CollectionInfo(rowCount = totalItemsCount, columnCount = 1)
             } else {
-                CollectionInfo(rowCount = 1, columnCount = -1)
+                CollectionInfo(rowCount = 1, columnCount = totalItemsCount)
             }
 
         override val viewport: Int

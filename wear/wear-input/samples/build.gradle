@@ -26,12 +26,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api(libs.kotlinStdlib)
     api(project(":wear:wear-input"))
 
     compileOnly(project(":annotation:annotation-sampled"))

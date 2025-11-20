@@ -32,6 +32,7 @@ internal expect class SynchronizedObject()
  * - JVM: implemented via `synchronized`, `ReentrantLock` is avoided for performance reasons.
  * - Native: implemented via POSIX mutex with `PTHREAD_MUTEX_RECURSIVE` flag.
  */
+@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND") // KT-29963
 internal inline fun <T> synchronized(lock: SynchronizedObject, crossinline action: () -> T): T {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     return synchronizedImpl(lock, action)

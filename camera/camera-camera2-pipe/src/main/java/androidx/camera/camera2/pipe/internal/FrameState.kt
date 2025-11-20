@@ -48,7 +48,7 @@ internal class FrameState(
     val requestMetadata: RequestMetadata,
     val frameNumber: FrameNumber,
     val frameTimestamp: CameraTimestamp,
-    imageStreams: Set<StreamId>
+    imageStreams: Set<StreamId>,
 ) {
     val frameId = nextFrameId()
     val frameInfoOutput: FrameInfoOutput = FrameInfoOutput()
@@ -73,7 +73,7 @@ internal class FrameState(
         STARTED,
         FRAME_INFO_COMPLETE,
         STREAM_RESULTS_COMPLETE,
-        COMPLETE
+        COMPLETE,
     }
 
     private val state = atomic(STARTED)
@@ -212,7 +212,7 @@ internal class FrameState(
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputResult: OutputResult<FrameInfo>
+            outputResult: OutputResult<FrameInfo>,
         ) {
             internalResult.complete(outputResult)
             onFrameInfoComplete()
@@ -234,7 +234,7 @@ internal class FrameState(
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputResult: OutputResult<OutputImage>
+            outputResult: OutputResult<OutputImage>,
         ) {
             val output = outputResult.output
             if (output != null) {

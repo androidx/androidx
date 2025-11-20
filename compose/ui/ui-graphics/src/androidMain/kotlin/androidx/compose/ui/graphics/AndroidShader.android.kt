@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics
 
 import android.graphics.BitmapShader
+import android.graphics.ComposeShader
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
 import android.graphics.SweepGradient
@@ -32,7 +33,7 @@ internal actual fun ActualLinearGradientShader(
     to: Offset,
     colors: List<Color>,
     colorStops: List<Float>?,
-    tileMode: TileMode
+    tileMode: TileMode,
 ): Shader {
     validateColorStops(colors, colorStops)
     val numTransparentColors = countTransparentColors(colors)
@@ -43,7 +44,7 @@ internal actual fun ActualLinearGradientShader(
         to.y,
         makeTransparentColors(colors, numTransparentColors),
         makeTransparentStops(colorStops, colors, numTransparentColors),
-        tileMode.toAndroidTileMode()
+        tileMode.toAndroidTileMode(),
     )
 }
 
@@ -52,7 +53,7 @@ internal actual fun ActualRadialGradientShader(
     radius: Float,
     colors: List<Color>,
     colorStops: List<Float>?,
-    tileMode: TileMode
+    tileMode: TileMode,
 ): Shader {
     validateColorStops(colors, colorStops)
     val numTransparentColors = countTransparentColors(colors)
@@ -62,14 +63,14 @@ internal actual fun ActualRadialGradientShader(
         radius,
         makeTransparentColors(colors, numTransparentColors),
         makeTransparentStops(colorStops, colors, numTransparentColors),
-        tileMode.toAndroidTileMode()
+        tileMode.toAndroidTileMode(),
     )
 }
 
 internal actual fun ActualSweepGradientShader(
     center: Offset,
     colors: List<Color>,
-    colorStops: List<Float>?
+    colorStops: List<Float>?,
 ): Shader {
     validateColorStops(colors, colorStops)
     val numTransparentColors = countTransparentColors(colors)
@@ -84,12 +85,12 @@ internal actual fun ActualSweepGradientShader(
 internal actual fun ActualImageShader(
     image: ImageBitmap,
     tileModeX: TileMode,
-    tileModeY: TileMode
+    tileModeY: TileMode,
 ): Shader {
     return BitmapShader(
         image.asAndroidBitmap(),
         tileModeX.toAndroidTileMode(),
-        tileModeY.toAndroidTileMode()
+        tileModeY.toAndroidTileMode(),
     )
 }
 
@@ -163,7 +164,7 @@ internal fun makeTransparentColors(colors: List<Color>, numTransparentColors: In
 internal fun makeTransparentStops(
     stops: List<Float>?,
     colors: List<Color>,
-    numTransparentColors: Int
+    numTransparentColors: Int,
 ): FloatArray? {
     if (numTransparentColors == 0) {
         return stops?.toFloatArray()
@@ -196,3 +197,38 @@ private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
         )
     }
 }
+
+internal actual class TransformShader {
+    private var aMatrix: android.graphics.Matrix? = null
+
+    private fun obtainMatrix(): android.graphics.Matrix =
+        aMatrix ?: android.graphics.Matrix().also { aMatrix = it }
+
+    actual fun transform(matrix: Matrix?) {
+        val tmp: android.graphics.Matrix?
+        if (matrix == null) {
+            tmp = null
+            aMatrix = null
+        } else {
+            tmp = obtainMatrix().apply { setFrom(matrix) }
+        }
+        // TODO(b/419811019): Handle the chase where the shader already had a matrix set.
+        shader?.setLocalMatrix(tmp)
+    }
+
+    actual var shader: Shader? = null
+        set(value) {
+            if (aMatrix != null) {
+                // TODO(b/419811019): Handle the chase where the shader already had a matrix set.
+                value?.setLocalMatrix(aMatrix)
+            }
+            field = value
+        }
+}
+
+internal actual fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ComposeShader(dst, src, blendMode.toAndroidBlendMode())
+    } else {
+        ComposeShader(dst, src, blendMode.toPorterDuffMode())
+    }

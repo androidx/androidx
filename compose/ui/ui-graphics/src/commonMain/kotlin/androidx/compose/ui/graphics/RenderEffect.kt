@@ -60,7 +60,7 @@ expect class BlurEffect(
     renderEffect: RenderEffect?,
     radiusX: Float,
     radiusY: Float = radiusX,
-    edgeTreatment: TileMode = TileMode.Clamp
+    edgeTreatment: TileMode = TileMode.Clamp,
 ) : RenderEffect
 
 /**

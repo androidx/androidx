@@ -40,7 +40,7 @@ class HorizontalPageIndicatorTest {
             listOf(TestDot(selectedRatio = 1f), TestDot(), TestDot(), TestDot()),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -53,7 +53,7 @@ class HorizontalPageIndicatorTest {
             listOf(TestDot(), TestDot(), TestDot(selectedRatio = 1f), TestDot()),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -66,7 +66,7 @@ class HorizontalPageIndicatorTest {
             listOf(TestDot(), TestDot(), TestDot(), TestDot(selectedRatio = 1f)),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -140,7 +140,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
     }
@@ -168,7 +168,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
     }
@@ -196,7 +196,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
     }
@@ -224,7 +224,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1f,
-                rightSpacerSize = 0f
+                rightSpacerSize = 0f,
             )
         }
     }
@@ -254,7 +254,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
 
         // Test during shift
@@ -273,7 +273,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
 
@@ -292,7 +292,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -321,7 +321,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
 
         // Test during shift
@@ -340,7 +340,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
 
@@ -359,7 +359,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -388,7 +388,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
 
         // Test during shift
@@ -407,7 +407,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1 - offset,
-                rightSpacerSize = offset
+                rightSpacerSize = offset,
             )
         }
 
@@ -426,7 +426,7 @@ class HorizontalPageIndicatorTest {
             ),
             offset = 0f,
             leftSpacerSize = 1f,
-            rightSpacerSize = 0f
+            rightSpacerSize = 0f,
         )
     }
 
@@ -457,7 +457,7 @@ class HorizontalPageIndicatorTest {
                 ),
                 offset = offset,
                 leftSpacerSize = 1f,
-                rightSpacerSize = 0f
+                rightSpacerSize = 0f,
             )
         }
     }
@@ -466,7 +466,7 @@ class HorizontalPageIndicatorTest {
         testDots: List<TestDot>,
         offset: Float,
         leftSpacerSize: Float,
-        rightSpacerSize: Float
+        rightSpacerSize: Float,
     ) {
 
         testDots.forEachIndexed { index, testDot -> testDot(index, testDot, offset) }
@@ -480,29 +480,29 @@ class HorizontalPageIndicatorTest {
         Assert.assertEquals(
             "Page $index, size ratio:",
             testDot.sizeRatio lerp offset,
-            sizeRatio(index)
+            sizeRatio(index),
         )
         Assert.assertEquals(
             "Page $index, select ratio:",
             testDot.selectedRatio lerp offset,
             calculateSelectedRatio(index, offset),
-            0.002f
+            0.002f,
         )
     }
 
     private class TestDot(
         val alpha: Pair<Float, Float>,
         val sizeRatio: Pair<Float, Float>,
-        val selectedRatio: Pair<Float, Float>
+        val selectedRatio: Pair<Float, Float>,
     ) {
         constructor(
             alpha: Float = 1f,
             sizeRatio: Float = 1f,
-            selectedRatio: Float = 0f
+            selectedRatio: Float = 0f,
         ) : this(
             alpha = alpha to alpha,
             sizeRatio = sizeRatio to sizeRatio,
-            selectedRatio = selectedRatio to selectedRatio
+            selectedRatio = selectedRatio to selectedRatio,
         )
     }
 }

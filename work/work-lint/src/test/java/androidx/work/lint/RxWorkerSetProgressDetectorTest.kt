@@ -38,7 +38,7 @@ class RxWorkerSetProgressDetectorTest {
                     worker.setProgress()
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -47,7 +47,7 @@ class RxWorkerSetProgressDetectorTest {
             .files(
                 // Source files
                 RX_WORKER,
-                application
+                application,
             )
             .issues(RxWorkerSetProgressDetector.ISSUE)
             .run()

@@ -93,7 +93,7 @@ public sealed interface ScalingLazyListScope {
     public fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
-        itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit
+        itemContent: @Composable ScalingLazyListItemScope.(index: Int) -> Unit,
     )
 }
 
@@ -115,7 +115,7 @@ public sealed interface ScalingLazyListScope {
 public inline fun <T> ScalingLazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit,
 ): Unit =
     items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
         itemContent(items[it])
@@ -139,7 +139,7 @@ public inline fun <T> ScalingLazyListScope.items(
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit,
 ): Unit =
     items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
         itemContent(it, items[it])
@@ -163,7 +163,7 @@ public inline fun <T> ScalingLazyListScope.itemsIndexed(
 public inline fun <T> ScalingLazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(item: T) -> Unit,
 ): Unit =
     items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
         itemContent(items[it])
@@ -187,7 +187,7 @@ public inline fun <T> ScalingLazyListScope.items(
 public inline fun <T> ScalingLazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable ScalingLazyListItemScope.(index: Int, item: T) -> Unit,
 ): Unit =
     items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
         itemContent(it, items[it])
@@ -356,7 +356,7 @@ public fun ScalingLazyColumn(
     verticalArrangement: Arrangement.Vertical =
         Arrangement.spacedBy(
             space = 4.dp,
-            alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
+            alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom,
         ),
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
@@ -364,7 +364,7 @@ public fun ScalingLazyColumn(
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     autoCentering: AutoCenteringParams? = AutoCenteringParams(),
-    content: ScalingLazyListScope.() -> Unit
+    content: ScalingLazyListScope.() -> Unit,
 ) {
     var initialized by remember { mutableStateOf(false) }
     BoxWithConstraints(modifier = modifier, propagateMinConstraints = true) {
@@ -398,8 +398,8 @@ public fun ScalingLazyColumn(
                             vertical =
                                 -(contentPadding.calculateTopPadding() +
                                         contentPadding.calculateBottomPadding())
-                                    .roundToPx()
-                        )
+                                    .roundToPx(),
+                        ),
                 )
 
             // Set up transient state
@@ -578,7 +578,7 @@ public object ScalingLazyColumnDefaults {
         minTransitionArea: Float = 0.35f,
         maxTransitionArea: Float = 0.55f,
         scaleInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f),
-        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() },
     ): ScalingParams =
         DefaultScalingParams(
             edgeScale = edgeScale,
@@ -588,7 +588,7 @@ public object ScalingLazyColumnDefaults {
             minTransitionArea = minTransitionArea,
             maxTransitionArea = maxTransitionArea,
             scaleInterpolator = scaleInterpolator,
-            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver,
         )
 
     /**
@@ -604,14 +604,14 @@ public object ScalingLazyColumnDefaults {
     public fun snapFlingBehavior(
         state: ScalingLazyListState,
         snapOffset: Dp = 0.dp,
-        decay: DecayAnimationSpec<Float> = exponentialDecay()
+        decay: DecayAnimationSpec<Float> = exponentialDecay(),
     ): FlingBehavior {
         val snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
         return remember(state, snapOffset, decay) {
             ScalingLazyColumnSnapFlingBehavior(
                 state = state,
                 snapOffset = snapOffsetPx,
-                decay = decay
+                decay = decay,
             )
         }
     }
@@ -620,7 +620,7 @@ public object ScalingLazyColumnDefaults {
 private class ScalingLazyListScopeImpl(
     private val state: ScalingLazyListState,
     private val scope: LazyListScope,
-    private val itemScope: ScalingLazyListItemScope
+    private val itemScope: ScalingLazyListItemScope,
 ) : ScalingLazyListScope {
 
     private var currentStartIndex = 0
@@ -636,7 +636,7 @@ private class ScalingLazyListScopeImpl(
     override fun items(
         count: Int,
         key: ((index: Int) -> Any)?,
-        itemContent: @Composable (ScalingLazyListItemScope.(index: Int) -> Unit)
+        itemContent: @Composable (ScalingLazyListItemScope.(index: Int) -> Unit),
     ) {
         val startIndex = currentStartIndex
         scope.items(count = count, key = key) {
@@ -653,7 +653,7 @@ private fun ScalingLazyColumnItemWrapper(
     index: Int,
     state: ScalingLazyListState,
     itemScope: ScalingLazyListItemScope,
-    content: @Composable (ScalingLazyListItemScope.() -> Unit)
+    content: @Composable (ScalingLazyListItemScope.() -> Unit),
 ) {
     Box(
         modifier =
@@ -681,7 +681,7 @@ private fun ScalingLazyColumnItemWrapper(
                         transformOrigin =
                             TransformOrigin(
                                 pivotFractionX = 0.5f,
-                                pivotFractionY = if (reverseLayout) 1.0f else 0.0f
+                                pivotFractionY = if (reverseLayout) 1.0f else 0.0f,
                             )
                     }
                 }

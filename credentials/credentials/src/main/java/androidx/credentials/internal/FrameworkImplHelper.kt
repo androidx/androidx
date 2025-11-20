@@ -52,7 +52,7 @@ class FrameworkImplHelper {
                     android.credentials.CredentialOption.Builder(
                             it.type,
                             it.requestData,
-                            it.candidateQueryData
+                            it.candidateQueryData,
                         )
                         .setIsSystemProviderRequired(it.isSystemProviderRequired)
                         .setAllowedProviders(it.allowedProviders)
@@ -69,7 +69,7 @@ class FrameworkImplHelper {
         @JvmStatic
         fun setOriginForGetRequest(
             request: GetCredentialRequest,
-            builder: android.credentials.GetCredentialRequest.Builder
+            builder: android.credentials.GetCredentialRequest.Builder,
         ) {
             if (request.origin != null) {
                 builder.setOrigin(request.origin)

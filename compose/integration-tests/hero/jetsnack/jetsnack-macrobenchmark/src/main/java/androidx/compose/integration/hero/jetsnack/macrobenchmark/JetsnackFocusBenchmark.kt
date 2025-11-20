@@ -49,18 +49,18 @@ class JetsnackFocusBenchmark(private val compilationMode: CompilationMode) {
                 listOf(
                     TraceSectionMetric(
                         "FocusOwnerImpl:dispatchKeyEvent",
-                        mode = TraceSectionMetric.Mode.Average
+                        mode = TraceSectionMetric.Mode.Average,
                     ),
                     TraceSectionMetric(
                         "FocusTransactions:requestFocus",
-                        mode = TraceSectionMetric.Mode.Average
-                    )
+                        mode = TraceSectionMetric.Mode.Average,
+                    ),
                 ),
             setupBlock = {
                 val searchCondition = Until.hasObject(By.res("snack_collection"))
                 // Wait until a snack collection item within the list is rendered
                 device.wait(searchCondition, 3_000)
-            }
+            },
         )
 
     @Test
@@ -72,13 +72,13 @@ class JetsnackFocusBenchmark(private val compilationMode: CompilationMode) {
                 val searchCondition = Until.hasObject(By.res(resPkg, "snackImageView"))
                 // Wait until a snack collection item within the list is rendered
                 device.wait(searchCondition, 3_000)
-            }
+            },
         )
 
     private fun benchmarkFocus(
         action: String,
         metrics: List<Metric> = listOf(),
-        setupBlock: MacrobenchmarkScope.() -> Unit
+        setupBlock: MacrobenchmarkScope.() -> Unit,
     ) =
         benchmarkRule.measureRepeated(
             packageName = JETSNACK_TARGET_PACKAGE_NAME,
@@ -98,7 +98,7 @@ class JetsnackFocusBenchmark(private val compilationMode: CompilationMode) {
                 startActivityAndWait(intent)
                 setupBlock()
             },
-            measureBlock = { repeat(30) { device.pressKeyCode(KEYCODE_TAB) } }
+            measureBlock = { repeat(30) { device.pressKeyCode(KEYCODE_TAB) } },
         )
 
     companion object {

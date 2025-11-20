@@ -22,31 +22,29 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
-    implementation("androidx.compose.foundation:foundation-layout:1.6.0-rc01")
-    implementation("androidx.compose.material:material-icons-core:1.6.8")
+    implementation("androidx.compose.foundation:foundation:1.8.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.8.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(":compose:material3:adaptive:adaptive"))
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
-    implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
-    implementation("androidx.compose.ui:ui-tooling:1.4.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
+    implementation("androidx.compose.ui:ui-util:1.8.0")
+    implementation("androidx.compose.ui:ui-tooling:1.8.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.8.0")
     implementation("androidx.window:window-core:1.3.0")
 }
 
@@ -56,7 +54,6 @@ androidx {
     inceptionYear = "2023"
     description = "Contains the sample code for the AndroidX Compose Material Adaptive Navigation" +
                   " Suite."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

@@ -130,7 +130,10 @@ object TextFieldDefaults {
      * @param isError indicates if the text field's current value is in an error state. When `true`,
      *   this decorator will display its contents in an error color.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field decorator in different states. See [TextFieldDefaults.colors].
+     *   field decorator in different states. See [TextFieldDefaults.colors]. Note: This parameter
+     *   only affects the colors of elements in the decoration box. Elements of the [BasicTextField]
+     *   (such as text color or cursor color) are unaffected and must be changed using the relevant
+     *   parameters of [BasicTextField].
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decorator. Note that the padding values may not be respected if they are incompatible with
      *   the text field's size constraints or layout. See
@@ -172,7 +175,7 @@ object TextFieldDefaults {
                 focusedIndicatorLineThickness = FocusedIndicatorThickness,
                 unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
             )
-        }
+        },
     ): TextFieldDecorator = TextFieldDecorator { innerTextField ->
         val visualText =
             if (outputTransformation == null) state.text
@@ -287,7 +290,7 @@ object TextFieldDefaults {
         colors: TextFieldColors? = null,
         textFieldShape: Shape? = null,
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness
+        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) =
         this then
             IndicatorLineElement(
@@ -348,7 +351,10 @@ object TextFieldDefaults {
      * @param supportingText the optional supporting text to be displayed below the text field
      * @param shape defines the shape of this decoration box's container
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field decoration box in different states. See [TextFieldDefaults.colors].
+     *   field decoration box in different states. See [TextFieldDefaults.colors]. Note: This
+     *   parameter only affects the colors of elements in the decoration box. Elements of the
+     *   [BasicTextField] (such as text color or cursor color) are unaffected and must be changed
+     *   using the relevant parameters of [BasicTextField].
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decoration box. Note that the padding values may not be respected if they are incompatible
      *   with the text field's size constraints or layout. See
@@ -392,7 +398,7 @@ object TextFieldDefaults {
                 focusedIndicatorLineThickness = FocusedIndicatorThickness,
                 unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
             )
-        }
+        },
     ) {
         val visualText =
             remember(value, visualTransformation) {
@@ -435,7 +441,7 @@ object TextFieldDefaults {
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
-        bottom: Dp = TextFieldWithLabelVerticalPadding
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -449,7 +455,7 @@ object TextFieldDefaults {
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -708,29 +714,6 @@ object TextFieldDefaults {
     }
 
     @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Maintained for binary compatibility. Use overload with `textFieldShape`.",
-    )
-    @ExperimentalMaterial3Api
-    fun Modifier.indicatorLine(
-        enabled: Boolean,
-        isError: Boolean,
-        interactionSource: InteractionSource,
-        colors: TextFieldColors,
-        focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness
-    ) =
-        indicatorLine(
-            enabled = enabled,
-            isError = isError,
-            interactionSource = interactionSource,
-            colors = colors,
-            textFieldShape = null,
-            focusedIndicatorLineThickness = focusedIndicatorLineThickness,
-            unfocusedIndicatorLineThickness = unfocusedIndicatorLineThickness,
-        )
-
-    @Deprecated(
         message = "Renamed to TextFieldDefaults.Container",
         replaceWith =
             ReplaceWith(
@@ -742,7 +725,7 @@ object TextFieldDefaults {
                     "    shape = shape,\n" +
                     ")"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     @ExperimentalMaterial3Api
     @Composable
@@ -769,9 +752,9 @@ object TextFieldDefaults {
         replaceWith =
             ReplaceWith(
                 "OutlinedTextFieldDefaults.shape",
-                "androidx.compose.material.OutlinedTextFieldDefaults"
+                "androidx.compose.material.OutlinedTextFieldDefaults",
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     val outlinedShape: Shape
         @Composable get() = OutlinedTextFieldDefaults.shape
@@ -779,7 +762,7 @@ object TextFieldDefaults {
     @Deprecated(
         message = "Renamed to `TextFieldDefaults.shape`",
         replaceWith = ReplaceWith("TextFieldDefaults.shape"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     val filledShape: Shape
         @Composable get() = shape
@@ -813,20 +796,14 @@ object TextFieldDefaults {
                     "        bottom = bottom,\n" +
                     "    )"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun textFieldWithLabelPadding(
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
-        bottom: Dp = TextFieldWithLabelVerticalPadding
-    ): PaddingValues =
-        contentPaddingWithLabel(
-            start = start,
-            top = top,
-            end = end,
-            bottom = bottom,
-        )
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
+    ): PaddingValues = contentPaddingWithLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
         message = "Renamed to `TextFieldDefaults.contentPaddingWithoutLabel`",
@@ -839,20 +816,15 @@ object TextFieldDefaults {
                     "        bottom = bottom,\n" +
                     "    )"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun textFieldWithoutLabelPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues =
-        contentPaddingWithoutLabel(
-            start = start,
-            top = top,
-            end = end,
-            bottom = bottom,
-        )
+        contentPaddingWithoutLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
         message = "Renamed to `OutlinedTextFieldDefaults.contentPadding`",
@@ -864,15 +836,15 @@ object TextFieldDefaults {
                     "        end = end,\n" +
                     "        bottom = bottom,\n" +
                     "    )",
-                "androidx.compose.material.OutlinedTextFieldDefaults"
+                "androidx.compose.material.OutlinedTextFieldDefaults",
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun outlinedTextFieldPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues =
         OutlinedTextFieldDefaults.contentPadding(
             start = start,
@@ -954,7 +926,10 @@ object OutlinedTextFieldDefaults {
      * @param isError indicates if the text field's current value is in an error state. When `true`,
      *   this decorator will display its contents in an error color.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field decorator in different states. See [OutlinedTextFieldDefaults.colors].
+     *   field decorator in different states. See [OutlinedTextFieldDefaults.colors]. Note: This
+     *   parameter only affects the colors of elements in the decoration box. Elements of the
+     *   [BasicTextField] (such as text color or cursor color) are unaffected and must be changed
+     *   using the relevant parameters of [BasicTextField].
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decorator. Note that the padding values may not be respected if they are incompatible with
      *   the text field's size constraints or layout. See
@@ -992,7 +967,7 @@ object OutlinedTextFieldDefaults {
                 focusedBorderThickness = FocusedBorderThickness,
                 unfocusedBorderThickness = UnfocusedBorderThickness,
             )
-        }
+        },
     ): TextFieldDecorator = TextFieldDecorator { innerTextField ->
         val visualText =
             if (outputTransformation == null) state.text
@@ -1125,7 +1100,10 @@ object OutlinedTextFieldDefaults {
      * @param suffix the optional suffix to be displayed after the input text in the text field
      * @param supportingText the optional supporting text to be displayed below the text field
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field in different states. See [OutlinedTextFieldDefaults.colors].
+     *   field decoration box in different states. See [OutlinedTextFieldDefaults.colors]. Note:
+     *   This parameter only affects the colors of elements in the decoration box. Elements of the
+     *   [BasicTextField] (such as text color or cursor color) are unaffected and must be changed
+     *   using the relevant parameters of [BasicTextField].
      * @param contentPadding the padding between the input field and the surrounding elements of the
      *   decoration box. Note that the padding values may not be respected if they are incompatible
      *   with the text field's size constraints or layout. See
@@ -1164,7 +1142,7 @@ object OutlinedTextFieldDefaults {
                 focusedBorderThickness = FocusedBorderThickness,
                 unfocusedBorderThickness = UnfocusedBorderThickness,
             )
-        }
+        },
     ) {
         val visualText =
             remember(value, visualTransformation) {
@@ -1205,7 +1183,7 @@ object OutlinedTextFieldDefaults {
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -1447,7 +1425,7 @@ object OutlinedTextFieldDefaults {
                         disabledSuffixColor =
                             fromToken(OutlinedTextFieldTokens.InputSuffixColor)
                                 .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-                        errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor)
+                        errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor),
                     )
                     .also { defaultOutlinedTextFieldColorsCached = it }
         }
@@ -1466,7 +1444,7 @@ object OutlinedTextFieldDefaults {
                     "    unfocusedBorderThickness = unfocusedBorderThickness,\n" +
                     ")"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     @ExperimentalMaterial3Api
     @Composable
@@ -1698,11 +1676,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun leadingIconColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun leadingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLeadingIconColor
             isError -> errorLeadingIconColor
@@ -1718,11 +1692,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun trailingIconColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun trailingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTrailingIconColor
             isError -> errorTrailingIconColor
@@ -1738,11 +1708,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun indicatorColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun indicatorColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledIndicatorColor
             isError -> errorIndicatorColor
@@ -1758,11 +1724,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun containerColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun containerColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledContainerColor
             isError -> errorContainerColor
@@ -1778,11 +1740,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun placeholderColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun placeholderColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPlaceholderColor
             isError -> errorPlaceholderColor
@@ -1798,11 +1756,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun labelColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun labelColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLabelColor
             isError -> errorLabelColor
@@ -1818,11 +1772,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun textColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun textColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTextColor
             isError -> errorTextColor
@@ -1838,11 +1788,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun supportingTextColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun supportingTextColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSupportingTextColor
             isError -> errorSupportingTextColor
@@ -1858,11 +1804,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun prefixColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun prefixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPrefixColor
             isError -> errorPrefixColor
@@ -1878,11 +1820,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun suffixColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    fun suffixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSuffixColor
             isError -> errorSuffixColor
@@ -1896,8 +1834,7 @@ constructor(
      * @param isError whether the text field's current value is in error
      */
     @Stable
-    internal fun cursorColor(isError: Boolean): Color =
-        if (isError) errorCursorColor else cursorColor
+    fun cursorColor(isError: Boolean): Color = if (isError) errorCursorColor else cursorColor
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

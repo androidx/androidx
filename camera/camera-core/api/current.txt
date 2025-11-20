@@ -42,7 +42,13 @@ package androidx.camera.core {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
 
+  public final class CameraIdentifier {
+    method public boolean isOf(androidx.camera.core.Camera camera);
+    method public boolean isOf(androidx.camera.core.CameraInfo cameraInfo);
+  }
+
   public interface CameraInfo {
+    method public default androidx.camera.core.CameraIdentifier? getCameraIdentifier();
     method public androidx.camera.core.CameraSelector getCameraSelector();
     method public androidx.lifecycle.LiveData<androidx.camera.core.CameraState!> getCameraState();
     method public androidx.camera.core.ExposureState getExposureState();
@@ -54,6 +60,7 @@ package androidx.camera.core {
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges();
+    method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges(androidx.camera.core.SessionConfig);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
     method public default androidx.lifecycle.LiveData<java.lang.Integer!> getTorchStrengthLevel();
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
@@ -61,6 +68,7 @@ package androidx.camera.core {
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method public default boolean isLogicalMultiCameraSupported();
     method public default boolean isLowLightBoostSupported();
+    method public default boolean isSessionConfigSupported(androidx.camera.core.SessionConfig);
     method public default boolean isTorchStrengthSupported();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
     method public static boolean mustPlayShutterSound();
@@ -71,16 +79,25 @@ package androidx.camera.core {
   public final class CameraInfoUnavailableException extends java.lang.Exception {
   }
 
+  public interface CameraPresenceListener {
+    method public void onCamerasAdded(java.util.Set<androidx.camera.core.CameraIdentifier!>);
+    method public void onCamerasRemoved(java.util.Set<androidx.camera.core.CameraIdentifier!>);
+  }
+
   public interface CameraProvider {
-    method public java.util.List<androidx.camera.core.CameraInfo> getAvailableCameraInfos();
+    method public default void addCameraPresenceListener(java.util.concurrent.Executor executor, androidx.camera.core.CameraPresenceListener listener);
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.core.CameraInfo> getAvailableCameraInfos();
     method public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector);
+    method public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector, androidx.camera.core.SessionConfig sessionConfig);
     method @kotlin.jvm.Throws(exceptionClasses=CameraInfoUnavailableException::class) public boolean hasCamera(androidx.camera.core.CameraSelector cameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
+    method public default void removeCameraPresenceListener(androidx.camera.core.CameraPresenceListener listener);
     property public abstract java.util.List<androidx.camera.core.CameraInfo> availableCameraInfos;
   }
 
   public final class CameraSelector {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
     method public String? getPhysicalCameraId();
+    method public static androidx.camera.core.CameraSelector of(androidx.camera.core.CameraIdentifier...);
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
@@ -106,6 +123,7 @@ package androidx.camera.core {
     field public static final int ERROR_CAMERA_DISABLED = 5; // 0x5
     field public static final int ERROR_CAMERA_FATAL_ERROR = 6; // 0x6
     field public static final int ERROR_CAMERA_IN_USE = 2; // 0x2
+    field public static final int ERROR_CAMERA_REMOVED = 8; // 0x8
     field public static final int ERROR_DO_NOT_DISTURB_MODE_ENABLED = 7; // 0x7
     field public static final int ERROR_MAX_CAMERAS_IN_USE = 1; // 0x1
     field public static final int ERROR_OTHER_RECOVERABLE_ERROR = 3; // 0x3
@@ -462,6 +480,8 @@ package androidx.camera.core {
   public final class ImageCaptureExtKt {
     method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
     method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
+    method @BytecodeOnly public static Object! takePicture$default(androidx.camera.core.ImageCapture!, androidx.camera.core.ImageCapture.OutputFileOptions!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! takePicture$default(androidx.camera.core.ImageCapture!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public class ImageCaptureLatencyEstimate {
@@ -628,6 +648,47 @@ package androidx.camera.core {
     method public androidx.camera.core.RetryPolicy.RetryConfig.Builder setShouldRetry(boolean);
   }
 
+  public class SessionConfig {
+    ctor public SessionConfig(androidx.camera.core.UseCase... useCases);
+    ctor @BytecodeOnly public SessionConfig(java.util.List!, androidx.camera.core.ViewPort!, java.util.List!, android.util.Range!, java.util.Set!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects, optional android.util.Range<java.lang.Integer> frameRateRange);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects, optional android.util.Range<java.lang.Integer> frameRateRange, optional java.util.Set<? extends androidx.camera.core.featuregroup.GroupableFeature> requiredFeatureGroup);
+    ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects, optional android.util.Range<java.lang.Integer> frameRateRange, optional java.util.Set<? extends androidx.camera.core.featuregroup.GroupableFeature> requiredFeatureGroup, optional java.util.List<? extends androidx.camera.core.featuregroup.GroupableFeature> preferredFeatureGroup);
+    method @InaccessibleFromKotlin public final java.util.List<androidx.camera.core.CameraEffect> getEffects();
+    method @InaccessibleFromKotlin public final androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> getFeatureSelectionListener();
+    method @InaccessibleFromKotlin public final java.util.concurrent.Executor getFeatureSelectionListenerExecutor();
+    method @InaccessibleFromKotlin public final android.util.Range<java.lang.Integer> getFrameRateRange();
+    method @InaccessibleFromKotlin public final java.util.List<androidx.camera.core.featuregroup.GroupableFeature> getPreferredFeatureGroup();
+    method @InaccessibleFromKotlin public final java.util.Set<androidx.camera.core.featuregroup.GroupableFeature> getRequiredFeatureGroup();
+    method @InaccessibleFromKotlin public final java.util.List<androidx.camera.core.UseCase> getUseCases();
+    method @InaccessibleFromKotlin public final androidx.camera.core.ViewPort? getViewPort();
+    method public final void setFeatureSelectionListener(androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> listener);
+    method public final void setFeatureSelectionListener(optional java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> listener);
+    method @BytecodeOnly public static void setFeatureSelectionListener$default(androidx.camera.core.SessionConfig!, java.util.concurrent.Executor!, androidx.core.util.Consumer!, int, Object!);
+    property public final java.util.List<androidx.camera.core.CameraEffect> effects;
+    property public final androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> featureSelectionListener;
+    property public final java.util.concurrent.Executor featureSelectionListenerExecutor;
+    property public final android.util.Range<java.lang.Integer> frameRateRange;
+    property public final java.util.List<androidx.camera.core.featuregroup.GroupableFeature> preferredFeatureGroup;
+    property public final java.util.Set<androidx.camera.core.featuregroup.GroupableFeature> requiredFeatureGroup;
+    property public final java.util.List<androidx.camera.core.UseCase> useCases;
+    property public final androidx.camera.core.ViewPort? viewPort;
+  }
+
+  public static final class SessionConfig.Builder {
+    ctor public SessionConfig.Builder(androidx.camera.core.UseCase... useCases);
+    ctor public SessionConfig.Builder(java.util.List<? extends androidx.camera.core.UseCase> useCases);
+    method public androidx.camera.core.SessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);
+    method public androidx.camera.core.SessionConfig build();
+    method public androidx.camera.core.SessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
+    method public androidx.camera.core.SessionConfig.Builder setPreferredFeatureGroup(androidx.camera.core.featuregroup.GroupableFeature... features);
+    method public androidx.camera.core.SessionConfig.Builder setRequiredFeatureGroup(androidx.camera.core.featuregroup.GroupableFeature... features);
+    method public androidx.camera.core.SessionConfig.Builder setViewPort(androidx.camera.core.ViewPort viewPort);
+  }
+
   public class SurfaceOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public SurfaceOrientedMeteringPointFactory(float, float);
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
@@ -732,6 +793,37 @@ package androidx.camera.core {
     method public float getMaxZoomRatio();
     method public float getMinZoomRatio();
     method public float getZoomRatio();
+  }
+
+}
+
+package androidx.camera.core.featuregroup {
+
+  public abstract class GroupableFeature {
+    method @InaccessibleFromKotlin public final int getFeatureType();
+    property public final int featureType;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature.Companion Companion;
+    field public static final int FEATURE_TYPE_DYNAMIC_RANGE = 0; // 0x0
+    field public static final int FEATURE_TYPE_FPS_RANGE = 1; // 0x1
+    field public static final int FEATURE_TYPE_IMAGE_FORMAT = 3; // 0x3
+    field public static final int FEATURE_TYPE_RECORDING_QUALITY = 4; // 0x4
+    field public static final int FEATURE_TYPE_VIDEO_STABILIZATION = 2; // 0x2
+    field public static final androidx.camera.core.featuregroup.GroupableFeature FPS_60;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature HDR_HLG10;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature IMAGE_ULTRA_HDR;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature PREVIEW_STABILIZATION;
+  }
+
+  public static final class GroupableFeature.Companion {
+    property public static int FEATURE_TYPE_DYNAMIC_RANGE;
+    property public static int FEATURE_TYPE_FPS_RANGE;
+    property public static int FEATURE_TYPE_IMAGE_FORMAT;
+    property public static int FEATURE_TYPE_RECORDING_QUALITY;
+    property public static int FEATURE_TYPE_VIDEO_STABILIZATION;
+    property public androidx.camera.core.featuregroup.GroupableFeature FPS_60;
+    property public androidx.camera.core.featuregroup.GroupableFeature HDR_HLG10;
+    property public androidx.camera.core.featuregroup.GroupableFeature IMAGE_ULTRA_HDR;
+    property public androidx.camera.core.featuregroup.GroupableFeature PREVIEW_STABILIZATION;
   }
 
 }

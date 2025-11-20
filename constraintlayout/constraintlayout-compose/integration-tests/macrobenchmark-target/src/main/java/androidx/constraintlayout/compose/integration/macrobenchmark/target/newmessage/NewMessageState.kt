@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberNewMessageState(
     key: Any = Unit,
-    initialLayoutState: NewMessageLayout
+    initialLayoutState: NewMessageLayout,
 ): NewMessageState {
     return remember(key) { NewMessageState(initialLayoutState) }
 }
@@ -50,5 +50,5 @@ internal class NewMessageState(initialLayoutState: NewMessageLayout) {
 internal enum class NewMessageLayout {
     Full,
     Mini,
-    Fab
+    Fab,
 }

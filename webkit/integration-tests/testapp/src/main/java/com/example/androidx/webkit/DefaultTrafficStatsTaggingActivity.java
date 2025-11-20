@@ -46,6 +46,7 @@ public class DefaultTrafficStatsTaggingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_default_traffic_tagging);
+        WebkitHelpers.enableEdgeToEdge(this);
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.DEFAULT_TRAFFICSTATS_TAGGING)) {
             WebkitHelpers.showMessageInActivity(DefaultTrafficStatsTaggingActivity.this,
                     R.string.default_trafficstats_tagging_unsupported);

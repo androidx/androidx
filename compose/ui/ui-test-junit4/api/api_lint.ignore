@@ -1,5 +1,5 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.compose.ui.test.junit4.AndroidComposeTestRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
-    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runners.model.Statement in parameter `base` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.compose.ui.test.junit4.AndroidComposeTestRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
-    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runner.Description in parameter `description` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.

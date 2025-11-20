@@ -99,9 +99,7 @@ class TwoWayIpcConnection(
         // this is called only if the service crashes
     }
 
-    internal suspend fun createSubject(
-        hostExecutionScope: CoroutineScope,
-    ): TwoWayIpcSubject {
+    internal suspend fun createSubject(hostExecutionScope: CoroutineScope): TwoWayIpcSubject {
         val hostSubject = TwoWayIpcSubject(datastoreScope = hostExecutionScope)
         val message = Message.obtain()
         message.what = TwoWayIpcService.MSG_CREATE_SUBJECT

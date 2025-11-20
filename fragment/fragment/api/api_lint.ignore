@@ -24,31 +24,29 @@ GetterSetterNames: androidx.fragment.app.Fragment#getAllowReturnTransitionOverla
 
 
 InvalidNullabilityOverride: androidx.fragment.app.DialogFragment#onCancel(android.content.DialogInterface) parameter #0:
-    Invalid nullability on parameter `dialog` in method `onCancel`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.DialogInterface in parameter `dialog` in method `onCancel`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.DialogFragment#onDismiss(android.content.DialogInterface) parameter #0:
-    Invalid nullability on parameter `dialog` in method `onDismiss`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.DialogInterface in parameter `dialog` in method `onDismiss`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.Fragment#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo) parameter #0:
-    Invalid nullability on parameter `menu` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.ContextMenu in parameter `menu` in method `onCreateContextMenu`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.Fragment#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo) parameter #1:
-    Invalid nullability on parameter `v` in method `onCreateContextMenu`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `v` in method `onCreateContextMenu`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#addView(android.view.View, int, android.view.ViewGroup.LayoutParams) parameter #0:
-    Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `child` in method `addView`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#dispatchApplyWindowInsets(android.view.WindowInsets) parameter #0:
-    Invalid nullability on parameter `insets` in method `dispatchApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.WindowInsets in parameter `insets` in method `dispatchApplyWindowInsets`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
-    Invalid nullability on parameter `child` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `child` in method `drawChild`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#endViewTransition(android.view.View) parameter #0:
-    Invalid nullability on parameter `view` in method `endViewTransition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `view` in method `endViewTransition`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#onApplyWindowInsets(android.view.WindowInsets) parameter #0:
-    Invalid nullability on parameter `insets` in method `onApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.WindowInsets in parameter `insets` in method `onApplyWindowInsets`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#removeView(android.view.View) parameter #0:
-    Invalid nullability on parameter `view` in method `removeView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `view` in method `removeView`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#removeViewInLayout(android.view.View) parameter #0:
-    Invalid nullability on parameter `view` in method `removeViewInLayout`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#setOnApplyWindowInsetsListener(android.view.View.OnApplyWindowInsetsListener) parameter #0:
-    Invalid nullability on parameter `listener` in method `setOnApplyWindowInsetsListener`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `view` in method `removeViewInLayout`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#startViewTransition(android.view.View) parameter #0:
-    Invalid nullability on parameter `view` in method `startViewTransition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `view` in method `startViewTransition`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
@@ -56,11 +54,11 @@ MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(
 
 
 NullableCollection: androidx.fragment.app.Fragment#getArguments():
-    Return type of method androidx.fragment.app.Fragment.getArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.fragment.app.Fragment.getArguments() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Type of parameter args in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args) is a nullable collection (`java.lang.String[]`); must be non-null
+    Type of parameter args in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args) uses a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #3:
-    Type of parameter options in androidx.fragment.app.FragmentHostCallback.onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle options) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter options in androidx.fragment.app.FragmentHostCallback.onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle options) uses a nullable collection (`android.os.Bundle`); must be non-null
 
 
 ParcelNotFinal: androidx.fragment.app.Fragment.SavedState:

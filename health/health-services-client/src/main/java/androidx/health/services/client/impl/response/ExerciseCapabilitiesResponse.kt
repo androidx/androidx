@@ -29,7 +29,7 @@ import androidx.health.services.client.proto.ResponsesProto
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseCapabilitiesResponse(
     /** [ExerciseCapabilities] supported by this device. */
-    public val exerciseCapabilities: ExerciseCapabilities,
+    public val exerciseCapabilities: ExerciseCapabilities
 ) : ProtoParcelable<ResponsesProto.ExerciseCapabilitiesResponse>() {
 
     override val proto: ResponsesProto.ExerciseCapabilitiesResponse =

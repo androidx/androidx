@@ -52,7 +52,7 @@ class AdSelectionConfigTest {
                 adSelectionSignals,
                 sellerSignals,
                 perBuyerSignals,
-                trustedScoringSignalsUri
+                trustedScoringSignalsUri,
             )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -67,7 +67,7 @@ class AdSelectionConfigTest {
                 adSelectionSignals,
                 sellerSignals,
                 perBuyerSignals,
-                trustedScoringSignalsUri
+                trustedScoringSignalsUri,
             )
         var adSelectionConfig2 =
             AdSelectionConfig(
@@ -77,7 +77,7 @@ class AdSelectionConfigTest {
                 adSelectionSignals,
                 sellerSignals,
                 perBuyerSignals,
-                trustedScoringSignalsUri
+                trustedScoringSignalsUri,
             )
         Truth.assertThat(adSelectionConfig == adSelectionConfig2).isTrue()
     }

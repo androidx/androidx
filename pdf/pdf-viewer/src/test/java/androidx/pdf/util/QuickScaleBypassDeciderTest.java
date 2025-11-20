@@ -20,16 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.view.MotionEvent;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link QuickScaleBypassDecider}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class QuickScaleBypassDeciderTest {
 
     private static final long FIRST_DOWN_TIME_MS = 0;

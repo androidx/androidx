@@ -22,17 +22,14 @@ package androidx.kruth
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class IntegerSubject
-protected constructor(
-    metadata: FailureMetadata,
-    actual: Int?,
-) : ComparableSubject<Int>(metadata, actual) {
+open class IntegerSubject protected constructor(metadata: FailureMetadata, actual: Int?) :
+    ComparableSubject<Int>(metadata, actual) {
 
     internal constructor(actual: Int?, metadata: FailureMetadata) : this(metadata, actual)
 
     @Deprecated(
         "Use .isEqualTo instead. Long comparison is consistent with equality.",
-        ReplaceWith("this.isEqualTo(other)")
+        ReplaceWith("this.isEqualTo(other)"),
     )
     override fun isEquivalentAccordingToCompareTo(other: Int?) {
         super.isEquivalentAccordingToCompareTo(other)

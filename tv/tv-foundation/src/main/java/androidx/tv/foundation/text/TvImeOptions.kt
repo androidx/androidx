@@ -58,5 +58,5 @@ enum class TvKeyboardAlignment(val option: String? = null) {
     Left("horizontalAlignment=left"),
     Right("horizontalAlignment=right"),
     Center("horizontalAlignment=center"),
-    Fullscreen("fullWidthKeyboard")
+    Fullscreen("fullWidthKeyboard"),
 }

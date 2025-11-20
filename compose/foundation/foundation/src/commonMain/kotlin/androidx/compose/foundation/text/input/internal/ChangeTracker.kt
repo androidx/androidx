@@ -149,7 +149,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         mergedOverlappingChange: Change?,
         preMin: Int,
         preMax: Int,
-        postDelta: Int
+        postDelta: Int,
     ) {
         var originalDelta =
             if (_changesTemp.isEmpty()) 0
@@ -166,7 +166,7 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
                     preStart = preMin,
                     preEnd = preMax + postDelta,
                     originalStart = originalStart,
-                    originalEnd = originalEnd
+                    originalEnd = originalEnd,
                 )
         } else {
             newChange = mergedOverlappingChange
@@ -192,6 +192,6 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         var preStart: Int,
         var preEnd: Int,
         var originalStart: Int,
-        var originalEnd: Int
+        var originalEnd: Int,
     )
 }

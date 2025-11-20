@@ -273,7 +273,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.FEBRUARY, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
@@ -319,7 +319,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.MARCH, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
@@ -365,7 +365,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.FEBRUARY, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
@@ -411,7 +411,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.MARCH, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
@@ -457,7 +457,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.NOVEMBER, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_UP);
@@ -503,7 +503,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.MONTH, Calendar.OCTOBER, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_UP);
@@ -549,7 +549,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.YEAR, 2017, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_DOWN);
@@ -595,7 +595,7 @@ public class GuidedDatePickerTest {
         initActivity(intent);
 
         DatePicker mPickerView = (DatePicker) mActivity.findViewById(
-                R.id.guidedactions_activator_item);
+                androidx.leanback.R.id.guidedactions_activator_item);
 
         verticalScrollToFieldValue(Calendar.YEAR, 2016, new int[] {0, 1, 2},
                 mPickerView, KeyEvent.KEYCODE_DPAD_UP);
@@ -875,7 +875,7 @@ public class GuidedDatePickerTest {
                 mActivity.getGuidedStepTestFragment();
 
         VerticalGridView guidedActionsList = (VerticalGridView)
-                mActivity.findViewById(R.id.guidedactions_list);
+                mActivity.findViewById(androidx.leanback.R.id.guidedactions_list);
 
         int currSelectedAction = mFragment.getSelectedActionPosition();
         // scroll up/down to the requested action
@@ -894,7 +894,7 @@ public class GuidedDatePickerTest {
         assertTrue("The wrong action was selected!", mFragment.getSelectedActionPosition()
                 == dateAction.getId());
         DatePicker mPickerView = (DatePicker) mFragment.getActionItemView((int) dateAction.getId())
-                .findViewById(R.id.guidedactions_activator_item);
+                .findViewById(androidx.leanback.R.id.guidedactions_activator_item);
 
         Calendar currentActionCal = Calendar.getInstance();
         currentActionCal.setTimeInMillis(dateAction.getDate());

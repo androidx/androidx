@@ -33,7 +33,7 @@ fun Example(
     example: Example,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     CatalogScaffold(
         topBarTitle = example.name,
@@ -43,11 +43,11 @@ fun Example(
         docsUrl = component.docsUrl,
         sourceUrl = example.sourceUrl,
         onThemeChange = onThemeChange,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
     ) { paddingValues ->
         Box(
             modifier = Modifier.fillMaxSize().padding(paddingValues),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             example.content()
         }

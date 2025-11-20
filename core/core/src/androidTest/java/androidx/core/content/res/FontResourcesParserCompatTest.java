@@ -21,6 +21,8 @@ import static androidx.core.content.res.FontResourcesParserCompat.FontFamilyFile
 import static androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import static androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -28,7 +30,6 @@ import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
-import android.os.Build;
 import android.util.Base64;
 
 import androidx.core.provider.FontRequest;
@@ -100,12 +101,6 @@ public class FontResourcesParserCompatTest {
 
     @Test
     public void testParseAndroidAttrs() throws XmlPullParserException, IOException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
-            // The following tests are only expected to pass on v22+ devices. The android
-            // resources are stripped in older versions and hence won't be parsed.
-            return;
-        }
-
         @SuppressLint("ResourceType")
         XmlResourceParser parser = mResources.getXml(R.font.samplexmlfontforparsing2);
 
@@ -189,5 +184,71 @@ public class FontResourcesParserCompatTest {
         assertEquals("MDEyMzM2NTZaMIGUMQswCQYD", thirdValue);
         String fourthValue = Base64.encodeToString(secondSet.get(1), Base64.DEFAULT).trim();
         assertEquals("DHThvbbR24kT9ixcOd9W+EY=", fourthValue);
+    }
+
+    @Test
+    public void testFallbackSyntax() throws XmlPullParserException, IOException {
+        XmlResourceParser parser = mResources.getXml(R.font.system_fallback);
+        FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
+        assertNotNull(result);
+
+        assertThat(result).isInstanceOf(ProviderResourceEntry.class);
+        ProviderResourceEntry entry = (ProviderResourceEntry) result;
+        assertThat(entry.getSystemFontFamilyName()).isNull();
+
+        List<FontRequest> requests = entry.getRequests();
+        assertThat(requests).hasSize(1);
+        FontRequest request = requests.get(0);
+        assertThat(request.getProviderAuthority()).isEqualTo("androidx.core.provider.fonts.font");
+        assertThat(request.getProviderPackage()).isEqualTo("androidx.core.test");
+
+        // fontProviderQuery of the font-family is ignored if fallback nodes exist.
+        assertThat(request.getQuery()).isEqualTo("firstFallback");
+        assertThat(request.getSystemFont()).isEqualTo("serif");
+    }
+
+    @Test
+    public void testFallbackSyntax_Legacy() throws XmlPullParserException, IOException {
+        XmlResourceParser parser = mResources.getXml(R.font.system_fallback_legacy);
+        FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
+        assertNotNull(result);
+
+        assertThat(result).isInstanceOf(ProviderResourceEntry.class);
+        ProviderResourceEntry entry = (ProviderResourceEntry) result;
+        assertThat(entry.getSystemFontFamilyName()).isEqualTo("serif");
+
+        List<FontRequest> requests = entry.getRequests();
+        assertThat(requests).hasSize(1);
+        FontRequest request = requests.get(0);
+        assertThat(request.getProviderAuthority()).isEqualTo("androidx.core.provider.fonts.font");
+        assertThat(request.getProviderPackage()).isEqualTo("androidx.core.test");
+
+        assertThat(request.getQuery()).isEqualTo("firstFallback");
+        assertThat(request.getSystemFont()).isNull();
+    }
+
+    @Test
+    public void testFallbackSyntax_Multiple() throws XmlPullParserException, IOException {
+        XmlResourceParser parser = mResources.getXml(R.font.system_fallback_multiple);
+        FamilyResourceEntry result = FontResourcesParserCompat.parse(parser, mResources);
+        assertNotNull(result);
+
+        assertThat(result).isInstanceOf(ProviderResourceEntry.class);
+        ProviderResourceEntry entry = (ProviderResourceEntry) result;
+        assertThat(entry.getSystemFontFamilyName()).isEqualTo("unknown_system_font");
+
+        List<FontRequest> requests = entry.getRequests();
+        assertThat(requests).hasSize(2);
+        FontRequest request = requests.get(0);
+        assertThat(request.getProviderAuthority()).isEqualTo("androidx.core.provider.fonts.font");
+        assertThat(request.getProviderPackage()).isEqualTo("androidx.core.test");
+        assertThat(request.getQuery()).isEqualTo("firstFallback");
+        assertThat(request.getSystemFont()).isEqualTo("serif");
+
+        request = requests.get(1);
+        assertThat(request.getProviderAuthority()).isEqualTo("androidx.core.provider.fonts.font");
+        assertThat(request.getProviderPackage()).isEqualTo("androidx.core.test");
+        assertThat(request.getQuery()).isEqualTo("secondFallback");
+        assertThat(request.getSystemFont()).isEqualTo("monospace");
     }
 }

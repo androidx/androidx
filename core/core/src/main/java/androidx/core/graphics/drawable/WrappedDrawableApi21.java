@@ -26,24 +26,15 @@ import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.RippleDrawable;
-import android.os.Build;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
 
-@RequiresApi(21)
 class WrappedDrawableApi21 extends WrappedDrawableApi14 {
     private static final String TAG = "WrappedDrawableApi21";
     private static Method sIsProjectedDrawableMethod;
-
-    WrappedDrawableApi21(Drawable drawable) {
-        super(drawable);
-        findAndCacheIsProjectedDrawableMethod();
-    }
 
     WrappedDrawableApi21(WrappedDrawableState state, Resources resources) {
         super(state, resources);
@@ -110,14 +101,11 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
 
     @Override
     protected boolean isCompatTintEnabled() {
-        if (Build.VERSION.SDK_INT == 21) {
-            final Drawable drawable = mDrawable;
-            return drawable instanceof GradientDrawable
-                    || drawable instanceof DrawableContainer
-                    || drawable instanceof InsetDrawable
-                    || drawable instanceof RippleDrawable;
-        }
-        return false;
+        final Drawable drawable = mDrawable;
+        return drawable instanceof GradientDrawable
+                || drawable instanceof DrawableContainer
+                || drawable instanceof InsetDrawable
+                || drawable instanceof RippleDrawable;
     }
 
     /**

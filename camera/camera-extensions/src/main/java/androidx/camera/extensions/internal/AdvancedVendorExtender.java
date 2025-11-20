@@ -125,23 +125,37 @@ public class AdvancedVendorExtender implements VendorExtender {
         try {
             return mAdvancedExtenderImpl.getEstimatedCaptureLatencyRange(mCameraId, size,
                     ImageFormat.JPEG);
-        } catch (Throwable e) {
-            return null;
+        } catch (Throwable throwable) {
+            Logger.e(TAG, "AdvancedExtenderImpl.getEstimatedCaptureLatencyRange "
+                    + "throws exceptions", throwable);
         }
+        return null;
     }
 
     @Override
     public @NonNull List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
-        return convertResolutionMapToList(
-                mAdvancedExtenderImpl.getSupportedPreviewOutputResolutions(mCameraId));
+        try {
+            return convertResolutionMapToList(
+                    mAdvancedExtenderImpl.getSupportedPreviewOutputResolutions(mCameraId));
+        } catch (Throwable throwable) {
+            Logger.e(TAG, "AdvancedExtenderImpl.getSupportedPreviewOutputResolutions "
+                    + "throws exceptions", throwable);
+        }
+        return Collections.emptyList();
     }
 
     @Override
     public @NonNull List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
-        return convertResolutionMapToList(
-                mAdvancedExtenderImpl.getSupportedCaptureOutputResolutions(mCameraId));
+        try {
+            return convertResolutionMapToList(
+                    mAdvancedExtenderImpl.getSupportedCaptureOutputResolutions(mCameraId));
+        } catch (Throwable throwable) {
+            Logger.e(TAG, "AdvancedExtenderImpl.getSupportedCaptureOutputResolutions "
+                    + "throws exceptions", throwable);
+        }
+        return Collections.emptyList();
     }
 
     private @NonNull List<Pair<Integer, Size[]>> convertResolutionMapToList(
@@ -161,33 +175,34 @@ public class AdvancedVendorExtender implements VendorExtender {
         return new Size[0];
     }
 
-    private @NonNull List<CaptureRequest.Key> getSupportedParameterKeys() {
-        List<CaptureRequest.Key> keys = Collections.emptyList();
+    private @NonNull List<CaptureRequest.Key<?>> getSupportedParameterKeys() {
+        List<CaptureRequest.Key<?>> keys = new ArrayList<>();
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
             try {
-                keys = Collections.unmodifiableList(
-                        mAdvancedExtenderImpl.getAvailableCaptureRequestKeys());
-            } catch (Exception e) {
-                Logger.e(TAG, "AdvancedExtenderImpl.getAvailableCaptureRequestKeys "
-                        + "throws exceptions", e);
+                for (CaptureRequest.Key<?> key :
+                        mAdvancedExtenderImpl.getAvailableCaptureRequestKeys()) {
+                    keys.add(key);
+                }
+            } catch (Throwable throwable) {
+                Logger.e(TAG, "Failed to retrieve available characteristics key-values!",
+                        throwable);
             }
         }
-        return keys;
+        return Collections.unmodifiableList(keys);
     }
 
     @Override
     public @NonNull List<CaptureResult.Key> getSupportedCaptureResultKeys() {
-        List<CaptureResult.Key> keys = Collections.emptyList();
         if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
             try {
-                keys = Collections.unmodifiableList(
+                return Collections.unmodifiableList(
                         mAdvancedExtenderImpl.getAvailableCaptureResultKeys());
-            } catch (Exception e) {
+            } catch (Throwable throwable) {
                 Logger.e(TAG, "AdvancedExtenderImpl.getAvailableCaptureResultKeys "
-                        + "throws exceptions", e);
+                        + "throws exceptions", throwable);
             }
         }
-        return keys;
+        return Collections.emptyList();
     }
 
     @Override
@@ -195,31 +210,43 @@ public class AdvancedVendorExtender implements VendorExtender {
             @NonNull Size captureSize) {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            return Collections.unmodifiableMap(
-                    mAdvancedExtenderImpl.getSupportedPostviewResolutions(captureSize));
-        } else {
-            return Collections.emptyMap();
+            try {
+                return Collections.unmodifiableMap(
+                        mAdvancedExtenderImpl.getSupportedPostviewResolutions(captureSize));
+            } catch (Throwable throwable) {
+                Logger.e(TAG, "AdvancedExtenderImpl.getSupportedPostviewResolutions "
+                        + "throws exceptions", throwable);
+            }
         }
+        return Collections.emptyMap();
     }
 
     @Override
     public boolean isPostviewAvailable() {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            return mAdvancedExtenderImpl.isPostviewAvailable();
-        } else {
-            return false;
+            try {
+                return mAdvancedExtenderImpl.isPostviewAvailable();
+            } catch (Throwable throwable) {
+                Logger.e(TAG, "AdvancedExtenderImpl.isPostviewAvailable throws exceptions",
+                        throwable);
+            }
         }
+        return false;
     }
 
     @Override
     public boolean isCaptureProcessProgressAvailable() {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            return mAdvancedExtenderImpl.isCaptureProcessProgressAvailable();
-        } else {
-            return false;
+            try {
+                return mAdvancedExtenderImpl.isCaptureProcessProgressAvailable();
+            } catch (Throwable throwable) {
+                Logger.e(TAG, "AdvancedExtenderImpl.isCaptureProcessProgressAvailable "
+                        + "throws exceptions", throwable);
+            }
         }
+        return false;
     }
 
     @Override
@@ -251,8 +278,13 @@ public class AdvancedVendorExtender implements VendorExtender {
         getAvailableCharacteristicsKeyValues() {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_5)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_5)) {
-            List<Pair<CameraCharacteristics.Key, Object>> result =
-                    mAdvancedExtenderImpl.getAvailableCharacteristicsKeyValues();
+            List<Pair<CameraCharacteristics.Key, Object>> result = null;
+            try {
+                result = mAdvancedExtenderImpl.getAvailableCharacteristicsKeyValues();
+            } catch (Throwable throwable) {
+                Logger.e(TAG, "Failed to retrieve available characteristics key-values!",
+                        throwable);
+            }
             // In case OEMs implements it incorrectly by returning a null.
             if (result == null) {
                 return Collections.emptyList();

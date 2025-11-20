@@ -71,7 +71,7 @@ public interface SharedOutputImage : OutputImage {
 
         private class SharedOutputImageImpl(
             private val outputImage: OutputImage,
-            private val sharedReference: SharedReference<OutputImage>
+            private val sharedReference: SharedReference<OutputImage>,
         ) : OutputImage by outputImage, SharedOutputImage {
             private val closed = atomic(false)
 
@@ -113,7 +113,7 @@ public interface SharedOutputImage : OutputImage {
                                 "Cannot unwrap $this as android.media.Image. Use setFinalizer" +
                                     "instead and close all outstanding references."
                             )
-                        else -> null
+                        else -> outputImage.unwrapAs(type)
                     }
                 }
             }

@@ -17,7 +17,6 @@
 package androidx.ink.authoring.internal
 
 import android.annotation.SuppressLint
-import android.content.pm.ActivityInfo
 import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Color
@@ -29,32 +28,33 @@ import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.RenderNode
-import android.hardware.DataSpace
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.core.graphics.withMatrix
 import androidx.graphics.lowlatency.CanvasFrontBufferedRenderer
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.InProgressShape
+import androidx.ink.authoring.InProgressShapeRenderer
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
-import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.strokes.InProgressStroke
 import kotlin.math.ceil
 import kotlin.math.floor
 
 /**
  * An implementation of [InProgressStrokesRenderHelper] based on [CanvasFrontBufferedRenderer],
- * which allows for low-latency rendering.
+ * which allows for low-latency rendering that works on Android versions starting at
+ * [android.os.Build.VERSION_CODES.Q] and before [android.os.Build.VERSION_CODES.TIRAMISU].
  *
  * @param mainView The [View] within which the front buffer should be constructed.
  * @param callback How to render the desired content within the front buffer.
@@ -64,23 +64,28 @@ import kotlin.math.floor
  */
 @Suppress("ObsoleteSdkInt") // TODO(b/262911421): Should not need to suppress.
 @RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(ExperimentalLatencyDataApi::class)
-internal class CanvasInProgressStrokesRenderHelperV29(
+@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+internal class CanvasInProgressStrokesRenderHelperV29<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
+    CompletedShapeT : Any,
+>(
     private val mainView: ViewGroup,
-    private val callback: InProgressStrokesRenderHelper.Callback,
-    private val renderer: CanvasStrokeRenderer,
+    private val callback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>,
+    private val renderer: InProgressShapeRenderer<InProgressShapeT>,
     private val canvasFrontBufferedRendererWrapper: CanvasFrontBufferedRendererWrapper =
         CanvasFrontBufferedRendererWrapperImpl(),
-    frontBufferToHwuiHandoffFactory: (SurfaceView) -> FrontBufferToHwuiHandoff = { surfaceView ->
-        FrontBufferToHwuiHandoff.create(
-            mainView,
-            surfaceView,
-            callback::onStrokeCohortHandoffToHwui,
-            callback::onStrokeCohortHandoffToHwuiComplete,
-        )
-    },
+    frontBufferToHwuiHandoffFactory: (SurfaceView) -> FrontBufferToHwuiHandoff<CompletedShapeT> =
+        { surfaceView ->
+            FrontBufferToHwuiHandoff.create(
+                mainView,
+                surfaceView,
+                callback::onStrokeCohortHandoffToHwui,
+                callback::onStrokeCohortHandoffToHwuiComplete,
+            )
+        },
     private val uiThreadHandler: Handler = Handler(Looper.getMainLooper()),
-) : InProgressStrokesRenderHelper {
+) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> {
 
     // The front buffer is updated each time rather than cleared and completely redrawn every time
     // as
@@ -140,7 +145,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
             override fun onDrawFrontBufferedLayer(
                 canvas: Canvas,
                 bufferWidth: Int,
-                bufferHeight: Int
+                bufferHeight: Int,
             ) {
                 recordRenderThreadIdentity()
 
@@ -168,17 +173,9 @@ internal class CanvasInProgressStrokesRenderHelperV29(
             }
 
             @WorkerThread
-            @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, lambda = 0)
             override fun onFrontBufferedLayerRenderComplete(
-                transactionSetDataSpace: (SurfaceControlCompat, Int) -> Unit,
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat
             ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    transactionSetDataSpace(
-                        frontBufferedLayerSurfaceControl,
-                        DataSpace.DATASPACE_DISPLAY_P3
-                    )
-                }
                 callback.setCustomLatencyDataField(finishesDrawCallsSetter)
                 callback.handOffAllLatencyData()
             }
@@ -199,16 +196,24 @@ internal class CanvasInProgressStrokesRenderHelperV29(
     private lateinit var renderThread: Thread
 
     private var offScreenFrameBuffer: RenderNode? = null
-    private val offScreenFrameBufferPaint =
-        Paint().apply {
-            // The SRC blend mode ensures that the modified region of the offscreen frame buffer
-            // completely
-            // replaces the matching region of the front buffer.
-            blendMode = BlendMode.SRC
-        }
+
+    /**
+     * Used for a call to [RenderNode.setUseCompositingLayer] and [Canvas.drawRenderNode] to
+     * overwrite the contents of the front buffer with the offscreen frame buffer (limited to the
+     * clip region).
+     */
+    private val offScreenFrameBufferPaint = createPaintForUnscaledBlit()
+
     private val scratchRect = Rect()
 
     init {
+        check(
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+        ) {
+            "CanvasInProgressStrokesRenderHelperV29 requires Android Q+. After Android T, use " +
+                "CanvasInProgressStrokesRenderHelperV33 instead."
+        }
         if (mainView.isAttachedToWindow) {
             addAndInitSurfaceView()
         }
@@ -239,8 +244,6 @@ internal class CanvasInProgressStrokesRenderHelperV29(
         // (largest values) round up. Pad the region a bit to avoid potential rounding errors
         // leading to
         // stray artifacts.
-        val clipRegionOutset = renderer.strokeModifiedRegionOutsetPx()
-
         // Make sure to set the clip region for both the offscreen canvas and the front buffer
         // canvas.
         // The offscreen canvas is where the stroke draw operations are going first, so clipping
@@ -254,10 +257,10 @@ internal class CanvasInProgressStrokesRenderHelperV29(
         // of
         // the front buffer outside of the modified region aren't cleared.
         scratchRect.set(
-            /* left = */ floor(modifiedRegionInMainView.xMin).toInt() - clipRegionOutset,
-            /* top = */ floor(modifiedRegionInMainView.yMin).toInt() - clipRegionOutset,
-            /* right = */ ceil(modifiedRegionInMainView.xMax).toInt() + clipRegionOutset,
-            /* bottom = */ ceil(modifiedRegionInMainView.yMax).toInt() + clipRegionOutset,
+            /* left = */ floor(modifiedRegionInMainView.xMin).toInt() - CLIP_REGION_OUTSET_PX,
+            /* top = */ floor(modifiedRegionInMainView.yMin).toInt() - CLIP_REGION_OUTSET_PX,
+            /* right = */ ceil(modifiedRegionInMainView.xMax).toInt() + CLIP_REGION_OUTSET_PX,
+            /* bottom = */ ceil(modifiedRegionInMainView.yMax).toInt() + CLIP_REGION_OUTSET_PX,
         )
         frontBufferCanvas.clipRect(scratchRect)
         // Using RenderNode.setClipRect instead of Canvas.clipRect for the offscreen frame buffer
@@ -288,7 +291,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
 
     @WorkerThread
     override fun drawInModifiedRegion(
-        inProgressStroke: InProgressStroke,
+        inProgressShape: InProgressShapeT,
         strokeToMainViewTransform: Matrix,
     ) {
         assertOnRenderThread()
@@ -296,7 +299,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
 
         val canvas = checkNotNull(onDrawState.offScreenCanvas)
         canvas.withMatrix(strokeToMainViewTransform) {
-            renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+            renderer.draw(canvas, inProgressShape, strokeToMainViewTransform)
         }
     }
 
@@ -337,7 +340,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
 
     @UiThread
     override fun requestStrokeCohortHandoffToHwui(
-        handingOff: Map<InProgressStrokeId, FinishedStroke>
+        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
     ) {
         frontBufferToHwuiHandoff.requestCohortHandoff(handingOff)
     }
@@ -367,12 +370,12 @@ internal class CanvasInProgressStrokesRenderHelperV29(
                 .apply {
                     setPosition(0, 0, width, height)
                     setHasOverlappingRendering(true)
-                    // Use BlendMode=SRC so that the contents of the offscreen frame buffer replace
-                    // the
+                    // The Paint ensures that the contents of the offscreen frame buffer will
+                    // replace the
                     // contents of the front buffer (restricted to the clip region).
                     setUseCompositingLayer(
                         /* forceToLayer= */ true,
-                        /* paint= */ offScreenFrameBufferPaint
+                        /* paint= */ offScreenFrameBufferPaint,
                     )
                 }
     }
@@ -388,22 +391,6 @@ internal class CanvasInProgressStrokesRenderHelperV29(
         )
         canvasFrontBufferedRendererWrapper.init(surfaceView, canvasFrontBufferedRendererCallback)
         frontBufferToHwuiHandoff.setup()
-
-        // The Hardware Composer (HWC) does not render sRGB color space content correctly when
-        // compositing the front buffer layer, so force both the front buffered renderer and HWUI to
-        // work in the Display P3 color space in order to ensure that content looks the same when
-        // handed
-        // off from one to the other. This is also set on the front buffer layer itself from
-        // onFrontBufferedLayerRenderComplete.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            canvasFrontBufferedRendererWrapper.setColorSpace(
-                checkNotNull(ColorSpace.getFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3))
-            )
-            if (mainView.display?.isWideColorGamut == true) {
-                WindowFinder.findWindow(mainView)?.colorMode =
-                    ActivityInfo.COLOR_MODE_WIDE_COLOR_GAMUT
-            }
-        }
     }
 
     @WorkerThread
@@ -443,8 +430,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
             /** @see CanvasFrontBufferedRenderer.Callback.onFrontBufferedLayerRenderComplete */
             @WorkerThread
             fun onFrontBufferedLayerRenderComplete(
-                transactionSetDataSpace: (SurfaceControlCompat, Int) -> Unit,
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat
             )
         }
     }
@@ -487,8 +473,7 @@ internal class CanvasInProgressStrokesRenderHelperV29(
                             transaction: SurfaceControlCompat.Transaction,
                         ) {
                             callback.onFrontBufferedLayerRenderComplete(
-                                transaction::setDataSpace,
-                                frontBufferedLayerSurfaceControl,
+                                frontBufferedLayerSurfaceControl
                             )
                         }
 
@@ -519,5 +504,13 @@ internal class CanvasInProgressStrokesRenderHelperV29(
             delegate?.release(cancelPending = true, onReleaseComplete)
             delegate = null
         }
+    }
+
+    private companion object {
+        /**
+         * Number of pixels to widen the transformed region by, in order to better guarantee that no
+         * pixels are cut off during incremental draws that modify the smallest possible rectangle.
+         */
+        @Px const val CLIP_REGION_OUTSET_PX = 3
     }
 }

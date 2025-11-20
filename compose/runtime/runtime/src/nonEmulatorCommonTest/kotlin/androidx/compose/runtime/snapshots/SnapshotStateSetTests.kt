@@ -83,6 +83,12 @@ class SnapshotStateSetTests {
     }
 
     @Test
+    fun validateIterator_ordered() {
+        val set = mutableStateSetOf(0, 1, 2, 3, 4)
+        assertEquals(listOf(0, 1, 2, 3, 4), set.iterator().asSequence().toList())
+    }
+
+    @Test
     fun validateIterator_remove() {
         assertFailsWith(IllegalStateException::class) {
             validate(mutableStateSetOf(0, 1, 2, 3, 4)) { normalSet ->
@@ -95,6 +101,13 @@ class SnapshotStateSetTests {
                 iterator.remove()
             }
         }
+    }
+
+    @Test
+    fun validateIterator_orderedAfterRemove() {
+        val set = mutableStateSetOf(0, 1, 2, 3, 4)
+        set.remove(2)
+        assertEquals(listOf(0, 1, 3, 4), set.iterator().asSequence().toList())
     }
 
     @Test
@@ -237,6 +250,8 @@ class SnapshotStateSetTests {
     private fun <T> expected(expected: Set<T>, actual: Set<T>) {
         assertEquals(expected.size, actual.size)
         assertEquals(expected.subtract(actual), emptySet())
+        // Set is ordered, so should be equivalent when converted to list
+        assertEquals(expected.toList(), actual.toList())
     }
 
     private fun observeGlobalChanges(block: () -> Unit): Set<Any> {

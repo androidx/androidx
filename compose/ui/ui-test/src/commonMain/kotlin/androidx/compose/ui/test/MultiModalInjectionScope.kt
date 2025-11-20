@@ -74,7 +74,7 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
     private var _inputDispatcher: InputDispatcher? =
         createInputDispatcher(
             testContext,
-            checkNotNull(semanticsNode.root) { "null semantics root" }
+            checkNotNull(semanticsNode.root) { "null semantics root" },
         )
     internal val inputDispatcher
         get() =

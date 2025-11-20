@@ -22,6 +22,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
+import android.media.ApplicationMediaCapabilities
+import android.media.MediaFeature.HdrType.DOLBY_VISION
+import android.media.MediaFeature.HdrType.HDR10
+import android.media.MediaFeature.HdrType.HDR10_PLUS
+import android.media.MediaFeature.HdrType.HLG
+import android.media.MediaFormat
 import android.net.Uri
 import android.os.Build
 import android.os.ext.SdkExtensions.getExtensionVersion
@@ -41,7 +47,9 @@ import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
 import androidx.annotation.CallSuper
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import kotlin.math.min
 
@@ -171,7 +179,7 @@ class ActivityResultContracts private constructor() {
 
         override fun getSynchronousResult(
             context: Context,
-            input: Array<String>
+            input: Array<String>,
         ): SynchronousResult<Map<String, Boolean>>? {
             if (input.isEmpty()) {
                 return SynchronousResult(emptyMap())
@@ -215,7 +223,7 @@ class ActivityResultContracts private constructor() {
 
         override fun getSynchronousResult(
             context: Context,
-            input: String
+            input: String,
         ): SynchronousResult<Boolean>? {
             val granted =
                 ContextCompat.checkSelfPermission(context, input) ==
@@ -244,7 +252,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Void?
+            input: Void?,
         ): SynchronousResult<Bitmap?>? = null
 
         @Suppress("DEPRECATION")
@@ -270,7 +278,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Uri
+            input: Uri,
         ): SynchronousResult<Boolean>? = null
 
         @Suppress("AutoBoxing")
@@ -300,7 +308,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Uri
+            input: Uri,
         ): SynchronousResult<Bitmap?>? = null
 
         @Suppress("DEPRECATION")
@@ -326,7 +334,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Uri
+            input: Uri,
         ): SynchronousResult<Boolean>? = null
 
         @Suppress("AutoBoxing")
@@ -373,7 +381,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: String
+            input: String,
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -404,7 +412,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: String
+            input: String,
         ): SynchronousResult<List<Uri>>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {
@@ -455,7 +463,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Array<String>
+            input: Array<String>,
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -486,7 +494,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Array<String>
+            input: Array<String>,
         ): SynchronousResult<List<Uri>>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {
@@ -508,7 +516,6 @@ class ActivityResultContracts private constructor() {
      * @see DocumentsContract.buildDocumentUriUsingTree
      * @see DocumentsContract.buildChildDocumentsUriUsingTree
      */
-    @RequiresApi(21)
     open class OpenDocumentTree : ActivityResultContract<Uri?, Uri?>() {
         @CallSuper
         override fun createIntent(context: Context, input: Uri?): Intent {
@@ -521,7 +528,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: Uri?
+            input: Uri?,
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -546,7 +553,7 @@ class ActivityResultContracts private constructor() {
                 "the automatic handling of file extensions. Instead, specify the mime type by " +
                 "using the constructor that takes an concrete mime type (e.g.., " +
                 "CreateDocument(\"image/png\")).",
-            ReplaceWith("CreateDocument(\"todo/todo\")")
+            ReplaceWith("CreateDocument(\"todo/todo\")"),
         )
         constructor() : this("*/*")
 
@@ -559,7 +566,7 @@ class ActivityResultContracts private constructor() {
 
         final override fun getSynchronousResult(
             context: Context,
-            input: String
+            input: String,
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -606,7 +613,7 @@ class ActivityResultContracts private constructor() {
                 message =
                     "This method is deprecated in favor of isPhotoPickerAvailable(context) " +
                         "to support the picker provided by updatable system apps",
-                replaceWith = ReplaceWith("isPhotoPickerAvailable(context)")
+                replaceWith = ReplaceWith("isPhotoPickerAvailable(context)"),
             )
             @JvmStatic
             fun isPhotoPickerAvailable(): Boolean {
@@ -625,7 +632,7 @@ class ActivityResultContracts private constructor() {
              * Note: this should not be used directly, instead relying on the selection logic done
              * by [createIntent] to create the correct Intent for the current device.
              */
-            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the action */
+            @field:Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the action */
             const val ACTION_SYSTEM_FALLBACK_PICK_IMAGES =
                 "androidx.activity.result.contract.action.PICK_IMAGES"
 
@@ -644,7 +651,7 @@ class ActivityResultContracts private constructor() {
              * If this extra is present but equal to [Int.MAX_VALUE], then no limit should be
              * enforced.
              */
-            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the extra */
+            @field:Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the extra */
             const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX =
                 "androidx.activity.result.contract.extra.PICK_IMAGES_MAX"
 
@@ -655,7 +662,7 @@ class ActivityResultContracts private constructor() {
              *
              * If this extra is not present, the default tab of the picker will be used.
              */
-            @Suppress("ActionValue")
+            @field:Suppress("ActionValue")
             /* Don't include SYSTEM_FALLBACK in the extra */
             const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB =
                 "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB"
@@ -665,7 +672,7 @@ class ActivityResultContracts private constructor() {
              * [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] that indicates allowing the user to control the
              * order in which images are returned to the calling app.
              */
-            @Suppress("ActionValue")
+            @field:Suppress("ActionValue")
             /* Don't include SYSTEM_FALLBACK in the extra */
             const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER =
                 "androidx.activity.result.contract.extra.PICK_IMAGES_IN_ORDER"
@@ -677,7 +684,7 @@ class ActivityResultContracts private constructor() {
              *
              * If this extra is not present, the default accent color of the picker will be used.
              */
-            @Suppress("ActionValue")
+            @field:Suppress("ActionValue")
             /* Don't include SYSTEM_FALLBACK in the extra */
             const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR =
                 "androidx.activity.result.contract.extra.PICK_IMAGES_ACCENT_COLOR"
@@ -724,7 +731,7 @@ class ActivityResultContracts private constructor() {
             internal fun getSystemFallbackPicker(context: Context): ResolveInfo? {
                 return context.packageManager.resolveActivity(
                     Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES),
-                    PackageManager.MATCH_DEFAULT_ONLY or PackageManager.MATCH_SYSTEM_ONLY
+                    PackageManager.MATCH_DEFAULT_ONLY or PackageManager.MATCH_SYSTEM_ONLY,
                 )
             }
 
@@ -756,6 +763,89 @@ class ActivityResultContracts private constructor() {
          */
         class SingleMimeType(val mimeType: String) : VisualMediaType
 
+        /**
+         * Represents the media capabilities of an application.
+         *
+         * This class allows you to specify the media capabilities that your application can handle,
+         * such as the HDR type of the media. By providing this information to
+         * [PickVisualMediaRequest], the photo picker can provide a more appropriate media format
+         * when possible.
+         *
+         * @see PickVisualMediaRequest.Builder.setMediaCapabilitiesForTranscoding
+         */
+        class MediaCapabilities internal constructor() {
+
+            companion object {
+                /** Defines the type of HDR (high dynamic range). */
+                @Retention(AnnotationRetention.SOURCE)
+                @IntDef(TYPE_HLG10, TYPE_HDR10, TYPE_HDR10_PLUS, TYPE_DOLBY_VISION)
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                @Target(
+                    AnnotationTarget.TYPE,
+                    AnnotationTarget.PROPERTY,
+                    AnnotationTarget.VALUE_PARAMETER,
+                )
+                annotation class HdrType
+
+                /** HDR type for HLG10. */
+                const val TYPE_HLG10 = 0
+                /** HDR type for HDR10. */
+                const val TYPE_HDR10 = 1
+                /** HDR type for HDR10+. */
+                const val TYPE_HDR10_PLUS = 2
+                /** HDR type for Dolby-Vision. */
+                const val TYPE_DOLBY_VISION = 3
+            }
+
+            var supportedHdrTypes: Set<@HdrType Int> = emptySet()
+                internal set
+
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            internal fun toApplicationMediaCapabilities(): ApplicationMediaCapabilities {
+                return ApplicationMediaCapabilities.Builder()
+                    .apply {
+                        addSupportedVideoMimeType(MediaFormat.MIMETYPE_VIDEO_HEVC)
+                        supportedHdrTypes.forEach {
+                            when (it) {
+                                TYPE_HLG10 -> addSupportedHdrType(HLG)
+                                TYPE_HDR10 -> addSupportedHdrType(HDR10)
+                                TYPE_HDR10_PLUS -> addSupportedHdrType(HDR10_PLUS)
+                                TYPE_DOLBY_VISION -> addSupportedHdrType(DOLBY_VISION)
+                            }
+                        }
+                    }
+                    .build()
+            }
+
+            /** A builder for constructing [MediaCapabilities] instances. */
+            class Builder {
+
+                private var supportedHdrTypes: MutableSet<@HdrType Int> = mutableSetOf()
+
+                /**
+                 * Adds the supported HDR (High Dynamic Range) types for media capabilities.
+                 *
+                 * @param hdrType A supported HDR type from the [HdrType].
+                 * @return This Builder.
+                 * @throws IllegalArgumentException if an invalid hdrType is provided.
+                 */
+                fun addSupportedHdrType(hdrType: @HdrType Int): Builder {
+                    this.supportedHdrTypes.add(hdrType)
+                    return this
+                }
+
+                /**
+                 * Build the MediaCapabilities specified by this builder.
+                 *
+                 * @return the newly constructed MediaCapabilities.
+                 */
+                fun build(): MediaCapabilities =
+                    MediaCapabilities().apply {
+                        this.supportedHdrTypes = this@Builder.supportedHdrTypes
+                    }
+            }
+        }
+
         /** Represents filter input type accepted by the photo picker. */
         abstract class DefaultTab private constructor() {
             abstract val value: Int
@@ -784,6 +874,15 @@ class ActivityResultContracts private constructor() {
 
                     if (input.isCustomAccentColorApplied) {
                         putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        input.mediaCapabilitiesForTranscoding?.let { capabilities ->
+                            putExtra(
+                                MediaStore.EXTRA_MEDIA_CAPABILITIES,
+                                capabilities.toApplicationMediaCapabilities(),
+                            )
+                        }
                     }
                 }
             } else if (isSystemFallbackPickerAvailable(context)) {
@@ -817,7 +916,7 @@ class ActivityResultContracts private constructor() {
         @Suppress("InvalidNullabilityOverride")
         final override fun getSynchronousResult(
             context: Context,
-            input: PickVisualMediaRequest
+            input: PickVisualMediaRequest,
         ): SynchronousResult<Uri?>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
@@ -893,6 +992,15 @@ class ActivityResultContracts private constructor() {
                     if (input.isCustomAccentColorApplied) {
                         putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
                     }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        input.mediaCapabilitiesForTranscoding?.let { capabilities ->
+                            putExtra(
+                                MediaStore.EXTRA_MEDIA_CAPABILITIES,
+                                capabilities.toApplicationMediaCapabilities(),
+                            )
+                        }
+                    }
                 }
             } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
                 val fallbackPicker = checkNotNull(getSystemFallbackPicker(context)).activityInfo
@@ -932,7 +1040,7 @@ class ActivityResultContracts private constructor() {
         @Suppress("InvalidNullabilityOverride")
         final override fun getSynchronousResult(
             context: Context,
-            input: PickVisualMediaRequest
+            input: PickVisualMediaRequest,
         ): SynchronousResult<List<@JvmSuppressWildcards Uri>>? = null
 
         final override fun parseResult(resultCode: Int, intent: Intent?): List<Uri> {

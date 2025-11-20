@@ -24,6 +24,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 internal class IntervalDataPointTest {
     fun Int.duration() = Duration.ofSeconds(toLong())
 
@@ -39,7 +40,7 @@ internal class IntervalDataPointTest {
                         putInt("int", 5)
                         putString("string", "value")
                     },
-                    accuracy = null // No interval DataPoints have an accuracy component
+                    accuracy = null, // No interval DataPoints have an accuracy component
                 )
                 .proto
 
@@ -63,7 +64,7 @@ internal class IntervalDataPointTest {
                     startDurationFromBoot = 10.duration(),
                     endDurationFromBoot = 20.duration(),
                     metadata = Bundle(),
-                    accuracy = null // No interval DataPoints have an accuracy component
+                    accuracy = null, // No interval DataPoints have an accuracy component
                 )
                 .proto
 

@@ -33,6 +33,9 @@
     <string name="toggle_capture_zsl_off">ZSL OFF</string>
     <string name="toggle_preview_stabilization_on">PS ON</string>
     <string name="toggle_preview_stabilization_off">PS OFF</string>
+    <string name="toggle_low_light_boost_off">LLB OFF</string>
+    <string name="toggle_low_light_boost_inactive">LLB INA</string>
+    <string name="toggle_low_light_boost_active">LLB ACT</string>
     <string name="toggle_plus_ev">+EV</string>
     <string name="toggle_dec_ev">-EV</string>
     <string name="toggle_zoom_in_2x">2X</string>

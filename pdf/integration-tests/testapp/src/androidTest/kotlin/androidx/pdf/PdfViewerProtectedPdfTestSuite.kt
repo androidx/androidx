@@ -48,15 +48,15 @@ import org.junit.runner.RunWith
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class PdfViewerProtectedPdfTestSuite {
 
-    private lateinit var scenario: FragmentScenario<TestPdfViewerFragment>
+    private lateinit var scenario: FragmentScenario<TestPdfViewerFragmentV1>
 
     @Before
     fun setup() {
         scenario =
-            launchFragmentInContainer<TestPdfViewerFragment>(
+            launchFragmentInContainer<TestPdfViewerFragmentV1>(
                 themeResId =
                     com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
-                initialState = Lifecycle.State.INITIALIZED
+                initialState = Lifecycle.State.INITIALIZED,
             )
         scenario.onFragment { fragment ->
             // Register idling resource
@@ -78,8 +78,8 @@ class PdfViewerProtectedPdfTestSuite {
     private fun scenarioLoadDocument(
         filename: String,
         nextState: Lifecycle.State,
-        orientation: Int
-    ): FragmentScenario<TestPdfViewerFragment> {
+        orientation: Int,
+    ): FragmentScenario<TestPdfViewerFragmentV1> {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
 
@@ -98,15 +98,12 @@ class PdfViewerProtectedPdfTestSuite {
         return scenario
     }
 
-    private fun loadPdfAndTest(
-        password: String,
-        expectedResult: Boolean,
-    ) {
+    private fun loadPdfAndTest(password: String, expectedResult: Boolean) {
         val scenario =
             scenarioLoadDocument(
                 PROTECTECTED_DOCUMENT_FILENAME,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         InstrumentationRegistry.getInstrumentation().waitForIdle {
@@ -140,10 +137,7 @@ class PdfViewerProtectedPdfTestSuite {
 
     @Test
     fun testPdfViewerFragment_loadProtectedPdf_WrongPassword() {
-        loadPdfAndTest(
-            password = "wrong password",
-            expectedResult = false,
-        )
+        loadPdfAndTest(password = "wrong password", expectedResult = false)
     }
 
     companion object {

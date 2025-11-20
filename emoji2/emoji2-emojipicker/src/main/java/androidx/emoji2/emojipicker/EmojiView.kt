@@ -35,12 +35,8 @@ import androidx.core.graphics.applyCanvas
 import androidx.emoji2.text.EmojiCompat
 
 /** A customized view to support drawing emojis asynchronously. */
-internal class EmojiView
-@JvmOverloads
-constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-) : View(context, attrs) {
+internal class EmojiView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    View(context, attrs) {
 
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
@@ -59,7 +55,7 @@ constructor(
                 TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_SP,
                     EMOJI_DRAW_TEXT_SIZE_SP.toFloat(),
-                    context.resources.displayMetrics
+                    context.resources.displayMetrics,
                 )
         }
 
@@ -82,7 +78,7 @@ constructor(
             save()
             scale(
                 width.toFloat() / offscreenCanvasBitmap.width,
-                height.toFloat() / offscreenCanvasBitmap.height
+                height.toFloat() / offscreenCanvasBitmap.height,
             )
             drawBitmap(offscreenCanvasBitmap, 0f, 0f, null)
             restore()
@@ -102,9 +98,9 @@ constructor(
                             drawVariantIndicator =
                                 willDrawVariantIndicator &&
                                     BundledEmojiListLoader.getEmojiVariantsLookup()
-                                        .containsKey(value)
+                                        .containsKey(value),
                         )
-                        contentDescription = value
+                        contentDescription = context.getString(R.string.emoji_content_desc, emoji)
                     }
                     invalidate()
                 } else {
@@ -148,7 +144,7 @@ constructor(
                                 canvasWidth - indicatorWidth,
                                 canvasHeight - indicatorHeight,
                                 canvasWidth,
-                                canvasHeight
+                                canvasHeight,
                             )
                     }!!
                     .draw(this)

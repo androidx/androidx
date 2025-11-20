@@ -28,7 +28,8 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    // Remove when b/442128557 is fixed
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("AndroidXComposePlugin")
     id("dagger.hilt.android.plugin")
@@ -44,17 +45,17 @@ android {
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
-    api(project(":hilt:hilt-navigation"))
-    api("androidx.compose.runtime:runtime:1.0.1")
-    api("androidx.compose.ui:ui:1.0.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    api("androidx.navigation:navigation-compose:2.5.1")
+    api(project(":hilt:hilt-lifecycle-viewmodel-compose"))
+    api("androidx.compose.runtime:runtime:1.8.2")
+    api("androidx.compose.ui:ui:1.8.2")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+    api("androidx.navigation:navigation-compose:2.9.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.hiltAndroid)
     androidTestImplementation(libs.hiltAndroidTesting)
@@ -65,7 +66,9 @@ dependencies {
     androidTestImplementation(project(":lifecycle:lifecycle-common-java8"))
     androidTestImplementation(project(":lifecycle:lifecycle-livedata-core"))
     androidTestImplementation(project(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation(project(":lifecycle:lifecycle-viewmodel-compose"))
     androidTestImplementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    androidTestImplementation(project(":hilt:hilt-navigation"))
 }
 
 hilt {
@@ -80,9 +83,6 @@ androidx {
     description = "Navigation Compose Hilt Integration"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":hilt:hilt-navigation-compose-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
-ksp {
-    useKsp2 = true
-}

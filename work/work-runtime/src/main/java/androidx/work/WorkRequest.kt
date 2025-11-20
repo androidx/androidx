@@ -30,14 +30,14 @@ import java.util.concurrent.TimeUnit
  * The base class for specifying parameters for work that should be enqueued in [WorkManager]. There
  * are two concrete implementations of this class: [OneTimeWorkRequest] and [PeriodicWorkRequest].
  */
-abstract class WorkRequest
+public abstract class WorkRequest
 internal constructor(
     /** The unique identifier associated with this unit of work. */
-    open val id: UUID,
+    public open val id: UUID,
     /** The [WorkSpec] associated with this unit of work. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val workSpec: WorkSpec,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val workSpec: WorkSpec,
     /** The tags associated with this unit of work. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val tags: Set<String>
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tags: Set<String>,
 ) {
 
     /**
@@ -46,14 +46,14 @@ internal constructor(
      * @return The string identifier for this unit of work
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val stringId: String
+    public val stringId: String
         get() = id.toString()
 
     /**
      * A builder for [WorkRequest]s. There are two concrete implementations of this class:
      * [OneTimeWorkRequest.Builder] and [PeriodicWorkRequest.Builder].
      */
-    abstract class Builder<B : Builder<B, *>, W : WorkRequest>
+    public abstract class Builder<B : Builder<B, *>, W : WorkRequest>
     internal constructor(internal val workerClass: Class<out ListenableWorker>) {
         internal var backoffCriteriaSet = false
         internal var id: UUID = UUID.randomUUID()
@@ -71,7 +71,7 @@ internal constructor(
          * @return The current [Builder]
          */
         @SuppressWarnings("SetterReturnsThis")
-        fun setId(id: UUID): B {
+        public fun setId(id: UUID): B {
             this.id = id
             workSpec = WorkSpec(id.toString(), workSpec)
             return thisObject
@@ -88,10 +88,10 @@ internal constructor(
          * @param timeUnit The [TimeUnit] for `backoffDelay`
          * @return The current [Builder]
          */
-        fun setBackoffCriteria(
+        public fun setBackoffCriteria(
             backoffPolicy: BackoffPolicy,
             backoffDelay: Long,
-            timeUnit: TimeUnit
+            timeUnit: TimeUnit,
         ): B {
             backoffCriteriaSet = true
             workSpec.backoffPolicy = backoffPolicy
@@ -110,7 +110,7 @@ internal constructor(
          * @return The current [Builder]
          */
         @RequiresApi(26)
-        fun setBackoffCriteria(backoffPolicy: BackoffPolicy, duration: Duration): B {
+        public fun setBackoffCriteria(backoffPolicy: BackoffPolicy, duration: Duration): B {
             backoffCriteriaSet = true
             workSpec.backoffPolicy = backoffPolicy
             workSpec.setBackoffDelayDuration(duration.toMillisCompat())
@@ -123,7 +123,7 @@ internal constructor(
          * @param constraints The constraints for the work
          * @return The current [Builder]
          */
-        fun setConstraints(constraints: Constraints): B {
+        public fun setConstraints(constraints: Constraints): B {
             workSpec.constraints = constraints
             return thisObject
         }
@@ -135,7 +135,7 @@ internal constructor(
          * @param inputData key/value pairs that will be provided to the worker
          * @return The current [Builder]
          */
-        fun setInputData(inputData: Data): B {
+        public fun setInputData(inputData: Data): B {
             workSpec.input = inputData
             return thisObject
         }
@@ -147,7 +147,7 @@ internal constructor(
          * @param tag A tag for identifying the work in queries.
          * @return The current [Builder]
          */
-        fun addTag(tag: String): B {
+        public fun addTag(tag: String): B {
             tags.add(tag)
             return thisObject
         }
@@ -168,7 +168,7 @@ internal constructor(
          */
         @Suppress("MissingGetterMatchingBuilder")
         @SuppressWarnings("SetterReturnsThis")
-        fun setTraceTag(traceTag: String): B {
+        public fun setTraceTag(traceTag: String): B {
             workSpec.traceTag = traceTag
             return thisObject
         }
@@ -188,8 +188,25 @@ internal constructor(
          * @param timeUnit The unit of time for `duration`
          * @return The current [Builder]
          */
-        fun keepResultsForAtLeast(duration: Long, timeUnit: TimeUnit): B {
+        public fun keepResultsForAtLeast(duration: Long, timeUnit: TimeUnit): B {
             workSpec.minimumRetentionDuration = timeUnit.toMillis(duration)
+            return thisObject
+        }
+
+        /**
+         * Specifies that the backoff policy (as specified via [setBackoffCriteria]) will be applied
+         * when work is interrupted by the system without the app requesting it. This might happen
+         * when the [ListenableWorker] runs longer than it should, or when constraints defined for a
+         * given [ListenableWorker] are unmet.
+         *
+         * @return The current [Builder]
+         * @see setBackoffCriteria
+         */
+        @ExperimentalWorkRequestBuilderApi
+        @Suppress("MissingGetterMatchingBuilder")
+        @SuppressWarnings("SetterReturnsThis")
+        public fun setBackoffForSystemInterruptions(): B {
+            workSpec.backOffOnSystemInterruptions = true
             return thisObject
         }
 
@@ -208,7 +225,7 @@ internal constructor(
          * @return The current [Builder]
          */
         @RequiresApi(26)
-        fun keepResultsForAtLeast(duration: Duration): B {
+        public fun keepResultsForAtLeast(duration: Duration): B {
             workSpec.minimumRetentionDuration = duration.toMillisCompat()
             return thisObject
         }
@@ -222,7 +239,7 @@ internal constructor(
          * @throws IllegalArgumentException if the given initial delay will push the execution time
          *   past `Long.MAX_VALUE` and cause an overflow
          */
-        open fun setInitialDelay(duration: Long, timeUnit: TimeUnit): B {
+        public open fun setInitialDelay(duration: Long, timeUnit: TimeUnit): B {
             workSpec.initialDelay = timeUnit.toMillis(duration)
             require(Long.MAX_VALUE - System.currentTimeMillis() > workSpec.initialDelay) {
                 ("The given initial delay is too large and will cause an overflow!")
@@ -239,7 +256,7 @@ internal constructor(
          *   past `Long.MAX_VALUE` and cause an overflow
          */
         @RequiresApi(26)
-        open fun setInitialDelay(duration: Duration): B {
+        public open fun setInitialDelay(duration: Duration): B {
             workSpec.initialDelay = duration.toMillisCompat()
             require(Long.MAX_VALUE - System.currentTimeMillis() > workSpec.initialDelay) {
                 "The given initial delay is too large and will cause an overflow!"
@@ -251,10 +268,17 @@ internal constructor(
          * Marks the [WorkRequest] as important to the user. In this case, WorkManager provides an
          * additional signal to the OS that this work is important.
          *
+         * Note that although the execution time of this work won't be counted against your app's
+         * quota while your app is in the foreground, if the expedited work continues in the
+         * background, you are susceptible to quota. However, power management restrictions, such as
+         * Battery Saver and Doze, are less likely to affect expedited work. Because of this,
+         * expedited work is best suited for short tasks which need to start immediately and are
+         * important to the user or user-initiated.
+         *
          * @param policy The [OutOfQuotaPolicy] to be used.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        open fun setExpedited(policy: OutOfQuotaPolicy): B {
+        public open fun setExpedited(policy: OutOfQuotaPolicy): B {
             workSpec.expedited = true
             workSpec.outOfQuotaPolicy = policy
             return thisObject
@@ -265,7 +289,7 @@ internal constructor(
          *
          * @return A [WorkRequest] based on this [Builder]
          */
-        fun build(): W {
+        public fun build(): W {
             val returnValue = buildInternal()
             val constraints = workSpec.constraints
             // Check for unsupported constraints.
@@ -273,7 +297,7 @@ internal constructor(
                 (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers() ||
                     constraints.requiresBatteryNotLow() ||
                     constraints.requiresCharging() ||
-                    Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle())
+                    constraints.requiresDeviceIdle())
             if (workSpec.expedited) {
                 require(!hasUnsupportedConstraints) {
                     "Expedited jobs only support network and storage constraints"
@@ -308,7 +332,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setInitialState(state: WorkInfo.State): B {
+        public fun setInitialState(state: WorkInfo.State): B {
             workSpec.state = state
             return thisObject
         }
@@ -321,7 +345,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setInitialRunAttemptCount(runAttemptCount: Int): B {
+        public fun setInitialRunAttemptCount(runAttemptCount: Int): B {
             workSpec.runAttemptCount = runAttemptCount
             return thisObject
         }
@@ -335,7 +359,7 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setLastEnqueueTime(lastEnqueueTime: Long, timeUnit: TimeUnit): B {
+        public fun setLastEnqueueTime(lastEnqueueTime: Long, timeUnit: TimeUnit): B {
             workSpec.lastEnqueueTime = timeUnit.toMillis(lastEnqueueTime)
             return thisObject
         }
@@ -349,22 +373,23 @@ internal constructor(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setScheduleRequestedAt(scheduleRequestedAt: Long, timeUnit: TimeUnit): B {
+        public fun setScheduleRequestedAt(scheduleRequestedAt: Long, timeUnit: TimeUnit): B {
             workSpec.scheduleRequestedAt = timeUnit.toMillis(scheduleRequestedAt)
             return thisObject
         }
     }
 
-    companion object {
+    public companion object {
         /** The default initial backoff time (in milliseconds) for work that has to be retried. */
-        const val DEFAULT_BACKOFF_DELAY_MILLIS = 30000L
+        public const val DEFAULT_BACKOFF_DELAY_MILLIS: Long = 30000L
 
         /** The maximum backoff time (in milliseconds) for work that has to be retried. */
         @SuppressLint("MinMaxConstant")
-        const val MAX_BACKOFF_MILLIS = 5 * 60 * 60 * 1000L // 5 hours
+        public const val MAX_BACKOFF_MILLIS: Long = 5 * 60 * 60 * 1000L // 5 hours
 
         /** The minimum backoff time for work (in milliseconds) that has to be retried. */
-        @SuppressLint("MinMaxConstant") const val MIN_BACKOFF_MILLIS = 10 * 1000L // 10 seconds.
+        @SuppressLint("MinMaxConstant")
+        public const val MIN_BACKOFF_MILLIS: Long = 10 * 1000L // 10 seconds.
 
         /** The maximum length of a trace span. */
         private const val MAX_TRACE_SPAN_LENGTH = 127

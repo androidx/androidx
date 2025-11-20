@@ -58,11 +58,12 @@ fun BoxWithConstraints(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
-    content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit
+    content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit,
 ) {
     val measurePolicy = maybeCachedBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
     SubcomposeLayout(modifier) { constraints ->
         val scope = BoxWithConstraintsScopeImpl(this, constraints)
+        @Suppress("ComposableLambdaInMeasurePolicy")
         val measurables = subcompose(Unit) { scope.content() }
         with(measurePolicy) { measure(measurables, constraints) }
     }
@@ -105,7 +106,7 @@ interface BoxWithConstraintsScope : BoxScope {
 
 private data class BoxWithConstraintsScopeImpl(
     private val density: Density,
-    override val constraints: Constraints
+    override val constraints: Constraints,
 ) : BoxWithConstraintsScope, BoxScope by BoxScopeInstance {
     override val minWidth: Dp
         get() = with(density) { constraints.minWidth.toDp() }

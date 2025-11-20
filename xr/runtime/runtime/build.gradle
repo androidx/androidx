@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,33 +22,30 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.guavaListenableFuture)
-    api(libs.kotlinCoroutinesRx3)
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
+    api(project(":xr:runtime:runtime-manifest"))
     api("androidx.annotation:annotation:1.8.1")
+    api("androidx.lifecycle:lifecycle-common:2.8.7")
 
-    implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.core:core:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(project(":kruth:kruth"))
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation("androidx.appcompat:appcompat:1.2.0")
     testImplementation(libs.testRules)
@@ -56,10 +53,7 @@ dependencies {
 
 android {
     namespace = "androidx.xr.runtime"
-    testOptions.unitTests.includeAndroidResources = true
-    defaultConfig {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
 }
 
 androidx {
@@ -67,7 +61,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Runtime interfaces and helper libraries for the androidx.xr namespace."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

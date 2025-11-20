@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            if (!anchors.contains(currentAnchor)) {"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionState.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            rulers.maxOfOrNull { it.left.current(0f).roundToInt() } ?: 0,"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/adaptive/layout/PaneMargins.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            rulers.maxOfOrNull { it.top.current(0f).roundToInt() } ?: 0,"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/adaptive/layout/PaneMargins.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            rulers.minOfOrNull { it.right.current(Float.MAX_VALUE).roundToInt() } ?: parentRight,"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/adaptive/layout/PaneMargins.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            rulers.minOfOrNull { it.bottom.current(Float.MAX_VALUE).roundToInt() } ?: parentBottom,"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/adaptive/layout/PaneMargins.kt"/>
+    </issue>
+
+</issues>

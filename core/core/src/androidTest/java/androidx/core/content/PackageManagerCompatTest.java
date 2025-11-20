@@ -18,7 +18,6 @@ package androidx.core.content;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.N;
 import static android.os.Build.VERSION_CODES.Q;
@@ -299,16 +298,6 @@ public class PackageManagerCompatTest {
                 .isEqualTo(ACTION_UNUSED_APP_RESTRICTIONS_BACKPORT_CONNECTION);
         // We do not check the future value as this would require constructing a fake service to
         // connect to.
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = LOLLIPOP)
-    public void getUnusedAppRestrictionsStatus_preApi23_returnsFeatureNotAvailable()
-            throws Exception {
-        ListenableFuture<Integer> resultFuture =
-                PackageManagerCompat.getUnusedAppRestrictionsStatus(mContext);
-
-        assertThat(resultFuture.get()).isEqualTo(FEATURE_NOT_AVAILABLE);
     }
 
     /**

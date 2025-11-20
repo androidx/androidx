@@ -27,18 +27,16 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api(libs.kotlinStdlib)
     api(project(":wear:watchface:watchface-complications-data"))
     implementation("androidx.core:core:1.1.0")
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
@@ -58,8 +56,6 @@ android {
     defaultConfig {
         minSdk = 26
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.watchface.complications"
 }
 
@@ -69,4 +65,5 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Complications"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

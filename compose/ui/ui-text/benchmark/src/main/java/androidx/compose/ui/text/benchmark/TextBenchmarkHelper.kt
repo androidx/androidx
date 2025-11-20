@@ -34,7 +34,7 @@ import kotlin.random.Random
 
 class RandomTextGenerator(
     private val alphabet: Alphabet = Alphabet.Latin,
-    private val random: Random = Random(0)
+    private val random: Random = Random(0),
 ) {
     // a set of predefined TextStyle's to add to styled text
     private val nonMetricAffectingTextStyles =
@@ -42,7 +42,7 @@ class RandomTextGenerator(
             SpanStyle(color = Color.Blue),
             SpanStyle(background = Color.Cyan),
             SpanStyle(textDecoration = TextDecoration.Underline),
-            SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f))
+            SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f)),
         )
 
     private val metricAffectingTextStyles =
@@ -54,7 +54,7 @@ class RandomTextGenerator(
             SpanStyle(letterSpacing = 0.2.em),
             SpanStyle(baselineShift = BaselineShift.Subscript),
             SpanStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
-            SpanStyle(localeList = LocaleList("it"))
+            SpanStyle(localeList = LocaleList("it")),
         )
 
     private fun getSpanStyleList(hasMetricAffectingStyle: Boolean) =
@@ -102,7 +102,7 @@ class RandomTextGenerator(
     fun createStyles(
         text: String,
         styleCount: Int = text.split(alphabet.space).size,
-        hasMetricAffectingStyle: Boolean = true
+        hasMetricAffectingStyle: Boolean = true,
     ): List<AnnotatedString.Range<SpanStyle>> {
         val spanStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
@@ -124,7 +124,7 @@ class RandomTextGenerator(
                 AnnotatedString.Range(
                     start = start,
                     end = end,
-                    item = spanStyleList[styleIndex++ % spanStyleList.size]
+                    item = spanStyleList[styleIndex++ % spanStyleList.size],
                 )
             }
         }
@@ -140,12 +140,12 @@ class RandomTextGenerator(
         length: Int,
         wordLength: Int = 9,
         styleCount: Int,
-        hasMetricAffectingStyle: Boolean = true
+        hasMetricAffectingStyle: Boolean = true,
     ): AnnotatedString {
         val text = nextParagraph(length, wordLength)
         return AnnotatedString(
             text = text,
-            spanStyles = createStyles(text, styleCount, hasMetricAffectingStyle)
+            spanStyles = createStyles(text, styleCount, hasMetricAffectingStyle),
         )
     }
 
@@ -156,7 +156,7 @@ class RandomTextGenerator(
     fun nextStyledWordList(
         length: Int,
         wordLength: Int = 9,
-        hasMetricAffectingStyle: Boolean = true
+        hasMetricAffectingStyle: Boolean = true,
     ): List<Pair<String, SpanStyle>> {
         val textStyleList = getSpanStyleList(hasMetricAffectingStyle)
 
@@ -180,7 +180,7 @@ class Alphabet(val charRanges: List<IntRange>, val space: Char, val name: String
             Alphabet(
                 charRanges = listOf(IntRange('a'.code, 'z'.code), IntRange('A'.code, 'Z'.code)),
                 space = ' ',
-                name = "Latin"
+                name = "Latin",
             )
 
         val Cjk =
@@ -189,10 +189,10 @@ class Alphabet(val charRanges: List<IntRange>, val space: Char, val name: String
                     listOf(
                         IntRange(0x4E00, 0x62FF),
                         IntRange(0x6300, 0x77FF),
-                        IntRange(0x7800, 0x8CFF)
+                        IntRange(0x7800, 0x8CFF),
                     ),
                 space = 0x3000.toChar(),
-                name = "CJK"
+                name = "CJK",
             )
     }
 }
@@ -200,7 +200,7 @@ class Alphabet(val charRanges: List<IntRange>, val space: Char, val name: String
 /** Used by [RandomTextGenerator] in order to create plain text or multi-styled text. */
 enum class TextType {
     PlainText,
-    StyledText
+    StyledText,
 }
 
 /** Given a list of Arrays and make cartesian product each of them with the [array]. */

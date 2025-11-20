@@ -43,6 +43,7 @@ public class GiantInterstitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giant_interstitial);
         setTitle(R.string.giant_interstitial_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         WebView webview = findViewById(R.id.giant_webview);
 

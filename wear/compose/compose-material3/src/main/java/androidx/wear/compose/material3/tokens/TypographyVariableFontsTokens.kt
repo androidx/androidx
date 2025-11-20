@@ -18,110 +18,117 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 package androidx.wear.compose.material3.tokens
 
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.font.FontVariation
 
-internal object TypographyVariableFontsTokens {
-    val ArcLargeVariationSettings =
+/**
+ * ********************************************************
+ * Modified by hand, don't override!!!
+ * *********************************************************
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object TypographyVariableFontsTokens {
+    public val ArcLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.ArcLargeWidth),
             FontVariation.Setting("wght", TypeScaleTokens.ArcLargeWeight),
         )
-    val ArcMediumVariationSettings =
+    public val ArcMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.ArcMediumWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.ArcMediumWidth),
         )
-    val ArcSmallVariationSettings =
+    public val ArcSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.ArcSmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.ArcSmallWidth),
         )
-    val BodyExtraSmallVariationSettings =
+    public val BodyExtraSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.BodyExtraSmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.BodyExtraSmallWidth),
         )
-    val BodyLargeVariationSettings =
+    public val BodyLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.BodyLargeWidth),
             FontVariation.Setting("wght", TypeScaleTokens.BodyLargeWeight),
         )
-    val BodyMediumVariationSettings =
+    public val BodyMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.BodyMediumWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.BodyMediumWidth),
         )
-    val BodySmallVariationSettings =
+    public val BodySmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.BodySmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.BodySmallWidth),
         )
-    val DisplayLargeVariationSettings =
+    public val DisplayLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.DisplayLargeWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.DisplayLargeWidth),
         )
-    val DisplayMediumVariationSettings =
+    public val DisplayMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.DisplayMediumWidth),
             FontVariation.Setting("wght", TypeScaleTokens.DisplayMediumWeight),
         )
-    val DisplaySmallVariationSettings =
+    public val DisplaySmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.DisplaySmallWidth),
             FontVariation.Setting("wght", TypeScaleTokens.DisplaySmallWeight),
         )
-    val LabelLargeVariationSettings =
+    public val LabelLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.LabelLargeWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.LabelLargeWidth),
         )
-    val LabelMediumVariationSettings =
+    public val LabelMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.LabelMediumWidth),
             FontVariation.Setting("wght", TypeScaleTokens.LabelMediumWeight),
         )
-    val LabelSmallVariationSettings =
+    public val LabelSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.LabelSmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.LabelSmallWidth),
         )
-    val NumeralExtraLargeVariationSettings =
+    public val NumeralExtraLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.NumeralExtraLargeWidth),
             FontVariation.Setting("wght", TypeScaleTokens.NumeralExtraLargeWeight),
         )
-    val NumeralExtraSmallVariationSettings =
+    public val NumeralExtraSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.NumeralExtraSmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.NumeralExtraSmallWidth),
         )
-    val NumeralLargeVariationSettings =
+    public val NumeralLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.NumeralLargeWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.NumeralLargeWidth),
         )
-    val NumeralMediumVariationSettings =
+    public val NumeralMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.NumeralMediumWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.NumeralMediumWidth),
         )
-    val NumeralSmallVariationSettings =
+    public val NumeralSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.NumeralSmallWidth),
             FontVariation.Setting("wght", TypeScaleTokens.NumeralSmallWeight),
         )
-    val TitleLargeVariationSettings =
+    public val TitleLargeVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.TitleLargeWidth),
             FontVariation.Setting("wght", TypeScaleTokens.TitleLargeWeight),
         )
-    val TitleMediumVariationSettings =
+    public val TitleMediumVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wdth", TypeScaleTokens.TitleMediumWidth),
             FontVariation.Setting("wght", TypeScaleTokens.TitleMediumWeight),
         )
-    val TitleSmallVariationSettings =
+    public val TitleSmallVariationSettings: FontVariation.Settings =
         FontVariation.Settings(
             FontVariation.Setting("wght", TypeScaleTokens.TitleSmallWeight),
             FontVariation.Setting("wdth", TypeScaleTokens.TitleSmallWidth),

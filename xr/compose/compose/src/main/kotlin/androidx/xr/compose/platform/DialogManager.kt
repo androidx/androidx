@@ -18,8 +18,8 @@ package androidx.xr.compose.platform
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.staticCompositionLocalOf
 
 /** Tracks the Elevated Status of SpatialDialog */
 internal interface DialogManager {
@@ -28,9 +28,11 @@ internal interface DialogManager {
 }
 
 /** Default implementation of [DialogManager]. */
-private class DefaultDialogManager : DialogManager {
+internal class DefaultDialogManager : DialogManager {
     override val isSpatialDialogActive: MutableState<Boolean> = mutableStateOf(false)
 }
 
 internal val LocalDialogManager: ProvidableCompositionLocal<DialogManager> =
-    staticCompositionLocalOf<DialogManager> { DefaultDialogManager() }
+    compositionLocalWithComputedDefaultOf {
+        LocalComposeXrOwners.currentValue?.dialogManager ?: DefaultDialogManager()
+    }

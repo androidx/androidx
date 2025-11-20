@@ -1,5 +1,401 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 9.0.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha10)" variant="all" version="9.0.0-alpha10">
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(texts.isEmpty())"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `setHandwritingGestures`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 34 (current min is 23): `EditorInfoApi34`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@ExperimentalIndirectPointerApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalIndirectPointerApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/gestures/IndirectPointerInputDragCycleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun LazyGrid("
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/lazy/grid/BaseLazyGridTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    internal fun &lt;T> createAnchoredDraggableModifier("
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/anchoredDraggable/AnchoredDraggableBackwardsCompatibleTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun LazyItemScope.fillParentMaxMainAxis() ="
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/lazy/list/BaseLazyListTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun LazyItemScope.fillParentMaxCrossAxis() ="
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/lazy/list/BaseLazyListTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringContentCaptureInvalidationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun createSubject(text: String): TextStringSimpleElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringContentCaptureTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="    private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringContentCaptureInvalidationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="    private fun createSubject(text: String): TextStringSimpleElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringContentCaptureTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="        modifier: Modifier = Modifier.testTag(tag),"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryComposedModifier"
+        message="Unnecessary use of Modifier.composed"
+        errorLine1="                    Modifier.fillMaxSize().testTag(PagerTestTag).composed {"
+        errorLine2="                                                                 ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/pager/PagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesBidiTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesBidiTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesRtlTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesRtlTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/ClickableTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/CombinedClickableTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23) TextToolbarHelperApi23.invalidateContentRect(actionMode)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        errorLine1="            Build.VERSION.SDK_INT &lt; 23"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/ProcessText.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/ProcessText.android.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"
@@ -184,7 +580,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method createItemsBeforeList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>"
+        errorLine1="    pinnedItems: List&lt;Int>,"
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>

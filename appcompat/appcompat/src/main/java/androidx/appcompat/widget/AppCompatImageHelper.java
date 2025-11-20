@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -101,8 +100,7 @@ public class AppCompatImageHelper {
 
     boolean hasOverlappingRendering() {
         final Drawable background = mView.getBackground();
-        if (Build.VERSION.SDK_INT >= 21
-                && background instanceof android.graphics.drawable.RippleDrawable) {
+        if (background instanceof android.graphics.drawable.RippleDrawable) {
             // RippleDrawable has an issue on L+ when used with an alpha animation.
             // This workaround should be disabled when the platform bug is fixed. See b/27715789
             return false;
@@ -175,20 +173,7 @@ public class AppCompatImageHelper {
     }
 
     private boolean shouldApplyFrameworkTintUsingColorFilter() {
-        final int sdk = Build.VERSION.SDK_INT;
-        if (sdk > 21) {
-            // On API 22+, if we're using an internal compat image source tint, we're also
-            // responsible for applying any custom tint set via the framework impl
-            return mInternalImageTint != null;
-        } else if (sdk == 21) {
-            // GradientDrawable doesn't implement setTintList on API 21, and since there is
-            // no nice way to unwrap DrawableContainers we have to blanket apply this
-            // on API 21
-            return true;
-        } else {
-            // API 19 and below doesn't have framework tint
-            return false;
-        }
+        return mInternalImageTint != null;
     }
 
     /**

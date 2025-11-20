@@ -24,11 +24,11 @@ import androidx.annotation.RestrictTo
  */
 public class ImmutableTriangle(p0: Vec, p1: Vec, p2: Vec) : Triangle() {
 
-    @Suppress("Immutable") override val p0: Vec = p0.asImmutable()
-    @Suppress("Immutable") override val p1: Vec = p1.asImmutable()
-    @Suppress("Immutable") override val p2: Vec = p2.asImmutable()
+    override val p0: ImmutableVec = p0.toImmutable()
+    override val p1: ImmutableVec = p1.toImmutable()
+    override val p2: ImmutableVec = p2.toImmutable()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableTriangle = this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableTriangle = this
 
     /**
      * Equality for [ImmutableTriangle] is defined using the order in which [p0], [p1] and [p2] are

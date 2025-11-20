@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,6 +37,10 @@ public final class SurfaceCombination {
     private final List<SurfaceConfig> mSurfaceConfigList = new ArrayList<>();
 
     public SurfaceCombination() {
+    }
+
+    public SurfaceCombination(@NonNull SurfaceConfig... surfaceConfigs) {
+        Collections.addAll(mSurfaceConfigList, surfaceConfigs);
     }
 
     private static void generateArrangements(

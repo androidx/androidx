@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,9 +26,9 @@ import kotlin.math.min
  *
  * Note that unlike [android.graphics.RectF], this does not express an opinion about axis direction
  * (e.g. the positive `Y` axis being "down"), because it is intended to be used with any coordinate
- * system rather than just Android screen/View space.
+ * system rather than just Android screen / View space.
  */
-public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
+public class ImmutableBox internal constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
 
     /** The lower bound in the `X` direction. */
     override val xMin: Float = min(x1, x2)
@@ -40,6 +41,8 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
 
     /** The upper bound in the `Y` direction. */
     override val yMax: Float = max(y1, y2)
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableBox = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Box && Box.areEquivalent(this, other))
@@ -68,8 +71,15 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
 
         /** Constructs the smallest [ImmutableBox] containing the two given points. */
         @JvmStatic
-        public fun fromTwoPoints(point1: Vec, point2: Vec): ImmutableBox {
-            return ImmutableBox(point1.x, point1.y, point2.x, point2.y)
-        }
+        public fun fromTwoPoints(point1: Vec, point2: Vec): ImmutableBox =
+            ImmutableBox(point1.x, point1.y, point2.x, point2.y)
+
+        /**
+         * Overload that just takes the x and y components of the vectors. This isn't part of the
+         * public API, but allows internal callers to avoid unnecessary allocations.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun fromTwoPoints(x1: Float, y1: Float, x2: Float, y2: Float): ImmutableBox =
+            ImmutableBox(x1, y1, x2, y2)
     }
 }

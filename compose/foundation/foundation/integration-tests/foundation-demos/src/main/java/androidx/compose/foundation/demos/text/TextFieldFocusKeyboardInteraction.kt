@@ -60,7 +60,7 @@ fun TextFieldFocusKeyboardInteraction() {
     val focusManager = LocalFocusManager.current
     Column(
         verticalArrangement = spacedBy(4.dp),
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier.verticalScroll(rememberScrollState()),
     ) {
         Button(onClick = { focusManager.clearFocus() }) { Text("Clear focus") }
 
@@ -93,13 +93,13 @@ private fun FocusableFieldRow() {
             text1,
             onValueChange = { text1 = it },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         TextField(
             text2,
             onValueChange = { text2 = it },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         TextField(text3, onValueChange = { text3 = it }, modifier = Modifier.weight(1f))
 
@@ -110,7 +110,7 @@ private fun FocusableFieldRow() {
             onClick = { buttonFocusRequester.requestFocus() },
             Modifier.weight(1f)
                 .focusRequester(buttonFocusRequester)
-                .focusable(interactionSource = interactionSource)
+                .focusable(interactionSource = interactionSource),
         ) {
             Text(if (isButtonFocused) "Focused" else "Click to focus")
         }

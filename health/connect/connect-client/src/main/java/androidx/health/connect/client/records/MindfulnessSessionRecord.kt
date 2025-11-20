@@ -36,19 +36,18 @@ import java.time.ZoneOffset
  * installed on the device. To check if available: call [HealthConnectFeatures.getFeatureStatus] and
  * pass [HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION] as an argument.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class MindfulnessSessionRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
-    /** Type of mindfulness session (e.g. meditation, breathing). Required field. */
-    @property:MindfulnessSessionTypes val mindfulnessSessionType: Int,
-    /** Title of the session. Optional field. */
-    val title: String? = null,
-    /** Additional notes for the session. Optional field. */
-    val notes: String? = null,
     override val metadata: Metadata,
+    /** Type of mindfulness session (e.g. meditation, breathing, including unknown type). */
+    @property:MindfulnessSessionTypes val mindfulnessSessionType: Int,
+    /** Title of the session. */
+    val title: String? = null,
+    /** Additional notes for the session. */
+    val notes: String? = null,
 ) : IntervalRecord {
 
     init {
@@ -59,6 +58,7 @@ class MindfulnessSessionRecord(
         if (this === other) return true
         if (other !is MindfulnessSessionRecord) return false
 
+        if (mindfulnessSessionType != other.mindfulnessSessionType) return false
         if (title != other.title) return false
         if (notes != other.notes) return false
         if (startTime != other.startTime) return false
@@ -101,29 +101,24 @@ class MindfulnessSessionRecord(
          * specific category. Any unknown new value definition will also fall automatically into
          * [MINDFULNESS_SESSION_TYPE_UNKNOWN].
          *
-         * Next Id: 7.
+         * Use this type if the mindfulness session type is unknown.
          */
-
-        /** Use this type if the mindfulness session type is unknown. */
         const val MINDFULNESS_SESSION_TYPE_UNKNOWN = 0
 
         /** Meditation mindfulness session. */
         const val MINDFULNESS_SESSION_TYPE_MEDITATION = 1
 
-        /** Other mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_OTHER = 2
-
         /** Guided breathing mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_BREATHING = 3
+        const val MINDFULNESS_SESSION_TYPE_BREATHING = 2
 
         /** Music/soundscapes mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_MUSIC = 4
+        const val MINDFULNESS_SESSION_TYPE_MUSIC = 3
 
         /** Stretches/movement mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_MOVEMENT = 5
+        const val MINDFULNESS_SESSION_TYPE_MOVEMENT = 4
 
         /** Unguided mindfulness session. */
-        const val MINDFULNESS_SESSION_TYPE_UNGUIDED = 6
+        const val MINDFULNESS_SESSION_TYPE_UNGUIDED = 5
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmField
@@ -133,9 +128,8 @@ class MindfulnessSessionRecord(
                 "meditation" to MINDFULNESS_SESSION_TYPE_MEDITATION,
                 "movement" to MINDFULNESS_SESSION_TYPE_MOVEMENT,
                 "music" to MINDFULNESS_SESSION_TYPE_MUSIC,
-                "other" to MINDFULNESS_SESSION_TYPE_OTHER,
                 "unguided" to MINDFULNESS_SESSION_TYPE_UNGUIDED,
-                "unknown" to MINDFULNESS_SESSION_TYPE_UNKNOWN
+                "unknown" to MINDFULNESS_SESSION_TYPE_UNKNOWN,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -154,9 +148,8 @@ class MindfulnessSessionRecord(
                 MINDFULNESS_SESSION_TYPE_MEDITATION,
                 MINDFULNESS_SESSION_TYPE_MOVEMENT,
                 MINDFULNESS_SESSION_TYPE_MUSIC,
-                MINDFULNESS_SESSION_TYPE_OTHER,
                 MINDFULNESS_SESSION_TYPE_UNGUIDED,
-                MINDFULNESS_SESSION_TYPE_UNKNOWN
+                MINDFULNESS_SESSION_TYPE_UNKNOWN,
             ]
     )
     annotation class MindfulnessSessionTypes

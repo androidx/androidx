@@ -26,10 +26,6 @@
         <activity
             android:name="androidx.privacysandbox.ui.client.test.SecondActivity"
             android:exported="true" />
-        <activity
-            android:name="androidx.privacysandbox.ui.client.test.UiLibComposeActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true" />
     </application>
     <queries>
         <package android:name="androidx.privacysandbox.ui.client.test" />

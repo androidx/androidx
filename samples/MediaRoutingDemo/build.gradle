@@ -14,7 +14,6 @@ dependencies {
     api(libs.jspecify)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":mediarouter:mediarouter"))
-    implementation(project(":preference:preference"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":concurrent:concurrent-futures"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
@@ -30,7 +29,11 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
-    compileSdk = 35
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

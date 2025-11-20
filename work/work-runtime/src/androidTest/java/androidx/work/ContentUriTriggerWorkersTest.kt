@@ -57,7 +57,7 @@ class ContentUriTriggerWorkersTest {
             configuration = configuration,
             workTaskExecutor = taskExecutor,
             workDatabase = WorkDatabase.create(context, executor, configuration.clock, true),
-            schedulersCreator = schedulers(testScheduler)
+            schedulersCreator = schedulers(testScheduler),
         )
 
     @Test

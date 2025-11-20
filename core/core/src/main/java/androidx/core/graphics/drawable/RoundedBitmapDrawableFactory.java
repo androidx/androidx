@@ -19,13 +19,7 @@ package androidx.core.graphics.drawable;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
-import android.view.View;
-
-import androidx.core.graphics.BitmapCompat;
-import androidx.core.view.GravityCompat;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -39,42 +33,13 @@ import java.io.InputStream;
 public final class RoundedBitmapDrawableFactory {
     private static final String TAG = "RoundedBitmapDrawableFa";
 
-    private static class DefaultRoundedBitmapDrawable extends RoundedBitmapDrawable {
-        DefaultRoundedBitmapDrawable(Resources res, Bitmap bitmap) {
-            super(res, bitmap);
-        }
-
-        @Override
-        public void setMipMap(boolean mipMap) {
-            if (mBitmap != null) {
-                BitmapCompat.setHasMipMap(mBitmap, mipMap);
-                invalidateSelf();
-            }
-        }
-
-        @Override
-        public boolean hasMipMap() {
-            return mBitmap != null && BitmapCompat.hasMipMap(mBitmap);
-        }
-
-        @Override
-        void gravityCompatApply(int gravity, int bitmapWidth, int bitmapHeight,
-                Rect bounds, Rect outRect) {
-            GravityCompat.apply(gravity, bitmapWidth, bitmapHeight,
-                    bounds, outRect, View.LAYOUT_DIRECTION_LTR);
-        }
-    }
-
     /**
      * Returns a new drawable by creating it from a bitmap, setting initial target density based on
      * the display metrics of the resources.
      */
     public static @NonNull RoundedBitmapDrawable create(@NonNull Resources res,
             @Nullable Bitmap bitmap) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return new RoundedBitmapDrawable21(res, bitmap);
-        }
-        return new DefaultRoundedBitmapDrawable(res, bitmap);
+        return new RoundedBitmapDrawable21(res, bitmap);
     }
 
     /**

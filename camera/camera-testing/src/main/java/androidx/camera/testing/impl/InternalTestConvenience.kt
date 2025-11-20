@@ -17,7 +17,6 @@
 package androidx.camera.testing.impl
 
 import android.app.Activity
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Logger
 import androidx.test.core.app.ActivityScenario
@@ -43,7 +42,7 @@ public object InternalTestConvenience {
      * @return the result of [block] function invoked on this resource.
      */
     public inline fun <A : Activity, R> ActivityScenario<A>.useInCameraTest(
-        block: (ActivityScenario<A>) -> R,
+        block: (ActivityScenario<A>) -> R
     ): R {
         try {
             return block(this)
@@ -76,7 +75,7 @@ public object InternalTestConvenience {
      */
     public fun String.ignoreTestForCameraPipe(message: String, evenInLab: Boolean = false) {
         if (!LabTestRule.isInLabTest() || evenInLab) {
-            assumeTrue(message, !this.contains(CameraPipeConfig::class.simpleName.toString()))
+            assumeTrue(message, !this.contains("CameraPipeConfig"))
         }
     }
 }

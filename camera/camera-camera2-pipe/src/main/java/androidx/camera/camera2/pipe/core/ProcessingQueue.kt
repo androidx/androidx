@@ -63,7 +63,7 @@ import kotlinx.coroutines.launch
 internal class ProcessingQueue<T>(
     val capacity: Int = Channel.UNLIMITED,
     private val onUnprocessedElements: (List<T>) -> Unit = {},
-    private val process: suspend (MutableList<T>) -> Unit
+    private val process: suspend (MutableList<T>) -> Unit,
 ) {
     private val started = atomic(false)
     private val channel = Channel<T>(capacity = capacity, onUndeliveredElement = { queue.add(it) })

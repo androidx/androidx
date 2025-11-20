@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.ui.client.test
 
 import android.content.Context
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.core.SessionConstants
+import androidx.privacysandbox.ui.core.SessionData
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import java.util.concurrent.Executor
 
 class FailingTestSandboxedUiAdapter : AbstractSandboxedUiAdapter() {
     override fun openSession(
         context: Context,
-        sessionConstants: SessionConstants,
+        sessionData: SessionData,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
         clientExecutor: Executor,
-        client: SandboxedUiAdapter.SessionClient
+        client: SandboxedUiAdapter.SessionClient,
     ) {
         clientExecutor.execute { client.onSessionError(Exception("Error in openSession()")) }
     }

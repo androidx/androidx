@@ -91,7 +91,7 @@ constructor(
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
@@ -119,7 +119,7 @@ constructor(
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     // Only for binary compatibility; cannot apply @JvmOverloads as the function signature would
     // conflict with the primary constructor.
@@ -150,7 +150,7 @@ constructor(
             diffCallback = diffCallback,
             updateCallback = AdapterListUpdateCallback(this),
             mainDispatcher = mainDispatcher,
-            workerDispatcher = workerDispatcher
+            workerDispatcher = workerDispatcher,
         )
 
     init {
@@ -435,7 +435,7 @@ constructor(
      */
     fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
-        footer: LoadStateAdapter<*>
+        footer: LoadStateAdapter<*>,
     ): ConcatAdapter {
         addLoadStateListener { loadStates ->
             header.loadState = loadStates.prepend

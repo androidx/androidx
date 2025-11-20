@@ -82,6 +82,7 @@ import org.robolectric.shadows.ShadowPackageManager;
 
 /** Tests for {@link CarAppActivity}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppActivityTest {
     public static final String INTENT_IDENTIFIER = "CarAppActivityTest";

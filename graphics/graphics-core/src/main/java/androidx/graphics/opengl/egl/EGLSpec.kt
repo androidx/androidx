@@ -68,7 +68,7 @@ interface EGLSpec {
      */
     fun eglCreatePBufferSurface(
         config: EGLConfig,
-        configAttributes: EGLConfigAttributes?
+        configAttributes: EGLConfigAttributes?,
     ): EGLSurface
 
     /**
@@ -84,7 +84,7 @@ interface EGLSpec {
     fun eglCreateWindowSurface(
         config: EGLConfig,
         surface: Surface,
-        configAttributes: EGLConfigAttributes?
+        configAttributes: EGLConfigAttributes?,
     ): EGLSurface
 
     /**
@@ -117,7 +117,7 @@ interface EGLSpec {
     fun eglMakeCurrent(
         context: EGLContext,
         drawSurface: EGLSurface,
-        readSurface: EGLSurface
+        readSurface: EGLSurface,
     ): Boolean
 
     /**
@@ -281,7 +281,7 @@ interface EGLSpec {
         sync: EGLSyncKHR,
         @EGLSyncAttribute attribute: Int,
         value: IntArray,
-        offset: Int
+        offset: Int,
     ): Boolean
 
     /**
@@ -341,7 +341,7 @@ interface EGLSpec {
     fun eglClientWaitSyncKHR(
         sync: EGLSyncKHR,
         flags: Int,
-        timeoutNanos: Long
+        timeoutNanos: Long,
     ): @EGLClientWaitResult Int
 
     companion object {
@@ -360,7 +360,7 @@ interface EGLSpec {
                         // that only
                         // seems to be configured on SystemUIApplication. This might be useful for
                         // front buffer rendering situations for performance.
-                        EGL14.EGL_NONE
+                        EGL14.EGL_NONE,
                     )
 
                 override fun eglInitialize(): EGLVersion {
@@ -376,7 +376,7 @@ interface EGLSpec {
                     } else {
                         throw EGLException(
                             EGL14.eglGetError(),
-                            "Unable to initialize default display"
+                            "Unable to initialize default display",
                         )
                     }
                 }
@@ -392,13 +392,13 @@ interface EGLSpec {
 
                 override fun eglCreatePBufferSurface(
                     config: EGLConfig,
-                    configAttributes: EGLConfigAttributes?
+                    configAttributes: EGLConfigAttributes?,
                 ): EGLSurface =
                     EGL14.eglCreatePbufferSurface(
                         getDefaultDisplay(),
                         config,
                         configAttributes?.attrs,
-                        0
+                        0,
                     )
 
                 override fun eglCreateWindowSurface(
@@ -411,7 +411,7 @@ interface EGLSpec {
                         config,
                         surface,
                         configAttributes?.attrs ?: DefaultWindowSurfaceConfig.attrs,
-                        0
+                        0,
                     )
 
                 override fun eglSwapBuffers(surface: EGLSurface): Boolean =
@@ -421,7 +421,7 @@ interface EGLSpec {
                     surface: EGLSurface,
                     attribute: Int,
                     result: IntArray,
-                    offset: Int
+                    offset: Int,
                 ): Boolean =
                     EGL14.eglQuerySurface(getDefaultDisplay(), surface, attribute, result, offset)
 
@@ -431,7 +431,7 @@ interface EGLSpec {
                 override fun eglMakeCurrent(
                     context: EGLContext,
                     drawSurface: EGLSurface,
-                    readSurface: EGLSurface
+                    readSurface: EGLSurface,
                 ): Boolean =
                     EGL14.eglMakeCurrent(getDefaultDisplay(), drawSurface, readSurface, context)
 
@@ -446,7 +446,7 @@ interface EGLSpec {
                             0,
                             1,
                             intArrayOf(1),
-                            0
+                            0,
                         )
                     ) {
                         configs[0]
@@ -461,7 +461,7 @@ interface EGLSpec {
                         config,
                         EGL14.EGL_NO_CONTEXT, // not creating from a shared context
                         contextAttributes,
-                        0
+                        0,
                     )
                 }
 
@@ -482,14 +482,14 @@ interface EGLSpec {
 
                 override fun eglCreateSyncKHR(
                     type: Int,
-                    attributes: EGLConfigAttributes?
+                    attributes: EGLConfigAttributes?,
                 ): EGLSyncKHR? = EGLExt.eglCreateSyncKHR(getDefaultDisplay(), type, attributes)
 
                 override fun eglGetSyncAttribKHR(
                     sync: EGLSyncKHR,
                     attribute: Int,
                     value: IntArray,
-                    offset: Int
+                    offset: Int,
                 ): Boolean =
                     EGLExt.eglGetSyncAttribKHR(getDefaultDisplay(), sync, attribute, value, offset)
 
@@ -501,7 +501,7 @@ interface EGLSpec {
                 override fun eglClientWaitSyncKHR(
                     sync: EGLSyncKHR,
                     flags: Int,
-                    timeoutNanos: Long
+                    timeoutNanos: Long,
                 ): Int = EGLExt.eglClientWaitSyncKHR(getDefaultDisplay(), sync, flags, timeoutNanos)
 
                 private fun getDefaultDisplay() = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
@@ -557,6 +557,7 @@ class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
  * @param major Major version of the EGL implementation
  * @param minor Minor version of the EGL implementation
  */
+@Suppress("DataClassDefinition")
 data class EGLVersion(val major: Int, val minor: Int) {
 
     override fun toString(): String {

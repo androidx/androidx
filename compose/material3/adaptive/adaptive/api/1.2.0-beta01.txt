@@ -1,0 +1,74 @@
+// Signature format: 4.0
+package androidx.compose.material3.adaptive {
+
+  public final class AndroidWindowAdaptiveInfo_androidKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature>> collectFoldingFeaturesAsState();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature!>!> collectFoldingFeaturesAsState(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo! currentWindowAdaptiveInfo(androidx.compose.runtime.Composer!, int);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer!, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static long currentWindowSize(androidx.compose.runtime.Composer!, int);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to beremoved in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to beremoved in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveComponentOverrideApi {
+  }
+
+  @androidx.compose.runtime.Immutable public final class HingeInfo {
+    ctor public HingeInfo(androidx.compose.ui.geometry.Rect bounds, boolean isFlat, boolean isVertical, boolean isSeparating, boolean isOccluding);
+    method public androidx.compose.ui.geometry.Rect getBounds();
+    method public boolean isFlat();
+    method public boolean isOccluding();
+    method public boolean isSeparating();
+    method public boolean isVertical();
+    property public androidx.compose.ui.geometry.Rect bounds;
+    property public boolean isFlat;
+    property public boolean isOccluding;
+    property public boolean isSeparating;
+    property public boolean isVertical;
+  }
+
+  @androidx.compose.runtime.Immutable public final class Posture {
+    ctor public Posture();
+    ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.material3.adaptive.HingeInfo> hingeList);
+    method public java.util.List<androidx.compose.material3.adaptive.HingeInfo> getHingeList();
+    method public boolean isTabletop();
+    property public java.util.List<androidx.compose.material3.adaptive.HingeInfo> hingeList;
+    property public boolean isTabletop;
+  }
+
+  public final class PostureKt {
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getAllHorizontalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getAllVerticalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getOccludingHorizontalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getOccludingVerticalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingHorizontalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    method public static java.util.List<androidx.compose.ui.geometry.Rect> getSeparatingVerticalHingeBounds(androidx.compose.material3.adaptive.Posture);
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.allHorizontalHingeBounds;
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.allVerticalHingeBounds;
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.occludingHorizontalHingeBounds;
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.occludingVerticalHingeBounds;
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.separatingHorizontalHingeBounds;
+    property public static java.util.List<androidx.compose.ui.geometry.Rect> androidx.compose.material3.adaptive.Posture.separatingVerticalHingeBounds;
+  }
+
+  @androidx.compose.runtime.Immutable public final class WindowAdaptiveInfo {
+    ctor public WindowAdaptiveInfo(androidx.window.core.layout.WindowSizeClass windowSizeClass, androidx.compose.material3.adaptive.Posture windowPosture);
+    method public androidx.compose.material3.adaptive.Posture getWindowPosture();
+    method public androidx.window.core.layout.WindowSizeClass getWindowSizeClass();
+    property public androidx.compose.material3.adaptive.Posture windowPosture;
+    property public androidx.window.core.layout.WindowSizeClass windowSizeClass;
+  }
+
+  public final class WindowAdaptiveInfoKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(optional boolean supportLargeAndXLargeWidth);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.DpSize currentWindowDpSize();
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.IntSize currentWindowSize();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static long currentWindowSize(androidx.compose.runtime.Composer?, int);
+  }
+
+}
+

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
-        id="MissingPermission"
-        message="Missing permissions required by LocationManager.removeUpdates: 1..22;android.permission.ACCESS_COARSE_LOCATION or 1..22;android.permission.ACCESS_FINE_LOCATION"
-        errorLine1="        locationManager.removeUpdates(mLocationListener);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(signIn.getPinCode().toString().length() == 12);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/AppManager.java"/>
+            file="src/test/java/androidx/car/app/model/signin/PinSignInMethodTest.java"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.content.res.Configuration#getLocales`"
+        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0)).isEqualTo("
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.os.LocaleList#get`"
+        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0)).isEqualTo("
         errorLine2="                                                                              ~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
         errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
@@ -39,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
@@ -48,7 +48,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        message="Call requires API level 26 (current min is 23): `android.app.Notification#getChannelId`"
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
@@ -57,7 +57,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.ZonedDateTime#parse`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.ZonedDateTime#parse`"
         errorLine1="        ZonedDateTime zonedDateTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                    ~~~~~">
         <location
@@ -66,7 +66,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `create`"
+        message="Call requires API level 26 (current min is 23): `create`"
         errorLine1="        DateTimeWithZone dateTimeWithZone = DateTimeWithZone.create(zonedDateTime);"
         errorLine2="                                                             ~~~~~~">
         <location
@@ -75,7 +75,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `assertDateTimeWithZoneEquals`"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
         errorLine1="        assertDateTimeWithZoneEquals(zonedDateTime, dateTimeWithZone);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `create`"
+        message="Call requires API level 26 (current min is 23): `create`"
         errorLine1="                    DateTimeWithZone.create(null);"
         errorLine2="                                     ~~~~~~">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#getSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#getSeconds`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofMillis`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofMillis`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#getSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#getSeconds`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofMillis`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofMillis`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
@@ -129,7 +129,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#getSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#getSeconds`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
@@ -138,7 +138,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofMillis`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofMillis`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
@@ -147,7 +147,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#getSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#getSeconds`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
@@ -156,7 +156,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofMillis`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofMillis`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
@@ -165,7 +165,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Collection#stream`"
         errorLine1="                .stream()"
         errorLine2="                 ~~~~~~">
         <location
@@ -174,7 +174,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#mapToLong`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.stream.Stream#mapToLong`"
         errorLine1="                .mapToLong(List::size)"
         errorLine2="                 ~~~~~~~~~">
         <location
@@ -183,7 +183,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.LongStream#sum`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.stream.LongStream#sum`"
         errorLine1="                .sum()).isEqualTo(6);"
         errorLine2="                 ~~~">
         <location
@@ -192,7 +192,7 @@
 
     <issue
         id="NewApi"
-        message="Class requires API level 28 (current min is 21): `android.content.pm.SigningInfo`"
+        message="Class requires API level 28 (current min is 23): `android.content.pm.SigningInfo`"
         errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
         errorLine2="                                       ~~~~~~~~~~~">
         <location
@@ -201,7 +201,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
+        message="Field requires API level 28 (current min is 23): `android.content.pm.PackageInfo#signingInfo`"
         errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -210,7 +210,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.content.pm.SigningInfo#getSigningCertificateHistory`"
+        message="Call requires API level 28 (current min is 23): `android.content.pm.SigningInfo#getSigningCertificateHistory`"
         errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -219,7 +219,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
+        message="Field requires API level 28 (current min is 23): `android.content.pm.PackageInfo#signingInfo`"
         errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -228,7 +228,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.ZonedDateTime#parse`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.ZonedDateTime#parse`"
         errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                  ~~~~~">
         <location
@@ -237,7 +237,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofHours`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofHours`"
         errorLine1="        Duration remainingTime = Duration.ofHours(10);"
         errorLine2="                                          ~~~~~~~">
         <location
@@ -246,7 +246,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `Builder`"
+        message="Call requires API level 26 (current min is 23): `Builder`"
         errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -255,7 +255,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `setRemainingTime`"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
         errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
         <location
@@ -264,7 +264,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#getSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#getSeconds`"
         errorLine1="        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());"
         errorLine2="                                                                                     ~~~~~~~~~~">
         <location
@@ -273,7 +273,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `assertDateTimeWithZoneEquals`"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
         errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -282,7 +282,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.ZonedDateTime#parse`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.ZonedDateTime#parse`"
         errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                  ~~~~~">
         <location
@@ -291,7 +291,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `Builder`"
+        message="Call requires API level 26 (current min is 23): `Builder`"
         errorLine1="                new TravelEstimate.Builder("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -300,7 +300,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `setRemainingTime`"
+        message="Call requires API level 26 (current min is 23): `setRemainingTime`"
         errorLine1="                        remainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                                                        ~~~~~~~~~~~~~~~~">
         <location
@@ -309,7 +309,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Duration#ofSeconds`"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Duration#ofSeconds`"
         errorLine1="                        Duration.ofSeconds(REMAINING_TIME_UNKNOWN)).build();"
         errorLine2="                                 ~~~~~~~~~">
         <location
@@ -318,7 +318,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `assertDateTimeWithZoneEquals`"
+        message="Call requires API level 26 (current min is 23): `assertDateTimeWithZoneEquals`"
         errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -373,8 +373,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final List&lt;CarZone> mCarZones;"
-        errorLine2="                       ~~~~~~~">
+        errorLine1="    private final @NonNull List&lt;CarZone> mCarZones;"
+        errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/CarValue.java"/>
     </issue>
@@ -382,8 +382,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final Badge mBadge;"
-        errorLine2="                  ~~~~~">
+        errorLine1="    private final @Nullable Badge mBadge;"
+        errorLine2="                            ~~~~~">
         <location
             file="src/main/java/androidx/car/app/model/GridItem.java"/>
     </issue>
@@ -391,8 +391,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Badge mBadge;"
-        errorLine2="        ~~~~~">
+        errorLine1="        @Nullable Badge mBadge;"
+        errorLine2="                  ~~~~~">
         <location
             file="src/main/java/androidx/car/app/model/GridItem.java"/>
     </issue>

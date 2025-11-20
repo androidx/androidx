@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -21,7 +22,8 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 
 package androidx.collection
@@ -91,7 +93,7 @@ public fun <E> mutableOrderedScatterSetOf(element1: E, element2: E): MutableOrde
 public fun <E> mutableOrderedScatterSetOf(
     element1: E,
     element2: E,
-    element3: E
+    element3: E,
 ): MutableOrderedScatterSet<E> =
     MutableOrderedScatterSet<E>(3).apply {
         plusAssign(element1)
@@ -419,24 +421,26 @@ public sealed class OrderedScatterSet<E> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        transform: ((E) -> CharSequence)? = null
+        transform: ((E) -> CharSequence)? = null,
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@OrderedScatterSet.forEach { element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@OrderedScatterSet.forEach { element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                if (transform == null) {
+                    append(element)
+                } else {
+                    append(transform(element))
+                }
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            if (transform == null) {
-                append(element)
-            } else {
-                append(transform(element))
-            }
-            index++
         }
         append(postfix)
     }

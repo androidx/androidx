@@ -50,7 +50,7 @@ fun NavigationBarItemWithBadge() {
                 }
             },
             selected = false,
-            onClick = {}
+            onClick = {},
         )
         NavigationBarItem(
             icon = {
@@ -63,7 +63,7 @@ fun NavigationBarItemWithBadge() {
                                 modifier =
                                     Modifier.semantics {
                                         contentDescription = "$badgeNumber new notifications"
-                                    }
+                                    },
                             )
                         }
                     }
@@ -72,7 +72,7 @@ fun NavigationBarItemWithBadge() {
                 }
             },
             selected = false,
-            onClick = {}
+            onClick = {},
         )
         NavigationBarItem(
             icon = {
@@ -85,7 +85,7 @@ fun NavigationBarItemWithBadge() {
                                 modifier =
                                     Modifier.semantics {
                                         contentDescription = "$badgeNumber new notifications"
-                                    }
+                                    },
                             )
                         }
                     }
@@ -94,7 +94,7 @@ fun NavigationBarItemWithBadge() {
                 }
             },
             selected = false,
-            onClick = {}
+            onClick = {},
         )
     }
 }

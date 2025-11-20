@@ -105,6 +105,6 @@ class SplitInfoTest {
 
     private fun createTestActivityStack(
         activitiesInProcess: List<Activity>,
-        isEmpty: Boolean = false
+        isEmpty: Boolean = false,
     ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 }

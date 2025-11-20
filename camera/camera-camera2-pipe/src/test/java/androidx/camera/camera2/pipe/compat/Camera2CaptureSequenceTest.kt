@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
-import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -45,7 +44,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class Camera2CaptureSequenceTest {
     private val cameraId: CameraId = CameraId("1")
     private val captureSession: CameraCaptureSession = mock()
@@ -68,7 +67,7 @@ internal class Camera2CaptureSequenceTest {
             listOf(requestMetadata),
             listeners,
             sequenceListener,
-            mapOf(surface to streamId)
+            mapOf(surface to streamId),
         )
 
     @Before
@@ -83,7 +82,7 @@ internal class Camera2CaptureSequenceTest {
             captureSession,
             captureRequest,
             timestamp,
-            frameNumber
+            frameNumber,
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber)
         assertThat(listener.lastTimeStamp?.value).isEqualTo(timestamp)
@@ -96,7 +95,7 @@ internal class Camera2CaptureSequenceTest {
             captureSession,
             captureRequest,
             timestamp,
-            frameNumber
+            frameNumber,
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber)
         assertThat(listener.lastSensorTimeStamp?.value).isEqualTo(timestamp)
@@ -109,7 +108,7 @@ internal class Camera2CaptureSequenceTest {
         camera2CaptureSequence.onCaptureCompleted(
             captureSession,
             captureRequest,
-            totalCaptureResult
+            totalCaptureResult,
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber)
         assertThat(listener.lastFrameInfo?.requestMetadata).isEqualTo(requestMetadata)
@@ -141,7 +140,7 @@ internal class Camera2CaptureSequenceTest {
         override fun onStarted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            timestamp: CameraTimestamp
+            timestamp: CameraTimestamp,
         ) {
             lastFrameNumber = frameNumber
             lastTimeStamp = timestamp
@@ -150,7 +149,7 @@ internal class Camera2CaptureSequenceTest {
         override fun onComplete(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            result: FrameInfo
+            result: FrameInfo,
         ) {
             lastFrameNumber = frameNumber
             lastFrameInfo = result
@@ -159,7 +158,7 @@ internal class Camera2CaptureSequenceTest {
         override fun onFailed(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            requestFailure: RequestFailure
+            requestFailure: RequestFailure,
         ) {
             lastFrameNumber = frameNumber
             lastRequestFailure = requestFailure
@@ -168,7 +167,7 @@ internal class Camera2CaptureSequenceTest {
         override fun onReadoutStarted(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            timestamp: SensorTimestamp
+            timestamp: SensorTimestamp,
         ) {
             lastFrameNumber = frameNumber
             lastSensorTimeStamp = timestamp

@@ -52,7 +52,7 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
             listOf(
                 TraceSectionMetric(
                     "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
-                    TraceSectionMetric.Mode.First
+                    TraceSectionMetric.Mode.First,
                 )
             )
         benchmarkRule.measureRepeated(
@@ -67,10 +67,10 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
                     .let { (resultCode, _) ->
                         assertTrue(
                             "Ensuring Perfetto SDK is enabled",
-                            resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                            resultCode in arrayOf(1, 2), // 1 = success, 2 = already enabled
                         )
                     }
-            }
+            },
         ) {
             startActivityAndWait(Intent(ACTION))
         }
@@ -88,7 +88,7 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
             listOf(
                 "Foo_BBC27C8E_13A7_4A5F_A735_AFDC433F54C3",
                 "Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9",
-                "Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8"
+                "Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8",
             )
 
         @JvmStatic @Parameters(name = "{0}") fun parameters() = COMPOSABLE_NAMES

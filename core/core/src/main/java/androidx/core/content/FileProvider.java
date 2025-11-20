@@ -36,7 +36,6 @@ import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -46,7 +45,6 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.XmlRes;
 import androidx.core.content.res.ResourcesCompat;
@@ -182,7 +180,6 @@ import java.util.Map;
  *     Represents files in the root of your app's external media area. The root path of this
  *     subdirectory is the same as the value returned by the first result of
  *     {@link Context#getExternalMediaDirs() Context.getExternalMediaDirs()}.
- *     <p><strong>Note:</strong> this directory is only available on API 21+ devices.</p>
  *     </li>
  * </ul>
  * <p>
@@ -536,9 +533,8 @@ public class FileProvider extends ContentProvider {
                     if (externalCacheDirs.length > 0) {
                         target = externalCacheDirs[0];
                     }
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                        && TAG_EXTERNAL_MEDIA.equals(tag)) {
-                    File[] externalMediaDirs = Api21Impl.getExternalMediaDirs(context);
+                } else if (TAG_EXTERNAL_MEDIA.equals(tag)) {
+                    File[] externalMediaDirs = context.getExternalMediaDirs();
                     if (externalMediaDirs.length > 0) {
                         target = externalMediaDirs[0];
                     }
@@ -637,6 +633,9 @@ public class FileProvider extends ContentProvider {
         }
         if (!info.grantUriPermissions) {
             throw new SecurityException("Provider must grant uri permissions");
+        }
+        if (info.authority == null || info.authority.trim().isEmpty()) {
+            throw new SecurityException("Provider must have a non-empty authority");
         }
 
         final String authority = info.authority.split(";")[0];
@@ -971,18 +970,6 @@ public class FileProvider extends ContentProvider {
 
             // The `filePath` _must_ reside as a descendant of the `rootPath`
             return filePath.startsWith(rootPath + '/');
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static File[] getExternalMediaDirs(Context context) {
-            // Deprecated, otherwise this would belong on ContextCompat as a public method.
-            return context.getExternalMediaDirs();
         }
     }
 }

@@ -21,28 +21,32 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.material3.adaptive.navigation"
+    }
     jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive-layout"))
-                implementation("androidx.compose.foundation:foundation:1.6.5")
-                implementation("androidx.compose.ui:ui-util:1.6.5")
+                implementation("androidx.compose.foundation:foundation:1.9.0")
+                implementation("androidx.compose.ui:ui-util:1.9.0")
             }
         }
 
@@ -60,31 +64,36 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.annotation:annotation-experimental:1.4.1")
-                implementation("androidx.activity:activity-compose:1.8.2")
+                api("androidx.annotation:annotation:1.9.1")
+                api("androidx.annotation:annotation-experimental:1.5.1")
+                implementation("androidx.activity:activity-compose:1.10.1")
             }
+        }
+
+        commonStubsMain {
+            dependsOn(commonMain)
         }
 
         jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
+            dependsOn(commonStubsMain)
         }
 
-        androidInstrumentedTest {
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
+        }
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:test-utils"))
-                implementation("androidx.window:window-testing:1.3.0")
+                implementation(project(":window:window-testing"))
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
             }
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
@@ -101,9 +110,4 @@ androidx {
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
     legacyDisableKotlinStrictApiMode = true
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.material3.adaptive.navigation"
 }

@@ -36,28 +36,25 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SpecificationItem(
     specification: Specification,
-    onClick: (specification: Specification) -> Unit
+    onClick: (specification: Specification) -> Unit,
 ) {
     OutlinedCard(onClick = { onClick(specification) }, modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(SpecificationItemPadding),
             horizontalArrangement = Arrangement.spacedBy(SpecificationItemPadding),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
                 modifier = Modifier.weight(1f, fill = true),
-                verticalArrangement = Arrangement.spacedBy(SpecificationItemTextPadding)
+                verticalArrangement = Arrangement.spacedBy(SpecificationItemTextPadding),
             ) {
                 Text(text = specification.name, style = MaterialTheme.typography.titleSmall)
-                Text(
-                    text = specification.artifact,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+                Text(text = specification.artifact, style = MaterialTheme.typography.bodySmall)
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
     }

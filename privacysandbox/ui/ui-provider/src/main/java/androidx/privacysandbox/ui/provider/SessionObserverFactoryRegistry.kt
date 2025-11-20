@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.ui.provider
 
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverFactory
 
-interface SessionObserverFactoryRegistry {
+@Deprecated("This library is no longer supported.")
+public interface SessionObserverFactoryRegistry {
 
-    val sessionObserverFactories: List<SessionObserverFactory>
+    public val sessionObserverFactories: List<SessionObserverFactory>
 
     /**
      * Adds a [SessionObserverFactory] for tracking UI presentation state across UI sessions. This
@@ -33,7 +35,7 @@ interface SessionObserverFactoryRegistry {
      * lifetime of the session. A separate [SessionObserverFactory.create] call will be made for
      * each UI session.
      */
-    fun addObserverFactory(sessionObserverFactory: SessionObserverFactory)
+    public fun addObserverFactory(sessionObserverFactory: SessionObserverFactory)
 
     /**
      * Removes a [SessionObserverFactory], if it has been previously added with
@@ -44,5 +46,5 @@ interface SessionObserverFactoryRegistry {
      * will continue to receive updates until their corresponding UI session has been closed. For
      * any subsequent sessions created], no call to [SessionObserverFactory.create] will be made.
      */
-    fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory)
+    public fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory)
 }

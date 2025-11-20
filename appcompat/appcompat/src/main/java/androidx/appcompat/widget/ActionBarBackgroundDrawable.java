@@ -22,8 +22,6 @@ import android.graphics.Outline;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 
 class ActionBarBackgroundDrawable extends Drawable {
@@ -64,28 +62,16 @@ class ActionBarBackgroundDrawable extends Drawable {
     }
 
     @Override
-    @RequiresApi(21)
     public void getOutline(@NonNull Outline outline) {
         if (mContainer.mIsSplit) {
             if (mContainer.mSplitBackground != null) {
-                Api21Impl.getOutline(mContainer.mBackground, outline);
+                mContainer.mBackground.getOutline(outline);
             }
         } else {
             // ignore the stacked background for shadow casting
             if (mContainer.mBackground != null) {
-                Api21Impl.getOutline(mContainer.mBackground, outline);
+                mContainer.mBackground.getOutline(outline);
             }
-        }
-    }
-
-    @RequiresApi(21)
-    private static class Api21Impl {
-        private Api21Impl() {
-            // Non-instantiable.
-        }
-
-        public static void getOutline(Drawable drawable, Outline outline) {
-            drawable.getOutline(outline);
         }
     }
 }

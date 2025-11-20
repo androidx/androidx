@@ -17,47 +17,35 @@
 package androidx.privacysandbox.sdkruntime.core.internal
 
 import androidx.annotation.RestrictTo
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerBackendHolder
 
 /**
  * List of features using Client-Core internal API. Each feature available since particular
  * ([ClientApiVersion]).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-enum class ClientFeature {
-    /**
-     * Support for starting SDK Activity:
-     * [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler]
-     * [SdkSandboxControllerCompat.unregisterSdkSandboxActivityHandler]
-     */
-    SDK_ACTIVITY_HANDLER,
-
-    /**
-     * Support for retrieving App-owned interfaces:
-     * [SdkSandboxControllerCompat.getAppOwnedSdkSandboxInterfaces]
-     */
-    APP_OWNED_INTERFACES,
-
-    /** Support for loading SDKs by other SDKs: [SdkSandboxControllerCompat.loadSdk] */
-    LOAD_SDK,
-
+public enum class ClientFeature {
     /**
      * Support for retrieving client app package name:
-     * [SdkSandboxControllerCompat.getClientPackageName]
+     * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat.getClientPackageName]
      */
     GET_CLIENT_PACKAGE_NAME,
 
     /**
      * Support for listening of client app foreground state:
-     * [SdkSandboxControllerCompat.registerSdkSandboxClientImportanceListener]
-     * [SdkSandboxControllerCompat.unregisterSdkSandboxClientImportanceListener]
+     *
+     * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat.registerSdkSandboxClientImportanceListener]
+     * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat.unregisterSdkSandboxClientImportanceListener]
      */
-    CLIENT_IMPORTANCE_LISTENER;
+    CLIENT_IMPORTANCE_LISTENER,
 
-    val availableFrom: ClientApiVersion
+    /** Dedicated [SdkSandboxControllerBackendHolder] for setting local implementation. */
+    SDK_SANDBOX_CONTROLLER_BACKEND_HOLDER;
+
+    public val availableFrom: ClientApiVersion
         get() = ClientApiVersion.minAvailableVersionFor(this)
 
-    fun isAvailable(apiLevel: Int): Boolean {
+    public fun isAvailable(apiLevel: Int): Boolean {
         return apiLevel >= availableFrom.apiLevel
     }
 }

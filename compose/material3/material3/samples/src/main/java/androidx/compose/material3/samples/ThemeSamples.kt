@@ -77,7 +77,7 @@ fun MaterialThemeSample() {
     val typography =
         Typography(
             displaySmall = TextStyle(fontWeight = FontWeight.W100, fontSize = 96.sp),
-            labelLarge = TextStyle(fontWeight = FontWeight.W600, fontSize = 14.sp)
+            labelLarge = TextStyle(fontWeight = FontWeight.W600, fontSize = 14.sp),
         )
 
     val shapes = Shapes(extraSmall = RoundedCornerShape(3.0.dp), small = RoundedCornerShape(6.0.dp))
@@ -87,7 +87,7 @@ fun MaterialThemeSample() {
         ExtendedFloatingActionButton(
             text = { Text("FAB with text style and color from $currentTheme theme") },
             icon = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
-            onClick = {}
+            onClick = {},
         )
     }
 }
@@ -121,7 +121,7 @@ fun MaterialExpressiveThemeSample() {
         ExtendedFloatingActionButton(
             text = { Text("FAB with text style and color from $currentTheme expressive theme") },
             icon = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
-            onClick = {}
+            onClick = {},
         )
     }
 }

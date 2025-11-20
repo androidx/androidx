@@ -97,12 +97,6 @@ abstract class MotionInputHandler<K> extends SimpleOnGestureListener {
                 && mKeyProvider.hasAccess(ItemKeyProvider.SCOPE_MAPPED);
     }
 
-    boolean shouldClearSelection(@NonNull MotionEvent e, @NonNull ItemDetails<K> item) {
-        return !MotionEvents.isCtrlKeyPressed(e)
-                && !item.inSelectionHotspot(e)
-                && !mSelectionTracker.isSelected(item.getSelectionKey());
-    }
-
     static boolean hasSelectionKey(@Nullable ItemDetails<?> item) {
         return item != null && item.getSelectionKey() != null;
     }

@@ -38,7 +38,7 @@ import java.util.Objects
 @SuppressLint("ProtoLayoutMinSchema") // 1.2 Schema is used only when dynamicValue is not null
 class LayoutColor(
     @ColorInt val staticArgb: Int,
-    @RequiresSchemaVersion(major = 1, minor = 200) val dynamicArgb: DynamicColor? = null
+    @RequiresSchemaVersion(major = 1, minor = 200) val dynamicArgb: DynamicColor? = null,
 ) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val prop: ColorProp by lazy {

@@ -44,7 +44,7 @@ class LocalesLateOnCreateTestCase {
         waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
         assertConfigurationLocalesEquals(
             DEFAULT_LOCALE_LIST,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
 
         // Simulate the user set locales, which should force an activity recreate().
@@ -56,7 +56,7 @@ class LocalesLateOnCreateTestCase {
         // The requested locales should have been set during attachBaseContext().
         assertConfigurationLocalesEquals(
             EXPECTED_LOCALE_LIST,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
     }
 }

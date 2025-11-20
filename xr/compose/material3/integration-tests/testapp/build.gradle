@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import androidx.build.AndroidXConfig
+import androidx.build.ApkCopyHelperKt
+
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material3:material3"))
@@ -34,15 +37,18 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
 
     // Adaptive (CAMAL) dependencies
-    implementation(project(":compose:material3:adaptive:adaptive"))
-    implementation(project(":compose:material3:adaptive:adaptive-layout"))
-    implementation(project(":compose:material3:adaptive:adaptive-navigation"))
+    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha10")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0-alpha10")
+    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0-alpha10")
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
 
     // XR Adaptive integration library
     implementation(project(":xr:compose:material3:material3"))
     implementation(project(":xr:compose:compose"))
     implementation(project(":xr:scenecore:scenecore"))
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+
+    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
 
     // TODO(b/374796755): Write unit-tests for this test app
 }
@@ -50,12 +56,18 @@ dependencies {
 android {
     compileSdk = 35
     defaultConfig {
-        minSdk = 34
+        minSdk = 24
     }
     namespace = "androidx.xr.compose.material3.integration.testapp"
+    buildTypes {
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
 }
 
-androidx {
-    // TODO: b/326456246
-    optOutJSpecify = true
-}
+// Making this APK available via Android Build so the QA team can
+// access it in a convenient manner.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")

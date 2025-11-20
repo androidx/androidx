@@ -38,7 +38,7 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(objectFactor
             }
             return project.extensions.create(
                 EXTENSION_NAME,
-                BaselineProfileConsumerExtension::class.java
+                BaselineProfileConsumerExtension::class.java,
             )
         }
     }
@@ -341,5 +341,5 @@ class FilterRules {
 
 enum class RuleType {
     INCLUDE,
-    EXCLUDE
+    EXCLUDE,
 }

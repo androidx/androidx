@@ -12,7 +12,6 @@ public class InnerSettingsFragmentDirections private constructor() {
     public fun exit(exitReason: Int): NavDirections = InnerSettingsDirections.exit(exitReason)
 
     @CheckResult
-    public fun main(enterReason: String = "DEFAULT"): NavDirections =
-        InnerSettingsDirections.main(enterReason)
+    public fun main(enterReason: String = "DEFAULT"): NavDirections = InnerSettingsDirections.main(enterReason)
   }
 }

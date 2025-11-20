@@ -28,7 +28,6 @@ import androidx.camera.core.processing.Packet
 import androidx.camera.testing.impl.ExifUtil
 import androidx.camera.testing.impl.TestImageUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
@@ -38,7 +37,6 @@ import org.junit.runner.RunWith
 /** Instrumented tests for [RgbaImageProxy]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class RgbaImageProxyDeviceTest {
 
     @Test
@@ -54,7 +52,7 @@ class RgbaImageProxyDeviceTest {
                     CROP_RECT,
                     ROTATION_DEGREES,
                     SENSOR_TO_BUFFER,
-                    CAMERA_CAPTURE_RESULT
+                    CAMERA_CAPTURE_RESULT,
                 )
             )
         // Assert.
@@ -87,7 +85,7 @@ class RgbaImageProxyDeviceTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                TIMESTAMP
+                TIMESTAMP,
             )
         // Assert.
         val restoredBitmap = image.createBitmap()
@@ -112,7 +110,7 @@ class RgbaImageProxyDeviceTest {
                     CROP_RECT,
                     ROTATION_DEGREES,
                     SENSOR_TO_BUFFER,
-                    CAMERA_CAPTURE_RESULT
+                    CAMERA_CAPTURE_RESULT,
                 )
             )
         // Act.

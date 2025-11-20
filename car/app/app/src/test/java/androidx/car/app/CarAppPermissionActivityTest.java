@@ -49,6 +49,7 @@ import java.util.List;
 
 /** Tests for {@link CarAppPermissionActivity}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarAppPermissionActivityTest {
     @Rule

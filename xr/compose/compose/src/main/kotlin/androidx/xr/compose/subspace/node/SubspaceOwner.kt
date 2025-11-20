@@ -16,6 +16,8 @@
 
 package androidx.xr.compose.subspace.node
 
+import kotlin.coroutines.CoroutineContext
+
 /**
  * Owner interface that defines the connection to the underlying element system.
  *
@@ -27,6 +29,11 @@ package androidx.xr.compose.subspace.node
 internal interface SubspaceOwner {
     /** The root layout node in the component tree. */
     public val root: SubspaceLayoutNode
+
+    /** Optional logger for debugging and testing. */
+    public var logger: Logger?
+
+    public val coroutineContext: CoroutineContext
 
     /**
      * Called by [SubspaceLayoutNode] when the node is attached to this owner's element system.
@@ -44,9 +51,18 @@ internal interface SubspaceOwner {
      */
     public fun onDetach(node: SubspaceLayoutNode)
 
+    /** Called each time updates to the layout tree have completed. */
+    public fun onRecompositionComplete()
+
+    /**
+     * Called by [SubspaceLayoutNode] when it needs to be re-measured due to a change that doesn't
+     * trigger a recomposition.
+     */
+    public fun requestMeasure(node: SubspaceLayoutNode, forceRequest: Boolean = false)
+
     /**
      * Called by [SubspaceLayoutNode] when it needs to be re-laid out due to a change that doesn't
      * trigger a recomposition.
      */
-    public fun requestRelayout()
+    public fun requestLayout(node: SubspaceLayoutNode, forceRequest: Boolean = false)
 }

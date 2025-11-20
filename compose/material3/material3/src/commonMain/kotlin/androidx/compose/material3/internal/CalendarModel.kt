@@ -47,7 +47,7 @@ internal expect fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale,
-    cache: MutableMap<String, Any>
+    cache: MutableMap<String, Any>,
 ): String
 
 /**
@@ -169,7 +169,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     fun formatWithSkeleton(
         month: CalendarMonth,
         skeleton: String,
-        locale: CalendarLocale = this.locale
+        locale: CalendarLocale = this.locale,
     ): String = formatWithSkeleton(month.startUtcTimeMillis, skeleton, locale, formatterCache)
 
     /**
@@ -182,7 +182,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     fun formatWithSkeleton(
         date: CalendarDate,
         skeleton: String,
-        locale: CalendarLocale = this.locale
+        locale: CalendarLocale = this.locale,
     ): String = formatWithSkeleton(date.utcTimeMillis, skeleton, locale, formatterCache)
 
     /**
@@ -195,7 +195,7 @@ internal abstract class CalendarModel(val locale: CalendarLocale) {
     abstract fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
+        locale: CalendarLocale,
     ): String
 
     /**
@@ -222,16 +222,14 @@ internal data class CalendarDate(
     val year: Int,
     val month: Int,
     val dayOfMonth: Int,
-    val utcTimeMillis: Long
+    val utcTimeMillis: Long,
 ) : Comparable<CalendarDate> {
     override operator fun compareTo(other: CalendarDate): Int =
         this.utcTimeMillis.compareTo(other.utcTimeMillis)
 
     /** Formats the date into a string with the given skeleton format and a [CalendarLocale]. */
-    fun format(
-        calendarModel: CalendarModel,
-        skeleton: String,
-    ): String = calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
+    fun format(calendarModel: CalendarModel, skeleton: String): String =
+        calendarModel.formatWithSkeleton(this, skeleton, calendarModel.locale)
 }
 
 /**
@@ -250,7 +248,7 @@ internal data class CalendarMonth(
     val month: Int,
     val numberOfDays: Int,
     val daysFromStartOfWeekToFirstOfMonth: Int,
-    val startUtcTimeMillis: Long
+    val startUtcTimeMillis: Long,
 ) {
 
     /**

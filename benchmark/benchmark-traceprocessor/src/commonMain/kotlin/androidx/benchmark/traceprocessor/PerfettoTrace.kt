@@ -46,7 +46,7 @@ public class PerfettoTrace(
         public val path: String,
 
         /** Url params passed to ui.perfetto.dev, UTF-8 encoded */
-        public val urlParamsEncoded: String
+        public val urlParamsEncoded: String,
     ) {
         public constructor(
             title: String,
@@ -58,7 +58,7 @@ public class PerfettoTrace(
              */
             path: String,
             /** Url params passed to ui.perfetto.dev, will be UTF-8 encoded */
-            urlParamMap: Map<String, String>
+            urlParamMap: Map<String, String>,
         ) : this(
             title = title,
             path = path,
@@ -77,9 +77,13 @@ public class PerfettoTrace(
                     // sort keys for stability (e.g. in tests)
                     urlParamMap.keys.sorted().forEach { key ->
                         appendDelimiter()
-                        append("${urlEncode(key)}=${urlEncode(urlParamMap[key]!!)}")
+                        // don't encode ":" in keys since it's a supported delimiter for plugin args
+                        val encodedKey =
+                            key.split(":").map { urlEncode(it) }.joinToString(separator = ":")
+                        val encodedValue = urlEncode(urlParamMap[key]!!)
+                        append("$encodedKey=$encodedValue")
                     }
-                }
+                },
         )
 
         public val uri: String = "uri://$path$urlParamsEncoded"

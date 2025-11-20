@@ -17,6 +17,8 @@
 package androidx.camera.viewfinder.core
 
 import androidx.annotation.RestrictTo
+import androidx.camera.viewfinder.core.ImplementationMode.EMBEDDED
+import androidx.camera.viewfinder.core.ImplementationMode.EXTERNAL
 
 /**
  * The implementation mode of a Viewfinder.

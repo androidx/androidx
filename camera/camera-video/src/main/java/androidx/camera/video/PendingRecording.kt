@@ -19,11 +19,17 @@ import android.Manifest
 import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
 import androidx.camera.core.impl.utils.ContextUtil
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.core.content.PermissionChecker
 import androidx.core.util.Consumer
 import androidx.core.util.Preconditions
 import java.util.concurrent.Executor
+import kotlin.coroutines.ContinuationInterceptor
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.currentCoroutineContext
 
 /**
  * A recording that can be started at a future time.
@@ -45,12 +51,12 @@ public class PendingRecording
 internal constructor(
     context: Context,
     private val recorder: Recorder,
-    private val outputOptions: OutputOptions
+    private val outputOptions: OutputOptions,
 ) {
     // Application context is sufficient for all our needs, so store that to avoid leaking
     // unused resources. For attribution, ContextUtil.getApplicationContext() will retain the
     // attribution tag from the original context.
-    private val applicationContext: Context = ContextUtil.getApplicationContext(context)
+    private val applicationContext: Context = ContextUtil.getPersistentApplicationContext(context)
     private var eventListener: Consumer<VideoRecordEvent>? = null
     private var listenerExecutor: Executor? = null
     private var isAudioEnabled: Boolean = false
@@ -107,7 +113,7 @@ internal constructor(
         if (
             PermissionChecker.checkSelfPermission(
                 applicationContext,
-                Manifest.permission.RECORD_AUDIO
+                Manifest.permission.RECORD_AUDIO,
             ) == PermissionChecker.PERMISSION_DENIED
         ) {
             throw SecurityException(
@@ -117,7 +123,7 @@ internal constructor(
         }
         Preconditions.checkState(
             recorder.isAudioSupported,
-            "The Recorder this recording is " + "associated to doesn't support audio."
+            "The Recorder this recording is " + "associated to doesn't support audio.",
         )
         isAudioEnabled = true
         isAudioInitialMuted = initialMuted
@@ -226,5 +232,21 @@ internal constructor(
         this.listenerExecutor = listenerExecutor
         eventListener = listener
         return recorder.start(this)
+    }
+
+    /**
+     * Starts the recording, making it an active recording.
+     *
+     * @param listener the event listener to handle video record events.
+     * @throws IllegalStateException if the associated Recorder currently has an unfinished active
+     *   recording.
+     * @see PendingRecording.start
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun start(listener: Consumer<VideoRecordEvent>): Recording {
+        val callbackExecutor =
+            (currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher)
+                ?.asExecutor() ?: CameraXExecutors.directExecutor()
+        return start(callbackExecutor, listener)
     }
 }

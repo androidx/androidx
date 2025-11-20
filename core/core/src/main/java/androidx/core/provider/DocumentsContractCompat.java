@@ -75,9 +75,7 @@ public final class DocumentsContractCompat {
      * @see DocumentsContract#isTreeUri(Uri)
      */
     public static boolean isTreeUri(@NonNull Uri uri) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return false;
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             // While "tree" Uris were added in 21, the check was only (publicly) added in 24
             final List<String> paths = uri.getPathSegments();
             return (paths.size() >= 2 && PATH_TREE.equals(paths.get(0)));
@@ -101,10 +99,7 @@ public final class DocumentsContractCompat {
      * @see DocumentsContract#getTreeDocumentId(Uri)
      */
     public static @Nullable String getTreeDocumentId(@NonNull Uri documentUri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.getTreeDocumentId(documentUri);
-        }
-        return null;
+        return DocumentsContract.getTreeDocumentId(documentUri);
     }
 
     /**
@@ -126,10 +121,7 @@ public final class DocumentsContractCompat {
      */
     public static @Nullable Uri buildDocumentUriUsingTree(@NonNull Uri treeUri,
             @NonNull String documentId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.buildDocumentUriUsingTree(treeUri, documentId);
-        }
-        return null;
+        return DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
     }
 
     /**
@@ -140,10 +132,7 @@ public final class DocumentsContractCompat {
      */
     public static @Nullable Uri buildTreeDocumentUri(@NonNull String authority,
             @NonNull String documentId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.buildTreeDocumentUri(authority, documentId);
-        }
-        return null;
+        return DocumentsContract.buildTreeDocumentUri(authority, documentId);
     }
 
     /**
@@ -155,10 +144,7 @@ public final class DocumentsContractCompat {
      */
     public static @Nullable Uri buildChildDocumentsUri(@NonNull String authority,
             @Nullable String parentDocumentId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.buildChildDocumentsUri(authority, parentDocumentId);
-        }
-        return null;
+        return DocumentsContract.buildChildDocumentsUri(authority, parentDocumentId);
     }
 
     /**
@@ -170,11 +156,7 @@ public final class DocumentsContractCompat {
      */
     public static @Nullable Uri buildChildDocumentsUriUsingTree(@NonNull Uri treeUri,
             @NonNull String parentDocumentId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.buildChildDocumentsUriUsingTree(treeUri,
-                    parentDocumentId);
-        }
-        return null;
+        return DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocumentId);
     }
 
     /**
@@ -189,11 +171,7 @@ public final class DocumentsContractCompat {
     public static @Nullable Uri createDocument(@NonNull ContentResolver content,
             @NonNull Uri parentDocumentUri, @NonNull String mimeType, @NonNull String displayName)
             throws FileNotFoundException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.createDocument(content, parentDocumentUri, mimeType,
-                    displayName);
-        }
-        return null;
+        return DocumentsContract.createDocument(content, parentDocumentUri, mimeType, displayName);
     }
 
     /**
@@ -203,10 +181,7 @@ public final class DocumentsContractCompat {
      */
     public static @Nullable Uri renameDocument(@NonNull ContentResolver content,
             @NonNull Uri documentUri, @NonNull String displayName) throws FileNotFoundException {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return DocumentsContractApi21Impl.renameDocument(content, documentUri, displayName);
-        }
-        return null;
+        return DocumentsContract.renameDocument(content, documentUri, displayName);
     }
 
     /**
@@ -230,44 +205,6 @@ public final class DocumentsContractCompat {
                     parentDocumentUri);
         } else {
             return DocumentsContract.deleteDocument(content, documentUri);
-        }
-    }
-
-    @RequiresApi(21)
-    private static class DocumentsContractApi21Impl {
-        static String getTreeDocumentId(Uri documentUri) {
-            return DocumentsContract.getTreeDocumentId(documentUri);
-        }
-
-        public static Uri buildTreeDocumentUri(String authority, String documentId) {
-            return DocumentsContract.buildTreeDocumentUri(authority, documentId);
-        }
-
-        static Uri buildDocumentUriUsingTree(Uri treeUri, String documentId) {
-            return DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
-        }
-
-        static Uri buildChildDocumentsUri(String authority, String parentDocumentId) {
-            return DocumentsContract.buildChildDocumentsUri(authority, parentDocumentId);
-        }
-
-        static Uri buildChildDocumentsUriUsingTree(Uri treeUri, String parentDocumentId) {
-            return DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocumentId);
-        }
-
-        static Uri createDocument(ContentResolver content, Uri parentDocumentUri,
-                String mimeType, String displayName) throws FileNotFoundException {
-            return DocumentsContract.createDocument(content, parentDocumentUri, mimeType,
-                    displayName);
-        }
-
-        static Uri renameDocument(@NonNull ContentResolver content,
-                @NonNull Uri documentUri, @NonNull String displayName)
-                throws FileNotFoundException {
-            return DocumentsContract.renameDocument(content, documentUri, displayName);
-        }
-
-        private DocumentsContractApi21Impl() {
         }
     }
 

@@ -116,7 +116,7 @@ class RecyclerViewOnItemTouchListenerTest {
                     ActionDown to true,
                     ActionDown to false,
                     ActionMove1 to false,
-                    ActionUp to false
+                    ActionUp to false,
                 )
             )
     }
@@ -158,7 +158,7 @@ class RecyclerViewOnItemTouchListenerTest {
                     ActionDown to true,
                     ActionMove1 to true,
                     ActionMove2 to false,
-                    ActionUp to false
+                    ActionUp to false,
                 )
             )
     }
@@ -215,7 +215,7 @@ class RecyclerViewOnItemTouchListenerTest {
                     ActionDown to true,
                     ActionMove1 to true,
                     ActionMove2 to false,
-                    ActionMove3.toCancelledVersion() to false
+                    ActionMove3.toCancelledVersion() to false,
                 )
             )
     }
@@ -274,7 +274,7 @@ private class MyView : View {
     constructor(
         context: Context?,
         attrs: AttributeSet?,
-        defStyleAttr: Int
+        defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

@@ -42,9 +42,7 @@ class UpsertDataRequest(val dataPoints: List<DataProto.DataPoint>) :
                 fromProto(proto)
             }
 
-        internal fun fromProto(
-            proto: RequestProto.UpsertDataRequest,
-        ): UpsertDataRequest {
+        internal fun fromProto(proto: RequestProto.UpsertDataRequest): UpsertDataRequest {
             return UpsertDataRequest(proto.dataPointList)
         }
     }

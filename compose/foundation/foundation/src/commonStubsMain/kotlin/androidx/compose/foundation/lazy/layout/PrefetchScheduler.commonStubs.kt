@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// b/420551535
+@file:Suppress("DEPRECATION")
 
 package androidx.compose.foundation.lazy.layout
 

@@ -62,7 +62,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
     constructor(
         context: Context?,
         attrs: AttributeSet?,
-        defStyleAttr: Int
+        defStyleAttr: Int,
     ) : this(context, attrs, defStyleAttr, 0)
 
     init {
@@ -86,7 +86,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
                 Size(480, 640),
                 object : SurfaceListener {
                     override fun onSurfaceChanged(surface: Surface?, size: Size?) {}
-                }
+                },
             )
         }
     }
@@ -164,7 +164,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
             val scaled: Size = computeUiSize(vfSize!!, vfLayout, displaySize, viewWidth, viewHeight)
             setMeasuredDimension(
                 scaled.width.coerceAtMost(viewWidth),
-                scaled.height.coerceAtMost(viewHeight)
+                scaled.height.coerceAtMost(viewHeight),
             )
             measureAllChildren(scaled.width, scaled.height)
         }
@@ -212,7 +212,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
         layoutLeft: Int,
         layoutTop: Int,
         layoutRight: Int,
-        layoutBottom: Int
+        layoutBottom: Int,
     ) {
         debugLog { "onLayout:           $layoutLeft, $layoutTop, $layoutRight, $layoutBottom" }
 
@@ -291,7 +291,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
             size: Size,
             pixelFormat: Int,
             listener: SurfaceListener,
-            setFixedSize: Boolean
+            setFixedSize: Boolean,
         ) {
             synchronized(this) {
                 // Initialization
@@ -433,7 +433,7 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
             viewfinderLayout: ViewfinderLayout,
             displaySize: Point,
             viewWidth: Int,
-            viewHeight: Int
+            viewHeight: Int,
         ): Size {
 
             // While this may appear to be overly simplified, the Android display system will

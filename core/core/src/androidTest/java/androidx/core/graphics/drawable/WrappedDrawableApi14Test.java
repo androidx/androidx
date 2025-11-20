@@ -23,7 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -38,7 +37,6 @@ public class WrappedDrawableApi14Test {
     /**
      * Ensure setLayoutDirection is propagated to wrapped drawables.
      */
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testSetLayoutDirection() {
         AtomicInteger layoutDirectionChangedTo = new AtomicInteger(-1);

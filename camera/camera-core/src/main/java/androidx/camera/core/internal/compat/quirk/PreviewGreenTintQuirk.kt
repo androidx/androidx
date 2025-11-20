@@ -44,7 +44,7 @@ public object PreviewGreenTintQuirk : Quirk {
     @JvmStatic
     public fun shouldForceEnableStreamSharing(
         cameraId: String,
-        appUseCases: Collection<UseCase>
+        appUseCases: Collection<UseCase>,
     ): Boolean {
         if (isMotoE20) {
             return shouldForceEnableStreamSharingForMotoE20(cameraId, appUseCases)
@@ -54,7 +54,7 @@ public object PreviewGreenTintQuirk : Quirk {
 
     private fun shouldForceEnableStreamSharingForMotoE20(
         cameraId: String,
-        appUseCases: Collection<UseCase>
+        appUseCases: Collection<UseCase>,
     ): Boolean {
         if (cameraId != "0" || appUseCases.size != 2) return false
 

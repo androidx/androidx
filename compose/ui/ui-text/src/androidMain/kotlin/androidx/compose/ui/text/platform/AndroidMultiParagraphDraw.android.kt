@@ -36,7 +36,7 @@ internal actual fun MultiParagraph.drawMultiParagraph(
     shadow: Shadow?,
     decoration: TextDecoration?,
     drawStyle: DrawStyle?,
-    blendMode: BlendMode
+    blendMode: BlendMode,
 ) {
     canvas.save()
 
@@ -65,7 +65,7 @@ internal actual fun MultiParagraph.drawMultiParagraph(
                         shadow = shadow,
                         textDecoration = decoration,
                         drawStyle = drawStyle,
-                        blendMode = blendMode
+                        blendMode = blendMode,
                     )
                     canvas.translate(0f, it.paragraph.height)
                     matrix.setTranslate(0f, -it.paragraph.height)
@@ -85,7 +85,7 @@ private fun MultiParagraph.drawParagraphs(
     shadow: Shadow?,
     decoration: TextDecoration?,
     drawStyle: DrawStyle?,
-    blendMode: BlendMode
+    blendMode: BlendMode,
 ) {
     paragraphInfoList.fastForEach {
         it.paragraph.paint(canvas, brush, alpha, shadow, decoration, drawStyle, blendMode)

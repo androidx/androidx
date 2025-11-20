@@ -1,0 +1,44 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.savedstate:savedstate-compose>
+final class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer : kotlinx.serialization/KSerializer<androidx.compose.runtime.snapshots/SnapshotStateMap<#A, #B>> { // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>) // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlinx.serialization.KSerializer<1:1>){}[0]
+
+    final val descriptor // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.compose.runtime.snapshots/SnapshotStateMap<#A, #B> // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.compose.runtime.snapshots/SnapshotStateMap<#A, #B>) // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.compose.runtime.snapshots.SnapshotStateMap<1:0,1:1>){}[0]
+}
+
+final class <#A: kotlin/Any?> androidx.savedstate.compose.serialization.serializers/MutableStateSerializer : kotlinx.serialization/KSerializer<androidx.compose.runtime/MutableState<#A>> { // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>) // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+    final val descriptor // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.compose.runtime/MutableState<#A> // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.compose.runtime/MutableState<#A>) // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.compose.runtime.MutableState<1:0>){}[0]
+}
+
+final class <#A: kotlin/Any?> androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer : kotlinx.serialization/KSerializer<androidx.compose.runtime.snapshots/SnapshotStateList<#A>> { // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>) // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+    final val descriptor // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.compose.runtime.snapshots/SnapshotStateList<#A> // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.compose.runtime.snapshots/SnapshotStateList<#A>) // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.compose.runtime.snapshots.SnapshotStateList<1:0>){}[0]
+}
+
+final val androidx.savedstate.compose/LocalSavedStateRegistryOwner // androidx.savedstate.compose/LocalSavedStateRegistryOwner|{}LocalSavedStateRegistryOwner[0]
+    final fun <get-LocalSavedStateRegistryOwner>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.savedstate/SavedStateRegistryOwner> // androidx.savedstate.compose/LocalSavedStateRegistryOwner.<get-LocalSavedStateRegistryOwner>|<get-LocalSavedStateRegistryOwner>(){}[0]
+
+final inline fun <#A: reified kotlin/Any?, #B: reified kotlin/Any?> androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer(): androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer<#A, #B> // androidx.savedstate.compose.serialization.serializers/SnapshotStateMapSerializer|SnapshotStateMapSerializer(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.savedstate.compose.serialization.serializers/MutableStateSerializer(): androidx.savedstate.compose.serialization.serializers/MutableStateSerializer<#A> // androidx.savedstate.compose.serialization.serializers/MutableStateSerializer|MutableStateSerializer(){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer(): androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer<#A> // androidx.savedstate.compose.serialization.serializers/SnapshotStateListSerializer|SnapshotStateListSerializer(){0§<kotlin.Any?>}[0]

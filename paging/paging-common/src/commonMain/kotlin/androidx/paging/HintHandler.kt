@@ -21,7 +21,7 @@ package androidx.paging
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.internal.ReentrantLock
+import androidx.paging.internal.SynchronizedLock
 import androidx.paging.internal.withLock
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -92,12 +92,12 @@ internal class HintHandler {
         val appendFlow
             get() = append.flow
 
-        private val lock = ReentrantLock()
+        private val lock = SynchronizedLock()
 
         /** Modifies the state inside a lock where it gets access to the mutable values. */
         fun modify(
             accessHint: ViewportHint.Access?,
-            block: (prepend: HintFlow, append: HintFlow) -> Unit
+            block: (prepend: HintFlow, append: HintFlow) -> Unit,
         ) {
             lock.withLock {
                 if (accessHint != null) {
@@ -124,7 +124,7 @@ internal class HintHandler {
         private val _flow =
             MutableSharedFlow<ViewportHint>(
                 replay = 1,
-                onBufferOverflow = BufferOverflow.DROP_OLDEST
+                onBufferOverflow = BufferOverflow.DROP_OLDEST,
             )
         val flow: Flow<ViewportHint>
             get() = _flow
@@ -133,7 +133,7 @@ internal class HintHandler {
 
 internal fun ViewportHint.shouldPrioritizeOver(
     previous: ViewportHint?,
-    loadType: LoadType
+    loadType: LoadType,
 ): Boolean {
     return when {
         previous == null -> true

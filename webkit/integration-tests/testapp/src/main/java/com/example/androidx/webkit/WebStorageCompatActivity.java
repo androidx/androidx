@@ -65,6 +65,7 @@ public class WebStorageCompatActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_storage);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.web_storage_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.DELETE_BROWSING_DATA)) {

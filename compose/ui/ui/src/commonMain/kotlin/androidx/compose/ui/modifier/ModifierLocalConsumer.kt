@@ -49,7 +49,7 @@ fun Modifier.modifierLocalConsumer(consumer: ModifierLocalReadScope.() -> Unit):
             debugInspectorInfo {
                 name = "modifierLocalConsumer"
                 properties["consumer"] = consumer
-            }
+            },
         )
     )
 }
@@ -57,7 +57,7 @@ fun Modifier.modifierLocalConsumer(consumer: ModifierLocalReadScope.() -> Unit):
 @Stable
 private class ModifierLocalConsumerImpl(
     val consumer: ModifierLocalReadScope.() -> Unit,
-    debugInspectorInfo: InspectorInfo.() -> Unit
+    debugInspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierLocalConsumer, InspectorValueInfo(debugInspectorInfo) {
 
     override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {

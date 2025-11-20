@@ -49,7 +49,7 @@ class TooltipBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val anchorIconButton = device.findObject(By.desc("tooltipAnchor"))
             anchorIconButton.longClick()

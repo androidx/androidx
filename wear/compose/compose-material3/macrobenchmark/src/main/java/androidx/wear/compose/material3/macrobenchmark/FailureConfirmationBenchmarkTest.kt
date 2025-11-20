@@ -28,5 +28,5 @@ class FailureConfirmationBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = FailureConfirmationBenchmark,
-        actionSuffix = "FAILURE_CONFIRMATION_ACTIVITY"
+        actionSuffix = "FAILURE_CONFIRMATION_ACTIVITY",
     )

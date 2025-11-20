@@ -40,7 +40,7 @@ class TapToFocusDetector(
     private val textureView: TextureView,
     private val cameraInfo: CameraInfo,
     private val displayRotation: Int,
-    private val tapToFocusImpl: (Array<MeteringRectangle?>) -> Unit
+    private val tapToFocusImpl: (Array<MeteringRectangle?>) -> Unit,
 ) {
     private val mTapToFocusListener: GestureDetector.SimpleOnGestureListener =
         object : GestureDetector.SimpleOnGestureListener() {
@@ -89,14 +89,14 @@ class TapToFocusDetector(
                     0,
                     0,
                     dimension.width() * textureView.height / dimension.height(),
-                    textureView.height
+                    textureView.height,
                 )
             } else {
                 Rect(
                     0,
                     0,
                     textureView.width,
-                    dimension.height() * textureView.width / dimension.width()
+                    dimension.height() * textureView.width / dimension.width(),
                 )
             }
 
@@ -108,7 +108,7 @@ class TapToFocusDetector(
         val normalizedPoint =
             floatArrayOf(
                 (motionEvent.x + shiftX) / scaledFullDimension.width(),
-                (motionEvent.y + shiftY) / scaledFullDimension.height()
+                (motionEvent.y + shiftY) / scaledFullDimension.height(),
             )
 
         // Transforms the normalizedPoint to the camera sensor coordinate.
@@ -159,7 +159,7 @@ class TapToFocusDetector(
                 clamp((point[0] - halfMeteringRectWidth).toInt(), 0, activeArraySize.width()),
                 clamp((point[1] - halfMeteringRectHeight).toInt(), 0, activeArraySize.height()),
                 clamp((point[0] + halfMeteringRectWidth).toInt(), 0, activeArraySize.width()),
-                clamp((point[1] + halfMeteringRectHeight).toInt(), 0, activeArraySize.height())
+                clamp((point[1] + halfMeteringRectHeight).toInt(), 0, activeArraySize.height()),
             )
 
         return MeteringRectangle(meteringRegion, MeteringRectangle.METERING_WEIGHT_MAX)
@@ -168,6 +168,6 @@ class TapToFocusDetector(
     data class CameraInfo(
         val lensFacing: Int,
         val sensorOrientation: Float,
-        val activeArraySize: Rect
+        val activeArraySize: Rect,
     )
 }

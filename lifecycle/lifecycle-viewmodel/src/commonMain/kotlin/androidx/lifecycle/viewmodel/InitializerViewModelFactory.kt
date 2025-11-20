@@ -77,10 +77,7 @@ public expect class ViewModelInitializer<T : ViewModel>
  * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
  * @param initializer factory lambda to be associated with the specified [ViewModel] class.
  */
-public constructor(
-    clazz: KClass<T>,
-    initializer: CreationExtras.() -> T,
-) {
+public constructor(clazz: KClass<T>, initializer: CreationExtras.() -> T) {
     internal val clazz: KClass<T>
     internal val initializer: CreationExtras.() -> T
 }
@@ -96,6 +93,5 @@ public constructor(
  * val viewModel: TestViewModel = factory.create(TestViewModel::class.java, extras)
  * ```
  */
-internal expect class InitializerViewModelFactory(
-    vararg initializers: ViewModelInitializer<*>,
-) : ViewModelProvider.Factory
+internal expect class InitializerViewModelFactory(vararg initializers: ViewModelInitializer<*>) :
+    ViewModelProvider.Factory

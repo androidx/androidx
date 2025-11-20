@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Instant#now`"
+        errorLine1="                    onClick = { log = &quot;${Instant.now()} - onClick\n&quot; + log },"
+        errorLine2="                                                 ~~~">
+        <location
+            file="src/main/java/androidx/xr/glimmer/samples/IndirectTouchGestureSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Instant#now`"
+        errorLine1="                    onSwipeForward = { log = &quot;${Instant.now()} - onSwipeForward\n&quot; + log },"
+        errorLine2="                                                        ~~~">
+        <location
+            file="src/main/java/androidx/xr/glimmer/samples/IndirectTouchGestureSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 23): `java.time.Instant#now`"
+        errorLine1="                    onSwipeBackward = { log = &quot;${Instant.now()} - onSwipeBackward\n&quot; + log },"
+        errorLine2="                                                         ~~~">
+        <location
+            file="src/main/java/androidx/xr/glimmer/samples/IndirectTouchGestureSamples.kt"/>
+    </issue>
+
+</issues>

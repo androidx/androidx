@@ -25,6 +25,9 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.shadow.DropShadowPainter
+import androidx.compose.ui.graphics.shadow.InnerShadowPainter
+import androidx.compose.ui.graphics.shadow.ShadowContext
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
@@ -219,6 +222,13 @@ private class ScopedGraphicsContext : GraphicsContext {
         graphicsContext?.releaseGraphicsLayer(layer)
     }
 
+    override val shadowContext: ShadowContext
+        get() {
+            val gContext = graphicsContext
+            checkPrecondition(gContext != null) { "GraphicsContext not provided" }
+            return gContext.shadowContext
+        }
+
     fun releaseGraphicsLayers() {
         allocatedGraphicsLayers?.let { layers ->
             layers.forEach { layer -> releaseGraphicsLayer(layer) }
@@ -229,7 +239,7 @@ private class ScopedGraphicsContext : GraphicsContext {
 
 private class CacheDrawModifierNodeImpl(
     private val cacheDrawScope: CacheDrawScope,
-    block: CacheDrawScope.() -> DrawResult
+    block: CacheDrawScope.() -> DrawResult,
 ) : Modifier.Node(), CacheDrawModifierNode, ObserverModifierNode, BuildDrawCacheParams {
 
     private var isCacheValid = false
@@ -253,7 +263,7 @@ private class CacheDrawModifierNodeImpl(
         get() = requireLayoutDirection()
 
     override val size: Size
-        get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
+        get() = requireCoordinator(Nodes.Draw).size.toSize()
 
     val graphicsContext: GraphicsContext
         get() {
@@ -270,6 +280,11 @@ private class CacheDrawModifierNodeImpl(
     override fun onDetach() {
         super.onDetach()
         cachedGraphicsContext?.releaseGraphicsLayers()
+    }
+
+    override fun onReset() {
+        super.onReset()
+        invalidateDrawCache()
     }
 
     override fun onMeasureResultChanged() {
@@ -350,6 +365,12 @@ class CacheDrawScope internal constructor() : Density {
         graphicsContextProvider!!.invoke().createGraphicsLayer()
 
     /**
+     * Returns the [ShadowContext] used to create [InnerShadowPainter] and [DropShadowPainter] to
+     * render inner and drop shadows respectively
+     */
+    fun obtainShadowContext(): ShadowContext = graphicsContextProvider!!.invoke().shadowContext
+
+    /**
      * Record the drawing commands into the [GraphicsLayer] with the [Density], [LayoutDirection]
      * and [Size] are given from the provided [CacheDrawScope]
      */
@@ -357,7 +378,7 @@ class CacheDrawScope internal constructor() : Density {
         density: Density = this@CacheDrawScope,
         layoutDirection: LayoutDirection = this@CacheDrawScope.layoutDirection,
         size: IntSize = this@CacheDrawScope.size.toIntSize(),
-        block: ContentDrawScope.() -> Unit
+        block: ContentDrawScope.() -> Unit,
     ) {
         val scope = contentDrawScope!!
         with(scope) {

@@ -107,7 +107,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         elements[head] = null
         head = (head + 1) and capacityBitmask
 
-        @Suppress("UNCHECKED_CAST") return result as E
+        @Suppress("UNCHECKED_CAST")
+        return result as E
     }
 
     /**
@@ -125,7 +126,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         elements[t] = null
         tail = t
 
-        @Suppress("UNCHECKED_CAST") return result as E
+        @Suppress("UNCHECKED_CAST")
+        return result as E
     }
 
     /** Remove all elements from the [CircularArray]. */

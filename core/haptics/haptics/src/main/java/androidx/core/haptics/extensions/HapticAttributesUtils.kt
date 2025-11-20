@@ -30,6 +30,5 @@ public fun HapticAttributes.toVibrationAttributes(): VibrationAttributes =
     HapticAttributesConverter.toVibrationAttributes(this)
 
 /** Returns an [AudioAttributes] with mapped supported fields. */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public fun HapticAttributes.toAudioAttributes(): AudioAttributes =
     HapticAttributesConverter.toAudioAttributes(this)

@@ -48,7 +48,7 @@ class NavigationDrawerItemShape(
     val disabledShape: Shape,
     val focusedSelectedShape: Shape,
     val focusedDisabledShape: Shape,
-    val pressedSelectedShape: Shape
+    val pressedSelectedShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -143,7 +143,7 @@ class NavigationDrawerItemColors(
     val focusedSelectedContainerColor: Color,
     val focusedSelectedContentColor: Color,
     val pressedSelectedContainerColor: Color,
-    val pressedSelectedContentColor: Color
+    val pressedSelectedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -233,7 +233,7 @@ class NavigationDrawerItemScale(
     @FloatRange(from = 0.0) val disabledScale: Float,
     @FloatRange(from = 0.0) val focusedSelectedScale: Float,
     @FloatRange(from = 0.0) val focusedDisabledScale: Float,
-    @FloatRange(from = 0.0) val pressedSelectedScale: Float
+    @FloatRange(from = 0.0) val pressedSelectedScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -286,7 +286,7 @@ class NavigationDrawerItemScale(
                 disabledScale = 1f,
                 focusedSelectedScale = 1f,
                 focusedDisabledScale = 1f,
-                pressedSelectedScale = 1f
+                pressedSelectedScale = 1f,
             )
     }
 }
@@ -317,7 +317,7 @@ class NavigationDrawerItemBorder(
     val disabledBorder: Border,
     val focusedSelectedBorder: Border,
     val focusedDisabledBorder: Border,
-    val pressedSelectedBorder: Border
+    val pressedSelectedBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -381,7 +381,7 @@ class NavigationDrawerItemGlow(
     val pressedGlow: Glow,
     val selectedGlow: Glow,
     val focusedSelectedGlow: Glow,
-    val pressedSelectedGlow: Glow
+    val pressedSelectedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -30,10 +30,14 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
@@ -57,7 +61,7 @@ fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
                     value = color
                     properties["color"] = color
                     properties["shape"] = shape
-                }
+                },
         )
     )
 }
@@ -75,7 +79,7 @@ fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
 fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
 ) =
     this.then(
         BackgroundElement(
@@ -88,7 +92,7 @@ fun Modifier.background(
                     properties["alpha"] = alpha
                     properties["brush"] = brush
                     properties["shape"] = shape
-                }
+                },
         )
     )
 
@@ -97,7 +101,7 @@ private class BackgroundElement(
     private val brush: Brush? = null,
     private val alpha: Float,
     private val shape: Shape,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<BackgroundNode>() {
     override fun create(): BackgroundNode {
         return BackgroundNode(color, brush, alpha, shape)
@@ -107,7 +111,11 @@ private class BackgroundElement(
         node.color = color
         node.brush = brush
         node.alpha = alpha
-        node.shape = shape
+        if (node.shape != shape) {
+            node.shape = shape
+            node.invalidateSemantics()
+        }
+        node.invalidateDraw()
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -136,7 +144,10 @@ private class BackgroundNode(
     var brush: Brush?,
     var alpha: Float,
     var shape: Shape,
-) : DrawModifierNode, Modifier.Node(), ObserverModifierNode {
+) : DrawModifierNode, Modifier.Node(), ObserverModifierNode, SemanticsModifierNode {
+
+    override val shouldAutoInvalidate = false
+    override val isImportantForBounds = false
 
     // Naively cache outline calculation if input parameters are the same, we manually observe
     // reads inside shape#createOutline separately
@@ -194,5 +205,9 @@ private class BackgroundNode(
         lastLayoutDirection = layoutDirection
         lastShape = shape
         return outline!!
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        this.shape = this@BackgroundNode.shape
     }
 }

@@ -42,7 +42,7 @@ class EmojiStartupBenchmark {
                     CompilationMode.Full()
                 },
             startupMode = StartupMode.COLD,
-            packageName = "androidx.emoji2.integration.macrobenchmark.disabled.target"
+            packageName = "androidx.emoji2.integration.macrobenchmark.disabled.target",
         ) {
             action = "androidx.emoji2.integration.macrobenchmark.disabled.target.MAIN"
         }

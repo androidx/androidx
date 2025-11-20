@@ -35,6 +35,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +44,7 @@ class LazyGridsReverseLayoutTest {
 
     private val ContainerTag = "ContainerTag"
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var itemSize: Dp = Dp.Infinity
 
@@ -58,7 +59,7 @@ class LazyGridsReverseLayoutTest {
             LazyVerticalGrid(
                 GridCells.Fixed(2),
                 Modifier.width(itemSize * 2),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(4) { Box(Modifier.height(itemSize).testTag(it.toString())) }
             }
@@ -88,7 +89,7 @@ class LazyGridsReverseLayoutTest {
             LazyVerticalGrid(
                 GridCells.Fixed(2),
                 Modifier.width(itemSize * 2),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(4) {
                     Box(Modifier.height(itemSize).testTag((it * 2).toString()))
@@ -139,7 +140,7 @@ class LazyGridsReverseLayoutTest {
                 GridCells.Fixed(2),
                 reverseLayout = true,
                 state = rememberLazyGridState().also { state = it },
-                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..5).toList()) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -159,7 +160,7 @@ class LazyGridsReverseLayoutTest {
                 GridCells.Fixed(1),
                 reverseLayout = true,
                 state = rememberLazyGridState().also { state = it },
-                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -185,7 +186,7 @@ class LazyGridsReverseLayoutTest {
                 GridCells.Fixed(1),
                 reverseLayout = true,
                 state = rememberLazyGridState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -213,7 +214,7 @@ class LazyGridsReverseLayoutTest {
                 GridCells.Fixed(1),
                 reverseLayout = true,
                 state = rememberLazyGridState().also { state = it },
-                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.size(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..3).toList()) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -476,7 +477,7 @@ class LazyGridsReverseLayoutTest {
             LazyVerticalGrid(
                 GridCells.Fixed(2),
                 Modifier.width(itemSize * 2),
-                reverseLayout = reverse
+                reverseLayout = reverse,
             ) {
                 items(4) { Box(Modifier.size(itemSize).testTag(it.toString())) }
             }

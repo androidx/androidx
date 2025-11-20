@@ -88,13 +88,13 @@ fun CustomColorInKeyAttributesDemo() {
 
                                 customColor("background", Color.Blue)
                             }
-                        }
+                        },
                 ) {
                     onSwipe =
                         OnSwipe(
                             anchor = box,
                             side = SwipeSide.Middle,
-                            direction = SwipeDirection.End
+                            direction = SwipeDirection.End,
                         )
                     keyAttributes(box) {
                         frame(33) { customColor("background", Color.Yellow) }
@@ -103,13 +103,13 @@ fun CustomColorInKeyAttributesDemo() {
                 }
             },
         progress = 0f,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         val background = customColor(boxId, "background")
         Box(modifier = Modifier.layoutId(boxId).background(background))
         Text(
             modifier = Modifier.layoutId(textId),
-            text = "Color: ${background.toArgb().toUInt().toString(16)}"
+            text = "Color: ${background.toArgb().toUInt().toString(16)}",
         )
     }
 }

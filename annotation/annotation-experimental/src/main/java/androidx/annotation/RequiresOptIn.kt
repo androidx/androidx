@@ -79,7 +79,7 @@ public annotation class RequiresOptIn(
      * should be marked with 'Marker' or '@OptIn(Marker::class)'", where Marker is the opt-in
      * requirement marker.
      */
-    val message: String = ""
+    val message: String = "",
 ) {
     /**
      * Severity of the diagnostic that should be reported on usages of opt-in API which did not
@@ -95,6 +95,6 @@ public annotation class RequiresOptIn(
         WARNING,
 
         /** Specifies that an error should be reported on incorrect usages of this opt-in API. */
-        ERROR
+        ERROR,
     }
 }

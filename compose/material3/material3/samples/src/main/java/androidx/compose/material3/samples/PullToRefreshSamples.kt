@@ -63,10 +63,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -90,7 +90,7 @@ fun PullToRefreshSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -110,7 +110,7 @@ fun PullToRefreshSample() {
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 fun PullToRefreshWithLoadingIndicatorSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -134,7 +134,7 @@ fun PullToRefreshWithLoadingIndicatorSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -149,7 +149,7 @@ fun PullToRefreshWithLoadingIndicatorSample() {
                     isRefreshing = isRefreshing,
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
-            }
+            },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
@@ -158,10 +158,10 @@ fun PullToRefreshWithLoadingIndicatorSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 @Sampled
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshViewModelSample() {
     val viewModel = remember {
         object : ViewModel() {
@@ -169,7 +169,7 @@ fun PullToRefreshViewModelSample() {
             var isRefreshing by mutableStateOf(false)
                 private set
 
-            var itemCount by mutableStateOf(15)
+            var itemCount by mutableIntStateOf(15)
                 private set
 
             init {
@@ -200,18 +200,18 @@ fun PullToRefreshViewModelSample() {
                 actions = {
                     IconButton(
                         enabled = !viewModel.isRefreshing,
-                        onClick = { viewModel.refresh() }
+                        onClick = { viewModel.refresh() },
                     ) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
         PullToRefreshBox(
             modifier = Modifier.padding(it),
             isRefreshing = viewModel.isRefreshing,
-            onRefresh = { viewModel.refresh() }
+            onRefresh = { viewModel.refresh() },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!viewModel.isRefreshing) {
@@ -229,7 +229,7 @@ fun PullToRefreshViewModelSample() {
 @Composable
 @Preview
 fun PullToRefreshScalingSample() {
-    var itemCount by remember { mutableStateOf(15) }
+    var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
@@ -253,7 +253,7 @@ fun PullToRefreshScalingSample() {
             Modifier.pullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             ),
         topBar = {
             TopAppBar(
@@ -263,9 +263,9 @@ fun PullToRefreshScalingSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
@@ -285,10 +285,10 @@ fun PullToRefreshScalingSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshLinearProgressIndicatorSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -309,7 +309,7 @@ fun PullToRefreshLinearProgressIndicatorSample() {
             Modifier.pullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             ),
         topBar = {
             TopAppBar(
@@ -319,9 +319,9 @@ fun PullToRefreshLinearProgressIndicatorSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
@@ -334,17 +334,17 @@ fun PullToRefreshLinearProgressIndicatorSample() {
             } else {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
-                    progress = { state.distanceFraction }
+                    progress = { state.distanceFraction },
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshSampleCustomState() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -392,7 +392,7 @@ fun PullToRefreshSampleCustomState() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -400,7 +400,7 @@ fun PullToRefreshSampleCustomState() {
             modifier = Modifier.padding(it),
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
-            state = state
+            state = state,
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
@@ -411,10 +411,10 @@ fun PullToRefreshSampleCustomState() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshCustomIndicatorWithDefaultTransform() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -438,7 +438,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -452,7 +452,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                     state = state,
                     isRefreshing = isRefreshing,
                     modifier = Modifier.align(Alignment.TopCenter),
-                    elevation = 0.dp
+                    elevation = 0.dp,
                 ) {
                     if (isRefreshing) {
                         CircularProgressIndicator()
@@ -463,7 +463,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                         )
                     }
                 }
-            }
+            },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }

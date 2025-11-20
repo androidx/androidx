@@ -56,7 +56,7 @@ fun DraggableSample() {
                         rememberDraggableState { delta ->
                             val newValue = offsetPosition.value + delta
                             offsetPosition.value = newValue.coerceIn(minPx, maxPx)
-                        }
+                        },
                 )
                 .background(Color.Black)
     ) {

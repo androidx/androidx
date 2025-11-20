@@ -45,7 +45,7 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureResult: FrameMetadata
+        captureResult: FrameMetadata,
     ) {
         updateListeners(requestMetadata.requestNumber, captureResult)
     }
@@ -53,7 +53,7 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        totalCaptureResult: FrameInfo
+        totalCaptureResult: FrameInfo,
     ) {
         updateListeners(requestMetadata.requestNumber, totalCaptureResult.metadata)
     }

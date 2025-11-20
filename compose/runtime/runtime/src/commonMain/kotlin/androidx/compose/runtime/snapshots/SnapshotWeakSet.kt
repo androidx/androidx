@@ -75,19 +75,19 @@ internal class SnapshotWeakSet<T : Any> {
                 destination = newValues,
                 destinationOffset = insertIndex + 1,
                 startIndex = insertIndex,
-                endIndex = size
+                endIndex = size,
             )
             values.fastCopyInto(
                 destination = newValues,
                 destinationOffset = 0,
                 startIndex = 0,
-                endIndex = insertIndex
+                endIndex = insertIndex,
             )
             hashes.copyInto(
                 destination = newHashes,
                 destinationOffset = insertIndex + 1,
                 startIndex = insertIndex,
-                endIndex = size
+                endIndex = size,
             )
             hashes.copyInto(destination = newHashes, endIndex = insertIndex)
             values = newValues
@@ -97,13 +97,13 @@ internal class SnapshotWeakSet<T : Any> {
                 destination = values,
                 destinationOffset = insertIndex + 1,
                 startIndex = insertIndex,
-                endIndex = size
+                endIndex = size,
             )
             hashes.copyInto(
                 destination = hashes,
                 destinationOffset = insertIndex + 1,
                 startIndex = insertIndex,
-                endIndex = size
+                endIndex = size,
             )
         }
 

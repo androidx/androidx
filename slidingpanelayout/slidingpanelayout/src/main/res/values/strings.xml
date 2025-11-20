@@ -16,6 +16,6 @@
 
 <resources>
   <string name="draggable_divider_handler">Draggable divider handler</string>
-  <string name="draggable_divider_handler_state_left_edge">On the left edge</string>
-  <string name="draggable_divider_handler_state_right_edge">On the right edge</string>
+  <string name="draggable_divider_handler_state_left_edge">Right pane expanded</string>
+  <string name="draggable_divider_handler_state_right_edge">Left pane expanded</string>
 </resources>

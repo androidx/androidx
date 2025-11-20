@@ -54,24 +54,24 @@ class DefaultStateAppWidget : GlanceAppWidget() {
                     .appWidgetBackground()
                     .padding(16.dp)
                     .background(R.color.default_widget_background),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "-",
                 style = TextStyle(textAlign = TextAlign.Center),
-                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to -1))
+                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to -1)),
             )
             Text(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "$count",
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
             )
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "+",
                 style = TextStyle(textAlign = TextAlign.Center),
-                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to 1))
+                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to 1)),
             )
         }
     }
@@ -81,7 +81,7 @@ class ClickAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         // Get the current state of the given widget and the value provided in the ActionParameters
         updateAppWidgetState(context, glanceId) { state ->

@@ -231,6 +231,17 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"സന്ദേശങ്ങൾ ഇവിടെ കാണാം.\nകൂടുതലുള്ള ടെക്സ്റ്റ് രണ്ടാമത്തെ വരിയിലും."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ഹ്രസ്വ സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"വിഭാഗീകരിച്ച ഇനത്തിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"വിഭാഗീകരിച്ച ഇനത്തിന്റെ AlphaJump പ്രവർത്തനക്ഷമമാക്കിയ ഡെമോ"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"റേഡിയോ ബട്ടൺ വിഭാഗം"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"\'ടോഗിൾ ചെയ്യുക\' വിഭാഗം"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"നിരവധി വരികളുള്ള വിഭാഗം"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ഗ്രിഡ് ഇന വിഭാഗം"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"വിഭാഗങ്ങളാക്കിയ ഇന ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ലിസ്റ്റ് 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ലിസ്റ്റ് 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ഓരോ ലിസ്‌റ്റിന് കീഴിലും സബ്‌ടെക്‌സ്‌റ്റ്"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"അവസാന ചിത്രവും പ്രവർത്തനങ്ങളും സംബന്ധിച്ച ഡെമോ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>
@@ -325,10 +336,6 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"വരിയും തിരഞ്ഞെടുക്കാവുന്നതാണ്"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"സെക്കൻഡറി പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"വരിയുടെ പ്രാഥമിക പ്രവർത്തനം തിരഞ്ഞെടുത്തു"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"വിഭാഗങ്ങളാക്കിയ ഇന ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ലിസ്റ്റ് 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ലിസ്റ്റ് 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ഓരോ ലിസ്‌റ്റിന് കീഴിലും സബ്‌ടെക്‌സ്‌റ്റ്"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ശൂന്യമായ ലിസ്‌റ്റിന്റെ ഡെമോ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ലിസ്‌റ്റിൽ ഒന്നുമില്ല"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"പലവക ടെംപ്ലേറ്റ് ഡെമോകൾ"</string>

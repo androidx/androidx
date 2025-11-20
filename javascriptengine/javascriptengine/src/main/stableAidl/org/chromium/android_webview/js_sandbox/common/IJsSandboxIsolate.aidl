@@ -20,6 +20,7 @@ import android.content.res.AssetFileDescriptor;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback;
+import org.chromium.android_webview.js_sandbox.common.IMessagePort;
 
 /**
  * Used by the embedding app to execute JavaScript in a sandboxed environment.
@@ -62,4 +63,20 @@ interface IJsSandboxIsolate {
      * @param callback The callback to receive messages, or null to unset.
      */
     void setConsoleCallback(IJsSandboxConsoleCallback callback) = 4;
+
+    /**
+     * Provide a named MessagePort to the isolate, and returns the remote port.
+     *
+     * The passed and returned ports can be used to transfer messages between the host app and the isolate.
+     *
+     * Can be called multiple times to provide multiple ports.
+     * Cannot pass a port with an existing name for a given isolate.
+     *
+     * @param name of the message port in the JavaScript context.
+     * @param port to be entangled with the port in the JavaScript context.
+     * @return the remote port.
+     */
+    IMessagePort provideMessagePort(
+        in String name,
+        in IMessagePort port) = 5;
 }

@@ -21,8 +21,11 @@ package androidx.savedstate.compose.serialization.serializers
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import kotlin.experimental.ExperimentalTypeInference
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -35,49 +38,42 @@ import kotlinx.serialization.serializer
  * [KSerializer] for serialization and deserialization of [MutableState].
  *
  * @param T The type of the value stored in the [MutableState].
- * @return A [KSerializer] for handling [MutableState] containing a [Serializable] type [T].
+ * @return A [MutableStateSerializer] for handling [MutableState] containing a [Serializable] type
+ *   [T].
  */
-@Suppress("FunctionName")
-public inline fun <reified T> MutableStateSerializer(): KSerializer<MutableState<T>> {
+public inline fun <reified T> MutableStateSerializer(): MutableStateSerializer<T> {
     return MutableStateSerializer(serializer())
 }
 
 /**
- * Creates a [KSerializer] for a [MutableState] containing a [Serializable] value of type [T].
+ * A [KSerializer] for [MutableState].
  *
- * This function allows for explicit specification of the [KSerializer] for the state type [T]. It
- * provides serialization and deserialization capabilities for [MutableState] objects.
- *
- * @param T The type of the value stored in the [MutableState].
- * @param serializer The [KSerializer] for the [Serializable] type [T].
- * @return A [KSerializer] for handling [MutableState] containing a [Serializable] type [T].
- */
-@Suppress("FunctionName")
-public fun <T> MutableStateSerializer(serializer: KSerializer<T>): KSerializer<MutableState<T>> {
-    return MutableStateSerializerImpl<T>(serializer)
-}
-
-/**
- * Internal implementation of [KSerializer] for [MutableState].
- *
- * This private class wraps a [KSerializer] for the inner value type [T], enabling serialization and
+ * This class wraps a [KSerializer] for the inner value type [T], enabling serialization and
  * deserialization of [MutableState] instances. The inner value serialization is delegated to the
  * provided [valueSerializer].
  *
  * @param T The type of the value stored in the [MutableState].
- * @property valueSerializer The [KSerializer] used to serialize and deserialize the inner value.
+ * @param valueSerializer The [KSerializer] used to serialize and deserialize the inner value.
  */
-private class MutableStateSerializerImpl<T>(
-    private val valueSerializer: KSerializer<T>,
-) : KSerializer<MutableState<T>> {
+public class MutableStateSerializer<T>(private val valueSerializer: KSerializer<T>) :
+    KSerializer<MutableState<T>> {
 
-    override val descriptor: SerialDescriptor = valueSerializer.descriptor
+    @OptIn(ExperimentalSerializationApi::class)
+    override val descriptor: SerialDescriptor = run {
+        val serialName = "androidx.compose.runtime.MutableState"
+        val kind = valueSerializer.descriptor.kind
+        if (kind is PrimitiveKind) {
+            PrimitiveSerialDescriptor(serialName, kind)
+        } else {
+            SerialDescriptor(serialName, valueSerializer.descriptor)
+        }
+    }
 
     override fun serialize(encoder: Encoder, value: MutableState<T>) {
-        valueSerializer.serialize(encoder, value.value)
+        encoder.encodeSerializableValue(valueSerializer, value.value)
     }
 
     override fun deserialize(decoder: Decoder): MutableState<T> {
-        return mutableStateOf(valueSerializer.deserialize(decoder))
+        return mutableStateOf(decoder.decodeSerializableValue(valueSerializer))
     }
 }

@@ -31,7 +31,10 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 /** The unit tests for [ActivityFilter]. */
-@RunWith(RobolectricTestRunner::class) // Used for initializing ComponentName
+@RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(
+    sdk = [org.robolectric.annotation.Config.TARGET_SDK]
+) // Used for initializing ComponentName
 class ActivityFilterTest {
 
     @Test(expected = IllegalArgumentException::class)
@@ -142,7 +145,7 @@ class ActivityFilterTest {
             filter.matchesIntent(
                 createTestIntent(
                     componentName = ComponentName("another.packager", "another.class"),
-                    action = FAKE_ACTION
+                    action = FAKE_ACTION,
                 )
             )
         )
@@ -164,7 +167,7 @@ class ActivityFilterTest {
 
     private fun createTestIntent(
         componentName: ComponentName = ComponentName(FAKE_PACKAGE, FAKE_CLASS),
-        action: String? = null
+        action: String? = null,
     ): Intent {
         val intent = mock<Intent>()
         doReturn(componentName).whenever(intent).component

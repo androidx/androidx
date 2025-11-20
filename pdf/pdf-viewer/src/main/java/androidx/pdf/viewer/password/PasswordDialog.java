@@ -109,6 +109,12 @@ public abstract class PasswordDialog extends DialogFragment {
                 new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface useless) {
+                        passwordField.requestFocus();
+                        // getActivity() could be null here, hence added a safety null check
+                        // in showSoftKeyboard. If null, we'll try showing the keyboard from
+                        // onStart() instead.
+                        showSoftKeyboard(passwordField);
+
                         // TODO: Track password prompt displayed.
                         final Button open = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                         final Button exit = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -158,9 +164,9 @@ public abstract class PasswordDialog extends DialogFragment {
 
     private void setupPasswordField(final EditText passwordField) {
         passwordField.setFocusable(true);
+        passwordField.setFocusableInTouchMode(true);
         passwordField.requestFocus();
-        // Do not expand the text field to full screen when in landscape.
-        passwordField.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        passwordField.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         // Set the open button text with title case.
         String openText = getResources().getString(R.string.button_open);
@@ -172,6 +178,10 @@ public abstract class PasswordDialog extends DialogFragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     sendPassword(passwordField);
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    showErrorOnDialogCancel();
                     return true;
                 }
                 return false;
@@ -199,9 +209,10 @@ public abstract class PasswordDialog extends DialogFragment {
     }
 
     private void showSoftKeyboard(View view) {
-        if (view.requestFocus()) {
+        Activity activity = getActivity();
+        if (activity != null && view.requestFocus()) {
             InputMethodManager imm = (InputMethodManager)
-                    getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         }
     }
@@ -230,7 +241,7 @@ public abstract class PasswordDialog extends DialogFragment {
         EditText textField = passwordDialog.findViewById(R.id.password);
         textField.selectAll();
 
-        Accessibility.get().announce(getActivity(), passwordDialog.getCurrentFocus(),
+        Accessibility.get().announce(getActivity(), textField,
                 R.string.desc_password_incorrect_message);
 
         TextInputLayout passwordLayout = passwordDialog.findViewById(

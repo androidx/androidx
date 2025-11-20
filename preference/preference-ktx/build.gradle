@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -37,7 +37,6 @@ dependencies {
     api("androidx.fragment:fragment-ktx:1.3.6") {
         because "Mirror preference dependency graph for -ktx artifacts"
     }
-    api(libs.kotlinStdlib)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

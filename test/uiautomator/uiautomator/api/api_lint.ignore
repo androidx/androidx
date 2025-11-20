@@ -25,6 +25,8 @@ MissingNullability: androidx.test.uiautomator.UiObject2#getResourceName():
     Missing nullability on method `getResourceName` return
 MissingNullability: androidx.test.uiautomator.UiObject2#getText():
     Missing nullability on method `getText` return
+MissingNullability: androidx.test.uiautomator.UiWindow#findObject(androidx.test.uiautomator.BySelector):
+    Missing nullability on method `findObject` return
 
 
 PercentageInt: androidx.test.uiautomator.UiObject2#setGestureMarginPercentage(float):

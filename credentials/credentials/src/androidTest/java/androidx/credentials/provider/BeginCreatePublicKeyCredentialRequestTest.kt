@@ -37,12 +37,12 @@ class BeginCreatePublicKeyCredentialRequestTest {
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             BeginCreatePublicKeyCredentialRequest(
                 "",
                 getTestCallingAppInfo(mContext, "origin"),
-                Bundle()
+                Bundle(),
             )
         }
     }
@@ -51,12 +51,12 @@ class BeginCreatePublicKeyCredentialRequestTest {
     fun constructor_invalidJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected invalid Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             BeginCreatePublicKeyCredentialRequest(
                 "invalid",
                 getTestCallingAppInfo(mContext, "origin"),
-                Bundle()
+                Bundle(),
             )
         }
     }
@@ -66,7 +66,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
         BeginCreatePublicKeyCredentialRequest(
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             getTestCallingAppInfo(mContext, "origin"),
-            Bundle()
+            Bundle(),
         )
     }
 
@@ -76,7 +76,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
             getTestCallingAppInfo(mContext),
             Bundle(),
-            "client_data_hash".toByteArray()
+            "client_data_hash".toByteArray(),
         )
     }
 
@@ -86,17 +86,14 @@ class BeginCreatePublicKeyCredentialRequestTest {
         bundle.putString(BUNDLE_KEY_REQUEST_JSON, "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}")
         bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, byteArrayOf())
 
-        BeginCreatePublicKeyCredentialRequest.createForTest(
-            bundle,
-            getTestCallingAppInfo(mContext),
-        )
+        BeginCreatePublicKeyCredentialRequest.createForTest(bundle, getTestCallingAppInfo(mContext))
     }
 
     @Test
     fun constructor_error_createFrom() {
         Assert.assertThrows(
             "Expected create from to throw error",
-            FrameworkClassParsingException::class.java
+            FrameworkClassParsingException::class.java,
         ) {
             BeginCreatePublicKeyCredentialRequest.createForTest(
                 Bundle(),
@@ -113,7 +110,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             BeginCreatePublicKeyCredentialRequest(
                 testJsonExpected,
                 getTestCallingAppInfo(mContext),
-                Bundle()
+                Bundle(),
             )
 
         val testJsonActual = createPublicKeyCredentialReq.requestJson
@@ -129,7 +126,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
                 getTestCallingAppInfo(mContext),
                 Bundle(),
-                testClientDataHashExpected
+                testClientDataHashExpected,
             )
 
         val testClientDataHashActual = createPublicKeyCredentialReq.clientDataHash
@@ -144,7 +141,7 @@ class BeginCreatePublicKeyCredentialRequestTest {
             BeginCreatePublicKeyCredentialRequest(
                 testJsonExpected,
                 getTestCallingAppInfo(ApplicationProvider.getApplicationContext(), "test"),
-                Bundle()
+                Bundle(),
             )
 
         val bundle = BeginCreateCredentialRequest.asBundle(req)

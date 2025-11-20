@@ -45,6 +45,7 @@ public class ForceDarkActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_force_dark);
         setTitle(R.string.force_dark_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {

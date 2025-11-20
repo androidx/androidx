@@ -27,7 +27,7 @@ public class SampleAppWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        appWidgetIds: IntArray,
     ) {
         appWidgetIds.forEach { appWidgetId ->
             val mainRemoteViews = RemoteViews(context.packageName, R.layout.main_layout)
@@ -43,7 +43,7 @@ public class SampleAppWidgetProvider : AppWidgetProvider() {
                 remoteViews = mainRemoteViews,
                 appWidgetId = appWidgetId,
                 viewId = R.id.list,
-                items = itemsBuilder.build()
+                items = itemsBuilder.build(),
             )
 
             appWidgetManager.updateAppWidget(appWidgetId, mainRemoteViews)

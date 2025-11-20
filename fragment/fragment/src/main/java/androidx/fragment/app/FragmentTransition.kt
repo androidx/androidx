@@ -15,15 +15,12 @@
  */
 package androidx.fragment.app
 
-import android.os.Build
 import android.view.View
 import androidx.collection.ArrayMap
 
 /** Contains the Fragment Transition functionality. */
 internal object FragmentTransition {
-    @JvmField
-    val PLATFORM_IMPL: FragmentTransitionImpl? =
-        if (Build.VERSION.SDK_INT >= 21) FragmentTransitionCompat21() else null
+    @JvmField val PLATFORM_IMPL: FragmentTransitionImpl? = FragmentTransitionCompat21()
 
     @JvmField val SUPPORT_IMPL = resolveSupportImpl()
 
@@ -83,7 +80,7 @@ internal object FragmentTransition {
         outFragment: Fragment,
         isPop: Boolean,
         sharedElements: ArrayMap<String, View>,
-        isStart: Boolean
+        isStart: Boolean,
     ) {
         val sharedElementCallback =
             if (isPop) {

@@ -89,7 +89,7 @@ class Foo {
     fun menuProvider(fragment: Fragment) {}
 }
             """
-                )
+                ),
             )
             .expectClean()
     }
@@ -135,7 +135,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -188,7 +188,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -229,7 +229,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """
@@ -288,7 +288,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """

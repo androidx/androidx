@@ -23,7 +23,6 @@ import static java.util.Collections.singletonList;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
-import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.UseCase;
@@ -51,7 +50,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public final class FakeCameraTest {
 
     private FakeCamera mCamera;

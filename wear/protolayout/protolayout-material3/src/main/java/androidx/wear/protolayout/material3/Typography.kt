@@ -17,15 +17,31 @@ package androidx.wear.protolayout.material3
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.wear.protolayout.material3.Versions.isAtLeastBaklava
 import androidx.wear.protolayout.material3.tokens.TextStyle
 import androidx.wear.protolayout.material3.tokens.TypographyTokens
+import androidx.wear.protolayout.material3.tokens.TypographyTokensApi36
 
 /**
  * Class holding typography definitions as defined by the Wear Material3 typography specification.
+ *
+ * Note that, on API 36 and above, typography styles changes slightly to better accommodate layouts
+ * being in the system font defined by each device.
  */
+// Don't override this file automatically as it has checks for versioning of OS to apply different
+// numbers.
 public object Typography {
     /** Returns the [TextStyle] from the typography tokens for the given token name. */
     internal fun fromToken(@TypographyToken typographyToken: Int): TextStyle {
+        return if (isAtLeastBaklava()) {
+            fromTokenSystemFont(typographyToken)
+        } else {
+            fromTokenSpecificFont(typographyToken)
+        }
+    }
+
+    /** Typography spec for OS versions below API 36, when specific font is used. */
+    private fun fromTokenSpecificFont(@TypographyToken typographyToken: Int): TextStyle {
         return when (typographyToken) {
             BODY_EXTRA_SMALL -> TypographyTokens.BODY_EXTRA_SMALL
             BODY_LARGE -> TypographyTokens.BODY_LARGE
@@ -45,6 +61,31 @@ public object Typography {
             TITLE_LARGE -> TypographyTokens.TITLE_LARGE
             TITLE_MEDIUM -> TypographyTokens.TITLE_MEDIUM
             TITLE_SMALL -> TypographyTokens.TITLE_SMALL
+            else -> throw IllegalArgumentException("Typography $typographyToken does not exit.")
+        }
+    }
+
+    /** Typography spec for OS versions of API 36 and above, when sysetm font is used. */
+    private fun fromTokenSystemFont(@TypographyToken typographyToken: Int): TextStyle {
+        return when (typographyToken) {
+            BODY_EXTRA_SMALL -> TypographyTokensApi36.BODY_EXTRA_SMALL
+            BODY_LARGE -> TypographyTokensApi36.BODY_LARGE
+            BODY_MEDIUM -> TypographyTokensApi36.BODY_MEDIUM
+            BODY_SMALL -> TypographyTokensApi36.BODY_SMALL
+            DISPLAY_LARGE -> TypographyTokensApi36.DISPLAY_LARGE
+            DISPLAY_MEDIUM -> TypographyTokensApi36.DISPLAY_MEDIUM
+            DISPLAY_SMALL -> TypographyTokensApi36.DISPLAY_SMALL
+            LABEL_LARGE -> TypographyTokensApi36.LABEL_LARGE
+            LABEL_MEDIUM -> TypographyTokensApi36.LABEL_MEDIUM
+            LABEL_SMALL -> TypographyTokensApi36.LABEL_SMALL
+            NUMERAL_EXTRA_LARGE -> TypographyTokensApi36.NUMERAL_EXTRA_LARGE
+            NUMERAL_EXTRA_SMALL -> TypographyTokensApi36.NUMERAL_EXTRA_SMALL
+            NUMERAL_LARGE -> TypographyTokensApi36.NUMERAL_LARGE
+            NUMERAL_MEDIUM -> TypographyTokensApi36.NUMERAL_MEDIUM
+            NUMERAL_SMALL -> TypographyTokensApi36.NUMERAL_SMALL
+            TITLE_LARGE -> TypographyTokensApi36.TITLE_LARGE
+            TITLE_MEDIUM -> TypographyTokensApi36.TITLE_MEDIUM
+            TITLE_SMALL -> TypographyTokensApi36.TITLE_SMALL
             else -> throw IllegalArgumentException("Typography $typographyToken does not exit.")
         }
     }
@@ -189,7 +230,7 @@ public object Typography {
         NUMERAL_SMALL,
         TITLE_LARGE,
         TITLE_MEDIUM,
-        TITLE_SMALL
+        TITLE_SMALL,
     )
     public annotation class TypographyToken
 }

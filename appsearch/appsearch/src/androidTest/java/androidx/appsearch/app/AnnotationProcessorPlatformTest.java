@@ -16,13 +16,10 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
-import static org.junit.Assume.assumeFalse;
-
 import android.content.Context;
 import android.os.Build;
 
 import androidx.appsearch.platformstorage.PlatformStorage;
-import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
@@ -37,21 +34,5 @@ public class AnnotationProcessorPlatformTest extends AnnotationProcessorTestBase
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createSearchSessionAsync(
                 new PlatformStorage.SearchContext.Builder(context, dbName).build());
-    }
-
-    @Override
-    public void testPolymorphicDeserialization_Integration() throws Exception {
-        // TODO(b/371610934): Enable this test for B devices once we are able to call
-        //  SearchResult#getParentTypeMap in platform storage to hook up the parent information.
-        assumeFalse(AppSearchVersionUtil.isAtLeastB());
-        super.testPolymorphicDeserialization_Integration();
-    }
-
-    @Override
-    public void testPolymorphicDeserialization_NestedType_Integration() throws Exception {
-        // TODO(b/371610934): Enable this test for B devices once we are able to call
-        //  SearchResult#getParentTypeMap in platform storage to hook up the parent information.
-        assumeFalse(AppSearchVersionUtil.isAtLeastB());
-        super.testPolymorphicDeserialization_NestedType_Integration();
     }
 }

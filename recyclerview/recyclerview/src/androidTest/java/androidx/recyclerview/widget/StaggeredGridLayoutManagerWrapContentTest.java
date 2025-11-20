@@ -22,11 +22,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -56,7 +54,6 @@ public class StaggeredGridLayoutManagerWrapContentTest extends BaseWrapContentTe
         );
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUnspecifiedWithHint() throws Throwable {
         unspecifiedWithHintTest(mOrientation == StaggeredGridLayoutManager.HORIZONTAL);

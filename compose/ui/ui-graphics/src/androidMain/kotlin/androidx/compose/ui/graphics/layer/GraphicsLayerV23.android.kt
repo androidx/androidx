@@ -49,7 +49,7 @@ internal class GraphicsLayerV23(
     ownerView: View,
     override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
-    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
+    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope(),
 ) : GraphicsLayerImpl {
 
     private val renderNode = RenderNode.create("Compose", ownerView)
@@ -318,12 +318,12 @@ internal class GraphicsLayerV23(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         val recordingCanvas =
             renderNode.start(
                 maxOf(size.width, outlineSize.width),
-                maxOf(size.height, outlineSize.height)
+                maxOf(size.height, outlineSize.height),
             )
         try {
             canvasHolder.drawInto(recordingCanvas) {
@@ -355,11 +355,11 @@ internal class GraphicsLayerV23(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             RenderNodeVerificationHelper28.setAmbientShadowColor(
                 renderNode,
-                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode)
+                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode),
             )
             RenderNodeVerificationHelper28.setSpotShadowColor(
                 renderNode,
-                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode)
+                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode),
             )
         }
     }

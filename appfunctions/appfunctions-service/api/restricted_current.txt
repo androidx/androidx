@@ -1,0 +1,29 @@
+// Signature format: 4.0
+package androidx.appfunctions.service {
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunction {
+    ctor @KotlinOnly public AppFunction(optional boolean isEnabled, optional boolean isDescribedByKdoc);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKdoc() default false;
+    method @InaccessibleFromKotlin public abstract boolean isEnabled() default true;
+    property public abstract boolean isDescribedByKdoc;
+    property public abstract boolean isEnabled;
+  }
+
+  public final class AppFunctionConfiguration {
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.Class<? extends java.lang.Object?>,kotlin.jvm.functions.Function0<java.lang.Object>> getEnclosingClassFactories();
+    property public java.util.Map<java.lang.Class<? extends java.lang.Object?>,kotlin.jvm.functions.Function0<java.lang.Object>> enclosingClassFactories;
+  }
+
+  public static final class AppFunctionConfiguration.Builder {
+    ctor public AppFunctionConfiguration.Builder();
+    method public <T> androidx.appfunctions.service.AppFunctionConfiguration.Builder addEnclosingClassFactory(Class<T> enclosingClass, kotlin.jvm.functions.Function0<? extends T> factory);
+    method public androidx.appfunctions.service.AppFunctionConfiguration build();
+  }
+
+  public static interface AppFunctionConfiguration.Provider {
+    method @InaccessibleFromKotlin public androidx.appfunctions.service.AppFunctionConfiguration getAppFunctionConfiguration();
+    property public abstract androidx.appfunctions.service.AppFunctionConfiguration appFunctionConfiguration;
+  }
+
+}
+

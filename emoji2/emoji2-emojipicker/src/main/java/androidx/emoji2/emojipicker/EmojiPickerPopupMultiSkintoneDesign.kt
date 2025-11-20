@@ -40,7 +40,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
     override val variants: List<String>,
     override val popupView: LinearLayout,
     override val emojiViewOnClickListener: View.OnClickListener,
-    targetEmoji: String
+    targetEmoji: String,
 ) : EmojiPickerPopupDesign() {
 
     private val inflater = LayoutInflater.from(context)
@@ -50,7 +50,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
         }
 
@@ -74,7 +74,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                     layoutParams =
                         LinearLayout.LayoutParams(
                             FrameLayout.LayoutParams.WRAP_CONTENT,
-                            FrameLayout.LayoutParams.WRAP_CONTENT
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
                         )
                 }
             for (column in 0 until getNumberOfColumns()) {
@@ -148,20 +148,20 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 layoutParams =
                     LinearLayout.LayoutParams(
                         targetEmojiView.width * getNumberOfColumns() / 2,
-                        targetEmojiView.height
+                        targetEmojiView.height,
                     )
             }
         } else if (hasLeftSkintone()) {
             drawImageView(
                 /* row= */ 0,
                 /*column=*/ selectedLeftSkintone,
-                /* applyGrayTint= */ false
+                /* applyGrayTint= */ false,
             )
         } else if (hasRightSkintone()) {
             drawImageView(
                 /* row= */ 1,
                 /*column=*/ selectedRightSkintone,
-                /* applyGrayTint= */ false
+                /* applyGrayTint= */ false,
             )
         } else {
             drawImageView(/* row= */ 0, /* column= */ 0, /* applyGrayTint= */ true)
@@ -192,7 +192,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                     getImageContentDescription(
                         context,
                         contentDescriptionRow,
-                        contentDescriptionColumn
+                        contentDescriptionColumn,
                     )
             }
     }
@@ -211,7 +211,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             layoutParams =
                 LinearLayout.LayoutParams(
                     targetEmojiView.width * getNumberOfColumns() / 2,
-                    targetEmojiView.height
+                    targetEmojiView.height,
                 )
         }
         processResultView()
@@ -246,7 +246,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
             return ResourcesCompat.getDrawable(
                 context.resources,
                 resArray[row],
-                contextThemeWrapper.getTheme()
+                contextThemeWrapper.getTheme(),
             )
         }
         return null
@@ -256,7 +256,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
         return context.getString(
             R.string.emoji_variant_content_desc_template,
             context.getString(getSkintoneStringRes(/* isLeft= */ true, row, column)),
-            context.getString(getSkintoneStringRes(/* isLeft= */ false, row, column))
+            context.getString(getSkintoneStringRes(/* isLeft= */ false, row, column)),
         )
     }
 
@@ -286,7 +286,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 R.string.emoji_skin_tone_medium_light_content_desc,
                 R.string.emoji_skin_tone_medium_content_desc,
                 R.string.emoji_skin_tone_medium_dark_content_desc,
-                R.string.emoji_skin_tone_dark_content_desc
+                R.string.emoji_skin_tone_dark_content_desc,
             )
 
         private val VARIANT_STYLES =
@@ -295,7 +295,7 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                 R.style.EmojiSkintoneSelectorMediumLight,
                 R.style.EmojiSkintoneSelectorMedium,
                 R.style.EmojiSkintoneSelectorMediumDark,
-                R.style.EmojiSkintoneSelectorDark
+                R.style.EmojiSkintoneSelectorDark,
             )
 
         /**
@@ -308,92 +308,92 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                     "🤝",
                     ImmutableIntArray.of(
                         R.drawable.handshake_skintone_shadow,
-                        R.drawable.handshake_shadow_skintone
-                    )
+                        R.drawable.handshake_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👭",
                     ImmutableIntArray.of(
                         R.drawable.holding_women_skintone_shadow,
-                        R.drawable.holding_women_shadow_skintone
-                    )
+                        R.drawable.holding_women_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👫",
                     ImmutableIntArray.of(
                         R.drawable.holding_woman_man_skintone_shadow,
-                        R.drawable.holding_woman_man_shadow_skintone
-                    )
+                        R.drawable.holding_woman_man_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👬",
                     ImmutableIntArray.of(
                         R.drawable.holding_men_skintone_shadow,
-                        R.drawable.holding_men_shadow_skintone
-                    )
+                        R.drawable.holding_men_shadow_skintone,
+                    ),
                 )
                 .put(
                     "🧑‍🤝‍🧑",
                     ImmutableIntArray.of(
                         R.drawable.holding_people_skintone_shadow,
-                        R.drawable.holding_people_shadow_skintone
-                    )
+                        R.drawable.holding_people_shadow_skintone,
+                    ),
                 )
                 .put(
                     "💏",
                     ImmutableIntArray.of(
                         R.drawable.kiss_people_skintone_shadow,
-                        R.drawable.kiss_people_shadow_skintone
-                    )
+                        R.drawable.kiss_people_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👩‍❤️‍💋‍👨",
                     ImmutableIntArray.of(
                         R.drawable.kiss_woman_man_skintone_shadow,
-                        R.drawable.kiss_woman_man_shadow_skintone
-                    )
+                        R.drawable.kiss_woman_man_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👨‍❤️‍💋‍👨",
                     ImmutableIntArray.of(
                         R.drawable.kiss_men_skintone_shadow,
-                        R.drawable.kiss_men_shadow_skintone
-                    )
+                        R.drawable.kiss_men_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👩‍❤️‍💋‍👩",
                     ImmutableIntArray.of(
                         R.drawable.kiss_women_skintone_shadow,
-                        R.drawable.kiss_women_shadow_skintone
-                    )
+                        R.drawable.kiss_women_shadow_skintone,
+                    ),
                 )
                 .put(
                     "💑",
                     ImmutableIntArray.of(
                         R.drawable.couple_heart_people_skintone_shadow,
-                        R.drawable.couple_heart_people_shadow_skintone
-                    )
+                        R.drawable.couple_heart_people_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👩‍❤️‍👨",
                     ImmutableIntArray.of(
                         R.drawable.couple_heart_woman_man_skintone_shadow,
-                        R.drawable.couple_heart_woman_man_shadow_skintone
-                    )
+                        R.drawable.couple_heart_woman_man_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👨‍❤️‍👨",
                     ImmutableIntArray.of(
                         R.drawable.couple_heart_men_skintone_shadow,
-                        R.drawable.couple_heart_men_shadow_skintone
-                    )
+                        R.drawable.couple_heart_men_shadow_skintone,
+                    ),
                 )
                 .put(
                     "👩‍❤️‍👩",
                     ImmutableIntArray.of(
                         R.drawable.couple_heart_women_skintone_shadow,
-                        R.drawable.couple_heart_women_shadow_skintone
-                    )
+                        R.drawable.couple_heart_women_shadow_skintone,
+                    ),
                 )
                 .buildOrThrow()
     }

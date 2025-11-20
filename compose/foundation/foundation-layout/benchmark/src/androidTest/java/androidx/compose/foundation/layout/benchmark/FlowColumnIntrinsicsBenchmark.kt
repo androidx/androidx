@@ -36,7 +36,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class FlowColumnIntrinsicsBenchmark(
     private val modifierDebugName: String,
-    private val modifier: Modifier
+    private val modifier: Modifier,
 ) {
 
     companion object {

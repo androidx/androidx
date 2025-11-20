@@ -21,5 +21,5 @@ import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 
 internal expect fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
-    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
+    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit,
 ): DragAndDropTargetModifierNode

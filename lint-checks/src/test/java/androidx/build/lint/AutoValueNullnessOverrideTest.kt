@@ -26,7 +26,7 @@ class AutoValueNullnessOverrideTest :
     AbstractLintDetectorTest(
         useDetector = AutoValueNullnessOverride(),
         useIssues = listOf(AutoValueNullnessOverride.ISSUE),
-        stubs = arrayOf(autovalueStub, jspecifyNonNullStub, jspecifyNullableStub)
+        stubs = arrayOf(autovalueStub, jspecifyNonNullStub, jspecifyNullableStub),
     ) {
     @Test
     fun `No superclass`() {
@@ -69,7 +69,7 @@ class AutoValueNullnessOverrideTest :
                         }
                     """
                         .trimIndent()
-                )
+                ),
             )
         check(*input).expectClean()
     }
@@ -103,14 +103,14 @@ class AutoValueNullnessOverrideTest :
                                 public abstract @Nullable String getNullableStringOverrideNotAbstract();
                             }
                         """
-                            .trimIndent(),
+                            .trimIndent()
                     ),
                     gradle(
                         """
                             apply plugin: 'com.android.library'
                             group=androidx.example
                         """
-                    )
+                    ),
                 )
                 .dependsOn(jspecify)
                 .type(ProjectDescription.Type.LIBRARY)
@@ -134,14 +134,14 @@ class AutoValueNullnessOverrideTest :
                                 }
                             }
                         """
-                            .trimIndent(),
+                            .trimIndent()
                     ),
                     gradle(
                         """
                             apply plugin: 'com.android.library'
                             group=test.pkg
                         """
-                    )
+                    ),
                 )
                 .dependsOn(jspecify)
                 .dependsOn(autovalue)

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+TypeParameterName: androidx.hilt.navigation.fragment.HiltNavGraphViewModelLazyKt#hiltNavGraphViewModels(androidx.fragment.app.Fragment, int):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.hilt.navigation.fragment.HiltNavGraphViewModelLazyKt#hiltNavGraphViewModels(androidx.fragment.app.Fragment, int, kotlin.jvm.functions.Function1<VMF,VM>):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

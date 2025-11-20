@@ -159,7 +159,17 @@ public interface VideoOutput {
      * Returns the {@link VideoCapabilities} information of the {@link VideoOutput}.
      */
     @RestrictTo(Scope.LIBRARY)
-    default @NonNull VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo) {
+    default @NonNull VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo,
+            int sessionType) {
         return VideoCapabilities.EMPTY;
+    }
+
+    /**
+     * Returns whether the (or any) {@link QualitySelector} set to the {@link VideoOutput} is the
+     * default one.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    default boolean isQualitySelectorDefault() {
+        return true;
     }
 }

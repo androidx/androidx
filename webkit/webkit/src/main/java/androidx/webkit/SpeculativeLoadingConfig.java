@@ -27,61 +27,55 @@ import org.jspecify.annotations.NonNull;
 @Profile.ExperimentalUrlPrefetch
 public class SpeculativeLoadingConfig {
 
-    /**
-     * The absolute maximum number of prefetches allowed in cache.
-     */
-    public static final int ABSOLUTE_MAX_PREFETCHES = 20;
-
-    /**
-     * The default Time-to-Live (TTL) in seconds for prefetched data.
-     */
-    public static final int DEFAULT_TTL_SECS = 60;
-
-    /**
-     * The default number of prefetches allowed in cache.
-     */
-    public static final int DEFAULT_MAX_PREFETCHES = 10;
-
     private final int mPrefetchTTLSeconds;
-
     private final int mMaxPrefetches;
+    private final int mMaxPrerenders;
 
     /**
      * Private constructors, the application will need to use
      * {@link Builder} for constructing instances of
      * this class.
      */
-    private SpeculativeLoadingConfig(int ttlSecs, int max) {
+    private SpeculativeLoadingConfig(int ttlSecs, int maxPrefetches, int maxPrerenders) {
         mPrefetchTTLSeconds = ttlSecs;
-        mMaxPrefetches = max;
+        mMaxPrefetches = maxPrefetches;
+        mMaxPrerenders = maxPrerenders;
     }
 
     /**
      * The "time to live" for a prefetch inside of the prefetch cache.
      * This is representative of the maximum time that a prefetch is considered
-     * valid and can be served to a navigation. This value is in seconds and
-     * defaults to {@link SpeculativeLoadingConfig#DEFAULT_TTL_SECS}.
+     * valid and can be served to a navigation. WebView will choose the appropriate default value.
      */
-    @IntRange(from = 1, to = Integer.MAX_VALUE)
+    @IntRange(from = 1)
     public int getPrefetchTtlSeconds() {
         return mPrefetchTTLSeconds;
     }
 
     /**
-     * The max amount of prefetches that can live in the cache. Defaults to
-     * {@link SpeculativeLoadingConfig#DEFAULT_MAX_PREFETCHES}.
-     * <p>
-     * Cannot exceed {@link SpeculativeLoadingConfig#ABSOLUTE_MAX_PREFETCHES}.
+     * The max amount of prefetches that can live in the cache. WebView will choose the
+     * appropriate default value.
      */
-    @IntRange(from = 1, to = ABSOLUTE_MAX_PREFETCHES)
+    @IntRange(from = 1)
     public int getMaxPrefetches() {
         return mMaxPrefetches;
     }
 
+    /**
+     * The max amount of prerenders that can live in the cache of any WebView associated with
+     * this {@link Profile}. WebView will choose the appropriate default value.
+     */
+    @IntRange(from = 1)
+    @Profile.ExperimentalUrlPrefetch
+    public int getMaxPrerenders() {
+        return mMaxPrerenders;
+    }
+
     @Profile.ExperimentalUrlPrefetch
     public static final class Builder {
-        private int mPrefetchTTLSeconds = DEFAULT_TTL_SECS;
-        private int mMaxPrefetches = DEFAULT_MAX_PREFETCHES;
+        private int mPrefetchTTLSeconds;
+        private int mMaxPrefetches;
+        private int mMaxPrerenders;
 
         public Builder() {
         }
@@ -98,8 +92,7 @@ public class SpeculativeLoadingConfig {
          * @see Builder#build()
          */
         @NonNull
-        public Builder setPrefetchTtlSeconds(
-                @IntRange(from = 1, to = Integer.MAX_VALUE) int ttlSeconds) {
+        public Builder setPrefetchTtlSeconds(@IntRange(from = 1) int ttlSeconds) {
             if (ttlSeconds <= 0) {
                 throw new IllegalArgumentException("Prefetch TTL must be greater than 0");
             }
@@ -108,29 +101,39 @@ public class SpeculativeLoadingConfig {
         }
 
         /**
-         * Sets the maximum number of allowed prefetches.
+         * Sets the maximum number of allowed prefetches. This value limits the number of
+         * prefetch data that can live in the cache. The WebView's internal maximum limit may
+         * override this value.
          *
-         * <p>
-         * This value limits the number of prefetch data that can live in the cache.
-         *
-         * @param max The maximum number of prefetches. Must be a positive integer and not exceed
-         *            {@link SpeculativeLoadingConfig#ABSOLUTE_MAX_PREFETCHES}.
+         * @param max The maximum number of prefetches. Must be a positive integer.
          * @return This builder instance for method chaining.
-         * @throws IllegalArgumentException If {@code max} is less than 1 or greater than
-         *                                 {@link SpeculativeLoadingConfig#ABSOLUTE_MAX_PREFETCHES}.
+         * @throws IllegalArgumentException If {@code max} is less than 1.
          * @see Builder#build()
          */
         @NonNull
-        public Builder setMaxPrefetches(@IntRange(from = 1, to = ABSOLUTE_MAX_PREFETCHES) int max) {
-            if (max > ABSOLUTE_MAX_PREFETCHES) {
-                String error = "Max prefetches cannot exceed" + ABSOLUTE_MAX_PREFETCHES;
-                throw new IllegalArgumentException(error);
-            }
-
+        public Builder setMaxPrefetches(@IntRange(from = 1) int max) {
             if (max < 1) {
                 throw new IllegalArgumentException("Max prefetches must be greater than 0");
             }
             mMaxPrefetches = max;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of allowed prerenders. The WebView's internal maximum limit
+         * may override this value.
+         *
+         * @param max The maximum number of prerenders. Must be a positive integer.
+         * @return This builder instance for method chaining.
+         * @throws IllegalArgumentException If {@code max} is less than 1.
+         * @see Builder#build()
+         */
+        @NonNull
+        public Builder setMaxPrerenders(@IntRange(from = 1) int max) {
+            if (max < 1) {
+                throw new IllegalArgumentException("Max prerenders must be greater than 0");
+            }
+            mMaxPrerenders = max;
             return this;
         }
 
@@ -145,7 +148,8 @@ public class SpeculativeLoadingConfig {
         @Profile.ExperimentalUrlPrefetch
         @NonNull
         public SpeculativeLoadingConfig build() {
-            return new SpeculativeLoadingConfig(mPrefetchTTLSeconds, mMaxPrefetches);
+            return new SpeculativeLoadingConfig(mPrefetchTTLSeconds, mMaxPrefetches,
+                    mMaxPrerenders);
         }
     }
 }

@@ -46,6 +46,9 @@ class CurvedTextStyleTest {
         assertNull(style.fontStyle)
         assertNull(style.fontSynthesis)
         assertTrue(style.letterSpacing.isUnspecified)
+        assertTrue(style.letterSpacingCounterClockwise.isUnspecified)
+        assertTrue(style.lineHeight.isUnspecified)
+        assertTrue(style.warpOffset.isUnspecified)
     }
 
     @Test
@@ -118,6 +121,33 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle(letterSpacing = letterSpacing)
 
         assertEquals(style.letterSpacing, letterSpacing)
+    }
+
+    @Test
+    fun `constructor with customized letter spacing counterclockwise`() {
+        val letterSpacingCounterClockwise = 0.01f.em
+
+        val style = CurvedTextStyle(letterSpacingCounterClockwise = letterSpacingCounterClockwise)
+
+        assertEquals(style.letterSpacingCounterClockwise, letterSpacingCounterClockwise)
+    }
+
+    @Test
+    fun `constructor with customized line height`() {
+        val lineHeight = 18.sp
+
+        val style = CurvedTextStyle(lineHeight = lineHeight)
+
+        assertEquals(style.lineHeight, lineHeight)
+    }
+
+    @Test
+    fun `constructor with customized warping`() {
+        val warpOffset = CurvedTextStyle.WarpOffset.Descent
+
+        val style = CurvedTextStyle(warpOffset = warpOffset)
+
+        assertEquals(style.warpOffset, warpOffset)
     }
 
     @Test
@@ -279,5 +309,66 @@ class CurvedTextStyleTest {
         val newStyle = style.merge(otherStyle)
 
         assertEquals(newStyle.letterSpacing, otherStyle.letterSpacing)
+    }
+
+    @Test
+    fun `merge with other's letter spacing counterclockwise is unspecified should use this' letter spacing counterclockwise`() {
+        val style = CurvedTextStyle(letterSpacingCounterClockwise = 0.123f.em)
+
+        val newStyle =
+            style.merge(CurvedTextStyle(letterSpacingCounterClockwise = TextUnit.Unspecified))
+
+        assertEquals(newStyle.letterSpacingCounterClockwise, style.letterSpacingCounterClockwise)
+    }
+
+    @Test
+    fun `merge with other's letter spacing counterclockwise is set should use other's letter spacing counterclockwise`() {
+        val style = CurvedTextStyle(letterSpacingCounterClockwise = 0.123f.em)
+        val otherStyle = CurvedTextStyle(letterSpacingCounterClockwise = 0.345f.em)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(
+            newStyle.letterSpacingCounterClockwise,
+            otherStyle.letterSpacingCounterClockwise,
+        )
+    }
+
+    @Test
+    fun `merge with other's line height is unspecified should use this' line height `() {
+        val style = CurvedTextStyle(lineHeight = 10.sp)
+
+        val newStyle = style.merge(CurvedTextStyle(letterSpacing = TextUnit.Unspecified))
+
+        assertEquals(newStyle.lineHeight, style.lineHeight)
+    }
+
+    @Test
+    fun `merge with other's line height is set should use other's line height`() {
+        val style = CurvedTextStyle(lineHeight = 12.sp)
+        val otherStyle = CurvedTextStyle(lineHeight = 23.sp)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.lineHeight, otherStyle.lineHeight)
+    }
+
+    @Test
+    fun `merge with other's warp offset is unspecified should use this' warp offset`() {
+        val style = CurvedTextStyle(warpOffset = CurvedTextStyle.WarpOffset.Descent)
+
+        val newStyle = style.merge(CurvedTextStyle(letterSpacing = TextUnit.Unspecified))
+
+        assertEquals(newStyle.warpOffset, style.warpOffset)
+    }
+
+    @Test
+    fun `merge with other's warp offset is set should use other's warp offset`() {
+        val style = CurvedTextStyle(warpOffset = CurvedTextStyle.WarpOffset.Descent)
+        val otherStyle = CurvedTextStyle(warpOffset = CurvedTextStyle.WarpOffset.Ascent)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.warpOffset, otherStyle.warpOffset)
     }
 }

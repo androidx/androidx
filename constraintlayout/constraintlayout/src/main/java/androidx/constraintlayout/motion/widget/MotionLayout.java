@@ -33,7 +33,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -3206,16 +3205,14 @@ public class MotionLayout extends ConstraintLayout implements
             float dir = scene.getProgressDirection(dx, dy);
             if ((mTransitionLastPosition <= 0.0f && (dir < 0))
                     || (mTransitionLastPosition >= 1.0f && (dir > 0))) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    target.setNestedScrollingEnabled(false);
-                    // TODO find a better hack
-                    target.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            target.setNestedScrollingEnabled(true);
-                        }
-                    });
-                }
+                target.setNestedScrollingEnabled(false);
+                // TODO find a better hack
+                target.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        target.setNestedScrollingEnabled(true);
+                    }
+                });
                 return;
             }
         }

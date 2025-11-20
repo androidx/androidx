@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+<issues format="6" by="lint 9.0.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha03)" variant="all" version="9.0.0-alpha03">
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="            mUiController.loopMainThreadForAtLeast(millisDelay);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
+    </issue>
 
     <issue
         id="RestrictedApiAndroidX"

@@ -65,7 +65,7 @@ public class DynamicIncludeGraphNavigatorTest {
                 context,
                 navigatorProvider,
                 navController.navInflater,
-                installManager
+                installManager,
             )
         with(navController) {
             navigatorProvider.addNavigator(DynamicGraphNavigator(navigatorProvider, installManager))
@@ -87,7 +87,7 @@ public class DynamicIncludeGraphNavigatorTest {
         assertThat(
                 dynamicNavGraph.getPackageOrDefault(
                     context,
-                    "\${applicationId}.something" + ".$FEATURE_NAME"
+                    "\${applicationId}.something" + ".$FEATURE_NAME",
                 )
             )
             .isEqualTo("$packageName.something.$FEATURE_NAME")
@@ -95,7 +95,7 @@ public class DynamicIncludeGraphNavigatorTest {
         assertThat(
                 dynamicNavGraph.getPackageOrDefault(
                     context,
-                    "something.\${applicationId}" + ".$FEATURE_NAME"
+                    "something.\${applicationId}" + ".$FEATURE_NAME",
                 )
             )
             .isEqualTo("something.$packageName.$FEATURE_NAME")

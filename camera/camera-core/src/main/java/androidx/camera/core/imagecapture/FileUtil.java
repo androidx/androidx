@@ -28,6 +28,7 @@ import android.provider.MediaStore;
 
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.Exif;
 
 import org.jspecify.annotations.NonNull;
@@ -46,6 +47,7 @@ import java.util.UUID;
  */
 public final class FileUtil {
 
+    private static final String TAG = "FileUtil";
     private static final String TEMP_FILE_PREFIX = "CameraX";
     private static final String TEMP_FILE_SUFFIX = ".tmp";
     private static final int COPY_BUFFER_SIZE = 1024;
@@ -164,10 +166,13 @@ public final class FileUtil {
         ContentValues values = options.getContentValues() != null
                 ? new ContentValues(options.getContentValues())
                 : new ContentValues();
+
         setContentValuePendingFlag(values, PENDING);
         Uri uri = null;
         try {
+            Logger.d(TAG, "copyFileToMediaStore: inserting values to MediaStore");
             uri = contentResolver.insert(options.getSaveCollection(), values);
+            Logger.d(TAG, "copyFileToMediaStore: insert success");
             if (uri == null) {
                 throw new ImageCaptureException(
                         ERROR_FILE_IO, "Failed to insert a MediaStore URI.", null);

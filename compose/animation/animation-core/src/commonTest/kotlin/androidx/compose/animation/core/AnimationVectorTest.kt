@@ -28,7 +28,7 @@ class AnimationVectorTest {
         assertEquals(AnimationVector3D(0f, 0f, 0f), AnimationVector(1f, 2f, 3f).apply { reset() })
         assertEquals(
             AnimationVector4D(0f, 0f, 0f, 0f),
-            AnimationVector(1f, 2f, 3f, 4f).apply { reset() }
+            AnimationVector(1f, 2f, 3f, 4f).apply { reset() },
         )
     }
 
@@ -37,19 +37,19 @@ class AnimationVectorTest {
         // Expect equal
         assertEquals(
             AnimationVector1D(0f).hashCode(),
-            AnimationVector(1f).apply { reset() }.hashCode()
+            AnimationVector(1f).apply { reset() }.hashCode(),
         )
         assertEquals(
             AnimationVector2D(0f, 0f).hashCode(),
-            AnimationVector(1f, 2f).apply { reset() }.hashCode()
+            AnimationVector(1f, 2f).apply { reset() }.hashCode(),
         )
         assertEquals(
             AnimationVector3D(0f, 0f, 0f).hashCode(),
-            AnimationVector(1f, 2f, 3f).apply { reset() }.hashCode()
+            AnimationVector(1f, 2f, 3f).apply { reset() }.hashCode(),
         )
         assertEquals(
             AnimationVector4D(0f, 0f, 0f, 0f).hashCode(),
-            AnimationVector(1f, 2f, 3f, 4f).apply { reset() }.hashCode()
+            AnimationVector(1f, 2f, 3f, 4f).apply { reset() }.hashCode(),
         )
 
         // Expect *not* equal
@@ -57,11 +57,11 @@ class AnimationVectorTest {
         assertNotEquals(AnimationVector2D(2f, 1f).hashCode(), AnimationVector(1f, 2f).hashCode())
         assertNotEquals(
             AnimationVector3D(1f, 2f, 3f).hashCode(),
-            AnimationVector(1f, 2f, 3f).apply { reset() }.hashCode()
+            AnimationVector(1f, 2f, 3f).apply { reset() }.hashCode(),
         )
         assertNotEquals(
             AnimationVector4D(4f, 3f, 2f, 1f).hashCode(),
-            AnimationVector(1f, 2f, 3f, 4f).hashCode()
+            AnimationVector(1f, 2f, 3f, 4f).hashCode(),
         )
     }
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_0 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_90 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_180 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_270 -> SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -39,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_0 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +48,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_90 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,7 +57,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_180 -> SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,7 +66,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_270 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -75,7 +75,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_0 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_90 -> SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_180 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_270 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_0 -> SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_90 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -129,7 +129,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_180 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -138,7 +138,7 @@
 
     <issue
         id="NewApi"
-        message="Field requires API level 29 (current min is 21): `Companion`"
+        message="Field requires API level 29 (current min is 23): `Companion`"
         errorLine1="                    Surface.ROTATION_270 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location

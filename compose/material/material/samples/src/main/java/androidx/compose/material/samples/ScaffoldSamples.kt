@@ -71,7 +71,7 @@ private val colors =
         Color(0xFFffe9d6.toInt()),
         Color(0xFFfffbd0.toInt()),
         Color(0xFFe3ffd9.toInt()),
-        Color(0xFFd0fff8.toInt())
+        Color(0xFFd0fff8.toInt()),
     )
 
 @Sampled
@@ -89,14 +89,14 @@ fun SimpleScaffoldWithTopBar() {
                     IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
                         Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                     }
-                }
+                },
             )
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Inc") },
-                onClick = { /* fab click handler */ }
+                onClick = { /* fab click handler */ },
             )
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
@@ -106,7 +106,7 @@ fun SimpleScaffoldWithTopBar() {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(colors[it % colors.size]))
                 }
             }
-        }
+        },
     )
 }
 
@@ -142,7 +142,7 @@ fun ScaffoldWithBottomBarAndCutout() {
         coroutineScope.launch {
             animatedProgress.animateTo(
                 targetValue = nextTarget,
-                animationSpec = TweenSpec(durationMillis = 600)
+                animationSpec = TweenSpec(durationMillis = 600),
             )
         }
     }
@@ -164,7 +164,7 @@ fun ScaffoldWithBottomBarAndCutout() {
             ExtendedFloatingActionButton(
                 text = { Text("Change shape") },
                 onClick = changeShape,
-                shape = fabShape
+                shape = fabShape,
             )
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
@@ -176,7 +176,7 @@ fun ScaffoldWithBottomBarAndCutout() {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(colors[it % colors.size]))
                 }
             }
-        }
+        },
     )
 }
 
@@ -196,16 +196,16 @@ fun ScaffoldWithSimpleSnackbar() {
                     scope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
                     }
-                }
+                },
             )
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         content = { innerPadding ->
             Text(
                 text = "Body content",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -222,7 +222,7 @@ fun ScaffoldWithCustomSnackbar() {
                 // custom snackbar with the custom border
                 Snackbar(
                     modifier = Modifier.border(2.dp, MaterialTheme.colors.secondary),
-                    snackbarData = data
+                    snackbarData = data,
                 )
             }
         },
@@ -234,16 +234,16 @@ fun ScaffoldWithCustomSnackbar() {
                     scope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
                     }
-                }
+                },
             )
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         content = { innerPadding ->
             Text(
                 text = "Custom Snackbar Demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -260,7 +260,7 @@ fun ScaffoldWithCoroutinesSnackbar() {
             val result =
                 snackbarHostState.showSnackbar(
                     message = "Snackbar # $index",
-                    actionLabel = "Action on $index"
+                    actionLabel = "Action on $index",
                 )
             when (result) {
                 SnackbarResult.ActionPerformed -> {
@@ -282,15 +282,15 @@ fun ScaffoldWithCoroutinesSnackbar() {
                 onClick = {
                     // offset snackbar data to the business logic
                     channel.trySend(++clickCount)
-                }
+                },
             )
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         content = { innerPadding ->
             Text(
                 "Snackbar demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }

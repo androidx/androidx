@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.paging.compose.LazyPagingItemsKt#collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, kotlin.coroutines.CoroutineContext):
+    Binary breaking change: method androidx.paging.compose.LazyPagingItemsKt.collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>,kotlin.coroutines.CoroutineContext) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.paging.compose.LazyPagingItems#getItemCount():
+    Source breaking change: method androidx.paging.compose.LazyPagingItems.getItemCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.compose.LazyPagingItems#getItemSnapshotList():
+    Source breaking change: method androidx.paging.compose.LazyPagingItems.getItemSnapshotList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.compose.LazyPagingItems#getLoadState():
+    Source breaking change: method androidx.paging.compose.LazyPagingItems.getLoadState() can no longer be resolved from Kotlin source

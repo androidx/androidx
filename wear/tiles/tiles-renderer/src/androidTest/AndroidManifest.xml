@@ -16,4 +16,19 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<application
+    android:label="Golden Tests"
+    android:supportsRtl="true"
+    android:theme="@android:style/Theme.DeviceDefault"
+    android:taskAffinity="">
+    <uses-library android:name="android.test.runner" />
+
+    <activity android:name="androidx.wear.tiles.renderer.test.GoldenTestActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+</application>
 </manifest>

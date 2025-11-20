@@ -18,10 +18,8 @@ package androidx.kruth
 
 /** Propositions for [Class] subjects. */
 class ClassSubject
-internal constructor(
-    actual: Class<*>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Class<*>>(actual, metadata = metadata, typeDescriptionOverride = null) {
+internal constructor(actual: Class<*>?, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<Class<*>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     /**
      * Fails if this class or interface is not the same as or a subclass or subinterface of, the

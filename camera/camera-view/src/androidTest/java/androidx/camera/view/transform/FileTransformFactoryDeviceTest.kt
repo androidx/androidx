@@ -28,7 +28,6 @@ import androidx.camera.core.impl.utils.Exif
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -45,7 +44,6 @@ private const val HEIGHT = 60
 /** Instrument test for [FileTransformFactory]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class FileTransformFactoryDeviceTest {
 
     private lateinit var factory: FileTransformFactory
@@ -98,7 +96,7 @@ class FileTransformFactoryDeviceTest {
         normalizedX: Float,
         normalizedY: Float,
         imageX: Int,
-        imageY: Int
+        imageY: Int,
     ) {
         val point = floatArrayOf(normalizedX, normalizedY)
         matrix.mapPoints(point)

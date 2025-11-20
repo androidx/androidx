@@ -25,12 +25,15 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.constraintlayout.compose"
+        androidResources.enable = true
+    }
 
     sourceSets {
         commonMain {
@@ -71,12 +74,13 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(jvmCommonTest)
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
+                implementation(libs.espressoCore)
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(project(":compose:foundation:foundation"))
@@ -87,7 +91,7 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(jvmCommonTest)
             dependencies {
                 implementation(libs.kotlinTest)
@@ -110,11 +114,5 @@ androidx {
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":constraintlayout:constraintlayout-compose:constraintlayout-compose-samples"))
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.constraintlayout.compose"
 }

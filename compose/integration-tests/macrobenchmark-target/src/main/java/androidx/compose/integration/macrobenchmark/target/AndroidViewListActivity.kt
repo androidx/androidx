@@ -63,7 +63,7 @@ private fun ListRow(entry: Entry) {
             val layoutInflator = LayoutInflater.from(context)
             layoutInflator.inflate(R.layout.recycler_row, null, false)
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) { view ->
         view.findViewById<AppCompatTextView>(R.id.content).text = entry.contents
     }

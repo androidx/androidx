@@ -72,6 +72,21 @@ package androidx.sqlite.db {
     method public void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object?[]? bindArgs);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SupportSQLiteCompat {
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class SupportSQLiteCompat.Api16Impl {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void cancel(android.os.CancellationSignal cancellationSignal);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.os.CancellationSignal createCancellationSignal();
+    field @Deprecated public static final androidx.sqlite.db.SupportSQLiteCompat.Api16Impl INSTANCE;
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class SupportSQLiteCompat.Api19Impl {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.net.Uri getNotificationUri(android.database.Cursor cursor);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isLowRamDevice(android.app.ActivityManager activityManager);
+    field @Deprecated public static final androidx.sqlite.db.SupportSQLiteCompat.Api19Impl INSTANCE;
+  }
+
   public interface SupportSQLiteDatabase extends java.io.Closeable {
     method public void beginTransaction();
     method public void beginTransactionNonExclusive();

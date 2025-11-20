@@ -20,6 +20,7 @@ import static androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_M
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -92,6 +93,28 @@ public class ViewGroupCompatTest extends BaseInstrumentationTestCase<ViewCompatA
             }
         });
         assertFalse(ViewGroupCompat.isTransitionGroup(mViewGroup));
+    }
+
+    @Test
+    public void dispatchApplyWindowInsets() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            final Context context = mViewGroup.getContext();
+            final WindowInsetsCompat insets = WindowInsetsCompat.toWindowInsetsCompat(
+                    new InsetsObtainer(context).obtain(10, 10, 10, 10));
+            final View customView = new View(context) {
+                @Override
+                public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
+                    // Doesn't call onApplyWindowInsets at all.
+                    return insets;
+                }
+            };
+
+            ViewGroupCompat.installCompatInsetsDispatch(mViewGroup);
+            mViewGroup.addView(customView);
+
+            assertNotNull(ViewCompat.dispatchApplyWindowInsets(mViewGroup, insets));
+            assertNotNull(ViewCompat.dispatchApplyWindowInsets(customView, insets));
+        });
     }
 
     @Test

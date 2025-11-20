@@ -29,11 +29,11 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kspApi)
     api(libs.junit)
     api(libs.truth)
-    implementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    implementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
 }
 
 androidx {

@@ -49,11 +49,7 @@ internal fun RemoteViews.translateEmittableLazyVerticalGrid(
 ) {
 
     val viewDef = insertView(translationContext, element.gridCells.toLayout(), element.modifier)
-    translateEmittableLazyVerticalGrid(
-        translationContext,
-        element,
-        viewDef,
-    )
+    translateEmittableLazyVerticalGrid(translationContext, element, viewDef)
 }
 
 private fun RemoteViews.translateEmittableLazyVerticalGrid(
@@ -80,7 +76,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
                 FLAG_UPDATE_CURRENT or
                 FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT,
             element.activityOptions,
-        )
+        ),
     )
     val items =
         RemoteCollectionItems.Builder()
@@ -95,12 +91,12 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
                             translateComposition(
                                 childContext.forLazyViewItem(
                                     position,
-                                    LazyVerticalGridItemStartingViewId
+                                    LazyVerticalGridItemStartingViewId,
                                 ),
                                 listOf(itemEmittable),
                                 translationContext.layoutConfiguration?.addLayout(itemEmittable)
                                     ?: -1,
-                            )
+                            ),
                         )
                         // If the user specifies any explicit ids, we assume the list to be stable
                         previous || (itemId > ReservedItemIdRangeEnd)
@@ -113,13 +109,13 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
         translationContext,
         viewDef.mainViewId,
         translationContext.layoutSize.toSizeString(),
-        items
+        items,
     )
     if (Build.VERSION.SDK_INT >= 31 && gridCells is GridCells.Adaptive) {
         setGridViewColumnWidth(
             viewId = viewDef.mainViewId,
             value = gridCells.minSize.value,
-            unit = android.util.TypedValue.COMPLEX_UNIT_DIP
+            unit = android.util.TypedValue.COMPLEX_UNIT_DIP,
         )
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
@@ -131,7 +127,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
  */
 internal fun RemoteViews.translateEmittableLazyVerticalGridListItem(
     translationContext: TranslationContext,
-    element: EmittableLazyVerticalGridListItem
+    element: EmittableLazyVerticalGridListItem,
 ) {
     require(element.children.size == 1 && element.alignment == Alignment.CenterStart) {
         "Lazy vertical grid items can only have a single child align at the center start of the " +

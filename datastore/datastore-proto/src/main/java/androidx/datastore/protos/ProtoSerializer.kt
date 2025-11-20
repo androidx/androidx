@@ -32,7 +32,7 @@ internal class ProtoSerializer<T : MessageLite>(
      * Set the extensionRegistryLite to use when deserializing T. If no extension registry is
      * necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
-    private val extensionRegistryLite: ExtensionRegistryLite
+    private val extensionRegistryLite: ExtensionRegistryLite,
 ) : Serializer<T> {
 
     @Suppress("UNCHECKED_CAST")

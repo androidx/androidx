@@ -26,13 +26,20 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     implementation("androidx.core:core:1.12.0")
+    implementation("androidx.collection:collection:1.5.0")
+
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation("androidx.core:core-ktx:1.12.0")
 
     androidTestImplementation("androidx.annotation:annotation:1.8.1")
     androidTestImplementation("androidx.core:core-ktx:1.12.0")
@@ -89,4 +96,5 @@ androidx {
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

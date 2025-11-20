@@ -26,7 +26,7 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  * to retrieve the signals updates.
  */
 @ExperimentalFeatures.Ext12OptIn
-class UpdateSignalsRequest(val updateUri: Uri) {
+public class UpdateSignalsRequest(public val updateUri: Uri) {
     /** Checks whether two [UpdateSignalsRequest] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

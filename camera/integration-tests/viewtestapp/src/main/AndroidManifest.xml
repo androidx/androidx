@@ -37,6 +37,18 @@ limitations under the License.
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".CameraPipeActivity"
+            android:label="@string/app_name_camera_pipe"
+            android:exported="true"
+            android:screenOrientation="fullUser">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".StreamSharingActivity"
             android:label="@string/app_name_stream_sharing"

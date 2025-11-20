@@ -140,7 +140,7 @@
     <string name="send_notification_title" msgid="4731688444696028193">"إرسال إشعار"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"تفعيل الإشعارات"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"إيقاف الإشعارات"</string>
-    <string name="notification_title" msgid="5507590705935298176">"الإشعار"</string>
+    <string name="notification_title" msgid="5507590705935298176">"الإشعارات"</string>
     <string name="importance_title" msgid="9034862997821839831">"مدى الأهمية"</string>
     <string name="category_title" msgid="4783851267093259949">"الفئة"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"مستمر"</string>
@@ -231,6 +231,17 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"إصدار تجريبي لنموذج الرسالة"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"تظهر الرسالة هنا.\nالمزيد من النص في السطر الثاني."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"عرض توضيحي لنموذج رسالة قصيرة"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"عرض توضيحي لنموذج عناصر مُقسَّم"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"‏عرض توضيحي لميزة AlphaJump المفعّلة في قائمة مقسّمة"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"قسم \"زر الاختيار\""</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"تفعيل القسم أو إيقافه"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"قسم \"العديد من الصفوف\""</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"قسم عناصر الشبكة"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"عرض تجريبي لقائمة عناصر مُقسَّمة"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"القائمة 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"القائمة 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نص فرعي تحت كل قائمة"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"إنهاء العرض التوضيحي للصور والإجراءات"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"إصدار تجريبي لنموذج اللوحة"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"إصدار تجريبي لنموذج قائمة الأماكن"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"تصفُّح الأماكن"</string>
@@ -325,10 +336,6 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"يمكن أيضًا اختيار الصف."</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"تم اختيار إجراء ثانوي للصف."</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"تم اختيار إجراء أساسي للصف."</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"عرض تجريبي لقائمة عناصر مُقسَّمة"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"القائمة 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"القائمة 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نص فرعي تحت كل قائمة"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"عرض تقديمي لقائمة فارغة"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"القائمة فارغة."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"إصدارات تجريبية لنموذج ميزات متنوّعة"</string>

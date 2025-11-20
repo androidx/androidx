@@ -73,10 +73,7 @@ class PlayHapticAttributesTest {
             )
     }
 
-    @SdkSuppress(
-        minSdkVersion = Build.VERSION_CODES.LOLLIPOP,
-        maxSdkVersion = Build.VERSION_CODES.P
-    )
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     @Test
     fun play_api21To28_vibratesWithPatternAndAudioAttributes() {
         hapticManager.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
@@ -92,16 +89,5 @@ class PlayHapticAttributesTest {
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build()
             )
-    }
-
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.KITKAT_WATCH)
-    @Test
-    fun play_belowApi21_vibratesWithPatternNoAttributes() {
-        hapticManager.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
-        assertThat(fakeVibrator).hasVibrationCount(1)
-
-        val vibration = fakeVibrator.vibrations().first()
-        assertThat(vibration).hasPatternVibration()
-        assertThat(vibration).hasNoAttributes()
     }
 }

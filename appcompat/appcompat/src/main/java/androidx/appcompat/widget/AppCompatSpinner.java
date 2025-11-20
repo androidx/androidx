@@ -28,7 +28,6 @@ import android.database.DataSetObserver;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -47,7 +46,6 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
 import androidx.annotation.VisibleForTesting;
@@ -695,11 +693,13 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             }
 
             if (dropDownTheme != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                         && adapter instanceof android.widget.ThemedSpinnerAdapter) {
+                if (adapter instanceof android.widget.ThemedSpinnerAdapter) {
                     final android.widget.ThemedSpinnerAdapter themedAdapter =
                             (android.widget.ThemedSpinnerAdapter) adapter;
-                    Api23Impl.setDropDownViewTheme(themedAdapter, dropDownTheme);
+                    final Resources.Theme dropDownViewTheme = themedAdapter.getDropDownViewTheme();
+                    if (!ObjectsCompat.equals(dropDownViewTheme, dropDownTheme)) {
+                        themedAdapter.setDropDownViewTheme(dropDownTheme);
+                    }
                 } else if (adapter instanceof ThemedSpinnerAdapter) {
                     final ThemedSpinnerAdapter themedAdapter = (ThemedSpinnerAdapter) adapter;
                     if (themedAdapter.getDropDownViewTheme() == null) {
@@ -1091,22 +1091,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         @Override
         public int getHorizontalOriginalOffset() {
             return mOriginalHorizontalOffset;
-        }
-    }
-
-    @RequiresApi(23)
-    private static final class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setDropDownViewTheme(
-                android.widget.@NonNull ThemedSpinnerAdapter themedSpinnerAdapter,
-                Resources.@Nullable Theme theme
-        ) {
-            if (!ObjectsCompat.equals(themedSpinnerAdapter.getDropDownViewTheme(), theme)) {
-                themedSpinnerAdapter.setDropDownViewTheme(theme);
-            }
         }
     }
 }

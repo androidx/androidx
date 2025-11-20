@@ -50,103 +50,103 @@ class ColorAppearanceModelTest {
     fun setLuminance_fromBlack() {
         assertColorWithinTolerance(
             Color.valueOf(0x000000),
-            Color.valueOf(Color.BLACK.setLuminance(0f))
+            Color.valueOf(Color.BLACK.setLuminance(0f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x010101),
-            Color.valueOf(Color.BLACK.setLuminance(.25f))
+            Color.valueOf(Color.BLACK.setLuminance(.25f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x020202),
-            Color.valueOf(Color.BLACK.setLuminance(.5f))
+            Color.valueOf(Color.BLACK.setLuminance(.5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x030303),
-            Color.valueOf(Color.BLACK.setLuminance(.75f))
+            Color.valueOf(Color.BLACK.setLuminance(.75f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x040404),
-            Color.valueOf(Color.BLACK.setLuminance(1f))
+            Color.valueOf(Color.BLACK.setLuminance(1f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x070707),
-            Color.valueOf(Color.BLACK.setLuminance(2f))
+            Color.valueOf(Color.BLACK.setLuminance(2f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0b0b0b),
-            Color.valueOf(Color.BLACK.setLuminance(3f))
+            Color.valueOf(Color.BLACK.setLuminance(3f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0e0e0e),
-            Color.valueOf(Color.BLACK.setLuminance(4f))
+            Color.valueOf(Color.BLACK.setLuminance(4f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x111111),
-            Color.valueOf(Color.BLACK.setLuminance(5f))
+            Color.valueOf(Color.BLACK.setLuminance(5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x131313),
-            Color.valueOf(Color.BLACK.setLuminance(6f))
+            Color.valueOf(Color.BLACK.setLuminance(6f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x151515),
-            Color.valueOf(Color.BLACK.setLuminance(7f))
+            Color.valueOf(Color.BLACK.setLuminance(7f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x181818),
-            Color.valueOf(Color.BLACK.setLuminance(8f))
+            Color.valueOf(Color.BLACK.setLuminance(8f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x191919),
-            Color.valueOf(Color.BLACK.setLuminance(9f))
+            Color.valueOf(Color.BLACK.setLuminance(9f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x1b1b1b),
-            Color.valueOf(Color.BLACK.setLuminance(10f))
+            Color.valueOf(Color.BLACK.setLuminance(10f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x303030),
-            Color.valueOf(Color.BLACK.setLuminance(20f))
+            Color.valueOf(Color.BLACK.setLuminance(20f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x474747),
-            Color.valueOf(Color.BLACK.setLuminance(30f))
+            Color.valueOf(Color.BLACK.setLuminance(30f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5e5e5e),
-            Color.valueOf(Color.BLACK.setLuminance(40f))
+            Color.valueOf(Color.BLACK.setLuminance(40f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x777777),
-            Color.valueOf(Color.BLACK.setLuminance(50f))
+            Color.valueOf(Color.BLACK.setLuminance(50f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x919191),
-            Color.valueOf(Color.BLACK.setLuminance(60f))
+            Color.valueOf(Color.BLACK.setLuminance(60f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xababab),
-            Color.valueOf(Color.BLACK.setLuminance(70f))
+            Color.valueOf(Color.BLACK.setLuminance(70f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xc6c6c6),
-            Color.valueOf(Color.BLACK.setLuminance(80f))
+            Color.valueOf(Color.BLACK.setLuminance(80f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xe2e2e2),
-            Color.valueOf(Color.BLACK.setLuminance(90f))
+            Color.valueOf(Color.BLACK.setLuminance(90f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xF9F9F9),
-            Color.valueOf(Color.BLACK.setLuminance(98f))
+            Color.valueOf(Color.BLACK.setLuminance(98f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xffffff),
-            Color.valueOf(Color.BLACK.setLuminance(99f))
+            Color.valueOf(Color.BLACK.setLuminance(99f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xffffff),
-            Color.valueOf(Color.BLACK.setLuminance(100f))
+            Color.valueOf(Color.BLACK.setLuminance(100f)),
         )
     }
 
@@ -154,107 +154,107 @@ class ColorAppearanceModelTest {
     fun setLuminance_fromRed() {
         assertColorWithinTolerance(
             Color.valueOf(0xff0000),
-            Color.valueOf(Color.RED.setLuminance(53f))
+            Color.valueOf(Color.RED.setLuminance(53f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5B0000),
-            Color.valueOf(Color.RED.setLuminance(0f))
+            Color.valueOf(Color.RED.setLuminance(0f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5C0000),
-            Color.valueOf(Color.RED.setLuminance(.25f))
+            Color.valueOf(Color.RED.setLuminance(.25f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5C0000),
-            Color.valueOf(Color.RED.setLuminance(.5f))
+            Color.valueOf(Color.RED.setLuminance(.5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5D0000),
-            Color.valueOf(Color.RED.setLuminance(.75f))
+            Color.valueOf(Color.RED.setLuminance(.75f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5D0000),
-            Color.valueOf(Color.RED.setLuminance(1f))
+            Color.valueOf(Color.RED.setLuminance(1f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5F0000),
-            Color.valueOf(Color.RED.setLuminance(2f))
+            Color.valueOf(Color.RED.setLuminance(2f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x620000),
-            Color.valueOf(Color.RED.setLuminance(3f))
+            Color.valueOf(Color.RED.setLuminance(3f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x640000),
-            Color.valueOf(Color.RED.setLuminance(4f))
+            Color.valueOf(Color.RED.setLuminance(4f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x670000),
-            Color.valueOf(Color.RED.setLuminance(5f))
+            Color.valueOf(Color.RED.setLuminance(5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x690000),
-            Color.valueOf(Color.RED.setLuminance(6f))
+            Color.valueOf(Color.RED.setLuminance(6f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x6C0000),
-            Color.valueOf(Color.RED.setLuminance(7f))
+            Color.valueOf(Color.RED.setLuminance(7f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x6E0000),
-            Color.valueOf(Color.RED.setLuminance(8f))
+            Color.valueOf(Color.RED.setLuminance(8f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x710000),
-            Color.valueOf(Color.RED.setLuminance(9f))
+            Color.valueOf(Color.RED.setLuminance(9f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x740000),
-            Color.valueOf(Color.RED.setLuminance(10f))
+            Color.valueOf(Color.RED.setLuminance(10f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x920000),
-            Color.valueOf(Color.RED.setLuminance(20f))
+            Color.valueOf(Color.RED.setLuminance(20f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xB10000),
-            Color.valueOf(Color.RED.setLuminance(30f))
+            Color.valueOf(Color.RED.setLuminance(30f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xD20000),
-            Color.valueOf(Color.RED.setLuminance(40f))
+            Color.valueOf(Color.RED.setLuminance(40f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xF40000),
-            Color.valueOf(Color.RED.setLuminance(50f))
+            Color.valueOf(Color.RED.setLuminance(50f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFF3017),
-            Color.valueOf(Color.RED.setLuminance(60f))
+            Color.valueOf(Color.RED.setLuminance(60f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFF5632),
-            Color.valueOf(Color.RED.setLuminance(70f))
+            Color.valueOf(Color.RED.setLuminance(70f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFF764C),
-            Color.valueOf(Color.RED.setLuminance(80f))
+            Color.valueOf(Color.RED.setLuminance(80f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFF9566),
-            Color.valueOf(Color.RED.setLuminance(90f))
+            Color.valueOf(Color.RED.setLuminance(90f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFAD7B),
-            Color.valueOf(Color.RED.setLuminance(98f))
+            Color.valueOf(Color.RED.setLuminance(98f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFB07D),
-            Color.valueOf(Color.RED.setLuminance(99f))
+            Color.valueOf(Color.RED.setLuminance(99f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFB380),
-            Color.valueOf(Color.RED.setLuminance(100f))
+            Color.valueOf(Color.RED.setLuminance(100f)),
         )
     }
 
@@ -262,107 +262,107 @@ class ColorAppearanceModelTest {
     fun setLuminance_fromGreen() {
         assertColorWithinTolerance(
             Color.valueOf(0x00FC00),
-            Color.valueOf(Color.GREEN.setLuminance(86f))
+            Color.valueOf(Color.GREEN.setLuminance(86f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002400),
-            Color.valueOf(Color.GREEN.setLuminance(0f))
+            Color.valueOf(Color.GREEN.setLuminance(0f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002500),
-            Color.valueOf(Color.GREEN.setLuminance(.25f))
+            Color.valueOf(Color.GREEN.setLuminance(.25f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002500),
-            Color.valueOf(Color.GREEN.setLuminance(.5f))
+            Color.valueOf(Color.GREEN.setLuminance(.5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002500),
-            Color.valueOf(Color.GREEN.setLuminance(.75f))
+            Color.valueOf(Color.GREEN.setLuminance(.75f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002500),
-            Color.valueOf(Color.GREEN.setLuminance(1f))
+            Color.valueOf(Color.GREEN.setLuminance(1f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002700),
-            Color.valueOf(Color.GREEN.setLuminance(2f))
+            Color.valueOf(Color.GREEN.setLuminance(2f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002800),
-            Color.valueOf(Color.GREEN.setLuminance(3f))
+            Color.valueOf(Color.GREEN.setLuminance(3f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002900),
-            Color.valueOf(Color.GREEN.setLuminance(4f))
+            Color.valueOf(Color.GREEN.setLuminance(4f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002A00),
-            Color.valueOf(Color.GREEN.setLuminance(5f))
+            Color.valueOf(Color.GREEN.setLuminance(5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002B00),
-            Color.valueOf(Color.GREEN.setLuminance(6f))
+            Color.valueOf(Color.GREEN.setLuminance(6f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002C00),
-            Color.valueOf(Color.GREEN.setLuminance(7f))
+            Color.valueOf(Color.GREEN.setLuminance(7f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002D00),
-            Color.valueOf(Color.GREEN.setLuminance(8f))
+            Color.valueOf(Color.GREEN.setLuminance(8f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x002E00),
-            Color.valueOf(Color.GREEN.setLuminance(9f))
+            Color.valueOf(Color.GREEN.setLuminance(9f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x003000),
-            Color.valueOf(Color.GREEN.setLuminance(10f))
+            Color.valueOf(Color.GREEN.setLuminance(10f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x004200),
-            Color.valueOf(Color.GREEN.setLuminance(20f))
+            Color.valueOf(Color.GREEN.setLuminance(20f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x005B00),
-            Color.valueOf(Color.GREEN.setLuminance(30f))
+            Color.valueOf(Color.GREEN.setLuminance(30f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x007600),
-            Color.valueOf(Color.GREEN.setLuminance(40f))
+            Color.valueOf(Color.GREEN.setLuminance(40f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x009200),
-            Color.valueOf(Color.GREEN.setLuminance(50f))
+            Color.valueOf(Color.GREEN.setLuminance(50f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x00AE00),
-            Color.valueOf(Color.GREEN.setLuminance(60f))
+            Color.valueOf(Color.GREEN.setLuminance(60f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x00CB00),
-            Color.valueOf(Color.GREEN.setLuminance(70f))
+            Color.valueOf(Color.GREEN.setLuminance(70f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x00E800),
-            Color.valueOf(Color.GREEN.setLuminance(80f))
+            Color.valueOf(Color.GREEN.setLuminance(80f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x29FF1C),
-            Color.valueOf(Color.GREEN.setLuminance(90f))
+            Color.valueOf(Color.GREEN.setLuminance(90f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x54FF3E),
-            Color.valueOf(Color.GREEN.setLuminance(98f))
+            Color.valueOf(Color.GREEN.setLuminance(98f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x58FF42),
-            Color.valueOf(Color.GREEN.setLuminance(99f))
+            Color.valueOf(Color.GREEN.setLuminance(99f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x5DFF45),
-            Color.valueOf(Color.GREEN.setLuminance(100f))
+            Color.valueOf(Color.GREEN.setLuminance(100f)),
         )
     }
 
@@ -370,107 +370,107 @@ class ColorAppearanceModelTest {
     fun setLuminance_fromBlue() {
         assertColorWithinTolerance(
             Color.valueOf(0x0000FF),
-            Color.valueOf(Color.BLUE.setLuminance(32f))
+            Color.valueOf(Color.BLUE.setLuminance(32f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A2),
-            Color.valueOf(Color.BLUE.setLuminance(0f))
+            Color.valueOf(Color.BLUE.setLuminance(0f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A2),
-            Color.valueOf(Color.BLUE.setLuminance(.25f))
+            Color.valueOf(Color.BLUE.setLuminance(.25f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A3),
-            Color.valueOf(Color.BLUE.setLuminance(.5f))
+            Color.valueOf(Color.BLUE.setLuminance(.5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A4),
-            Color.valueOf(Color.BLUE.setLuminance(.75f))
+            Color.valueOf(Color.BLUE.setLuminance(.75f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A4),
-            Color.valueOf(Color.BLUE.setLuminance(1f))
+            Color.valueOf(Color.BLUE.setLuminance(1f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000A7),
-            Color.valueOf(Color.BLUE.setLuminance(2f))
+            Color.valueOf(Color.BLUE.setLuminance(2f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000AA),
-            Color.valueOf(Color.BLUE.setLuminance(3f))
+            Color.valueOf(Color.BLUE.setLuminance(3f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000AD),
-            Color.valueOf(Color.BLUE.setLuminance(4f))
+            Color.valueOf(Color.BLUE.setLuminance(4f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000AF),
-            Color.valueOf(Color.BLUE.setLuminance(5f))
+            Color.valueOf(Color.BLUE.setLuminance(5f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000B2),
-            Color.valueOf(Color.BLUE.setLuminance(6f))
+            Color.valueOf(Color.BLUE.setLuminance(6f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000B5),
-            Color.valueOf(Color.BLUE.setLuminance(7f))
+            Color.valueOf(Color.BLUE.setLuminance(7f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000B8),
-            Color.valueOf(Color.BLUE.setLuminance(8f))
+            Color.valueOf(Color.BLUE.setLuminance(8f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000BB),
-            Color.valueOf(Color.BLUE.setLuminance(9f))
+            Color.valueOf(Color.BLUE.setLuminance(9f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000BE),
-            Color.valueOf(Color.BLUE.setLuminance(10f))
+            Color.valueOf(Color.BLUE.setLuminance(10f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000DB),
-            Color.valueOf(Color.BLUE.setLuminance(20f))
+            Color.valueOf(Color.BLUE.setLuminance(20f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x0000F8),
-            Color.valueOf(Color.BLUE.setLuminance(30f))
+            Color.valueOf(Color.BLUE.setLuminance(30f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x4523FF),
-            Color.valueOf(Color.BLUE.setLuminance(40f))
+            Color.valueOf(Color.BLUE.setLuminance(40f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x7041FF),
-            Color.valueOf(Color.BLUE.setLuminance(50f))
+            Color.valueOf(Color.BLUE.setLuminance(50f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0x955DFF),
-            Color.valueOf(Color.BLUE.setLuminance(60f))
+            Color.valueOf(Color.BLUE.setLuminance(60f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xB878FF),
-            Color.valueOf(Color.BLUE.setLuminance(70f))
+            Color.valueOf(Color.BLUE.setLuminance(70f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xD994FF),
-            Color.valueOf(Color.BLUE.setLuminance(80f))
+            Color.valueOf(Color.BLUE.setLuminance(80f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFAB0FF),
-            Color.valueOf(Color.BLUE.setLuminance(90f))
+            Color.valueOf(Color.BLUE.setLuminance(90f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFC7FF),
-            Color.valueOf(Color.BLUE.setLuminance(98f))
+            Color.valueOf(Color.BLUE.setLuminance(98f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFCAFF),
-            Color.valueOf(Color.BLUE.setLuminance(99f))
+            Color.valueOf(Color.BLUE.setLuminance(99f)),
         )
         assertColorWithinTolerance(
             Color.valueOf(0xFFCDFF),
-            Color.valueOf(Color.BLUE.setLuminance(100f))
+            Color.valueOf(Color.BLUE.setLuminance(100f)),
         )
     }
 

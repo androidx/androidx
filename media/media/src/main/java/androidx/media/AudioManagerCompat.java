@@ -172,24 +172,10 @@ public final class AudioManagerCompat {
      * fixed volume.
      */
     public static boolean isVolumeFixed(@NonNull AudioManager audioManager) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.isVolumeFixed(audioManager);
-        } else {
-            return false;
-        }
+        return audioManager.isVolumeFixed();
     }
 
     private AudioManagerCompat() {}
-
-    @RequiresApi(21)
-    private static class Api21Impl {
-
-        static boolean isVolumeFixed(AudioManager audioManager) {
-            return audioManager.isVolumeFixed();
-        }
-
-        private Api21Impl() {}
-    }
 
     @RequiresApi(26)
     private static class Api26Impl {

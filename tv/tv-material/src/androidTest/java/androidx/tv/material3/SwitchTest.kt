@@ -53,6 +53,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +62,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class, ExperimentalTvMaterial3Api::class)
 class SwitchTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private val defaultSwitchTag = "switch"
 
@@ -73,7 +74,7 @@ class SwitchTest {
                 Switch(
                     modifier = Modifier.testTag("unchecked"),
                     checked = false,
-                    onCheckedChange = {}
+                    onCheckedChange = {},
                 )
             }
         }
@@ -100,7 +101,7 @@ class SwitchTest {
                 Switch(
                     modifier = Modifier.testTag(defaultSwitchTag),
                     checked = checked,
-                    onCheckedChange = onChecked
+                    onCheckedChange = onChecked,
                 )
             }
         }
@@ -118,7 +119,7 @@ class SwitchTest {
                 Switch(
                     modifier = Modifier.testTag(defaultSwitchTag),
                     checked = checked,
-                    onCheckedChange = onChecked
+                    onCheckedChange = onChecked,
                 )
             }
         }
@@ -140,7 +141,7 @@ class SwitchTest {
                 modifier = Modifier.testTag(defaultSwitchTag),
                 checked = checked,
                 onCheckedChange = {},
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -157,7 +158,7 @@ class SwitchTest {
                     checked,
                     {},
                     enabled = false,
-                    modifier = Modifier.testTag(defaultSwitchTag).semantics { focused = true }
+                    modifier = Modifier.testTag(defaultSwitchTag).semantics { focused = true },
                 )
             }
         }
@@ -253,7 +254,7 @@ class SwitchTest {
                                                 items.toMutableList().also {
                                                     it[index] = item.first to !item.second
                                                 }
-                                        }
+                                        },
                                     )
                                 }
                             }

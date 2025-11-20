@@ -97,7 +97,7 @@ public class OvulationTestRecord(
                 Result.INCONCLUSIVE to RESULT_INCONCLUSIVE,
                 Result.POSITIVE to RESULT_POSITIVE,
                 Result.HIGH to RESULT_HIGH,
-                Result.NEGATIVE to RESULT_NEGATIVE
+                Result.NEGATIVE to RESULT_NEGATIVE,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)

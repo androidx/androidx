@@ -35,7 +35,6 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +43,6 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +52,6 @@ import org.mockito.Mockito.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 23) // BasicVendorExtender requires API level 23
 class ImageCaptureConfigProviderTest {
     @get:Rule
     val useCamera =
@@ -89,7 +86,6 @@ class ImageCaptureConfigProviderTest {
 
     @Test
     @MediumTest
-    @Ignore("b/331617278")
     fun canSetSupportedResolutionsToConfigTest(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
 

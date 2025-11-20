@@ -50,7 +50,7 @@ val ComplexTouchInterop =
             ComposableDemo("Compose in Android in Compose in Android") {
                 ComposeInAndroidInComposeEtcTargetingDemo()
             }
-        )
+        ),
     )
 
 @Composable
@@ -95,7 +95,7 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
                             }
                         )
                     }
-                }
+                },
             )
         }
     }
@@ -112,7 +112,7 @@ private fun ColorButton() {
         }
     Button(
         onClick = { state.value = !state.value },
-        colors = ButtonDefaults.buttonColors(backgroundColor = color)
+        colors = ButtonDefaults.buttonColors(backgroundColor = color),
     ) {
         Text("Click me")
     }

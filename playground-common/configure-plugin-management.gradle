@@ -6,6 +6,18 @@ def srcFile = buildscript.getSourceFile()
 includeBuild new File(srcFile.parentFile, "playground-plugin").canonicalPath
 repositories {
     mavenCentral()
-    google()
+    google {
+        content {
+            includeGroupByRegex("androidx.*")
+            includeGroupByRegex("com\\.android.*")
+            includeGroupByRegex("com\\.google.*")
+        }
+    }
     gradlePluginPortal()
+    maven {
+        url = "https://packages.jetbrains.team/maven/p/kt/dev/"
+        content {
+            includeGroupByRegex("org\\.jetbrains\\.kotlin.*")
+        }
+    }
 }

@@ -134,7 +134,7 @@ fun CoroutineTapDemo() {
                             } else {
                                 cancelHue = anotherRandomHue(cancelHue)
                             }
-                        }
+                        },
                     )
                 }
                 .background(Color.White)
@@ -309,7 +309,7 @@ fun OrientationLockDragGestures() {
 
         Text(
             "Drag the columns around. They should lock to vertical or horizontal.",
-            Modifier.align(Alignment.Center)
+            Modifier.align(Alignment.Center),
         )
     }
 }
@@ -329,13 +329,13 @@ fun Drag2DGestures() {
                         offsetX =
                             (offsetX + dragAmount.x).coerceIn(
                                 0f,
-                                size.width.toFloat() - 50.dp.toPx()
+                                size.width.toFloat() - 50.dp.toPx(),
                             )
 
                         offsetY =
                             (offsetY + dragAmount.y).coerceIn(
                                 0f,
-                                size.height.toFloat() - 50.dp.toPx()
+                                size.height.toFloat() - 50.dp.toPx(),
                             )
                     }
                 }
@@ -349,8 +349,8 @@ fun MultitouchArea(
     text: String,
     gestureDetector:
         suspend PointerInputScope.(
-            (centroid: Offset, pan: Offset, zoom: Float, angle: Float) -> Unit,
-        ) -> Unit
+            (centroid: Offset, pan: Offset, zoom: Float, angle: Float) -> Unit
+        ) -> Unit,
 ) {
     val matrix by remember { mutableStateOf(Matrix()) }
     var angle by remember { mutableFloatStateOf(0f) }
@@ -401,7 +401,7 @@ fun MultitouchArea(
                             val topLeft =
                                 Offset(
                                     x = x * size.width / numRectanglesHorizontal,
-                                    y = y * size.height / numRectanglesVertical
+                                    y = y * size.height / numRectanglesVertical,
                                 )
                             drawRect(color = color, topLeft = topLeft, size = rectangleSize)
                         }

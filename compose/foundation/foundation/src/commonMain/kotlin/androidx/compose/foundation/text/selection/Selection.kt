@@ -37,7 +37,7 @@ internal data class Selection(
     // enough.
     // But when selection happens across multiple widgets, this value needs more complicated
     // calculation. To avoid repeated calculation, making it as a flag is cheaper.
-    val handlesCrossed: Boolean = false
+    val handlesCrossed: Boolean = false,
 ) {
     /** Contains information about an anchor (start/end) of selection. */
     @Immutable
@@ -52,7 +52,7 @@ internal data class Selection(
         val offset: Int,
 
         /** The id of the [Selectable] which contains this [Selection] Anchor. */
-        val selectableId: Long
+        val selectableId: Long,
     )
 
     fun merge(other: Selection?): Selection {
@@ -64,7 +64,7 @@ internal data class Selection(
             Selection(
                 start = if (other.handlesCrossed) other.start else other.end,
                 end = if (handlesCrossed) end else start,
-                handlesCrossed = true
+                handlesCrossed = true,
             )
         } else {
             selection.copy(end = other.end)

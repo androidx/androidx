@@ -22,7 +22,7 @@ package androidx.camera.camera2.pipe.core
  */
 internal inline fun lazyOrFalse(
     crossinline blockNameFn: () -> String,
-    crossinline block: () -> Boolean
+    crossinline block: () -> Boolean,
 ): Lazy<Boolean> =
     lazy(LazyThreadSafetyMode.PUBLICATION) {
         val blockName = blockNameFn()
@@ -36,7 +36,7 @@ internal inline fun lazyOrFalse(
 
 internal inline fun lazyOrFalse(
     blockName: String,
-    crossinline block: () -> Boolean
+    crossinline block: () -> Boolean,
 ): Lazy<Boolean> = lazyOrFalse({ blockName }, block)
 
 /**
@@ -45,7 +45,7 @@ internal inline fun lazyOrFalse(
  */
 internal inline fun <T> lazyOrEmptySet(
     crossinline blockNameFn: () -> String,
-    crossinline block: () -> Set<T>?
+    crossinline block: () -> Set<T>?,
 ): Lazy<Set<T>> =
     lazy(LazyThreadSafetyMode.PUBLICATION) {
         val blockName = blockNameFn()
@@ -59,7 +59,7 @@ internal inline fun <T> lazyOrEmptySet(
 
 internal inline fun <T> lazyOrEmptySet(
     blockName: String,
-    crossinline block: () -> Set<T>?
+    crossinline block: () -> Set<T>?,
 ): Lazy<Set<T>> = lazyOrEmptySet({ blockName }, block)
 
 /**
@@ -68,7 +68,7 @@ internal inline fun <T> lazyOrEmptySet(
  */
 internal inline fun <T> lazyOrEmptyList(
     crossinline blockNameFn: () -> String,
-    crossinline block: () -> List<T>?
+    crossinline block: () -> List<T>?,
 ): Lazy<List<T>> =
     lazy(LazyThreadSafetyMode.PUBLICATION) {
         val blockName = blockNameFn()
@@ -82,5 +82,5 @@ internal inline fun <T> lazyOrEmptyList(
 
 internal inline fun <T> lazyOrEmptyList(
     blockName: String,
-    crossinline block: () -> List<T>
+    crossinline block: () -> List<T>,
 ): Lazy<List<T>> = lazyOrEmptyList({ blockName }, block)

@@ -140,8 +140,8 @@ class AutoValueNullnessOverride : Detector(), Detector.UastScanner {
                 Severity.ERROR,
                 Implementation(
                     AutoValueNullnessOverride::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

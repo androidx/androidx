@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
@@ -60,7 +61,17 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
         if (
             it.isAttached && it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
         ) {
-            return it.restoreFocusedChild() || it.requestFocus()
+            @OptIn(ExperimentalComposeUiApi::class)
+            return if (ComposeUiFlags.isRequestFocusOnNonFocusableFocusTargetEnabled) {
+                return it.restoreFocusedChild() ||
+                    // When requestFocus fails, it attempts to grant focus to one of its children.
+                    // We don't want to send focus to the children when restoreFocusedChild() fails,
+                    // since it has its own fallback logic. So we call requestFocus only if this
+                    // focus target is itself focusable.
+                    it.fetchFocusProperties().canFocus && it.requestFocus()
+            } else {
+                it.restoreFocusedChild() || it.requestFocus()
+            }
         }
     }
     return false
@@ -93,7 +104,7 @@ fun Modifier.focusRestorer(fallback: FocusRequester = Default): Modifier =
 @Deprecated(
     "Use focusRestorer(FocusRequester) instead",
     ReplaceWith("this.focusRestorer(onRestoreFailed())"),
-    DeprecationLevel.WARNING
+    DeprecationLevel.WARNING,
 )
 fun Modifier.focusRestorer(onRestoreFailed: (() -> FocusRequester)?): Modifier =
     focusRestorer(fallback = onRestoreFailed?.invoke() ?: Default)
@@ -104,32 +115,20 @@ internal class FocusRestorerNode(var fallback: FocusRequester) :
     FocusRequesterModifierNode,
     Modifier.Node() {
 
-    private var pinnedHandle: PinnedHandle? = null
-    private val onExit: FocusEnterExitScope.() -> Unit = {
-        saveFocusedChild()
-        pinnedHandle?.release()
-        pinnedHandle = pinFocusedChild()
-    }
+    private val onExit: FocusEnterExitScope.() -> Unit = { saveFocusedChild() }
 
     private val onEnter: FocusEnterExitScope.() -> Unit = {
-        pinnedHandle?.release()
-        pinnedHandle = null
-        if (restoreFocusedChild() || fallback == Cancel) {
-            cancelFocusChange()
-        } else if (fallback != Default) {
-            fallback.requestFocus()
+        // Restoring the focused child involved calling requestFocus() and will automatically cancel
+        // the current focus change. If restoration fails, we don't need to do anything for the
+        // default case, where focus will enter this block. We have to handle the non-default case.
+        if (!restoreFocusedChild() && fallback != Default) {
+            if (fallback == Cancel) cancelFocusChange() else fallback.requestFocus()
         }
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.onEnter = onEnter
         focusProperties.onExit = onExit
-    }
-
-    override fun onDetach() {
-        pinnedHandle?.release()
-        pinnedHandle = null
-        super.onDetach()
     }
 }
 

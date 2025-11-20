@@ -37,7 +37,7 @@ internal val errorCodeExceptionMap =
         ErrorCode.DATABASE_ERROR to IOException::class,
         ErrorCode.INTERNAL_ERROR to RemoteException::class,
         ErrorCode.CHANGES_TOKEN_OUTDATED to RemoteException::class,
-        ErrorCode.TRANSACTION_TOO_LARGE to RemoteException::class
+        ErrorCode.TRANSACTION_TOO_LARGE to RemoteException::class,
     )
 
 @Suppress("ObsoleteSdkInt") // We want to target lower down to 14 in the future.

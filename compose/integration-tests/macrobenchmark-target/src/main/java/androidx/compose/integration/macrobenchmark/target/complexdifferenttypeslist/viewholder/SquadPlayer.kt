@@ -34,20 +34,17 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SquadPlayer(
-    uiModel: SquadPlayerUiModel,
-    onPlayerClicked: () -> Unit,
-) {
+fun SquadPlayer(uiModel: SquadPlayerUiModel, onPlayerClicked: () -> Unit) {
     Surface(
         color = resolveTableRowColor(uiModel = uiModel.colorDefinition),
-        modifier = Modifier.padding(horizontal = 12.dp)
+        modifier = Modifier.padding(horizontal = 12.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth()
                     .clickable(onClick = onPlayerClicked, enabled = uiModel.isClickable)
-                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
         ) {
             uiModel.playerShirtNumber?.let {
                 PlayerShirtNumber(shirtNumber = uiModel.playerShirtNumber)
@@ -71,7 +68,7 @@ private fun PlayerShirtNumber(shirtNumber: String) {
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp)
+            modifier = Modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp),
         ) {
             Text(
                 text = shirtNumber,
@@ -87,7 +84,7 @@ private fun Flag() {
     Icon(
         imageVector = ImageVector.vectorResource(id = SquadTheme.drawables.emptyFlag),
         contentDescription = "Empty flag",
-        modifier = Modifier.size(width = 12.dp, height = 12.dp)
+        modifier = Modifier.size(width = 12.dp, height = 12.dp),
     )
 }
 

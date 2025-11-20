@@ -31,7 +31,7 @@ class WeightedElementDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             WeightedElementsComplicationData.Builder(
@@ -39,9 +39,9 @@ class WeightedElementDataSourceService : ComplicationDataSourceService() {
                         WeightedElementsComplicationData.Element(1.0f, Color.RED),
                         WeightedElementsComplicationData.Element(1.0f, Color.GREEN),
                         WeightedElementsComplicationData.Element(2.0f, Color.BLUE),
-                        WeightedElementsComplicationData.Element(3.0f, Color.YELLOW)
+                        WeightedElementsComplicationData.Element(3.0f, Color.YELLOW),
                     ),
-                    plainText("Example weighted elements")
+                    plainText("Example weighted elements"),
                 )
                 .setText(plainText("Calories"))
                 .build()
@@ -57,7 +57,7 @@ class WeightedElementDataSourceService : ComplicationDataSourceService() {
                             WeightedElementsComplicationData.Element(2.0f, Color.GREEN),
                             WeightedElementsComplicationData.Element(3.0f, Color.BLUE),
                         ),
-                        plainText("Example weighted elements")
+                        plainText("Example weighted elements"),
                     )
                     .setText(plainText("Calories"))
                     .build()

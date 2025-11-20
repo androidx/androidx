@@ -22,8 +22,6 @@
  * modifying its settings.
  */
 
-
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -35,54 +33,42 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm()
     mac()
     linux()
     ios()
     watchos()
     tvos()
+    js()
+    wasmJs()
+    mingwX64()
+    desktop()
     androidLibrary {
         namespace = "androidx.paging.common"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
     }
 
-    defaultPlatform(PlatformIdentifier.JVM)
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.9.1")
             }
         }
 
-        commonJvmAndroidMain {
-            dependsOn(commonMain)
-
+        commonTest {
             dependencies {
-                api("androidx.arch.core:core-common:2.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+                implementation(project(":kruth:kruth"))
+                implementation(project(":internal-testutils-paging"))
+                implementation(libs.kotlinTest)
             }
         }
 
-        jvmMain {
-            dependsOn(commonJvmAndroidMain)
-        }
-
-        androidMain {
-            dependsOn(commonJvmAndroidMain)
-        }
-
-        commonTest {
+        commonJvmAndroidMain {
+            dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-paging"))
+                api("androidx.arch.core:core-common:2.2.0")
             }
         }
 
@@ -97,11 +83,19 @@ androidXMultiplatform {
             }
         }
 
+        jvmMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
         jvmTest {
             dependsOn(commonJvmAndroidTest)
         }
 
-        androidInstrumentedTest {
+        androidMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
+        androidDeviceTest {
             dependsOn(commonJvmAndroidTest)
             dependencies {
                 implementation(libs.testRunner)
@@ -109,42 +103,65 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
+        nonJvmMain {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.atomicFu)
             }
         }
-        nativeTest {
-            dependsOn(commonTest)
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        unixMain {
+            dependsOn(nativeMain)
         }
 
         darwinMain {
-            dependsOn(nativeMain)
+            dependsOn(unixMain)
         }
 
         linuxMain {
+            dependsOn(unixMain)
+        }
+
+        mingwMain {
             dependsOn(nativeMain)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
         }
 
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX ||
-                            konanTargetFamily == Family.IOS ||
-                            konanTargetFamily == Family.WATCHOS ||
-                            konanTargetFamily == Family.TVOS) {
+                    if (target.konanTarget.family.appleFamily) {
                         dependsOn(darwinMain)
-                    } else if (konanTargetFamily == Family.LINUX) {
+                    } else if (target.konanTarget.family == Family.LINUX) {
                         dependsOn(linuxMain)
+                    } else if (target.konanTarget.family == Family.MINGW) {
+                        dependsOn(mingwMain)
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
                 }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -156,6 +173,6 @@ androidx {
     inceptionYear = "2017"
     description = "Android Paging-Common"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     samples(project(":paging:paging-samples"))
 }
+

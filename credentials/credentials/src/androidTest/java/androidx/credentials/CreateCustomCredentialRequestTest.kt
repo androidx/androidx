@@ -34,7 +34,7 @@ class CreateCustomCredentialRequestTest {
                 Bundle(),
                 false,
                 DisplayInfo("userId"),
-                false
+                false,
             )
         }
     }
@@ -50,18 +50,18 @@ class CreateCustomCredentialRequestTest {
         val expectedCredentialDataBundle = inputCredentialDataBundle.deepCopy()
         expectedCredentialDataBundle.putBoolean(
             CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            expectedAutoSelectAllowed
+            expectedAutoSelectAllowed,
         )
         expectedCredentialDataBundle.putBoolean(
             CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-            expectedPreferImmediatelyAvailableCredentials
+            expectedPreferImmediatelyAvailableCredentials,
         )
         val inputCandidateQueryDataBundle = Bundle()
         inputCandidateQueryDataBundle.putBoolean("key", true)
         val expectedCandidateQueryDataBundle = inputCandidateQueryDataBundle.deepCopy()
         expectedCandidateQueryDataBundle.putBoolean(
             CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            expectedAutoSelectAllowed
+            expectedAutoSelectAllowed,
         )
         val expectedDisplayInfo = DisplayInfo("userId")
         val expectedSystemProvider = true
@@ -76,7 +76,7 @@ class CreateCustomCredentialRequestTest {
                 expectedDisplayInfo,
                 expectedAutoSelectAllowed,
                 expectedOrigin,
-                expectedPreferImmediatelyAvailableCredentials
+                expectedPreferImmediatelyAvailableCredentials,
             )
 
         assertThat(request.type).isEqualTo(expectedType)
@@ -117,7 +117,7 @@ class CreateCustomCredentialRequestTest {
         val finalCredentialData = request.credentialData
         finalCredentialData.putBundle(
             DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-            expectedDisplayInfo.toBundle()
+            expectedDisplayInfo.toBundle(),
         )
 
         val convertedRequest =
@@ -126,7 +126,7 @@ class CreateCustomCredentialRequestTest {
                 request.credentialData,
                 request.candidateQueryData,
                 request.isSystemProviderRequired,
-                request.origin
+                request.origin,
             )
 
         assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest::class.java)
@@ -173,7 +173,7 @@ class CreateCustomCredentialRequestTest {
         val finalCredentialData = request.credentialData
         finalCredentialData.putBundle(
             DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-            expectedDisplayInfo.toBundle()
+            expectedDisplayInfo.toBundle(),
         )
 
         val convertedRequest =
@@ -181,7 +181,7 @@ class CreateCustomCredentialRequestTest {
                 android.credentials.CreateCredentialRequest.Builder(
                         request.type,
                         request.credentialData,
-                        request.candidateQueryData
+                        request.candidateQueryData,
                     )
                     .setOrigin(expectedOrigin)
                     .setIsSystemProviderRequired(request.isSystemProviderRequired)

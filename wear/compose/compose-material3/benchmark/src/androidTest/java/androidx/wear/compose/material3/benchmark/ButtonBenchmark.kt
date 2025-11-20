@@ -78,5 +78,5 @@ enum class ButtonType {
     FilledTonalButton,
     OutlinedButton,
     ChildButton,
-    CompactButton
+    CompactButton,
 }

@@ -17,6 +17,8 @@
 package androidx.wear.protolayout;
 
 import static androidx.annotation.Dimension.PX;
+import static androidx.wear.protolayout.ResourceBuilders.AndroidLottieResourceByResId.Builder.LOTTIE_PROPERTIES_LIMIT;
+import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
 
@@ -27,11 +29,15 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RawRes;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
+import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.TriggerBuilders.Trigger;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
+import androidx.wear.protolayout.expression.pipeline.DynamicProtoHashEquals;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 
@@ -40,11 +46,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /** Builders for the resources for a layout. */
 public final class ResourceBuilders {
@@ -106,6 +115,23 @@ public final class ResourceBuilders {
         @DrawableRes
         public int getResourceId() {
             return mImpl.getResourceId();
+        }
+
+        @Override
+        public int hashCode() {
+            return getResourceId();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof AndroidImageResourceByResId)) {
+                return false;
+            }
+            AndroidImageResourceByResId that = (AndroidImageResourceByResId) obj;
+            return that.getResourceId() == getResourceId();
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -195,6 +221,27 @@ public final class ResourceBuilders {
         @ImageFormat
         public int getFormat() {
             return mImpl.getFormat().getNumber();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(
+                    getFormat(), getWidthPx(), getHeightPx(), Arrays.hashCode(getData()));
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof InlineImageResource)) {
+                return false;
+            }
+            InlineImageResource that = (InlineImageResource) obj;
+            return that.getFormat() == getFormat()
+                    && that.getWidthPx() == getWidthPx()
+                    && that.getHeightPx() == getHeightPx()
+                    && Arrays.equals(that.getData(), getData());
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -313,6 +360,27 @@ public final class ResourceBuilders {
             }
         }
 
+        @Override
+        @SuppressWarnings("ResourceType")
+        public int hashCode() {
+            return Objects.hash(
+                    getResourceId(), getAnimatedImageFormat(), Trigger.hash(getStartTrigger()));
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof AndroidAnimatedImageResourceByResId)) {
+                return false;
+            }
+            AndroidAnimatedImageResourceByResId that = (AndroidAnimatedImageResourceByResId) obj;
+            return that.getResourceId() == getResourceId()
+                    && that.getAnimatedImageFormat() == getAnimatedImageFormat()
+                    && Trigger.equal(that.getStartTrigger(), getStartTrigger());
+        }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static @NonNull AndroidAnimatedImageResourceByResId fromProto(
@@ -418,6 +486,31 @@ public final class ResourceBuilders {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        @SuppressWarnings("ResourceType")
+        public int hashCode() {
+            DynamicFloat progress = getProgress();
+            return Objects.hash(
+                    getResourceId(),
+                    getAnimatedImageFormat(),
+                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof AndroidSeekableAnimatedImageResourceByResId)) {
+                return false;
+            }
+            AndroidSeekableAnimatedImageResourceByResId that =
+                    (AndroidSeekableAnimatedImageResourceByResId) obj;
+            return that.getResourceId() == getResourceId()
+                    && that.getAnimatedImageFormat() == getAnimatedImageFormat()
+                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -530,6 +623,51 @@ public final class ResourceBuilders {
             }
         }
 
+        /**
+         * Gets the collection of properties to customize Lottie further.
+         *
+         * <p>There shouldn't be more than 10 of properties in this collection. Each property can be
+         * applied to one or more elements in Lottie file.
+         */
+        public @NonNull List<LottieProperty> getProperties() {
+            List<LottieProperty> list = new ArrayList<>();
+            for (ResourceProto.LottieProperty item : mImpl.getPropertiesList()) {
+                list.add(ResourceBuilders.lottiePropertyFromProto(item));
+            }
+            return Collections.unmodifiableList(list);
+        }
+
+        @Override
+        public int hashCode() {
+            DynamicFloat progress = getProgress();
+            return Objects.hash(
+                    getRawResourceId(),
+                    Trigger.hash(getStartTrigger()),
+                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof AndroidLottieResourceByResId)) {
+                return false;
+            }
+            AndroidLottieResourceByResId that = (AndroidLottieResourceByResId) obj;
+            return that.getRawResourceId() == getRawResourceId()
+                    && Trigger.equal(that.getStartTrigger(), getStartTrigger())
+                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
+        }
+
+        /**
+         * Returns how many properties can be added for customization of one Lottie animation via
+         * {@link Builder#setProperties(LottieProperty...)} method.
+         */
+        public static int getMaxPropertiesCount() {
+            return LOTTIE_PROPERTIES_LIMIT;
+        }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static @NonNull AndroidLottieResourceByResId fromProto(
@@ -552,6 +690,8 @@ public final class ResourceBuilders {
                     + getProgress()
                     + ", startTrigger="
                     + getStartTrigger()
+                    + ", properties="
+                    + getProperties()
                     + "}";
         }
 
@@ -609,6 +749,49 @@ public final class ResourceBuilders {
                 return this;
             }
 
+            /**
+             * Adds one item to the collection of properties to customize Lottie further.
+             *
+             * <p>There shouldn't be more than 10 of properties in this collection. Each property
+             * can be applied to one or more elements in Lottie file.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            @NonNull Builder addProperty(@NonNull LottieProperty property) {
+                mImpl.addProperties(property.toLottiePropertyProto());
+                return this;
+            }
+
+            @VisibleForTesting static final int LOTTIE_PROPERTIES_LIMIT = 10;
+
+            /**
+             * Adds customizations for Lottie animation, for example to apply a color to a slot with
+             * specified ID.
+             *
+             * <p>Only up to {@link #getMaxPropertiesCount()} properties are allowed to be added for
+             * customization of one Lottie animation.
+             *
+             * <p>If more than one {@link LottieProperty} with the same filter and different value
+             * (for example, with the same slot ID and different color in case of {@link
+             * LottieProperty#colorForSlot}) is added, the last filter will be applied.
+             *
+             * @throws IllegalArgumentException if the number of properties added is larger than
+             *     {@link #getMaxPropertiesCount()}.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            public @NonNull Builder setProperties(LottieProperty @NonNull ... properties) {
+                if (properties.length > LOTTIE_PROPERTIES_LIMIT) {
+                    throw new IllegalArgumentException(
+                            "Number of given LottieProperty can't be larger than "
+                                    + LOTTIE_PROPERTIES_LIMIT
+                                    + ".");
+                }
+
+                for (LottieProperty property : properties) {
+                    addProperty(property);
+                }
+                return this;
+            }
+
             /** Builds an instance from accumulated values. */
             public @NonNull AndroidLottieResourceByResId build() {
                 return AndroidLottieResourceByResId.fromProto(mImpl.build());
@@ -623,6 +806,7 @@ public final class ResourceBuilders {
     @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ImageResource {
         private final ResourceProto.ImageResource mImpl;
+        @Nullable private Integer mHashCode = null;
 
         ImageResource(ResourceProto.ImageResource impl) {
             this.mImpl = impl;
@@ -683,6 +867,47 @@ public final class ResourceBuilders {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        public int hashCode() {
+            if (mHashCode != null) {
+                return mHashCode;
+            }
+
+            mHashCode =
+                    Objects.hash(
+                            getAndroidResourceByResId(),
+                            getAndroidAnimatedResourceByResId(),
+                            getAndroidSeekableAnimatedResourceByResId(),
+                            getAndroidLottieResourceByResId(),
+                            getInlineResource());
+
+            return mHashCode;
+        }
+
+        @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof ImageResource)) {
+                return false;
+            }
+            ImageResource that = (ImageResource) obj;
+            return Objects.equals(that.getAndroidResourceByResId(), getAndroidResourceByResId())
+                    && Objects.equals(
+                            that.getAndroidAnimatedResourceByResId(),
+                            getAndroidAnimatedResourceByResId())
+                    && Objects.equals(
+                            that.getAndroidSeekableAnimatedResourceByResId(),
+                            getAndroidSeekableAnimatedResourceByResId())
+                    && Objects.equals(
+                            that.getAndroidLottieResourceByResId(),
+                            getAndroidLottieResourceByResId())
+                    && Objects.equals(that.getInlineResource(), getInlineResource());
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -756,8 +981,8 @@ public final class ResourceBuilders {
             @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             public @NonNull Builder setAndroidSeekableAnimatedResourceByResId(
-                                                @NonNull AndroidSeekableAnimatedImageResourceByResId
-                                    androidSeekableAnimatedResourceByResId) {
+                    @NonNull AndroidSeekableAnimatedImageResourceByResId
+                            androidSeekableAnimatedResourceByResId) {
                 mImpl.setAndroidSeekableAnimatedResourceByResId(
                         androidSeekableAnimatedResourceByResId.toProto());
                 return this;
@@ -862,8 +1087,8 @@ public final class ResourceBuilders {
             /** Adds an entry into a map of resource_ids to images, which can be used by layouts. */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addIdToImageMapping(@NonNull String id,
-                    @NonNull ImageResource image) {
+            public @NonNull Builder addIdToImageMapping(
+                    @NonNull String id, @NonNull ImageResource image) {
                 mImpl.putIdToImage(id, image.toProto());
                 return this;
             }
@@ -871,6 +1096,177 @@ public final class ResourceBuilders {
             /** Builds an instance from accumulated values. */
             public @NonNull Resources build() {
                 return Resources.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /**
+     * A single point of customization in a Lottie file.
+     *
+     * <p>Property can be applicable to one or more elements.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    public abstract static class LottieProperty {
+        private LottieProperty() {}
+
+        /**
+         * {@link LottieProperty} customization for applying the given color on all slots with the
+         * specified slot ID.
+         *
+         * @param sid the slot ID to which color filter should be applied. The same ID can
+         *     correspond to multiple slots, however, for each of those, all parents in the path
+         *     should have names.
+         * @param color the color to be applied on slots with this slot ID
+         */
+        @RequiresSchemaVersion(major = 1, minor = 600)
+        public static @NonNull LottieProperty colorForSlot(
+                @NonNull String sid, @NonNull ColorProp color) {
+            return new LottieColorForSlot.Builder().setSid(sid).setColor(color).build();
+        }
+
+        /** Get the protocol buffer representation of this object. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public abstract ResourceProto.@NonNull LottieProperty toLottiePropertyProto();
+
+        /** Get the fingerprint for this object or null if unknown. */
+        abstract @Nullable Fingerprint getFingerprint();
+
+        /** Builder to create {@link LottieProperty} objects. */
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull LottieProperty build();
+        }
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static @NonNull LottieProperty lottiePropertyFromProto(
+            ResourceProto.@NonNull LottieProperty proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasSlotColor()) {
+            return LottieColorForSlot.fromProto(proto.getSlotColor(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of LottieProperty");
+    }
+
+    static @NonNull LottieProperty lottiePropertyFromProto(
+            ResourceProto.@NonNull LottieProperty proto) {
+        return lottiePropertyFromProto(proto, null);
+    }
+
+    /**
+     * A single point of customization for Lottie file, that applies given color on all slots with
+     * the specified slot ID.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    static final class LottieColorForSlot extends LottieProperty {
+        private final ResourceProto.LottieColorForSlot mImpl;
+        private final @Nullable Fingerprint mFingerprint;
+
+        LottieColorForSlot(
+                ResourceProto.LottieColorForSlot impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the slot ID to which color filter should be applied. The same ID can correspond to
+         * multiple slots, however, for each of those, all parents in the path should have names and
+         * the last name needs to have the same value as this slot ID.
+         */
+        public @NonNull String getSid() {
+            return mImpl.getSid();
+        }
+
+        /** Gets the color to be applied on slots with this slot ID. */
+        public @Nullable ColorProp getColor() {
+            if (mImpl.hasColor()) {
+                return ColorProp.fromProto(mImpl.getColor());
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @Nullable Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public static @NonNull LottieColorForSlot fromProto(
+                ResourceProto.@NonNull LottieColorForSlot proto,
+                @Nullable Fingerprint fingerprint) {
+            return new LottieColorForSlot(proto, fingerprint);
+        }
+
+        static @NonNull LottieColorForSlot fromProto(
+                ResourceProto.@NonNull LottieColorForSlot proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        ResourceProto.@NonNull LottieColorForSlot toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ResourceProto.@NonNull LottieProperty toLottiePropertyProto() {
+            return ResourceProto.LottieProperty.newBuilder().setSlotColor(mImpl).build();
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return "LottieColorForSlot{" + "sid=" + getSid() + ", color=" + getColor() + "}";
+        }
+
+        /** Builder for {@link LottieColorForSlot}. */
+        @SuppressWarnings("HiddenSuperclass")
+        public static final class Builder implements LottieProperty.Builder {
+            private final ResourceProto.LottieColorForSlot.Builder mImpl =
+                    ResourceProto.LottieColorForSlot.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1002991796);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            Builder() {}
+
+            /**
+             * Sets the slot ID to which color filter should be applied. The same ID can correspond
+             * to multiple slots, however, for each of those, all parents in the path should have
+             * names and the last name needs to have the same value as this slot ID.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            public @NonNull Builder setSid(@NonNull String sid) {
+                mImpl.setSid(sid);
+                mFingerprint.recordPropertyUpdate(1, sid.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the color to be applied on slots with this slot ID.
+             *
+             * <p>Note that this field only supports static values.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            public @NonNull Builder setColor(@NonNull ColorProp color) {
+                if (color.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "LottieColorForSlot.Builder.setColor doesn't support dynamic"
+                                    + " values.");
+                }
+                mImpl.setColor(color.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(color.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            public @NonNull LottieColorForSlot build() {
+                return new LottieColorForSlot(mImpl.build(), mFingerprint);
             }
         }
     }

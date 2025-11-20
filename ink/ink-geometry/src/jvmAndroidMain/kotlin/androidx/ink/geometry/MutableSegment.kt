@@ -37,7 +37,13 @@ public class MutableSegment(override var start: MutableVec, override var end: Mu
     /** Constructs a degenerate [MutableSegment] with both [start] and [end] set to (0f, 0f) */
     public constructor() : this(MutableVec(0f, 0f), MutableVec(0f, 0f))
 
-    /** Fills this [MutableSegment] with the same values contained in [input] and returns `this`. */
+    /**
+     * Fills this [MutableSegment] with the same values contained in [input].
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
+     */
     public fun populateFrom(input: Segment): MutableSegment {
         this.start.x = input.start.x
         this.start.y = input.start.y
@@ -47,7 +53,7 @@ public class MutableSegment(override var start: MutableVec, override var end: Mu
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asImmutable(): ImmutableSegment = ImmutableSegment(this.start, this.end)
+    override fun toImmutable(): ImmutableSegment = ImmutableSegment(this.start, this.end)
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Segment && areEquivalent(this, other))

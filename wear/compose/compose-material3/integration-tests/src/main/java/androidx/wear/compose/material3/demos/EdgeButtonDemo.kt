@@ -16,7 +16,8 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,9 +31,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,7 +75,7 @@ fun listOfLabels(): List<String> {
 }
 
 @Composable
-fun EdgeButtonBelowLazyColumnDemo() {
+fun EdgeButtonBelowLazyColumnDemo(reverseLayout: Boolean) {
     val labels = listOfLabels()
     val selectedLabel = remember { mutableIntStateOf(0) }
     AdaptiveScreen {
@@ -82,25 +85,36 @@ fun EdgeButtonBelowLazyColumnDemo() {
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
             edgeButton = {
                 EdgeButton(
+                    modifier =
+                        // In case user starts scrolling from the EdgeButton.
+                        Modifier.scrollable(
+                            state,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = !reverseLayout,
+                            // An overscroll effect should be applied to the EdgeButton for proper
+                            // scrolling behavior.
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
                     onClick = {},
                     buttonSize = EdgeButtonSize.Large,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
                 ) {
                     Text(labels[selectedLabel.intValue], color = Color.White)
                 }
-            }
+            },
         ) { contentPadding ->
             LazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = contentPadding,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                reverseLayout = reverseLayout,
             ) {
                 items(labels.size) {
                     Card(
                         onClick = { selectedLabel.intValue = it },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.9f),
                     ) {
                         Text(labels[it])
                     }
@@ -111,7 +125,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
 }
 
 @Composable
-fun EdgeButtonBelowScalingLazyColumnDemo() {
+fun EdgeButtonBelowScalingLazyColumnDemo(reverseLayout: Boolean) {
     val labels = listOfLabels()
     val selectedLabel = remember { mutableIntStateOf(0) }
 
@@ -122,25 +136,36 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
             edgeButton = {
                 EdgeButton(
+                    modifier =
+                        // In case user starts scrolling from the EdgeButton.
+                        Modifier.scrollable(
+                            state,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = !reverseLayout,
+                            // An overscroll effect should be applied to the EdgeButton for proper
+                            // scrolling behavior.
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
                     onClick = {},
                     buttonSize = EdgeButtonSize.Large,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
                 ) {
                     Text(labels[selectedLabel.intValue], color = Color.White)
                 }
-            }
+            },
         ) { contentPadding ->
             ScalingLazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
                 autoCentering = null,
                 contentPadding = contentPadding,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                reverseLayout = reverseLayout,
             ) {
                 items(labels.size) {
                     Card(
                         onClick = { selectedLabel.intValue = it },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.9f),
                     ) {
                         Text(labels[it])
                     }
@@ -161,25 +186,35 @@ fun EdgeButtonBelowTransformingLazyColumnDemo() {
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
             edgeButton = {
                 EdgeButton(
+                    modifier =
+                        // In case user starts scrolling from the EdgeButton.
+                        Modifier.scrollable(
+                            state,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = true,
+                            // An overscroll effect should be applied to the EdgeButton for proper
+                            // scrolling behavior.
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
                     onClick = {},
                     buttonSize = EdgeButtonSize.Large,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray),
                 ) {
                     Text(labels[selectedLabel.intValue], color = Color.White)
                 }
-            }
+            },
         ) { contentPadding ->
             TransformingLazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = contentPadding,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 items(labels.size) {
                     Card(
                         onClick = { selectedLabel.intValue = it },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                        modifier = Modifier.fillMaxWidth(0.9f),
                     ) {
                         Text(labels[it])
                     }
@@ -197,7 +232,7 @@ fun EdgeButtonMultiDemo() {
             EdgeButtonSize.ExtraSmall,
             EdgeButtonSize.Small,
             EdgeButtonSize.Medium,
-            EdgeButtonSize.Large
+            EdgeButtonSize.Large,
         )
     val sizeNames = listOf("XS", "S", "M", "L")
     var size by remember { mutableIntStateOf(0) }
@@ -208,7 +243,7 @@ fun EdgeButtonMultiDemo() {
             ButtonDefaults.filledVariantButtonColors(),
             ButtonDefaults.filledTonalButtonColors(),
             ButtonDefaults.outlinedButtonColors(),
-            ButtonDefaults.buttonColors()
+            ButtonDefaults.buttonColors(),
         )
     val colorNames = listOf("F", "FV", "FT", "O", "D")
     var color by remember { mutableIntStateOf(0) }
@@ -217,7 +252,7 @@ fun EdgeButtonMultiDemo() {
         Column(
             Modifier.align(Alignment.TopCenter).fillMaxSize().padding(top = 0.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row { Spacer(modifier = Modifier.height(10.dp)) }
@@ -226,18 +261,18 @@ fun EdgeButtonMultiDemo() {
                         Text(
                             "Sizes",
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(sizeNames.size) {
                         TextButton(
                             onClick = { size = it },
-                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize)
+                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize),
                         ) {
                             Text(sizeNames[it])
                         }
@@ -248,18 +283,18 @@ fun EdgeButtonMultiDemo() {
                         Text(
                             "Colors",
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(colorNames.size) {
                         TextButton(
                             onClick = { color = it },
-                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize)
+                            modifier = Modifier.size(TextButtonDefaults.SmallButtonSize),
                         ) {
                             Text(colorNames[it])
                         }
@@ -274,7 +309,7 @@ fun EdgeButtonMultiDemo() {
                 border =
                     if (colorNames[color] == "O")
                         ButtonDefaults.outlinedButtonBorder(enabled = true)
-                    else null
+                    else null,
             ) {
                 CheckIcon(modifier = Modifier.size(EdgeButtonDefaults.iconSizeFor(sizes[size])))
             }
@@ -298,12 +333,12 @@ fun EdgeButtonConfigurableDemo() {
             "Filled Variant" to ButtonDefaults.filledVariantButtonColors(),
             "Filled Tonal" to ButtonDefaults.filledTonalButtonColors(),
             "Outlined" to ButtonDefaults.outlinedButtonColors(),
-            "Disabled" to ButtonDefaults.buttonColors()
+            "Disabled" to ButtonDefaults.buttonColors(),
         )
     var selectedColor by remember { mutableIntStateOf(0) }
-    val types = listOf("Icon only" to 0, "Text only" to 1)
+    val types = listOf("Icon only" to 0, "Small Text" to 1, "Long Text" to 2)
     var selectedType by remember { mutableIntStateOf(0) }
-
+    var reverseLayout by remember { mutableStateOf(false) }
     AdaptiveScreen {
         val state = rememberScalingLazyListState()
         ScreenScaffold(
@@ -311,6 +346,16 @@ fun EdgeButtonConfigurableDemo() {
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
             edgeButton = {
                 EdgeButton(
+                    modifier =
+                        // In case user starts scrolling from the EdgeButton.
+                        Modifier.scrollable(
+                            state,
+                            orientation = Orientation.Vertical,
+                            reverseDirection = !reverseLayout,
+                            // An overscroll effect should be applied to the EdgeButton for proper
+                            // scrolling behavior.
+                            overscrollEffect = rememberOverscrollEffect(),
+                        ),
                     onClick = {},
                     buttonSize = sizes[selectedSize].second,
                     colors = colors[selectedColor].second,
@@ -318,46 +363,63 @@ fun EdgeButtonConfigurableDemo() {
                         if (colors[selectedColor].first == "Outlined")
                             ButtonDefaults.outlinedButtonBorder(true)
                         else null,
-                    enabled = colors[selectedColor].first != "Disabled"
+                    enabled = colors[selectedColor].first != "Disabled",
                 ) {
-                    if (selectedType == 0) {
-                        val iconSize = EdgeButtonDefaults.iconSizeFor(sizes[selectedSize].second)
-                        CheckIcon(
-                            modifier =
-                                Modifier.size(iconSize * 2 / 3)
-                                    .wrapContentSize(unbounded = true)
-                                    .size(iconSize)
-                        )
-                    } else {
-                        Text("Ok")
+                    when (selectedType) {
+                        0 -> {
+                            val iconSize =
+                                EdgeButtonDefaults.iconSizeFor(sizes[selectedSize].second)
+                            // Remove extra spacing around the icon so it integrates better into the
+                            // scroll.
+                            CheckIcon(
+                                modifier =
+                                    Modifier.size(iconSize * 2 / 3)
+                                        .wrapContentSize(unbounded = true)
+                                        .size(iconSize)
+                            )
+                        }
+                        1 -> Text("Ok")
+                        else -> Text("Long Text to show max lines and overflow")
                     }
                 }
-            }
+            },
         ) { contentPadding ->
             ScalingLazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
                 autoCentering = null,
                 contentPadding = contentPadding,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                reverseLayout = reverseLayout,
             ) {
+                selection(
+                    listOf("Normal" to false, "Reversed" to true),
+                    selected = { reverseLayout == (it == 1) },
+                    onSelect = { reverseLayout = it == 1 },
+                    label = "Layout",
+                    reverseLayout,
+                )
                 selection(
                     sizes,
                     selected = { selectedSize == it },
                     onSelect = { selectedSize = it },
-                    label = "Size"
+                    label = "Size",
+                    reverseLayout,
                 )
                 selection(
                     colors,
                     selected = { selectedColor == it },
                     onSelect = { selectedColor = it },
-                    label = "Color"
+                    label = "Color",
+                    reverseLayout,
                 )
                 selection(
                     types,
                     selected = { selectedType == it },
                     onSelect = { selectedType = it },
-                    label = "Content"
+                    label = "Content",
+                    reverseLayout,
                 )
             }
         }
@@ -368,20 +430,22 @@ private fun <T> ScalingLazyListScope.selection(
     items: List<Pair<String, T>>,
     selected: (Int) -> Boolean,
     onSelect: (Int) -> Unit,
-    label: String
+    label: String,
+    reverseLayout: Boolean,
 ) {
-    item { Text(label) }
+    if (!reverseLayout) item { Text(label) }
     items(items.size) { ix ->
         RadioButton(
             selected = selected(ix),
             onSelect = { onSelect(ix) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 items[ix].first,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
     }
+    if (reverseLayout) item { Text(label) }
 }

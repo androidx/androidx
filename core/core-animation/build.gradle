@@ -33,10 +33,6 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core:1.13.0")
     implementation("androidx.collection:collection:1.4.2")
-    implementation("androidx.tracing:tracing:1.0.0")
-
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
 }
 
 androidx {

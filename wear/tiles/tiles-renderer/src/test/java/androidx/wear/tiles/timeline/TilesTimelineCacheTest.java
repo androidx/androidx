@@ -28,11 +28,13 @@ import org.jspecify.annotations.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Duration;
 
 @RunWith(TilesTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TilesTimelineCacheTest {
     @Rule public Expect expect = Expect.create();

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.core
 
-import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CancellationException
 import kotlin.test.assertFailsWith
@@ -37,7 +36,7 @@ import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class CoroutineMutexTest {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 

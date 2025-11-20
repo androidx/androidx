@@ -16,8 +16,9 @@
 
 package androidx.collection.integration;
 
-import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 import java.util.Set;

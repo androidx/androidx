@@ -81,7 +81,7 @@ class MultipleAwaitPointerEventScopesDetector : Detector(), SourceCodeScanner {
                 MultipleAwaitPointerEventScopes,
                 node,
                 context.getNameLocation(node),
-                ErrorMessage
+                ErrorMessage,
             )
             reportedNodes.add(node)
         }
@@ -125,8 +125,8 @@ class MultipleAwaitPointerEventScopesDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     MultipleAwaitPointerEventScopesDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

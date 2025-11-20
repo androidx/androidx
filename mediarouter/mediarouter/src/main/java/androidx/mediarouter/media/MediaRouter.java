@@ -2069,10 +2069,22 @@ public final class MediaRouter {
         /**
          * Connects this route without selecting it.
          *
-         * <p>Apps can select a route by calling {@link #select()}. If apps want to keep the
-         * selected route unchanged and connect to additional routes, then they can use this method
-         * to connect additional routes. If the route is already selected, connecting this route
-         * will do nothing.
+         * <p>A route may be selected or connected. Route selection is performed using the {@link
+         * #select()} method. The media router library supports a single selected route which is
+         * typically the active playback device chosen by the user. This method enables connection
+         * to additional routes while maintaining the current route selection. If the specified
+         * route is already selected, this method has no effect.
+         *
+         * <p>The route controller dialog should display only the selected route, as this is the one
+         * users directly interact with. Connected routes are typically managed by the application
+         * in the background and are not generally relevant to the user.
+         *
+         * <p>After calling this method to connect a route, the application will receive the {@link
+         * MediaRouter.Callback#onRouteConnected(MediaRouter, RouteInfo, RouteInfo)} callback when
+         * the connection is established. The connected {@link RouteInfo} can then be used to send
+         * control commands to the route. If the connection fails, the application receives the
+         * {@link MediaRouter.Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)}
+         * callback with error details.
          *
          * <p>Must be called on the main thread.
          */
@@ -2090,6 +2102,10 @@ public final class MediaRouter {
          *
          * <p>If it is a connected route, then it will disconnect this route. If it is a selected
          * route, disconnecting this route will do nothing.
+         *
+         * <p>After calling this method to disconnect a route, the application receives the {@link
+         * MediaRouter.Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)}
+         * callback.
          *
          * <p>Must be called on the main thread.
          */
@@ -3053,7 +3069,7 @@ public final class MediaRouter {
             }
 
             // In order to notify the app of cast-to-phone event, the onRouteSelected(phone)
-            // should be called regaredless of the callbakck's control category.
+            // should be called regardless of the callback's control category.
             if (isTransferToLocalEnabled() && route.isDefaultOrBluetooth()
                     && what == GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED
                     && reason == UNSELECT_REASON_ROUTE_CHANGED

@@ -30,7 +30,7 @@ import kotlin.math.abs
 // TODO: b/373832623 - Migrate to `LazyLayoutScrollScope` when `animateScrollToItem` is available.
 internal class TransformingLazyColumnScrollScope(
     private val state: TransformingLazyColumnState,
-    scrollScope: ScrollScope
+    scrollScope: ScrollScope,
 ) : ScrollScope by scrollScope {
     val firstVisibleItemIndex: Int
         get() = state.layoutInfo.visibleItems.firstOrNull()?.index ?: 0
@@ -60,10 +60,10 @@ internal class TransformingLazyColumnScrollScope(
         return if (!isItemVisible(targetIndex)) {
             val averageSize = layoutInfo.visibleItemsAverageHeight + layoutInfo.itemSpacing
             val indexesDiff = targetIndex - layoutInfo.anchorItemIndex
-            (averageSize * indexesDiff) - layoutInfo.anchorItemScrollOffset
+            (averageSize * indexesDiff) + layoutInfo.anchorItemScrollOffset
         } else
             if (targetIndex == layoutInfo.anchorItemIndex) {
-                -layoutInfo.anchorItemScrollOffset
+                layoutInfo.anchorItemScrollOffset
             } else {
                 val visibleItem =
                     layoutInfo.visibleItems.fastFirstOrNull { it.index == targetIndex }
@@ -81,7 +81,7 @@ internal val TransformingLazyColumnMeasureResult.visibleItemsAverageHeight: Int
 
 private class ItemFoundInScroll(
     val itemOffset: Int,
-    val previousAnimation: AnimationState<Float, AnimationVector1D>
+    val previousAnimation: AnimationState<Float, AnimationVector1D>,
 ) : CancellationException()
 
 private val TargetDistance = 500.dp
@@ -101,7 +101,7 @@ internal suspend fun TransformingLazyColumnScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
     density: Density,
-    scrollScope: ScrollScope
+    scrollScope: ScrollScope,
 ) {
     with(scrollScope) {
         try {

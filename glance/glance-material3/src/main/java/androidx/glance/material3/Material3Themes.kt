@@ -30,7 +30,7 @@ import androidx.glance.unit.ColorProvider
  * Creates a Material 3 [ColorProviders] given a light and dark [ColorScheme]. Each color in the
  * theme will have a day and night mode.
  */
-fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
+public fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
     return colorProviders(
         primary = ColorProvider(day = light.primary, night = dark.primary),
         onPrimary = ColorProvider(day = light.onPrimary, night = dark.onPrimary),
@@ -72,7 +72,7 @@ fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
         widgetBackground =
             ColorProvider(
                 day = adjustColorToneForWidgetBackground(light.secondaryContainer),
-                night = adjustColorToneForWidgetBackground(dark.secondaryContainer)
+                night = adjustColorToneForWidgetBackground(dark.secondaryContainer),
             ),
     )
 }
@@ -81,7 +81,7 @@ fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
  * Creates a Material 3 [ColorProviders] given a [ColorScheme]. This is a fixed scheme and does not
  * have day/night modes.
  */
-fun ColorProviders(scheme: ColorScheme): ColorProviders {
+public fun ColorProviders(scheme: ColorScheme): ColorProviders {
     return colorProviders(
         primary = ColorProvider(color = scheme.primary),
         onPrimary = ColorProvider(scheme.onPrimary),
@@ -113,7 +113,7 @@ fun ColorProviders(scheme: ColorScheme): ColorProviders {
         // Widget background is a widget / glace specific token it is generally derived from the
         // secondary container color.
         widgetBackground =
-            ColorProvider(color = adjustColorToneForWidgetBackground(scheme.secondaryContainer))
+            ColorProvider(color = adjustColorToneForWidgetBackground(scheme.secondaryContainer)),
     )
 }
 

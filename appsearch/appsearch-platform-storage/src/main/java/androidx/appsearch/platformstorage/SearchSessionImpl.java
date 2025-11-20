@@ -24,25 +24,33 @@ import android.os.Build;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
+import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.CommitBlobResponse;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.OpenBlobForReadResponse;
+import androidx.appsearch.app.OpenBlobForWriteResponse;
 import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.RemoveBlobResponse;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.app.SetBlobVisibilityRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSchemaException;
+import androidx.appsearch.platformstorage.converter.AppSearchBlobHandleToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.AppSearchResultToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter;
@@ -54,7 +62,9 @@ import androidx.appsearch.platformstorage.converter.SearchSuggestionSpecToPlatfo
 import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
+import androidx.collection.ArraySet;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -151,6 +161,137 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
+    @SuppressLint("ObsoleteSdkInt")  // < Baklava check is retained to keep CTS tests compatible.
+    @Override
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    public @NonNull ListenableFuture<OpenBlobForWriteResponse>
+    openBlobForWriteAsync(@NonNull Set<AppSearchBlobHandle> handles) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                    + " is not available on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(handles);
+        ResolvableFuture<OpenBlobForWriteResponse> future = ResolvableFuture.create();
+        Set<android.app.appsearch.AppSearchBlobHandle> platformBlobHandles =
+                new ArraySet<>(handles.size());
+        for (AppSearchBlobHandle jetpackHandle : handles) {
+            platformBlobHandles.add(AppSearchBlobHandleToPlatformConverter
+                    .toPlatformBlobHandle(jetpackHandle));
+        }
+        mPlatformSession.openBlobForWrite(
+                platformBlobHandles,
+                mExecutor,
+                result ->
+                        AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                                result,
+                                future,
+                                ResponseToPlatformConverter::toJetpackOpenBlobForWriteResponse));
+        return future;
+    }
+
+    @SuppressLint("ObsoleteSdkInt")  // < Baklava check is retained to keep CTS tests compatible.
+    @Override
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    public @NonNull ListenableFuture<RemoveBlobResponse> removeBlobAsync(
+            @NonNull Set<AppSearchBlobHandle> handles) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                    + " is not available on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(handles);
+        ResolvableFuture<RemoveBlobResponse> future = ResolvableFuture.create();
+        Set<android.app.appsearch.AppSearchBlobHandle> platformBlobHandles =
+                new ArraySet<>(handles.size());
+        for (AppSearchBlobHandle jetpackHandle : handles) {
+            platformBlobHandles.add(AppSearchBlobHandleToPlatformConverter
+                    .toPlatformBlobHandle(jetpackHandle));
+        }
+        mPlatformSession.removeBlob(
+                platformBlobHandles,
+                mExecutor,
+                result ->
+                        AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                                result,
+                                future,
+                                ResponseToPlatformConverter::toJetpackRemoveBlobResponse));
+        return future;
+    }
+
+    @SuppressLint("ObsoleteSdkInt")  // < Baklava check is retained to keep CTS tests compatible.
+    @Override
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    public @NonNull ListenableFuture<CommitBlobResponse> commitBlobAsync(
+            @NonNull Set<AppSearchBlobHandle> handles) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                    + " is not available on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(handles);
+        ResolvableFuture<CommitBlobResponse> future = ResolvableFuture.create();
+        Set<android.app.appsearch.AppSearchBlobHandle> platformBlobHandles =
+                new ArraySet<>(handles.size());
+        for (AppSearchBlobHandle jetpackHandle : handles) {
+            platformBlobHandles.add(AppSearchBlobHandleToPlatformConverter
+                    .toPlatformBlobHandle(jetpackHandle));
+        }
+        mPlatformSession.commitBlob(
+                platformBlobHandles,
+                mExecutor,
+                result ->
+                        AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                                result,
+                                future,
+                                ResponseToPlatformConverter::toJetpackCommitBlobResponse));
+        return future;
+    }
+
+    @SuppressLint("ObsoleteSdkInt")  // < Baklava check is retained to keep CTS tests compatible.
+    @Override
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    public @NonNull ListenableFuture<OpenBlobForReadResponse> openBlobForReadAsync(
+            @NonNull Set<AppSearchBlobHandle> handles) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                    + " is not available on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(handles);
+        ResolvableFuture<OpenBlobForReadResponse> future = ResolvableFuture.create();
+        Set<android.app.appsearch.AppSearchBlobHandle> platformBlobHandles =
+                new ArraySet<>(handles.size());
+        for (AppSearchBlobHandle jetpackHandle : handles) {
+            platformBlobHandles.add(AppSearchBlobHandleToPlatformConverter
+                    .toPlatformBlobHandle(jetpackHandle));
+        }
+        mPlatformSession.openBlobForRead(
+                platformBlobHandles,
+                mExecutor,
+                result ->
+                        AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
+                                result,
+                                future,
+                                ResponseToPlatformConverter::toJetpackOpenBlobForReadResponse));
+        return future;
+    }
+
+    @SuppressLint("ObsoleteSdkInt")  // < Baklava check is retained to keep CTS tests compatible.
+    @Override
+    @RequiresApi(Build.VERSION_CODES.BAKLAVA)
+    public @NonNull ListenableFuture<Void> setBlobVisibilityAsync(
+            @NonNull SetBlobVisibilityRequest request) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            throw new UnsupportedOperationException(Features.SCHEMA_BLOB_HANDLE
+                    + " is not available on this AppSearch implementation.");
+        }
+        Preconditions.checkNotNull(request);
+        ResolvableFuture<Void> future = ResolvableFuture.create();
+        mPlatformSession.setBlobVisibility(
+                SetSchemaRequestToPlatformConverter.toPlatformSetBlobVisibilityRequest(request),
+                mExecutor,
+                result -> AppSearchResultToPlatformConverter
+                        .platformAppSearchResultToFuture(result, future));
+        return future;
+    }
+
     @Override
     public @NonNull ListenableFuture<AppSearchBatchResult<String, GenericDocument>>
             getByDocumentIdAsync(@NonNull GetByDocumentIdRequest request) {
@@ -184,9 +325,9 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull SearchSuggestionSpec searchSuggestionSpec) {
         Preconditions.checkNotNull(suggestionQueryExpression);
         Preconditions.checkNotNull(searchSuggestionSpec);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) {
             ResolvableFuture<List<SearchSuggestionResult>> future = ResolvableFuture.create();
-            ApiHelperForU.searchSuggestion(
+            ApiHelperForSdkExtensionUBase.searchSuggestion(
                     mPlatformSession,
                     suggestionQueryExpression,
                     SearchSuggestionSpecToPlatformConverter
@@ -337,9 +478,10 @@ class SearchSessionImpl implements AppSearchSession {
                 && appsearchVersionCode < AppSearchVersionUtil.APPSEARCH_M2023_11_VERSION_CODE;
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    static class ApiHelperForU {
-        private ApiHelperForU() {
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.U_BASE)
+    private static class ApiHelperForSdkExtensionUBase {
+        private ApiHelperForSdkExtensionUBase() {
             // This class is not instantiable.
         }
 

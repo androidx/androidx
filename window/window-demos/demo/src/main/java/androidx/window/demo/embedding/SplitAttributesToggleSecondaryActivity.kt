@@ -185,7 +185,7 @@ open class SplitAttributesToggleSecondaryActivity :
                                 splitRule.defaultSplitAttributes
                             } else {
                                 EXPAND_ATTRS
-                            }
+                            },
                     )
                 }
             }

@@ -48,6 +48,7 @@ public class ProxyOverrideActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_proxy_override);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.proxy_override_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

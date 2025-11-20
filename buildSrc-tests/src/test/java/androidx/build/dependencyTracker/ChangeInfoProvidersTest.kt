@@ -16,24 +16,18 @@
 
 package androidx.build.dependencyTracker
 
-import androidx.build.gitclient.getChangedFilesFromChangeInfoProvider
-import androidx.build.gitclient.getHeadShaFromManifestProvider
+import androidx.build.gitclient.getChangedFilesFromChangeInfoAndManifest
+import androidx.build.gitclient.getHeadShaFromManifest
 import com.google.gson.JsonSyntaxException
 import org.gradle.api.GradleException
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ChangeInfoProvidersTest {
-    @get:Rule
-    var folder: TemporaryFolder = TemporaryFolder()
-
     @Test
     fun findChangedFilesSince_oneChange() {
         checkChangedFiles(
@@ -56,7 +50,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf("core/core-remoteviews/src/androidTest/res/layout/remote_views_text.xml")
+            listOf("core/core-remoteviews/src/androidTest/res/layout/remote_views_text.xml"),
         )
     }
 
@@ -95,7 +89,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf("path1", "path2")
+            listOf("path1", "path2"),
         )
     }
 
@@ -134,7 +128,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf("supportPath")
+            listOf("supportPath"),
         )
     }
 
@@ -154,7 +148,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf()
+            listOf(),
         )
     }
 
@@ -165,7 +159,7 @@ class ChangeInfoProvidersTest {
             {
             }
             """,
-            listOf()
+            listOf(),
         )
     }
 
@@ -191,7 +185,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf("Gone")
+            listOf("Gone"),
         )
     }
 
@@ -218,7 +212,7 @@ class ChangeInfoProvidersTest {
               ]
             }
             """,
-            listOf("PrevPath", "NewPath")
+            listOf("PrevPath", "NewPath"),
         )
     }
 
@@ -227,54 +221,36 @@ class ChangeInfoProvidersTest {
         checkChangedFiles("{", listOf())
     }
 
-    private fun checkChangedFiles(
-        changeInfoContent: String,
-        expectedChangedFiles: List<String>
-    ) {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val changeInfoFile = folder.newFile()
-        changeInfoFile.writeText(changeInfoContent)
-        val project = ProjectBuilder.builder().build()
-        val changedFilesProvider = project.getChangedFilesFromChangeInfoProvider(
-            manifestFile.absolutePath,
-            changeInfoFile.absolutePath,
-            frameworksSupportPath
-        )
-        val changedFiles = changedFilesProvider.get()
+    private fun checkChangedFiles(changeInfoContent: String, expectedChangedFiles: List<String>) {
+        val changedFiles =
+            getChangedFilesFromChangeInfoAndManifest(
+                changeInfoContent,
+                basicManifest,
+                frameworksSupportPath,
+            )
         assertEquals(expectedChangedFiles, changedFiles)
     }
 
     @Test
     fun headShaFromManifest() {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val project = ProjectBuilder.builder().build()
-        val headShaProvider = project.getHeadShaFromManifestProvider(
-            manifestFile.absolutePath,
-            frameworksSupportPath
+        assertEquals(
+            frameworksSupportSha,
+            getHeadShaFromManifest(basicManifest, frameworksSupportPath),
         )
-        assertEquals(frameworksSupportSha, headShaProvider.get())
     }
 
     @Test
     fun missingProjectHeadShaFromManifest() {
-        val manifestFile = folder.newFile()
-        manifestFile.writeText(basicManifest)
-        val project = ProjectBuilder.builder().build()
-        val headShaProvider = project.getHeadShaFromManifestProvider(
-            manifestFile.absolutePath,
-            "missing/project/path"
-        )
         assertThrows(GradleException::class.java) {
-            headShaProvider.get()
+            getHeadShaFromManifest(basicManifest, "missing/project/path")
         }
     }
 }
 
 private const val frameworksSupportPath = "frameworks/support"
 private const val frameworksSupportSha = "bbcf23f3ee42fc9e59e0cf5fbca71f526f760dba"
-private const val basicManifest = """<?xml version='1.0' encoding='UTF-8'?>
+private const val basicManifest =
+    """<?xml version='1.0' encoding='UTF-8'?>
 <manifest>
   <remote name="aosp" fetch="https://android.googlesource.com/" review="https://android.googlesource.com/" />
   <default revision="androidx-main" remote="aosp" />

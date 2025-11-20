@@ -51,7 +51,7 @@ internal enum class MutatePriority {
      * operations. [PreventUserInput] priority should be used for operations that user input should
      * not be able to interrupt.
      */
-    PreventUserInput
+    PreventUserInput,
 }
 
 /**
@@ -115,7 +115,7 @@ internal class MutatorMutex {
      */
     suspend fun <R> mutate(
         priority: MutatePriority = MutatePriority.Default,
-        block: suspend () -> R
+        block: suspend () -> R,
     ) = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 
@@ -154,7 +154,7 @@ internal class MutatorMutex {
     suspend fun <T, R> mutateWith(
         receiver: T,
         priority: MutatePriority = MutatePriority.Default,
-        block: suspend T.() -> R
+        block: suspend T.() -> R,
     ) = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 

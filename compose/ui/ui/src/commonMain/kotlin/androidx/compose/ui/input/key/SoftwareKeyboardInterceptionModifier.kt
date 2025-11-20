@@ -38,7 +38,7 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
     this then
         SoftKeyboardInterceptionElement(
             onKeyEvent = onInterceptKeyBeforeSoftKeyboard,
-            onPreKeyEvent = null
+            onPreKeyEvent = null,
         )
 
 /**
@@ -58,17 +58,17 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
 fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
-    onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean,
+    onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
 ): Modifier =
     this then
         SoftKeyboardInterceptionElement(
             onKeyEvent = null,
-            onPreKeyEvent = onPreInterceptKeyBeforeSoftKeyboard
+            onPreKeyEvent = onPreInterceptKeyBeforeSoftKeyboard,
         )
 
 private class SoftKeyboardInterceptionElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
-    val onPreKeyEvent: ((KeyEvent) -> Boolean)?
+    val onPreKeyEvent: ((KeyEvent) -> Boolean)?,
 ) : ModifierNodeElement<InterceptedKeyInputNode>() {
     override fun create() =
         InterceptedKeyInputNode(onEvent = onKeyEvent, onPreEvent = onPreKeyEvent)
@@ -108,7 +108,7 @@ private class SoftKeyboardInterceptionElement(
 
 private class InterceptedKeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
-    var onPreEvent: ((KeyEvent) -> Boolean)?
+    var onPreEvent: ((KeyEvent) -> Boolean)?,
 ) : SoftKeyboardInterceptionModifierNode, Modifier.Node() {
     override fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean =
         onEvent?.invoke(event) ?: false

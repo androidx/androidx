@@ -25,8 +25,8 @@ to symlink some common files like `gradle` and `.idea` configuration.
 
 To do that, execute "setup-playground.sh" command in your playground directory.
 ```
-cd room;
-../playground-common/setup-playground.sh
+cd playground-projects/<your-project>;
+../../playground-common/setup-playground.sh
 ```
 This script will create symbolic links for `gradle` and `.idea` files that are committed
 to the git repository. It also force adds the `.idea` files to the git repository because

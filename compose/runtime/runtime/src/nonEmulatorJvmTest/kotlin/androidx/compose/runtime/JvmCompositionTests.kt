@@ -157,7 +157,7 @@ class JvmCompositionTests {
                             scope.invalidate()
                             this.attributes["value"] = value.toString()
                         }
-                    }
+                    },
                 )
             }
         }

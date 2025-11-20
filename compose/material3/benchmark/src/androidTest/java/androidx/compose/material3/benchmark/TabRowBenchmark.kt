@@ -48,7 +48,7 @@ class TabRowBenchmark {
     fun selectTab() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = tabRowTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }

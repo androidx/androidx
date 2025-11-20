@@ -84,7 +84,7 @@ private suspend fun ResourceFont.loadAsync(context: Context): Typeface {
                     )
                 }
             },
-            null
+            null,
         )
     }
 }

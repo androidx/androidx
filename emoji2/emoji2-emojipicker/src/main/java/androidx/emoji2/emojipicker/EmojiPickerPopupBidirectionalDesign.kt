@@ -30,7 +30,7 @@ internal class EmojiPickerPopupBidirectionalDesign(
     override val targetEmojiView: View,
     override val variants: List<String>,
     override val popupView: LinearLayout,
-    override val emojiViewOnClickListener: View.OnClickListener
+    override val emojiViewOnClickListener: View.OnClickListener,
 ) : EmojiPickerPopupDesign() {
     private var emojiFacingLeft = true
 
@@ -46,7 +46,7 @@ internal class EmojiPickerPopupBidirectionalDesign(
                 layoutParams =
                     LinearLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                     )
             }
         FrameLayout.inflate(context, R.layout.emoji_picker_popup_bidirectional, row)

@@ -77,7 +77,7 @@ internal class PreservedBufferContentsVerifier {
             0f,
             TEST_WIDTH / 2f,
             TEST_HEIGHT.toFloat(),
-            paint.apply { color = Color.GREEN }
+            paint.apply { color = Color.GREEN },
         )
         renderNode.endRecording()
 
@@ -95,7 +95,7 @@ internal class PreservedBufferContentsVerifier {
             0f,
             TEST_WIDTH.toFloat(),
             TEST_HEIGHT.toFloat(),
-            paint.apply { color = Color.BLUE }
+            paint.apply { color = Color.BLUE },
         )
         // Draw red underneath the existing content
         canvas.drawColor(Color.RED, BlendMode.DST_OVER)
@@ -109,7 +109,7 @@ internal class PreservedBufferContentsVerifier {
             bitmap =
                 Bitmap.wrapHardwareBuffer(
                     result.hardwareBuffer,
-                    CanvasBufferedRenderer.DefaultColorSpace
+                    CanvasBufferedRenderer.DefaultColorSpace,
                 )
             secondRenderLatch.countDown()
         }

@@ -25,10 +25,7 @@ import com.google.mlkit.vision.interfaces.Detector
 import java.nio.ByteBuffer
 
 /** Fake [Detector] with [String] as the result type. */
-class FakeDetector(
-    private val result: String?,
-    private val detectorType: Int,
-) : Detector<String> {
+class FakeDetector(private val result: String?, private val detectorType: Int) : Detector<String> {
 
     @VisibleForTesting var latestMatrix: Matrix? = null
     @VisibleForTesting var latestRotationDegrees: Int = -1

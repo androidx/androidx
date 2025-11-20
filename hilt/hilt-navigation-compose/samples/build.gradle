@@ -29,11 +29,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":hilt:hilt-navigation-compose"))
@@ -45,7 +44,7 @@ androidx {
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     inceptionYear = "2021"
     description = "Samples for the Navigation Compose Hilt Integration"
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {

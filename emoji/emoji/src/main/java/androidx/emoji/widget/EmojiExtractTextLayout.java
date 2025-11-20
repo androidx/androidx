@@ -19,7 +19,6 @@ package androidx.emoji.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.inputmethodservice.InputMethodService;
-import android.os.Build;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -29,7 +28,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 import androidx.emoji.R;
 import androidx.emoji.text.EmojiCompat;
@@ -94,7 +92,6 @@ public class EmojiExtractTextLayout extends LinearLayout {
         init(context, attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public EmojiExtractTextLayout(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);

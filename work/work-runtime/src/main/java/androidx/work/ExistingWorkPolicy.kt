@@ -19,7 +19,7 @@ package androidx.work
  * An enumeration of the conflict resolution policies available to unique [OneTimeWorkRequest]s in
  * case of a collision.
  */
-enum class ExistingWorkPolicy {
+public enum class ExistingWorkPolicy {
     /**
      * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
      * it. Then, insert the newly-specified work.
@@ -51,5 +51,5 @@ enum class ExistingWorkPolicy {
      * **Note:** If there are failed or cancelled prerequisites, these prerequisites are *dropped*
      * and the newly-specified work is the start of a new sequence.
      */
-    APPEND_OR_REPLACE
+    APPEND_OR_REPLACE,
 }

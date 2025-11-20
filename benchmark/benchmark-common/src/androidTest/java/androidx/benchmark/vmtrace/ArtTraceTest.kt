@@ -70,9 +70,9 @@ class ArtTraceTest {
                                     name = "main (Method Trace)",
                                     thread = ThreadDescriptor(pid = 24877, tid = 24877),
                                     disallow_merging_with_system_tracks = true,
-                                )
+                                ),
                         ),
-                    actual = this
+                    actual = this,
                 )
             }
 
@@ -92,12 +92,12 @@ class ArtTraceTest {
                         TrackEvent(
                             name_iid = targetIid,
                             type = TrackEvent.Type.TYPE_SLICE_BEGIN,
-                            track_uuid = 1L
+                            track_uuid = 1L,
                         ),
                     trusted_packet_sequence_id = 1234565432,
-                    sequence_flags = 0x2
+                    sequence_flags = 0x2,
                 ),
-            actual = beginPacket
+            actual = beginPacket,
         )
 
         val endPacket = tracePackets.first { it.timestamp == 430421819819000 }
@@ -108,15 +108,15 @@ class ArtTraceTest {
                     track_event =
                         TrackEvent(type = TrackEvent.Type.TYPE_SLICE_END, track_uuid = 1L),
                     trusted_packet_sequence_id = 1234565432,
-                    sequence_flags = 0x2
+                    sequence_flags = 0x2,
                 ),
-            actual = endPacket
+            actual = endPacket,
         )
 
         // ensure balanced begin/ends
         assertEquals(
             tracePackets.count { it.track_event?.type == TrackEvent.Type.TYPE_SLICE_BEGIN },
-            tracePackets.count { it.track_event?.type == TrackEvent.Type.TYPE_SLICE_END }
+            tracePackets.count { it.track_event?.type == TrackEvent.Type.TYPE_SLICE_END },
         )
     }
 

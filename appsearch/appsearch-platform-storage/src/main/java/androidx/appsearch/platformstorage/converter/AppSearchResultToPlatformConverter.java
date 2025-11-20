@@ -108,28 +108,48 @@ public final class AppSearchResultToPlatformConverter {
      *
      * <p>Each value is translated using the provided {@code valueMapper} function.
      */
-    @SuppressLint("WrongConstant")
     public static <K, PlatformValue, JetpackValue> @NonNull AppSearchBatchResult<K, JetpackValue>
             platformAppSearchBatchResultToJetpack(
             android.app.appsearch.@NonNull AppSearchBatchResult<K, PlatformValue> platformResult,
             @NonNull Function<PlatformValue, JetpackValue> valueMapper) {
+        return platformAppSearchBatchResultToJetpack(platformResult, Function.identity(),
+                valueMapper);
+    }
+
+    /**
+     * Converts the given platform {@link android.app.appsearch.AppSearchBatchResult} to a Jetpack
+     * {@link AppSearchBatchResult}.
+     *
+     * <p>Each key is translated using the provided {@code valueMapper} function. Each value is
+     * translated using the provided {@code valueMapper} function.
+     */
+    @SuppressLint("WrongConstant")
+    public static <PlatformKey, JetpackKey, PlatformValue, JetpackValue> @NonNull
+            AppSearchBatchResult<JetpackKey, JetpackValue> platformAppSearchBatchResultToJetpack(
+                    android.app.appsearch.@NonNull AppSearchBatchResult<PlatformKey, PlatformValue>
+                            platformResult,
+            @NonNull Function<PlatformKey, JetpackKey> keyMapper,
+            @NonNull Function<PlatformValue, JetpackValue> valueMapper) {
         Preconditions.checkNotNull(platformResult);
         Preconditions.checkNotNull(valueMapper);
-        AppSearchBatchResult.Builder<K, JetpackValue> jetpackResult =
+        AppSearchBatchResult.Builder<JetpackKey, JetpackValue> jetpackResult =
                 new AppSearchBatchResult.Builder<>();
-        for (Map.Entry<K, PlatformValue> success : platformResult.getSuccesses().entrySet()) {
+        for (Map.Entry<PlatformKey, PlatformValue> success :
+                platformResult.getSuccesses().entrySet()) {
+            JetpackKey jetpackKey = keyMapper.apply(success.getKey());
             try {
                 JetpackValue jetpackValue = valueMapper.apply(success.getValue());
-                jetpackResult.setSuccess(success.getKey(), jetpackValue);
+                jetpackResult.setSuccess(jetpackKey, jetpackValue);
             } catch (Throwable t) {
                 jetpackResult.setResult(
-                        success.getKey(), AppSearchResult.throwableToFailedResult(t));
+                        jetpackKey, AppSearchResult.throwableToFailedResult(t));
             }
         }
-        for (Map.Entry<K, android.app.appsearch.AppSearchResult<PlatformValue>> failure :
+        for (Map.Entry<PlatformKey, android.app.appsearch.AppSearchResult<PlatformValue>> failure :
                 platformResult.getFailures().entrySet()) {
+            JetpackKey jetpackKey = keyMapper.apply(failure.getKey());
             jetpackResult.setFailure(
-                    failure.getKey(),
+                    jetpackKey,
                     // Without the SuppressLint annotation on the method, this line causes a
                     // lint error because getResultCode isn't defined as returning a value from
                     // AppSearchResult.ResultCode

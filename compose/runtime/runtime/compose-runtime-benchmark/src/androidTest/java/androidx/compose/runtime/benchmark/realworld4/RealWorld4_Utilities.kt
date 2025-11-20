@@ -51,6 +51,6 @@ fun Any.toColor(): Color {
     return Color(
         red = Math.min(l, (e[0] % l) * e[1] % 3),
         blue = Math.min(l, (e[2] % l) * e[3] % 3),
-        green = Math.min(l, (e[4] % l) * e[5] % 3)
+        green = Math.min(l, (e[4] % l) * e[5] % 3),
     )
 }

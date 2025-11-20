@@ -68,6 +68,7 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_asset_loader);
         setTitle(R.string.asset_loader_simple_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         WebView webView = findViewById(R.id.webview_asset_loader_webview);

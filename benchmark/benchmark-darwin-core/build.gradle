@@ -8,7 +8,6 @@
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
 plugins {
     id("AndroidXPlugin")
@@ -32,8 +31,6 @@ androidXMultiplatform {
         }
         binaries.framework {
             baseName = "AndroidXBenchmarkXCTest"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
         }
     }
     sourceSets {

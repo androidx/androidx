@@ -73,7 +73,7 @@ public fun Stepper(
     contentColor: Color = contentColorFor(backgroundColor),
     iconColor: Color = contentColor,
     enableRangeSemantics: Boolean = true,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     androidx.wear.compose.materialcore.Stepper(
         value = value,
@@ -92,14 +92,14 @@ public fun Stepper(
         enabledButtonProviderValues =
             arrayOf(
                 LocalContentColor provides iconColor,
-                LocalContentAlpha provides iconColor.alpha
+                LocalContentAlpha provides iconColor.alpha,
             ),
         disabledButtonProviderValues =
             arrayOf(
                 LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
-                LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
+                LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha,
             ),
-        buttonRipple = ripple(bounded = false)
+        buttonRipple = ripple(bounded = false),
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) { content() }
     }
@@ -157,7 +157,7 @@ public fun Stepper(
     contentColor: Color = contentColorFor(backgroundColor),
     iconColor: Color = contentColor,
     enableRangeSemantics: Boolean = true,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Stepper(
         value = value.toFloat(),
@@ -171,7 +171,7 @@ public fun Stepper(
         contentColor = contentColor,
         iconColor = iconColor,
         enableRangeSemantics = enableRangeSemantics,
-        content = content
+        content = content,
     )
 }
 
@@ -204,7 +204,7 @@ public fun Stepper(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1. " +
         "A newer overload is available with an additional enableDefaultSemantics parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Stepper(
@@ -218,7 +218,7 @@ public fun Stepper(
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconColor: Color = contentColor,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ): Unit =
     Stepper(
         value = value,
@@ -232,7 +232,7 @@ public fun Stepper(
         contentColor = contentColor,
         iconColor = iconColor,
         enableRangeSemantics = true,
-        content = content
+        content = content,
     )
 
 /**
@@ -270,7 +270,7 @@ public fun Stepper(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1. " +
         "A newer overload is available with an additional enableDefaultSemantics parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Stepper(
@@ -283,7 +283,7 @@ public fun Stepper(
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
     iconColor: Color = contentColor,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Stepper(
         value = value,
@@ -296,7 +296,7 @@ public fun Stepper(
         contentColor = contentColor,
         iconColor = iconColor,
         enableRangeSemantics = true,
-        content = content
+        content = content,
     )
 }
 

@@ -25,42 +25,54 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.SwipeDirection
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.RevealDirection.Companion.Bidirectional
 import androidx.wear.compose.material3.SwipeToReveal
-import androidx.wear.compose.material3.SwipeToRevealDefaults
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.rememberRevealState
 
 @Composable
 fun SwipeToRevealSingleButtonWithAnchoring() {
     Box(
         modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         SwipeToReveal(
-            revealState =
-                rememberRevealState(
-                    swipeDirection = SwipeDirection.RightToLeft,
-                    anchorWidth = SwipeToRevealDefaults.SingleActionAnchorWidth,
-                ),
-            actions = {
-                primaryAction(
+            primaryAction = {
+                PrimaryActionButton(
                     onClick = { /* This block is called when the primary action is executed. */ },
                     icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                     text = { Text("Delete") },
-                    label = "Delete"
                 )
-                undoPrimaryAction(
+            },
+            onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+            },
+            undoPrimaryAction = {
+                UndoActionButton(
                     onClick = { /* This block is called when the undo primary action is executed. */
                     },
                     text = { Text("Undo Delete") },
                 )
-            }
+            },
         ) {
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Button(
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
+                        // Use custom actions to make the primary action accessible
+                        customActions =
+                            listOf(
+                                CustomAccessibilityAction("Delete") {
+                                    /* Add the primary action click handler here */
+                                    true
+                                }
+                            )
+                    },
+                onClick = {},
+            ) {
                 Text("This Button has only one action", modifier = Modifier.fillMaxWidth())
             }
         }
@@ -71,29 +83,42 @@ fun SwipeToRevealSingleButtonWithAnchoring() {
 fun SwipeToRevealBothDirectionsNonAnchoring() {
     Box(
         modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         SwipeToReveal(
-            revealState =
-                rememberRevealState(
-                    swipeDirection = SwipeDirection.Both,
-                    useAnchoredActions = false,
-                ),
-            actions = {
-                primaryAction(
+            primaryAction = {
+                PrimaryActionButton(
                     onClick = { /* This block is called when the primary action is executed. */ },
                     icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                     text = { Text("Delete") },
-                    label = "Delete"
                 )
-                undoPrimaryAction(
+            },
+            onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+            },
+            undoPrimaryAction = {
+                UndoActionButton(
                     onClick = { /* This block is called when the undo primary action is executed. */
                     },
                     text = { Text("Undo Delete") },
                 )
-            }
+            },
+            revealDirection = Bidirectional,
+            hasPartiallyRevealedState = false,
         ) {
-            Button(modifier = Modifier.fillMaxWidth(), onClick = {}) {
+            Button(
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
+                        // Use custom actions to make the primary action accessible
+                        customActions =
+                            listOf(
+                                CustomAccessibilityAction("Delete") {
+                                    /* Add the primary action click handler here */
+                                    true
+                                }
+                            )
+                    },
+                onClick = {},
+            ) {
                 Text("This Button has only one action", modifier = Modifier.fillMaxWidth())
             }
         }

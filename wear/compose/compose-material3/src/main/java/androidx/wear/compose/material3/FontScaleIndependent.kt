@@ -25,11 +25,7 @@ import androidx.compose.ui.unit.Density
 internal fun FontScaleIndependent(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         value =
-            LocalDensity provides
-                Density(
-                    density = LocalDensity.current.density,
-                    fontScale = 1f,
-                ),
-        content = content
+            LocalDensity provides Density(density = LocalDensity.current.density, fontScale = 1f),
+        content = content,
     )
 }

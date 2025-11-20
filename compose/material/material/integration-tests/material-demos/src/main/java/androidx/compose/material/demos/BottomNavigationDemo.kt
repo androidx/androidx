@@ -50,9 +50,9 @@ fun BottomNavigationDemo() {
                         .height(56.dp)
                         .selectable(
                             selected = !alwaysShowLabels,
-                            onClick = { alwaysShowLabels = false }
+                            onClick = { alwaysShowLabels = false },
                         ),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = !alwaysShowLabels, onClick = null)
                 Spacer(Modifier.requiredWidth(16.dp))
@@ -64,9 +64,9 @@ fun BottomNavigationDemo() {
                         .height(56.dp)
                         .selectable(
                             selected = alwaysShowLabels,
-                            onClick = { alwaysShowLabels = true }
+                            onClick = { alwaysShowLabels = true },
                         ),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = alwaysShowLabels, onClick = null)
                 Spacer(Modifier.requiredWidth(16.dp))

@@ -33,7 +33,7 @@ public fun Config(
     prefetchDistance: Int = pageSize,
     enablePlaceholders: Boolean = true,
     initialLoadSizeHint: Int = pageSize * PagedList.Config.Builder.DEFAULT_INITIAL_PAGE_MULTIPLIER,
-    maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED
+    maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED,
 ): PagedList.Config {
     return PagedList.Config.Builder()
         .setPageSize(pageSize)

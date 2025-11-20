@@ -1,8 +1,8 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.work {
 
   public final class Configuration {
-    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @IntRange(from=20L, to=50L) public int getMaxSchedulerLimit();
+    method @IntRange(from=20L, to=50L) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getMaxSchedulerLimit();
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY}) public int getMinimumLoggingLevel();
   }
 
@@ -11,12 +11,12 @@ package androidx.work {
     method @RequiresApi(24) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.ContentUriTriggers getContentUriTriggers();
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public long getTriggerContentUpdateDelay();
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public long getTriggerMaxContentDelay();
-    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(24) public boolean hasContentUriTriggers();
-    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(24) public void setContentUriTriggers(androidx.work.ContentUriTriggers?);
+    method @RequiresApi(24) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean hasContentUriTriggers();
+    method @RequiresApi(24) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setContentUriTriggers(androidx.work.ContentUriTriggers?);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiredNetworkType(androidx.work.NetworkType);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresBatteryNotLow(boolean);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresCharging(boolean);
-    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public void setRequiresDeviceIdle(boolean);
+    method @RequiresApi(23) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresDeviceIdle(boolean);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresStorageNotLow(boolean);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setTriggerContentUpdateDelay(long);
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setTriggerMaxContentDelay(long);
@@ -40,7 +40,7 @@ package androidx.work {
 
   public final class Data {
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.work.Data fromByteArray(byte[]);
-    method @VisibleForTesting @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int size();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public int size();
     method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static byte[] toByteArray(androidx.work.Data);
   }
 
@@ -251,8 +251,8 @@ package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP})
 
   @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkManagerImpl extends androidx.work.WorkManager {
     ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor);
-    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, boolean);
     ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, androidx.work.impl.WorkDatabase, java.util.List<androidx.work.impl.Scheduler>, androidx.work.impl.Processor);
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, boolean);
     method public androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest>);
     method public androidx.work.Operation cancelAllWork();
@@ -368,7 +368,7 @@ package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP})
 
 package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.background.systemjob {
 
-  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public class SystemJobScheduler implements androidx.work.impl.Scheduler {
+  @RequiresApi(23) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemJobScheduler implements androidx.work.impl.Scheduler {
     ctor public SystemJobScheduler(android.content.Context, androidx.work.impl.WorkManagerImpl);
     ctor @VisibleForTesting public SystemJobScheduler(android.content.Context!, androidx.work.impl.WorkManagerImpl!, android.app.job.JobScheduler!, androidx.work.impl.background.systemjob.SystemJobInfoConverter!);
     method public void cancel(String);
@@ -377,7 +377,7 @@ package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP})
     method @VisibleForTesting public void scheduleInternal(androidx.work.impl.model.WorkSpec!, int);
   }
 
-  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public class SystemJobService implements androidx.work.impl.ExecutionListener {
+  @RequiresApi(23) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemJobService implements androidx.work.impl.ExecutionListener {
     ctor public SystemJobService();
     method public void onCreate();
     method public void onDestroy();
@@ -470,8 +470,8 @@ package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP})
   }
 
   @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkSpec {
-    ctor public WorkSpec(String, String);
     ctor public WorkSpec(androidx.work.impl.model.WorkSpec);
+    ctor public WorkSpec(String, String);
     method public long calculateNextRunTime();
     method public boolean equals(Object?);
     method public boolean hasConstraints();
@@ -626,8 +626,8 @@ package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP})
     method public final void addListener(Runnable!, java.util.concurrent.Executor!);
     method protected void afterDone();
     method public final boolean cancel(boolean);
-    method public final V! get(long, java.util.concurrent.TimeUnit!);
     method public final V! get();
+    method public final V! get(long, java.util.concurrent.TimeUnit!);
     method protected void interruptTask();
     method public final boolean isCancelled();
     method public final boolean isDone();

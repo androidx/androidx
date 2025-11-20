@@ -45,7 +45,7 @@ class OutputOptionsProvider @Inject constructor(@ApplicationContext val context:
         return ImageCapture.OutputFileOptions.Builder(
                 context.contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
             .build()
     }

@@ -29,7 +29,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.appsearch.debugview.samples"
 }
 
@@ -40,6 +40,7 @@ dependencies {
 
     implementation(project(":appsearch:appsearch"))
     implementation(project(":appsearch:appsearch-local-storage"))
+    implementation(project(":appsearch:appsearch-platform-storage"))
     implementation(project(":appsearch:appsearch-debug-view"))
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

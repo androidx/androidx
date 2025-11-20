@@ -43,7 +43,7 @@ class DisallowOverlapTest {
 
         spl.measure(
             MeasureSpec.makeMeasureSpec(100, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(100, MeasureSpec.EXACTLY)
+            MeasureSpec.makeMeasureSpec(100, MeasureSpec.EXACTLY),
         )
 
         assertThat(spl.measuredWidth).isEqualTo(100)

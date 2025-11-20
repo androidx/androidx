@@ -34,10 +34,7 @@ import androidx.opengl.EGLImageKHR
  *   [EGLImageKHR] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
-class FrameBuffer(
-    private val egl: EGLSpec,
-    val hardwareBuffer: HardwareBuffer,
-) : AutoCloseable {
+class FrameBuffer(private val egl: EGLSpec, val hardwareBuffer: HardwareBuffer) : AutoCloseable {
 
     private var eglImage: EGLImageKHR?
     private var texture: Int = -1
@@ -81,7 +78,7 @@ class FrameBuffer(
                 GLES20.GL_COLOR_ATTACHMENT0,
                 GLES20.GL_TEXTURE_2D,
                 texture,
-                0
+                0,
             )
         }
     }

@@ -29,7 +29,6 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -65,10 +64,7 @@ fun SquareButtonSample() {
 @Sampled
 @Composable
 fun SmallButtonSample() {
-    Button(
-        onClick = { /* Do something! */ },
-        contentPadding = ButtonDefaults.SmallButtonContentPadding
-    ) {
+    Button(onClick = { /* Do something! */ }, contentPadding = ButtonDefaults.SmallContentPadding) {
         Text("Button")
     }
 }
@@ -141,12 +137,12 @@ fun TextButtonWithAnimatedShapeSample() {
 fun ButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
     ) {
         Icon(
             Icons.Filled.Favorite,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.IconSize)
+            modifier = Modifier.size(ButtonDefaults.IconSize),
         )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text("Like")
@@ -158,17 +154,18 @@ fun ButtonWithIconSample() {
 @Sampled
 @Composable
 fun XSmallButtonWithIconSample() {
+    val size = ButtonDefaults.ExtraSmallContainerHeight
     Button(
         onClick = { /* Do something! */ },
-        modifier = Modifier.heightIn(ButtonDefaults.XSmallContainerHeight),
-        contentPadding = ButtonDefaults.XSmallContentPadding
+        modifier = Modifier.heightIn(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size),
     ) {
         Icon(
             Icons.Filled.Edit,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.XSmallIconSize)
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(size)),
         )
-        Spacer(Modifier.size(ButtonDefaults.XSmallIconSpacing))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
         Text("Label")
     }
 }
@@ -178,18 +175,19 @@ fun XSmallButtonWithIconSample() {
 @Sampled
 @Composable
 fun MediumButtonWithIconSample() {
+    val size = ButtonDefaults.MediumContainerHeight
     Button(
         onClick = { /* Do something! */ },
-        modifier = Modifier.heightIn(ButtonDefaults.MediumContainerHeight),
-        contentPadding = ButtonDefaults.MediumContentPadding
+        modifier = Modifier.heightIn(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size),
     ) {
         Icon(
             Icons.Filled.Edit,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.MediumIconSize)
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(size)),
         )
-        Spacer(Modifier.size(ButtonDefaults.MediumIconSpacing))
-        Text(text = "Label", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
+        Text("Label", style = ButtonDefaults.textStyleFor(size))
     }
 }
 
@@ -198,18 +196,19 @@ fun MediumButtonWithIconSample() {
 @Sampled
 @Composable
 fun LargeButtonWithIconSample() {
+    val size = ButtonDefaults.LargeContainerHeight
     Button(
         onClick = { /* Do something! */ },
-        modifier = Modifier.heightIn(ButtonDefaults.LargeContainerHeight),
-        contentPadding = ButtonDefaults.LargeContentPadding
+        modifier = Modifier.heightIn(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size),
     ) {
         Icon(
             Icons.Filled.Edit,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(size)),
         )
-        Spacer(Modifier.size(ButtonDefaults.LargeIconSpacing))
-        Text(text = "Label", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
+        Text("Label", style = ButtonDefaults.textStyleFor(size))
     }
 }
 
@@ -218,17 +217,18 @@ fun LargeButtonWithIconSample() {
 @Sampled
 @Composable
 fun XLargeButtonWithIconSample() {
+    val size = ButtonDefaults.ExtraLargeContainerHeight
     Button(
         onClick = { /* Do something! */ },
-        modifier = Modifier.heightIn(ButtonDefaults.XLargeContainerHeight),
-        contentPadding = ButtonDefaults.XLargeContentPadding
+        modifier = Modifier.heightIn(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size),
     ) {
         Icon(
             Icons.Filled.Edit,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.XLargeIconSize)
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(size)),
         )
-        Spacer(Modifier.size(ButtonDefaults.XLargeIconSpacing))
-        Text(text = "Label", style = MaterialTheme.typography.headlineLarge)
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
+        Text("Label", style = ButtonDefaults.textStyleFor(size))
     }
 }

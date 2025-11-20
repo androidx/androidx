@@ -37,7 +37,6 @@ import java.lang.reflect.Method;
  */
 public class TelephonyManagerCompat {
 
-    private static Method sGetDeviceIdMethod;
     private static Method sGetSubIdMethod;
 
     /**
@@ -68,7 +67,7 @@ public class TelephonyManagerCompat {
     public static @Nullable String getImei(@NonNull TelephonyManager telephonyManager) {
         if (VERSION.SDK_INT >= 26) {
             return Api26Impl.getImei(telephonyManager);
-        } else if (VERSION.SDK_INT >= 22) {
+        } else {
             // below Android O the telephony manager has a severe bug (b/137114239) where many
             // methods do not properly respect the subscription id and always use the default
             // subscription id. so if we have a non-default subscription id, we need to do the work
@@ -76,25 +75,7 @@ public class TelephonyManagerCompat {
             int subId = getSubscriptionId(telephonyManager);
             if (subId != DEFAULT_SUBSCRIPTION_ID && subId != INVALID_SUBSCRIPTION_ID) {
                 int slotIndex = SubscriptionManagerCompat.getSlotIndex(subId);
-                if (VERSION.SDK_INT >= 23) {
-                    return Api23Impl.getDeviceId(telephonyManager, slotIndex);
-                } else {
-                    try {
-                        if (sGetDeviceIdMethod == null) {
-                            sGetDeviceIdMethod = TelephonyManager.class.getDeclaredMethod(
-                                    "getDeviceId",
-                                    int.class);
-                            sGetDeviceIdMethod.setAccessible(true);
-                        }
-
-                        return (String) sGetDeviceIdMethod.invoke(telephonyManager, slotIndex);
-                    } catch (NoSuchMethodException ignored) {
-                    } catch (IllegalAccessException ignored) {
-                    } catch (InvocationTargetException ignored) {
-                    }
-
-                    return null;
-                }
+                return telephonyManager.getDeviceId(slotIndex);
             }
         }
 
@@ -110,7 +91,7 @@ public class TelephonyManagerCompat {
     public static int getSubscriptionId(@NonNull TelephonyManager telephonyManager) {
         if (VERSION.SDK_INT >= 30) {
             return Api30Impl.getSubscriptionId(telephonyManager);
-        } else if (VERSION.SDK_INT >= 22) {
+        } else {
             try {
                 if (sGetSubIdMethod == null) {
                     sGetSubIdMethod = TelephonyManager.class.getDeclaredMethod("getSubId");
@@ -149,17 +130,6 @@ public class TelephonyManagerCompat {
         @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE)
         static @Nullable String getImei(TelephonyManager telephonyManager) {
             return telephonyManager.getImei();
-        }
-    }
-
-    @RequiresApi(23)
-    private static class Api23Impl {
-        private Api23Impl() {}
-
-        @SuppressLint("MissingPermission")
-        @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE)
-        static @Nullable String getDeviceId(TelephonyManager telephonyManager, int slotIndex) {
-            return telephonyManager.getDeviceId(slotIndex);
         }
     }
 }

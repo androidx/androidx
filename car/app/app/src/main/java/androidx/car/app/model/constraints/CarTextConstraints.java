@@ -16,6 +16,8 @@
 
 package androidx.car.app.model.constraints;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarIconSpan;
 import androidx.car.app.model.CarSpan;
@@ -24,6 +26,7 @@ import androidx.car.app.model.ClickableSpan;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.ForegroundCarColorSpan;
+import androidx.car.app.model.TimerSpan;
 
 import org.jspecify.annotations.NonNull;
 
@@ -37,6 +40,7 @@ import java.util.List;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("UnsafeOptInUsageError")
 public final class CarTextConstraints {
     /** No {@link CarSpan}s allowed. */
     public static final @NonNull CarTextConstraints CONSERVATIVE =
@@ -48,6 +52,7 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      *     <li>{@link ForegroundCarColorSpan}
      *     <li>{@link CarIconSpan}
      *     <li>{@link ClickableSpan}
@@ -59,7 +64,9 @@ public final class CarTextConstraints {
                     ClickableSpan.class,
                     DistanceSpan.class,
                     DurationSpan.class,
+                    TimerSpan.class,
                     ForegroundCarColorSpan.class));
+
 
     /**
      * Allow clickable text-only {@link CarSpan}s:
@@ -67,6 +74,7 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      *     <li>{@link ClickableSpan}
      * </ul>
      */
@@ -74,8 +82,8 @@ public final class CarTextConstraints {
             new CarTextConstraints(Arrays.asList(
                     ClickableSpan.class,
                     DistanceSpan.class,
-                    DurationSpan.class));
-
+                    DurationSpan.class,
+                    TimerSpan.class));
     /**
      * Allow color-only {@link CarSpan}s:
      *
@@ -92,12 +100,14 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      * </ul>
      */
     public static final @NonNull CarTextConstraints TEXT_ONLY =
             new CarTextConstraints(Arrays.asList(
                     DistanceSpan.class,
-                    DurationSpan.class));
+                    DurationSpan.class,
+                    TimerSpan.class));
 
     /**
      * Allow text and icon {@link CarSpan}s:
@@ -105,6 +115,7 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      *     <li>{@link CarIconSpan}
      * </ul>
      */
@@ -112,6 +123,7 @@ public final class CarTextConstraints {
             new CarTextConstraints(Arrays.asList(
                     DistanceSpan.class,
                     DurationSpan.class,
+                    TimerSpan.class,
                     CarIconSpan.class));
 
     /**
@@ -120,6 +132,7 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      *     <li>{@link ForegroundCarColorSpan}
      * </ul>
      */
@@ -127,6 +140,7 @@ public final class CarTextConstraints {
             new CarTextConstraints(Arrays.asList(
                     DistanceSpan.class,
                     DurationSpan.class,
+                    TimerSpan.class,
                     ForegroundCarColorSpan.class));
 
     /**
@@ -135,6 +149,7 @@ public final class CarTextConstraints {
      * <ul>
      *     <li>{@link DistanceSpan}
      *     <li>{@link DurationSpan}
+     *     <li>{@link TimerSpan}
      *     <li>{@link ForegroundCarColorSpan}
      *     <li>{@link CarIconSpan}
      * </ul>
@@ -143,6 +158,7 @@ public final class CarTextConstraints {
             new CarTextConstraints(Arrays.asList(
                     DistanceSpan.class,
                     DurationSpan.class,
+                    TimerSpan.class,
                     ForegroundCarColorSpan.class,
                     CarIconSpan.class));
 

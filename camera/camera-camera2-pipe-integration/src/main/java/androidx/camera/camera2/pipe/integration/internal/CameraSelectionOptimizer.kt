@@ -19,14 +19,15 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.DoNotDisturbException
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.internal.StreamSpecsCalculator
 
 /**
  * The [CameraSelectionOptimizer] is responsible for determining available camera Ids based on
@@ -34,18 +35,31 @@ import androidx.camera.core.impl.CameraInfoInternal
  */
 internal class CameraSelectionOptimizer {
     companion object {
-
-        @Throws(InitializationException::class)
         fun getSelectedAvailableCameraIds(
             cameraFactory: CameraFactory,
-            availableCamerasSelector: CameraSelector?
+            availableCamerasSelector: CameraSelector?,
+            streamSpecsCalculator: StreamSpecsCalculator,
+        ): List<String> {
+            val cameraAppComponent = cameraFactory.cameraManager as CameraAppComponent
+            val cameraDevices = cameraAppComponent.getCameraDevices()
+            val cameraIdList = checkNotNull(cameraDevices.awaitCameraIds()).map { it.value }
+            return getSelectedAvailableCameraIds(
+                cameraAppComponent,
+                availableCamerasSelector,
+                cameraIdList,
+                streamSpecsCalculator,
+            )
+        }
+
+        fun getSelectedAvailableCameraIds(
+            cameraAppComponent: CameraAppComponent,
+            availableCamerasSelector: CameraSelector?,
+            cameraIdList: List<String>,
+            streamSpecsCalculator: StreamSpecsCalculator,
         ): List<String> {
             try {
                 val availableCameraIds = mutableListOf<String>()
-                val cameraAppComponent = cameraFactory.cameraManager as CameraAppComponent
                 val cameraDevices = cameraAppComponent.getCameraDevices()
-
-                val cameraIdList = checkNotNull(cameraDevices.awaitCameraIds()).map { it.value }
                 if (availableCamerasSelector == null) {
                     return cameraIdList
                 }
@@ -55,12 +69,12 @@ internal class CameraSelectionOptimizer {
                     try {
                         decideSkippedCameraIdByHeuristic(
                             cameraDevices,
-                            availableCamerasSelector.lensFacing
+                            availableCamerasSelector.lensFacing,
                         )
                     } catch (e: IllegalStateException) {
                         // Device doesn't need to have front and/or back camera.
                         // This exception doesn't mean error.
-                        Log.debug(e) { "Unable to get Metadata for cameraID 0 and/or 1" }
+                        Camera2Logger.debug(e) { "Unable to get Metadata for cameraID 0 and/or 1" }
                         // Don't skip camera if there is any conflict in camera lens facing.
                         null
                     }
@@ -73,6 +87,7 @@ internal class CameraSelectionOptimizer {
                         cameraAppComponent
                             .cameraBuilder()
                             .config(CameraConfig(CameraId(id)))
+                            .streamSpecsCalculator(streamSpecsCalculator)
                             .build()
                             .getCameraInternal()
                             .cameraInfoInternal
@@ -87,7 +102,7 @@ internal class CameraSelectionOptimizer {
             } catch (e: IllegalStateException) {
                 // TODO(b/263519315): Once b/263507146 is fixed, throw InitializationException
                 //  based on exception thrown by Camera2DeviceCache:readCameraIdList() method.
-                Log.error(e) { "Error while accessing info about cameras." }
+                Camera2Logger.error(e) { "Error while accessing info about cameras." }
                 throw InitializationException(e)
             }
         }
@@ -96,7 +111,7 @@ internal class CameraSelectionOptimizer {
         // Returns null if no camera ids can be skipped.
         private fun decideSkippedCameraIdByHeuristic(
             cameraDevices: CameraDevices,
-            lensFacingInteger: Int?
+            lensFacingInteger: Int?,
         ): String? {
             var skippedCameraId: String? = null
 
@@ -104,7 +119,7 @@ internal class CameraSelectionOptimizer {
                 return null
             }
             try {
-                if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_BACK) {
+                if (lensFacingInteger == CameraSelector.LENS_FACING_BACK) {
                     val camera0Metadata = cameraDevices.awaitCameraMetadata(CameraId("0"))
                     checkNotNull(camera0Metadata)
                     if (
@@ -115,7 +130,7 @@ internal class CameraSelectionOptimizer {
                         // We can safely ignore "1" as a optimization for initialization latency
                         skippedCameraId = "1"
                     }
-                } else if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_FRONT) {
+                } else if (lensFacingInteger == CameraSelector.LENS_FACING_FRONT) {
                     val camera1Metadata = cameraDevices.awaitCameraMetadata(CameraId("1"))
                     checkNotNull(camera1Metadata)
                     if (
@@ -127,8 +142,8 @@ internal class CameraSelectionOptimizer {
                         skippedCameraId = "0"
                     }
                 }
-            } catch (exception: DoNotDisturbException) {
-                Log.error {
+            } catch (_: DoNotDisturbException) {
+                Camera2Logger.error {
                     "Received Do Not Disturb exception while deciding camera id to skip. " +
                         "Please turn off Do Not Disturb mode"
                 }

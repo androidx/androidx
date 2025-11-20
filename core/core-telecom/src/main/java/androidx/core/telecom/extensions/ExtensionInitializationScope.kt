@@ -88,15 +88,19 @@ public interface ExtensionInitializationScope {
      * specify participant related information, which will be shared with remote surfaces that
      * support displaying that information (automotive, watch, etc...).
      *
-     * @param initialParticipants The initial [Set] of [Participant]s in the call
+     * @param initialParticipants The initial [List] of [Participant]s in the call. Participants are
+     *   displayed on the remote screen according to their order within the participants list,
+     *   starting with the first element. Duplicate participants are removed. If the same
+     *   participant is added to the list more than once, **only the first occurrence of that
+     *   participant** will be retained in the list; subsequent duplicates are dropped.
      * @param initialActiveParticipant The initial [Participant] that is active in the call or
      *   `null` if there is no active participant.
      * @return The interface used by this application to further update the participant extension
      *   state to remote surfaces
      */
     public fun addParticipantExtension(
-        initialParticipants: Set<Participant> = emptySet(),
-        initialActiveParticipant: Participant? = null
+        initialParticipants: List<Participant> = emptyList(),
+        initialActiveParticipant: Participant? = null,
     ): ParticipantExtension
 
     /**

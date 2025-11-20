@@ -149,14 +149,14 @@ public class RxPreferenceDataStoreBuilder {
                     produceFile = { produceFile.call() },
                     scope = scope,
                     corruptionHandler = corruptionHandler,
-                    migrations = dataMigrations
+                    migrations = dataMigrations,
                 )
             } else if (context != null && name != null) {
                 PreferenceDataStoreFactory.create(
                     produceFile = { context.preferencesDataStoreFile(name) },
                     scope = scope,
                     corruptionHandler = corruptionHandler,
-                    migrations = dataMigrations
+                    migrations = dataMigrations,
                 )
             } else {
                 error(

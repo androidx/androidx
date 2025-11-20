@@ -114,6 +114,13 @@ public final class VersionBuilders {
             return false;
         }
 
+        /** The current version of the schema in use. */
+        @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+        public static final VersionInfo CURRENT = new VersionInfo.Builder()
+                .setMajor(1)
+                .setMinor(600)
+                .build();
+
         /** Builder for {@link VersionInfo} */
         public static final class Builder {
             private final VersionProto.VersionInfo.Builder mImpl =

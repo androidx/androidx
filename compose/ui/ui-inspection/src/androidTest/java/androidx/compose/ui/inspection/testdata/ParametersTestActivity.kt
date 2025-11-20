@@ -36,7 +36,7 @@ class ParametersTestActivity : ComponentActivity() {
     private val fontFamily =
         FontFamily(
             Font(resId = R.font.samplefont, weight = FontWeight.W400, style = FontStyle.Normal),
-            Font(resId = R.font.samplefont, weight = FontWeight.W400, style = FontStyle.Italic)
+            Font(resId = R.font.samplefont, weight = FontWeight.W400, style = FontStyle.Italic),
         )
 
     override fun onCreate(savedInstanceState: Bundle?) {

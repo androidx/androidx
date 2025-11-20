@@ -61,9 +61,9 @@ import java.util.Locale
  *
  * This class is not thread-safe. Usually its methods should be invoked only from the test thread.
  *
+ * @property mContext the context on which to alter the locale
  * @constructor Create a new instance that can be used to set and reset the locale for the given
  *   context.
- * @property mContext the context on which to alter the locale
  */
 class LocaleTestUtils(private val mContext: Context) {
     companion object {

@@ -70,7 +70,7 @@ class SimplePositionIndicatorBenchmark {
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
                 targetVisibility = PositionIndicatorVisibility.Hide,
-                animate = false
+                animate = false,
             )
         }
     }
@@ -82,7 +82,7 @@ class SimplePositionIndicatorBenchmark {
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
                 targetVisibility = PositionIndicatorVisibility.AutoHide,
-                animate = false
+                animate = false,
             )
         }
     }
@@ -101,7 +101,7 @@ class SimplePositionIndicatorBenchmark {
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
                 targetVisibility = PositionIndicatorVisibility.Hide,
-                animate = true
+                animate = true,
             )
         }
     }
@@ -113,7 +113,7 @@ class SimplePositionIndicatorBenchmark {
                 targetFraction = 0.5f,
                 targetSizeFraction = 0.5f,
                 targetVisibility = PositionIndicatorVisibility.AutoHide,
-                animate = true
+                animate = true,
             )
         }
     }
@@ -148,7 +148,7 @@ internal class SimplePositionIndicatorBenchmarkTestCase(
     val targetFraction: Float? = null,
     val targetSizeFraction: Float? = null,
     val targetVisibility: PositionIndicatorVisibility? = null,
-    val animate: Boolean
+    val animate: Boolean,
 ) : PositionIndicatorBenchmarkTestCase() {
     private lateinit var positionFraction: MutableState<Float>
     private lateinit var sizeFraction: MutableState<Float>
@@ -172,7 +172,7 @@ internal class SimplePositionIndicatorBenchmarkTestCase(
             CustomPositionIndicatorState(
                 _positionFraction = { positionFraction.value },
                 sizeFraction = { sizeFraction.value },
-                visibility = { visibility.value }
+                visibility = { visibility.value },
             )
         }
 
@@ -186,7 +186,7 @@ internal class SimplePositionIndicatorBenchmarkTestCase(
             fadeOutAnimationSpec =
                 if (animate) PositionIndicatorDefaults.visibilityAnimationSpec else snap(),
             positionAnimationSpec =
-                if (animate) PositionIndicatorDefaults.positionAnimationSpec else snap()
+                if (animate) PositionIndicatorDefaults.positionAnimationSpec else snap(),
         )
     }
 
@@ -209,9 +209,7 @@ internal class PositionIndicatorWithScalingLazyColumnBenchmarkTestCase(
     override fun MeasuredContent() {
         slcState = rememberScalingLazyListState()
         Box(modifier = Modifier.fillMaxSize()) {
-            ScalingLazyColumn(
-                state = slcState,
-            ) {
+            ScalingLazyColumn(state = slcState) {
                 items(50) {
                     // By changing the size we can also change the size of the PositionIndicator,
                     // which will allow us to better measure all parts of PositionIndicator math.
@@ -223,7 +221,7 @@ internal class PositionIndicatorWithScalingLazyColumnBenchmarkTestCase(
                 scalingLazyListState = slcState,
                 fadeInAnimationSpec = snap(),
                 fadeOutAnimationSpec = snap(),
-                positionAnimationSpec = snap()
+                positionAnimationSpec = snap(),
             )
         }
     }
@@ -241,7 +239,7 @@ internal abstract class PositionIndicatorBenchmarkTestCase : LayeredComposeTestC
 private class CustomPositionIndicatorState(
     private val _positionFraction: () -> Float,
     private val sizeFraction: () -> Float,
-    private val visibility: () -> PositionIndicatorVisibility
+    private val visibility: () -> PositionIndicatorVisibility,
 ) : PositionIndicatorState {
     override val positionFraction: Float
         get() = _positionFraction()

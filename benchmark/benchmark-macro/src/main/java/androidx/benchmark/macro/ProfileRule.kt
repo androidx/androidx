@@ -28,7 +28,7 @@ data class ProfileRule(
     val underlying: String,
     val flags: String,
     val classDescriptor: String,
-    val methodDescriptor: String?
+    val methodDescriptor: String?,
 ) {
     companion object {
         /** Parses a profile rule to its constituent elements. */
@@ -48,7 +48,7 @@ data class ProfileRule(
             compareBy(
                 // When building the Comparator, we need to ignore method flags.
                 { profileRule -> profileRule.classDescriptor },
-                { profileRule -> profileRule.methodDescriptor ?: "" }
+                { profileRule -> profileRule.methodDescriptor ?: "" },
             )
     }
 }

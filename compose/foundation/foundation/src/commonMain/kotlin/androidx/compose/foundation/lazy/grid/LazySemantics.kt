@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.CollectionInfo
 @Composable
 internal fun rememberLazyGridSemanticState(
     state: LazyGridState,
-    reverseScrolling: Boolean
+    reverseScrolling: Boolean,
 ): LazyLayoutSemanticState =
     remember(state, reverseScrolling) {
         object : LazyLayoutSemanticState {
@@ -35,7 +35,7 @@ internal fun rememberLazyGridSemanticState(
                 get() =
                     estimatedLazyScrollOffset(
                         state.firstVisibleItemIndex,
-                        state.firstVisibleItemScrollOffset
+                        state.firstVisibleItemScrollOffset,
                     )
 
             override val maxScrollOffset: Float
@@ -43,7 +43,7 @@ internal fun rememberLazyGridSemanticState(
                     estimatedLazyMaxScrollOffset(
                         state.firstVisibleItemIndex,
                         state.firstVisibleItemScrollOffset,
-                        state.canScrollForward
+                        state.canScrollForward,
                     )
 
             override suspend fun scrollToItem(index: Int) {

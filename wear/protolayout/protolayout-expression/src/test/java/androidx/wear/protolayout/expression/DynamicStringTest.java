@@ -30,8 +30,10 @@ import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public final class DynamicStringTest {
     private static final String STATE_KEY = "state-key";
     private static final String CONSTANT_VALUE = "constant-value";
@@ -80,7 +82,7 @@ public final class DynamicStringTest {
         assertThat(DynamicString.constant("a").concat(DynamicString.constant("b")).toString())
                 .isEqualTo(
                         "ConcatStringOp{inputLhs=FixedString{value=a},"
-                            + " inputRhs=FixedString{value=b}}");
+                                + " inputRhs=FixedString{value=b}}");
     }
 
     @Test

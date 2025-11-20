@@ -18,7 +18,9 @@ package androidx.camera.core.processing
 
 import android.graphics.SurfaceTexture
 import android.hardware.DataSpace
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.OutputConfiguration
 import android.opengl.Matrix
 import android.os.Build
@@ -27,10 +29,6 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
-import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
-import androidx.camera.camera2.internal.compat.params.DynamicRangeConversions
-import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -64,7 +62,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@SdkSuppress(minSdkVersion = 21)
 class OpenGlRendererTest {
 
     companion object {
@@ -113,7 +110,7 @@ class OpenGlRendererTest {
     private lateinit var glDispatcher: CoroutineDispatcher
     private lateinit var glRenderer: OpenGlRenderer
     private lateinit var cameraId: String
-    private lateinit var cameraCharacteristicsCompat: CameraCharacteristicsCompat
+    private lateinit var cameraCharacteristics: CameraCharacteristics
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var renderOutput: RenderOutput<*>
     private var lensFacing = LENS_FACING_BACK
@@ -149,7 +146,6 @@ class OpenGlRendererTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     @Test
     fun drawInputSurface_snapshotReturnsTheSame(): Unit =
         runBlocking(glDispatcher) {
@@ -165,7 +161,7 @@ class OpenGlRendererTest {
             val deferredOnFrameAvailable = CompletableDeferred<Unit>()
             surfaceTexture.setOnFrameAvailableListener(
                 { deferredOnFrameAvailable.complete(Unit) },
-                Handler(Looper.getMainLooper())
+                Handler(Looper.getMainLooper()),
             )
 
             // Draw bitmap to inputSurface.
@@ -332,14 +328,7 @@ class OpenGlRendererTest {
             assertThat(glRenderer.textureName).isNotEqualTo(0L)
         }
 
-    @SdkSuppress(minSdkVersion = 23)
-    @Test
-    fun render(): Unit = runBlocking(glDispatcher) { testRender(OutputType.IMAGE_READER) }
-
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
-    @Test
-    fun renderBelowApi23(): Unit =
-        runBlocking(glDispatcher) { testRender(OutputType.SURFACE_TEXTURE) }
+    @Test fun render(): Unit = runBlocking(glDispatcher) { testRender(OutputType.IMAGE_READER) }
 
     @SdkSuppress(minSdkVersion = 33) // HDR is supported from API 33.
     @Test
@@ -363,29 +352,17 @@ class OpenGlRendererTest {
                 dynamicRange = dynamicRange,
                 shouldInit = false, /* already initialized */
                 expectedStandard = expectedStandard,
-                expectedTransfer = expectedTransfer
+                expectedTransfer = expectedTransfer,
             )
         }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun renderByCustomShader(): Unit =
         runBlocking(glDispatcher) {
             val shaderProviderOverride = createCustomShaderProvider()
             testRender(
                 OutputType.IMAGE_READER,
-                shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProviderOverride)
-            )
-        }
-
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
-    @Test
-    fun renderByCustomShaderBelowApi23(): Unit =
-        runBlocking(glDispatcher) {
-            val shaderProviderOverride = createCustomShaderProvider()
-            testRender(
-                OutputType.SURFACE_TEXTURE,
-                shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProviderOverride)
+                shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProviderOverride),
             )
         }
 
@@ -407,13 +384,13 @@ class OpenGlRendererTest {
 
     private suspend fun initRender(
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap()
+        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap(),
     ): GraphicDeviceInfo {
         prepareCamera()
         assumeDynamicRange(dynamicRange)
         return createOpenGlRendererAndInit(
             dynamicRange = dynamicRange,
-            shaderProviderOverrides = shaderProviderOverrides
+            shaderProviderOverrides = shaderProviderOverrides,
         )
     }
 
@@ -423,7 +400,7 @@ class OpenGlRendererTest {
         shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap(),
         shouldInit: Boolean = true,
         expectedStandard: Int? = null,
-        expectedTransfer: Int? = null
+        expectedTransfer: Int? = null,
     ) {
         // Arrange.
         if (shouldInit) {
@@ -440,7 +417,7 @@ class OpenGlRendererTest {
                 inputSurface.release()
                 surfaceTexture.release()
             },
-            CameraXExecutors.directExecutor()
+            CameraXExecutors.directExecutor(),
         )
 
         // Prepare output
@@ -454,7 +431,7 @@ class OpenGlRendererTest {
                 it.updateTexImage()
                 glRenderer.render(0L, IDENTITY_MATRIX, outputSurface)
             },
-            glHandler
+            glHandler,
         )
 
         // Assert.
@@ -477,7 +454,7 @@ class OpenGlRendererTest {
 
     private suspend fun createOpenGlRendererAndInit(
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap()
+        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap(),
     ): GraphicDeviceInfo {
         createOpenGlRenderer()
 
@@ -500,7 +477,7 @@ class OpenGlRendererTest {
         object : ShaderProvider {
             override fun createFragmentShader(
                 correctSamplerVarName: String,
-                correctFragCoordsVarName: String
+                correctFragCoordsVarName: String,
             ): String {
                 exceptionToThrow?.let { throw it }
                 return shaderString
@@ -510,7 +487,7 @@ class OpenGlRendererTest {
                         samplerVarName ?: correctSamplerVarName,
                         fragCoordsVarName ?: correctFragCoordsVarName,
                         samplerVarName ?: correctSamplerVarName,
-                        fragCoordsVarName ?: correctFragCoordsVarName
+                        fragCoordsVarName ?: correctFragCoordsVarName,
                     )
             }
         }
@@ -532,12 +509,7 @@ class OpenGlRendererTest {
     private fun prepareCamera() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
         cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
-        val cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
-        cameraCharacteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraCharacteristics,
-                cameraId
-            )
+        cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
     }
 
     private fun assumeDynamicRange(dynamicRange: DynamicRange) {
@@ -545,12 +517,10 @@ class OpenGlRendererTest {
             // SDR is always supported.
             return
         }
-        val supportedDynamicRange =
-            DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristicsCompat)
-                .supportedDynamicRanges
+        val supportedDynamicRange = getSupportedDynamicRangeProfiles()
         assumeTrue(
             "$dynamicRange is not in supported set $supportedDynamicRange",
-            supportedDynamicRange.contains(dynamicRange)
+            supportedDynamicRange.contains(dynamicRange.toDynamicRangeProfile()),
         )
     }
 
@@ -581,18 +551,26 @@ class OpenGlRendererTest {
             CameraDevice.TEMPLATE_PREVIEW,
             listOf(surface),
             null,
-            null
+            null,
         )
     }
 
-    @RequiresApi(33)
     private fun DynamicRange.toDynamicRangeProfile(): Long {
-        val dynamicRangeProfiles =
-            DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristicsCompat)
-                .toDynamicRangeProfiles()!!
-        return DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
-            this,
-            dynamicRangeProfiles
-        )!!
+        return when (this) {
+            DynamicRange.SDR -> DynamicRangeProfiles.STANDARD
+            DynamicRange.HLG_10_BIT -> DynamicRangeProfiles.HLG10
+            else -> throw IllegalArgumentException("Not support in this test")
+        }
+    }
+
+    private fun getSupportedDynamicRangeProfiles(): Set<Long> {
+        return if (Build.VERSION.SDK_INT >= 33) {
+            // Dynamic range API is from API 33.
+            cameraCharacteristics
+                .get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
+                ?.supportedProfiles ?: setOf(DynamicRangeProfiles.STANDARD)
+        } else {
+            setOf(DynamicRangeProfiles.STANDARD)
+        }
     }
 }

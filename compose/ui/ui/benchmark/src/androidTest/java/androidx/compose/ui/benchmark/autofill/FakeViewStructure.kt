@@ -57,7 +57,7 @@ internal data class FakeViewStructure(
     private val autofillId: AutofillId? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) generateAutofillId() else null,
     internal var autofillType: Int = View.AUTOFILL_TYPE_NONE,
-    internal var autofillHints: Array<out String> = arrayOf()
+    internal var autofillHints: Array<out String> = arrayOf(),
 ) : ViewStructure() {
 
     private var activated: Boolean = false
@@ -131,7 +131,7 @@ internal data class FakeViewStructure(
         virtualId: Int,
         packageName: String?,
         typeName: String?,
-        entryName: String?
+        entryName: String?,
     ) {
         this.virtualId = virtualId
         this.packageName = packageName

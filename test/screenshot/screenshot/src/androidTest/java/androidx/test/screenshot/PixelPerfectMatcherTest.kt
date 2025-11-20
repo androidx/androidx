@@ -39,7 +39,7 @@ class PixelPerfectMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result.matches).isTrue()
@@ -56,7 +56,7 @@ class PixelPerfectMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result.matches).isFalse()

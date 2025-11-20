@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,8 @@ import androidx.compose.ui.unit.dp
 fun AlertDialogSample() {
     val openDialog = remember { mutableStateOf(true) }
 
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
+
     if (openDialog.value) {
         AlertDialog(
             onDismissRequest = {
@@ -63,7 +66,7 @@ fun AlertDialogSample() {
             },
             dismissButton = {
                 TextButton(onClick = { openDialog.value = false }) { Text("Dismiss") }
-            }
+            },
         )
     }
 }
@@ -73,6 +76,8 @@ fun AlertDialogSample() {
 @Composable
 fun AlertDialogWithIconSample() {
     val openDialog = remember { mutableStateOf(true) }
+
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
 
     if (openDialog.value) {
         AlertDialog(
@@ -95,7 +100,7 @@ fun AlertDialogWithIconSample() {
             },
             dismissButton = {
                 TextButton(onClick = { openDialog.value = false }) { Text("Dismiss") }
-            }
+            },
         )
     }
 }
@@ -106,6 +111,8 @@ fun AlertDialogWithIconSample() {
 @Composable
 fun BasicAlertDialogSample() {
     val openDialog = remember { mutableStateOf(true) }
+
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
 
     if (openDialog.value) {
         BasicAlertDialog(
@@ -119,18 +126,18 @@ fun BasicAlertDialogSample() {
             Surface(
                 modifier = Modifier.wrapContentWidth().wrapContentHeight(),
                 shape = MaterialTheme.shapes.large,
-                tonalElevation = AlertDialogDefaults.TonalElevation
+                tonalElevation = AlertDialogDefaults.TonalElevation,
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text =
                             "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose.",
+                                "which presents the details regarding the Dialog's purpose."
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     TextButton(
                         onClick = { openDialog.value = false },
-                        modifier = Modifier.align(Alignment.End)
+                        modifier = Modifier.align(Alignment.End),
                     ) {
                         Text("Confirm")
                     }

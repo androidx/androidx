@@ -44,7 +44,7 @@ private constructor(
      * The CoroutineScope that the DataStore is created with. Must contain a Job to allow for
      * cancellation.
      */
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
 ) : Disposable {
 
     companion object {
@@ -52,7 +52,7 @@ private constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun <T : Any> create(
             delegateDs: DataStore<T>,
-            scope: CoroutineScope
+            scope: CoroutineScope,
         ): RxDataStore<T> {
             return RxDataStore<T>(delegateDs, scope)
         }

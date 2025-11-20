@@ -31,7 +31,7 @@ constructor(
     defStyleAttr: Int = 0,
     private val targetEmojiView: View,
     private val targetEmojiItem: EmojiViewItem,
-    private val emojiViewOnClickListener: OnClickListener
+    private val emojiViewOnClickListener: OnClickListener,
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val variants = targetEmojiItem.variants
@@ -52,7 +52,7 @@ constructor(
                         targetEmojiView,
                         variants,
                         popupView,
-                        emojiViewOnClickListener
+                        emojiViewOnClickListener,
                     )
                 Layout.SQUARE ->
                     EmojiPickerPopupSquareDesign(
@@ -60,7 +60,7 @@ constructor(
                         targetEmojiView,
                         variants,
                         popupView,
-                        emojiViewOnClickListener
+                        emojiViewOnClickListener,
                     )
                 Layout.SQUARE_WITH_SKIN_TONE_CIRCLE ->
                     EmojiPickerPopupMultiSkintoneDesign(
@@ -69,7 +69,7 @@ constructor(
                         variants,
                         popupView,
                         emojiViewOnClickListener,
-                        targetEmoji
+                        targetEmoji,
                     )
                 Layout.BIDIRECTIONAL ->
                     EmojiPickerPopupBidirectionalDesign(
@@ -77,7 +77,7 @@ constructor(
                         targetEmojiView,
                         variants,
                         popupView,
-                        emojiViewOnClickListener
+                        emojiViewOnClickListener,
                     )
             }
         popupDesign.addLayoutHeader()
@@ -111,7 +111,7 @@ constructor(
             FLAT,
             SQUARE,
             SQUARE_WITH_SKIN_TONE_CIRCLE,
-            BIDIRECTIONAL
+            BIDIRECTIONAL,
         }
 
         /**

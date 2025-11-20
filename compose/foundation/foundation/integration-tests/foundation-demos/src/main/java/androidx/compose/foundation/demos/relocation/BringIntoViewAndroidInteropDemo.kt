@@ -64,12 +64,12 @@ fun BringIntoViewAndroidInteropDemo() {
                         Text(
                             "Top-start",
                             Modifier.align(Alignment.TopStart)
-                                .bringIntoViewRequester(topStartRequester)
+                                .bringIntoViewRequester(topStartRequester),
                         )
                         Text(
                             "Bottom-end",
                             Modifier.align(Alignment.BottomEnd)
-                                .bringIntoViewRequester(bottomEndRequester)
+                                .bringIntoViewRequester(bottomEndRequester),
                         )
                     }
                 }

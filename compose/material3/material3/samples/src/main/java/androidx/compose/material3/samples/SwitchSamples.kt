@@ -41,7 +41,7 @@ fun SwitchSample() {
     Switch(
         modifier = Modifier.semantics { contentDescription = "Demo" },
         checked = checked,
-        onCheckedChange = { checked = it }
+        onCheckedChange = { checked = it },
     )
 }
 
@@ -64,6 +64,6 @@ fun SwitchWithThumbIconSample() {
                     modifier = Modifier.size(SwitchDefaults.IconSize),
                 )
             }
-        }
+        },
     )
 }

@@ -29,7 +29,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import io.reactivex.rxjava3.core.Single;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,16 +61,14 @@ public class RxSharedPreferencesMigrationTest {
     public void testShouldMigrateSkipsMigration() {
         RxSharedPreferencesMigration<Byte> skippedMigration =
                 new RxSharedPreferencesMigration<Byte>() {
-                    @NotNull
                     @Override
-                    public Single<Boolean> shouldMigrate(Byte currentData) {
+                    public @NonNull Single<Boolean> shouldMigrate(Byte currentData) {
                         return Single.just(false);
                     }
 
-                    @NotNull
                     @Override
-                    public Single<Byte> migrate(
-                            @NotNull SharedPreferencesView sharedPreferencesView,
+                    public @NonNull Single<Byte> migrate(
+                            @NonNull SharedPreferencesView sharedPreferencesView,
                             Byte currentData) {
                         return Single.error(
                                 new IllegalStateException("We shouldn't reach this point!"));
@@ -98,10 +96,9 @@ public class RxSharedPreferencesMigrationTest {
         DataMigration<Byte> dataMigration =
                 getSpMigrationBuilder(
                         new DefaultMigration() {
-                            @NotNull
                             @Override
-                            public Single<Byte> migrate(
-                                    @NotNull SharedPreferencesView sharedPreferencesView,
+                            public @NonNull Single<Byte> migrate(
+                                    @NonNull SharedPreferencesView sharedPreferencesView,
                                     Byte currentData) {
                                 assertThat(sharedPreferencesView.contains(includedKey)).isTrue();
                                 assertThat(sharedPreferencesView.getAll().size()).isEqualTo(1);
@@ -134,10 +131,9 @@ public class RxSharedPreferencesMigrationTest {
         DataMigration<Byte> dataMigration =
                 getSpMigrationBuilder(
                         new DefaultMigration() {
-                            @NotNull
                             @Override
-                            public Single<Byte> migrate(
-                                    @NotNull SharedPreferencesView sharedPreferencesView,
+                            public @NonNull Single<Byte> migrate(
+                                    @NonNull SharedPreferencesView sharedPreferencesView,
                                     Byte currentData) {
                                 assertThat(sharedPreferencesView.contains(includedKey)).isTrue();
                                 assertThat(sharedPreferencesView.contains(includedKey2)).isTrue();
@@ -172,15 +168,13 @@ public class RxSharedPreferencesMigrationTest {
 
     private static class DefaultMigration implements RxSharedPreferencesMigration<Byte> {
 
-        @NotNull
         @Override
-        public Single<Boolean> shouldMigrate(Byte currentData) {
+        public @NonNull Single<Boolean> shouldMigrate(Byte currentData) {
             return Single.just(true);
         }
 
-        @NotNull
         @Override
-        public Single<Byte> migrate(@NotNull SharedPreferencesView sharedPreferencesView,
+        public @NonNull Single<Byte> migrate(@NonNull SharedPreferencesView sharedPreferencesView,
                 Byte currentData) {
             return Single.just(currentData);
         }

@@ -16,16 +16,21 @@
 
 package androidx.webkit;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Super class for all asynchronous exceptions produced by
- * {@link WebViewCompat} prerender operations.
+ * Super class for all asynchronous exceptions produced by {@link WebViewCompat} prerender
+ * operations.
  */
-@WebViewCompat.ExperimentalUrlPrerender
 public class PrerenderException extends Exception {
-
+    /**
+     * Constructs a new PrerenderException with the specified failure message and cause.
+     *
+     * @param error The detail message of the failure. This parameter cannot be null.
+     * @param cause The cause of the failure. A {@code null} value is permitted, and indicates
+     *              that the cause is nonexistent or unknown.
+     */
     public PrerenderException(@NonNull String error, @Nullable Throwable cause) {
         super(error, cause);
     }

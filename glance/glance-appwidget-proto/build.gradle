@@ -44,7 +44,6 @@ dependencies {
     // Repackaged protobufLite brought in by
     // project(":glance:glance-appwidget-external-protobuf") and used at runtime
     compileOnly(libs.protobufLite)
-    compileOnly(libs.kotlinStdlib)
     compileOnly("androidx.datastore:datastore-core:1.0.0")
 }
 

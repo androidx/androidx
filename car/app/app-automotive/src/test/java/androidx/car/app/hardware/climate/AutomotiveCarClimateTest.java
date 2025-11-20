@@ -103,7 +103,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(shadows = {ShadowCar.class})
+@Config(shadows = {ShadowCar.class}, sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class AutomotiveCarClimateTest {
     private static final CarZone FRONT_LEFT_ZONE = new CarZone.Builder()

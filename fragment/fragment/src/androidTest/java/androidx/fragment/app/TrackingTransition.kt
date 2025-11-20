@@ -20,7 +20,6 @@ import android.transition.Transition
 import android.transition.TransitionValues
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 
 /**
  * A transition that tracks which targets are applied to it. It will assume any target that it
@@ -30,7 +29,6 @@ import androidx.annotation.RequiresApi
  *
  * Both start and end value Views are recorded, but no actual animation is created.
  */
-@RequiresApi(21)
 class TrackingTransition : Transition(), TargetTracking {
     override val enteringTargets = mutableListOf<View>()
     override val exitingTargets = mutableListOf<View>()
@@ -51,7 +49,7 @@ class TrackingTransition : Transition(), TargetTracking {
     override fun createAnimator(
         sceneRoot: ViewGroup,
         startValues: TransitionValues?,
-        endValues: TransitionValues?
+        endValues: TransitionValues?,
     ) =
         null.also {
             if (startValues != null) {

@@ -33,9 +33,9 @@ import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.FileOutputOptions
@@ -47,7 +47,6 @@ import androidx.core.util.Consumer
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
@@ -59,22 +58,21 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class VideoCaptureTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
-    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
     @get:Rule
     val cameraPipeConfigTestRule =
@@ -93,6 +91,8 @@ class VideoCaptureTest(
     @get:Rule
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
+
+    @get:Rule val skipRule: TestRule = IgnoreVideoRecordingProblematicDeviceRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -137,15 +137,12 @@ class VideoCaptureTest(
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
-        skipVideoRecordingTestIfNotSupportedByEmulator()
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
@@ -168,7 +165,6 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideo() {
         // Arrange.
         val file = createTempFile()
@@ -180,7 +176,7 @@ class VideoCaptureTest(
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                videoCapture
+                videoCapture,
             )
         }
         videoCapture.recordTo(file)
@@ -196,7 +192,6 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideoWithPreviewAndImageCaptureBound() {
         // Arrange.
         val file = createTempFile()
@@ -212,7 +207,7 @@ class VideoCaptureTest(
                 extensionsCameraSelector,
                 preview,
                 imageCapture,
-                videoCapture
+                videoCapture,
             )
             preview.setSurfaceProvider(createPreviewSurfaceProvider())
         }
@@ -232,7 +227,7 @@ class VideoCaptureTest(
             object : SurfaceTextureProvider.SurfaceTextureCallback {
                 override fun onSurfaceTextureReady(
                     surfaceTexture: SurfaceTexture,
-                    resolution: Size
+                    resolution: Size,
                 ) {
                     // No-op.
                 }

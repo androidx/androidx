@@ -110,7 +110,7 @@ class RememberSaveableDetector : Detector(), SourceCodeScanner {
                     .with(replacement)
                     .autoFix()
                     .build()
-            }
+            },
         )
     }
 
@@ -130,8 +130,8 @@ class RememberSaveableDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     RememberSaveableDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

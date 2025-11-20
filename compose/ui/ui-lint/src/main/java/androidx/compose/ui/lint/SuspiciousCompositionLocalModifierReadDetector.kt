@@ -53,7 +53,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
     private tailrec fun reportIfInNodeLifecycleCallback(
         context: JavaContext,
         node: UElement?,
-        usage: UCallExpression
+        usage: UCallExpression,
     ) {
         if (node == null) {
             return
@@ -86,7 +86,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
     private tailrec fun reportIfInLazyBlock(
         context: JavaContext,
         node: UElement?,
-        usage: UCallExpression
+        usage: UCallExpression,
     ) {
         if (node == null) {
             return
@@ -105,7 +105,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
     private inline fun report(
         context: JavaContext,
         usage: UCallExpression,
-        message: (compositionLocalName: String) -> String
+        message: (compositionLocalName: String) -> String,
     ) {
         val localBeingRead =
             usage.getArgumentForParameter(1)?.sourcePsi?.text ?: "a composition local"
@@ -113,7 +113,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
         context.report(
             SuspiciousCompositionLocalModifierRead,
             context.getLocation(usage),
-            message(localBeingRead)
+            message(localBeingRead),
         )
     }
 
@@ -148,8 +148,8 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
                 Severity.ERROR,
                 Implementation(
                     SuspiciousCompositionLocalModifierReadDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

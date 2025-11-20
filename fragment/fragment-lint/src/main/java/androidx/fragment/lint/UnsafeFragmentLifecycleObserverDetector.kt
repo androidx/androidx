@@ -72,9 +72,9 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         UnsafeFragmentLifecycleObserverDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
 
         val BACK_PRESSED_ISSUE =
@@ -96,9 +96,9 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         UnsafeFragmentLifecycleObserverDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
 
         val ADD_MENU_PROVIDER_ISSUE =
@@ -120,9 +120,9 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         UnsafeFragmentLifecycleObserverDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 
@@ -217,7 +217,7 @@ private class RecursiveMethodVisitor(
                         issue,
                         context.getLocation(arg),
                         "Use $methodFix as the LifecycleOwner.",
-                        LintFix.create().replace().with(methodFix).build()
+                        LintFix.create().replace().with(methodFix).build(),
                     )
                 } else {
                     if (!reportedLocation.add(call)) {
@@ -227,7 +227,7 @@ private class RecursiveMethodVisitor(
                         issue,
                         context.getLocation(call),
                         "Unsafe call to ${call.methodName} with Fragment instance as " +
-                            "LifecycleOwner from $originFragmentName.$lifecycleMethod."
+                            "LifecycleOwner from $originFragmentName.$lifecycleMethod.",
                     )
                 }
                 return true

@@ -22,7 +22,7 @@ internal actual inline fun <T> Array<out T>.fastCopyInto(
     destination: Array<T>,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 ): Array<T> {
     System.arraycopy(this, startIndex, destination, destinationOffset, endIndex - startIndex)
     return destination

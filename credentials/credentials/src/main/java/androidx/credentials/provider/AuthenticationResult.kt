@@ -32,9 +32,7 @@ import org.jetbrains.annotations.VisibleForTesting
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC] or
  *   [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL]
  */
-class AuthenticationResult(
-    val authenticationType: @AuthenticationResultTypes Int,
-) {
+class AuthenticationResult(val authenticationType: @AuthenticationResultTypes Int) {
     internal companion object {
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

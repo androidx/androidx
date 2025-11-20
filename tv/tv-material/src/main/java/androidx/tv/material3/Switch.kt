@@ -138,7 +138,7 @@ fun Switch(
                 enabled = enabled,
                 role = Role.Switch,
                 interactionSource = interactionSource,
-                indication = null
+                indication = null,
             )
         } else {
             Modifier
@@ -198,7 +198,7 @@ private fun BoxScope.SwitchImpl(
             .border(
                 SwitchTokens.TrackOutlineWidth,
                 colors.borderColor(enabled, checked).value,
-                trackShape
+                trackShape,
             )
             .background(trackColor, trackShape)
 
@@ -212,13 +212,13 @@ private fun BoxScope.SwitchImpl(
                     .indication(interactionSource = interactionSource, indication = null)
                     .requiredSize(thumbSizeDp)
                     .background(resolvedThumbColor, thumbShape),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             if (thumbContent != null) {
                 val iconColor = colors.iconColor(enabled, checked)
                 CompositionLocalProvider(
                     LocalContentColor provides iconColor.value,
-                    content = thumbContent
+                    content = thumbContent,
                 )
             }
         }
@@ -298,7 +298,7 @@ object SwitchDefaults {
             disabledUncheckedThumbColor = disabledUncheckedThumbColor,
             disabledUncheckedTrackColor = disabledUncheckedTrackColor,
             disabledUncheckedBorderColor = disabledUncheckedBorderColor,
-            disabledUncheckedIconColor = disabledUncheckedIconColor
+            disabledUncheckedIconColor = disabledUncheckedIconColor,
         )
 
     internal val ColorScheme.defaultSwitchColors: SwitchColors
@@ -390,7 +390,7 @@ class SwitchColors(
     val disabledUncheckedThumbColor: Color,
     val disabledUncheckedTrackColor: Color,
     val disabledUncheckedBorderColor: Color,
-    val disabledUncheckedIconColor: Color
+    val disabledUncheckedIconColor: Color,
 ) {
     /**
      * Returns a copy of this SwitchColors, optionally overriding some of the values. This uses the

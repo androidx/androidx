@@ -1,0 +1,146 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: TextFromFloat
+          textId: 42
+          value: {type: Variable, id: 1, value: 1.234}
+          digitsBefore: 5
+          digitsAfter: 5
+          flags: 3
+        - {type: TextData, textId: 43, text: Sans Serif}
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+        - type: TEXT_LAYOUT
+          id: -5
+          x: 0.0
+          y: 495.0
+          width: 1000.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 10.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 42
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 20.0}
+          fontStyle: 0
+          fontWeight: 500.0
+          fontFamilyId: 43
+          textAlign: 5
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: TextFromFloat
+          textId: 42
+          value: {type: Variable, id: 1, value: 1.234}
+          digitsBefore: 5
+          digitsAfter: 5
+          flags: 3
+        - {type: TextData, textId: 43, text: Sans Serif}
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+        - type: TEXT_LAYOUT
+          id: -5
+          x: 0.0
+          y: 495.0
+          width: 1000.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 10.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 42
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 20.0}
+          fontStyle: 0
+          fontWeight: 500.0
+          fontFamilyId: 43
+          textAlign: 5
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER

@@ -32,14 +32,14 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             RangedValueComplicationData.Builder(
                     value = 75f,
                     min = 0.0f,
                     max = 100.0f,
-                    plainText("Many colors")
+                    plainText("Many colors"),
                 )
                 .setText(plainText("Colors"))
                 .setValueType(RangedValueComplicationData.TYPE_RATING)
@@ -51,9 +51,9 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
                             Color.argb(255, 255, 255, 0),
                             Color.RED,
                             Color.argb(255, 255, 0, 255),
-                            Color.argb(255, 92, 64, 51)
+                            Color.argb(255, 92, 64, 51),
                         ),
-                        interpolated = true
+                        interpolated = true,
                     )
                 )
                 .build()
@@ -67,7 +67,7 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
                         value = 10f,
                         min = 0.0f,
                         max = 100.0f,
-                        plainText("Many colors")
+                        plainText("Many colors"),
                     )
                     .setText(plainText("Colors"))
                     .setValueType(RangedValueComplicationData.TYPE_RATING)
@@ -79,9 +79,9 @@ class ColorRampDataSourceService : ComplicationDataSourceService() {
                                 Color.argb(255, 255, 255, 0),
                                 Color.RED,
                                 Color.argb(255, 255, 0, 255),
-                                Color.argb(255, 92, 64, 51)
+                                Color.argb(255, 92, 64, 51),
                             ),
-                            interpolated = true
+                            interpolated = true,
                         )
                     )
                     .build()

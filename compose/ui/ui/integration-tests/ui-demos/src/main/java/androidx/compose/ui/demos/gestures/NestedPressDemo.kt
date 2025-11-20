@@ -59,7 +59,7 @@ fun NestedPressingDemo() {
 @Composable
 private fun PressableContainer(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
@@ -101,7 +101,7 @@ private fun PressableContainer(
                 detectTapGestures(
                     onTap = onTap,
                     onDoubleTap = onDoubleTap,
-                    onLongPress = onLongPress
+                    onLongPress = onLongPress,
                 )
             }
 

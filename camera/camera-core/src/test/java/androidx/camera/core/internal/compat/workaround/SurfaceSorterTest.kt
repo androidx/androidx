@@ -17,13 +17,14 @@
 package androidx.camera.core.internal.compat.workaround
 
 import android.media.MediaCodec
-import android.os.Build
 import android.view.Surface
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.streamsharing.StreamSharing
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
@@ -35,7 +36,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class SurfaceSorterTest {
 
     private val deferrableSurfaces: MutableList<DeferrableSurface> = mutableListOf()
@@ -93,6 +94,37 @@ class SurfaceSorterTest {
         assertThat(outputConfigs4.last()).isEqualTo(videoOutput)
         assertThat(outputConfigs5.last()).isEqualTo(videoOutput)
         assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
+    }
+
+    @Test
+    fun sort_streamSharingSurfaceIsInTheFirst() {
+        // Arrange.
+        val imageAnalysisOutput =
+            SessionConfig.OutputConfig.builder(
+                    createSurface(containerClass = ImageAnalysis::class.java)
+                )
+                .build()
+        val streamSharingOutput =
+            SessionConfig.OutputConfig.builder(
+                    createSurface(containerClass = StreamSharing::class.java)
+                )
+                .build()
+        val surfaceSorter = SurfaceSorter()
+
+        // All combinations
+        val outputConfigs1 = mutableListOf(streamSharingOutput, imageAnalysisOutput)
+        val outputConfigs2 = mutableListOf(imageAnalysisOutput, streamSharingOutput)
+
+        // Act.
+        surfaceSorter.sort(outputConfigs1)
+        surfaceSorter.sort(outputConfigs2)
+
+        // Assert.
+        assertThat(outputConfigs1.first()).isEqualTo(streamSharingOutput)
+        assertThat(outputConfigs2.first()).isEqualTo(streamSharingOutput)
+
+        assertThat(outputConfigs1.last()).isEqualTo(imageAnalysisOutput)
+        assertThat(outputConfigs2.last()).isEqualTo(imageAnalysisOutput)
     }
 
     private fun createSurface(containerClass: Class<*>): DeferrableSurface {

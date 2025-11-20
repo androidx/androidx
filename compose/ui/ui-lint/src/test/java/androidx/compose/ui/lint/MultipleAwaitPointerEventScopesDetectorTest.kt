@@ -81,7 +81,7 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
         w6e0JsC2k7TlIeEMhTKaSSSxTmiuHwAf4nYvwRRyuENpDJrDXfL+zBwC8v68
         Hwkp+j+i70aMhHSP09vVwhe9dRVf0n+TtB8R3/k9xFzkXXzs4hPcc7GARRdL
         WN4DC3EfK3tIhxgJ8SDE7RC5EE6Iuz2xECLxLyV8urHMBgAA
-        """
+        """,
         )
 
     private val stubs =
@@ -92,7 +92,7 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
             UiStubs.PointerInputScope,
             UiStubs.PointerEvent,
             UiStubs.Alignment,
-            ForEachGestureStub
+            ForEachGestureStub,
         )
 
     @Test

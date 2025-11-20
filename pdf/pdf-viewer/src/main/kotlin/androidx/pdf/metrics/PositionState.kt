@@ -23,7 +23,7 @@ import androidx.pdf.data.Range
 public enum class EventState {
     NEW_ASSETS_LOADED,
     ZOOM_CHANGED,
-    NO_EVENT
+    NO_EVENT,
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)

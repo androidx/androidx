@@ -23,11 +23,9 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import android.app.Activity;
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.jspecify.annotations.NonNull;
@@ -77,7 +75,6 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
         return recyclerView;
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUnspecifiedWithHint() throws Throwable {
         unspecifiedWithHintTest(mHorizontal);

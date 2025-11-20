@@ -35,7 +35,7 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(
             ComposableDestinationInComposeScopeDetector.ComposableDestinationInComposeScope,
-            ComposableDestinationInComposeScopeDetector.ComposableNavGraphInComposeScope
+            ComposableDestinationInComposeScopeDetector.ComposableNavGraphInComposeScope,
         )
 
     @Test
@@ -69,7 +69,7 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
                 NAV_CONTROLLER,
                 NAV_GRAPH_BUILDER,
                 NAV_GRAPH_COMPOSABLE,
-                NAV_HOST
+                NAV_HOST,
             )
             .run()
             .expectClean()
@@ -103,7 +103,7 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
                 NAV_CONTROLLER,
                 NAV_GRAPH_BUILDER,
                 NAV_GRAPH_COMPOSABLE,
-                NAV_HOST
+                NAV_HOST,
             )
             .run()
             .expect(
@@ -145,7 +145,7 @@ src/com/example/test.kt:13: Error: Using composable inside of a compose scope [C
                 NAV_CONTROLLER,
                 NAV_GRAPH_BUILDER,
                 NAV_GRAPH_COMPOSABLE,
-                NAV_HOST
+                NAV_HOST,
             )
             .run()
             .expect(

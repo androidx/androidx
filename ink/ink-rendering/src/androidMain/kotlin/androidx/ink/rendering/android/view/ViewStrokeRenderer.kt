@@ -18,8 +18,8 @@ package androidx.ink.rendering.android.view
 
 import android.graphics.Canvas
 import android.graphics.Matrix
-import android.os.Build
 import android.view.View
+import androidx.core.view.ViewCompat
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.rendering.android.canvas.StrokeDrawScope
 
@@ -126,7 +126,7 @@ public class ViewStrokeRenderer(
         val viewToScreenTransform =
             scratchMatrix.also {
                 it.reset()
-                transformMatrixToGlobalWithFallback(view, it)
+                ViewCompat.transformMatrixToGlobal(view, it)
             }
         require(viewToScreenTransform.isAffine) { "View to screen transform must be affine." }
         val scope = recycledDrawScopes.removeFirstOrNull() ?: StrokeDrawScope(canvasStrokeRenderer)
@@ -142,30 +142,4 @@ public class ViewStrokeRenderer(
     internal fun recycleDrawScope(scope: StrokeDrawScope) {
         recycledDrawScopes.add(scope)
     }
-}
-
-/**
- * Modify [matrix] such that it maps from view-local to on-screen coordinates when
- * [View.transformMatrixToGlobal] might not be available.
- */
-private fun transformMatrixToGlobalWithFallback(view: View, matrix: Matrix) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        view.transformMatrixToGlobal(matrix)
-    } else {
-        transformMatrixToGlobalFallback(view, matrix)
-    }
-}
-
-/**
- * Modify [matrix] such that it maps from view-local to on-screen coordinates when
- * [View.transformMatrixToGlobal] is not available. Implementation cribbed from internal code in
- * `androidx/transition/ViewUtils.java`.
- */
-private fun transformMatrixToGlobalFallback(view: View, matrix: Matrix) {
-    (view.parent as? View)?.let {
-        transformMatrixToGlobalFallback(it, matrix)
-        matrix.preTranslate(-it.scrollX.toFloat(), -it.scrollY.toFloat())
-    }
-    matrix.preTranslate(view.left.toFloat(), view.top.toFloat())
-    matrix.preConcat(view.matrix)
 }

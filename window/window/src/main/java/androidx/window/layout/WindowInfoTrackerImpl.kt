@@ -22,6 +22,7 @@ import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import androidx.window.WindowSdkExtensions
 import androidx.window.layout.adapter.WindowBackend
+import java.util.concurrent.Executor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,7 @@ import kotlinx.coroutines.flow.flowOn
 internal class WindowInfoTrackerImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend,
-    private val windowSdkExtensions: WindowSdkExtensions
+    private val windowSdkExtensions: WindowSdkExtensions,
 ) : WindowInfoTracker {
 
     /**
@@ -69,4 +70,21 @@ internal class WindowInfoTrackerImpl(
             windowSdkExtensions.requireExtensionVersion(6)
             return windowBackend.supportedPostures
         }
+
+    override fun getCurrentWindowLayoutInfo(@UiContext context: Context): WindowLayoutInfo {
+        windowSdkExtensions.requireExtensionVersion(9)
+        return windowBackend.getCurrentWindowLayoutInfo(context)
+    }
+
+    override fun registerWindowLayoutInfoListener(
+        @UiContext context: Context,
+        executor: Executor,
+        listener: Consumer<WindowLayoutInfo>,
+    ) {
+        windowBackend.registerLayoutChangeCallback(context, executor, listener)
+    }
+
+    override fun unregisterWindowLayoutInfoListener(listener: Consumer<WindowLayoutInfo>) {
+        windowBackend.unregisterLayoutChangeCallback(listener)
+    }
 }

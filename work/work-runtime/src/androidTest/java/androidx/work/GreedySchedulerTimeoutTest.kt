@@ -48,11 +48,7 @@ class GreedySchedulerTimeoutTest {
             .setTaskExecutor(Executors.newSingleThreadExecutor())
             .build()
     val env = TestEnv(configuration)
-    val trackers =
-        Trackers(
-            context = env.context,
-            taskExecutor = env.taskExecutor,
-        )
+    val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
     val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
 
     init {

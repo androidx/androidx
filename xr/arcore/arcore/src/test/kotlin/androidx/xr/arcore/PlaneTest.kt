@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,26 @@
 
 package androidx.xr.arcore
 
-import android.app.Activity
-import androidx.test.core.app.ActivityScenario
+import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.GrantPermissionRule
+import androidx.xr.arcore.runtime.Plane as RuntimePlane
+import androidx.xr.arcore.testing.FakeLifecycleManager
+import androidx.xr.arcore.testing.FakePerceptionManager
+import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
+import androidx.xr.arcore.testing.FakeRuntimeAnchor
+import androidx.xr.arcore.testing.FakeRuntimePlane
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.Config.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
-import androidx.xr.runtime.internal.Plane as RuntimePlane
-import androidx.xr.runtime.internal.TrackingState
+import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.runtime.testing.FakePerceptionManager
-import androidx.xr.runtime.testing.FakeRuntimeAnchor
-import androidx.xr.runtime.testing.FakeRuntimePlane
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -43,246 +46,255 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
 class PlaneTest {
-    private lateinit var xrResourcesManager: XrResourcesManager
+    private lateinit var activityController: ActivityController<ComponentActivity>
+    private lateinit var activity: ComponentActivity
     private lateinit var testDispatcher: TestDispatcher
     private lateinit var testScope: TestScope
     private lateinit var session: Session
-
-    @get:Rule
-    val grantPermissionRule =
-        GrantPermissionRule.grant(
-            "android.permission.SCENE_UNDERSTANDING",
-            "android.permission.HAND_TRACKING",
-        )
+    private lateinit var xrResourcesManager: XrResourcesManager
 
     @Before
     fun setUp() {
-        xrResourcesManager = XrResourcesManager()
         testDispatcher = StandardTestDispatcher()
         testScope = TestScope(testDispatcher)
-        FakeRuntimeAnchor.anchorsCreated = 0
-    }
+        activityController = Robolectric.buildActivity(ComponentActivity::class.java)
+        activity = activityController.get()
+        xrResourcesManager = XrResourcesManager()
 
-    @After
-    fun tearDown() {
-        xrResourcesManager.clear()
+        val shadowApplication = shadowOf(activity.application)
+        FakeLifecycleManager.TestPermissions.forEach { permission ->
+            shadowApplication.grantPermissions(permission)
+        }
+        FakePerceptionRuntimeFactory.hasCreatePermission = true
+        activityController.create()
+
+        session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
+
+        FakeRuntimeAnchor.anchorsCreatedCount = 0
     }
 
     @Test
     fun constructor_convertsRuntimePlaneType() {
         val plane1 =
             Plane(
-                FakeRuntimePlane(type = RuntimePlane.Type.HorizontalUpwardFacing),
-                xrResourcesManager
+                FakeRuntimePlane(type = RuntimePlane.Type.HORIZONTAL_UPWARD_FACING),
+                xrResourcesManager,
             )
         val plane2 =
             Plane(
-                FakeRuntimePlane(type = RuntimePlane.Type.HorizontalDownwardFacing),
-                xrResourcesManager
+                FakeRuntimePlane(type = RuntimePlane.Type.HORIZONTAL_DOWNWARD_FACING),
+                xrResourcesManager,
             )
-        val plane3 = Plane(FakeRuntimePlane(type = RuntimePlane.Type.Vertical), xrResourcesManager)
+        val plane3 = Plane(FakeRuntimePlane(type = RuntimePlane.Type.VERTICAL), xrResourcesManager)
 
-        assertThat(plane1.type).isEqualTo(Plane.Type.HorizontalUpwardFacing)
-        assertThat(plane2.type).isEqualTo(Plane.Type.HorizontalDownwardFacing)
-        assertThat(plane3.type).isEqualTo(Plane.Type.Vertical)
+        assertThat(plane1.type).isEqualTo(Plane.Type.HORIZONTAL_UPWARD_FACING)
+        assertThat(plane2.type).isEqualTo(Plane.Type.HORIZONTAL_DOWNWARD_FACING)
+        assertThat(plane3.type).isEqualTo(Plane.Type.VERTICAL)
     }
 
     @Test
     fun constructor_convertsRuntimePlaneLabel() {
-        val plane1 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.Unknown), xrResourcesManager)
-        val plane2 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.Wall), xrResourcesManager)
-        val plane3 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.Floor), xrResourcesManager)
-        val plane4 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.Ceiling), xrResourcesManager)
-        val plane5 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.Table), xrResourcesManager)
+        val plane1 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.UNKNOWN), xrResourcesManager)
+        val plane2 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.WALL), xrResourcesManager)
+        val plane3 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.FLOOR), xrResourcesManager)
+        val plane4 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.CEILING), xrResourcesManager)
+        val plane5 = Plane(FakeRuntimePlane(label = RuntimePlane.Label.TABLE), xrResourcesManager)
 
-        assertThat(plane1.state.value.label).isEqualTo(Plane.Label.Unknown)
-        assertThat(plane2.state.value.label).isEqualTo(Plane.Label.Wall)
-        assertThat(plane3.state.value.label).isEqualTo(Plane.Label.Floor)
-        assertThat(plane4.state.value.label).isEqualTo(Plane.Label.Ceiling)
-        assertThat(plane5.state.value.label).isEqualTo(Plane.Label.Table)
+        assertThat(plane1.state.value.label).isEqualTo(Plane.Label.UNKNOWN)
+        assertThat(plane2.state.value.label).isEqualTo(Plane.Label.WALL)
+        assertThat(plane3.state.value.label).isEqualTo(Plane.Label.FLOOR)
+        assertThat(plane4.state.value.label).isEqualTo(Plane.Label.CEILING)
+        assertThat(plane5.state.value.label).isEqualTo(Plane.Label.TABLE)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun subscribe_collectReturnsPlane() =
-        createTestSessionAndRunTest(testDispatcher) {
-            runTest(testDispatcher) {
-                val perceptionManager = session.runtime.perceptionManager as FakePerceptionManager
-                val runtimePlane = FakeRuntimePlane()
-                perceptionManager.addTrackable(runtimePlane)
-                awaitNewCoreState(session, testScope)
+        runTest(testDispatcher) {
+            val perceptionManager = getFakePerceptionManager()
+            val runtimePlane = FakeRuntimePlane()
+            perceptionManager.addTrackable(runtimePlane)
+            activityController.resume()
+            advanceUntilIdle()
+            activityController.pause()
+            var underTest = emptyList<Plane>()
 
-                var underTest = emptyList<Plane>()
-                testScope.backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            val job =
+                backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
                     underTest = Plane.subscribe(session).first().toList()
                 }
+            advanceUntilIdle()
 
-                assertThat(underTest.size).isEqualTo(1)
-                assertThat(underTest.first().runtimePlane).isEqualTo(runtimePlane)
-            }
+            assertThat(underTest.size).isEqualTo(1)
+            assertThat(underTest.first().runtimePlane).isEqualTo(runtimePlane)
+            job.cancel()
         }
+
+    @Test
+    fun subscribe_planeTrackingDisabled_throwsIllegalStateException() {
+        val configureResult = session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
+
+        assertFailsWith<IllegalStateException> { Plane.subscribe(session) }
+    }
 
     @Test
     fun createAnchor_usesGivenPose() {
         val runtimePlane = FakeRuntimePlane()
+        getFakePerceptionManager().addTrackable(runtimePlane)
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
         val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
         val pose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
 
-        val anchor = (underTest.createAnchor(pose) as AnchorCreateSuccess).anchor
+        val anchorResult = underTest.createAnchor(pose)
 
+        assertThat(anchorResult).isInstanceOf(AnchorCreateSuccess::class.java)
+        val anchor = (anchorResult as AnchorCreateSuccess).anchor
         assertThat(anchor.state.value.pose).isEqualTo(pose)
     }
 
     @Test
     fun createAnchor_anchorLimitReached_returnsAnchorResourcesExhaustedResult() {
         val runtimePlane = FakeRuntimePlane()
+        getFakePerceptionManager().addTrackable(runtimePlane)
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
         val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
-        repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT) { underTest.createAnchor(Pose()) }
+
+        repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT) {
+            val result = underTest.createAnchor(Pose())
+        }
 
         assertThat(underTest.createAnchor(Pose()))
             .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
     }
 
     @Test
-    fun update_trackingStateMatchesRuntime() = runBlocking {
-        // arrange
+    fun createAnchor_planeTrackingDisabled_throwsIllegalStateException() {
         val runtimePlane = FakeRuntimePlane()
-        runtimePlane.trackingState = TrackingState.Stopped
+        getFakePerceptionManager().addTrackable(runtimePlane)
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
         val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
-        check(underTest.state.value.trackingState == TrackingState.Stopped)
+        session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
-        // act
-        runtimePlane.trackingState = TrackingState.Tracking
+        assertFailsWith<IllegalStateException> { underTest.createAnchor(Pose()) }
+    }
+
+    @Test
+    fun update_trackingStateMatchesRuntime() = runBlocking {
+        val runtimePlane = FakeRuntimePlane()
+        runtimePlane.trackingState = TrackingState.STOPPED
+        xrResourcesManager.syncTrackables(listOf(runtimePlane))
+        val underTest = xrResourcesManager.trackablesMap[runtimePlane] as Plane
+        check(underTest.state.value.trackingState == TrackingState.STOPPED)
+
+        runtimePlane.trackingState = TrackingState.TRACKING
         underTest.update()
 
-        // assert
-        assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.Tracking)
+        assertThat(underTest.state.value.trackingState).isEqualTo(TrackingState.TRACKING)
     }
 
     @Test
     fun update_centerPoseMatchesRuntime() = runBlocking {
-        // arrange
         val runtimePlane = FakeRuntimePlane()
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
+        val underTest = xrResourcesManager.trackablesMap[runtimePlane] as Plane
         check(
-            underTest.state.value.centerPose.equals(
-                Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f))
-            )
+            (underTest.state.value.centerPose ==
+                Pose(Vector3(0f, 0f, 0f), Quaternion(0f, 0f, 0f, 1.0f)))
         )
 
-        // act
         val newPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
         runtimePlane.centerPose = newPose
         underTest.update()
 
-        // assert
         assertThat(underTest.state.value.centerPose).isEqualTo(newPose)
     }
 
     @Test
     fun update_extentsMatchesRuntime() = runBlocking {
-        // arrange
         val runtimePlane = FakeRuntimePlane()
-        val extents = Vector2(1.0f, 2.0f)
+        val extents = FloatSize2d(1.0f, 2.0f)
         runtimePlane.extents = extents
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
+        val underTest = xrResourcesManager.trackablesMap[runtimePlane] as Plane
+        underTest.update()
         check(underTest.state.value.extents == extents)
 
-        // act
-        val newExtents = Vector2(3.0f, 4.0f)
+        val newExtents = FloatSize2d(3.0f, 4.0f)
         runtimePlane.extents = newExtents
         underTest.update()
 
-        // assert
         assertThat(underTest.state.value.extents).isEqualTo(newExtents)
     }
 
     @Test
     fun update_verticesMatchesRuntime() = runBlocking {
-        // arrange
         val runtimePlane = FakeRuntimePlane()
         val vertices = listOf(Vector2(1.0f, 2.0f), Vector2(3.0f, 4.0f))
         runtimePlane.vertices = vertices
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
-        check(underTest.state.value.vertices == vertices)
+        val underTest = xrResourcesManager.trackablesMap[runtimePlane] as Plane
+        underTest.update()
+        assertThat(underTest.state.value.vertices).isEqualTo(vertices)
 
-        // act
         val newVertices = listOf(Vector2(3.0f, 4.0f), Vector2(5.0f, 6.0f))
         runtimePlane.vertices = newVertices
         underTest.update()
 
-        // assert
         assertThat(underTest.state.value.vertices).isEqualTo(newVertices)
     }
 
     @Test
     fun update_subsumedByMatchesRuntime() = runBlocking {
-        // arrange
         val runtimePlane = FakeRuntimePlane()
-        val subsumedByPlane = FakeRuntimePlane()
-        xrResourcesManager.syncTrackables(listOf(runtimePlane, subsumedByPlane))
+        val subsumedByRuntimePlane = FakeRuntimePlane()
+        getFakePerceptionManager().addTrackable(runtimePlane)
+        getFakePerceptionManager().addTrackable(subsumedByRuntimePlane)
+        xrResourcesManager.syncTrackables(listOf(runtimePlane, subsumedByRuntimePlane))
         xrResourcesManager.update()
         val underTest = xrResourcesManager.trackablesMap[runtimePlane] as Plane
+        val subsumingPlaneWrapper =
+            xrResourcesManager.trackablesMap[subsumedByRuntimePlane] as Plane
         check(underTest.state.value.subsumedBy == null)
 
-        // act
-        runtimePlane.subsumedBy = subsumedByPlane
+        runtimePlane.subsumedBy = subsumedByRuntimePlane
         xrResourcesManager.update()
 
-        // assert
         assertThat(underTest.state.value.subsumedBy).isNotNull()
-        assertThat(underTest.state.value.subsumedBy!!.runtimePlane).isEqualTo(subsumedByPlane)
+        assertThat(underTest.state.value.subsumedBy).isEqualTo(subsumingPlaneWrapper)
+        assertThat(underTest.state.value.subsumedBy!!.runtimePlane)
+            .isEqualTo(subsumedByRuntimePlane)
     }
 
     @Test
     fun labelToString_returnsCorrectString() {
-        assertThat(Plane.Label.Wall.toString()).isEqualTo("Wall")
-        assertThat(Plane.Label.Floor.toString()).isEqualTo("Floor")
-        assertThat(Plane.Label.Ceiling.toString()).isEqualTo("Ceiling")
-        assertThat(Plane.Label.Table.toString()).isEqualTo("Table")
-        assertThat(Plane.Label.Unknown.toString()).isEqualTo("Unknown")
+        assertThat(Plane.Label.WALL.toString()).isEqualTo("WALL")
+        assertThat(Plane.Label.FLOOR.toString()).isEqualTo("FLOOR")
+        assertThat(Plane.Label.CEILING.toString()).isEqualTo("CEILING")
+        assertThat(Plane.Label.TABLE.toString()).isEqualTo("TABLE")
+        assertThat(Plane.Label.UNKNOWN.toString()).isEqualTo("UNKNOWN")
     }
 
     @Test
     fun typeToString_returnsCorrectString() {
-        assertThat(Plane.Type.HorizontalUpwardFacing.toString()).isEqualTo("HorizontalUpwardFacing")
-        assertThat(Plane.Type.HorizontalDownwardFacing.toString())
-            .isEqualTo("HorizontalDownwardFacing")
-        assertThat(Plane.Type.Vertical.toString()).isEqualTo("Vertical")
+        assertThat(Plane.Type.HORIZONTAL_UPWARD_FACING.toString())
+            .isEqualTo("HORIZONTAL_UPWARD_FACING")
+        assertThat(Plane.Type.HORIZONTAL_DOWNWARD_FACING.toString())
+            .isEqualTo("HORIZONTAL_DOWNWARD_FACING")
+        assertThat(Plane.Type.VERTICAL.toString()).isEqualTo("VERTICAL")
     }
 
-    private fun createTestSessionAndRunTest(
-        coroutineDispatcher: CoroutineDispatcher = StandardTestDispatcher(),
-        testBody: () -> Unit,
-    ) {
-        ActivityScenario.launch(Activity::class.java).use {
-            it.onActivity { activity ->
-                session =
-                    (Session.create(activity, coroutineDispatcher) as SessionCreateSuccess).session
-
-                testBody()
-            }
-        }
-    }
-
-    /** Resumes and pauses the session just enough to emit a new CoreState. */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun awaitNewCoreState(session: Session, testScope: TestScope) {
-        session.resume()
-        testScope.advanceUntilIdle()
-        session.pause()
+    private fun getFakePerceptionManager(): FakePerceptionManager {
+        return session.perceptionRuntime.perceptionManager as FakePerceptionManager
     }
 }

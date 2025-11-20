@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -35,7 +34,6 @@ plugins {
 androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation("androidx.room:room-compiler-processing:2.6.0")
     implementation(libs.javapoet)
     implementation(libs.kspApi)
@@ -44,7 +42,8 @@ dependencies {
     testImplementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
     testImplementation(SdkHelperKt.getSdkDependency(project))
@@ -70,5 +69,4 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Compiler"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

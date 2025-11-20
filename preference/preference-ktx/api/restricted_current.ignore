@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.preference.PreferenceGroupKt#getChildren(androidx.preference.PreferenceGroup):
+    Source breaking change: method androidx.preference.PreferenceGroupKt.getChildren(androidx.preference.PreferenceGroup) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.preference.PreferenceGroupKt#getSize(androidx.preference.PreferenceGroup):
+    Source breaking change: method androidx.preference.PreferenceGroupKt.getSize(androidx.preference.PreferenceGroup) can no longer be resolved from Kotlin source

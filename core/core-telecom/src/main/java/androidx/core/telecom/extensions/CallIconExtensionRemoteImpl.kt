@@ -41,7 +41,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 internal class CallIconExtensionRemoteImpl(
     private val context: Context,
     private val callScope: CoroutineScope,
-    private val onCallIconChanged: suspend (Uri) -> Unit
+    private val onCallIconChanged: suspend (Uri) -> Unit,
 ) : CallIconExtensionRemote {
 
     /** Indicates whether the remote call icon extension is supported. */
@@ -67,7 +67,7 @@ internal class CallIconExtensionRemoteImpl(
      */
     internal suspend fun onExchangeComplete(
         negotiatedCapability: Capability?,
-        remote: CapabilityExchangeListenerRemote?
+        remote: CapabilityExchangeListenerRemote?,
     ) {
         if (negotiatedCapability == null || remote == null) {
             Log.i(TAG, "onNegotiated: remote is not capable")
@@ -91,7 +91,7 @@ internal class CallIconExtensionRemoteImpl(
      */
     private suspend fun connectToRemote(
         negotiatedCapability: Capability,
-        remote: CapabilityExchangeListenerRemote
+        remote: CapabilityExchangeListenerRemote,
     ): Unit = suspendCancellableCoroutine { continuation ->
         val stateListener =
             CallIconStateListener(
@@ -101,13 +101,13 @@ internal class CallIconExtensionRemoteImpl(
                         onCallIconChanged(it)
                     }
                 },
-                finishSync = { callScope.launch { continuation.resume(Unit) } }
+                finishSync = { callScope.launch { continuation.resume(Unit) } },
             )
         remote.onCreateCallIconExtension(
             negotiatedCapability.featureVersion,
             negotiatedCapability.supportedActions,
             context.packageName,
-            stateListener
+            stateListener,
         )
     }
 }

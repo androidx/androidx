@@ -40,9 +40,10 @@ repackage {
 
 dependencies {
     // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":core:core-location-altitude-external-protobuf") and used at runtime
     compileOnly(libs.protobufLite)
+
+    // DO NOT REMOVE: Repackaged protobufLite brought in by
+    // project(":core:core-location-altitude-external-protobuf") and used at runtime
     api(project(":core:core-location-altitude-external-protobuf"))
 }
 

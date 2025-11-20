@@ -687,9 +687,6 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
     private void setupAnimatorsForTarget(String name, Animator animator) {
         Object target = mAnimatedVectorState.mVectorDrawable.getTargetByName(name);
         animator.setTarget(target);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            setupColorAnimator(animator);
-        }
         if (mAnimatedVectorState.mAnimators == null) {
             mAnimatedVectorState.mAnimators = new ArrayList<>();
             mAnimatedVectorState.mTargetNameMap = new ArrayMap<>();

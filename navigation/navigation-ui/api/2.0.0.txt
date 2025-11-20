@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation.ui {
 
   public final class AppBarConfiguration {
@@ -8,8 +8,8 @@ package androidx.navigation.ui {
   }
 
   public static final class AppBarConfiguration.Builder {
-    ctor public AppBarConfiguration.Builder(androidx.navigation.NavGraph);
     ctor public AppBarConfiguration.Builder(android.view.Menu);
+    ctor public AppBarConfiguration.Builder(androidx.navigation.NavGraph);
     ctor public AppBarConfiguration.Builder(int...);
     ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer>);
     method public androidx.navigation.ui.AppBarConfiguration build();
@@ -34,8 +34,8 @@ package androidx.navigation.ui {
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar, androidx.navigation.NavController);
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar, androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout?);
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar, androidx.navigation.NavController, androidx.navigation.ui.AppBarConfiguration);
-    method public static void setupWithNavController(com.google.android.material.navigation.NavigationView, androidx.navigation.NavController);
     method public static void setupWithNavController(com.google.android.material.bottomnavigation.BottomNavigationView, androidx.navigation.NavController);
+    method public static void setupWithNavController(com.google.android.material.navigation.NavigationView, androidx.navigation.NavController);
   }
 
 }

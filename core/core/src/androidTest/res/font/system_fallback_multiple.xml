@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="androidx.core.provider.fonts.font"
+    app:fontProviderPackage="androidx.core.test"
+    app:fontProviderQuery="singleFontFamily"
+    app:fontProviderSystemFontFamily="unknown_system_font"
+    app:fontProviderCerts="@array/mock_provider_certs">
+
+    <fallback
+        app:fontProviderQuery="firstFallback"
+        app:fontProviderSystemFontFamily="serif" />
+
+    <fallback
+        app:fontProviderQuery="secondFallback"
+        app:fontProviderSystemFontFamily="monospace" />
+
+</font-family>

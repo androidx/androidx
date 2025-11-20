@@ -71,8 +71,8 @@ fun removeGlobalAssertion(name: String) {}
     replaceWith =
         ReplaceWith(
             "tryPerformAccessibilityChecks()",
-            "androidx.compose.ui.test.tryPerformAccessibilityChecks"
-        )
+            "androidx.compose.ui.test.tryPerformAccessibilityChecks",
+        ),
 )
 fun SemanticsNodeInteraction.invokeGlobalAssertions(): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -93,8 +93,8 @@ fun SemanticsNodeInteraction.invokeGlobalAssertions(): SemanticsNodeInteraction 
     replaceWith =
         ReplaceWith(
             "onFirst().tryPerformAccessibilityChecks()",
-            "androidx.compose.ui.test.tryPerformAccessibilityChecks, androidx.compose.ui.test.onFirst"
-        )
+            "androidx.compose.ui.test.tryPerformAccessibilityChecks, androidx.compose.ui.test.onFirst",
+        ),
 )
 fun SemanticsNodeInteractionCollection.invokeGlobalAssertions():
     SemanticsNodeInteractionCollection {

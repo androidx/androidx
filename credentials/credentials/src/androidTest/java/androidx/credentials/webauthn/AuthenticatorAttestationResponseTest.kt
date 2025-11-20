@@ -63,7 +63,7 @@ class AuthenticatorAttestationResponseTest {
                 false,
                 true,
                 false,
-                true
+                true,
             )
         var json = response.json()
         var attestationObject = response.defaultAttestationObject()

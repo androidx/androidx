@@ -102,7 +102,7 @@ class TopicsManagerTest {
     fun testTopicsAsync() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExt9Version
+            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExt9Version,
         )
 
         val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt9Version)
@@ -168,7 +168,7 @@ class TopicsManagerTest {
     fun testTopicsAsyncPreviewSupported() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExt9Version
+            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExt9Version,
         )
 
         val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt9Version)
@@ -241,13 +241,13 @@ class TopicsManagerTest {
                 EncryptedTopic(
                     "encryptedTopic1".toByteArray(),
                     "publicKey1",
-                    "encapsulatedKey1".toByteArray()
+                    "encapsulatedKey1".toByteArray(),
                 )
             var encryptedTopic2 =
                 EncryptedTopic(
                     "encryptedTopic2".toByteArray(),
                     "publicKey2",
-                    "encapsulatedKey2".toByteArray()
+                    "encapsulatedKey2".toByteArray(),
                 )
 
             val topics = listOf(topic1, topic2)
@@ -293,22 +293,22 @@ class TopicsManagerTest {
             val encryptedTopic1 = getTopicsResponse.encryptedTopics[0]
             Assert.assertArrayEquals(
                 "encryptedTopic1".toByteArray(),
-                encryptedTopic1.encryptedTopic
+                encryptedTopic1.encryptedTopic,
             )
             Assert.assertEquals("publicKey1", encryptedTopic1.keyIdentifier)
             Assert.assertArrayEquals(
                 "encapsulatedKey1".toByteArray(),
-                encryptedTopic1.encapsulatedKey
+                encryptedTopic1.encapsulatedKey,
             )
             val encryptedTopic2 = getTopicsResponse.encryptedTopics[1]
             Assert.assertArrayEquals(
                 "encryptedTopic2".toByteArray(),
-                encryptedTopic2.encryptedTopic
+                encryptedTopic2.encryptedTopic,
             )
             Assert.assertEquals("publicKey2", encryptedTopic2.keyIdentifier)
             Assert.assertArrayEquals(
                 "encapsulatedKey2".toByteArray(),
-                encryptedTopic2.encapsulatedKey
+                encryptedTopic2.encapsulatedKey,
             )
 
             // Verify plaintext topic fields

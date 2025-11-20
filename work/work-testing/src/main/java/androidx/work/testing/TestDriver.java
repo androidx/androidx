@@ -16,6 +16,8 @@
 
 package androidx.work.testing;
 
+import androidx.work.StopReason;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
@@ -55,4 +57,15 @@ public interface TestDriver {
      * @throws IllegalArgumentException if {@code workSpecId} is not enqueued
      */
     void setPeriodDelayMet(@NonNull UUID workSpecId);
+
+    /**
+     * Tells {@link TestDriver} to pretend that a running worker should be stopped with the provided
+     * {@link StopReason}.
+     *
+     * @param workSpecId The {@link androidx.work.WorkRequest}'s id
+     * @param reason The {@link StopReason} that will be available to the worker
+     */
+    default void stopRunningWorkWithReason(@NonNull UUID workSpecId, @StopReason int reason) {
+        throw new UnsupportedOperationException("stopRunningWorkWithReason is not implemented");
+    }
 }

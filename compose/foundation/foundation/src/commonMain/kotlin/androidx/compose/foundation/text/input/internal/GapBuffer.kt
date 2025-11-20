@@ -152,7 +152,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
         end: Int,
         text: CharSequence,
         textStart: Int = 0,
-        textEnd: Int = text.length
+        textEnd: Int = text.length,
     ) {
         val textLength = textEnd - textStart
         makeSureAvailableSpace(textLength - (end - start))
@@ -226,7 +226,7 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
         end: Int,
         text: CharSequence,
         textStart: Int = 0,
-        textEnd: Int = text.length
+        textEnd: Int = text.length,
     ) {
         requirePrecondition(start <= end) { "start=$start > end=$end" }
         requirePrecondition(textStart <= textEnd) { "textStart=$textStart > textEnd=$textEnd" }
@@ -250,7 +250,7 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
                 charArray,
                 charArray.size - rightCopyCount,
                 end,
-                end + rightCopyCount
+                end + rightCopyCount,
             )
 
             // Copy given text into buffer
@@ -260,7 +260,7 @@ internal class PartialGapBuffer(text: CharSequence) : CharSequence {
                 GapBuffer(
                     charArray,
                     initGapStart = leftCopyCount + textLength,
-                    initGapEnd = charArray.size - rightCopyCount
+                    initGapEnd = charArray.size - rightCopyCount,
                 )
             bufStart = start - leftCopyCount
             bufEnd = end + rightCopyCount

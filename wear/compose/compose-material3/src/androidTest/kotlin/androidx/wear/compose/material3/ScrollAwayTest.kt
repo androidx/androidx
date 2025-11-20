@@ -17,13 +17,14 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +33,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
@@ -47,12 +50,16 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,9 +67,42 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ScrollAwayTest {
-    @get:Rule val rule = createComposeRule()
+    @Suppress("ComposeTestRuleDispatcher") // b/457595340
+    @get:Rule
+    val rule = createComposeRule()
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun showsTimeTextWithTransformingLazyColumnInitially() {
+        val timeTextColor = Color.Red
+
+        rule.setContentWithTheme {
+            val scrollState = rememberTransformingLazyColumnState()
+            TransformingLazyColumnTest(scrollState, timeTextColor)
+        }
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun hidesTimeTextAfterScrollingTransformingLazyColumn() {
+        val timeTextColor = Color.Red
+        rule.setContentWithTheme {
+            val scrollState = rememberTransformingLazyColumnState()
+            TransformingLazyColumnTest(scrollState, timeTextColor = timeTextColor)
+        }
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp() }
+
+        // Allow slight delay for TimeText to scroll off, but not long enough for it to come
+        // back onto the screen after the idle timeout.
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(500)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(timeTextColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun showsTimeTextWithScalingLazyColumnInitially() {
         val timeTextColor = Color.Red
@@ -83,7 +123,7 @@ class ScrollAwayTest {
             scrollState =
                 rememberScalingLazyListState(
                     initialCenterItemIndex = 1,
-                    initialCenterItemScrollOffset = 0
+                    initialCenterItemScrollOffset = 0,
                 )
             ScalingLazyColumnTest(scrollState, itemIndex = 100, timeTextColor = timeTextColor)
         }
@@ -93,7 +133,7 @@ class ScrollAwayTest {
         rule.onNodeWithTag(TIME_TEXT_TAG).assertIsDisplayed()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun showsTimeTextWithLazyColumnInitially() {
         val timeTextColor = Color.Red
@@ -106,7 +146,7 @@ class ScrollAwayTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun showsTimeTextWithColumnInitially() {
         val timeTextColor = Color.Red
@@ -119,7 +159,7 @@ class ScrollAwayTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun hidesTimeTextAfterScrollingScalingLazyColumn() {
         val timeTextColor = Color.Red
@@ -137,16 +177,13 @@ class ScrollAwayTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(timeTextColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun hidesTimeTextWithLazyColumn() {
         val timeTextColor = Color.Red
         lateinit var scrollState: LazyListState
         rule.setContentWithTheme {
-            scrollState =
-                rememberLazyListState(
-                    initialFirstVisibleItemIndex = 1,
-                )
+            scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 1)
 
             LazyColumnTest(scrollState, timeTextColor = timeTextColor)
         }
@@ -160,7 +197,7 @@ class ScrollAwayTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(timeTextColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun hidesTimeTextWithColumn() {
         val timeTextColor = Color.Red
@@ -181,17 +218,54 @@ class ScrollAwayTest {
     }
 
     @Composable
+    private fun TransformingLazyColumnTest(
+        scrollState: TransformingLazyColumnState,
+        timeTextColor: Color,
+        showTLC: MutableState<Boolean> = mutableStateOf(true),
+        contentPadding: PaddingValues = PaddingValues(),
+    ) {
+        WithTouchSlop(0f) {
+            Box(modifier = Modifier.size(200.dp).testTag(TEST_TAG)) {
+                if (showTLC.value) {
+                    TransformingLazyColumn(
+                        state = scrollState,
+                        modifier = Modifier.fillMaxSize().testTag(SCROLL_TAG),
+                        contentPadding = contentPadding,
+                    ) {
+                        item { ListHeader { Text("Buttons") } }
+
+                        items(10) { i -> TestButton(i, Modifier.height(100.dp)) }
+                    }
+                }
+                TimeText(
+                    modifier =
+                        Modifier.scrollAway(
+                                scrollInfoProvider = ScrollInfoProvider(scrollState),
+                                screenStage = {
+                                    if (scrollState.isScrollInProgress) ScreenStage.Scrolling
+                                    else ScreenStage.Idle
+                                },
+                            )
+                            .testTag(TIME_TEXT_TAG)
+                ) {
+                    curvedComposable { Box(Modifier.size(20.dp).background(timeTextColor)) }
+                }
+            }
+        }
+    }
+
+    @Composable
     private fun ScalingLazyColumnTest(
         scrollState: ScalingLazyListState,
         timeTextColor: Color,
-        itemIndex: Int = 1
+        itemIndex: Int = 1,
     ) {
         WithTouchSlop(0f) {
             Box(modifier = Modifier.fillMaxSize().testTag(TEST_TAG)) {
                 ScalingLazyColumn(
                     state = scrollState,
                     autoCentering = AutoCenteringParams(itemIndex = itemIndex),
-                    modifier = Modifier.fillMaxSize().testTag(SCROLL_TAG)
+                    modifier = Modifier.fillMaxSize().testTag(SCROLL_TAG),
                 ) {
                     item { ListHeader { Text("Buttons") } }
 
@@ -204,9 +278,9 @@ class ScrollAwayTest {
                                 screenStage = {
                                     if (scrollState.isScrollInProgress) ScreenStage.Scrolling
                                     else ScreenStage.Idle
-                                }
+                                },
                             )
-                            .testTag(TIME_TEXT_TAG),
+                            .testTag(TIME_TEXT_TAG)
                 ) {
                     curvedComposable { Box(Modifier.size(20.dp).background(timeTextColor)) }
                 }
@@ -230,7 +304,7 @@ class ScrollAwayTest {
                                 screenStage = {
                                     if (scrollState.isScrollInProgress) ScreenStage.Scrolling
                                     else ScreenStage.Idle
-                                }
+                                },
                             )
                             .testTag(TIME_TEXT_TAG)
                 ) {
@@ -260,7 +334,7 @@ class ScrollAwayTest {
                                 screenStage = {
                                     if (scrollState.isScrollInProgress) ScreenStage.Scrolling
                                     else ScreenStage.Idle
-                                }
+                                },
                             )
                             .testTag(TIME_TEXT_TAG)
                 ) {
@@ -276,10 +350,7 @@ class ScrollAwayTest {
 
     @Composable
     private fun TestButton(i: Int, modifier: Modifier = Modifier) {
-        Button(
-            modifier = modifier.fillMaxWidth().padding(horizontal = 36.dp),
-            onClick = {},
-        ) {
+        Button(modifier = modifier.fillMaxWidth().padding(horizontal = 36.dp), onClick = {}) {
             Text(text = "Button $i")
         }
     }

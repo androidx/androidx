@@ -62,9 +62,9 @@ class NavigationUITest {
             }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
-        navController.navigate(endDestination + "/${R.string.dest_title}")
+        navController.navigate(endDestination + "/${androidx.navigation.ui.R.string.dest_title}")
 
-        val expected = "${context.resources.getString(R.string.dest_title)}"
+        val expected = "${context.resources.getString(androidx.navigation.ui.R.string.dest_title)}"
         assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
 
@@ -88,9 +88,9 @@ class NavigationUITest {
             }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
-        navController.navigate(endDestination + "/${R.string.dest_title}")
+        navController.navigate(endDestination + "/${androidx.navigation.ui.R.string.dest_title}")
 
-        val argString = context.resources.getString(R.string.dest_title)
+        val argString = context.resources.getString(androidx.navigation.ui.R.string.dest_title)
         val expected = "start/$argString/end/$argString"
         assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
@@ -120,7 +120,7 @@ class NavigationUITest {
                 toolbar = toolbar,
                 bundle = Bundle(),
                 context = context,
-                navController = navController
+                navController = navController,
             )
 
         // navigate to destination. Since the argument {test} is not present in the bundle,
@@ -159,13 +159,13 @@ class NavigationUITest {
                 toolbar = toolbar,
                 bundle = null,
                 context = context,
-                navController = navController
+                navController = navController,
             )
 
         // navigate to destination, should throw due to template found but null bundle
         navController.apply {
             addOnDestinationChangedListener(testListener)
-            navigate(route = endDestination + "/${R.string.dest_title}")
+            navigate(route = endDestination + "/${androidx.navigation.ui.R.string.dest_title}")
         }
     }
 
@@ -258,12 +258,12 @@ class NavigationUITest {
         toolbar: Toolbar,
         bundle: Bundle?,
         context: Context,
-        navController: NavController
+        navController: NavController,
     ): NavController.OnDestinationChangedListener {
         return object :
             AbstractAppBarOnDestinationChangedListener(
                 context,
-                AppBarConfiguration.Builder(navController.graph).build()
+                AppBarConfiguration.Builder(navController.graph).build(),
             ) {
             override fun setTitle(title: CharSequence?) {
                 toolbar.title = title
@@ -272,7 +272,7 @@ class NavigationUITest {
             override fun onDestinationChanged(
                 controller: NavController,
                 destination: NavDestination,
-                arguments: Bundle?
+                arguments: Bundle?,
             ) {
                 super.onDestinationChanged(controller, destination, bundle)
             }

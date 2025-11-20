@@ -48,7 +48,7 @@ internal val HasRobolectricFingerprint
  */
 internal class RobolectricIdlingStrategy(
     private val composeRootRegistry: ComposeRootRegistry,
-    private val composeIdlingResource: ComposeIdlingResource
+    private val composeIdlingResource: ComposeIdlingResource,
 ) : IdlingStrategy {
     override val canSynchronizeOnUiThread: Boolean = true
 
@@ -75,7 +75,7 @@ internal class RobolectricIdlingStrategy(
                             "${policy.idleTimeout} ${policy.idleTimeoutUnit}. " +
                             "Please check your measure/layout lambdas, they may be " +
                             "causing an infinite composition loop. Or set Espresso's " +
-                            "master idling policy if you require a longer timeout."
+                            "master idling policy if you require a longer timeout.",
                     )
                 }
                 iteration++

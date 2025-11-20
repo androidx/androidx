@@ -25,7 +25,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -124,16 +123,12 @@ public class Settings {
             mPreferStaticShadows = true;
         }
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            ActivityManager activityManager = (ActivityManager)
-                    context.getSystemService(Context.ACTIVITY_SERVICE);
-            mOutlineClippingDisabled = activityManager.isLowRamDevice();
-            if (customizations != null) {
-                mOutlineClippingDisabled = customizations.getBoolean(
-                        "leanback_outline_clipping_disabled", mOutlineClippingDisabled);
-            }
-        } else {
-            mOutlineClippingDisabled = true;
+        ActivityManager activityManager = (ActivityManager)
+                context.getSystemService(Context.ACTIVITY_SERVICE);
+        mOutlineClippingDisabled = activityManager.isLowRamDevice();
+        if (customizations != null) {
+            mOutlineClippingDisabled = customizations.getBoolean(
+                    "leanback_outline_clipping_disabled", mOutlineClippingDisabled);
         }
         if (DEBUG) Log.v(TAG, "generated preference " + PREFER_STATIC_SHADOWS + ": "
                 + mPreferStaticShadows + " "

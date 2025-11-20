@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl
 
-import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -33,7 +32,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [QuirkSettingsHolder]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class QuirkSettingsHolderTest {
 
     private val quirkSettingsHolder = QuirkSettingsHolder.instance()

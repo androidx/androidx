@@ -76,7 +76,7 @@ class EGLManagerTest {
             // support for it. However, all devices should at least support EGL v 1.4
             assertTrue(
                 "Unexpected EGL version, received $eglVersion",
-                eglVersion == EGLVersion.V14 || eglVersion == EGLVersion.V15
+                eglVersion == EGLVersion.V14 || eglVersion == EGLVersion.V15,
             )
             assertNotNull(eglContext)
             assertNotNull(eglConfig)
@@ -233,7 +233,7 @@ class EGLManagerTest {
                     EGLConfigAttributes {
                         EGL14.EGL_WIDTH to 1
                         EGL14.EGL_HEIGHT to 1
-                    }
+                    },
                 )
 
             makeCurrent(pBuffer)
@@ -331,7 +331,7 @@ class EGLManagerTest {
                         Color.red(color) / 255f,
                         Color.green(color) / 255f,
                         Color.blue(color) / 255f,
-                        Color.alpha(color) / 255f
+                        Color.alpha(color) / 255f,
                     )
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                     GLES20.glFinish()
@@ -347,7 +347,7 @@ class EGLManagerTest {
                         height,
                         GLES20.GL_RGBA,
                         GLES20.GL_UNSIGNED_BYTE,
-                        buf
+                        buf,
                     )
                     buf.rewind()
 
@@ -417,7 +417,7 @@ class EGLManagerTest {
                         10,
                         PixelFormat.RGBA_8888,
                         1,
-                        HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+                        HardwareBuffer.USAGE_GPU_COLOR_OUTPUT,
                     )
                 val image = eglSpec.eglCreateImageFromHardwareBuffer(hardwareBuffer)
                 assertNotNull(image)
@@ -477,7 +477,7 @@ class EGLManagerTest {
         verifyMethodLinked {
             EGLExt.eglDupNativeFenceFDANDROID(
                 EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
-                EGLSyncKHR(0)
+                EGLSyncKHR(0),
             )
         }
     }
@@ -504,7 +504,7 @@ class EGLManagerTest {
                     sync,
                     EGL_SYNC_STATUS_KHR,
                     IntArray(1),
-                    0
+                    0,
                 )
                 EGLExt.eglDestroySyncKHR(display, sync)
             }
@@ -521,7 +521,7 @@ class EGLManagerTest {
                     display,
                     sync,
                     EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                    EGL_FOREVER_KHR
+                    EGL_FOREVER_KHR,
                 )
                 EGLExt.eglDestroySyncKHR(display, sync)
             }

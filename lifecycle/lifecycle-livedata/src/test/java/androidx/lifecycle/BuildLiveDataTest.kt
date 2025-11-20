@@ -18,9 +18,9 @@
 
 package androidx.lifecycle
 
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.util.ScopesRule
 import androidx.lifecycle.util.addObserver
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
@@ -101,7 +101,7 @@ class BuildLiveDataTest {
         }
     }
 
-    @RequiresApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun timeoutViaDuration() {
         val running = CompletableDeferred<Unit>()

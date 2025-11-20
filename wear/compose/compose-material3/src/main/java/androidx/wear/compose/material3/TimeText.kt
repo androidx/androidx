@@ -24,14 +24,11 @@ import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +46,7 @@ import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.clearAndSetSemantics
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
@@ -58,6 +56,8 @@ import androidx.wear.compose.materialcore.currentTimeMillis
 import androidx.wear.compose.materialcore.is24HourFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * Layout to show the current time and a label, they will be drawn in a curve, following the top
@@ -101,7 +101,7 @@ public fun TimeText(
     backgroundColor: Color = TimeTextDefaults.backgroundColor(),
     timeSource: TimeSource = TimeTextDefaults.rememberTimeSource(timeFormat()),
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
-    content: CurvedScope.(String) -> Unit = { time -> timeTextCurvedText(time) }
+    content: CurvedScope.(String) -> Unit = { time -> timeTextCurvedText(time) },
 ) {
     val currentTime = timeSource.currentTime()
 
@@ -112,7 +112,7 @@ public fun TimeText(
                     .sizeIn(maxSweepDegrees = maxSweepAngle)
                     .padding(contentPadding.toArcPadding())
                     .background(backgroundColor, StrokeCap.Round),
-            radialAlignment = CurvedAlignment.Radial.Center
+            radialAlignment = CurvedAlignment.Radial.Center,
         ) {
             content(currentTime)
         }
@@ -125,10 +125,10 @@ public object TimeTextDefaults {
     private val Padding = PaddingDefaults.edgePadding
 
     /** Default format for 24h clock. */
-    public const val TimeFormat24Hours: String = "HH:mm"
+    public val TimeFormat24Hours: String = "HH:mm"
 
     /** Default format for 12h clock. */
-    public const val TimeFormat12Hours: String = "h:mm"
+    public val TimeFormat12Hours: String = "h:mm"
 
     /**
      * The default maximum sweep angle in degrees used by [TimeText].
@@ -136,7 +136,7 @@ public object TimeTextDefaults {
      * This is calculated by keeping the length of the corresponding chord on the circle to be
      * approximately 57% of the screen width.
      */
-    public const val MaxSweepAngle: Float = 70f
+    public val MaxSweepAngle: Float = 70f
 
     /** The default content padding used by [TimeText]. */
     public val ContentPadding: PaddingValues = PaddingValues(top = Padding)
@@ -164,7 +164,7 @@ public object TimeTextDefaults {
     @Composable
     public fun timeTextStyle(
         background: Color = Color.Unspecified,
-        color: Color = MaterialTheme.colorScheme.onBackground,
+        color: Color = MaterialTheme.colorScheme.onBackground.setLuminance(80f),
         fontSize: TextUnit = TextUnit.Unspecified,
     ): CurvedTextStyle =
         MaterialTheme.typography.arcMedium +
@@ -201,9 +201,8 @@ public object TimeTextDefaults {
  * @param style A [CurvedTextStyle] to override the style used.
  */
 public fun CurvedScope.timeTextCurvedText(time: String, style: CurvedTextStyle? = null) {
-    basicCurvedText(
-        time,
-    ) {
+    // TimeText is intended to be hidden from TalkBack, so we clear semantics.
+    basicCurvedText(time, modifier = CurvedModifier.clearAndSetSemantics {}) {
         style?.let { timeTextStyle() + it } ?: timeTextStyle()
     }
 }
@@ -216,12 +215,13 @@ public fun CurvedScope.timeTextCurvedText(time: String, style: CurvedTextStyle? 
  */
 public fun CurvedScope.timeTextSeparator(
     curvedTextStyle: CurvedTextStyle? = null,
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
+    contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp),
 ) {
+    // TimeText is intended to be hidden from TalkBack, so we clear semantics.
     curvedText(
         text = "·",
         style = curvedTextStyle,
-        modifier = CurvedModifier.padding(contentArcPadding)
+        modifier = CurvedModifier.padding(contentArcPadding).clearAndSetSemantics {},
     )
 }
 
@@ -235,34 +235,33 @@ public interface TimeSource {
     @Composable public fun currentTime(): String
 }
 
-internal class DefaultTimeSource(timeFormat: String) : TimeSource {
-    private val _timeFormat = timeFormat
-
+internal class DefaultTimeSource(val timeFormat: String) : TimeSource {
     @Composable
-    override fun currentTime(): String = currentTime({ currentTimeMillis() }, _timeFormat).value
+    override fun currentTime(): String = currentTime({ currentTimeMillis() }, timeFormat).value
 }
 
 @Composable
 @VisibleForTesting
 internal fun currentTime(time: () -> Long, timeFormat: String): State<String> {
-
-    var calendar by remember { mutableStateOf(Calendar.getInstance()) }
-    var currentTime by remember { mutableLongStateOf(time()) }
-
-    val timeText = remember { derivedStateOf { formatTime(calendar, currentTime, timeFormat) } }
+    val timeText = remember {
+        mutableStateOf(formatTime(Calendar.getInstance(), time(), timeFormat))
+    }
 
     val context = LocalContext.current
-    val updatedTimeLambda by rememberUpdatedState(time)
-
-    DisposableEffect(context, updatedTimeLambda) {
-        val receiver =
-            TimeBroadcastReceiver(
-                onTimeChanged = { currentTime = updatedTimeLambda() },
-                onTimeZoneChanged = { calendar = Calendar.getInstance() }
-            )
-        receiver.register(context)
-        onDispose { receiver.unregister(context) }
-    }
+    remember(context) {
+            callbackFlow<Unit> {
+                val receiver =
+                    TimeBroadcastReceiver(
+                        // Either time or timezone changed, or we got the tick sent every minute.
+                        onChange = {
+                            timeText.value = formatTime(Calendar.getInstance(), time(), timeFormat)
+                        }
+                    )
+                receiver.register(context)
+                awaitClose { receiver.unregister(context) }
+            }
+        }
+        .collectAsState(Unit)
     return timeText
 }
 
@@ -277,28 +276,21 @@ private fun PaddingValues.toArcPadding() =
 
         override fun calculateAfterPadding(
             layoutDirection: LayoutDirection,
-            angularDirection: CurvedDirection.Angular
+            angularDirection: CurvedDirection.Angular,
         ) = calculateRightPadding(layoutDirection)
 
         override fun calculateBeforePadding(
             layoutDirection: LayoutDirection,
-            angularDirection: CurvedDirection.Angular
+            angularDirection: CurvedDirection.Angular,
         ) = calculateLeftPadding(layoutDirection)
     }
 
 /** A [BroadcastReceiver] to receive time tick, time change, and time zone change events. */
-private class TimeBroadcastReceiver(
-    val onTimeChanged: () -> Unit,
-    val onTimeZoneChanged: () -> Unit
-) : BroadcastReceiver() {
+private class TimeBroadcastReceiver(val onChange: () -> Unit) : BroadcastReceiver() {
     private var registered = false
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
-            onTimeZoneChanged()
-        } else {
-            onTimeChanged()
-        }
+        onChange()
     }
 
     fun register(context: Context) {

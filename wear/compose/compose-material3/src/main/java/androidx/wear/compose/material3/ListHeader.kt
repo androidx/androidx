@@ -19,14 +19,12 @@ package androidx.wear.compose.material3
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -35,8 +33,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.material3.tokens.ListHeaderTokens
@@ -54,8 +55,10 @@ import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
  * @param modifier The modifier for the [ListHeader].
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content.
- * @param contentPadding The spacing values to apply internally between the container and the
+ * @param contentPadding The spacing values to apply internally between the background and the
  *   content.
+ * @param transformation Transformation to be used when header appears inside the container that
+ *   needs to dynamically change its content separately from the background.
  * @param content Slot for [ListHeader] content, expected to be a single line of text.
  */
 @Composable
@@ -64,22 +67,28 @@ public fun ListHeader(
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = ListHeaderDefaults.contentColor,
     contentPadding: PaddingValues = ListHeaderDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    transformation: SurfaceTransformation? = null,
+    content: @Composable RowScope.() -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier =
             modifier
                 .defaultMinSize(minHeight = ListHeaderTokens.Height)
-                .height(IntrinsicSize.Min)
                 .wrapContentSize()
-                .container(backgroundColor)
+                .surface(transformation = transformation, painter = ColorPainter(backgroundColor))
                 .padding(contentPadding)
-                .semantics(mergeDescendants = true) { heading() }
+                .semantics(mergeDescendants = true) { heading() },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides ListHeaderTokens.ContentTypography.value,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3,
+                ),
         ) {
             content()
         }
@@ -99,8 +108,10 @@ public fun ListHeader(
  * @param modifier The modifier for the [ListSubHeader].
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content.
- * @param contentPadding The spacing values to apply internally between the container and the
+ * @param contentPadding The spacing values to apply internally between the background and the
  *   content.
+ * @param transformation Transformer to be used when header appears inside the container that needs
+ *   to dynamically change its content separately from the background.
  * @param icon A slot for providing icon to the [ListSubHeader].
  * @param label A slot for providing label to the [ListSubHeader].
  */
@@ -110,6 +121,7 @@ public fun ListSubHeader(
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = ListHeaderDefaults.subHeaderContentColor,
     contentPadding: PaddingValues = ListHeaderDefaults.SubHeaderContentPadding,
+    transformation: SurfaceTransformation? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit,
 ) {
@@ -119,21 +131,26 @@ public fun ListSubHeader(
         modifier =
             modifier
                 .defaultMinSize(minHeight = ListSubHeaderTokens.Height)
-                .height(IntrinsicSize.Min)
                 .fillMaxWidth()
                 .wrapContentSize(align = Alignment.CenterStart)
-                .container(backgroundColor)
+                .surface(painter = ColorPainter(backgroundColor), transformation = transformation)
                 .padding(contentPadding)
-                .semantics(mergeDescendants = true) { heading() }
+                .semantics(mergeDescendants = true) { heading() },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides ListSubHeaderTokens.ContentTypography.value
+            LocalTextStyle provides ListSubHeaderTokens.ContentTypography.value,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Start,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3,
+                ),
         ) {
             if (icon != null) {
                 Box(
                     modifier = Modifier.wrapContentSize(align = Alignment.CenterStart),
-                    content = icon
+                    content = icon,
                 )
                 Spacer(modifier = Modifier.width(6.dp))
             }

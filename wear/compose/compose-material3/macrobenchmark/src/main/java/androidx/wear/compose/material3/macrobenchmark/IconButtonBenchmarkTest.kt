@@ -28,5 +28,5 @@ class IconButtonBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = IconButtonBenchmark,
-        actionSuffix = "ICON_BUTTON_ACTIVITY"
+        actionSuffix = "ICON_BUTTON_ACTIVITY",
     )

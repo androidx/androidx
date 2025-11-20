@@ -128,6 +128,42 @@ public class WearApiVersionHelperTest {
                 () -> WearApiVersionHelper.isApiVersionAtLeast(
                 "33-3"));
     }
+
+    @Test
+    public void test_VicIsAtLeastVic_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(35);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(1);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_VIC_1));
+    }
+
+    @Test
+    public void test_BaklavaIsAtLeastVic_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(36);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_VIC_1));
+    }
+
+    @Test
+    public void test_VicIsAtLeastBaklava_failure() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(35);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(1);
+
+        assertFalse(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_BAKLAVA_0));
+    }
+
+    @Test
+    public void test_BaklavaIsAtLeastBaklava_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(36);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_BAKLAVA_0));
+    }
 }
 
 

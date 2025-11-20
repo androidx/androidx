@@ -34,6 +34,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
 import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
+import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
@@ -332,6 +333,9 @@ public class ChipTest {
             assertThat(actualChip.getCustomContent().toLayoutElementProto())
                     .isEqualTo(expectedCustomContent.toLayoutElementProto());
         }
+
+        assertThat(actualChip.getSemantics().getRole())
+                .isEqualTo(ModifiersBuilders.SEMANTICS_ROLE_BUTTON);
     }
 
     private StringProp staticString(String s) {

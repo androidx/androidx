@@ -277,7 +277,7 @@ src/foo/TestDialog.kt:10: Warning: Use onDismiss() instead of calling setOnDismi
             .files(
                 dialogFragmentStubKotlinWithDismissAndCancelListeners,
                 DIALOG_FRAGMENT,
-                ALERT_DIALOG
+                ALERT_DIALOG,
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.IMPORT_ALIAS, TestMode.TYPE_ALIAS) // b/266247269

@@ -301,7 +301,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2AutoChain =
         findTest(
@@ -310,7 +310,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO_CHAIN
+            TestType.MULTI_PHOTO_CHAIN,
         )
     val c2Caf =
         findTest(
@@ -319,7 +319,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2CafChain =
         findTest(
@@ -328,7 +328,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO_CHAIN
+            TestType.MULTI_PHOTO_CHAIN,
         )
     val c2AutoMin =
         findTest(
@@ -337,7 +337,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MIN,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2Switch =
         findTest(
@@ -346,7 +346,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
     val c1Auto =
         findTest(
@@ -355,7 +355,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c1Caf =
         findTest(
@@ -364,7 +364,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c1Switch =
         findTest(
@@ -373,7 +373,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
     val cXAuto =
         findTest(
@@ -382,7 +382,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val cXCaf =
         findTest(
@@ -391,7 +391,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val cXSwitch =
         findTest(
@@ -400,7 +400,7 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
 
     // Header
@@ -487,7 +487,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2AutoChain =
         findTest(
@@ -496,7 +496,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO_CHAIN
+            TestType.MULTI_PHOTO_CHAIN,
         )
     val c2Caf =
         findTest(
@@ -505,7 +505,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2CafChain =
         findTest(
@@ -514,7 +514,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO_CHAIN
+            TestType.MULTI_PHOTO_CHAIN,
         )
     val c2AutoMin =
         findTest(
@@ -523,7 +523,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MIN,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c2Switch =
         findTest(
@@ -532,7 +532,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA2,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
     val c1Auto =
         findTest(
@@ -541,7 +541,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c1Caf =
         findTest(
@@ -550,7 +550,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val c1Switch =
         findTest(
@@ -559,7 +559,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERA1,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
     val cXAuto =
         findTest(
@@ -568,7 +568,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val cXCaf =
         findTest(
@@ -577,7 +577,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.CONTINUOUS,
-            TestType.MULTI_PHOTO
+            TestType.MULTI_PHOTO,
         )
     val cXSwitch =
         findTest(
@@ -586,7 +586,7 @@ fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults
             CameraAPI.CAMERAX,
             ImageCaptureSize.MAX,
             FocusMode.AUTO,
-            TestType.MULTI_SWITCH
+            TestType.MULTI_SWITCH,
         )
 
     // Header
@@ -704,7 +704,7 @@ fun findTest(
     api: CameraAPI,
     imageCaptureSize: ImageCaptureSize,
     focusMode: FocusMode,
-    testType: TestType
+    testType: TestType,
 ): TestResults {
 
     for (testResult in allTestResults) {

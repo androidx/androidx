@@ -40,11 +40,11 @@ abstract class PrintConfigurationForVariantTask : DefaultTask() {
         internal fun registerForVariant(
             project: Project,
             variant: Variant,
-            variantConfig: PerVariantConsumerExtensionManager.VariantConfigurationProxy
+            variantConfig: PerVariantConsumerExtensionManager.VariantConfigurationProxy,
         ) {
             project.tasks.maybeRegister<PrintConfigurationForVariantTask>(
                 TASK_NAME_PREFIX,
-                variant.name
+                variant.name,
             ) {
                 it.text.set(
                     """

@@ -16,13 +16,17 @@
 
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
+
 /**
  * Defines the algorithm to be used while determining the text direction.
  *
+ * @property value The integer representation of TextDirection.
  * @see ResolvedTextDirection
  */
 @kotlin.jvm.JvmInline
-value class TextDirection internal constructor(internal val value: Int) {
+value class TextDirection internal constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -74,6 +78,37 @@ value class TextDirection internal constructor(internal val value: Int) {
          * This represents an unset value, a usual replacement for "null" when a primitive value is
          * desired.
          */
-        val Unspecified = TextDirection(Int.MIN_VALUE)
+        val Unspecified = TextDirection(0)
+
+        /**
+         * Creates a TextDirection from the given integer value. This can be useful if you need to
+         * serialize/deserialize TextDirection values.
+         *
+         * @param value The integer representation of the TextDirection.
+         * @throws IllegalArgumentException if the given [value] is not recognized.
+         * @see androidx.compose.ui.text.style.TextDirection.value
+         */
+        fun valueOf(value: Int): TextDirection {
+            requirePrecondition(value in 0..5) {
+                "The given value=$value is not recognized by TextDirection."
+            }
+            return TextDirection(value)
+        }
     }
+}
+
+/**
+ * Returns `true` if this [TextDirection] is not [TextDirection.Unspecified].
+ *
+ * @see TextDirection.Unspecified
+ */
+inline val TextDirection.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun TextDirection.takeOrElse(block: () -> TextDirection): TextDirection {
+    return if (isSpecified) this else block()
 }

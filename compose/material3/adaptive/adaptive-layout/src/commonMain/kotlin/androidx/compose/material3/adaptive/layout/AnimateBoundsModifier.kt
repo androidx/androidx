@@ -39,13 +39,15 @@ import androidx.compose.ui.unit.IntSize
 internal fun Modifier.animateBounds(
     animateFraction: () -> Float,
     animationSpec: FiniteAnimationSpec<IntRect>,
+    scaleConversion: (IntOffset) -> IntOffset,
     lookaheadScope: LookaheadScope,
-    enabled: Boolean
+    enabled: Boolean,
 ) =
     this.then(
         AnimateBoundsElement(
             animateFraction,
             animationSpec,
+            scaleConversion,
             lookaheadScope,
             enabled,
         )
@@ -54,13 +56,15 @@ internal fun Modifier.animateBounds(
 private class AnimateBoundsElement(
     private val animateFraction: () -> Float,
     private val animationSpec: FiniteAnimationSpec<IntRect>,
+    private val scaleConversion: (IntOffset) -> IntOffset,
     private val lookaheadScope: LookaheadScope,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) : ModifierNodeElement<AnimateBoundsNode>() {
     private val inspectorInfo = debugInspectorInfo {
         name = "animateBounds"
         properties["animateFraction"] = animateFraction
         properties["animationSpec"] = animationSpec
+        properties["scaleConversion"] = scaleConversion
         properties["lookaheadScope"] = lookaheadScope
         properties["enabled"] = enabled
     }
@@ -69,6 +73,7 @@ private class AnimateBoundsElement(
         return AnimateBoundsNode(
             animateFraction,
             animationSpec,
+            scaleConversion,
             lookaheadScope,
             enabled,
         )
@@ -77,6 +82,7 @@ private class AnimateBoundsElement(
     override fun update(node: AnimateBoundsNode) {
         node.animateFraction = animateFraction
         node.animationSpec = animationSpec
+        node.scaleConversion = scaleConversion
         node.lookaheadScope = lookaheadScope
         node.enabled = enabled
     }
@@ -92,6 +98,7 @@ private class AnimateBoundsElement(
         if (enabled != other.enabled) return false
         if (animateFraction !== other.animateFraction) return false
         if (animationSpec != other.animationSpec) return false
+        if (scaleConversion !== other.scaleConversion) return false
         if (lookaheadScope != other.lookaheadScope) return false
         if (inspectorInfo !== other.inspectorInfo) return false
 
@@ -102,6 +109,7 @@ private class AnimateBoundsElement(
         var result = enabled.hashCode()
         result = 31 * result + animateFraction.hashCode()
         result = 31 * result + animationSpec.hashCode()
+        result = 31 * result + scaleConversion.hashCode()
         result = 31 * result + lookaheadScope.hashCode()
         result = 31 * result + inspectorInfo.hashCode()
         return result
@@ -111,8 +119,9 @@ private class AnimateBoundsElement(
 private class AnimateBoundsNode(
     var animateFraction: () -> Float,
     animationSpec: FiniteAnimationSpec<IntRect>,
+    var scaleConversion: (IntOffset) -> IntOffset,
     var lookaheadScope: LookaheadScope,
-    var enabled: Boolean
+    var enabled: Boolean,
 ) : ApproachLayoutModifierNode, Modifier.Node() {
     val boundsTracker = BoundsTracker(animationSpec)
 
@@ -131,7 +140,7 @@ private class AnimateBoundsNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult =
         // MeasureScope.measure() will only be called during lookahead. Perform a "no-op" measuring
         // here and update target size and offset.
@@ -150,8 +159,13 @@ private class AnimateBoundsNode(
 
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
+        // Workaround (b/435756530): Avoid approaching measure if the animation is not enabled.
+        if (!enabled) {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         // Use the current animating fraction to get the approach size and offset of the current
         // animating layout toward the target size and offset updated in measure().
         val currentBounds = boundsTracker.updateAndGetCurrentBounds(animateFraction())
@@ -159,9 +173,17 @@ private class AnimateBoundsNode(
         val placeable = measurable.measure(animatedConstraints)
         return layout(placeable.width, placeable.height) {
             if (coordinates != null) {
-                placeable.place(
-                    convertOffsetToLookaheadCoordinates(currentBounds.topLeft, lookaheadScope)
-                )
+                // Workaround(b/413692430): Convert the current offset according to the parent
+                // scaling.
+                // This workaround the issue that the coordinates of ApproachMeasureScope are
+                // transformed, which enforces us to manually scale the offset here to account for
+                // the
+                // transformation. Note that this is not a real solution - if other transformations
+                // other than predictive back scaling are being applied to the scaffold, the
+                // animation
+                // will still be broken.
+                val scaledOffset = scaleConversion(currentBounds.topLeft)
+                placeable.place(convertOffsetToCurrentCoordinates(scaledOffset, lookaheadScope))
             }
         }
     }

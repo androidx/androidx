@@ -23,7 +23,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
-class DelayedActivity : AppCompatActivity() {
+open class DelayedActivity : AppCompatActivity() {
 
     var delayMs: Long
         get() {

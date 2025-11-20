@@ -1,0 +1,4 @@
+attr fastScrollPageIndicatorBackgroundDrawable
+attr fastScrollPageIndicatorMarginEnd
+attr fastScrollVerticalThumbDrawable
+attr fastScrollVerticalThumbMarginEnd

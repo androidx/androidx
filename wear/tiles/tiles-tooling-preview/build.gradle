@@ -25,13 +25,14 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
+    implementation(libs.jspecify)
 
+    api(project(':wear:protolayout:protolayout'))
     api(project(":wear:protolayout:protolayout-expression"))
     api(project(":wear:tiles:tiles"))
     api("androidx.wear:wear-tooling-preview:1.0.0")

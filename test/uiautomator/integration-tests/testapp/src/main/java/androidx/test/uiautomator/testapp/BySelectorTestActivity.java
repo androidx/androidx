@@ -16,13 +16,12 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Button;
 
 import org.jspecify.annotations.Nullable;
 
-public class BySelectorTestActivity extends Activity {
+public class BySelectorTestActivity extends TestActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

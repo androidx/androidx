@@ -113,6 +113,7 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
         setTitle(R.string.fullscreen_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         mWebView = findViewById(R.id.webview_supports_fullscreen);
         mWebView.getSettings().setJavaScriptEnabled(true);

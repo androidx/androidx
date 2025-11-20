@@ -50,25 +50,25 @@ val langContent =
             "Jetpack Compose عبارة عن مجموعة أدوات حديثة لبناء واجهة مستخدم " +
                 "Android الأصلية. يعمل Jetpack Compose على تبسيط وتسريع " +
                 "تطوير واجهة المستخدم على نظام Android باستخدام " +
-                "رموز أقل وأدوات قوية وواجهات برمجة تطبيقات Kotlin البديهية."
+                "رموز أقل وأدوات قوية وواجهات برمجة تطبيقات Kotlin البديهية.",
         ),
         arrayOf(
             "添加文本元素",
             "Jetpack Compose是用于构建本机Android UI的现代工具包。 Jetpack " +
-                "Compose使用更少的代码，强大的工具和直观的Kotlin API简化并加速了Android上的UI开发。"
+                "Compose使用更少的代码，强大的工具和直观的Kotlin API简化并加速了Android上的UI开发。",
         ),
         arrayOf(
             "एक पाठ तत्व जोड़ें",
             "रचना योग्य कार्यों को केवल अन्य रचना कार्यों के " +
                 "दायरे में से बुलाया जा सकता है। किसी फंक्शन को " +
                 "कंपोजिटेबल बनाने के लिए, @ कम्\u200Dपोजिट " +
-                "एनोटेशन जोड़ें।"
+                "एनोटेशन जोड़ें।",
         ),
         arrayOf(
             "ข้อมูลพื้นฐานเกี่ยวกับการเขียน Jetpack",
             "ฟังก์ชั่น Composable สามารถเรียกใช้ได้จากภายในขอบเขตของฟังก์ชั่นอื่น ๆ เท่านั้น " +
-                "ในการสร้างฟังก์ชั่นคอมโพสิตให้เพิ่มคำอธิบายประกอบ @Composable"
-        )
+                "ในการสร้างฟังก์ชั่นคอมโพสิตให้เพิ่มคำอธิบายประกอบ @Composable",
+        ),
     )
 
 @Composable
@@ -96,7 +96,7 @@ private fun Basics() {
                     " Jetpack Compose simplifies and accelerates UI development on Android " +
                     "with less code, powerful tools, and intuitive Kotlin APIs.",
             modifier = Modifier.weight(1f),
-            style = commonStyle
+            style = commonStyle,
         )
     }
 }
@@ -117,7 +117,7 @@ private fun AddTextElement() {
                                 "defining a content block, and calling the Text() function."
                         )
                     },
-                style = commonStyle
+                style = commonStyle,
             )
         }
         Box(Modifier.padding(8.dp).size(48.dp).background(rectColor))
@@ -148,7 +148,7 @@ private fun AddTextElement() {
 private fun MultiParagraph() {
     Text(
         text = "Define a composable function (Multi Paragraph)",
-        style = commonStyle.merge(header2)
+        style = commonStyle.merge(header2),
     )
     Text(
         text =

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.enterprise.feedback {
 
   @com.google.auto.value.AutoValue public abstract class KeyedAppState {

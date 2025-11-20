@@ -31,25 +31,84 @@ import androidx.compose.ui.unit.Constraints
 
 /**
  * A layout that only composes and lays out currently needed items. Can be used to build efficient
- * scrollable layouts.
+ * complex layouts. Currently needed items depend on the LazyLayout implementation, that is, on how
+ * the [LazyLayoutMeasurePolicy] is implemented. Composing items during the measure pass is the
+ * signal to indicate which items are "currently needed". In general, only visible items are
+ * considered needed, but additional items may be requested by calling
+ * [LazyLayoutMeasureScope.compose].
  *
+ * This is a low level API for building efficient complex layouts, for a ready-to-use linearly
+ * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyColumn] and
+ * [androidx.compose.foundation.lazy.LazyRow]. For a grid-like scrollable lazy layout, see
+ * [androidx.compose.foundation.lazy.grid.LazyVerticalGrid] and
+ * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid]. For a pager-like lazy layout, see
+ * [androidx.compose.foundation.pager.VerticalPager] and
+ * [androidx.compose.foundation.pager.HorizontalPager]
+ *
+ * For a basic lazy layout sample, see:
+ *
+ * @sample androidx.compose.foundation.samples.LazyLayoutSample
+ *
+ * For a scrollable lazy layout, see:
+ *
+ * @sample androidx.compose.foundation.samples.LazyLayoutScrollableSample
  * @param itemProvider lambda producing an item provider containing all the needed info about the
  *   items which could be used to compose and measure items as part of [measurePolicy].
  * @param modifier to apply on the layout
  * @param prefetchState allows to schedule items for prefetching
  * @param measurePolicy Measure policy which allows to only compose and measure needed items.
- *
- * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
- * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
- * change.
  */
+@Deprecated("Please use overload with LazyLayoutMeasurePolicy", level = DeprecationLevel.HIDDEN)
 @ExperimentalFoundationApi
 @Composable
 fun LazyLayout(
     itemProvider: () -> LazyLayoutItemProvider,
     modifier: Modifier = Modifier,
     prefetchState: LazyLayoutPrefetchState? = null,
-    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult
+    measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult,
+) = LazyLayout(itemProvider, modifier, prefetchState, LazyLayoutMeasurePolicy(measurePolicy))
+
+/**
+ * A layout that only composes and lays out currently needed items. Can be used to build efficient
+ * complex layouts. Currently needed items depend on the LazyLayout implementation, that is, on how
+ * the [LazyLayoutMeasurePolicy] is implemented. Composing items during the measure pass is the
+ * signal to indicate which items are "currently needed". In general, only visible items are
+ * considered needed, but additional items may be requested by calling
+ * [LazyLayoutMeasureScope.compose].
+ *
+ * This is a low level API for building efficient complex layouts, for a ready-to-use linearly
+ * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyColumn] and
+ * [androidx.compose.foundation.lazy.LazyRow]. For a grid-like scrollable lazy layout, see
+ * [androidx.compose.foundation.lazy.grid.LazyVerticalGrid] and
+ * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid]. For a pager-like lazy layout, see
+ * [androidx.compose.foundation.pager.VerticalPager] and
+ * [androidx.compose.foundation.pager.HorizontalPager]
+ *
+ * For a basic lazy layout sample, see:
+ *
+ * @sample androidx.compose.foundation.samples.LazyLayoutSample
+ *
+ * For a scrollable lazy layout, see:
+ *
+ * @sample androidx.compose.foundation.samples.LazyLayoutScrollableSample
+ * @param itemProvider lambda producing an item provider containing all the needed info about the
+ *   items which could be used to compose and measure items as part of [measurePolicy]. This is the
+ *   bridge between your item data source and the LazyLayout and is implemented as a lambda to
+ *   promote a performant implementation. State backed implementations of [LazyLayoutItemProvider]
+ *   are supported, though it is encouraged to implement this as an immutable entity that will
+ *   return a new instance in case the dataset updates.
+ * @param modifier to apply on the layout
+ * @param prefetchState allows to schedule items for prefetching. See [LazyLayoutPrefetchState] on
+ *   how to control prefetching. Passing null will disable prefetching.
+ * @param measurePolicy Measure policy which allows to only compose and measure needed items.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LazyLayout(
+    itemProvider: () -> LazyLayoutItemProvider,
+    modifier: Modifier = Modifier,
+    prefetchState: LazyLayoutPrefetchState? = null,
+    measurePolicy: LazyLayoutMeasurePolicy,
 ) {
     val currentItemProvider = rememberUpdatedState(itemProvider)
 
@@ -65,7 +124,11 @@ fun LazyLayout(
             DisposableEffect(prefetchState, itemContentFactory, subcomposeLayoutState, executor) {
                 prefetchState.prefetchHandleProvider =
                     PrefetchHandleProvider(itemContentFactory, subcomposeLayoutState, executor)
-                onDispose { prefetchState.prefetchHandleProvider = null }
+                onDispose {
+                    // clean up prefetch handle provider
+                    prefetchState.prefetchHandleProvider?.onDisposed()
+                    prefetchState.prefetchHandleProvider = null
+                }
             }
         }
 
@@ -74,11 +137,10 @@ fun LazyLayout(
             modifier.traversablePrefetchState(prefetchState),
             remember(itemContentFactory, measurePolicy) {
                 { constraints ->
-                    with(LazyLayoutMeasureScopeImpl(itemContentFactory, this)) {
-                        measurePolicy(constraints)
-                    }
+                    val scope = LazyLayoutMeasureScopeImpl(itemContentFactory, this)
+                    with(measurePolicy) { scope.measure(constraints) }
                 }
-            }
+            },
         )
     }
 }
@@ -89,7 +151,7 @@ private class LazyLayoutItemReusePolicy(private val factory: LazyLayoutItemConte
 
     override fun getSlotsToRetain(slotIds: SubcomposeSlotReusePolicy.SlotIdsSet) {
         countPerType.clear()
-        slotIds.forEach { slotId ->
+        slotIds.fastForEach { slotId ->
             val type = factory.getContentType(slotId)
             val currentCount = countPerType.getOrDefault(type, 0)
             if (currentCount == MaxItemsToRetainForReuse) {

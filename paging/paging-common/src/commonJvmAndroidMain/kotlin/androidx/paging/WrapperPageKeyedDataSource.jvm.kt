@@ -21,7 +21,7 @@ import androidx.arch.core.util.Function
 @Suppress("DEPRECATION")
 internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
     private val source: PageKeyedDataSource<K, A>,
-    private val listFunction: Function<List<A>, List<B>>
+    private val listFunction: Function<List<A>, List<B>>,
 ) : PageKeyedDataSource<K, B>() {
     override val isInvalid
         get() = source.isInvalid
@@ -45,7 +45,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
                     position: Int,
                     totalCount: Int,
                     previousPageKey: K?,
-                    nextPageKey: K?
+                    nextPageKey: K?,
                 ) {
                     val convertedData = convert(listFunction, data)
                     callback.onResult(
@@ -53,7 +53,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
                         position,
                         totalCount,
                         previousPageKey,
-                        nextPageKey
+                        nextPageKey,
                     )
                 }
 
@@ -61,7 +61,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
                     val convertedData = convert(listFunction, data)
                     callback.onResult(convertedData, previousPageKey, nextPageKey)
                 }
-            }
+            },
         )
     }
 
@@ -71,7 +71,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
             object : LoadCallback<K, A>() {
                 override fun onResult(data: List<A>, adjacentPageKey: K?) =
                     callback.onResult(convert(listFunction, data), adjacentPageKey)
-            }
+            },
         )
     }
 
@@ -81,7 +81,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
             object : LoadCallback<K, A>() {
                 override fun onResult(data: List<A>, adjacentPageKey: K?) =
                     callback.onResult(convert(listFunction, data), adjacentPageKey)
-            }
+            },
         )
     }
 }

@@ -38,7 +38,7 @@ class FragmentFinishEarlyTest {
         androidx.test.rule.ActivityTestRule(
             FragmentFinishEarlyTestActivity::class.java,
             false,
-            false
+            false,
         )
 
     // Detect leaks BEFORE and AFTER activity is destroyed

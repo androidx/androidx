@@ -5,6 +5,7 @@ package androidx.appsearch.platformstorage {
     method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.EnterpriseGlobalSearchSession!> createEnterpriseGlobalSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.SearchContext);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static androidx.appsearch.app.Features getFeatures(android.content.Context);
   }
 
   public static final class PlatformStorage.GlobalSearchContext {

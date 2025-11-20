@@ -80,7 +80,7 @@ class CollectProgressDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expect(
@@ -131,7 +131,7 @@ src/com/example/test.kt:39: Error: You must call collect() on Flow progress [NoC
             """
                 ),
                 Stubs.Composable,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expect(
@@ -207,7 +207,7 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
             """
                 ),
                 Stubs.Composable,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expectClean()
@@ -276,7 +276,7 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
             """
                 ),
                 Stubs.Composable,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expectClean()
@@ -345,7 +345,7 @@ src/com/example/test.kt:10: Error: You must call collect() on Flow null [NoColle
             """
                 ),
                 Stubs.Composable,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expectClean()

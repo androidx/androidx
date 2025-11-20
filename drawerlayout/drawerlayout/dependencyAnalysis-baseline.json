@@ -1,0 +1,29 @@
+{
+  "projectPath": ":drawerlayout:drawerlayout",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.truth:truth",
+        "resolvedVersion": "1.0.1"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.hamcrest:hamcrest-core",
+        "resolvedVersion": "1.3"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

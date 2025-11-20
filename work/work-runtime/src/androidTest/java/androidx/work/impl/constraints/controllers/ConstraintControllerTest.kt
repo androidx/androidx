@@ -19,7 +19,6 @@ package androidx.work.impl.constraints.controllers
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_DEVICE_IDLE
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.work.Constraints
 import androidx.work.OneTimeWorkRequest
@@ -37,7 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 23)
 class ConstraintControllerTest {
     private val tracker = FakeConstraintTracker()
     private val testIdleController = TestDeviceIdleConstraintController(tracker)
@@ -89,7 +87,7 @@ class ConstraintControllerTest {
     private class FakeConstraintTracker :
         ConstraintTracker<Boolean>(
             ApplicationProvider.getApplicationContext(),
-            InstantWorkTaskExecutor()
+            InstantWorkTaskExecutor(),
         ) {
         var tracking = false
         var deviceIdle = false

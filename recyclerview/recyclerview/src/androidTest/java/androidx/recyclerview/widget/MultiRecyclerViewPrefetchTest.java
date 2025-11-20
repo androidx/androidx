@@ -20,13 +20,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.jspecify.annotations.NonNull;
@@ -39,7 +37,6 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
 public class MultiRecyclerViewPrefetchTest {
     private RecyclerView.RecycledViewPool mRecycledViewPool;

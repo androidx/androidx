@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.CheckResult
 import androidx.compose.ui.semantics.SemanticsNode
 
 internal val SemanticsNode.siblings: List<SemanticsNode>
@@ -31,20 +32,29 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
  * more than one element is found.
  */
+@CheckResult
 fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) }
+        selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) },
     )
 }
 
-/** Returns children of this node. */
+/**
+ * Returns children of this node at the moment of invocation, it only captures nodes that are
+ * currently present in the semantic tree.
+ *
+ * This is especially relevant for lazy layouts like 'LazyColumn' or 'LazyRow' where only a subset
+ * of items are currently composed and exist in the tree. Therefore, this function will only return
+ * those currently composed items, not all the items in the backing data set.
+ */
+@CheckResult
 fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("children") { it.children }
+        selector.addSelectionFromSingleNode("children") { it.children },
     )
 }
 
@@ -57,11 +67,12 @@ fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
  * more than one element is found.
  */
+@CheckResult
 fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("child") { it.children }
+        selector.addSelectionFromSingleNode("child") { it.children },
     )
 }
 
@@ -70,6 +81,7 @@ fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
  *
  * This is just a shortcut for "children[index]".
  */
+@CheckResult
 fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = onChildren()[index]
 
 /**
@@ -85,11 +97,12 @@ fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = o
  * Returns B1, B3
  * ```
  */
+@CheckResult
 fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("siblings") { it.siblings }
+        selector.addSelectionFromSingleNode("siblings") { it.siblings },
     )
 }
 
@@ -102,11 +115,12 @@ fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if none or
  * more than one element is found.
  */
+@CheckResult
 fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("sibling") { it.siblings }
+        selector.addSelectionFromSingleNode("sibling") { it.siblings },
     )
 }
 
@@ -122,11 +136,12 @@ fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
  * Returns B, A
  * ```
  */
+@CheckResult
 fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() }
+        selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() },
     )
 }
 
@@ -137,6 +152,7 @@ fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if no
  * element is found.
  */
+@CheckResult
 fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
     return get(0)
 }
@@ -148,6 +164,7 @@ fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if no
  * element is found.
  */
+@CheckResult
 fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(testContext, useUnmergedTree, selector.addLastNodeSelector())
 }
@@ -157,13 +174,14 @@ fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
  *
  * @param matcher Matcher to use for the filtering.
  */
+@CheckResult
 fun SemanticsNodeInteractionCollection.filter(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filter", matcher)
+        selector.addSelectorViaMatcher("filter", matcher),
     )
 }
 
@@ -176,12 +194,13 @@ fun SemanticsNodeInteractionCollection.filter(
  *
  * @param matcher Matcher to use for the filtering.
  */
+@CheckResult
 fun SemanticsNodeInteractionCollection.filterToOne(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filterToOne", matcher)
+        selector.addSelectorViaMatcher("filterToOne", matcher),
     )
 }

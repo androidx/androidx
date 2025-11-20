@@ -59,17 +59,17 @@ class RippleTestActivity : ComponentActivity() {
                     modifier =
                         Modifier.clickable(
                                 interactionSource = interactionSource,
-                                indication = ripple()
+                                indication = ripple(),
                             ) { /* do something */
                             }
-                            .padding(10.dp)
+                            .padding(10.dp),
                 )
                 Spacer(Modifier.requiredHeight(10.dp))
                 Text(
                     text = "I show indication with clicking on other Text composable",
                     modifier =
                         Modifier.indication(interactionSource, LocalIndication.current)
-                            .padding(10.dp)
+                            .padding(10.dp),
                 )
             }
         }

@@ -39,7 +39,7 @@ import kotlin.math.sign
  */
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
-    snapPosition: SnapPosition = SnapPosition.Center
+    snapPosition: SnapPosition = SnapPosition.Center,
 ): SnapLayoutInfoProvider =
     object : SnapLayoutInfoProvider {
 
@@ -77,7 +77,7 @@ fun SnapLayoutInfoProvider(
                         itemOffset = item.offset,
                         itemIndex = item.index,
                         snapPosition = snapPosition,
-                        itemCount = layoutInfo.totalItemsCount
+                        itemCount = layoutInfo.totalItemsCount,
                     )
 
                 // Find item that is closest to the center
@@ -94,7 +94,7 @@ fun SnapLayoutInfoProvider(
             return calculateFinalOffset(
                 with(lazyListState.density) { calculateFinalSnappingItem(velocity) },
                 lowerBoundOffset,
-                upperBoundOffset
+                upperBoundOffset,
             )
         }
     }
@@ -112,7 +112,7 @@ fun SnapLayoutInfoProvider(
 @Composable
 fun rememberSnapFlingBehavior(
     lazyListState: LazyListState,
-    snapPosition: SnapPosition = SnapPosition.Center
+    snapPosition: SnapPosition = SnapPosition.Center,
 ): FlingBehavior {
     val snappingLayout =
         remember(lazyListState) { SnapLayoutInfoProvider(lazyListState, snapPosition) }

@@ -31,16 +31,19 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * A collection of {@link CameraInternal} instances.
  */
-public final class CameraRepository {
+public class CameraRepository implements InternalCameraPresenceListener {
     private static final String TAG = "CameraRepository";
     private final Object mCamerasLock = new Object();
     @GuardedBy("mCamerasLock")
@@ -51,18 +54,24 @@ public final class CameraRepository {
     private ListenableFuture<Void> mDeinitFuture;
     @GuardedBy("mCamerasLock")
     private CallbackToFutureAdapter.Completer<Void> mDeinitCompleter;
+    private CameraFactory mCameraFactory;
     /**
      * Initializes the repository from a {@link Context}.
      *
      * <p>All cameras queried from the {@link CameraFactory} will be added to the repository.
      */
+    @SuppressWarnings("FutureReturnValueIgnored") // cameraToRemove.release()
     public void init(@NonNull CameraFactory cameraFactory) throws InitializationException {
+        mCameraFactory = cameraFactory;
         synchronized (mCamerasLock) {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
                 for (String id : camerasList) {
                     Logger.d(TAG, "Added camera: " + id);
-                    mCameras.put(id, cameraFactory.getCamera(id));
+                    CameraInternal cameraToRemove = mCameras.put(id, cameraFactory.getCamera(id));
+                    if (cameraToRemove != null) {
+                        cameraToRemove.release();
+                    }
                 }
             } catch (CameraUnavailableException e) {
                 throw new InitializationException(e);
@@ -159,6 +168,57 @@ public final class CameraRepository {
     @NonNull Set<String> getCameraIds() {
         synchronized (mCamerasLock) {
             return new LinkedHashSet<>(mCameras.keySet());
+        }
+    }
+
+    @Override
+    public void onCamerasUpdated(@NonNull List<String> newCameraIds) throws CameraUpdateException {
+        // === Stage 1: Pre-computation (outside the lock) ===
+        Map<String, CameraInternal> newCameras = new HashMap<>();
+        Set<String> newCamerasToCreate;
+        synchronized (mCamerasLock) {
+            newCamerasToCreate = new HashSet<>(newCameraIds);
+            newCamerasToCreate.removeAll(mCameras.keySet());
+        }
+
+        try {
+            for (String cameraId : newCamerasToCreate) {
+                newCameras.put(cameraId, mCameraFactory.getCamera(cameraId));
+            }
+        } catch (CameraUnavailableException e) {
+            throw new CameraUpdateException("Failed to create CameraInternal", e);
+        }
+
+        // === Stage 2: Commit (inside a brief lock) ===
+        synchronized (mCamerasLock) {
+            // Identify cameras that are no longer in the list.
+            Set<String> cameraIdsToRemove = new HashSet<>(mCameras.keySet());
+            cameraIdsToRemove.removeAll(newCameraIds);
+
+            List<CameraInternal> camerasToDisconnect = new ArrayList<>();
+            for (String cameraId : cameraIdsToRemove) {
+                camerasToDisconnect.add(mCameras.get(cameraId));
+            }
+
+            // Create the new, ordered map of cameras.
+            Map<String, CameraInternal> finalCameras = new LinkedHashMap<>();
+            for (String cameraId : newCameraIds) {
+                if (mCameras.containsKey(cameraId)) {
+                    finalCameras.put(cameraId, mCameras.get(cameraId));
+                } else {
+                    finalCameras.put(cameraId, newCameras.get(cameraId));
+                }
+            }
+
+            // Atomically swap the old map with the new one.
+            mCameras.clear();
+            mCameras.putAll(finalCameras);
+
+            for (CameraInternal cameraToRemove : camerasToDisconnect) {
+                if (cameraToRemove != null) {
+                    cameraToRemove.onRemoved();
+                }
+            }
         }
     }
 }

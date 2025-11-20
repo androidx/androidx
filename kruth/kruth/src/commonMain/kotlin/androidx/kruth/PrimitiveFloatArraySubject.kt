@@ -18,17 +18,11 @@ package androidx.kruth
 
 /** A Subject for [Char] arrays. */
 class PrimitiveFloatArraySubject
-internal constructor(
-    actual: FloatArray?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<FloatArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
+internal constructor(actual: FloatArray?, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<FloatArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
-        HelperArraySubject(
-            actual = actual,
-            size = FloatArray::size,
-            metadata = metadata,
-        )
+        HelperArraySubject(actual = actual, size = FloatArray::size, metadata = metadata)
 
     /**
      * A check that the actual array and [expected] are arrays of the same length and type,

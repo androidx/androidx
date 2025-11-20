@@ -16,6 +16,7 @@
 
 package androidx.pdf.search
 
+import android.os.DeadObjectException
 import androidx.annotation.RestrictTo
 import androidx.core.util.isNotEmpty
 import androidx.pdf.PdfDocument
@@ -49,7 +50,7 @@ import kotlinx.coroutines.withContext
 public class SearchRepository(
     private val pdfDocument: PdfDocument,
     // TODO(b/384001800) Remove dispatcher
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
     private val _queryResults: MutableStateFlow<SearchResultState> = MutableStateFlow(NoQuery)
@@ -75,7 +76,7 @@ public class SearchRepository(
     public suspend fun produceSearchResults(
         query: String,
         currentVisiblePage: Int,
-        resultIndex: Int = 0
+        resultIndex: Int = 0,
     ) {
         if (query.isBlank()) {
             clearSearchResults()
@@ -88,9 +89,20 @@ public class SearchRepository(
         // to make [searchDocument] main-safe
         val searchResults =
             withContext(dispatcher) {
-                pdfDocument.searchDocument(query = query, pageRange = searchPageRange)
+                try {
+                    pdfDocument.searchDocument(query = query, pageRange = searchPageRange)
+                } catch (e: DeadObjectException) {
+                    // Ignore exception due to service disconnection. User will try again.
+                    return@withContext null
+                }
             }
 
+        if (searchResults == null) {
+            // An exception happened above because of service disconnection.
+            // Reset search so that user may try again.
+            _queryResults.update { NoQuery }
+            return
+        }
         val queryResults =
             if (searchResults.isNotEmpty()) {
                 /*
@@ -100,7 +112,7 @@ public class SearchRepository(
                 cyclicIterator =
                     CyclicSparseArrayIterator(
                         searchData = searchResults,
-                        visiblePage = currentVisiblePage
+                        visiblePage = currentVisiblePage,
                     )
 
                 // Restores the current index if required, or selects the first index of the page.
@@ -112,7 +124,7 @@ public class SearchRepository(
                     resultBounds = searchResults,
                     /* Set [queryResultsIndex] to cyclicIterator.current() which points to first result
                     on or nearest page to currentVisiblePage in forward direction. */
-                    queryResultsIndex = cyclicIterator.current()
+                    queryResultsIndex = cyclicIterator.current(),
                 )
             } else {
                 QueryResults.NoMatch(query = query, pageRange = searchPageRange)
@@ -143,7 +155,7 @@ public class SearchRepository(
                 query = currentResult.query,
                 resultBounds = currentResult.resultBounds,
                 pageRange = currentResult.pageRange,
-                queryResultsIndex = cyclicIterator.prev()
+                queryResultsIndex = cyclicIterator.prev(),
             )
 
         _queryResults.update { prevResult }
@@ -171,7 +183,7 @@ public class SearchRepository(
                 query = currentResult.query,
                 resultBounds = currentResult.resultBounds,
                 pageRange = currentResult.pageRange,
-                queryResultsIndex = cyclicIterator.next()
+                queryResultsIndex = cyclicIterator.next(),
             )
 
         _queryResults.update { nextResult }

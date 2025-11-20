@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalView
 /** Manages the composition callback for [ReportDrawnWhen]. */
 private class ReportDrawnComposition(
     private val fullyDrawnReporter: FullyDrawnReporter,
-    private val predicate: () -> Boolean
+    private val predicate: () -> Boolean,
 ) : () -> Unit {
 
     private val snapshotStateObserver =

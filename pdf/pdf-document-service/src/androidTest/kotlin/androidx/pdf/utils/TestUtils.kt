@@ -18,8 +18,10 @@ package androidx.pdf.utils
 
 import android.content.Context
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 
 object TestUtils {
@@ -29,6 +31,12 @@ object TestUtils {
     fun openFile(context: Context, filename: String): Uri {
         val inputStream = context.assets.open(filename)
         return saveStream(context, inputStream)
+    }
+
+    fun openFileDescriptor(context: Context, filename: String): ParcelFileDescriptor {
+        val uri = openFile(context, filename)
+        return context.contentResolver.openFileDescriptor(uri, "rw")
+            ?: throw IOException("Failed to open PDF file")
     }
 
     private fun saveStream(context: Context, inputStream: InputStream): Uri {

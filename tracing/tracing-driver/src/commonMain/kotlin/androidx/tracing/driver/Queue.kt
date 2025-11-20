@@ -16,29 +16,47 @@
 
 package androidx.tracing.driver
 
-internal const val QUEUE_CAPACITY = 64
+import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
+
+internal const val QUEUE_INITIAL_CAPACITY = 64
 
 /** An actual thread safe queue implementation. */
-internal class Queue<T>(capacity: Int = QUEUE_CAPACITY) {
-    private val lock = Lock()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Queue<T>(capacity: Int = QUEUE_INITIAL_CAPACITY) {
     private val queue: ArrayDeque<T> = ArrayDeque(capacity)
 
-    internal fun isEmpty(): Boolean {
-        return lock.withLock { queue.isEmpty() }
+    @GuardedBy("queue") private var droppedTraceEvent: Boolean = false
+
+    public fun isEmpty(): Boolean {
+        return synchronized(queue) { queue.isEmpty() }
     }
 
-    internal fun isNotEmpty(): Boolean {
-        return lock.withLock { queue.isNotEmpty() }
+    public fun isNotEmpty(): Boolean {
+        return synchronized(queue) { queue.isNotEmpty() }
     }
 
-    internal val size
-        get() = { lock.withLock { queue.size } }
+    public val size: Int
+        get() {
+            return synchronized(queue) { queue.size }
+        }
 
-    internal fun addFirst(value: T) {
-        lock.withLock { queue.addFirst(value) }
+    public fun addLast(value: T) {
+        synchronized(queue) { queue.addLast(value) }
     }
 
-    internal fun removeFirstOrNull(): T? {
-        return lock.withLock { queue.removeFirstOrNull() }
+    public fun setDroppedTraceEvent(droppedTraceEvent: Boolean) {
+        synchronized(queue) { this.droppedTraceEvent = droppedTraceEvent }
+    }
+
+    public val isDroppedTraceEvent: Boolean
+        get() = synchronized(queue) { droppedTraceEvent }
+
+    public fun firstOrNull(): T? {
+        return synchronized(queue) { queue.firstOrNull() }
+    }
+
+    public fun removeFirst() {
+        return synchronized(queue) { queue.removeFirst() }
     }
 }

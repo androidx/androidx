@@ -46,7 +46,7 @@ import kotlinx.coroutines.async
  * clients.
  */
 @OptIn(ExperimentalFeatures.Ext8OptIn::class)
-abstract class AdSelectionManagerFutures internal constructor() {
+public abstract class AdSelectionManagerFutures internal constructor() {
 
     /**
      * Runs the ad selection process on device to select a remarketing ad for the caller
@@ -74,7 +74,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * allowed rate limits and is throttled.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun selectAdsAsync(
+    public abstract fun selectAdsAsync(
         adSelectionConfig: AdSelectionConfig
     ): ListenableFuture<AdSelectionOutcome>
 
@@ -110,7 +110,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun selectAdsAsync(
+    public abstract fun selectAdsAsync(
         adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
     ): ListenableFuture<AdSelectionOutcome>
 
@@ -138,7 +138,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * @param reportImpressionRequest the request for reporting impression.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun reportImpressionAsync(
+    public abstract fun reportImpressionAsync(
         reportImpressionRequest: ReportImpressionRequest
     ): ListenableFuture<Unit>
 
@@ -181,7 +181,9 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun reportEventAsync(reportEventRequest: ReportEventRequest): ListenableFuture<Unit>
+    public abstract fun reportEventAsync(
+        reportEventRequest: ReportEventRequest
+    ): ListenableFuture<Unit>
 
     /**
      * Updates the counter histograms for an ad which was previously selected by a call to
@@ -216,7 +218,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun updateAdCounterHistogramAsync(
+    public abstract fun updateAdCounterHistogramAsync(
         updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
     ): ListenableFuture<Unit>
 
@@ -255,7 +257,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun getAdSelectionDataAsync(
+    public abstract fun getAdSelectionDataAsync(
         getAdSelectionDataRequest: GetAdSelectionDataRequest
     ): ListenableFuture<GetAdSelectionDataOutcome>
 
@@ -291,7 +293,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun persistAdSelectionResultAsync(
+    public abstract fun persistAdSelectionResultAsync(
         persistAdSelectionResultRequest: PersistAdSelectionResultRequest
     ): ListenableFuture<AdSelectionOutcome>
 
@@ -376,7 +378,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates [AdSelectionManagerFutures].
          *
@@ -384,7 +386,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
          *   the value returned is null.
          */
         @JvmStatic
-        fun from(context: Context): AdSelectionManagerFutures? {
+        public fun from(context: Context): AdSelectionManagerFutures? {
             return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }

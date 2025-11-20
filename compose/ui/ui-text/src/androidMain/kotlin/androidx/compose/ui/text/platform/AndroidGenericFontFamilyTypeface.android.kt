@@ -35,7 +35,7 @@ internal class AndroidGenericFontFamilyTypeface(fontFamily: GenericFontFamily) :
     override fun getNativeTypeface(
         fontWeight: FontWeight,
         fontStyle: FontStyle,
-        synthesis: FontSynthesis
+        synthesis: FontSynthesis,
     ): Typeface = buildStyledTypeface(fontWeight, fontStyle)
 
     // Platform never return null with Typeface.create
@@ -48,7 +48,7 @@ internal class AndroidGenericFontFamilyTypeface(fontFamily: GenericFontFamily) :
             TypefaceHelperMethodsApi28.create(
                 nativeTypeface,
                 fontWeight.weight,
-                fontStyle == FontStyle.Italic
+                fontStyle == FontStyle.Italic,
             )
         }
 }

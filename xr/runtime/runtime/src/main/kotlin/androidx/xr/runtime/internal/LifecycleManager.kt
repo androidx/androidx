@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package androidx.xr.runtime.internal
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Config
 import kotlin.time.ComparableTimeMark
 
 /** Describes the lifecycle a runtime implementation. */
@@ -24,17 +25,20 @@ import kotlin.time.ComparableTimeMark
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface LifecycleManager {
     /**
-     * Executes the [Runtime] initialization logic. It is necessary to call [resume] after calling
+     * Executes the runtime initialization logic. It is necessary to call [resume] after calling
      * this method to start the runtime's execution logic.
      */
     public fun create()
+
+    /** The current state of the runtime configuration. */
+    public val config: Config
 
     /**
      * Sets or changes the configuration to use, which will affect the availability of properties or
      * features in other managers. It is necessary to have called [create] before calling this
      * method.
      */
-    public fun configure()
+    public fun configure(config: Config)
 
     /**
      * Resumes execution from a paused or init state. It is necessary to have called [create] before

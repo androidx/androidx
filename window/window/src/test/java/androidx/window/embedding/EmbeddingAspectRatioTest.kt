@@ -48,15 +48,15 @@ class EmbeddingAspectRatioTest {
     fun testBuildAspectRatioFromValue() {
         assertEquals(
             EmbeddingAspectRatio.ALWAYS_ALLOW,
-            EmbeddingAspectRatio.buildAspectRatioFromValue(0f)
+            EmbeddingAspectRatio.buildAspectRatioFromValue(0f),
         )
         assertEquals(
             EmbeddingAspectRatio.ALWAYS_DISALLOW,
-            EmbeddingAspectRatio.buildAspectRatioFromValue(-1f)
+            EmbeddingAspectRatio.buildAspectRatioFromValue(-1f),
         )
         assertEquals(
             EmbeddingAspectRatio.ratio(1.1f),
-            EmbeddingAspectRatio.buildAspectRatioFromValue(1.1f)
+            EmbeddingAspectRatio.buildAspectRatioFromValue(1.1f),
         )
     }
 }

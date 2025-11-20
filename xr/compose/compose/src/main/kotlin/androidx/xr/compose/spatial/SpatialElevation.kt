@@ -16,25 +16,32 @@
 
 package androidx.xr.compose.spatial
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import android.view.View
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastMap
+import androidx.xr.compose.platform.LocalCoreEntity
+import androidx.xr.compose.platform.LocalCoreMainPanelEntity
+import androidx.xr.compose.platform.LocalOpaqueEntity
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
+import androidx.xr.compose.subspace.layout.CorePanelEntity
+import androidx.xr.compose.subspace.rememberComposeView
+import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.scenecore.PanelEntity
 
 /**
  * Composable that creates a panel in 3D space when spatialization is enabled.
@@ -45,65 +52,93 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
  *
  * In non-spatial environments, the content is rendered normally without elevation.
  *
- * @param spatialElevationLevel the desired elevation level for the panel in spatial environments.
+ * SpatialElevation does not support a [content] lambda that has a width or height of zero.
+ *
+ * @param elevation the desired elevation level for the panel in spatial environments.
  * @param content the composable content to be displayed within the elevated panel.
  */
 @Composable
 public fun SpatialElevation(
-    spatialElevationLevel: SpatialElevationLevel = SpatialElevationLevel.Level0,
+    elevation: Dp = SpatialElevationLevel.Level0,
     content: @Composable () -> Unit,
 ) {
+    val movableContent = remember { movableContentOf(content) }
     if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-        LayoutSpatialElevation(spatialElevationLevel, content)
+        LayoutSpatialElevation(elevation, movableContent)
     } else {
-        content()
+        movableContent()
     }
 }
 
 @Composable
-private fun LayoutSpatialElevation(
-    spatialElevationLevel: SpatialElevationLevel,
-    content: @Composable () -> Unit,
-) {
-    val bufferPadding = 1.dp
-    val bufferPaddingPx = with(LocalDensity.current) { bufferPadding.toPx() }
-    var contentSize by remember { mutableStateOf(IntSize.Zero) }
-    var contentOffset: Offset? by remember { mutableStateOf(null) }
+private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Unit) {
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
 
-    // Reserve space for the content in the original view.
-    with(LocalDensity.current) {
-        Spacer(
-            Modifier.size(contentSize.width.toDp(), contentSize.height.toDp())
-                .onGloballyPositioned { contentOffset = it.positionInRoot() }
-        )
+    /**
+     * Determine the reference panel size for the SpatialElevation positioning.
+     * 1. If parent entity is present, [SpatialElevation] is nested within a specific
+     *    [androidx.xr.compose.subspace.SpatialPanel] and uses its size.
+     * 2. Otherwise, [SpatialElevation] is not explicitly parented within a Subspace()'s spatial
+     *    entity. This occurs if [SpatialElevation] is used directly in `setContent {
+     *    SpatialElevation(...) }`.
+     *
+     * Unlike [Orbiter], [SpatialElevation] may only be used in a 2D context (i.e. in a
+     * [androidx.xr.compose.subspace.SpatialPanel] or in `setContent`).
+     */
+    val parentEntity = LocalCoreEntity.current ?: LocalCoreMainPanelEntity.current ?: return
+    val view = rememberComposeView()
+    val panelEntity = remember {
+        CorePanelEntity(
+                PanelEntity.create(
+                    session = session,
+                    view = view,
+                    pixelDimensions = IntSize2d(0, 0),
+                    name = "SpatialElevation:${view.id}",
+                )
+            )
+            .apply { enabled = false }
+    }
+    val parentView = LocalView.current
+    var parentViewSize by remember { mutableStateOf(parentView.size) }
+    val movableContent = remember {
+        movableContentOf {
+            CompositionLocalProvider(LocalOpaqueEntity provides panelEntity, content = content)
+        }
     }
 
-    // It is important to use BoxWithConstraints here because the Layout within the ElevatedPanel
-    // does
-    // not know the constraints of the parent view.
-    BoxWithConstraints {
-        ElevatedPanel(
-            spatialElevationLevel = spatialElevationLevel,
-            contentSize = contentSize,
-            contentOffset = contentOffset,
-        ) {
-            // This padding prevents visual aberrations due to stretched panels. The panel is still
-            // being stretched in those cases (which will affect input tracking), but it will not be
-            // visible to the user.
-            // TODO(b/333074376): Remove this padding when the underlying bug is fixed.
-            Box(
-                Modifier.constrainTo(constraints)
-                    .onSizeChanged {
-                        check(it.width > bufferPaddingPx * 2 && it.height > bufferPaddingPx * 2) {
-                            "Empty composables cannot be placed at a SpatialElevation. You may be trying" +
-                                " to use a Popup or Dialog with a SpatialElevation, which is not supported."
-                        }
-                        contentSize = it
-                    }
-                    .padding(bufferPadding)
-            ) {
-                content()
+    DisposableEffect(panelEntity) { onDispose { panelEntity.dispose() } }
+    DisposableEffect(parentView) {
+        val listener =
+            View.OnLayoutChangeListener { _, _, _, right, bottom, _, _, _, _ ->
+                parentViewSize = IntSize(right, bottom)
             }
+        parentView.addOnLayoutChangeListener(listener)
+        onDispose { parentView.removeOnLayoutChangeListener(listener) }
+    }
+
+    Layout(content = movableContent) { measurables, constraints ->
+        val placeables = measurables.fastMap { it.measure(constraints) }
+        val contentSize =
+            placeables.fastFold(IntSize.Zero) { acc, placeable ->
+                IntSize(
+                    acc.width.coerceAtLeast(placeable.width),
+                    acc.height.coerceAtLeast(placeable.height),
+                )
+            }
+
+        layout(contentSize.width, contentSize.height) {
+            coordinates?.positionInRoot()?.let {
+                panelEntity.poseInMeters =
+                    calculatePose(it, parentViewSize, contentSize, this@Layout, elevation)
+            }
+            panelEntity.parent = parentEntity
+            panelEntity.size =
+                IntVolumeSize(width = contentSize.width, height = contentSize.height, depth = 0)
+
+            // Instead of placing the content here, set it as the panel's content
+            view.setContent(movableContent)
+
+            panelEntity.enabled = true
         }
     }
 }

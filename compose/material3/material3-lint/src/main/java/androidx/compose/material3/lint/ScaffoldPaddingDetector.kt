@@ -62,7 +62,7 @@ class ScaffoldPaddingDetector : Detector(), SourceCodeScanner {
                     UnusedMaterial3ScaffoldPaddingParameter,
                     node,
                     location,
-                    "Content padding parameter $name is not used"
+                    "Content padding parameter $name is not used",
                 )
             }
         }
@@ -82,8 +82,8 @@ class ScaffoldPaddingDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ScaffoldPaddingDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

@@ -389,6 +389,21 @@ package androidx.appcompat.graphics.drawable {
 
 }
 
+package androidx.appcompat.text {
+
+  public final class TextAppearanceSpanCompat extends android.text.style.MetricAffectingSpan {
+    method public static androidx.appcompat.text.TextAppearanceSpanCompat create(android.content.Context context, int appearance, int colorList, java.util.concurrent.Executor executor, Runnable onComplete);
+    method public void updateDrawState(android.text.TextPaint? ds);
+    method public void updateMeasureState(android.text.TextPaint ds);
+    field public static final androidx.appcompat.text.TextAppearanceSpanCompat.Companion Companion;
+  }
+
+  public static final class TextAppearanceSpanCompat.Companion {
+    method public androidx.appcompat.text.TextAppearanceSpanCompat create(android.content.Context context, int appearance, int colorList, java.util.concurrent.Executor executor, Runnable onComplete);
+  }
+
+}
+
 package androidx.appcompat.view {
 
   public abstract class ActionMode {

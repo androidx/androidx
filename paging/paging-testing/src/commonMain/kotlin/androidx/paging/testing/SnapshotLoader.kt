@@ -117,7 +117,7 @@ internal constructor(
 
     private suspend fun appendOrPrependScrollWhile(
         loadType: LoadType,
-        predicate: (item: Value) -> Boolean
+        predicate: (item: Value) -> Boolean,
     ) {
         do {
             // awaits for next item where the item index is determined based on
@@ -302,7 +302,7 @@ internal constructor(
     private suspend fun flingToOutOfBounds(
         loadType: LoadType,
         lastAccessedIndex: Int,
-        scrollCount: Int
+        scrollCount: Int,
     ) {
         // Wait for the page triggered by presenter[lastAccessedIndex] to load in. This gives us the
         // offsetIndex for next presenter.get() because the current lastAccessedIndex is already the
@@ -412,7 +412,7 @@ internal constructor(
     internal fun onDataSetChanged(
         gen: Generation,
         callback: LoaderCallback,
-        scope: CoroutineScope? = null
+        scope: CoroutineScope? = null,
     ) {
         val currGen = generations.value
         // we make sure the generation with the dataset change is still valid because we
@@ -453,14 +453,10 @@ internal data class Generation(
     val callbackState: AtomicRef<LoaderCallback?> = AtomicRef(null),
 
     /** Tracks the last accessed(peeked) index on the presenter for this generation */
-    var lastAccessedIndex: AtomicInt = AtomicInt(0)
+    var lastAccessedIndex: AtomicInt = AtomicInt(0),
 )
 
-internal data class LoaderCallback(
-    val loadType: LoadType,
-    val position: Int,
-    val count: Int,
-)
+internal data class LoaderCallback(val loadType: LoadType, val position: Int, val count: Int)
 
 internal enum class LoadType {
     REFRESH,

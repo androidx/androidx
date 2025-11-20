@@ -63,7 +63,7 @@ public abstract class Adaptation private constructor(internal val transform: Flo
                         -0.0685f,
                         -0.1614f,
                         0.0367f,
-                        1.0296f
+                        1.0296f,
                     )
                 ) {
                 override fun toString() = "Bradford"
@@ -82,7 +82,7 @@ public abstract class Adaptation private constructor(internal val transform: Flo
                         0.00000f,
                         -0.08081f,
                         0.04570f,
-                        0.91822f
+                        0.91822f,
                     )
                 ) {
                 override fun toString() = "VonKries"
@@ -103,7 +103,7 @@ public abstract class Adaptation private constructor(internal val transform: Flo
                         0.0136f,
                         -0.1624f,
                         0.0061f,
-                        0.9834f
+                        0.9834f,
                     )
                 ) {
                 override fun toString() = "Ciecat02"

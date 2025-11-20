@@ -63,7 +63,7 @@ internal val Colors =
         DeepOrange,
         Brown,
         Grey,
-        BlueGrey
+        BlueGrey,
     )
 
 internal fun Color.anotherRandomColor() = Colors.random(this)

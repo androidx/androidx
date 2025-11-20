@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.isUnspecified
 class Placeholder(
     val width: TextUnit,
     val height: TextUnit,
-    val placeholderVerticalAlign: PlaceholderVerticalAlign
+    val placeholderVerticalAlign: PlaceholderVerticalAlign,
 ) {
     init {
         requirePrecondition(!width.isUnspecified) { "width cannot be TextUnit.Unspecified" }
@@ -48,12 +48,12 @@ class Placeholder(
     fun copy(
         width: TextUnit = this.width,
         height: TextUnit = this.height,
-        placeholderVerticalAlign: PlaceholderVerticalAlign = this.placeholderVerticalAlign
+        placeholderVerticalAlign: PlaceholderVerticalAlign = this.placeholderVerticalAlign,
     ): Placeholder {
         return Placeholder(
             width = width,
             height = height,
-            placeholderVerticalAlign = placeholderVerticalAlign
+            placeholderVerticalAlign = placeholderVerticalAlign,
         )
     }
 

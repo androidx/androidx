@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("com.android.experimental.built-in-kotlin")
+    id("AndroidXComposePlugin")
+}
+
+dependencies {
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-graphics"))
+    implementation(project(":glance:wear:wear"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+}
+
+android {
+    namespace = "androidx.glance.wear.samples"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "androidx.glance.wear.samples"
+        minSdk = 29
+    }
+}
+
+androidx {
+    name = "androidx.glance.wear:wear-samples"
+    type = SoftwareType.SAMPLES
+    inceptionYear = "2025"
+    description = "Contains the sample code and demo for Wear Widgets"
+}

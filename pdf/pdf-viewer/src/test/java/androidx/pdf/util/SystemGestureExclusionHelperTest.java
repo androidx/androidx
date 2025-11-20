@@ -27,18 +27,17 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.List;
 
 /** Unit tests for {@link SystemGestureExclusionHelper}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SystemGestureExclusionHelperTest {
 
     private static final int BUFFER_DISTANCE_ZERO = 0;

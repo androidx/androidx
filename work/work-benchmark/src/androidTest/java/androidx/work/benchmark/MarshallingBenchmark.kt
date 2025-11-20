@@ -86,7 +86,7 @@ class MarshallingBenchmark {
         benchmarkRule.measureRepeated {
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelledConstraints),
-                ParcelableConstraints.CREATOR
+                ParcelableConstraints.CREATOR,
             )
         }
     }
@@ -96,7 +96,7 @@ class MarshallingBenchmark {
         benchmarkRule.measureRepeated {
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelledWorkRequest),
-                ParcelableWorkRequest.CREATOR
+                ParcelableWorkRequest.CREATOR,
             )
         }
     }

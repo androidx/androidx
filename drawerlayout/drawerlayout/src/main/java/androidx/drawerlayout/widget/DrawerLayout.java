@@ -53,7 +53,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -192,10 +191,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
     static final int[] LAYOUT_ATTRS = new int[] {
             android.R.attr.layout_gravity
     };
-
-    /** Whether the drawer shadow comes from setting elevation on the drawer. */
-    private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION =
-            Build.VERSION.SDK_INT >= 21;
 
     /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
     private static final String ACCESSIBILITY_CLASS_NAME =
@@ -365,25 +360,21 @@ public class DrawerLayout extends ViewGroup implements Openable {
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
         setMotionEventSplittingEnabled(false);
         if (ViewCompat.getFitsSystemWindows(this)) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ViewCompat.setOnApplyWindowInsetsListener(this,
-                        (view, insets) -> {
-                            final DrawerLayout drawerLayout = (DrawerLayout) view;
-                            drawerLayout.setChildInsets(insets,
-                                    insets.getSystemWindowInsets().top > 0);
-                            return insets.consumeSystemWindowInsets();
-                        });
-                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-                @SuppressLint("ResourceType")
-                final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
-                try {
-                    mStatusBarBackground = a.getDrawable(0);
-                } finally {
-                    a.recycle();
-                }
-            } else {
-                mStatusBarBackground = null;
+            ViewCompat.setOnApplyWindowInsetsListener(this,
+                    (view, insets) -> {
+                        final DrawerLayout drawerLayout = (DrawerLayout) view;
+                        drawerLayout.setChildInsets(insets,
+                                insets.getSystemWindowInsets().top > 0);
+                        return insets.consumeSystemWindowInsets();
+                    });
+            setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            @SuppressLint("ResourceType")
+            final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
+            try {
+                mStatusBarBackground = a.getDrawable(0);
+            } finally {
+                a.recycle();
             }
         }
 
@@ -426,10 +417,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
      * @return The base depth position of the view, in pixels.
      */
     public float getDrawerElevation() {
-        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
-            return mDrawerElevation;
-        }
-        return 0f;
+        return mDrawerElevation;
     }
 
     /**
@@ -458,28 +446,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
      * @param gravity Which drawer the shadow should apply to
      */
     public void setDrawerShadow(@Nullable Drawable shadowDrawable, @EdgeGravity int gravity) {
-        /*
-         * TODO Someone someday might want to set more complex drawables here.
-         * They're probably nuts, but we might want to consider registering callbacks,
-         * setting states, etc. properly.
-         */
-        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
-            // No op. Drawer shadow will come from setting an elevation on the drawer.
-            return;
-        }
-        if ((gravity & GravityCompat.START) == GravityCompat.START) {
-            mShadowStart = shadowDrawable;
-        } else if ((gravity & GravityCompat.END) == GravityCompat.END) {
-            mShadowEnd = shadowDrawable;
-        } else if ((gravity & Gravity.LEFT) == Gravity.LEFT) {
-            mShadowLeft = shadowDrawable;
-        } else if ((gravity & Gravity.RIGHT) == Gravity.RIGHT) {
-            mShadowRight = shadowDrawable;
-        } else {
-            return;
-        }
-        resolveShadowDrawables();
-        invalidate();
+        // No-op
     }
 
     /**
@@ -1115,36 +1082,32 @@ public class DrawerLayout extends ViewGroup implements Openable {
             if (applyInsets) {
                 final int cgrav = GravityCompat.getAbsoluteGravity(lp.gravity, layoutDirection);
                 if (ViewCompat.getFitsSystemWindows(child)) {
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        WindowInsetsCompat wi = mLastInsets;
-                        if (cgrav == Gravity.LEFT) {
-                            wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
-                                    wi.getSystemWindowInsetTop(), 0,
-                                    wi.getSystemWindowInsetBottom());
-                        } else if (cgrav == Gravity.RIGHT) {
-                            wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
-                                    wi.getSystemWindowInsetRight(),
-                                    wi.getSystemWindowInsetBottom());
-                        }
-                        ViewCompat.dispatchApplyWindowInsets(child, wi);
+                    WindowInsetsCompat wi = mLastInsets;
+                    if (cgrav == Gravity.LEFT) {
+                        wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
+                                wi.getSystemWindowInsetTop(), 0,
+                                wi.getSystemWindowInsetBottom());
+                    } else if (cgrav == Gravity.RIGHT) {
+                        wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
+                                wi.getSystemWindowInsetRight(),
+                                wi.getSystemWindowInsetBottom());
                     }
+                    ViewCompat.dispatchApplyWindowInsets(child, wi);
                 } else {
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        WindowInsetsCompat wi = mLastInsets;
-                        if (cgrav == Gravity.LEFT) {
-                            wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
-                                    wi.getSystemWindowInsetTop(), 0,
-                                    wi.getSystemWindowInsetBottom());
-                        } else if (cgrav == Gravity.RIGHT) {
-                            wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
-                                    wi.getSystemWindowInsetRight(),
-                                    wi.getSystemWindowInsetBottom());
-                        }
-                        lp.leftMargin = wi.getSystemWindowInsetLeft();
-                        lp.topMargin = wi.getSystemWindowInsetTop();
-                        lp.rightMargin = wi.getSystemWindowInsetRight();
-                        lp.bottomMargin = wi.getSystemWindowInsetBottom();
+                    WindowInsetsCompat wi = mLastInsets;
+                    if (cgrav == Gravity.LEFT) {
+                        wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
+                                wi.getSystemWindowInsetTop(), 0,
+                                wi.getSystemWindowInsetBottom());
+                    } else if (cgrav == Gravity.RIGHT) {
+                        wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
+                                wi.getSystemWindowInsetRight(),
+                                wi.getSystemWindowInsetBottom());
                     }
+                    lp.leftMargin = wi.getSystemWindowInsetLeft();
+                    lp.topMargin = wi.getSystemWindowInsetTop();
+                    lp.rightMargin = wi.getSystemWindowInsetRight();
+                    lp.bottomMargin = wi.getSystemWindowInsetBottom();
                 }
             }
 
@@ -1156,10 +1119,8 @@ public class DrawerLayout extends ViewGroup implements Openable {
                         heightSize - lp.topMargin - lp.bottomMargin, MeasureSpec.EXACTLY);
                 child.measure(contentWidthSpec, contentHeightSpec);
             } else if (isDrawerView(child)) {
-                if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
-                    if (ViewCompat.getElevation(child) != mDrawerElevation) {
-                        ViewCompat.setElevation(child, mDrawerElevation);
-                    }
+                if (ViewCompat.getElevation(child) != mDrawerElevation) {
+                    ViewCompat.setElevation(child, mDrawerElevation);
                 }
                 final @EdgeGravity int childGravity =
                         getDrawerViewAbsoluteGravity(child) & Gravity.HORIZONTAL_GRAVITY_MASK;
@@ -1189,61 +1150,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
                         + " does not have a valid layout_gravity - must be Gravity.LEFT, "
                         + "Gravity.RIGHT or Gravity.NO_GRAVITY");
             }
-        }
-    }
-
-    private void resolveShadowDrawables() {
-        if (SET_DRAWER_SHADOW_FROM_ELEVATION) {
-            return;
-        }
-        mShadowLeftResolved = resolveLeftShadow();
-        mShadowRightResolved = resolveRightShadow();
-    }
-
-    private Drawable resolveLeftShadow() {
-        int layoutDirection = getLayoutDirection();
-        // Prefer shadows defined with start/end gravity over left and right.
-        if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
-            if (mShadowStart != null) {
-                // Correct drawable layout direction, if needed.
-                mirror(mShadowStart, layoutDirection);
-                return mShadowStart;
-            }
-        } else {
-            if (mShadowEnd != null) {
-                // Correct drawable layout direction, if needed.
-                mirror(mShadowEnd, layoutDirection);
-                return mShadowEnd;
-            }
-        }
-        return mShadowLeft;
-    }
-
-    private Drawable resolveRightShadow() {
-        int layoutDirection = getLayoutDirection();
-        if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
-            if (mShadowEnd != null) {
-                // Correct drawable layout direction, if needed.
-                mirror(mShadowEnd, layoutDirection);
-                return mShadowEnd;
-            }
-        } else {
-            if (mShadowStart != null) {
-                // Correct drawable layout direction, if needed.
-                mirror(mShadowStart, layoutDirection);
-                return mShadowStart;
-            }
-        }
-        return mShadowRight;
-    }
-
-    /**
-     * Change the layout direction of the given drawable.
-     */
-    @SuppressWarnings("PointlessNullCheck") // incorrect
-    private void mirror(@Nullable Drawable drawable, int layoutDirection) {
-        if (drawable != null && DrawableCompat.isAutoMirrored(drawable)) {
-            DrawableCompat.setLayoutDirection(drawable, layoutDirection);
         }
     }
 
@@ -1423,20 +1329,11 @@ public class DrawerLayout extends ViewGroup implements Openable {
     }
 
     @Override
-    public void onRtlPropertiesChanged(int layoutDirection) {
-        resolveShadowDrawables();
-    }
-
-    @Override
     public void onDraw(@NonNull Canvas c) {
         super.onDraw(c);
         if (mDrawStatusBarBackground && mStatusBarBackground != null) {
             final int inset;
-            if (Build.VERSION.SDK_INT >= 21) {
-                inset = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
-            } else {
-                inset = 0;
-            }
+            inset = mLastInsets != null ? mLastInsets.getSystemWindowInsetTop() : 0;
             if (inset > 0) {
                 mStatusBarBackground.setBounds(0, 0, getWidth(), inset);
                 mStatusBarBackground.draw(c);

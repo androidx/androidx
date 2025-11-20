@@ -119,8 +119,8 @@ class CompilationModeTest {
                 CompilationMode.compileResetErrorString(
                     packageName = "pkg",
                     output = "out",
-                    isEmulator = true
-                )
+                    isEmulator = true,
+                ),
         )
         assertEquals(
             expected = "Unable to reset compilation of pkg (out=pkg could not be compiled).",
@@ -128,8 +128,8 @@ class CompilationModeTest {
                 CompilationMode.compileResetErrorString(
                     packageName = "pkg",
                     output = "pkg could not be compiled",
-                    isEmulator = false
-                )
+                    isEmulator = false,
+                ),
         )
         // verbose message requires emulator + specific "could not be compiled" output from --reset
         assertEquals(
@@ -141,8 +141,8 @@ class CompilationModeTest {
                 CompilationMode.compileResetErrorString(
                     packageName = "pkg",
                     output = "pkg could not be compiled",
-                    isEmulator = true
-                )
+                    isEmulator = true,
+                ),
         )
     }
 

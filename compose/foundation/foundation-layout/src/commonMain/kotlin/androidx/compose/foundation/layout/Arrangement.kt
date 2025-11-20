@@ -63,7 +63,7 @@ object Arrangement {
             totalSize: Int,
             sizes: IntArray,
             layoutDirection: LayoutDirection,
-            outPositions: IntArray
+            outPositions: IntArray,
         )
     }
 
@@ -113,7 +113,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeLeftOrTop(sizes, outPositions, reverseInput = false)
@@ -135,7 +135,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
@@ -185,7 +185,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeCenter(totalSize, sizes, outPositions, reverseInput = false)
@@ -213,7 +213,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
@@ -240,7 +240,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
@@ -268,7 +268,7 @@ object Arrangement {
                 totalSize: Int,
                 sizes: IntArray,
                 layoutDirection: LayoutDirection,
-                outPositions: IntArray
+                outPositions: IntArray,
             ) =
                 if (layoutDirection == LayoutDirection.Ltr) {
                     placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
@@ -369,7 +369,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeLeftOrTop(sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#Left"
@@ -391,7 +391,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeCenter(totalSize, sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#Center"
@@ -414,7 +414,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#Right"
@@ -437,7 +437,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#SpaceBetween"
@@ -460,7 +460,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#SpaceEvenly"
@@ -484,7 +484,7 @@ object Arrangement {
                     totalSize: Int,
                     sizes: IntArray,
                     layoutDirection: LayoutDirection,
-                    outPositions: IntArray
+                    outPositions: IntArray,
                 ) = placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
 
                 override fun toString() = "AbsoluteArrangement#SpaceAround"
@@ -564,7 +564,7 @@ object Arrangement {
     internal data class SpacedAligned(
         val space: Dp,
         val rtlMirror: Boolean,
-        val alignment: ((Int, LayoutDirection) -> Int)?
+        val alignment: ((Int, LayoutDirection) -> Int)?,
     ) : HorizontalOrVertical {
 
         override val spacing = space
@@ -573,7 +573,7 @@ object Arrangement {
             totalSize: Int,
             sizes: IntArray,
             layoutDirection: LayoutDirection,
-            outPositions: IntArray
+            outPositions: IntArray,
         ) {
             if (sizes.isEmpty()) return
             val spacePx = space.roundToPx()
@@ -607,7 +607,7 @@ object Arrangement {
         totalSize: Int,
         size: IntArray,
         outPosition: IntArray,
-        reverseInput: Boolean
+        reverseInput: Boolean,
     ) {
         val consumedSize = size.fold(0) { a, b -> a + b }
         var current = totalSize - consumedSize
@@ -629,7 +629,7 @@ object Arrangement {
         totalSize: Int,
         size: IntArray,
         outPosition: IntArray,
-        reverseInput: Boolean
+        reverseInput: Boolean,
     ) {
         val consumedSize = size.fold(0) { a, b -> a + b }
         var current = (totalSize - consumedSize).toFloat() / 2
@@ -643,7 +643,7 @@ object Arrangement {
         totalSize: Int,
         size: IntArray,
         outPosition: IntArray,
-        reverseInput: Boolean
+        reverseInput: Boolean,
     ) {
         val consumedSize = size.fold(0) { a, b -> a + b }
         val gapSize = (totalSize - consumedSize).toFloat() / (size.size + 1)
@@ -658,7 +658,7 @@ object Arrangement {
         totalSize: Int,
         size: IntArray,
         outPosition: IntArray,
-        reverseInput: Boolean
+        reverseInput: Boolean,
     ) {
         if (size.isEmpty()) return
 
@@ -682,7 +682,7 @@ object Arrangement {
         totalSize: Int,
         size: IntArray,
         outPosition: IntArray,
-        reverseInput: Boolean
+        reverseInput: Boolean,
     ) {
         val consumedSize = size.fold(0) { a, b -> a + b }
         val gapSize =

@@ -22,38 +22,26 @@
  * modifying its settings.
  */
 import androidx.build.SoftwareType
-import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
     id("com.google.protobuf")
 }
 
 dependencies {
     api(libs.jspecify)
-    api("androidx.annotation:annotation:1.8.1")
+    api(libs.androidx.annotation)
+    api(project(':wear:protolayout:protolayout-expression'))
     api(project(":wear:tiles:tiles"))
+
     implementation(project(":wear:tiles:tiles-proto"))
 
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.core:core:1.7.0")
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
-
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
+    testImplementation(libs.testExtJunit)
     testImplementation(libs.truth)
 
     annotationProcessor(libs.nullaway)
@@ -72,5 +60,5 @@ androidx {
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
     legacyDisableKotlinStrictApiMode = true
-    addGoldenImageAssets()
+    enableRobolectric()
 }

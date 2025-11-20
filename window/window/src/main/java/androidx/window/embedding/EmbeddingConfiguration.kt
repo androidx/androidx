@@ -23,18 +23,23 @@ import androidx.window.RequiresWindowSdkExtension
  * Configurations of Activity Embedding environment that defines how the embedded Activities behave.
  *
  * @property dimAreaBehavior The requested dim area behavior.
+ * @property isAutoSaveEmbeddingState Is auto-save embedding state enabled.
  * @see Builder
  * @see ActivityEmbeddingController.setEmbeddingConfiguration
  */
-class EmbeddingConfiguration
-private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEFINED) {
+public class EmbeddingConfiguration
+private constructor(
+    public val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEFINED,
+    public val isAutoSaveEmbeddingState: Boolean = false,
+) {
     /**
      * The area of dimming to apply.
      *
      * @see [android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND]
      */
-    class DimAreaBehavior private constructor(@IntRange(from = 0, to = 2) internal val value: Int) {
-        companion object {
+    public class DimAreaBehavior
+    private constructor(@IntRange(from = 0, to = 2) internal val value: Int) {
+        public companion object {
             /**
              * The dim area is not defined.
              *
@@ -45,7 +50,7 @@ private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEF
              *
              * @see ActivityEmbeddingController.setEmbeddingConfiguration
              */
-            @JvmField val UNDEFINED = DimAreaBehavior(0)
+            @JvmField public val UNDEFINED: DimAreaBehavior = DimAreaBehavior(0)
 
             /**
              * The dim effect is applying on the [ActivityStack] of the Activity window when needed.
@@ -53,7 +58,7 @@ private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEF
              * [ActivityStack], the dim effect is applying only on the [ActivityStack] of the
              * requested Activity.
              */
-            @JvmField val ON_ACTIVITY_STACK = DimAreaBehavior(1)
+            @JvmField public val ON_ACTIVITY_STACK: DimAreaBehavior = DimAreaBehavior(1)
 
             /**
              * The dimming effect is applying on the area of the whole Task when needed. If the
@@ -65,7 +70,7 @@ private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEF
              * before the [DimAreaBehavior] is explicitly set by
              * [ActivityEmbeddingController.setEmbeddingConfiguration].
              */
-            @JvmField val ON_TASK = DimAreaBehavior(2)
+            @JvmField public val ON_TASK: DimAreaBehavior = DimAreaBehavior(2)
         }
 
         override fun toString(): String {
@@ -84,18 +89,23 @@ private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEF
         if (other !is EmbeddingConfiguration) return false
 
         if (dimAreaBehavior != other.dimAreaBehavior) return false
+        if (isAutoSaveEmbeddingState != other.isAutoSaveEmbeddingState) return false
         return true
     }
 
     override fun hashCode(): Int {
-        return dimAreaBehavior.hashCode()
+        var result = dimAreaBehavior.hashCode()
+        result = 31 * result + isAutoSaveEmbeddingState.hashCode()
+        return result
     }
 
-    override fun toString(): String = "EmbeddingConfiguration{$dimAreaBehavior}"
+    override fun toString(): String =
+        "EmbeddingConfiguration{dimArea=$dimAreaBehavior, saveState=$isAutoSaveEmbeddingState}"
 
     /** Builder for creating an instance of [EmbeddingConfiguration]. */
-    class Builder {
+    public class Builder {
         private var mDimAreaBehavior = DimAreaBehavior.UNDEFINED
+        private var mSaveEmbeddingState: Boolean = false
 
         /**
          * Sets the dim area behavior. By default, the [DimAreaBehavior.UNDEFINED] is used if not
@@ -109,13 +119,40 @@ private constructor(val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEF
          * @return This [Builder]
          */
         @RequiresWindowSdkExtension(5)
-        fun setDimAreaBehavior(area: DimAreaBehavior): Builder = apply { mDimAreaBehavior = area }
+        public fun setDimAreaBehavior(area: DimAreaBehavior): Builder = apply {
+            mDimAreaBehavior = area
+        }
+
+        /**
+         * Sets whether to auto save the embedding state to the system, which can be used to restore
+         * the app embedding state once the app process is restarted (if applicable).
+         *
+         * The embedding state is not saved by default, in which case the embedding state and the
+         * embedded activities are removed once the app process is killed.
+         *
+         * **Note** that the applications should set the [EmbeddingRule]s using
+         * [RuleController.setRules] when the application is initializing, such as configured in
+         * [androidx.startup.Initializer] or in [android.app.Application.onCreate], in order to
+         * allow the library to restore the state properly. Otherwise, the state may not be restored
+         * and the activities may not be started and layout as expected.
+         *
+         * This can be supported only if the Window Extensions version of the target device is
+         * equals or higher than required API level. Otherwise, it would be no-op on a target device
+         * that has lower API level.
+         *
+         * @param saveState whether to save the embedding state
+         */
+        @RequiresWindowSdkExtension(8)
+        public fun setAutoSaveEmbeddingState(saveState: Boolean): Builder = apply {
+            mSaveEmbeddingState = saveState
+        }
 
         /**
          * Builds a[EmbeddingConfiguration] instance.
          *
          * @return The new [EmbeddingConfiguration] instance.
          */
-        fun build(): EmbeddingConfiguration = EmbeddingConfiguration(mDimAreaBehavior)
+        public fun build(): EmbeddingConfiguration =
+            EmbeddingConfiguration(mDimAreaBehavior, mSaveEmbeddingState)
     }
 }

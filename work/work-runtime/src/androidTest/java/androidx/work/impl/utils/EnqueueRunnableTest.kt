@@ -54,7 +54,7 @@ class EnqueueRunnableTest {
         WorkManager(
             env = env,
             schedulers = listOf(trackingScheduler),
-            Trackers(context, env.taskExecutor)
+            Trackers(context, env.taskExecutor),
         )
 
     @Test

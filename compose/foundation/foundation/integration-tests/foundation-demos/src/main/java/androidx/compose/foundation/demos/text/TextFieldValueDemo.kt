@@ -42,7 +42,7 @@ fun TextFieldValueDemo() {
                 value = textFieldValue1,
                 onValueChange = {},
                 textStyle = TextStyle(fontSize = fontSize8),
-                modifier = demoTextFieldModifiers
+                modifier = demoTextFieldModifiers,
             )
         }
         item {
@@ -52,7 +52,7 @@ fun TextFieldValueDemo() {
                 value = string,
                 onValueChange = { string = it },
                 textStyle = TextStyle(fontSize = fontSize8),
-                modifier = demoTextFieldModifiers
+                modifier = demoTextFieldModifiers,
             )
         }
         item {
@@ -62,7 +62,7 @@ fun TextFieldValueDemo() {
                 value = uppercaseValue,
                 onValueChange = { uppercaseValue = it.uppercase(java.util.Locale.US) },
                 textStyle = TextStyle(fontSize = fontSize8),
-                modifier = demoTextFieldModifiers
+                modifier = demoTextFieldModifiers,
             )
         }
         item {
@@ -72,7 +72,7 @@ fun TextFieldValueDemo() {
                 value = clearedValue,
                 onValueChange = { clearedValue = it },
                 textStyle = TextStyle(fontSize = fontSize8),
-                modifier = demoTextFieldModifiers
+                modifier = demoTextFieldModifiers,
             )
             Button(onClick = { clearedValue = "" }) { Text("Clear") }
         }
@@ -87,7 +87,7 @@ fun TextFieldValueDemo() {
                     handler.postDelayed({ text = it }, 50)
                 },
                 textStyle = TextStyle(fontSize = fontSize8),
-                modifier = demoTextFieldModifiers
+                modifier = demoTextFieldModifiers,
             )
         }
     }

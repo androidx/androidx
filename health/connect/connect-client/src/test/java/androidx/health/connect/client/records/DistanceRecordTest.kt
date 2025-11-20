@@ -17,8 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_AUTOMATICALLY_RECORDED
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -38,7 +36,7 @@ class DistanceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     distance = 10.meters,
                 )
             )
@@ -48,7 +46,7 @@ class DistanceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     distance = 10.meters,
                 )
             )
@@ -62,7 +60,7 @@ class DistanceRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 distance = 10.meters,
             )
         }
@@ -76,14 +74,13 @@ class DistanceRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        metadata =
-                            Metadata(recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED),
-                        distance = 10.meters
+                        metadata = Metadata.unknownRecordingMethod(),
+                        distance = 10.meters,
                     )
                     .toString()
             )
             .isEqualTo(
-                "DistanceRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, distance=10.0 meters, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=2))"
+                "DistanceRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, distance=10.0 meters, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
             )
     }
 }

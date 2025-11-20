@@ -17,15 +17,12 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
-    implementation(libs.kotlinStdlib)
-    implementation("androidx.fragment:fragment:1.3.0") {
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime"
-    }
+    implementation("androidx.fragment:fragment:1.3.0")
     implementation(project(":lifecycle:lifecycle-process"))
     implementation(project(":lifecycle:lifecycle-common"))
     implementation(project(":lifecycle:lifecycle-runtime"))

@@ -76,7 +76,7 @@ constructor(
         isAutoSelectAllowed,
         displayInfo,
         origin,
-        preferImmediatelyAvailableCredentials
+        preferImmediatelyAvailableCredentials,
     ) {
     init {
         require(type.isNotEmpty()) { "type should not be empty" }

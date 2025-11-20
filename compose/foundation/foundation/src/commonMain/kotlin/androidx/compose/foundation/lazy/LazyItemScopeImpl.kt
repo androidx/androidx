@@ -47,7 +47,7 @@ internal class LazyItemScopeImpl : LazyItemScope {
                 widthState = maxWidthState,
                 heightState = maxHeightState,
                 fraction = fraction,
-                inspectorName = "fillParentMaxSize"
+                inspectorName = "fillParentMaxSize",
             )
         )
 
@@ -56,7 +56,7 @@ internal class LazyItemScopeImpl : LazyItemScope {
             ParentSizeElement(
                 widthState = maxWidthState,
                 fraction = fraction,
-                inspectorName = "fillParentMaxWidth"
+                inspectorName = "fillParentMaxWidth",
             )
         )
 
@@ -65,14 +65,14 @@ internal class LazyItemScopeImpl : LazyItemScope {
             ParentSizeElement(
                 heightState = maxHeightState,
                 fraction = fraction,
-                inspectorName = "fillParentMaxHeight"
+                inspectorName = "fillParentMaxHeight",
             )
         )
 
     override fun Modifier.animateItem(
         fadeInSpec: FiniteAnimationSpec<Float>?,
         placementSpec: FiniteAnimationSpec<IntOffset>?,
-        fadeOutSpec: FiniteAnimationSpec<Float>?
+        fadeOutSpec: FiniteAnimationSpec<Float>?,
     ): Modifier =
         if (fadeInSpec == null && placementSpec == null && fadeOutSpec == null) {
             this
@@ -85,13 +85,13 @@ private class ParentSizeElement(
     val fraction: Float,
     val widthState: State<Int>? = null,
     val heightState: State<Int>? = null,
-    val inspectorName: String
+    val inspectorName: String,
 ) : ModifierNodeElement<ParentSizeNode>() {
     override fun create(): ParentSizeNode {
         return ParentSizeNode(
             fraction = fraction,
             widthState = widthState,
-            heightState = heightState
+            heightState = heightState,
         )
     }
 
@@ -130,7 +130,7 @@ private class ParentSizeNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val width =
             widthState?.let {

@@ -41,7 +41,7 @@ class SetActionBarDetectorTest {
                    setActionBar(Toolbar(this))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -72,7 +72,7 @@ class SetActionBarDetectorTest {
                    setActionBar(Toolbar(this))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -114,7 +114,7 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatActivity.setSupportAc
                    setActionBar(Toolbar(this))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

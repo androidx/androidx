@@ -46,7 +46,7 @@ import androidx.core.graphics.component4
 public fun Drawable.toBitmap(
     @Px width: Int = intrinsicWidth,
     @Px height: Int = intrinsicHeight,
-    config: Config? = null
+    config: Config? = null,
 ): Bitmap {
     if (this is BitmapDrawable) {
         if (bitmap == null) {
@@ -93,7 +93,7 @@ public fun Drawable.toBitmap(
 public fun Drawable.toBitmapOrNull(
     @Px width: Int = intrinsicWidth,
     @Px height: Int = intrinsicHeight,
-    config: Config? = null
+    config: Config? = null,
 ): Bitmap? {
     if (this is BitmapDrawable && bitmap == null) {
         return null
@@ -111,7 +111,7 @@ public fun Drawable.updateBounds(
     @Px left: Int = bounds.left,
     @Px top: Int = bounds.top,
     @Px right: Int = bounds.right,
-    @Px bottom: Int = bounds.bottom
+    @Px bottom: Int = bounds.bottom,
 ) {
     setBounds(left, top, right, bottom)
 }

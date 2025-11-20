@@ -63,7 +63,7 @@ public abstract class AuthenticationRequest internal constructor() {
         public inline fun biometricRequest(
             title: String,
             authFallback: Biometric.Fallback,
-            init: Biometric.Builder.() -> Unit
+            init: Biometric.Builder.() -> Unit,
         ): Biometric = Biometric.Builder(title, authFallback).apply(init).build()
 
         /**
@@ -75,7 +75,7 @@ public abstract class AuthenticationRequest internal constructor() {
         @Suppress("MissingJvmstatic")
         public fun credentialRequest(
             title: String,
-            init: Credential.Builder.() -> Unit
+            init: Credential.Builder.() -> Unit,
         ): Credential = Credential.Builder(title).apply(init).build()
     }
 
@@ -194,7 +194,7 @@ public abstract class AuthenticationRequest internal constructor() {
                     isConfirmationRequired = isConfirmationRequired,
                     logoBitmap = logoBitmap,
                     logoRes = logoRes,
-                    logoDescription = logoDescription
+                    logoDescription = logoDescription,
                 )
             }
         }
@@ -217,9 +217,7 @@ public abstract class AuthenticationRequest internal constructor() {
              *
              * @property negativeButtonText The text of the button.
              */
-            public class NegativeButton(
-                public val negativeButtonText: String,
-            ) : Fallback()
+            public class NegativeButton(public val negativeButtonText: String) : Fallback()
         }
 
         /** Types of biometric strength for the prompt. */
@@ -274,7 +272,7 @@ public abstract class AuthenticationRequest internal constructor() {
         public val title: String,
         public val subtitle: String?,
         public val content: BodyContent?,
-        public val cryptoObject: BiometricPrompt.CryptoObject?
+        public val cryptoObject: BiometricPrompt.CryptoObject?,
     ) : AuthenticationRequest() {
 
         /**
@@ -305,7 +303,7 @@ public abstract class AuthenticationRequest internal constructor() {
                     title = title,
                     subtitle = subtitle,
                     content = content,
-                    cryptoObject = cryptoObject
+                    cryptoObject = cryptoObject,
                 )
             }
         }
@@ -330,7 +328,7 @@ public abstract class AuthenticationRequest internal constructor() {
         @JvmOverloads
         public constructor(
             public val description: String? = null,
-            public val items: List<PromptContentItem> = listOf()
+            public val items: List<PromptContentItem> = listOf(),
         ) : BodyContent()
 
         /**

@@ -208,10 +208,5 @@ public interface VideoCapabilities {
                 @NonNull DynamicRange dynamicRange) {
             return false;
         }
-
-        @Override
-        public boolean isStabilizationSupported() {
-            return false;
-        }
     };
 }

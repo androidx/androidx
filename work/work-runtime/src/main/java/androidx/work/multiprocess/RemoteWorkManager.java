@@ -46,6 +46,15 @@ import java.util.UUID;
  * multiple processes.
  */
 public abstract class RemoteWorkManager {
+
+    /** The default time (in milliseconds) before the remote session unbinds **/
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final long DEFAULT_SESSION_TIMEOUT_MILLIS = 10 * 60 * 1000L; // 10 minutes
+
+    /** The maximum time (in milliseconds) before the remote session unbinds **/
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final long MAX_SESSION_TIMEOUT_MILLIS = 20 * 60 * 1000L; // 20 minutes
+
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -95,7 +95,7 @@ private val DOUBLE_AGGREGATION_METRIC_TYPE_SDK_EXT_10_PAIRS =
             CyclingPedalingCadenceRecord.RPM_MIN to PlatformCyclingPedalingCadenceRecord.RPM_MIN,
             StepsCadenceRecord.RATE_AVG to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_AVG,
             StepsCadenceRecord.RATE_MAX to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_MAX,
-            StepsCadenceRecord.RATE_MIN to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_MIN
+            StepsCadenceRecord.RATE_MIN to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_MIN,
         )
     } else {
         emptyArray()
@@ -106,7 +106,7 @@ internal val DOUBLE_AGGREGATION_METRIC_TYPE_MAP:
     mapOf(
         FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL to
             PlatformFloorsClimbedRecord.FLOORS_CLIMBED_TOTAL,
-        *DOUBLE_AGGREGATION_METRIC_TYPE_SDK_EXT_10_PAIRS
+        *DOUBLE_AGGREGATION_METRIC_TYPE_SDK_EXT_10_PAIRS,
     )
 
 internal val DURATION_AGGREGATION_METRIC_TYPE_MAP:
@@ -114,7 +114,7 @@ internal val DURATION_AGGREGATION_METRIC_TYPE_MAP:
     mapOf(
         ExerciseSessionRecord.EXERCISE_DURATION_TOTAL to
             PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL,
-        SleepSessionRecord.SLEEP_DURATION_TOTAL to PlatformSleepSessionRecord.SLEEP_DURATION_TOTAL
+        SleepSessionRecord.SLEEP_DURATION_TOTAL to PlatformSleepSessionRecord.SLEEP_DURATION_TOTAL,
     )
 
 internal val ENERGY_AGGREGATION_METRIC_TYPE_MAP:
@@ -204,7 +204,7 @@ internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
             arrayOf(NutritionRecord.TRANS_FAT_TOTAL to PlatformNutritionRecord.TRANS_FAT_TOTAL)
         } else {
             emptyArray()
-        }
+        },
     )
 
 val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
@@ -232,7 +232,7 @@ internal val PRESSURE_AGGREGATION_METRIC_TYPE_MAP:
                 BloodPressureRecord.DIASTOLIC_MIN to PlatformBloodPressureRecord.DIASTOLIC_MIN,
                 BloodPressureRecord.SYSTOLIC_AVG to PlatformBloodPressureRecord.SYSTOLIC_AVG,
                 BloodPressureRecord.SYSTOLIC_MAX to PlatformBloodPressureRecord.SYSTOLIC_MAX,
-                BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN
+                BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN,
             )
         } else {
             emptyArray()
@@ -249,7 +249,7 @@ internal val TEMPERATURE_DELTA_METRIC_TYPE_MAP:
                 SkinTemperatureRecord.TEMPERATURE_DELTA_MAX to
                     PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_MAX,
                 SkinTemperatureRecord.TEMPERATURE_DELTA_MIN to
-                    PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_MIN
+                    PlatformSkinTemperatureRecord.SKIN_TEMPERATURE_DELTA_MIN,
             )
         } else {
             emptyArray()
@@ -262,7 +262,7 @@ internal val VELOCITY_AGGREGATION_METRIC_TYPE_MAP:
             arrayOf(
                 SpeedRecord.SPEED_AVG to PlatformSpeedRecord.SPEED_AVG,
                 SpeedRecord.SPEED_MAX to PlatformSpeedRecord.SPEED_MAX,
-                SpeedRecord.SPEED_MIN to PlatformSpeedRecord.SPEED_MIN
+                SpeedRecord.SPEED_MIN to PlatformSpeedRecord.SPEED_MIN,
             )
         } else {
             emptyArray()
@@ -271,6 +271,4 @@ internal val VELOCITY_AGGREGATION_METRIC_TYPE_MAP:
 
 internal val VOLUME_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Volume>, PlatformAggregateMetric<PlatformVolume>> =
-    mapOf(
-        HydrationRecord.VOLUME_TOTAL to PlatformHydrationRecord.VOLUME_TOTAL,
-    )
+    mapOf(HydrationRecord.VOLUME_TOTAL to PlatformHydrationRecord.VOLUME_TOTAL)

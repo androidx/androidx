@@ -34,6 +34,7 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.wear.compose.foundation.lazy.MeasurementDirection
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +44,11 @@ internal class LazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
     private val graphicsContext: GraphicsContext? = null,
     private val onLayerPropertyChanged: () -> Unit = {},
-    private val containerHeight: Int
+    private val containerHeight: Int,
+    /** Updated by the item as needed. */
+    var transformedHeight: Int,
+    var measuredHeight: Int,
+    var measurementDirection: MeasurementDirection,
 ) {
     var fadeInSpec: FiniteAnimationSpec<Float>? = null
     var placementSpec: FiniteAnimationSpec<IntOffset>? = null
@@ -80,14 +85,18 @@ internal class LazyLayoutItemAnimation(
      */
     var rawOffset: IntOffset = NotInitialized
 
-    /** Updated by the item as needed. */
-    var transformedHeight: Int = 0
-
     /**
      * The final offset the placeable associated with this animations was placed at. Unlike
      * [rawOffset] it takes into account things like reverse layout and content padding.
      */
     var finalOffset: IntOffset = IntOffset.Zero
+
+    /**
+     * The final logical offset of the item in a standard, top-to-bottom coordinate space. This
+     * value does NOT account for `reverseLayout`. It is used by the animator as a stable, logical
+     * anchor to calculate the starting position for placement animations when items are reordered.
+     */
+    var logicalOffset: IntOffset = IntOffset.Zero
 
     /** Current [GraphicsLayer]. It will be set to null in [release]. */
     var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
@@ -111,13 +120,22 @@ internal class LazyLayoutItemAnimation(
      */
     val animatedScrollProgress: TransformingLazyColumnItemScrollProgress
         get() =
-            if (rawOffset != NotInitialized)
-                TransformingLazyColumnItemScrollProgress.bottomItemScrollProgress(
-                    rawOffset.y + placementDelta.y,
-                    transformedHeight,
-                    containerHeight
-                )
-            else TransformingLazyColumnItemScrollProgress.Unspecified
+            if (rawOffset != NotInitialized) {
+                when (measurementDirection) {
+                    MeasurementDirection.UPWARD ->
+                        TransformingLazyColumnItemScrollProgress.upwardMeasuredItemScrollProgress(
+                            rawOffset.y + placementDelta.y + transformedHeight,
+                            measuredHeight,
+                            containerHeight,
+                        )
+                    MeasurementDirection.DOWNWARD ->
+                        TransformingLazyColumnItemScrollProgress.downwardMeasuredItemScrollProgress(
+                            rawOffset.y + placementDelta.y,
+                            measuredHeight,
+                            containerHeight,
+                        )
+                }
+            } else TransformingLazyColumnItemScrollProgress.Unspecified
 
     /** Cancels the ongoing placement animation if there is one. */
     fun cancelPlacementAnimation() {
@@ -263,7 +281,7 @@ internal class LazyLayoutItemAnimation(
 internal data class LazyLayoutAnimateItemElement(
     private val fadeInSpec: FiniteAnimationSpec<Float>?,
     private val placementSpec: FiniteAnimationSpec<IntOffset>?,
-    private val fadeOutSpec: FiniteAnimationSpec<Float>?
+    private val fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
     override fun create(): LazyLayoutAnimationSpecsNode =
@@ -286,7 +304,7 @@ internal data class LazyLayoutAnimateItemElement(
 internal class LazyLayoutAnimationSpecsNode(
     var fadeInSpec: FiniteAnimationSpec<Float>?,
     var placementSpec: FiniteAnimationSpec<IntOffset>?,
-    var fadeOutSpec: FiniteAnimationSpec<Float>?
+    var fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : Modifier.Node(), ParentDataModifierNode {
 
     override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
@@ -296,5 +314,5 @@ internal class LazyLayoutAnimationSpecsNode(
 private val InterruptionSpec =
     spring(
         stiffness = Spring.StiffnessMediumLow,
-        visibilityThreshold = IntOffset.VisibilityThreshold
+        visibilityThreshold = IntOffset.VisibilityThreshold,
     )

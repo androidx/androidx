@@ -36,7 +36,7 @@ internal class MeasuredPage(
     private val horizontalAlignment: Alignment.Horizontal?,
     private val verticalAlignment: Alignment.Vertical?,
     private val layoutDirection: LayoutDirection,
-    private val reverseLayout: Boolean
+    private val reverseLayout: Boolean,
 ) : PageInfo {
 
     private val isVertical = orientation == Orientation.Vertical

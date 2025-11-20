@@ -65,7 +65,11 @@ class FragmentTest {
         override fun onStart() {
             super.onStart()
 
-            setFragmentResult("requestKey", bundleOf("bundleKey" to resultString))
+            setFragmentResult(
+                "requestKey",
+                @Suppress("DEPRECATION") // bundleOf is deprecated
+                bundleOf("bundleKey" to resultString),
+            )
         }
     }
 }

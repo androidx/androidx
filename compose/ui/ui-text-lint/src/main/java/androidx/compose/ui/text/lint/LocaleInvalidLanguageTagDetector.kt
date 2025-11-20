@@ -38,7 +38,7 @@ class LocaleInvalidLanguageTagDetector : Detector(), SourceCodeScanner {
     override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
-        constructor: PsiMethod
+        constructor: PsiMethod,
     ) {
         val languageTag =
             node.valueArguments
@@ -63,7 +63,7 @@ class LocaleInvalidLanguageTagDetector : Detector(), SourceCodeScanner {
                     .text(localeValue)
                     .with(fixedLocaleValue)
                     .autoFix()
-                    .build()
+                    .build(),
             )
         }
     }
@@ -82,8 +82,8 @@ class LocaleInvalidLanguageTagDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         LocaleInvalidLanguageTagDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
     }
 }

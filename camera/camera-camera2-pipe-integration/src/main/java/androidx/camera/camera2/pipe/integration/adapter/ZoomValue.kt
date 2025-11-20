@@ -44,10 +44,10 @@ public data class ZoomValue(
         getZoomRatioFromLinearZoom(
             linearZoom = linearZoom.value,
             minZoomRatio = minZoomRatio,
-            maxZoomRatio = maxZoomRatio
+            maxZoomRatio = maxZoomRatio,
         ),
         minZoomRatio,
-        maxZoomRatio
+        maxZoomRatio,
     ) {
         this.linearZoom = linearZoom.value
     }
@@ -63,6 +63,6 @@ public data class ZoomValue(
             ?: getLinearZoomFromZoomRatio(
                 zoomRatio = zoomRatio,
                 minZoomRatio = minZoomRatio,
-                maxZoomRatio = maxZoomRatio
+                maxZoomRatio = maxZoomRatio,
             )
 }

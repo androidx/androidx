@@ -39,12 +39,12 @@ class PagerSnapHelperIntegrationTest(
     val mConfig: Config,
     private val mReverseScroll: Boolean,
     private val mChildSize: ChildSize,
-    private val mApplyPadding: Boolean
+    private val mApplyPadding: Boolean,
 ) : BaseLinearLayoutManagerTest() {
     enum class ChildSize(val mSizeParam: Int) {
         SMALLER((0.6 * RECYCLERVIEW_SIZE).toInt()),
         SAME(ViewGroup.LayoutParams.MATCH_PARENT),
-        LARGER((1.4 * RECYCLERVIEW_SIZE).toInt())
+        LARGER((1.4 * RECYCLERVIEW_SIZE).toInt()),
     }
 
     private fun setUpTest() {
@@ -101,7 +101,7 @@ class PagerSnapHelperIntegrationTest(
         val expectedPosition = mConfig.mItemCount / 2 + offset
         Assert.assertEquals(
             expectedPosition.toLong(),
-            mLayoutManager.getPosition(viewAfterFling!!).toLong()
+            mLayoutManager.getPosition(viewAfterFling!!).toLong(),
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -168,7 +168,7 @@ class PagerSnapHelperIntegrationTest(
                     mChildSize.mSizeParam
                 } else {
                     ViewGroup.LayoutParams.MATCH_PARENT
-                }
+                },
             )
 
     private fun runSnapOnMaxFlingNextView(velocity: Int) {
@@ -198,7 +198,7 @@ class PagerSnapHelperIntegrationTest(
         val expectedPosition = mConfig.mItemCount / 2 + offset
         Assert.assertEquals(
             expectedPosition.toLong(),
-            mLayoutManager.getPosition(viewAfterFling!!).toLong()
+            mLayoutManager.getPosition(viewAfterFling!!).toLong(),
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -230,7 +230,7 @@ class PagerSnapHelperIntegrationTest(
                     ViewMatchers.isDescendantOfA(
                         ViewMatchers.isAssignableFrom(RecyclerView::class.java)
                     ),
-                    ViewMatchers.withText(mTestAdapter.getItemAt(expectedPosition).displayText)
+                    ViewMatchers.withText(mTestAdapter.getItemAt(expectedPosition).displayText),
                 )
             )
             .perform(SwipeToLocation.flingToCenter())
@@ -244,7 +244,7 @@ class PagerSnapHelperIntegrationTest(
         Assert.assertNotSame("The view should have scrolled", view, viewAfterFling)
         Assert.assertEquals(
             expectedPosition.toLong(),
-            mLayoutManager.getPosition(viewAfterFling!!).toLong()
+            mLayoutManager.getPosition(viewAfterFling!!).toLong(),
         )
         assertCenterAligned(viewAfterFling)
     }
@@ -370,7 +370,7 @@ class PagerSnapHelperIntegrationTest(
     @Throws(InterruptedException::class)
     private fun waitForDistanceToTarget(
         targetPosition: Int,
-        @Suppress("SameParameterValue") distancePercent: Float
+        @Suppress("SameParameterValue") distancePercent: Float,
     ) {
         val latch = CountDownLatch(1)
         mRecyclerView.addOnScrollListener(
@@ -392,7 +392,7 @@ class PagerSnapHelperIntegrationTest(
         )
         Assert.assertTrue(
             "should be close enough to the target view within 10 seconds",
-            latch.await(10, TimeUnit.SECONDS)
+            latch.await(10, TimeUnit.SECONDS),
         )
     }
 

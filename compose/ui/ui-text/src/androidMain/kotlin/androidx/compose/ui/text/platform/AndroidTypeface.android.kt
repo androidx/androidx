@@ -35,6 +35,6 @@ internal interface AndroidTypeface : Typeface {
     fun getNativeTypeface(
         fontWeight: FontWeight,
         fontStyle: FontStyle,
-        synthesis: FontSynthesis
+        synthesis: FontSynthesis,
     ): NativeTypeface
 }

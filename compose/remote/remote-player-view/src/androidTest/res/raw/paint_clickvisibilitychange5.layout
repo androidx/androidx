@@ -1,0 +1,37 @@
+setTheme(-1)
+matrixSave()
+clipRect(0.0, 0.0, 400.0, 400.0)
+matrixSave()
+translate (0.0, 0.0)
+savePaint
+replacePaint
+drawRect(0.0, 0.0, 400.0, 400.0)
+restorePaint
+translate (8.0, 8.0)
+translate (-8.0, -8.0)
+translate (8.0, 8.0)
+matrixSave()
+translate (142.0, 0.0)
+savePaint
+replacePaint
+drawRect(0.0, 0.0, 100.0, 100.0)
+restorePaint
+translate (-0.0, -0.0)
+translate (0.0, 0.0)
+translate (-0.0, -0.0)
+translate (0.0, 0.0)
+translate (-0.0, -0.0)
+matrixRestore()
+matrixSave()
+translate (167.0, 100.0)
+savePaint
+replacePaint
+drawRect(0.0, 0.0, 50.0, 50.0)
+restorePaint
+translate (-0.0, -0.0)
+translate (0.0, 0.0)
+translate (-0.0, -0.0)
+matrixRestore()
+translate (-8.0, -8.0)
+matrixRestore()
+matrixRestore()

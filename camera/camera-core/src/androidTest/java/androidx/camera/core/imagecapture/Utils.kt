@@ -56,7 +56,7 @@ object Utils {
         sensorToBufferTransform: Matrix,
         rotationDegrees: Int,
         jpegQuality: Int,
-        isSimultaneousCapture: Boolean = false
+        isSimultaneousCapture: Boolean = false,
     ): TakePictureRequest {
         var onDiskCallback: ImageCapture.OnImageSavedCallback? = null
         var onMemoryCallback: ImageCapture.OnImageCapturedCallback? = null
@@ -78,7 +78,7 @@ object Utils {
             jpegQuality,
             ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
             isSimultaneousCapture,
-            listOf()
+            listOf(),
         )
     }
 }

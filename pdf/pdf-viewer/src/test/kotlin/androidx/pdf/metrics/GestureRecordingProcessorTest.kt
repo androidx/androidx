@@ -20,7 +20,6 @@ import androidx.pdf.data.Range
 import androidx.pdf.metrics.GestureRecordingProcessor.Companion.getNewlyVisiblePages
 import androidx.pdf.metrics.GestureRecordingProcessor.Companion.loadingNewAssetsOnScroll
 import androidx.pdf.widget.ZoomView.ZoomScroll
-import androidx.test.filters.SmallTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
@@ -31,7 +30,7 @@ import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 
 /** Unit tests for [GestureRecordingProcessor]. */
-@SmallTest // TODO: Remove minsdk check after sdk extension 13 release
+// TODO: Remove minsdk check after sdk extension 13 release
 @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class GestureRecordingProcessorTest {
     private val mockCallback: EventCallback = mock()
@@ -54,7 +53,7 @@ class GestureRecordingProcessorTest {
                 prevVisiblePages,
                 initialPosition,
                 initialPosition.zoom,
-                true
+                true,
             )
         val zoomPositionState = PositionState(EventState.NO_EVENT, visiblePages)
         val gestureRecordingProcessor =
@@ -161,7 +160,7 @@ class GestureRecordingProcessorTest {
             prevVisiblePages: Range,
             initialPosition: ZoomScroll,
             stableZoom: Float,
-            isInitialDocumentLoad: Boolean
+            isInitialDocumentLoad: Boolean,
         ): PositionState {
             val newlyVisiblePages =
                 if (isInitialDocumentLoad) {
@@ -171,7 +170,7 @@ class GestureRecordingProcessorTest {
                 loadingNewAssetsOnScroll(newlyVisiblePages, initialPosition, stableZoom)
             return PositionState(
                 if (loadingNewAssetsOnScroll) EventState.NEW_ASSETS_LOADED else EventState.NO_EVENT,
-                newlyVisiblePages
+                newlyVisiblePages,
             )
         }
     }

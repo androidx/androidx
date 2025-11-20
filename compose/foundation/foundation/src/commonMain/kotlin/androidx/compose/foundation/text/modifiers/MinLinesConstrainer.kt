@@ -39,7 +39,7 @@ internal class MinLinesConstrainer
     val layoutDirection: LayoutDirection,
     val inputTextStyle: TextStyle,
     val density: Density,
-    val fontFamilyResolver: FontFamily.Resolver
+    val fontFamilyResolver: FontFamily.Resolver,
 ) {
     private val resolvedStyle = resolveDefaults(inputTextStyle, layoutDirection)
     private var lineHeightCache: Float = Float.NaN
@@ -56,7 +56,7 @@ internal class MinLinesConstrainer
             layoutDirection: LayoutDirection,
             paramStyle: TextStyle,
             density: Density,
-            fontFamilyResolver: FontFamily.Resolver
+            fontFamilyResolver: FontFamily.Resolver,
         ): MinLinesConstrainer {
             minMaxUtil?.let {
                 if (
@@ -84,7 +84,7 @@ internal class MinLinesConstrainer
                     // other density implementations may hold references to views/activities
                     // which the cache outlives, potentially causing memory leak.
                     Density(density.density, density.fontScale),
-                    fontFamilyResolver
+                    fontFamilyResolver,
                 )
                 .also { last = it }
         }
@@ -107,7 +107,7 @@ internal class MinLinesConstrainer
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
                         maxLines = 1,
-                        overflow = TextOverflow.Clip
+                        overflow = TextOverflow.Clip,
                     )
                     .height
 
@@ -119,7 +119,7 @@ internal class MinLinesConstrainer
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
                         maxLines = 2,
-                        overflow = TextOverflow.Clip
+                        overflow = TextOverflow.Clip,
                     )
                     .height
 

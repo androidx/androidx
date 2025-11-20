@@ -54,7 +54,7 @@ public class SupportSQLiteQueryBuilder private constructor(private val table: St
      */
     public fun selection(
         selection: String?,
-        bindArgs: Array<out Any?>?
+        bindArgs: Array<out Any?>?,
     ): SupportSQLiteQueryBuilder = apply {
         this.selection = selection
         this.bindArgs = bindArgs

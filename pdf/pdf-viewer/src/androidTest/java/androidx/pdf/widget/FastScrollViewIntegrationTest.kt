@@ -87,7 +87,7 @@ class FastScrollViewIntegrationTest {
         configureViews()
         activityScenario.scenario.onActivity {
             // Indicator is hidden
-            assertThat(pageIndicator.visibility).isEqualTo(View.GONE)
+            assertThat(pageIndicator.visibility).isEqualTo(View.INVISIBLE)
 
             // Overscroll the bottom
             zoomView.scrollTo(0, 2000, true)
@@ -144,11 +144,8 @@ class FastScrollViewIntegrationTest {
         }
     }
 
-    private fun motionEvent(
-        action: Int,
-        x: Float,
-        y: Float,
-    ) = MotionEvent.obtain(0L, 0L, action, x, y, 0)
+    private fun motionEvent(action: Int, x: Float, y: Float) =
+        MotionEvent.obtain(0L, 0L, action, x, y, 0)
 
     private fun downEvent(x: Float, y: Float) = motionEvent(MotionEvent.ACTION_DOWN, x, y)
 

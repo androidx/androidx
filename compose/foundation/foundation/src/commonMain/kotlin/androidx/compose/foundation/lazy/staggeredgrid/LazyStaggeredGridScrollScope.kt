@@ -33,7 +33,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  */
 fun LazyLayoutScrollScope(
     state: LazyStaggeredGridState,
-    scrollScope: ScrollScope
+    scrollScope: ScrollScope,
 ): LazyLayoutScrollScope {
 
     return object : LazyLayoutScrollScope, ScrollScope by scrollScope {

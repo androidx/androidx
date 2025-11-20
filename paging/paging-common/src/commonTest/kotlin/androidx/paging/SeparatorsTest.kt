@@ -58,7 +58,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -71,15 +71,15 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("a2", "B", "b1"),
                                     hintOriginalPageOffset = 0,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
-                                TransformablePage(originalPageOffset = 1, data = listOf("c1", "c2"))
+                                TransformablePage(originalPageOffset = 1, data = listOf("c1", "c2")),
                             ),
                         placeholdersAfter = 1,
                     )
@@ -90,10 +90,7 @@ class SeparatorsTest {
     @Test
     fun refreshStartFull() = runTest {
         val refresh =
-            localRefresh(
-                pages = listOf(listOf("c1")).toTransformablePages(),
-                placeholdersAfter = 1,
-            )
+            localRefresh(pages = listOf(listOf("c1")).toTransformablePages(), placeholdersAfter = 1)
 
         assertThat(
                 flowOf(
@@ -103,11 +100,11 @@ class SeparatorsTest {
                                 listOf(listOf("a1", "b1"), listOf("b2", "b3"))
                                     .toTransformablePages(2),
                             placeholdersBefore = 1,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -121,21 +118,21 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(-2),
                                     data = listOf("a1", "B", "b1"),
                                     hintOriginalPageOffset = -2,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(
                                     originalPageOffset = -1,
-                                    data = listOf("b2", "b3")
+                                    data = listOf("b2", "b3"),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-1, 0),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = -1,
-                                    hintOriginalIndices = listOf(1)
-                                )
+                                    hintOriginalIndices = listOf(1),
+                                ),
                             ),
                         placeholdersBefore = 1,
-                    )
+                    ),
                 )
             )
     }
@@ -156,11 +153,11 @@ class SeparatorsTest {
                                 listOf(listOf("c1", "d1"), listOf("d2", "d3"))
                                     .toTransformablePages(-1),
                             placeholdersAfter = 1,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -174,18 +171,18 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("c1", "D", "d1"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
-                                TransformablePage(originalPageOffset = 2, data = listOf("d2", "d3"))
+                                TransformablePage(originalPageOffset = 2, data = listOf("d2", "d3")),
                             ),
                         placeholdersAfter = 1,
-                    )
+                    ),
                 )
             )
     }
@@ -199,11 +196,11 @@ class SeparatorsTest {
                             placeholdersBefore = 0,
                             placeholdersAfter = 1,
                         ),
-                        Drop(APPEND, 1, 1, 4)
+                        Drop(APPEND, 1, 1, 4),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -213,12 +210,12 @@ class SeparatorsTest {
                         pages =
                             listOf(
                                 TransformablePage(originalPageOffset = 0, data = listOf("a1")),
-                                TransformablePage(originalPageOffset = 1, data = listOf("a2"))
+                                TransformablePage(originalPageOffset = 1, data = listOf("a2")),
                             ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 1,
                     ),
-                    Drop<String>(APPEND, 1, 1, 4)
+                    Drop<String>(APPEND, 1, 1, 4),
                 )
             )
     }
@@ -226,7 +223,7 @@ class SeparatorsTest {
     private fun refresh(
         pages: List<String?>,
         prepend: LoadState = NotLoading.Incomplete,
-        append: LoadState = NotLoading.Incomplete
+        append: LoadState = NotLoading.Incomplete,
     ) =
         localRefresh(
             pages =
@@ -239,19 +236,19 @@ class SeparatorsTest {
                 },
             placeholdersBefore = 0,
             placeholdersAfter = 1,
-            source = loadStates(prepend = prepend, append = append)
+            source = loadStates(prepend = prepend, append = append),
         )
 
     private fun prepend(pages: List<String?>, prepend: LoadState = NotLoading.Incomplete) =
         localPrepend(
             pages = pages.map { if (it != null) listOf(it) else listOf() }.toTransformablePages(),
-            source = loadStates(prepend = prepend)
+            source = loadStates(prepend = prepend),
         )
 
     private fun append(pages: List<String?>, append: LoadState = NotLoading.Incomplete) =
         localAppend(
             pages = pages.map { if (it != null) listOf(it) else listOf() }.toTransformablePages(),
-            source = loadStates(append = append)
+            source = loadStates(append = append),
         )
 
     private fun drop(loadType: LoadType, minPageOffset: Int, maxPageOffset: Int) =
@@ -259,7 +256,7 @@ class SeparatorsTest {
             loadType = loadType,
             minPageOffset = minPageOffset,
             maxPageOffset = maxPageOffset,
-            placeholdersRemaining = 0
+            placeholdersRemaining = 0,
         )
 
     @Test
@@ -269,9 +266,9 @@ class SeparatorsTest {
             flowOf(refresh(pages = listOf("a1")))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -282,9 +279,9 @@ class SeparatorsTest {
             flowOf(refresh(pages = listOf("a1"), prepend = NotLoading.Complete))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -295,9 +292,9 @@ class SeparatorsTest {
             flowOf(refresh(pages = listOf("a1"), append = NotLoading.Complete))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -309,14 +306,14 @@ class SeparatorsTest {
                     refresh(
                         pages = listOf("a1"),
                         prepend = NotLoading.Complete,
-                        append = NotLoading.Complete
+                        append = NotLoading.Complete,
                     )
                 )
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -331,9 +328,9 @@ class SeparatorsTest {
             flowOf(refresh(pages = listOf()))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -348,19 +345,19 @@ class SeparatorsTest {
                 // empty should be noop, since it's not append = NotLoading(true)
                 append(pages = listOf()),
                 // append = NotLoading(true), so resolve final separator
-                append(pages = listOf("END"))
+                append(pages = listOf("END")),
             ),
             flowOf(
                     refresh(pages = listOf(), prepend = NotLoading.Complete),
                     append(pages = listOf("a1")),
                     append(pages = listOf()),
-                    append(pages = listOf(), append = NotLoading.Complete)
+                    append(pages = listOf(), append = NotLoading.Complete),
                 )
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -375,19 +372,19 @@ class SeparatorsTest {
                 // empty should be noop, since it's not prepend = NotLoading(true)
                 prepend(pages = listOf()),
                 // prepend = NotLoading(true), so resolve final separator
-                prepend(pages = listOf("A"))
+                prepend(pages = listOf("A")),
             ),
             flowOf(
                     refresh(pages = listOf(), append = NotLoading.Complete),
                     prepend(pages = listOf("a1")),
                     prepend(pages = listOf()),
-                    prepend(pages = listOf(), prepend = NotLoading.Complete)
+                    prepend(pages = listOf(), prepend = NotLoading.Complete),
                 )
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -400,19 +397,19 @@ class SeparatorsTest {
                 // don't insert a separator, since a drop occurred
                 append(pages = listOf("a1")),
                 // but now add the separator, since start is done again
-                prepend(pages = listOf("A"))
+                prepend(pages = listOf("A")),
             ),
             flowOf(
                     refresh(pages = listOf(), prepend = NotLoading.Complete),
                     drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0),
                     append(pages = listOf("a1")),
-                    prepend(pages = listOf(), prepend = NotLoading.Complete)
+                    prepend(pages = listOf(), prepend = NotLoading.Complete),
                 )
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -425,19 +422,19 @@ class SeparatorsTest {
                 // don't insert a separator, since a drop occurred
                 prepend(pages = listOf("a1")),
                 // but now add the separator, since end is done again
-                append(pages = listOf("END"))
+                append(pages = listOf("END")),
             ),
             flowOf(
                     refresh(pages = listOf(), append = NotLoading.Complete),
                     drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0),
                     prepend(pages = listOf("a1")),
-                    append(pages = listOf(), append = NotLoading.Complete)
+                    append(pages = listOf(), append = NotLoading.Complete),
                 )
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -447,14 +444,14 @@ class SeparatorsTest {
             listOf(
                 refresh(pages = listOf()),
                 // not enough data to create separators yet
-                prepend(pages = listOf("a1"))
+                prepend(pages = listOf("a1")),
             ),
             flowOf(refresh(pages = listOf()), prepend(pages = listOf("a1")))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -464,14 +461,14 @@ class SeparatorsTest {
             listOf(
                 refresh(pages = listOf()),
                 // not enough data to create separators yet
-                append(pages = listOf("a1"))
+                append(pages = listOf("a1")),
             ),
             flowOf(refresh(pages = listOf()), append(pages = listOf("a1")))
                 .insertEventSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
-                .toList()
+                .toList(),
         )
     }
 
@@ -481,11 +478,11 @@ class SeparatorsTest {
         assertThat(
                 flowOf(
                         refresh(pages = listOf("a1", "b1"), prepend = NotLoading.Complete),
-                        drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0)
+                        drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -498,22 +495,22 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("A"),
                                     hintOriginalPageOffset = 0,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(originalPageOffset = 0, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("B"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
-                                TransformablePage(originalPageOffset = 1, data = listOf("b1"))
+                                TransformablePage(originalPageOffset = 1, data = listOf("b1")),
                             ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 1,
-                        source = loadStates(prepend = NotLoading.Complete)
+                        source = loadStates(prepend = NotLoading.Complete),
                     ),
-                    drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0)
+                    drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0),
                 )
             )
     }
@@ -524,11 +521,11 @@ class SeparatorsTest {
         assertThat(
                 flowOf(
                         refresh(pages = listOf("a1", "b1"), append = NotLoading.Complete),
-                        drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0)
+                        drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -542,20 +539,20 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("B"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(originalPageOffset = 1, data = listOf("b1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("END"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0)
-                                )
+                                    hintOriginalIndices = listOf(0),
+                                ),
                             ),
                         placeholdersAfter = 1,
                         source = loadStates(append = NotLoading.Complete),
                     ),
-                    drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0)
+                    drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0),
                 )
             )
     }
@@ -590,7 +587,7 @@ class SeparatorsTest {
                         SeparatorType("B")
                     } else null)
                 }
-                .toList()
+                .toList(),
         )
     }
 
@@ -608,7 +605,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -623,10 +620,10 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(2),
                                     data = listOf("a2", "B", "b1"),
                                     hintOriginalPageOffset = 2,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(originalPageOffset = 3, data = listOf()),
-                                TransformablePage(originalPageOffset = 4, data = listOf())
+                                TransformablePage(originalPageOffset = 4, data = listOf()),
                             ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 1,
@@ -646,7 +643,7 @@ class SeparatorsTest {
                                         listOf("a2", "b1"),
                                         listOf(),
                                         listOf("c1", "c2"),
-                                        listOf()
+                                        listOf(),
                                     )
                                     .toTransformablePages(),
                             placeholdersBefore = 0,
@@ -655,7 +652,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -669,20 +666,20 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("a2", "B", "b1"),
                                     hintOriginalPageOffset = 1,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(originalPageOffset = 2, data = listOf()),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1, 3),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = 3,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(
                                     originalPageOffset = 3,
-                                    data = listOf("c1", "c2")
+                                    data = listOf("c1", "c2"),
                                 ),
-                                TransformablePage(originalPageOffset = 4, data = listOf())
+                                TransformablePage(originalPageOffset = 4, data = listOf()),
                             ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 1,
@@ -707,11 +704,11 @@ class SeparatorsTest {
                                 listOf(listOf(), listOf(), listOf("a1", "b1"), listOf(), listOf())
                                     .toTransformablePages(5),
                             placeholdersBefore = 0,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -727,19 +724,19 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(-3),
                                     data = listOf("a1", "B", "b1"),
                                     hintOriginalPageOffset = -3,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-3, 0),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = -3,
-                                    hintOriginalIndices = listOf(1)
+                                    hintOriginalIndices = listOf(1),
                                 ),
                                 TransformablePage(originalPageOffset = -2, data = listOf()),
-                                TransformablePage(originalPageOffset = -1, data = listOf())
+                                TransformablePage(originalPageOffset = -1, data = listOf()),
                             ),
                         placeholdersBefore = 0,
-                    )
+                    ),
                 )
             )
     }
@@ -763,15 +760,15 @@ class SeparatorsTest {
                                         listOf("a1", "b1"),
                                         listOf(),
                                         listOf("c1", "c2"),
-                                        listOf()
+                                        listOf(),
                                     )
                                     .toTransformablePages(5),
                             placeholdersBefore = 0,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -786,29 +783,29 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(-4),
                                     data = listOf("a1", "B", "b1"),
                                     hintOriginalPageOffset = -4,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(originalPageOffset = -3, data = listOf()),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-4, -2),
                                     data = listOf("C"),
                                     hintOriginalPageOffset = -4,
-                                    hintOriginalIndices = listOf(1)
+                                    hintOriginalIndices = listOf(1),
                                 ),
                                 TransformablePage(
                                     originalPageOffset = -2,
-                                    data = listOf("c1", "c2")
+                                    data = listOf("c1", "c2"),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-2, 0),
                                     data = listOf("D"),
                                     hintOriginalPageOffset = -2,
-                                    hintOriginalIndices = listOf(1)
+                                    hintOriginalIndices = listOf(1),
                                 ),
-                                TransformablePage(originalPageOffset = -1, data = listOf())
+                                TransformablePage(originalPageOffset = -1, data = listOf()),
                             ),
                         placeholdersBefore = 0,
-                    )
+                    ),
                 )
             )
     }
@@ -828,12 +825,12 @@ class SeparatorsTest {
                         localAppend(
                             pages =
                                 listOf(listOf(), listOf(), listOf("b1", "c1"), listOf(), listOf())
-                                    .toTransformablePages(-1),
-                        )
+                                    .toTransformablePages(-1)
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -849,18 +846,18 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 3),
                                     data = listOf("B"),
                                     hintOriginalPageOffset = 3,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(3),
                                     data = listOf("b1", "C", "c1"),
                                     hintOriginalPageOffset = 3,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(originalPageOffset = 4, data = listOf()),
-                                TransformablePage(originalPageOffset = 5, data = listOf())
-                            ),
-                    )
+                                TransformablePage(originalPageOffset = 5, data = listOf()),
+                            )
+                    ),
                 )
             )
     }
@@ -884,14 +881,14 @@ class SeparatorsTest {
                                         listOf("b1", "c1"),
                                         listOf(),
                                         listOf("d1", "d2"),
-                                        listOf()
+                                        listOf(),
                                     )
-                                    .toTransformablePages(-1),
-                        )
+                                    .toTransformablePages(-1)
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -906,28 +903,28 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 2),
                                     data = listOf("B"),
                                     hintOriginalPageOffset = 2,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(2),
                                     data = listOf("b1", "C", "c1"),
                                     hintOriginalPageOffset = 2,
-                                    hintOriginalIndices = listOf(0, 1, 1)
+                                    hintOriginalIndices = listOf(0, 1, 1),
                                 ),
                                 TransformablePage(originalPageOffset = 3, data = listOf()),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(2, 4),
                                     data = listOf("D"),
                                     hintOriginalPageOffset = 4,
-                                    hintOriginalIndices = listOf(0)
+                                    hintOriginalIndices = listOf(0),
                                 ),
                                 TransformablePage(
                                     originalPageOffset = 4,
-                                    data = listOf("d1", "d2")
+                                    data = listOf("d1", "d2"),
                                 ),
-                                TransformablePage(originalPageOffset = 5, data = listOf())
-                            ),
-                    )
+                                TransformablePage(originalPageOffset = 5, data = listOf()),
+                            )
+                    ),
                 )
             )
     }
@@ -945,8 +942,8 @@ class SeparatorsTest {
                             source =
                                 loadStates(
                                     append = NotLoading.Complete,
-                                    prepend = NotLoading.Complete
-                                )
+                                    prepend = NotLoading.Complete,
+                                ),
                         ),
                         remoteLoadStateUpdate(
                             appendLocal = NotLoading.Complete,
@@ -969,7 +966,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -982,12 +979,12 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete)
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                     ),
                     remoteLoadStateUpdate(
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete
+                        refreshRemote = NotLoading.Complete,
                     ),
                     remotePrepend(
                         pages =
@@ -997,19 +994,13 @@ class SeparatorsTest {
                                     data = listOf("A"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
-                                ),
+                                )
                             ),
                         placeholdersBefore = 1,
                         source =
-                            loadStates(
-                                append = NotLoading.Complete,
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                         mediator =
-                            loadStates(
-                                refresh = NotLoading.Complete,
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(refresh = NotLoading.Complete, prepend = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages =
@@ -1019,14 +1010,11 @@ class SeparatorsTest {
                                     data = listOf("END"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
-                                ),
+                                )
                             ),
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                append = NotLoading.Complete,
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                         mediator =
                             loadStates(
                                 refresh = NotLoading.Complete,
@@ -1057,7 +1045,7 @@ class SeparatorsTest {
                         remoteLoadStateUpdate(
                             appendLocal = NotLoading.Complete,
                             prependLocal = NotLoading.Complete,
-                            refreshRemote = NotLoading.Complete
+                            refreshRemote = NotLoading.Complete,
                         ),
                         remoteLoadStateUpdate(
                             appendLocal = NotLoading.Complete,
@@ -1075,7 +1063,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = SOURCE_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1092,10 +1080,7 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = 0, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("END"),
@@ -1106,38 +1091,26 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remoteLoadStateUpdate(
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
-                        refreshRemote = NotLoading.Complete
+                        refreshRemote = NotLoading.Complete,
                     ),
                     remotePrepend(
                         pages = listOf(),
                         placeholdersBefore = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                         mediator =
-                            loadStates(
-                                refresh = NotLoading.Complete,
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(refresh = NotLoading.Complete, prepend = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages = listOf(),
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                         mediator =
                             loadStates(
                                 refresh = NotLoading.Complete,
@@ -1168,11 +1141,11 @@ class SeparatorsTest {
                             appendLocal = NotLoading.Complete,
                             prependLocal = NotLoading.Complete,
                             prependRemote = NotLoading.Complete,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1183,10 +1156,7 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remotePrepend(
                         pages =
@@ -1196,18 +1166,12 @@ class SeparatorsTest {
                                     data = listOf("A"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
-                                ),
+                                )
                             ),
                         placeholdersBefore = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                 )
             )
@@ -1232,11 +1196,11 @@ class SeparatorsTest {
                             appendLocal = NotLoading.Complete,
                             prependLocal = NotLoading.Complete,
                             prependRemote = NotLoading.Complete,
-                        )
+                        ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = SOURCE_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1251,10 +1215,7 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = 0, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("END"),
@@ -1265,23 +1226,14 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remotePrepend(
                         pages = listOf(),
                         placeholdersBefore = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                 )
             )
@@ -1304,10 +1256,7 @@ class SeparatorsTest {
                         remotePrepend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = -1,
-                                        data = listOf("a1"),
-                                    )
+                                    TransformablePage(originalPageOffset = -1, data = listOf("a1"))
                                 ),
                             placeholdersBefore = 0,
                             source =
@@ -1327,15 +1276,12 @@ class SeparatorsTest {
                             loadType = PREPEND,
                             minPageOffset = -1,
                             maxPageOffset = -1,
-                            placeholdersRemaining = 1
+                            placeholdersRemaining = 1,
                         ),
                         remotePrepend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = -1,
-                                        data = listOf("a1"),
-                                    )
+                                    TransformablePage(originalPageOffset = -1, data = listOf("a1"))
                                 ),
                             placeholdersBefore = 0,
                             source =
@@ -1343,15 +1289,12 @@ class SeparatorsTest {
                                     prepend = NotLoading.Complete,
                                     append = NotLoading.Complete,
                                 ),
-                            mediator =
-                                loadStates(
-                                    prepend = NotLoading.Complete,
-                                ),
+                            mediator = loadStates(prepend = NotLoading.Complete),
                         ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1362,31 +1305,22 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remotePrepend(
                         pages =
                             listOf(
-                                TransformablePage(
-                                    originalPageOffset = -1,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = -1, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-1, 0),
                                     data = listOf("B"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = -1
+                                    hintOriginalPageOffset = -1,
                                 ),
                             ),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remotePrepend(
                         pages =
@@ -1396,24 +1330,18 @@ class SeparatorsTest {
                                     data = listOf("A"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = -1,
-                                ),
+                                )
                             ),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                     Drop(
                         loadType = PREPEND,
                         minPageOffset = -1,
                         maxPageOffset = -1,
-                        placeholdersRemaining = 1
+                        placeholdersRemaining = 1,
                     ),
                     remotePrepend(
                         pages =
@@ -1424,27 +1352,18 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = -1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = -1,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = -1, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-1, 0),
                                     data = listOf("B"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = -1
+                                    hintOriginalPageOffset = -1,
                                 ),
                             ),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                 )
             )
@@ -1463,10 +1382,7 @@ class SeparatorsTest {
                         remotePrepend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = -1,
-                                        data = listOf("a1"),
-                                    )
+                                    TransformablePage(originalPageOffset = -1, data = listOf("a1"))
                                 ),
                             placeholdersBefore = 0,
                             source =
@@ -1486,15 +1402,12 @@ class SeparatorsTest {
                             loadType = PREPEND,
                             minPageOffset = -1,
                             maxPageOffset = -1,
-                            placeholdersRemaining = 1
+                            placeholdersRemaining = 1,
                         ),
                         remotePrepend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = -1,
-                                        data = listOf("a1"),
-                                    )
+                                    TransformablePage(originalPageOffset = -1, data = listOf("a1"))
                                 ),
                             placeholdersBefore = 0,
                             source =
@@ -1502,15 +1415,12 @@ class SeparatorsTest {
                                     prepend = NotLoading.Complete,
                                     append = NotLoading.Complete,
                                 ),
-                            mediator =
-                                loadStates(
-                                    prepend = NotLoading.Complete,
-                                ),
+                            mediator = loadStates(prepend = NotLoading.Complete),
                         ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = SOURCE_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1519,10 +1429,7 @@ class SeparatorsTest {
                     remoteRefresh(
                         pages =
                             listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf("b1"),
-                                ),
+                                TransformablePage(originalPageOffset = 0, data = listOf("b1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("END"),
@@ -1543,42 +1450,30 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = -1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = -1,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = -1, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-1, 0),
                                     data = listOf("B"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = -1
+                                    hintOriginalPageOffset = -1,
                                 ),
                             ),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remotePrepend(
                         pages = listOf(),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                     Drop(
                         loadType = PREPEND,
                         minPageOffset = -1,
                         maxPageOffset = -1,
-                        placeholdersRemaining = 1
+                        placeholdersRemaining = 1,
                     ),
                     remotePrepend(
                         pages =
@@ -1589,27 +1484,18 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = -1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = -1,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = -1, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(-1, 0),
                                     data = listOf("B"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = -1
+                                    hintOriginalPageOffset = -1,
                                 ),
                             ),
                         placeholdersBefore = 0,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(prepend = NotLoading.Complete),
                     ),
                 )
             )
@@ -1638,7 +1524,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1649,10 +1535,7 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages =
@@ -1662,18 +1545,12 @@ class SeparatorsTest {
                                     data = listOf("END"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
-                                ),
+                                )
                             ),
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                 )
             )
@@ -1702,7 +1579,7 @@ class SeparatorsTest {
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = SOURCE_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1717,10 +1594,7 @@ class SeparatorsTest {
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 0,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf("a1"),
-                                ),
+                                TransformablePage(originalPageOffset = 0, data = listOf("a1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("END"),
@@ -1731,23 +1605,14 @@ class SeparatorsTest {
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages = listOf(),
                         placeholdersAfter = 1,
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                 )
             )
@@ -1761,18 +1626,12 @@ class SeparatorsTest {
                             pages = listOf(listOf("b1")).toTransformablePages(),
                             placeholdersBefore = 1,
                             placeholdersAfter = 1,
-                            source =
-                                loadStates(
-                                    prepend = NotLoading.Complete,
-                                ),
+                            source = loadStates(prepend = NotLoading.Complete),
                         ),
                         remoteAppend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = 1,
-                                        data = listOf("c1"),
-                                    )
+                                    TransformablePage(originalPageOffset = 1, data = listOf("c1"))
                                 ),
                             source =
                                 loadStates(
@@ -1791,30 +1650,24 @@ class SeparatorsTest {
                             loadType = APPEND,
                             minPageOffset = 1,
                             maxPageOffset = 1,
-                            placeholdersRemaining = 1
+                            placeholdersRemaining = 1,
                         ),
                         remoteAppend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = 1,
-                                        data = listOf("c1"),
-                                    )
+                                    TransformablePage(originalPageOffset = 1, data = listOf("c1"))
                                 ),
                             source =
                                 loadStates(
                                     prepend = NotLoading.Complete,
                                     append = NotLoading.Complete,
                                 ),
-                            mediator =
-                                loadStates(
-                                    append = NotLoading.Complete,
-                                ),
+                            mediator = loadStates(append = NotLoading.Complete),
                         ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = FULLY_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1824,7 +1677,7 @@ class SeparatorsTest {
                         pages = listOf(listOf("b1")).toTransformablePages(),
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
-                        source = loadStates(prepend = NotLoading.Complete)
+                        source = loadStates(prepend = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages =
@@ -1833,18 +1686,12 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 1,
-                                    data = listOf("c1"),
-                                ),
+                                TransformablePage(originalPageOffset = 1, data = listOf("c1")),
                             ),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages =
@@ -1854,23 +1701,17 @@ class SeparatorsTest {
                                     data = listOf("END"),
                                     hintOriginalIndices = listOf(0),
                                     hintOriginalPageOffset = 1,
-                                ),
+                                )
                             ),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                     Drop(
                         loadType = APPEND,
                         minPageOffset = 1,
                         maxPageOffset = 1,
-                        placeholdersRemaining = 1
+                        placeholdersRemaining = 1,
                     ),
                     remoteAppend(
                         pages =
@@ -1879,28 +1720,19 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 1,
-                                    data = listOf("c1"),
-                                ),
+                                TransformablePage(originalPageOffset = 1, data = listOf("c1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("END"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
                             ),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                 )
             )
@@ -1919,10 +1751,7 @@ class SeparatorsTest {
                         remoteAppend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = 1,
-                                        data = listOf("c1"),
-                                    )
+                                    TransformablePage(originalPageOffset = 1, data = listOf("c1"))
                                 ),
                             source =
                                 loadStates(
@@ -1941,30 +1770,24 @@ class SeparatorsTest {
                             loadType = APPEND,
                             minPageOffset = 1,
                             maxPageOffset = 1,
-                            placeholdersRemaining = 1
+                            placeholdersRemaining = 1,
                         ),
                         remoteAppend(
                             pages =
                                 listOf(
-                                    TransformablePage(
-                                        originalPageOffset = 1,
-                                        data = listOf("c1"),
-                                    )
+                                    TransformablePage(originalPageOffset = 1, data = listOf("c1"))
                                 ),
                             source =
                                 loadStates(
                                     prepend = NotLoading.Complete,
                                     append = NotLoading.Complete,
                                 ),
-                            mediator =
-                                loadStates(
-                                    append = NotLoading.Complete,
-                                ),
+                            mediator = loadStates(append = NotLoading.Complete),
                         ),
                     )
                     .insertEventSeparators(
                         terminalSeparatorType = SOURCE_COMPLETE,
-                        generator = LETTER_SEPARATOR_GENERATOR
+                        generator = LETTER_SEPARATOR_GENERATOR,
                     )
                     .toList()
             )
@@ -1977,12 +1800,9 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("B"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 0
+                                    hintOriginalPageOffset = 0,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf("b1"),
-                                ),
+                                TransformablePage(originalPageOffset = 0, data = listOf("b1")),
                             ),
                         placeholdersBefore = 1,
                         placeholdersAfter = 1,
@@ -1995,12 +1815,9 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 1,
-                                    data = listOf("c1"),
-                                ),
+                                TransformablePage(originalPageOffset = 1, data = listOf("c1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("END"),
@@ -2009,28 +1826,19 @@ class SeparatorsTest {
                                 ),
                             ),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                     ),
                     remoteAppend(
                         pages = listOf(),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                     Drop(
                         loadType = APPEND,
                         minPageOffset = 1,
                         maxPageOffset = 1,
-                        placeholdersRemaining = 1
+                        placeholdersRemaining = 1,
                     ),
                     remoteAppend(
                         pages =
@@ -2039,28 +1847,19 @@ class SeparatorsTest {
                                     originalPageOffsets = intArrayOf(0, 1),
                                     data = listOf("C"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
-                                TransformablePage(
-                                    originalPageOffset = 1,
-                                    data = listOf("c1"),
-                                ),
+                                TransformablePage(originalPageOffset = 1, data = listOf("c1")),
                                 TransformablePage(
                                     originalPageOffsets = intArrayOf(1),
                                     data = listOf("END"),
                                     hintOriginalIndices = listOf(0),
-                                    hintOriginalPageOffset = 1
+                                    hintOriginalPageOffset = 1,
                                 ),
                             ),
                         source =
-                            loadStates(
-                                prepend = NotLoading.Complete,
-                                append = NotLoading.Complete,
-                            ),
-                        mediator =
-                            loadStates(
-                                append = NotLoading.Complete,
-                            ),
+                            loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                        mediator = loadStates(append = NotLoading.Complete),
                     ),
                 )
             )

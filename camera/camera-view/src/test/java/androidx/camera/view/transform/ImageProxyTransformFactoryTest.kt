@@ -17,7 +17,6 @@
 package androidx.camera.view.transform
 
 import android.graphics.Rect
-import android.os.Build
 import androidx.camera.view.transform.TransformTestUtils.createFakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [ImageProxyTransformFactory] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 public class ImageProxyTransformFactoryTest {
 
     @Test

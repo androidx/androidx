@@ -25,7 +25,6 @@ import androidx.camera.testing.impl.ExifUtil
 import androidx.camera.testing.impl.TestImageUtil
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class Image2BitmapTest {
     private val operation = Image2Bitmap()
 
@@ -68,7 +66,7 @@ class Image2BitmapTest {
                 Rect(0, 0, Utils.WIDTH, Utils.HEIGHT),
                 rotationDegrees,
                 Matrix(),
-                Utils.CAMERA_CAPTURE_RESULT
+                Utils.CAMERA_CAPTURE_RESULT,
             )
         val inputDecodedBitmap = ImageUtil.createBitmapFromImageProxy(yuvImage)
 
@@ -117,7 +115,7 @@ class Image2BitmapTest {
                 Rect(0, 0, Utils.WIDTH, Utils.HEIGHT),
                 rotationDegrees,
                 Matrix(),
-                Utils.CAMERA_CAPTURE_RESULT
+                Utils.CAMERA_CAPTURE_RESULT,
             )
         val inputDecodedBitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
 

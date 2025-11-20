@@ -44,7 +44,7 @@ internal class RegistryManagerProviderFactory(private val context: Context) {
         val packageInfo =
             context.packageManager.getPackageInfo(
                 context.packageName,
-                PackageManager.GET_META_DATA or PackageManager.GET_SERVICES
+                PackageManager.GET_META_DATA or PackageManager.GET_SERVICES,
             )
 
         val classNames = mutableListOf<String>()

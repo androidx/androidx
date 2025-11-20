@@ -18,7 +18,6 @@ package androidx.credentials.playservices.controllers.identityauth.beginsignin
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.playservices.TestCredentialsActivity
@@ -26,6 +25,7 @@ import androidx.credentials.playservices.controllers.identityauth.beginsignin.Cr
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @Suppress("deprecation")
-@RequiresApi(api = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class CredentialProviderBeginSignInControllerTest {
     @Test
     fun convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {

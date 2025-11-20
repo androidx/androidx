@@ -112,8 +112,23 @@ sealed class CompilationMode {
                         reinstallPackage(packageName)
                     }
                 }
+
                 // Write skip file to stop profile installer from interfering with the benchmark
                 writeProfileInstallerSkipFile(scope)
+
+                if (
+                    DeviceInfo.poisonTheRuntimeImage && !poisonedRuntimeImages.contains(packageName)
+                ) {
+                    // Sleep to allow runtime image to be flushed from profile install broadcast
+                    // above, which will produce a near-useless runtime image, and allow us to
+                    // measure worst case `CompilationMode.None`/`verify` perf
+                    DeviceInfo.sleepToAwaitRuntimeImageFlush()
+
+                    // save package name as once it's poisoned, we don't need to re-poison
+                    // unless it's reinstalled
+                    poisonedRuntimeImages.add(packageName)
+                }
+
                 compileImpl(scope, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
@@ -141,6 +156,8 @@ sealed class CompilationMode {
                 Shell.rm(copiedApkPaths)
             }
         }
+        // after reinstall, the runtime image will not be considered poisoned
+        poisonedRuntimeImages.remove(packageName)
     }
 
     /**
@@ -211,7 +228,7 @@ sealed class CompilationMode {
                     $packageName should use the latest version of `androidx.profileinstaller`
                     for stable benchmarks. ($result)"
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         }
         Log.d(TAG, "Killing process $packageName")
@@ -219,10 +236,7 @@ sealed class CompilationMode {
     }
 
     @RequiresApi(24)
-    internal abstract fun compileImpl(
-        scope: MacrobenchmarkScope,
-        warmupBlock: () -> Unit,
-    )
+    internal abstract fun compileImpl(scope: MacrobenchmarkScope, warmupBlock: () -> Unit)
 
     @RequiresApi(24) internal abstract fun shouldReset(): Boolean
 
@@ -303,7 +317,7 @@ sealed class CompilationMode {
          * If greater than 0, your macrobenchmark will run an extra [warmupIterations] times before
          * compilation, to prepare
          */
-        @IntRange(from = 0) val warmupIterations: Int = 0
+        @IntRange(from = 0) val warmupIterations: Int = 0,
     ) : CompilationMode() {
         init {
             require(warmupIterations >= 0) {
@@ -349,7 +363,7 @@ sealed class CompilationMode {
             if (warmupIterations > 0) {
                 scope.withKillMode(
                     current = scope.killMode,
-                    override = scope.killMode.copy(flushArtProfiles = true)
+                    override = scope.killMode.copy(flushArtProfiles = true),
                 ) {
                     check(!scope.hasFlushedArtProfiles)
                     repeat(warmupIterations) { warmupBlock() }
@@ -429,7 +443,7 @@ sealed class CompilationMode {
             if (Build.VERSION.SDK_INT >= 24) {
                 Partial(
                     baselineProfileMode = BaselineProfileMode.UseIfAvailable,
-                    warmupIterations = 0
+                    warmupIterations = 0,
                 )
             } else {
                 // API 23 is always fully compiled
@@ -465,7 +479,7 @@ sealed class CompilationMode {
         fun compileResetErrorString(
             packageName: String,
             output: String,
-            isEmulator: Boolean
+            isEmulator: Boolean,
         ): String {
             return "Unable to reset compilation of $packageName (out=$output)." +
                 if (output.contains("could not be compiled") && isEmulator) {
@@ -475,6 +489,19 @@ sealed class CompilationMode {
                     ""
                 }
         }
+
+        /**
+         * List of all target packages that have had their runtime image "poisoned" - intentionally
+         * populated with a small set of classes from a broadcast, rather than a full startup.
+         *
+         * This strategy to workaround our inability to reset runtime images on some platforms
+         * avoids us needing to reinstall the target application between iterations when
+         * [CompilationMode.None] is used with [StartupMode.COLD] (or other means of killing the
+         * target app each iter)
+         *
+         * Only needed if [DeviceInfo.poisonTheRuntimeImage] = `true`
+         */
+        private val poisonedRuntimeImages = mutableSetOf<String>()
     }
 }
 

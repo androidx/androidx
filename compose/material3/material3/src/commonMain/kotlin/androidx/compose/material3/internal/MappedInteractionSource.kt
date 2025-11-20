@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.map
  */
 internal class MappedInteractionSource(
     underlyingInteractionSource: InteractionSource,
-    private val delta: Offset
+    private val delta: Offset,
 ) : InteractionSource {
     private val mappedPresses = mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
 

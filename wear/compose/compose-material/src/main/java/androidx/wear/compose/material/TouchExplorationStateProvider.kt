@@ -74,7 +74,7 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
                 // Unregister the listener in case the PAUSE lifecycle event never came through
                 // Unregistering multiple times is safe
                 listener.unregister()
-            }
+            },
         )
 
         return listener
@@ -83,7 +83,7 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
     @Composable
     private fun Lifecycle.ObserveState(
         handleEvent: (Lifecycle.Event) -> Unit = {},
-        onDispose: () -> Unit = {}
+        onDispose: () -> Unit = {},
     ) {
         DisposableEffect(this) {
             val observer = LifecycleEventObserver { _, event -> handleEvent(event) }
@@ -95,10 +95,8 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         }
     }
 
-    private class Listener
-    constructor(
-        private val accessibilityManager: AccessibilityManager,
-    ) : AccessibilityStateChangeListener, TouchExplorationStateChangeListener, State<Boolean> {
+    private class Listener constructor(private val accessibilityManager: AccessibilityManager) :
+        AccessibilityStateChangeListener, TouchExplorationStateChangeListener, State<Boolean> {
 
         private var accessibilityEnabled by mutableStateOf(accessibilityManager.isEnabled)
         private var touchExplorationEnabled by

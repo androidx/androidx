@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 
 package androidx.paging.internal
-
-internal actual typealias ReentrantLock = java.util.concurrent.locks.ReentrantLock
 
 internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
 
 internal actual typealias AtomicBoolean = java.util.concurrent.atomic.AtomicBoolean
 
-internal actual typealias CopyOnWriteArrayList<T> = java.util.concurrent.CopyOnWriteArrayList<T>
+internal actual class CopyOnWriteArrayList<T> : Iterable<T> {
+    private val delegate = java.util.concurrent.CopyOnWriteArrayList<T>()
+
+    actual fun add(value: T): Boolean = delegate.add(value)
+
+    actual fun remove(value: T): Boolean = delegate.remove(value)
+
+    actual override fun iterator(): Iterator<T> = delegate.iterator()
+}

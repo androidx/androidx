@@ -68,7 +68,7 @@ class OrientationLiveData(context: Context, characteristics: CameraCharacteristi
         @JvmStatic
         private fun computeRelativeRotation(
             characteristics: CameraCharacteristics,
-            surfaceRotation: Int
+            surfaceRotation: Int,
         ): Int {
             val sensorOrientationDegrees =
                 characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!

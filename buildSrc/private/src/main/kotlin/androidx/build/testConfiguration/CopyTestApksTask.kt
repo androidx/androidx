@@ -35,8 +35,8 @@ import org.gradle.work.DisableCachingByDefault
 /**
  * Copy test APK (androidTest or standalone test) needed for building androidTest.zip
  *
- * If test requires instrumented app apks, they will be copied separately in either
- * [CopyApkFromArtifactsTask] or [CopyApksFromOutputProviderTask] depending on project type.
+ * If test requires instrumented app apks, they will be copied separately in
+ * [CopyApkFromArtifactsTask].
  */
 @DisableCachingByDefault(because = "Only filesystem operations")
 abstract class CopyTestApksTask : DefaultTask() {

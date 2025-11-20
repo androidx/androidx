@@ -21,6 +21,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.work.Clock
 import androidx.work.RunnableScheduler
+import androidx.work.WorkInfo
 import androidx.work.Worker
 import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopToken
@@ -41,19 +42,19 @@ import java.util.UUID
  * killed.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TestScheduler(
+public class TestScheduler(
     private val workDatabase: WorkDatabase,
     private val launcher: WorkLauncher,
     private val clock: Clock,
     runnableScheduler: RunnableScheduler,
-    private val executorsMode: ExecutorsMode
+    private val executorsMode: ExecutorsMode,
 ) : Scheduler, TestDriver {
     @GuardedBy("lock") private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
     private val lock = Any()
     private val startStopTokens = StartStopTokens.create()
     private val delayedWorkTracker = DelayedWorkTracker(this, runnableScheduler, clock)
 
-    override fun hasLimitedSchedulingSlots() = true
+    override fun hasLimitedSchedulingSlots(): Boolean = true
 
     override fun schedule(vararg workSpecs: WorkSpec) {
         if (workSpecs.isEmpty()) {
@@ -83,7 +84,8 @@ class TestScheduler(
     // 2. a worker finished (no matter successfully or not), see comment in
     // Schedulers.registerRescheduling
     override fun cancel(workSpecId: String) {
-        val tokens = startStopTokens.remove(workSpecId)
+        val tokens: List<StartStopToken>
+        synchronized(lock) { tokens = startStopTokens.remove(workSpecId) }
         tokens.forEach { launcher.stopWork(it) }
     }
 
@@ -155,6 +157,30 @@ class TestScheduler(
         maybeScheduleInternal(spec, state)
     }
 
+    /**
+     * Tells [TestScheduler] to pretend that a running worker should be stopped with the provided
+     * `StopReason`.
+     *
+     * @param workSpecId The [Worker]'s id
+     * @param reason The `StopReason` that will be available to the worker
+     * @throws IllegalStateException if `workSpecId` is not running
+     * @throws IllegalArgumentException if `StopReason` is [WorkInfo.STOP_REASON_NOT_STOPPED]
+     */
+    override fun stopRunningWorkWithReason(workSpecId: UUID, reason: Int) {
+        require(reason != WorkInfo.STOP_REASON_NOT_STOPPED) {
+            "Work cannot be stopped with reason STOP_REASON_NOT_STOPPED"
+        }
+
+        val tokens: List<StartStopToken>
+        synchronized(lock) { tokens = startStopTokens.remove(workSpecId.toString()) }
+        if (tokens.isEmpty())
+            throw IllegalStateException(
+                "Work with id $workSpecId is not running and cannot be stopped."
+            )
+
+        tokens.forEach { launcher.stopWork(it, reason) }
+    }
+
     private fun maybeScheduleInternal(spec: WorkSpec, state: InternalWorkState) {
         val generationalId = spec.generationalId()
 
@@ -177,7 +203,7 @@ class TestScheduler(
 
     private fun generateStartStopToken(
         spec: WorkSpec,
-        generationalId: WorkGenerationalId
+        generationalId: WorkGenerationalId,
     ): StartStopToken {
         val token =
             synchronized(lock) {

@@ -78,7 +78,7 @@ class FragmentManagerTest {
                 object : FragmentOnAttachListener {
                     override fun onAttachFragment(
                         fragmentManager: FragmentManager,
-                        fragment: Fragment
+                        fragment: Fragment,
                     ) {
                         attachedFragments.add(fragment)
                         fragmentManager.removeFragmentOnAttachListener(this)
@@ -283,7 +283,7 @@ class FragmentManagerTest {
                     androidx.fragment.R.animator.fragment_fade_enter,
                     androidx.fragment.R.animator.fragment_fade_exit,
                     androidx.fragment.R.animator.fragment_fade_enter,
-                    androidx.fragment.R.animator.fragment_fade_exit
+                    androidx.fragment.R.animator.fragment_fade_exit,
                 )
                 .replace(R.id.content, fragment2, "fragment2")
                 .setReorderingAllowed(true)
@@ -299,7 +299,7 @@ class FragmentManagerTest {
                     androidx.fragment.R.animator.fragment_fade_enter,
                     androidx.fragment.R.animator.fragment_fade_exit,
                     androidx.fragment.R.animator.fragment_fade_enter,
-                    androidx.fragment.R.animator.fragment_fade_exit
+                    androidx.fragment.R.animator.fragment_fade_exit,
                 )
                 .replace(R.id.content, fragment3, "fragment3")
                 .setReorderingAllowed(true)
@@ -329,7 +329,7 @@ class FragmentManagerTest {
                     androidx.fragment.R.animator.fragment_fade_enter,
                     androidx.fragment.R.animator.fragment_fade_exit,
                     androidx.fragment.R.animator.fragment_fade_enter,
-                    androidx.fragment.R.animator.fragment_fade_exit
+                    androidx.fragment.R.animator.fragment_fade_exit,
                 )
                 .replace(R.id.content, fragment2, "fragment2")
                 .setReorderingAllowed(true)
@@ -345,7 +345,7 @@ class FragmentManagerTest {
                     androidx.fragment.R.animator.fragment_fade_enter,
                     androidx.fragment.R.animator.fragment_fade_exit,
                     androidx.fragment.R.animator.fragment_fade_enter,
-                    androidx.fragment.R.animator.fragment_fade_exit
+                    androidx.fragment.R.animator.fragment_fade_exit,
                 )
                 .replace(R.id.content, fragment3, "fragment3")
                 .setReorderingAllowed(true)
@@ -363,7 +363,7 @@ class FragmentManagerTest {
                     androidx.fragment.R.animator.fragment_fade_enter,
                     androidx.fragment.R.animator.fragment_fade_exit,
                     androidx.fragment.R.animator.fragment_fade_enter,
-                    androidx.fragment.R.animator.fragment_fade_exit
+                    androidx.fragment.R.animator.fragment_fade_exit,
                 )
                 .replace(R.id.content, restoreFragment2, "fragment2")
                 .setReorderingAllowed(true)

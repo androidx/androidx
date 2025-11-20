@@ -129,7 +129,7 @@ class LivePagedListBuilderTest {
                     prevKey = null,
                     nextKey = 2,
                     itemsBefore = 0,
-                    itemsAfter = 2
+                    itemsAfter = 2,
                 )
             }
 
@@ -223,9 +223,9 @@ class LivePagedListBuilderTest {
             listOf(
                 LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Error(EXCEPTION))
+                LoadStateEvent(REFRESH, Error(EXCEPTION)),
             ),
-            loadStates
+            loadStates,
         )
 
         initPagedList.retry()
@@ -242,9 +242,9 @@ class LivePagedListBuilderTest {
                 LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading),
             ),
-            loadStates
+            loadStates,
         )
 
         // the IDLE result shows up on the next PagedList
@@ -256,9 +256,9 @@ class LivePagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
             ),
-            loadStates
+            loadStates,
         )
     }
 
@@ -279,7 +279,7 @@ class LivePagedListBuilderTest {
                             pagingSources.add(pagingSource)
                         }
                     },
-                    pageSize = 2
+                    pageSize = 2,
                 )
                 .setFetchExecutor(backgroundExecutor)
                 .build()
@@ -320,7 +320,7 @@ class LivePagedListBuilderTest {
                 // when LoadResult.Invalid is returned, REFRESH is reset back to NotLoading
                 LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
             )
     }
 
@@ -338,7 +338,7 @@ class LivePagedListBuilderTest {
                             .setPageSize(2)
                             .setInitialLoadSizeHint(6)
                             .setEnablePlaceholders(false)
-                            .build()
+                            .build(),
                 )
                 .setFetchExecutor(backgroundExecutor)
                 .build()
@@ -386,22 +386,22 @@ class LivePagedListBuilderTest {
             .containsExactly(
                 LoadStateEvent(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false)
+                    NotLoading(endOfPaginationReached = false),
                 ), // first empty paged list
                 LoadStateEvent(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false)
+                    NotLoading(endOfPaginationReached = false),
                 ), // second paged list
                 LoadStateEvent(APPEND, Loading), // second paged list append
                 LoadStateEvent(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false)
+                    NotLoading(endOfPaginationReached = false),
                 ), // append success
                 LoadStateEvent(APPEND, Loading), // second paged list append again but fails
                 LoadStateEvent(
                     APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                ) // third paged list
+                    NotLoading(endOfPaginationReached = false),
+                ), // third paged list
             )
     }
 
@@ -418,7 +418,7 @@ class LivePagedListBuilderTest {
                                     return object : PositionalDataSource<Int>() {
                                             override fun loadInitial(
                                                 params: LoadInitialParams,
-                                                callback: LoadInitialCallback<Int>
+                                                callback: LoadInitialCallback<Int>,
                                             ) {
                                                 requestedLoadSizes.add(params.requestedLoadSize)
                                                 callback.onResult(listOf(1, 2, 3), 0)
@@ -426,7 +426,7 @@ class LivePagedListBuilderTest {
 
                                             override fun loadRange(
                                                 params: LoadRangeParams,
-                                                callback: LoadRangeCallback<Int>
+                                                callback: LoadRangeCallback<Int>,
                                             ) {
                                                 requestedLoadSizes.add(params.loadSize)
                                             }
@@ -440,7 +440,7 @@ class LivePagedListBuilderTest {
                             .setPageSize(3)
                             .setInitialLoadSizeHint(3)
                             .setEnablePlaceholders(false)
-                            .build()
+                            .build(),
                 )
                 .setFetchExecutor(backgroundExecutor)
                 .build()
@@ -496,14 +496,14 @@ class LivePagedListBuilderTest {
 
                                 override fun areContentsTheSame(
                                     oldItem: Int,
-                                    newItem: Int
+                                    newItem: Int,
                                 ): Boolean {
                                     return oldItem == newItem
                                 }
                             }
                         )
                         .apply { setBackgroundThreadExecutor(backgroundExecutor) }
-                        .build()
+                        .build(),
             )
         differ.addLoadStateListener(loadStateListener)
 

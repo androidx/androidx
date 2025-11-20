@@ -35,30 +35,10 @@ import org.robolectric.shadows.ShadowPendingIntent;
 
 /** Unit test for {@link PendingIntentCompat}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class PendingIntentCompatTest {
     private final Context context = ApplicationProvider.getApplicationContext();
 
-    @Config(maxSdk = 22)
-    @Test
-    public void addMutabilityFlags_immutableOnPreM() {
-        int requestCode = 7465;
-        Intent intent = new Intent();
-        Bundle options = new Bundle();
-        ShadowPendingIntent shadow =
-                shadowOf(
-                        PendingIntentCompat.getActivity(
-                                context,
-                                requestCode,
-                                intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT,
-                                options,
-                                /* isMutable= */ false));
-        assertThat(shadow.isActivityIntent()).isTrue();
-        assertThat(shadow.getFlags()).isEqualTo(PendingIntent.FLAG_UPDATE_CURRENT);
-        assertThat(shadow.getRequestCode()).isEqualTo(requestCode);
-    }
-
-    @Config(minSdk = 23)
     @Test
     public void addMutabilityFlags_immutableOnMPlus() {
         int requestCode = 7465;

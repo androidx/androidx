@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName")
+
 package androidx.kruth
 
 import kotlin.reflect.KClass
@@ -34,7 +36,7 @@ inline fun <reified T : Throwable> assertThrows(block: () -> Unit): ThrowableSub
 
 inline fun <T : Throwable> assertThrows(
     exceptionClass: KClass<T>,
-    block: () -> Unit
+    block: () -> Unit,
 ): ThrowableSubject<T> {
     val e = assertFailsWith<T>(exceptionClass = exceptionClass, block = block)
     return assertThat(e)

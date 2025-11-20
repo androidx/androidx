@@ -125,7 +125,7 @@ object CoroutineStubs {
                 8kxarkV6jp7FLh0C2CjAwHwKR/EXcOgakCALJKuknxBwEqOokR43C3hKeoL0
                 swuKGSyS3qWqEvW+1YLh4baHOx4clMnEsIcR3G2BKdzD/RZKCg8UKgq2wqhC
                 VWFM4aFCQSGv8EhhXGHiBxzlJBgpBQAA
-                """
+                """,
         )
 
     val coroutineScopeTestFile: TestFile =
@@ -231,6 +231,6 @@ object CoroutineStubs {
                 e/Y8Gmi1Ok22gyXlaOisoTA6z31UZVOCs2ETnMN52r9b9+7fTzRwOFEMF/bb
                 0FsPArR9hvZiBxc/ILldN0QwTfMAyS6KkqF4EySvR+O4QfImyXv1PLdwv/5r
                 pFeSWnVlARELwxZSFtIYoSVGLVzFtQWwAGMwaT+AEaAnQOwn9GRn5FcHAAA=
-                """
+                """,
         )
 }

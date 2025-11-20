@@ -65,7 +65,7 @@ internal class RadioButtonTestCase(private val type: RadioButtonType) : LayeredC
                 selected = true,
                 onSelectionClick = { /* do something */ },
                 onContainerClick = { /* do something */ },
-                selectionContentDescription = ""
+                selectionContentDescription = "",
             ) {
                 Text(text = "SplitRadioButton")
             }
@@ -80,5 +80,5 @@ internal class RadioButtonTestCase(private val type: RadioButtonType) : LayeredC
 
 enum class RadioButtonType {
     RadioButton,
-    SplitRadioButton
+    SplitRadioButton,
 }

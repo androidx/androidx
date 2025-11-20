@@ -19,18 +19,19 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
+/**
+ * Properties used to customize the behavior of a [ModalWideNavigationRail].
+ *
+ * @param shouldDismissOnBackPress Whether the modal navigation rail can be dismissed by pressing
+ *   the back button. If true, pressing the back button will call onDismissRequest.
+ */
 @Immutable
-@ExperimentalMaterial3ExpressiveApi
 actual class ModalWideNavigationRailProperties
-actual constructor(
-    actual val shouldDismissOnBackPress: Boolean,
-)
+actual constructor(actual val shouldDismissOnBackPress: Boolean)
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal actual fun createDefaultModalWideNavigationRailProperties():
     ModalWideNavigationRailProperties = implementedInJetBrainsFork()
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal actual fun ModalWideNavigationRailDialog(
     onDismissRequest: () -> Unit,
@@ -38,5 +39,5 @@ internal actual fun ModalWideNavigationRailDialog(
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
     predictiveBackState: RailPredictiveBackState,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()

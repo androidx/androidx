@@ -68,7 +68,7 @@ fun setupAppApkCopy(project: Project, buildType: String) {
                     task.apkLoader.set(variant.artifacts.getBuiltArtifactsLoader())
                     val file =
                         "apks/${project.path.substring(1).replace(':', '-')}-${variant.name}.apk"
-                    task.outputApk.set(File(project.getDistributionDirectory(), file))
+                    task.outputApk.set(project.getDistributionDirectory().file(file))
                 }
             project.addToBuildOnServer(apkCopy)
         }
@@ -84,11 +84,10 @@ fun setupTestApkCopy(project: Project) {
                         task.apkFolder.set(artifacts.get(SingleArtifact.APK))
                         task.apkLoader.set(artifacts.getBuiltArtifactsLoader())
                         val file = "apks/${project.path.substring(1).replace(':', '-')}-$name.apk"
-                        task.outputApk.set(File(project.getDistributionDirectory(), file))
+                        task.outputApk.set(project.getDistributionDirectory().file(file))
                     }
                 project.addToBuildOnServer(apkCopy)
             }
-            @Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
             when {
                 variant is HasDeviceTests -> {
                     variant.deviceTests.forEach { (_, deviceTest) ->

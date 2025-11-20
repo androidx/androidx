@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.9.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.0-alpha01)" variant="all" version="8.9.0-alpha01">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="BanThreadSleep"
@@ -7,16 +7,547 @@
         errorLine1="            rule.runOnUiThread { Thread.sleep(sleepTime) }"
         errorLine2="                                        ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @InternalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        if (callback != other.callback) return false"
+        errorLine2="                     ~~">
         <location
-            file="src/androidMain/kotlin/androidx/compose/ui/platform/ComposeView.android.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnGlobalLayoutListenerTest.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (onRemeasured != other.onRemeasured) return false"
+        errorLine2="                                 ~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (onPlaced != other.onPlaced) return false"
+        errorLine2="                             ~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="internal fun ReverseMeasureLayout(modifier: Modifier, vararg contents: @Composable () -> Unit) ="
+        errorLine2="                                                             ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="        detachedFromParentLookaheadPlacmeentItemContent: @Composable () -> Unit"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/SubcomposeLayoutTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="private fun Wrapper(body: @Composable () -> Unit) {"
+        errorLine2="                    ~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/platform/WrapperTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    content: @Composable @UiComposable () -> Unit,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun createUi() {"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/TraversableModifierNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    private fun VectorMirror(size: Int): VectorPainter {"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
+    </issue>
+
+    <issue
+        id="CompositionLocalNaming"
+        message="CompositionLocal properties should be prefixed with `Local`"
+        errorLine1="        private val staticLocalInt = staticCompositionLocalOf { 0 }"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="CompositionLocalNaming"
+        message="CompositionLocal properties should be prefixed with `Local`"
+        errorLine1="val SomeLocal = compositionLocalOf&lt;Int> { error(&quot;unprovided value&quot;) }"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+    </issue>
+
+    <issue
+        id="InvalidLanguageTagDelimiter"
+        message="A hyphen (-), not an underscore (_) delimiter should be used in a language tag"
+        errorLine1="        val locale = LocaleList(&quot;en_US&quot;)"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidAccessibilityTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("
+        errorLine2="                                                   ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="inline fun &lt;reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) ="
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="internal fun FakePointerInputModifierNode.toModifier(): Modifier {"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/HitTestTouchBoundsExpansionTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun DelegatableNode.toModifier(): Modifier.Element {"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="private fun createModifier("
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/ModifierNodeReuseAndDeactivationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierOf(vararg modifiers: Modifier): Modifier {"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierOf(vararg nodes: Modifier.Node): Modifier {"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun reusableModifier(name: String): Modifier.Element ="
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierA(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierB(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierC(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun modifierD(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="fun managedModifier(name: String, params: Any? = null): ModifierNodeElement&lt;*> ="
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="internal fun elementFor(key1: Any? = null, instance: Modifier.Node) ="
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("
+        errorLine2="                                                   ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="inline fun &lt;reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) ="
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun DelegatableNode.toModifier(): Modifier.Element {"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun reusableModifier(name: String): Modifier.Element ="
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun modifierA(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun modifierB(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun modifierC(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun modifierD(params: Any? = null): Modifier.Element {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="fun managedModifier(name: String, params: Any? = null): ModifierNodeElement&lt;*> ="
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="internal fun elementFor(key1: Any? = null, instance: Modifier.Node) ="
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryUnreferencedReceiver"
+        message="Modifier factory functions must use the receiver Modifier instance"
+        errorLine1="    private fun Modifier.trackMainPassPlacement(block: () -> Unit) ="
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/LookaheadScopeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="fun FocusableComponent(tag: String? = null, modifier: Modifier = Modifier) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/ResizingComposeViewTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                            awaitPointerEventScope {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/PointerInputDensityTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                            awaitPointerEventScope {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/PointerInputViewConfigurationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="            awaitPointerEventScope {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                            awaitPointerEventScope { events += awaitPointerEvent() }"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ReturnFromAwaitPointerEventScope"
+        message="Returning from awaitPointerEventScope may cause some input events to be dropped"
+        errorLine1="                            awaitPointerEventScope { events += awaitPointerEvent() }"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= M) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (isHardwareAccelerated &amp;&amp; SDK_INT >= M &amp;&amp; isRenderNodeCompatible) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="                SDK_INT >= M // L throws during RenderThread when reusing the Views."
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(M)"
+        errorLine2="~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(M)"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeView.android.kt"/>
     </issue>
 
     <issue
@@ -29,10 +560,226 @@
     </issue>
 
     <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="                if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidTextToolbar.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidTextToolbar.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidTextToolbar.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/AndroidTextToolbar.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M &amp;&amp; visibility == View.VISIBLE) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/viewinterop/AndroidViewHolder.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ContentCaptureSessionCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/actionmodecallback/FloatingTextActionModeCallback.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/RenderNodeApi23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/RenderNodeApi23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/RenderNodeLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw || !recycle) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/ViewLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/platform/ViewLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/java/androidx/compose/ui/platform/coreshims/ViewStructureCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="        content()"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorCompose.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            state.value"
+        errorLine2="                  ~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInCollection"
         message="field children with type Map&lt;Integer, AutofillNode>: replace with IntObjectMap"
-        errorLine1="    val children: MutableMap&lt;Int, AutofillNode> = mutableMapOf()"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    val children: MutableMap&lt;Int, @Suppress(&quot;Deprecation&quot;) AutofillNode> = mutableMapOf()"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/autofill/AutofillTree.kt"/>
     </issue>
@@ -40,8 +787,8 @@
     <issue
         id="PrimitiveInCollection"
         message="return type Map&lt;Integer, AutofillNode> of getChildren: replace with IntObjectMap"
-        errorLine1="    val children: MutableMap&lt;Int, AutofillNode> = mutableMapOf()"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    val children: MutableMap&lt;Int, @Suppress(&quot;Deprecation&quot;) AutofillNode> = mutableMapOf()"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/autofill/AutofillTree.kt"/>
     </issue>

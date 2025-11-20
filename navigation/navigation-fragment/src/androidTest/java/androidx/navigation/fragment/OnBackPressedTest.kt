@@ -47,7 +47,7 @@ class OnBackPressedTest(private val activityClass: Class<NavigationBaseActivity>
         fun data(): Array<Class<out NavigationBaseActivity>> {
             return arrayOf(
                 NavigationActivity::class.java,
-                NavigationActivityWithFragmentTag::class.java
+                NavigationActivityWithFragmentTag::class.java,
             )
         }
     }
@@ -95,7 +95,7 @@ class OnBackPressedTest(private val activityClass: Class<NavigationBaseActivity>
                             popEnter = R.animator.fade_enter
                             popExit = R.animator.fade_exit
                         }
-                    }
+                    },
                 )
                 onBackPressed()
                 assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
@@ -120,7 +120,7 @@ class OnBackPressedTest(private val activityClass: Class<NavigationBaseActivity>
                 navController.navigate(
                     R.id.empty_fragment_2,
                     null,
-                    navOptions { popUpTo(R.id.empty_fragment) { inclusive = true } }
+                    navOptions { popUpTo(R.id.empty_fragment) { inclusive = true } },
                 )
                 fragment?.childFragmentManager?.executePendingTransactions()
 
@@ -241,7 +241,7 @@ class NullViewFragment : EmptyFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         if (viewAlreadyCreated) {
             return null

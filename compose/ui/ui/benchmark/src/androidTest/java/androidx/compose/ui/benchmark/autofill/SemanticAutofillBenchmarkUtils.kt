@@ -52,7 +52,7 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                         Modifier.semantics {
                             contentType = ContentType.PersonNamePrefix
                             contentDataType = ContentDataType.Text
-                        }
+                        },
                 )
             }
             TextField(
@@ -63,7 +63,7 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonFirstName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             TextField(
                 value = data.lastName,
@@ -73,7 +73,7 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonLastName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             if (state.value) {
                 TextField(
@@ -84,7 +84,7 @@ internal fun RemovableAutofillText(state: MutableState<Boolean>) {
                         Modifier.semantics {
                             contentType = ContentType.PersonMiddleName
                             contentDataType = ContentDataType.Text
-                        }
+                        },
                 )
             }
         }
@@ -103,7 +103,7 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonNamePrefix
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.firstName else dataFlipped.firstName,
@@ -113,7 +113,7 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonFirstName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.lastName else dataFlipped.lastName,
@@ -123,7 +123,7 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonLastName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.middleName else dataFlipped.middleName,
@@ -133,7 +133,7 @@ internal fun ChangingAutofillText(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonMiddleName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
         }
     }
@@ -152,7 +152,7 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                         contentType = ContentType.PersonNamePrefix
                         contentDataType = ContentDataType.Text
                         focused = state.value
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.firstName else dataFlipped.firstName,
@@ -162,7 +162,7 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonFirstName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.lastName else dataFlipped.lastName,
@@ -173,7 +173,7 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                         contentType = ContentType.PersonLastName
                         contentDataType = ContentDataType.Text
                         focused = state.value
-                    }
+                    },
             )
             TextField(
                 value = if (state.value) data.middleName else dataFlipped.middleName,
@@ -183,7 +183,7 @@ internal fun ChangingAutofillFocus(state: MutableState<Boolean>) {
                     Modifier.semantics {
                         contentType = ContentType.PersonMiddleName
                         contentDataType = ContentDataType.Text
-                    }
+                    },
             )
         }
     }
@@ -200,7 +200,7 @@ internal fun AutofillTextScreen() {
                 Modifier.semantics {
                     contentType = ContentType.PersonFirstName
                     contentDataType = ContentDataType.Text
-                }
+                },
         )
         TextField(
             value = data.lastName,
@@ -210,7 +210,7 @@ internal fun AutofillTextScreen() {
                 Modifier.semantics {
                     contentType = ContentType.PersonLastName
                     contentDataType = ContentDataType.Text
-                }
+                },
         )
         TextField(
             value = data.firstName,
@@ -220,7 +220,7 @@ internal fun AutofillTextScreen() {
                 Modifier.semantics {
                     contentType = ContentType.PersonFirstName
                     contentDataType = ContentDataType.Text
-                }
+                },
         )
         TextField(
             value = data.lastName,
@@ -230,7 +230,7 @@ internal fun AutofillTextScreen() {
                 Modifier.semantics {
                     contentType = ContentType.PersonLastName
                     contentDataType = ContentDataType.Text
-                }
+                },
         )
     }
 }
@@ -276,5 +276,5 @@ internal val dataFlipped =
         firstName = "Jane ",
         middleName = "Art ",
         lastName = "Deer, ",
-        age = 2
+        age = 2,
     )

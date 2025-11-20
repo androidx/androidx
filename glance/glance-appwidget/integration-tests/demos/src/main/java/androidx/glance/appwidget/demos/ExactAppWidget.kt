@@ -64,7 +64,7 @@ class ExactAppWidget : GlanceAppWidget() {
                     TextStyle(
                         color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
                         fontWeight = FontWeight.Bold,
-                        textDecoration = TextDecoration.Underline
+                        textDecoration = TextDecoration.Underline,
                     ),
             )
             val size = LocalSize.current

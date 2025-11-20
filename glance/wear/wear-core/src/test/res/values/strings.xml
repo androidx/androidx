@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="test_label">Test Label from Resource</string>
+    <string name="test_description">Test Description from Resource</string>
+    <string name="test_label_override">Test Label Override from Resource</string>
+</resources>

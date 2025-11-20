@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.room.InvalidationTracker#createFlow(String[]):
-    Added method androidx.room.InvalidationTracker.createFlow(String[])

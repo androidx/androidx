@@ -147,16 +147,9 @@ public class ClickAction extends TakenAction {
         return mTimeStayOnResultMillis;
     }
 
-    // TODO(b/372929164): redesign builder for inheritance to fix the base setter return type issue.
     /** Builder for {@link ClickAction}. */
     @Document.BuilderProducer
     public static final class Builder extends BuilderImpl<Builder> {
-        private String mQuery;
-        private String mReferencedQualifiedId;
-        private int mResultRankInBlock;
-        private int mResultRankGlobal;
-        private long mTimeStayOnResultMillis;
-
         /**
          * Constructor for {@link ClickAction.Builder}.
          *
@@ -166,7 +159,7 @@ public class ClickAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_CLICK);
+            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_CLICK);
         }
 
         /**
@@ -176,13 +169,7 @@ public class ClickAction extends TakenAction {
          * @param clickAction an existing {@link ClickAction} object.
          */
         public Builder(@NonNull ClickAction clickAction) {
-            super(Preconditions.checkNotNull(clickAction));
-
-            mQuery = clickAction.getQuery();
-            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
-            mResultRankInBlock = clickAction.getResultRankInBlock();
-            mResultRankGlobal = clickAction.getResultRankGlobal();
-            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
+            super(clickAction);
         }
 
         /**
@@ -200,6 +187,32 @@ public class ClickAction extends TakenAction {
         Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
                 @TakenAction.ActionType int actionType) {
             super(namespace, id, actionTimestampMillis, actionType);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends BuilderImpl<T>> extends
+            TakenAction.BuilderImpl<T> {
+        protected String mQuery;
+        protected String mReferencedQualifiedId;
+        protected int mResultRankInBlock;
+        protected int mResultRankGlobal;
+        protected long mTimeStayOnResultMillis;
+
+        /**
+         * Constructs {@link BuilderImpl} with given {@code namespace}, {@code id},
+         * {@code actionTimestampMillis} and {@code actionType}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         * @param actionType            Action type enum for the Document. See
+         *                              {@link TakenAction.ActionType}.
+         */
+        BuilderImpl(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis, @TakenAction.ActionType int actionType) {
+            super(namespace, id, actionTimestampMillis, actionType);
 
             // Default for unset result rank fields. Since negative number is invalid for ranking,
             // -1 is used as an unset value and AppSearch will ignore it.
@@ -212,13 +225,29 @@ public class ClickAction extends TakenAction {
         }
 
         /**
+         * Constructs {@link BuilderImpl} by copying existing values from the given
+         * {@link ClickAction}.
+         *
+         * @param clickAction an existing {@link ClickAction} object.
+         */
+        BuilderImpl(@NonNull ClickAction clickAction) {
+            super(Preconditions.checkNotNull(clickAction));
+
+            mQuery = clickAction.getQuery();
+            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
+            mResultRankInBlock = clickAction.getResultRankInBlock();
+            mResultRankGlobal = clickAction.getResultRankGlobal();
+            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
+        }
+
+        /**
          * Sets the user-entered search input (without any operators or rewriting) that yielded
          * the {@link androidx.appsearch.app.SearchResult} on which the user clicked.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setQuery(@Nullable String query) {
+        public @NonNull T setQuery(@Nullable String query) {
             mQuery = query;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -230,9 +259,9 @@ public class ClickAction extends TakenAction {
          * String,String,String,String)} for more details.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
+        public @NonNull T setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
             mReferencedQualifiedId = referencedQualifiedId;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -242,9 +271,9 @@ public class ClickAction extends TakenAction {
          * @see ClickAction#getResultRankInBlock
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankInBlock(int resultRankInBlock) {
+        public @NonNull T setResultRankInBlock(int resultRankInBlock) {
             mResultRankInBlock = resultRankInBlock;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -253,9 +282,9 @@ public class ClickAction extends TakenAction {
          * @see ClickAction#getResultRankGlobal
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResultRankGlobal(int resultRankGlobal) {
+        public @NonNull T setResultRankGlobal(int resultRankGlobal) {
             mResultRankGlobal = resultRankGlobal;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -263,9 +292,9 @@ public class ClickAction extends TakenAction {
          * {@link androidx.appsearch.app.SearchResult} document after clicking it.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setTimeStayOnResultMillis(long timeStayOnResultMillis) {
+        public @NonNull T setTimeStayOnResultMillis(long timeStayOnResultMillis) {
             mTimeStayOnResultMillis = timeStayOnResultMillis;
-            return this;
+            return (T) this;
         }
 
         /** Builds a {@link ClickAction}. */

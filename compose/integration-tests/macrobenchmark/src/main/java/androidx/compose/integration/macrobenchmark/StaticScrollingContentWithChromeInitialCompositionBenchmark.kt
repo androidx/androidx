@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class StaticScrollingContentWithChromeInitialCompositionBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode
+    private val compilationMode: CompilationMode,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -40,7 +40,7 @@ class StaticScrollingContentWithChromeInitialCompositionBenchmark(
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = "androidx.compose.integration.macrobenchmark.target"
+            packageName = "androidx.compose.integration.macrobenchmark.target",
         ) {
             action =
                 "androidx.compose.integration.macrobenchmark.target" +
@@ -52,7 +52,7 @@ class StaticScrollingContentWithChromeInitialCompositionBenchmark(
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = "androidx.compose.integration.macrobenchmark.target"
+            packageName = "androidx.compose.integration.macrobenchmark.target",
         ) {
             action =
                 "androidx.compose.integration.macrobenchmark.target" +

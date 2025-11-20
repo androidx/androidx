@@ -73,7 +73,18 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         private val LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION =
             createLevel3PrivPrivYuvSubsetConfiguration()
         private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS: Set<String> =
-            setOf("PIXEL 6", "PIXEL 6 PRO", "PIXEL 7", "PIXEL 7 PRO", "PIXEL 8", "PIXEL 8 PRO")
+            setOf(
+                "PIXEL 6",
+                "PIXEL 6 PRO",
+                "PIXEL 7",
+                "PIXEL 7 PRO",
+                "PIXEL 8",
+                "PIXEL 8 PRO",
+                "PIXEL 9",
+                "PIXEL 9 PRO",
+                "PIXEL 9 PRO XL",
+                "PIXEL 9 PRO FOLD",
+            )
 
         private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS: Set<String> =
             setOf(
@@ -84,6 +95,14 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "SM-S928", // Galaxy S24 Ultra
                 "SC-52E", // Galaxy S24 Ultra
                 "SCG26", // Galaxy S24 Ultra
+                "SM-S931", // Galaxy S25
+                "SM-S936", // Galaxy S25+
+                "SM-S937", // Galaxy S25 Edge
+                "SM-S938", // Galaxy S25 Ultra
+                "SCG31", // Galaxy S25
+                "SCG32", // Galaxy S25 Ultra
+                "SC-51F", // Galaxy S25
+                "SC-52F", // Galaxy S25 Ultra
             )
 
         public fun isEnabled(): Boolean {
@@ -130,7 +149,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.PRIV,
-                    SurfaceConfig.ConfigSize.PREVIEW
+                    SurfaceConfig.ConfigSize.PREVIEW,
                 )
             )
             surfaceCombination.addSurfaceConfig(
@@ -167,7 +186,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.PRIV,
-                    SurfaceConfig.ConfigSize.PREVIEW
+                    SurfaceConfig.ConfigSize.PREVIEW,
                 )
             )
             surfaceCombination.addSurfaceConfig(

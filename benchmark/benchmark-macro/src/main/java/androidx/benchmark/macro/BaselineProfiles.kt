@@ -47,7 +47,7 @@ fun collect(
     strictStability: Boolean = false,
     includeInStartupProfile: Boolean,
     filterPredicate: ((String) -> Boolean),
-    profileBlock: MacrobenchmarkScope.() -> Unit
+    profileBlock: MacrobenchmarkScope.() -> Unit,
 ): BaselineProfileResult {
     val scope = buildMacrobenchmarkScope(packageName)
     val uid = UserInfo.currentUserId
@@ -69,14 +69,11 @@ fun collect(
                     val mode =
                         CompilationMode.Partial(
                             baselineProfileMode = BaselineProfileMode.Disable,
-                            warmupIterations = 1
+                            warmupIterations = 1,
                         )
                     if (iteration == 1) {
                         Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
-                        mode.resetAndCompile(
-                            scope,
-                            allowCompilationSkipping = false,
-                        ) {
+                        mode.resetAndCompile(scope, allowCompilationSkipping = false) {
                             scope.iteration = iteration
                             profileBlock(scope)
                         }
@@ -87,7 +84,7 @@ fun collect(
                         // so profiles are not dropped.
                         scope.withKillMode(
                             current = killMode,
-                            override = killMode.copy(flushArtProfiles = true)
+                            override = killMode.copy(flushArtProfiles = true),
                         ) {
                             scope.killProcess()
                         }
@@ -117,7 +114,7 @@ fun collect(
                 } else {
                     Log.d(
                         TAG,
-                        "Profiles stable in iteration $iteration (for $stableCount iterations)"
+                        "Profiles stable in iteration $iteration (for $stableCount iterations)",
                     )
                     stableCount += 1
                     if (stableCount == stableIterations) {
@@ -143,13 +140,13 @@ fun collect(
                 filterProfileRulesToTargetP(
                     profile = lastProfile,
                     sortRules = true,
-                    filterPredicate = filterPredicate
+                    filterPredicate = filterPredicate,
                 )
             return reportResults(
                 profile = profile,
                 uniqueFilePrefix = uniqueName,
                 startTime = startTime,
-                includeInStartupProfile = includeInStartupProfile
+                includeInStartupProfile = includeInStartupProfile,
             )
         } finally {
             scope.killProcess()
@@ -172,18 +169,18 @@ private fun reportResults(
     profile: String,
     uniqueFilePrefix: String,
     startTime: Long,
-    includeInStartupProfile: Boolean
+    includeInStartupProfile: Boolean,
 ): BaselineProfileResult {
     val (fileName, tsFileName) =
         if (includeInStartupProfile) {
             arrayOf(
                 "$uniqueFilePrefix-startup-prof.txt",
-                "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
+                "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt",
             )
         } else {
             arrayOf(
                 "$uniqueFilePrefix-baseline-prof.txt",
-                "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
+                "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt",
             )
         }
 
@@ -206,15 +203,12 @@ private fun reportResults(
         Summary(
             totalRunTime = totalRunTime,
             profilePath = absolutePath,
-            profileTsPath = tsAbsolutePath
+            profileTsPath = tsAbsolutePath,
         )
     InstrumentationResults.instrumentationReport {
         // Ideally would link trace as a profiler result for consistency with other codepaths,
         // but we don't to change BP's custom link appearance to the default simple one
-        reportSummaryToIde(
-            testName = uniqueFilePrefix,
-            message = summaryRecord(results),
-        )
+        reportSummaryToIde(testName = uniqueFilePrefix, message = summaryRecord(results))
         Log.d(TAG, "Total Run Time Ns: $totalRunTime")
     }
     return resultsContainer
@@ -317,7 +311,7 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
 internal fun filterProfileRulesToTargetP(
     profile: String,
     sortRules: Boolean = true,
-    filterPredicate: ((String) -> Boolean)
+    filterPredicate: ((String) -> Boolean),
 ): String {
     val rules = profile.lines()
     var filteredRules =
@@ -398,5 +392,5 @@ public class BaselineProfileResult(
     /** A list of absolute file paths to the generated baseline profiles. */
     val baselineProfiles: List<String> = emptyList(),
     /** A list of absolute file paths to the generated startup profiles. */
-    val startupProfiles: List<String> = emptyList()
+    val startupProfiles: List<String> = emptyList(),
 )

@@ -26,7 +26,7 @@ enum class ToggleableState {
     /** State that means a component is off */
     Off,
     /** State that means that on/off value of a component cannot be determined */
-    Indeterminate
+    Indeterminate,
 }
 
 /**

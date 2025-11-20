@@ -25,15 +25,16 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
+import kotlinx.coroutines.channels.SendChannel
 
 /**
  * This class is responsible for getting [BluetoothProfile]s from the [BluetoothManager] pre-call
- * and emitting them to the [PreCallEndpointsUpdater] as [androidx.core.telecom.CallEndpointCompat]s
+ * and emitting them to the [EndpointStateHandler] as [androidx.core.telecom.CallEndpointCompat]s
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal class BluetoothProfileListener(
     context: Context,
-    private val mPreCallEndpointsUpdater: PreCallEndpointsUpdater,
+    private val mActionChannel: SendChannel<EndpointAction>,
     private val mUuidSessionId: Int,
 ) : BluetoothProfile.ServiceListener, AutoCloseable {
     /** Constants used for this class */
@@ -43,7 +44,7 @@ internal class BluetoothProfileListener(
             listOf(
                 BluetoothProfile.HEADSET,
                 BluetoothProfile.LE_AUDIO,
-                BluetoothProfile.HEARING_AID
+                BluetoothProfile.HEARING_AID,
             )
     }
 
@@ -59,7 +60,7 @@ internal class BluetoothProfileListener(
      */
     private data class ProfileData(
         val endpoints: MutableList<CallEndpointCompat>?,
-        val proxy: BluetoothProfile?
+        val proxy: BluetoothProfile?,
     )
 
     private val mProfileToData: HashMap<Int, ProfileData> = HashMap()
@@ -96,7 +97,7 @@ internal class BluetoothProfileListener(
                         Log.e(
                             TAG,
                             "cBPP: hit exception when closing proxy for profile=[$profile]",
-                            e
+                            e,
                         )
                     }
             }
@@ -113,7 +114,7 @@ internal class BluetoothProfileListener(
         // populate internal map for profile
         mProfileToData[profile] = ProfileData(endpoints.toMutableList(), proxy)
         // update client
-        mPreCallEndpointsUpdater.endpointsAddedUpdate(endpoints)
+        mActionChannel.trySend(EndpointAction.Add(endpoints))
     }
 
     override fun onServiceDisconnected(profile: Int) {
@@ -122,7 +123,7 @@ internal class BluetoothProfileListener(
         // clear internal map for profile
         mProfileToData[profile] = ProfileData(mutableListOf(), null)
         // update the client
-        mPreCallEndpointsUpdater.endpointsRemovedUpdate(endpointsToRemove.toList())
+        mActionChannel.trySend(EndpointAction.Remove(endpointsToRemove.toList()))
     }
 
     /**
@@ -131,13 +132,16 @@ internal class BluetoothProfileListener(
      * ============================================================================================
      */
     private fun getBluetoothDeviceName(device: BluetoothDevice): String {
-        var name: String = EndpointUtils.BLUETOOTH_DEVICE_DEFAULT_NAME
-        try {
-            name = device.name
+        return try {
+            // if device.name is null or empty, return null to trigger the Elvis operator
+            device.name?.ifEmpty { null }
         } catch (e: SecurityException) {
-            Log.e(TAG, "getBluetoothDeviceName: hit SecurityException while getting device name", e)
-        }
-        return name
+            Log.e(TAG, "getBluetoothDeviceName: Lacking BLUETOOTH_CONNECT permission", e)
+            null // Return null on exception
+        } catch (e: Exception) {
+            Log.e(TAG, "getBluetoothDeviceName: Encountered an exception", e)
+            null // Return null on exception
+        } ?: EndpointUtils.BLUETOOTH_DEVICE_DEFAULT_NAME // If the result is null, use the default
     }
 
     private fun getBluetoothDeviceAddress(device: BluetoothDevice): String {
@@ -156,13 +160,13 @@ internal class BluetoothProfileListener(
             CallEndpointUuidTracker.getUuid(
                 mUuidSessionId,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                bluetoothDeviceName
+                bluetoothDeviceName,
             )
         val callEndpoint =
             CallEndpointCompat(
                 bluetoothDeviceName,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                uuidForBluetoothDevice
+                uuidForBluetoothDevice,
             )
         callEndpoint.mMackAddress = getBluetoothDeviceAddress(device)
         return callEndpoint

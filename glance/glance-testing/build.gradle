@@ -27,11 +27,10 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":glance:glance"))
 
     testImplementation(libs.junit)
@@ -39,21 +38,10 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
 
 android {
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
-    defaultConfig {
-        minSdk = 23
-    }
-
     namespace = "androidx.glance.testing"
 }
 
@@ -62,5 +50,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "This library provides base APIs to enable testing Glance"
-    legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

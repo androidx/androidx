@@ -36,7 +36,7 @@ fun WideButtonWithIcon() {
     WideButton(
         onClick = {},
         title = { Text("Settings") },
-        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") }
+        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") },
     )
 }
 
@@ -57,6 +57,6 @@ fun WideButtonWithIconAndSubtitle() {
         onClick = {},
         title = { Text("Settings") },
         subtitle = { Text(text = "Update device preferences") },
-        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") }
+        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") },
     )
 }

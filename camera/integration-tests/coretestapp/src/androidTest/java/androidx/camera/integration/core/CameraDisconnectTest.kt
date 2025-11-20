@@ -21,12 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
@@ -45,9 +43,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.IdlingResource
+import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
@@ -69,16 +66,15 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class CameraDisconnectTest(
+    private val testName: String,
     private val lensFacing: Int,
     private val implName: String,
-    private val cameraConfig: CameraXConfig
+    private val cameraConfig: CameraXConfig,
 ) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -88,37 +84,36 @@ class CameraDisconnectTest(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0} configName={1} config={2}")
+        @Parameterized.Parameters(name = "{0}")
         fun data() =
-            listOf(
-                arrayOf(
-                    CameraSelector.LENS_FACING_BACK,
-                    Camera2Config::class.simpleName,
-                    Camera2Config.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_FRONT,
-                    Camera2Config::class.simpleName,
-                    Camera2Config.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_BACK,
-                    CameraPipeConfig::class.simpleName,
-                    CameraPipeConfig.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_FRONT,
-                    CameraPipeConfig::class.simpleName,
-                    CameraPipeConfig.defaultConfig()
-                )
-            )
+            mutableListOf<Array<Any?>>().apply {
+                CameraUtil.getAvailableCameraSelectors().forEach { selector ->
+                    val lensFacing = selector.lensFacing
+                    add(
+                        arrayOf(
+                            "config=${Camera2Config::class.simpleName} lensFacing={$lensFacing}",
+                            lensFacing,
+                            Camera2Config::class.simpleName,
+                            Camera2Config.defaultConfig(),
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lensFacing}",
+                            lensFacing,
+                            CameraPipeConfig::class.simpleName,
+                            CameraPipeConfig.defaultConfig(),
+                        )
+                    )
+                }
+            }
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -165,6 +160,35 @@ class CameraDisconnectTest(
         device.waitForIdle(StressTestUtil.HOME_TIMEOUT_MS)
     }
 
+    private fun launchAndAwaitCamera2Activity(cameraId: String) {
+        val intent =
+            Intent(context, Camera2TestActivity::class.java).apply {
+                putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId)
+            }
+
+        var completionIdlingResource: CountingIdlingResource? = null
+        var wasCamera2PreviewReady = false
+        try {
+            ActivityScenario.launch<Camera2TestActivity>(intent).use { scenario ->
+                var previewStartedIdlingResource: CountingIdlingResource? = null
+                scenario.onActivity { activity ->
+                    completionIdlingResource = activity.completionIdlingResource
+                    previewStartedIdlingResource = activity.previewStartedIdlingResource
+                    IdlingRegistry.getInstance().register(completionIdlingResource)
+                }
+                Espresso.onIdle() // Wait for the completionIdlingResource to become idle.
+                wasCamera2PreviewReady = previewStartedIdlingResource!!.isIdleNow
+            }
+        } finally {
+            completionIdlingResource?.let { IdlingRegistry.getInstance().unregister(it) }
+        }
+
+        assumeTrue(
+            "Camera2TestActivity failed to start preview, skipping recovery test.",
+            wasCamera2PreviewReady,
+        )
+    }
+
     /**
      * This test simulate the case that an app has two activities with camera function and the
      * second activity is not implemented by CameraX. The camera function should work when any of
@@ -180,7 +204,6 @@ class CameraDisconnectTest(
      */
     @LabTestRule.LabTestOnly
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun canRecovered_afterSecondCamera2ImplementationActivityIsClosed() {
         // Launch CameraX activity
         cameraXActivityScenario = launchCameraXActivity(cameraId)
@@ -189,46 +212,13 @@ class CameraDisconnectTest(
                 // Wait for preview to become active
                 waitForViewfinderIdle()
 
-                // Launch Camera2 test activity. It should cause the camera to disconnect from
-                // CameraX.
-                val intent =
-                    Intent(context, Camera2TestActivity::class.java).apply {
-                        putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId)
-                    }
+                // Launch Camera2 test activity to disconnect CameraX, and wait for it to succeed.
+                launchAndAwaitCamera2Activity(cameraId)
 
-                CoreAppTestUtil.launchActivity(
-                        InstrumentationRegistry.getInstrumentation(),
-                        Camera2TestActivity::class.java,
-                        intent
-                    )
-                    ?.apply {
-                        // Wait for preview to become active to make sure the 2nd activity can
-                        // enable
-                        // its camera function successfully
-                        try {
-                            waitForCamera2Preview()
-                        } finally {
-                            // Close Camera2 test activity, and verify the CameraX Preview resumes
-                            // successfully.
-                            finish()
-                        }
-                    }
-
-                // Wait for CameraXActivity's preview to become active after Camera2TestActivity is
-                // closed.
+                // Wait for CameraXActivity's preview to become active again.
                 waitForViewfinderIdle()
             }
         }
-    }
-
-    private fun Camera2TestActivity.waitForCamera2Preview() {
-        waitFor(mPreviewReady)
-    }
-
-    private fun waitFor(idlingResource: IdlingResource) {
-        IdlingRegistry.getInstance().register(idlingResource)
-        Espresso.onIdle()
-        IdlingRegistry.getInstance().unregister(idlingResource)
     }
 
     /**
@@ -242,7 +232,6 @@ class CameraDisconnectTest(
      */
     @LabTestRule.LabTestOnly
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     fun canRecovered_afterReceivingCameraOnDisconnectedEvent() {
         // Launch CameraX activity
         cameraXActivityScenario = launchCameraXActivity(cameraId)
@@ -287,7 +276,7 @@ class CameraDisconnectTest(
                     synchronized(cameraLock) { cameraDevice = null }
                 }
             },
-            backgroundCameraHandler
+            backgroundCameraHandler,
         )
 
         assertThat(cameraOpenCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()

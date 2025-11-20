@@ -45,6 +45,7 @@ public interface ImageProxy extends AutoCloseable {
      *
      * @see android.media.Image#getCropRect()
      */
+    @SuppressWarnings("GetterSetterNullability")
     @NonNull Rect getCropRect();
 
     /**

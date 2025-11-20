@@ -36,20 +36,20 @@ import kotlin.math.sign
 internal suspend fun AwaitPointerEventScope.awaitHorizontalPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
-    onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
+    onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit,
 ) =
     awaitPointerSlopOrCancellation(
         pointerId = pointerId,
         pointerType = pointerType,
         onPointerSlopReached = onPointerSlopReached,
-        getDragDirectionValue = { it.x }
+        getDragDirectionValue = { it.x },
     )
 
 private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation(
     pointerId: PointerId,
     pointerType: PointerType,
     onPointerSlopReached: (PointerInputChange, Float) -> Unit,
-    getDragDirectionValue: (Offset) -> Float
+    getDragDirectionValue: (Offset) -> Float,
 ): PointerInputChange? {
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
@@ -88,7 +88,7 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
             } else {
                 onPointerSlopReached(
                     dragEvent,
-                    totalPositionChange - (sign(totalPositionChange) * touchSlop)
+                    totalPositionChange - (sign(totalPositionChange) * touchSlop),
                 )
                 if (dragEvent.isConsumed) {
                     return dragEvent

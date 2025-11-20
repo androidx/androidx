@@ -41,7 +41,7 @@ internal class RelativeScroller(ctx: Context?) : OverScroller(ctx) {
         minX: Int,
         maxX: Int,
         minY: Int,
-        maxY: Int
+        maxY: Int,
     ) {
         reset()
         super.fling(
@@ -52,7 +52,7 @@ internal class RelativeScroller(ctx: Context?) : OverScroller(ctx) {
             minX - startX,
             maxX - startX,
             minY - startY,
-            maxY - startY
+            maxY - startY,
         )
     }
 
@@ -66,7 +66,7 @@ internal class RelativeScroller(ctx: Context?) : OverScroller(ctx) {
         minY: Int,
         maxY: Int,
         overX: Int,
-        overY: Int
+        overY: Int,
     ) {
         reset()
         super.fling(
@@ -79,7 +79,7 @@ internal class RelativeScroller(ctx: Context?) : OverScroller(ctx) {
             minY - startY,
             maxY - startY,
             overX,
-            overY
+            overY,
         )
     }
 

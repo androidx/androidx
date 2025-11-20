@@ -23,23 +23,24 @@ import androidx.room.Query
 @JvmDefaultWithCompatibility
 /** A Data Access Object for [SystemIdInfo]. */
 @Dao
-interface SystemIdInfoDao {
+public interface SystemIdInfoDao {
     /**
      * Inserts a [SystemIdInfo] into the database.
      *
      * @param systemIdInfo The [SystemIdInfo] to be inserted into the database.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSystemIdInfo(systemIdInfo: SystemIdInfo)
+    public fun insertSystemIdInfo(systemIdInfo: SystemIdInfo)
 
     /**
      * @param workSpecId The [WorkSpec] identifier.
      * @return The instance of [SystemIdInfo] if exists.
      */
     @Query("SELECT * FROM SystemIdInfo WHERE work_spec_id=:workSpecId AND generation=:generation")
-    fun getSystemIdInfo(workSpecId: String, generation: Int): SystemIdInfo?
+    public fun getSystemIdInfo(workSpecId: String, generation: Int): SystemIdInfo?
 
-    fun getSystemIdInfo(id: WorkGenerationalId) = getSystemIdInfo(id.workSpecId, id.generation)
+    public fun getSystemIdInfo(id: WorkGenerationalId): SystemIdInfo? =
+        getSystemIdInfo(id.workSpecId, id.generation)
 
     /**
      * Removes [SystemIdInfo] corresponding to the [WorkSpec] identifier.
@@ -47,7 +48,7 @@ interface SystemIdInfoDao {
      * @param workSpecId The [WorkSpec] identifier.
      */
     @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId AND generation=:generation")
-    fun removeSystemIdInfo(workSpecId: String, generation: Int)
+    public fun removeSystemIdInfo(workSpecId: String, generation: Int)
 
     /**
      * Removes [SystemIdInfo] corresponding to the [WorkSpec] identifier.
@@ -55,11 +56,12 @@ interface SystemIdInfoDao {
      * @param workSpecId The [WorkSpec] identifier.
      */
     @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId")
-    fun removeSystemIdInfo(workSpecId: String)
+    public fun removeSystemIdInfo(workSpecId: String)
 
-    fun removeSystemIdInfo(id: WorkGenerationalId) =
+    public fun removeSystemIdInfo(id: WorkGenerationalId): Unit =
         removeSystemIdInfo(id.workSpecId, id.generation)
 
     /** @return The [List] of [WorkSpec] ids. */
-    @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo") fun getWorkSpecIds(): List<String>
+    @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo")
+    public fun getWorkSpecIds(): List<String>
 }

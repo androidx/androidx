@@ -61,6 +61,7 @@ public class RendererTerminationActivity extends AppCompatActivity {
         setTitle(R.string.renderer_termination_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         setContentView(R.layout.activity_renderer_termination);
+        WebkitHelpers.enableEdgeToEdge(this);
 
         mWebView = findViewById(R.id.renderer_termination_webview);
         mStatus = findViewById(R.id.renderer_termination_status);

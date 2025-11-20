@@ -30,7 +30,7 @@ import androidx.camera.core.impl.Quirk
  * returning the output. There is a bug because of a flipped scaling factor in the intermediate
  * texture transform matrix, and it was fixed in L MR1. Device(s): All the legacy API 21 devices
  *
- * @see androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio
+ * @see androidx.camera.camera2.compat.workaround.TargetAspectRatio
  */
 public class AspectRatioLegacyApi21Quirk : Quirk {
     /** Get the corrected aspect ratio. */

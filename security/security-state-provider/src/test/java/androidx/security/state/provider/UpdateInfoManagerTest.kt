@@ -52,7 +52,7 @@ class UpdateInfoManagerTest {
     private val expectedJson =
         Json.encodeToString(
             SerializableUpdateInfo.serializer(),
-            updateInfo.toSerializableUpdateInfo()
+            updateInfo.toSerializableUpdateInfo(),
         )
     private val mockEmptyEditor: SharedPreferences.Editor = mock<SharedPreferences.Editor> {}
     private val mockEditor: SharedPreferences.Editor =

@@ -66,7 +66,7 @@ private val items =
         "Marshmallow",
         "Nougat",
         "Oreo",
-        "Pie"
+        "Pie",
     )
 
 @Composable
@@ -77,6 +77,7 @@ fun SwipeToDismissDemo() {
     // will animate to red if you're swiping left or green if you're swiping right. When you let
     // go, the item will animate out of the way if you're swiping left (like deleting an email) or
     // back to its default position if you're swiping right (like marking an email as read/unread).
+    val scope = rememberCoroutineScope()
     LazyColumn {
         items(items) { item ->
             var unread by remember { mutableStateOf(false) }
@@ -84,10 +85,6 @@ fun SwipeToDismissDemo() {
 
             val dismissState =
                 rememberSwipeToDismissBoxState(
-                    confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.StartToEnd) unread = !unread
-                        it != SwipeToDismissBoxValue.StartToEnd
-                    },
                     positionalThreshold = { distance -> distance * .25f }
                 )
             SwipeToDismissBox(
@@ -122,15 +119,21 @@ fun SwipeToDismissDemo() {
                         )
                     Box(
                         Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
-                        contentAlignment = alignment
+                        contentAlignment = alignment,
                     ) {
                         Icon(
                             icon,
                             contentDescription = "Localized description",
-                            modifier = Modifier.scale(scale)
+                            modifier = Modifier.scale(scale),
                         )
                     }
-                }
+                },
+                onDismiss = { dismissDirection ->
+                    if (dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                        unread = !unread
+                        scope.launch { dismissState.reset() }
+                    }
+                },
             ) {
                 Card {
                     ListItem(
@@ -154,7 +157,7 @@ fun SwipeToDismissDemo() {
                                                 )
                                             }
                                             true
-                                        }
+                                        },
                                     )
                             },
                         supportingContent = { Text("Swipe me left or right!") },

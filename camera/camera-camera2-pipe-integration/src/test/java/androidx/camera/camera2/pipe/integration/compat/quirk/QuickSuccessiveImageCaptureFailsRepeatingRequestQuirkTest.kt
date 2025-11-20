@@ -39,13 +39,14 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = 21)
+@Config(sdk = [Config.ALL_SDKS])
 class QuickSuccessiveImageCaptureFailsRepeatingRequestQuirkTest(
     private val brand: String,
     private val cameraHwLevel: Int,
-    private val isEnabledExpected: Boolean
+    private val isEnabledExpected: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(
             name = "Model: {0}, lens facing: {1}, external ae mode: {2}, enabled: {3}"
@@ -61,9 +62,7 @@ class QuickSuccessiveImageCaptureFailsRepeatingRequestQuirkTest(
             )
     }
 
-    private fun getCameraQuirks(
-        cameraHwLevel: Int,
-    ): Quirks {
+    private fun getCameraQuirks(cameraHwLevel: Int): Quirks {
         val characteristicsMap =
             mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
                 .apply { this[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] = cameraHwLevel }
@@ -82,8 +81,8 @@ class QuickSuccessiveImageCaptureFailsRepeatingRequestQuirkTest(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         cameraMetadata,
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                    ),
                 ),
             )
             .quirks

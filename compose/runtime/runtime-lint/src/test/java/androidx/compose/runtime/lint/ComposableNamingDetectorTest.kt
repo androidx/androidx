@@ -49,7 +49,7 @@ class ComposableNamingDetectorTest : LintDetectorTest() {
                 fun button() {}
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -84,7 +84,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 fun Button() {}
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -104,7 +104,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 fun getInt(): Int { return 5 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -124,7 +124,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to Button:
                 fun GetInt(): Int { return 5 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -183,7 +183,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -223,7 +223,7 @@ Fix for src/androidx/compose/runtime/foo/test.kt line 7: Change to getInt:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

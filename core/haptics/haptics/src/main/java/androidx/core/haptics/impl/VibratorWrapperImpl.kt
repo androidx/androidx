@@ -88,19 +88,11 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
                 }
             }
             is PatternVibrationWrapper -> {
-                if (Build.VERSION.SDK_INT >= 21) {
-                    check(attrs is AudioAttributesWrapper) {
-                        "Attempting to vibrate without AudioAttributes after" +
-                            " Android Lollipop (API 21+), not allowed"
-                    }
-                    Api21Impl.vibrate(vibrator, vibration, attrs)
-                } else {
-                    check(attrs == null) {
-                        "Attempting to vibrate with AudioAttributes before" +
-                            " Android Lollipop (< API 21), not supported"
-                    }
-                    ApiImpl.vibrate(vibrator, vibration)
+                check(attrs is AudioAttributesWrapper) {
+                    "Attempting to vibrate without AudioAttributes after" +
+                        " Android Lollipop (API 21+), not allowed"
                 }
+                Api21Impl.vibrate(vibrator, vibration, attrs)
             }
         }
     }
@@ -138,10 +130,7 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
 
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun getPrimitivesDurations(
-            vibrator: Vibrator,
-            primitives: IntArray,
-        ): IntArray? {
+        fun getPrimitivesDurations(vibrator: Vibrator, primitives: IntArray): IntArray? {
             return vibrator.getPrimitiveDurations(*primitives)
         }
     }
@@ -170,10 +159,7 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
 
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun arePrimitivesSupported(
-            vibrator: Vibrator,
-            primitives: IntArray,
-        ): BooleanArray {
+        fun arePrimitivesSupported(vibrator: Vibrator, primitives: IntArray): BooleanArray {
             return vibrator.arePrimitivesSupported(*primitives).toTypedArray().toBooleanArray()
         }
     }
@@ -203,7 +189,6 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
     }
 
     /** Version-specific static inner class. */
-    @RequiresApi(21)
     private object Api21Impl {
 
         @JvmStatic

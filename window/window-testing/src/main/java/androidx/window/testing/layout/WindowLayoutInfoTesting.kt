@@ -24,12 +24,14 @@ import androidx.window.layout.WindowLayoutInfo
  * Returns a [WindowLayoutInfo] with default values for testing.
  *
  * @param displayFeatures a [List] of [DisplayFeature], the default value is an empty [List].
- * @return [WindowLayoutInfo] with matching [List] of [DisplayFeature]
+ * @return [WindowLayoutInfo] with matching parameters.
  * @see WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo
  */
 @Suppress("FunctionName")
 @JvmName("createWindowLayoutInfo")
 @JvmOverloads
-fun TestWindowLayoutInfo(displayFeatures: List<DisplayFeature> = emptyList()): WindowLayoutInfo {
+public fun TestWindowLayoutInfo(
+    displayFeatures: List<DisplayFeature> = emptyList()
+): WindowLayoutInfo {
     return WindowLayoutInfo(displayFeatures)
 }

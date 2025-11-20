@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.fragment.compose.AndroidFragmentKt#AndroidFragment(Class<T>, androidx.compose.ui.Modifier, androidx.fragment.compose.FragmentState, android.os.Bundle, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Binary breaking change: method androidx.fragment.compose.AndroidFragmentKt.AndroidFragment(Class<T>,androidx.compose.ui.Modifier,androidx.fragment.compose.FragmentState,android.os.Bundle,kotlin.jvm.functions.Function1<T,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.compose.AndroidFragmentKt#AndroidFragment(androidx.compose.ui.Modifier, androidx.fragment.compose.FragmentState, android.os.Bundle, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Binary breaking change: method androidx.fragment.compose.AndroidFragmentKt.AndroidFragment(androidx.compose.ui.Modifier,androidx.fragment.compose.FragmentState,android.os.Bundle,kotlin.jvm.functions.Function1<T,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.compose.FragmentStateKt#rememberFragmentState():
+    Binary breaking change: method androidx.fragment.compose.FragmentStateKt.rememberFragmentState() has been removed from bytecode

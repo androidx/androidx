@@ -60,7 +60,7 @@ class CrossfadeDetector : Detector(), SourceCodeScanner {
                     UnusedCrossfadeTargetStateParameter,
                     node,
                     location,
-                    "Target state parameter `$name` is not used"
+                    "Target state parameter `$name` is not used",
                 )
             }
         }
@@ -83,8 +83,8 @@ class CrossfadeDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     CrossfadeDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

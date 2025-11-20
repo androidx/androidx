@@ -86,7 +86,7 @@ fun AnimateEnterExitDemo() {
                 visibleState = mainContentVisible,
                 modifier = Modifier.fillMaxSize(),
                 enter = fadeIn(),
-                exit = fadeOut()
+                exit = fadeOut(),
             ) {
                 Box {
                     Column(Modifier.fillMaxSize()) {
@@ -115,12 +115,12 @@ fun AnimateEnterExitDemo() {
                                         enter =
                                             slideInVertically(
                                                 initialOffsetY = { it },
-                                                animationSpec = staggeredSpring
+                                                animationSpec = staggeredSpring,
                                             ),
                                         // No built-in exit transition will be applied. It'll be
                                         // faded out by parent AnimatedVisibility while scaling down
                                         // by the scale animation.
-                                        exit = ExitTransition.None
+                                        exit = ExitTransition.None,
                                     )
                                     .fillMaxWidth()
                                     .padding(5.dp)
@@ -137,7 +137,7 @@ fun AnimateEnterExitDemo() {
                     FloatingActionButton(
                         onClick = {},
                         modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
-                        backgroundColor = MaterialTheme.colors.primary
+                        backgroundColor = MaterialTheme.colors.primary,
                     ) {
                         Icon(Icons.Default.Favorite, contentDescription = null)
                     }

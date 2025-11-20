@@ -46,7 +46,7 @@ object UiStubs {
         IvamBjoNgEBz3q9NowbMyiGht920E9EXiUiZPfe3m5EYUHMcES4m/z3FQeyb
         /KnLeWDx6OploW9NpQlnD7UNZqGfjDfTSl9b64IKxlnf4gzs4LcETn7wGKc8
         h2y5y93KEWWIM7QzdJAwxV6GfRzkII9DHOUQHqlH9xtDUhD7SQEAAA==
-        """
+        """,
         )
 
     val PointerEvent: TestFile =
@@ -114,7 +114,7 @@ object UiStubs {
         pbFvmKp+Ram69gUzn4aZq2QnYVO2A/OspshWKXZ7VEM4aw5A3qjPGvlZljQq
         ooy5pI1rjkSYrn7GzMcL7cwwOD7UzI8SEs2rEz8Z2sdYJ3xB0XnKWziC7eGO
         h7seFnGPXNz38AAPj8BiLGH5CNkYszEexcjFmI6RiVGOMfcHIp5sr08EAAA=
-        """
+        """,
         )
 
     // Functional Interface for pointer input event handling
@@ -202,7 +202,7 @@ object UiStubs {
                 1003gklMkd9oGUxTxHo/IkZn0eDhvsEQ70qjh/GIZJKsVVrWMUq30S33EI/p
                 fEb4DHU5e4CwjTkbd23cw7yNPO7bWMDiAZjGEpYPENUY0shpTGqsaGQ0pv8A
                 cjqS8TUFAAA=
-                """
+                """,
         )
 
     val Alignment: TestFile =
@@ -259,7 +259,7 @@ object UiStubs {
         6OkgOU59Rta9SECGSiFbwHAficlT/Rcg8RUjX/or/pObRvaqzTL6N0D+DLk9
         doqxExTOYO2dYuIEI8d/cYepl43nFMXSc6QoT8Mt97WVSDDwkvApypreh13B
         wwpmKpjFHH3iUQXzKO6DaTzGk30kNByNBY2URv43qNs4vuQDAAA=
-        """
+        """,
         )
 
     /** Simplified Modifier.composed stub */
@@ -325,6 +325,6 @@ object UiStubs {
         d4LPG5XFpQ8oD8i8IEko4xGriYhJir40vWkpslbJzhLYTMRsGi+jpC/xisYN
         mn9A8A93kLDxyMa8jQVUbCxiycZjPNkBC2ChuoNMgLEANwNMUuECLAcoBnga
         4FmAL/4BKp/c6X8HAAA=
-        """
+        """,
         )
 }

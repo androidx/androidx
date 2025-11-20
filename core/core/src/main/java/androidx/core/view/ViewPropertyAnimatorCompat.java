@@ -20,12 +20,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Paint;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
-
-import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -493,10 +490,8 @@ public final class ViewPropertyAnimatorCompat {
     public @NonNull ViewPropertyAnimatorCompat translationZBy(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ViewPropertyAnimator animator = view.animate();
-                Api21Impl.translationZBy(animator, value);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.translationZBy(value);
         }
         return this;
     }
@@ -513,10 +508,8 @@ public final class ViewPropertyAnimatorCompat {
     public @NonNull ViewPropertyAnimatorCompat translationZ(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ViewPropertyAnimator animator = view.animate();
-                Api21Impl.translationZ(animator, value);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.translationZ(value);
         }
         return this;
     }
@@ -533,10 +526,8 @@ public final class ViewPropertyAnimatorCompat {
     public @NonNull ViewPropertyAnimatorCompat z(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ViewPropertyAnimator animator = view.animate();
-                Api21Impl.z(animator, value);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.z(value);
         }
         return this;
     }
@@ -553,10 +544,8 @@ public final class ViewPropertyAnimatorCompat {
     public @NonNull ViewPropertyAnimatorCompat zBy(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                ViewPropertyAnimator animator = view.animate();
-                Api21Impl.zBy(animator, value);
-            }
+            ViewPropertyAnimator animator = view.animate();
+            animator.zBy(value);
         }
         return this;
     }
@@ -687,30 +676,5 @@ public final class ViewPropertyAnimatorCompat {
             animator.setUpdateListener(wrapped);
         }
         return this;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static ViewPropertyAnimator translationZBy(ViewPropertyAnimator viewPropertyAnimator,
-                float value) {
-            return viewPropertyAnimator.translationZBy(value);
-        }
-
-        static ViewPropertyAnimator translationZ(ViewPropertyAnimator viewPropertyAnimator,
-                float value) {
-            return viewPropertyAnimator.translationZ(value);
-        }
-
-        static ViewPropertyAnimator z(ViewPropertyAnimator viewPropertyAnimator, float value) {
-            return viewPropertyAnimator.z(value);
-        }
-
-        static ViewPropertyAnimator zBy(ViewPropertyAnimator viewPropertyAnimator, float value) {
-            return viewPropertyAnimator.zBy(value);
-        }
     }
 }

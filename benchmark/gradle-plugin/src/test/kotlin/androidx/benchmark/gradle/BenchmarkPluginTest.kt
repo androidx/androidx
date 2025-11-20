@@ -72,6 +72,8 @@ class BenchmarkPluginTest {
         File("src/test/test-data", "app-project").copyRecursively(projectSetup.rootDir)
 
         gradleRunner = GradleRunner.create().withProjectDir(projectSetup.rootDir)
+        // Run tests using Gradle 8.14 to support AGP version used for the tests, b/431847401
+        projectSetup.setUpGradleVersion(gradleRunner, "8.14")
 
         projectSetup.testProjectDir
             .newFile("settings.gradle")
@@ -82,7 +84,7 @@ class BenchmarkPluginTest {
                     ${projectSetup.allRepositoryPaths.joinToString("\n") { """ maven { url "$it" } """ }}
                 }
                 dependencies {
-                    classpath "com.android.tools.build:gradle:7.3.0"
+                    classpath "com.android.tools.build:gradle:8.2.1"
                     classpath "androidx.benchmark:androidx.benchmark.gradle.plugin:+"
                 }
             }
@@ -104,11 +106,14 @@ class BenchmarkPluginTest {
                     .trimIndent(),
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
@@ -141,7 +146,16 @@ class BenchmarkPluginTest {
 
     @Test
     fun applyPluginNonBenchmarkProject() {
-        projectSetup.writeDefaultBuildGradle(prefix = PLUGINS_HEADER, suffix = "")
+        projectSetup.writeDefaultBuildGradle(
+            prefix = PLUGINS_HEADER,
+            suffix =
+                """
+                android {
+                    namespace = "androidx.benchmark.gradle.test"
+                }
+            """
+                    .trimIndent(),
+        )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
@@ -154,11 +168,14 @@ class BenchmarkPluginTest {
             prefix = PLUGINS_HEADER,
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
@@ -173,6 +190,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunnerArguments additionalTestOutputDir: "/fake_path/files"
                 }
@@ -186,7 +204,7 @@ class BenchmarkPluginTest {
                 println android.testBuildType
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         projectSetup.gradlePropertiesFile.appendText("android.enableAdditionalTestOutput=true")
@@ -205,54 +223,14 @@ class BenchmarkPluginTest {
     }
 
     @Test
-    fun applyPluginOnAgp35() {
-        projectSetup.writeDefaultBuildGradle(
-            prefix = PLUGINS_HEADER,
-            suffix =
-                """
-            android {
-                defaultConfig {
-                    testInstrumentationRunnerArguments.remove("additionalTestOutputDir")
-                }
-            }
-
-            dependencies {
-                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
-            }
-
-            tasks.register("printInstrumentationArgs") {
-                println android.defaultConfig.testInstrumentationRunnerArguments
-            }
-
-            tasks.register("printTestBuildType") {
-                println android.testBuildType
-            }
-            """
-                    .trimIndent()
-        )
-
-        versionPropertiesFile.writeText("buildVersion=3.5.0-rc03")
-
-        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
-        assertTrue { output.output.contains("lockClocks - ") }
-        assertTrue { output.output.contains("unlockClocks - ") }
-
-        // Should try to pull benchmark reports via legacy BenchmarkPlugin code path.
-        assertTrue { output.output.contains("benchmarkReport - ") }
-
-        val argsOutput = gradleRunner.withArguments("printInstrumentationArgs").build()
-        assertTrue { argsOutput.output.contains("no-isolated-storage:1") }
-
-        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
-        assertTrue { testBuildTypeOutput.output.contains("release") }
-    }
-
-    @Test
     fun applyPluginDefaultAgpProperties() {
         projectSetup.writeDefaultBuildGradle(
             prefix = "import com.android.build.gradle.TestedExtension\n$PLUGINS_HEADER",
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
@@ -266,7 +244,7 @@ class BenchmarkPluginTest {
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
@@ -285,6 +263,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
@@ -309,7 +288,7 @@ class BenchmarkPluginTest {
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
@@ -336,7 +315,7 @@ class BenchmarkPluginTest {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
         projectSetup.gradlePropertiesFile.appendText("android.enableAdditionalTestOutput=true")
 
@@ -362,7 +341,7 @@ class BenchmarkPluginTest {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         assertFailsWith(UnexpectedBuildFailure::class) {
@@ -377,6 +356,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
@@ -392,7 +372,7 @@ class BenchmarkPluginTest {
                 println "BenchmarkPluginTestKt_applyPluginSigningConfig_${"$"}signingConfigName"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val releaseTask = gradleRunner.withArguments("printReleaseSigningConfig").build()

@@ -26,7 +26,7 @@ import androidx.pdf.widget.ZoomView.ZoomScroll
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GestureRecordingProcessor(
     private val eventCallback: EventCallback?,
-    private val stableZoom: Float
+    private val stableZoom: Float,
 ) {
     /**
      * Process new position state and record page visible and page zoomed events to [eventCallback]
@@ -64,7 +64,7 @@ public class GestureRecordingProcessor(
         public fun loadingNewAssetsOnScroll(
             newVisiblePages: Range,
             newPosition: ZoomScroll,
-            stableZoom: Float
+            stableZoom: Float,
         ): Boolean {
             return (!newVisiblePages.isEmpty &&
                 (newPosition.stable || newPosition.zoom == stableZoom))

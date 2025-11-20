@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/camera_config"
+        android:title="Camera Config"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:id="@+id/camera_config_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/camera_config_camera2"
+                    android:checked="true"
+                    android:title="Camera2"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/camera_config_camera_pipe"
+                    android:title="Camera Pipe"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/slow_motion_video_enabled"
+        android:checkable="true"
+        android:title="Enable Slow Motion"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/video_capabilities_source"
+        android:title="Video Capabilities Source"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:id="@+id/video_capabilities_source_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/video_capabilities_source_camcorder_profile"
+                    android:checked="true"
+                    android:title="CamcorderProfile"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/video_capabilities_source_codec_capabilities"
+                    android:title="CodecCapabilities"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/aspect_ratio"
+        android:title="@string/aspect_ratio"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:id="@+id/aspect_ratio_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/aspect_ratio_default"
+                    android:checked="true"
+                    android:title="Default"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/aspect_ratio_4_3"
+                    android:title="4:3"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/aspect_ratio_16_9"
+                    android:title="16:9"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+</menu>

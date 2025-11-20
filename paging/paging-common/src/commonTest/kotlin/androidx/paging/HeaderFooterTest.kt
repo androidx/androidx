@@ -48,7 +48,7 @@ class HeaderFooterTest {
                 localPrepend(
                         pages =
                             listOf(TransformablePage(data = listOf(0), originalPageOffset = -1)),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertHeaderItem(-1)
 
@@ -60,11 +60,11 @@ class HeaderFooterTest {
                                 data = listOf(-1),
                                 originalPageOffsets = intArrayOf(-1),
                                 hintOriginalPageOffset = -1,
-                                hintOriginalIndices = listOf(0)
+                                hintOriginalIndices = listOf(0),
                             ),
-                            TransformablePage(data = listOf(0), originalPageOffset = -1)
+                            TransformablePage(data = listOf(0), originalPageOffset = -1),
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertThat(actual).isEqualTo(expected)
@@ -77,7 +77,7 @@ class HeaderFooterTest {
                 localRefresh(
                         pages =
                             listOf(TransformablePage(data = listOf("a"), originalPageOffset = 0)),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertHeaderItem("HEADER")
 
@@ -89,11 +89,11 @@ class HeaderFooterTest {
                                 data = listOf("HEADER"),
                                 originalPageOffsets = intArrayOf(0),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0)
+                                hintOriginalIndices = listOf(0),
                             ),
-                            TransformablePage(data = listOf("a"), originalPageOffset = 0)
+                            TransformablePage(data = listOf("a"), originalPageOffset = 0),
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertThat(actual).isEqualTo(expected)
@@ -108,10 +108,10 @@ class HeaderFooterTest {
                             listOf(
                                 TransformablePage(
                                     data = emptyList<String>(),
-                                    originalPageOffset = 0
+                                    originalPageOffset = 0,
                                 )
                             ),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertHeaderItem("HEADER")
 
@@ -123,10 +123,10 @@ class HeaderFooterTest {
                                 data = listOf("HEADER"),
                                 originalPageOffsets = intArrayOf(0),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0)
+                                hintOriginalIndices = listOf(0),
                             )
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertEquals(expected, actual)
@@ -139,7 +139,7 @@ class HeaderFooterTest {
                 localAppend(
                         pages =
                             listOf(TransformablePage(data = listOf("b"), originalPageOffset = 0)),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertFooterItem("FOOTER")
 
@@ -152,10 +152,10 @@ class HeaderFooterTest {
                                 data = listOf("FOOTER"),
                                 originalPageOffsets = intArrayOf(0),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0)
-                            )
+                                hintOriginalIndices = listOf(0),
+                            ),
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertEquals(expected, actual)
@@ -168,7 +168,7 @@ class HeaderFooterTest {
                 localRefresh(
                         pages =
                             listOf(TransformablePage(data = listOf("a"), originalPageOffset = 0)),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertFooterItem("FOOTER")
 
@@ -181,10 +181,10 @@ class HeaderFooterTest {
                                 data = listOf("FOOTER"),
                                 originalPageOffsets = intArrayOf(0),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0)
-                            )
+                                hintOriginalIndices = listOf(0),
+                            ),
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertThat(actual).isEqualTo(expected)
@@ -199,10 +199,10 @@ class HeaderFooterTest {
                             listOf(
                                 TransformablePage(
                                     data = emptyList<String>(),
-                                    originalPageOffset = 0
+                                    originalPageOffset = 0,
                                 )
                             ),
-                        source = fullLoadStates
+                        source = fullLoadStates,
                     )
                     .insertFooterItem("FOOTER")
 
@@ -214,10 +214,10 @@ class HeaderFooterTest {
                                 data = listOf("FOOTER"),
                                 originalPageOffsets = intArrayOf(0),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0)
+                                hintOriginalIndices = listOf(0),
                             )
                         ),
-                    source = fullLoadStates
+                    source = fullLoadStates,
                 )
 
             assertThat(actual).isEqualTo(expected)

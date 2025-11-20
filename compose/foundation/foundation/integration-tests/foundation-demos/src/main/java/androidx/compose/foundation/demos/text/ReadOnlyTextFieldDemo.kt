@@ -53,12 +53,12 @@ fun ReadOnlyTextFieldDemo() {
             value = text,
             onValueChange = { text = it },
             readOnly = readOnly,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Button(
             onClick = { focusManager.clearFocus() },
-            modifier = Modifier.fillMaxWidth().wrapContentWidth()
+            modifier = Modifier.fillMaxWidth().wrapContentWidth(),
         ) {
             Text("Clear focus")
         }

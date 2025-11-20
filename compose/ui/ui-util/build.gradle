@@ -27,12 +27,17 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        namespace = "androidx.compose.ui.util"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -41,21 +46,24 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 implementation("androidx.collection:collection:1.4.3")
+                implementation(project(":compose:runtime:runtime"))
             }
         }
 
         commonTest {
             dependencies {
-                implementation(kotlin("test-junit"))
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
         }
 
         androidMain {
@@ -77,14 +85,15 @@ androidXMultiplatform {
             dependsOn(commonStubsMain)
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
+                implementation(libs.testRunner)
             }
         }
 
-        androidUnitTest {
-            dependsOn(commonTest)
+        androidHostTest {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
             }
@@ -98,15 +107,4 @@ androidx {
     inceptionYear = "2020"
     description = "Internal Compose utilities used by other modules"
     legacyDisableKotlinStrictApiMode = true
-}
-
-androidxCompose {
-    composeCompilerPluginEnabled = false
-}
-
-android {
-    namespace = "androidx.compose.ui.util"
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
 }

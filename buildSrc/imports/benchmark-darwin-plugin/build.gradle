@@ -18,7 +18,3 @@ gradlePlugin {
         }
     }
 }
-
-validatePlugins {
-    enableStricterValidation = true
-}

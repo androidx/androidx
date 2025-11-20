@@ -1,0 +1,147 @@
+// Signature format: 4.0
+package androidx.xr.scenecore.impl.perception {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Anchor {
+    ctor public Anchor(long, android.os.IBinder);
+    method public boolean detach();
+    method public long getAnchorId();
+    method public android.os.IBinder getAnchorToken();
+    method public androidx.xr.scenecore.impl.perception.Anchor.PersistState getPersistState();
+    method public java.util.UUID? persist();
+  }
+
+  public enum Anchor.PersistState {
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Anchor.PersistState NOT_VALID;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Anchor.PersistState PERSISTED;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Anchor.PersistState PERSIST_NOT_REQUESTED;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Anchor.PersistState PERSIST_PENDING;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Fov {
+    ctor public Fov(float, float, float, float);
+    method public float getAngleDown();
+    method public float getAngleLeft();
+    method public float getAngleRight();
+    method public float getAngleUp();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PerceptionLibrary {
+    ctor public PerceptionLibrary();
+    method public android.app.Activity getActivity();
+    method public androidx.xr.scenecore.impl.perception.Session? getSession();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.impl.perception.Session!>? initSession(android.app.Activity, int, java.util.concurrent.ExecutorService);
+    method protected static void loadLibraryAsync(String);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PerceptionLibraryConstants {
+    field public static final int OPEN_XR_SPACE_TYPE_LOCAL = 2; // 0x2
+    field public static final int OPEN_XR_SPACE_TYPE_LOCAL_FLOOR = 1000426000; // 0x3ba14a10
+    field public static final int OPEN_XR_SPACE_TYPE_STAGE = 3; // 0x3
+    field public static final int OPEN_XR_SPACE_TYPE_UNBOUNDED = 1000467000; // 0x3ba1ea38
+    field public static final int OPEN_XR_SPACE_TYPE_VIEW = 1; // 0x1
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Plane implements androidx.xr.scenecore.impl.perception.Trackable {
+    ctor public Plane(Long, int);
+    method public androidx.xr.scenecore.impl.perception.Anchor? createAnchor(androidx.xr.scenecore.impl.perception.Pose, Long?);
+    method public java.util.List<androidx.xr.scenecore.impl.perception.Anchor!> getAnchors();
+    method public androidx.xr.scenecore.impl.perception.Plane.PlaneData? getData(Long?);
+  }
+
+  public enum Plane.Label {
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Label CEILING;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Label FLOOR;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Label TABLE;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Label UNKNOWN;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Label WALL;
+    field public final int intValue;
+  }
+
+  public static class Plane.PlaneData {
+    ctor public Plane.PlaneData(androidx.xr.scenecore.impl.perception.Pose, float, float, int, int);
+    field public final androidx.xr.scenecore.impl.perception.Pose centerPose;
+    field public final float extentHeight;
+    field public final float extentWidth;
+    field public final androidx.xr.scenecore.impl.perception.Plane.Label label;
+    field public final androidx.xr.scenecore.impl.perception.Plane.Type type;
+  }
+
+  public enum Plane.Type {
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Type ARBITRARY;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Type HORIZONTAL_DOWNWARD_FACING;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Type HORIZONTAL_UPWARD_FACING;
+    enum_constant public static final androidx.xr.scenecore.impl.perception.Plane.Type VERTICAL;
+    field public final int intValue;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Pose {
+    ctor public Pose(float, float, float, float, float, float, float);
+    method public static androidx.xr.scenecore.impl.perception.Pose identity();
+    method public float qw();
+    method public float qx();
+    method public float qy();
+    method public float qz();
+    method public float tx();
+    method public float ty();
+    method public float tz();
+    method public void updateRotation(float, float, float, float);
+    method public void updateTranslation(float, float, float);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Session {
+    method public androidx.xr.scenecore.impl.perception.Anchor? createAnchor(float, float, androidx.xr.scenecore.impl.perception.Plane.Type, androidx.xr.scenecore.impl.perception.Plane.Label);
+    method public androidx.xr.scenecore.impl.perception.Anchor? createAnchorFromUuid(java.util.UUID?);
+    method public java.util.List<androidx.xr.scenecore.impl.perception.Plane!> getAllPlanes();
+    method public androidx.xr.scenecore.impl.perception.Pose? getHeadPose();
+    method public long getNativeInstance();
+    method public long getNativeSession();
+    method public androidx.xr.scenecore.impl.perception.ViewProjections? getStereoViews();
+    method public boolean unpersistAnchor(java.util.UUID?);
+    field public static final long XR_NULL_HANDLE = 0L; // 0x0L
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Trackable {
+    method public androidx.xr.scenecore.impl.perception.Anchor? createAnchor(androidx.xr.scenecore.impl.perception.Pose, Long?);
+    method public java.util.List<androidx.xr.scenecore.impl.perception.Anchor!> getAnchors();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ViewProjection {
+    ctor public ViewProjection(androidx.xr.scenecore.impl.perception.Pose, androidx.xr.scenecore.impl.perception.Fov);
+    method public androidx.xr.scenecore.impl.perception.Fov getFov();
+    method public androidx.xr.scenecore.impl.perception.Pose getPose();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewProjections {
+    ctor public ViewProjections(androidx.xr.scenecore.impl.perception.ViewProjection, androidx.xr.scenecore.impl.perception.ViewProjection);
+    method public androidx.xr.scenecore.impl.perception.ViewProjection getLeftEye();
+    method public androidx.xr.scenecore.impl.perception.ViewProjection getRightEye();
+  }
+
+}
+
+package androidx.xr.scenecore.impl.perception.exceptions {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FailedToInitializeException extends java.lang.RuntimeException {
+    ctor public FailedToInitializeException(String);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LibraryLoadingException extends java.lang.RuntimeException {
+    ctor public LibraryLoadingException(String);
+  }
+
+}
+
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) androidx.xr.scenecore.spatial.core {
+
+  public class OpenXrScenePose implements androidx.xr.scenecore.runtime.ScenePose {
+    method public androidx.xr.runtime.math.Pose getActivitySpacePose();
+    method public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
+    method public androidx.xr.runtime.math.Pose getPoseInActivitySpace();
+    method public androidx.xr.runtime.math.Pose? getPoseInOpenXrReferenceSpace();
+    method public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.runtime.HitTestResult!> hitTest(androidx.xr.runtime.math.Vector3, androidx.xr.runtime.math.Vector3, @androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue int);
+    method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose, androidx.xr.scenecore.runtime.ScenePose);
+  }
+
+}
+

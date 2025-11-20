@@ -17,7 +17,9 @@
 package androidx.privacysandbox.tools.apicompiler.generator
 
 import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.SpecNames.viewClass
 import androidx.privacysandbox.tools.core.generator.addCode
 import androidx.privacysandbox.tools.core.generator.addControlFlow
 import androidx.privacysandbox.tools.core.generator.build
@@ -59,4 +61,19 @@ internal class Api33SdkProviderGenerator(parsedApi: ParsedApi) :
                 api.getOnlyService().stubDelegateNameSpec(),
             )
         }
+
+    override fun generateGetViewFunction(): FunSpec {
+        return FunSpec.builder("getView").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameter("windowContext", contextClass)
+            addParameter("params", bundleClass)
+            addParameter("width", Int::class)
+            addParameter("height", Int::class)
+            returns(viewClass)
+            addStatement(
+                "throw UnsupportedOperationException(%S)",
+                "This SDK doesn't support explicit SurfaceView requests.",
+            )
+        }
+    }
 }

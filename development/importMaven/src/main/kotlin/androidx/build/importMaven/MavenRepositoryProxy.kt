@@ -26,28 +26,24 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.server.application.call
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.request.path
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import io.ktor.util.toByteArray
+import io.ktor.utils.io.toByteArray
+import java.net.URI
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.kotlin.logger
-import java.net.URI
-import java.net.URL
 
 /**
  * Creates a local proxy server for given the artifactory url.
  *
  * @see MavenRepositoryProxy.Companion.startAll
  */
-class MavenRepositoryProxy private constructor(
-    delegateHost: String,
-    val downloadObserver: DownloadObserver?
-) {
+class MavenRepositoryProxy
+private constructor(delegateHost: String, val downloadObserver: DownloadObserver?) {
     init {
         check(delegateHost.startsWith("http")) {
             "Unsupported url: $delegateHost. Only http(s) urls are supported"
@@ -56,69 +52,49 @@ class MavenRepositoryProxy private constructor(
 
     private val logger = logger("MavenProxy[$delegateHost]")
 
-    private val delegateHost = delegateHost.trimEnd {
-        it == '/'
-    }
+    private val delegateHost = delegateHost.trimEnd { it == '/' }
 
     fun <T> start(block: (URI) -> T): T {
         val client = HttpClient(OkHttp)
-        val server = embeddedServer(Netty, port = 0 /*random port*/) {
-            routing {
-                get("/{...}") {
-                    val path = this.call.request.path()
-                    val displayUrl = "$delegateHost$path"
-                    val incomingHeaders = this.call.request.headers
-                    logger.trace {
-                        "Request ($displayUrl)"
-                    }
+        val server =
+            embeddedServer(Netty, port = 0 /*random port*/) {
+                routing {
+                    get("/{...}") {
+                        val path = this.call.request.path()
+                        val displayUrl = "$delegateHost$path"
+                        val incomingHeaders = this.call.request.headers
+                        logger.trace { "Request ($displayUrl)" }
 
-                    try {
-                        val (clientResponse, responseBytes) = requestFromDelegate(
-                            path,
-                            client,
-                            incomingHeaders
-                        )
-                        call.respondBytes(
-                            bytes = responseBytes,
-                            contentType = clientResponse.contentType(),
-                            status = clientResponse.status
-                        ).also {
-                            logger.trace {
-                                "Success ($displayUrl)"
-                            }
+                        try {
+                            val (clientResponse, responseBytes) =
+                                requestFromDelegate(path, client, incomingHeaders)
+                            call
+                                .respondBytes(
+                                    bytes = responseBytes,
+                                    contentType = clientResponse.contentType(),
+                                    status = clientResponse.status
+                                )
+                                .also { logger.trace { "Success ($displayUrl)" } }
+                        } catch (ex: Throwable) {
+                            logger.error(ex) { "Failed ($displayUrl): ${ex.message}" }
+                            throw ex
                         }
-                    } catch (ex: Throwable) {
-                        logger.error(ex) {
-                            "Failed ($displayUrl): ${ex.message}"
-                        }
-                        throw ex
                     }
                 }
             }
-        }
         return try {
             server.start(wait = false)
             val url = runBlocking {
-                server.resolvedConnectors().first().let {
-                    URL(
-                        it.type.name.lowercase(),
-                        // Always use `localhost` for local loopback given this is secure for `http` URLs.
-                        "localhost",
-                        it.port,
-                        ""
-                    )
-                    // Always use `localhost` for local loopback given this is secure for `http` URIs.
+                server.engine.resolvedConnectors().first().let {
+                    // Always use `localhost` for local loopback given this is secure for `http`
+                    // URIs.
                     URI("${it.type.name.lowercase()}://localhost:${it.port}")
                 }
             }
             block(url)
         } finally {
-            runCatching {
-                client.close()
-            }
-            runCatching {
-                server.stop()
-            }
+            runCatching { client.close() }
+            runCatching { server.stop() }
         }
     }
 
@@ -128,21 +104,19 @@ class MavenRepositoryProxy private constructor(
         incomingHeaders: Headers
     ): Pair<HttpResponse, ByteArray> {
         val delegatedUrl = "$delegateHost$path"
-        val clientResponse = client.request(delegatedUrl) {
-            incomingHeaders.forEach { key, value ->
-                // don't copy host header since we are proxying from localhost.
-                if (key != "Host") {
-                    header(key, value)
+        val clientResponse =
+            client.request(delegatedUrl) {
+                incomingHeaders.forEach { key, value ->
+                    // don't copy host header since we are proxying from localhost.
+                    if (key != "Host") {
+                        header(key, value)
+                    }
                 }
+                method = HttpMethod.Get
             }
-            method = HttpMethod.Get
-        }
         val responseBytes = clientResponse.bodyAsChannel().toByteArray()
         if (clientResponse.status.isSuccess()) {
-            downloadObserver?.onDownload(
-                path = path.dropWhile { it == '/' },
-                bytes = responseBytes
-            )
+            downloadObserver?.onDownload(path = path.dropWhile { it == '/' }, bytes = responseBytes)
         }
         return Pair(clientResponse, responseBytes)
     }
@@ -159,22 +133,14 @@ class MavenRepositoryProxy private constructor(
             downloadObserver: DownloadObserver?,
             block: (List<URI>) -> T
         ): T {
-            val proxies = repositoryUrls.map { url ->
-                MavenRepositoryProxy(
-                    delegateHost = url,
-                    downloadObserver = downloadObserver
-                )
-            }
-            return startAll(
-                proxies = proxies,
-                previousUris = emptyList(),
-                block = block
-            )
+            val proxies =
+                repositoryUrls.map { url ->
+                    MavenRepositoryProxy(delegateHost = url, downloadObserver = downloadObserver)
+                }
+            return startAll(proxies = proxies, previousUris = emptyList(), block = block)
         }
 
-        /**
-         * Recursively start all proxy servers
-         */
+        /** Recursively start all proxy servers */
         private fun <T> startAll(
             proxies: List<MavenRepositoryProxy>,
             previousUris: List<URI>,

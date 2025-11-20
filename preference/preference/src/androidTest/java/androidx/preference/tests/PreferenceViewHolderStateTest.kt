@@ -114,7 +114,7 @@ class PreferenceViewHolderStateTest {
         // existing cached ViewHolder, so we can ensure that the state is reset. We use swipeUp
         // here instead of scrolling directly to the item, as we need to allow time for older
         // views to be cached first, instead of instantly snapping to the item.
-        onView(withId(R.id.recycler_view))
+        onView(withId(androidx.preference.R.id.recycler_view))
             .perform(repeatedlyUntil(swipeUp(), hasDescendant(withText(normalTitle)), maxAttempts))
 
         // We should have a ripple / state list drawable as the background
@@ -152,12 +152,12 @@ class PreferenceViewHolderStateTest {
         val maxAttempts = 10
 
         // Scroll until the end, ensuring all Preferences have been bound.
-        onView(withId(R.id.recycler_view))
+        onView(withId(androidx.preference.R.id.recycler_view))
             .perform(
                 repeatedlyUntil(
                     swipeUp(),
                     hasDescendant(withText("${disabledTitle}40")),
-                    maxAttempts
+                    maxAttempts,
                 )
             )
 

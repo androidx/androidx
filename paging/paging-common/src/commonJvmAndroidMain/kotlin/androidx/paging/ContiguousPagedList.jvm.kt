@@ -39,15 +39,9 @@ public open class ContiguousPagedList<K : Any, V : Any>(
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
     initialPage: PagingSource.LoadResult.Page<K, V>,
-    private val initialLastKey: K?
+    private val initialLastKey: K?,
 ) :
-    PagedList<V>(
-        pagingSource,
-        coroutineScope,
-        notifyDispatcher,
-        PagedStorage<V>(),
-        config,
-    ),
+    PagedList<V>(pagingSource, coroutineScope, notifyDispatcher, PagedStorage<V>(), config),
     PagedStorage.Callback,
     LegacyPageFetcher.PageConsumer<V> {
 
@@ -55,13 +49,13 @@ public open class ContiguousPagedList<K : Any, V : Any>(
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
             index: Int,
-            leadingNulls: Int
+            leadingNulls: Int,
         ) = prefetchDistance - (index - leadingNulls)
 
         internal fun getAppendItemsRequested(
             prefetchDistance: Int,
             index: Int,
-            itemsBeforeTrailingNulls: Int
+            itemsBeforeTrailingNulls: Int,
         ) = index + prefetchDistance + 1 - itemsBeforeTrailingNulls
     }
 
@@ -91,7 +85,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
             notifyDispatcher,
             backgroundDispatcher,
             this,
-            storage as LegacyPageFetcher.KeyProvider<K>
+            storage as LegacyPageFetcher.KeyProvider<K>,
         )
 
     @Suppress("UNCHECKED_CAST")
@@ -154,7 +148,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
                             replacePagesWithNulls,
                             config.maxSize,
                             requiredRemainder,
-                            this@ContiguousPagedList
+                            this@ContiguousPagedList,
                         )
                     ) {
                         // trimmed from front, ensure we can fetch in that dir
@@ -168,7 +162,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
                             replacePagesWithNulls,
                             config.maxSize,
                             requiredRemainder,
-                            this@ContiguousPagedList
+                            this@ContiguousPagedList,
                         )
                     ) {
                         pager.loadStateManager.setState(APPEND, NotLoading.Incomplete)
@@ -200,7 +194,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
     internal fun deferBoundaryCallbacks(
         deferEmpty: Boolean,
         deferBegin: Boolean,
-        deferEnd: Boolean
+        deferEnd: Boolean,
     ) {
         if (boundaryCallback == null) {
             throw IllegalStateException("Can't defer BoundaryCallback, no instance")
@@ -303,7 +297,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 this,
                 initialPage.itemsBefore != COUNT_UNDEFINED &&
-                    initialPage.itemsAfter != COUNT_UNDEFINED
+                    initialPage.itemsAfter != COUNT_UNDEFINED,
             )
         } else {
             // If placeholder are disabled, avoid passing leading/trailing nulls, since PagingSource
@@ -314,7 +308,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 if (initialPage.itemsBefore != COUNT_UNDEFINED) initialPage.itemsBefore else 0,
                 this,
-                false
+                false,
             )
         }
 
@@ -337,7 +331,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
             getAppendItemsRequested(
                 config.prefetchDistance,
                 index,
-                storage.placeholdersBefore + storage.dataCount
+                storage.placeholdersBefore + storage.dataCount,
             )
 
         prependItemsRequested = maxOf(prependItems, prependItemsRequested)

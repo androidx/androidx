@@ -71,7 +71,7 @@ public fun MaterialScope.buttonGroup(
     width: ContainerDimension = expand(),
     height: ContainerDimension = expand(),
     @Dimension(unit = DP) spacing: Float = DEFAULT_SPACER_SIZE_DP,
-    content: ButtonGroupScope.() -> Unit
+    content: ButtonGroupScope.() -> Unit,
 ): LayoutElement {
     val row =
         Row.Builder()
@@ -102,9 +102,9 @@ public class ButtonGroupScope internal constructor(private val scope: MaterialSc
      * Adds an item to a [buttonGroup]
      *
      * @param content the content to use for this item. Usually, this will be one of the Material 3
-     *   button or card variants.
+     *   button or card variants (for example [iconButton], [textButton], [iconDataCard] or
+     *   [textDataCard]).
      */
-    // TODO: b/360110062: Add link to Button and Card.
     public fun buttonGroupItem(content: MaterialScope.() -> LayoutElement) {
         items += scope.content()
     }

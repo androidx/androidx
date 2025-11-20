@@ -17,10 +17,17 @@
 package androidx.pdf.viewer.document
 
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfLoader
 
 class FakePdfLoader(private val fakePdfDocument: PdfDocument) : PdfLoader {
 
     override suspend fun openDocument(uri: Uri, password: String?): PdfDocument = fakePdfDocument
+
+    override suspend fun openDocument(
+        uri: Uri,
+        fileDescriptor: ParcelFileDescriptor,
+        password: String?,
+    ): PdfDocument = fakePdfDocument
 }

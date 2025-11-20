@@ -22,5 +22,5 @@ import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 
 internal actual fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
-    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
+    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit,
 ): DragAndDropTargetModifierNode = implementedInJetBrainsFork()

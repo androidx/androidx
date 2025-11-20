@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -31,7 +31,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":startup:startup-runtime"))
     implementation(project(":startup:integration-tests:first-library"))
     implementation(project(":startup:integration-tests:second-library"))

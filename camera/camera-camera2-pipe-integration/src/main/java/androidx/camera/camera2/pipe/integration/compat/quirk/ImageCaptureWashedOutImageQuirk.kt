@@ -54,7 +54,7 @@ public class ImageCaptureWashedOutImageQuirk : UseTorchAsFlashQuirk {
                 "SM-G935V",
                 "SM-G935T",
                 "SM-G935U",
-                "SM-G935P"
+                "SM-G935P",
             )
 
         public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {

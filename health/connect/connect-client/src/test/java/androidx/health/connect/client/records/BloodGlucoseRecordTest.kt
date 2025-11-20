@@ -17,7 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_ACTIVELY_RECORDED
 import androidx.health.connect.client.units.BloodGlucose
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -58,12 +57,12 @@ class BloodGlucoseRecordTest {
                         specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_SERUM,
                         mealType = MealType.MEAL_TYPE_LUNCH,
                         relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_FASTING,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED),
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )
             .isEqualTo(
-                "BloodGlucoseRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, level=2.4 mmol/L, specimenSource=4, mealType=2, relationToMeal=2, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=1))"
+                "BloodGlucoseRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, level=2.4 mmol/L, specimenSource=4, mealType=2, relationToMeal=2, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
             )
     }
 }

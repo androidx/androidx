@@ -27,9 +27,9 @@ import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
-import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.strokes.StrokeInput
 import java.util.WeakHashMap
 
@@ -45,6 +45,11 @@ import java.util.WeakHashMap
 @OptIn(ExperimentalInkCustomBrushApi::class)
 internal class BrushPaintCache(
     val textureStore: TextureBitmapStore,
+    /**
+     * Flags that are set on the [Paint] in addition to the defaults enable by this class (currently
+     * [Paint.FILTER_BITMAP_FLAG]). Note that default does not match the behavior of the no-argument
+     * [Paint] constructor, which also sets [Paint.ANTI_ALIAS_FLAG] starting at Android S).
+     */
     val additionalPaintFlags: Int = 0,
     val applyColorFilterToTexture: Boolean = false,
 ) {
@@ -176,15 +181,19 @@ internal class BrushPaintCache(
                                 // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
                                 it.preScale(textureLayer.sizeX, textureLayer.sizeY)
                             }
-                            // For winding textures, we must end up in surface UV space (which is
-                            // different from
-                            // texture UV space).
-                            BrushPaint.TextureMapping.WINDING -> {
-                                // TODO: b/373649509 - Take origin, sizeUnit, and size into account.
-                                // TODO: b/373649230 - Take animation progress and texture atlas
-                                // into account.
-                            }
+                            // For stamping textures, we must end up in surface UV space. The shader
+                            // will apply
+                            // animation parameters as needed to calculate texture UV from that (see
+                            // `calculateStampingTextureUv()` in
+                            // `sksl_vertex_shader_helper_functions.h`).
+                            BrushPaint.TextureMapping.STAMPING -> {}
                         }
+
+                        // The texture rotation is specified as being around the center of the first
+                        // repetition,
+                        // so include a pivot point of 50% in both axes in texture UV space.
+                        it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
+
                         // The texture offset is specified as fractions of the texture size; in
                         // other words, it
                         // should be applied within texture UV space.
@@ -248,17 +257,19 @@ internal class BrushPaintCache(
                 // and
                 // the behavior depends on this flag otherwise. Starting at Android Q, this flag is
                 // set by
-                // default. So setting it results in consistent behavior for Android P and for <= O
-                // when
-                // hardware acceleration is not available.
-                setFilterBitmap(true)
+                // default by either Paint() or Paint(flags). So setting it results in consistent
+                // behavior
+                // for Android P and for <= O when hardware acceleration is not available. Note that
+                // Paint()
+                // but not Paint(flags) also sets ANTI_ALIAS_FLAG starting at Android S.
+                isFilterBitmap = true
             }
         val textureLayers = brushPaint.textureLayers
         if (textureLayers.isEmpty()) {
             // Early exit for efficiency.
             return PaintCacheData(paint)
         }
-        val bitmaps = textureLayers.map { textureStore.get(it.colorTextureUri) }
+        val bitmaps = textureLayers.map { textureStore[it.clientTextureId] }
         val bitmapShaders =
             textureLayers.zip(bitmaps) { layer, bitmap ->
                 if (bitmap == null) return@zip null
@@ -287,7 +298,7 @@ internal class BrushPaintCache(
                         ComposeShader(
                             shader,
                             acc,
-                            textureLayers[i - 1].blendMode.toPorterDuffMode()
+                            textureLayers[i - 1].blendMode.toPorterDuffMode(),
                         )
                 }
             }
@@ -329,7 +340,7 @@ internal class BrushPaintCache(
 
     /**
      * Obtains a [Paint] for the [BrushPaint] from the cache, creating it if necessary and updating
-     * its local transform. If [BrushPaint.TextureLayer.colorTextureUri] can't be resolved to a
+     * its local transform. If [BrushPaint.TextureLayer.colorTextureId] can't be resolved to a
      * bitmap for any layer, that layer is ignored.
      *
      * @param brushPaint Used to configure [Paint.shader].

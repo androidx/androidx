@@ -51,10 +51,7 @@ internal object FrameCostQuery {
     """
             .trimIndent()
 
-    internal fun getFrameCost(
-        session: TraceProcessor.Session,
-        packageName: String,
-    ): List<Double> {
+    internal fun getFrameCost(session: TraceProcessor.Session, packageName: String): List<Double> {
         val queryResultIterator = session.query(query = getFullQuery(packageName))
         return queryResultIterator.map { it.double("frameCost") }.toList()
     }

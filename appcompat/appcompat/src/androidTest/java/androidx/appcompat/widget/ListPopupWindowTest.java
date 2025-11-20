@@ -472,7 +472,7 @@ public class ListPopupWindowTest {
         private AdapterView.OnItemClickListener mOnItemClickListener;
         private PopupWindow.OnDismissListener mOnDismissListener;
 
-        private int mContentRowLayoutId = R.layout.abc_popup_menu_item_layout;
+        private int mContentRowLayoutId = androidx.appcompat.R.layout.abc_popup_menu_item_layout;
 
         private boolean mUseCustomPopupStyle;
         private int mPopupStyleAttr;

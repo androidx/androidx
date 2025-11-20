@@ -22,13 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.savedstate.SavedState
 import java.lang.ref.WeakReference
 
-/**
- * Entry point for navigation operations.
- *
- * This class provides utilities for finding a relevant [NavController] instance from various common
- * places in your application, or for performing navigation in response to UI events.
- */
-public object Navigation {
+public actual object Navigation {
     /**
      * Find a [NavController] given the id of a View and its containing [Activity]. This is a
      * convenience wrapper around [findNavController].
@@ -83,7 +77,7 @@ public object Navigation {
     @JvmOverloads
     public fun createNavigateOnClickListener(
         @IdRes resId: Int,
-        args: SavedState? = null
+        args: SavedState? = null,
     ): View.OnClickListener {
         return View.OnClickListener { view -> findNavController(view).navigate(resId, args) }
     }

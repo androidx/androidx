@@ -49,7 +49,7 @@ internal fun <T> runOnUiThread(action: () -> T): T {
             it.addSuppressed(
                 ExecutionException(
                     "An Exception occurred on the UI thread during runOnUiThread()",
-                    null
+                    null,
                 )
             )
         } ?: e

@@ -214,9 +214,9 @@ InternalField: androidx.constraintlayout.widget.ConstraintSet.Transform#mApply:
 
 
 InvalidNullabilityOverride: androidx.constraintlayout.motion.widget.MotionLayout#onNestedFling(android.view.View, float, float, boolean) parameter #0:
-    Invalid nullability on parameter `target` in method `onNestedFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onNestedFling`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.constraintlayout.motion.widget.MotionLayout#onNestedPreFling(android.view.View, float, float) parameter #0:
-    Invalid nullability on parameter `target` in method `onNestedPreFling`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.View in parameter `target` in method `onNestedPreFling`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 KotlinOperator: androidx.constraintlayout.motion.utils.ViewTimeCycle#get(float, long, android.view.View, androidx.constraintlayout.core.motion.utils.KeyCache):

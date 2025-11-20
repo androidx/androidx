@@ -30,7 +30,8 @@ import androidx.appsearch.safeparcel.stub.StubCreators.StorageInfoCreator;
 
 /** The response class of {@code AppSearchSession#getStorageInfo}. */
 @SafeParcelable.Class(creator = "StorageInfoCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class StorageInfo extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -100,7 +101,6 @@ public final class StorageInfo extends AbstractSafeParcelable {
      * along with alive blobs.
      */
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     public long getBlobsSizeBytes() {
         return mBlobsSizeBytes;
     }
@@ -113,7 +113,6 @@ public final class StorageInfo extends AbstractSafeParcelable {
      * with alive blobs as well.
      */
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     public int getBlobsCount() {
         return mBlobsCount;
     }
@@ -150,7 +149,6 @@ public final class StorageInfo extends AbstractSafeParcelable {
         /** Sets the size of stored blobs in bytes. */
         @CanIgnoreReturnValue
         @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-        @ExperimentalAppSearchApi
         public @NonNull StorageInfo.Builder setBlobsSizeBytes(long blobsSizeBytes) {
             mBlobsSizeBytes = blobsSizeBytes;
             return this;
@@ -159,7 +157,6 @@ public final class StorageInfo extends AbstractSafeParcelable {
         /** Sets the number of stored blobs. */
         @CanIgnoreReturnValue
         @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-        @ExperimentalAppSearchApi
         public @NonNull StorageInfo.Builder setBlobsCount(int blobsCount) {
             mBlobsCount = blobsCount;
             return this;

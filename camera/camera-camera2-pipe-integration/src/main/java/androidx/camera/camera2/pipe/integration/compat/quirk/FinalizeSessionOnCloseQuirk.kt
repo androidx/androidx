@@ -52,14 +52,6 @@ public class FinalizeSessionOnCloseQuirk : Quirk {
                 // before we use this workaround to finalize the capture session, and thereby
                 // releasing the Surfaces.
                 FinalizeSessionOnCloseBehavior.IMMEDIATE
-            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                // When CloseCaptureSessionOnVideoQuirk is enabled, we close the capture session
-                // in anticipation that the onClosed() callback would finalize the session. However,
-                // on API levels < M, it could be possible that onClosed() isn't invoked if a new
-                // capture session (or CameraGraph) is created too soon (read b/144817309 or
-                // CaptureSessionOnClosedNotCalledQuirk for more context). Therefore, we're enabling
-                // this quirk (on a timeout) for API levels < M, too.
-                FinalizeSessionOnCloseBehavior.TIMEOUT
             } else {
                 FinalizeSessionOnCloseBehavior.OFF
             }

@@ -79,6 +79,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         }
     }
 
+    @Deprecated("Deprecated in superclass")
     override fun onAttachFragment(childFragment: Fragment) {
         calledOnAttachFragment = true
     }
@@ -117,6 +118,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         onStateChanged(State.ATTACHED)
     }
 
+    @Deprecated("Deprecated in superclass")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         @Suppress("Deprecation") // we're just calling the superclass method with the same name
         super.onActivityCreated(savedInstanceState)
@@ -196,6 +198,6 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         VIEW_CREATED,
         ACTIVITY_CREATED,
         STARTED,
-        RESUMED
+        RESUMED,
     }
 }

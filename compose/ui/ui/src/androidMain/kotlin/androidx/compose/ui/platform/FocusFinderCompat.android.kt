@@ -49,6 +49,8 @@ import java.util.Collections
  *
  * This is copied and simplified from FocusFinder's source. There may be some code that doesn't look
  * quite right in Kotlin as it was copy/pasted with auto-translation.
+ *
+ * Note: This is only used for API < 26 when ComposeUiFlags.isPre26FocusFinderFixEnabled is true.
  */
 internal class FocusFinderCompat {
     companion object {
@@ -197,7 +199,7 @@ internal class FocusFinderCompat {
         focused: View?,
         focusedRect: Rect?,
         direction: Int,
-        focusables: ArrayList<View>
+        focusables: ArrayList<View>,
     ): View? {
         val rect = cachedFocusedRect
         if (focused != null) {
@@ -244,7 +246,7 @@ internal class FocusFinderCompat {
         focusables: ArrayList<View>,
         root: ViewGroup,
         focused: View?,
-        direction: Int
+        direction: Int,
     ): View? {
         try {
             // Note: This sort is stable.
@@ -272,7 +274,7 @@ internal class FocusFinderCompat {
                         focused,
                         cachedFocusedRect,
                         focusables,
-                        direction
+                        direction,
                     )
         }
         return next ?: focusables[count - 1]
@@ -295,7 +297,7 @@ internal class FocusFinderCompat {
         focused: View?,
         focusedRect: Rect,
         focusables: ArrayList<View>,
-        direction: Int
+        direction: Int,
     ): View? {
         bestCandidateRect.set(focusedRect)
         when (direction) {
@@ -315,7 +317,7 @@ internal class FocusFinderCompat {
                         otherRect.toComposeRect(),
                         bestCandidateRect.toComposeRect(),
                         focusedRect.toComposeRect(),
-                        toFocusDirection(direction) ?: FocusDirection.Next
+                        toFocusDirection(direction) ?: FocusDirection.Next,
                     )
                 ) {
                     bestCandidateRect.set(otherRect)
@@ -342,7 +344,7 @@ internal class FocusFinderCompat {
     private fun getPreviousFocusable(
         focused: View?,
         focusables: ArrayList<View>,
-        count: Int
+        count: Int,
     ): View? {
         if (count < 2) {
             return null
@@ -534,7 +536,7 @@ private fun View.findViewByPredicateInsideOut(start: View, predicate: (View) -> 
  */
 private fun View.findViewByPredicateTraversal(
     predicate: (View) -> Boolean,
-    childToSkip: View?
+    childToSkip: View?,
 ): View? {
     if (predicate(this)) {
         return this

@@ -48,7 +48,7 @@ interface MeasureScope : IntrinsicMeasureScope {
         width: Int,
         height: Int,
         alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
-        placementBlock: Placeable.PlacementScope.() -> Unit
+        placementBlock: Placeable.PlacementScope.() -> Unit,
     ) = layout(width, height, alignmentLines, null, placementBlock)
 
     /**
@@ -71,7 +71,7 @@ interface MeasureScope : IntrinsicMeasureScope {
         height: Int,
         alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
         rulers: (RulerScope.() -> Unit)? = null,
-        placementBlock: Placeable.PlacementScope.() -> Unit
+        placementBlock: Placeable.PlacementScope.() -> Unit,
     ): MeasureResult {
         checkMeasuredSize(width, height)
         return object : MeasureResult {
@@ -86,7 +86,8 @@ interface MeasureScope : IntrinsicMeasureScope {
                 if (this@MeasureScope is LookaheadCapablePlaceable) {
                     placementScope.placementBlock()
                 } else {
-                    SimplePlacementScope(width, layoutDirection).placementBlock()
+                    SimplePlacementScope(width, layoutDirection, density, fontScale)
+                        .placementBlock()
                 }
             }
         }
@@ -100,6 +101,8 @@ interface MeasureScope : IntrinsicMeasureScope {
 private class SimplePlacementScope(
     override val parentWidth: Int,
     override val parentLayoutDirection: LayoutDirection,
+    override val density: Float,
+    override val fontScale: Float,
 ) : Placeable.PlacementScope()
 
 /**

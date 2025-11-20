@@ -184,7 +184,7 @@ public class BottomSheetNavigator(internal val sheetState: ModalBottomSheetState
                 else {
                     state.pop(popUpTo = backStackEntry, saveState = false)
                 }
-            }
+            },
         )
     }
 
@@ -198,7 +198,7 @@ public class BottomSheetNavigator(internal val sheetState: ModalBottomSheetState
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         entries.fastForEach { entry -> state.pushWithTransition(entry) }
     }
@@ -216,6 +216,6 @@ public class BottomSheetNavigator(internal val sheetState: ModalBottomSheetState
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: BottomSheetNavigator,
-        internal val content: @Composable ColumnScope.(NavBackStackEntry) -> Unit
+        internal val content: @Composable ColumnScope.(NavBackStackEntry) -> Unit,
     ) : NavDestination(navigator), FloatingWindow
 }

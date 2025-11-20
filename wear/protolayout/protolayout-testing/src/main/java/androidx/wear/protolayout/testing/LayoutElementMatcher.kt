@@ -17,20 +17,38 @@
 package androidx.wear.protolayout.testing
 
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
+import androidx.wear.protolayout.testing.TestContext.Companion.EMPTY_CONTEXT
 
 /**
  * Wrapper for element matcher lambdas that allows to build string explaining to the developer what
  * conditions are being tested.
  *
  * @param description a string explaining to the developer what conditions were being tested.
- * @param matcher a lambda performing the actual logic of matching on the layout element.
+ * @param matcher a lambda performing the actual logic of matching on the layout element, with a
+ *   [TextContext] accessible for retrieving context data such as the dynamic data map for
+ *   evaluating the dynamic values.
  */
 public class LayoutElementMatcher(
     internal val description: String,
-    private val matcher: (LayoutElement) -> Boolean
+    private val matcher: (LayoutElement, TestContext) -> Boolean,
 ) {
-    /** Returns whether the given element is matched by this matcher. */
-    internal fun matches(element: LayoutElement): Boolean = matcher(element)
+    /**
+     * Constructor for the Wrapper of element matcher lambdas that allows to build string explaining
+     * to the developer what conditions are being tested.
+     *
+     * @param description a string explaining to the developer what conditions were being tested.
+     * @param matcher a lambda performing the actual logic of matching on the layout element.
+     */
+    public constructor(
+        description: String,
+        matcher: (LayoutElement) -> Boolean,
+    ) : this(description, { element, _ -> matcher(element) })
+
+    /** Returns whether the given element is matched by this matcher under the given context. */
+    internal fun matches(
+        element: LayoutElement,
+        assertionContext: TestContext = EMPTY_CONTEXT,
+    ): Boolean = matcher(element, assertionContext)
 
     /**
      * Returns whether the given element is matched by both this and the other mather.
@@ -38,8 +56,8 @@ public class LayoutElementMatcher(
      * @param other mather that should also match in addition to current matcher.
      */
     public infix fun and(other: LayoutElementMatcher): LayoutElementMatcher =
-        LayoutElementMatcher("($description) && (${other.description})") {
-            matcher(it) && other.matches(it)
+        LayoutElementMatcher("($description) && (${other.description})") { element, context ->
+            matcher(element, context) && other.matches(element, context)
         }
 
     /**
@@ -48,11 +66,13 @@ public class LayoutElementMatcher(
      * @param other mather that can be tested to match if the current matcher does not.
      */
     public infix fun or(other: LayoutElementMatcher): LayoutElementMatcher =
-        LayoutElementMatcher("($description) || (${other.description})") {
-            matcher(it) || other.matches(it)
+        LayoutElementMatcher("($description) || (${other.description})") { element, context ->
+            matcher(element, context) || other.matches(element, context)
         }
 
     /** Returns whether the given element does not match the matcher. */
     public operator fun not(): LayoutElementMatcher =
-        LayoutElementMatcher("NOT ($description)") { !matcher(it) }
+        LayoutElementMatcher("NOT ($description)") { element, context ->
+            !matcher(element, context)
+        }
 }

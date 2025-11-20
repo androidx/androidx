@@ -25,7 +25,7 @@ internal class LifecycleController(
     private val lifecycle: Lifecycle,
     private val minState: Lifecycle.State,
     private val dispatchQueue: DispatchQueue,
-    parentJob: Job
+    parentJob: Job,
 ) {
     private val observer = LifecycleEventObserver { source, _ ->
         if (source.lifecycle.currentState == Lifecycle.State.DESTROYED) {

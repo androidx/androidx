@@ -50,7 +50,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -70,7 +70,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isEqualTo(false)
@@ -90,7 +90,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isEqualTo(true)
@@ -110,7 +110,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -130,7 +130,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -150,7 +150,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isEqualTo(false)
@@ -170,7 +170,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isEqualTo(true)
@@ -190,7 +190,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -210,7 +210,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -230,7 +230,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -250,7 +250,7 @@ class ImageCaptureOptionUnpackerTest {
         assertThat(
                 camera2Config.getCaptureRequestOption<Boolean>(
                     CaptureRequest.CONTROL_ENABLE_ZSL,
-                    null
+                    null,
                 )
             )
             .isNull()
@@ -262,7 +262,7 @@ class ImageCaptureOptionUnpackerTest {
         ReflectionHelpers.setStaticField(
             Build.VERSION::class.java,
             "SDK_INT",
-            properties.sdkVersion()
+            properties.sdkVersion(),
         )
     }
 

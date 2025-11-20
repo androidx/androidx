@@ -16,7 +16,6 @@
 package androidx.work.impl.workers
 
 import android.content.Context
-import android.os.Build
 import androidx.work.Logger
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -67,9 +66,9 @@ private fun workSpecRows(
     workNameDao: WorkNameDao,
     workTagDao: WorkTagDao,
     systemIdInfoDao: SystemIdInfoDao,
-    workSpecs: List<WorkSpec>
+    workSpecs: List<WorkSpec>,
 ) = buildString {
-    val systemIdHeader = if (Build.VERSION.SDK_INT >= 23) "Job Id" else "Alarm Id"
+    val systemIdHeader = "Job Id"
     val header = "\n Id \t Class Name\t ${systemIdHeader}\t State\t Unique Name\t Tags\t"
     append(header)
     workSpecs.forEach { workSpec ->

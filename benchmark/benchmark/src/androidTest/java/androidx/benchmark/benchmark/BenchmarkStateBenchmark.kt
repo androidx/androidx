@@ -34,8 +34,8 @@ class BenchmarkStateBenchmark {
                 TestDefinition(
                     "androidx.benchmark.benchmark.BenchmarkState2Benchmark",
                     "BenchmarkState2Benchmark",
-                    "increment"
-                ),
+                    "increment",
+                )
             )
         while (state.keepRunning()) {
             //

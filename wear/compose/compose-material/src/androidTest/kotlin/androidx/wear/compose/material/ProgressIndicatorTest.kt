@@ -28,12 +28,13 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class CircularIndeterminateProgressIndicatorTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -61,7 +62,7 @@ class CircularIndeterminateProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -80,7 +81,7 @@ class CircularIndeterminateProgressIndicatorTest {
 
 class CircularDeterminateProgressIndicatorTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -98,7 +99,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -117,7 +118,7 @@ class CircularDeterminateProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = 1f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -137,7 +138,7 @@ class CircularDeterminateProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = 0f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -159,7 +160,7 @@ class CircularDeterminateProgressIndicatorTest {
                 startAngle = 0f,
                 endAngle = 180f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -182,7 +183,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -198,7 +199,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -216,7 +217,7 @@ class CircularDeterminateProgressIndicatorTest {
                 progress = 0.5f,
                 strokeWidth = 2.dp,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -239,7 +240,7 @@ class CircularDeterminateProgressIndicatorTest {
                 progress = 0.5f,
                 strokeWidth = 8.dp,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()

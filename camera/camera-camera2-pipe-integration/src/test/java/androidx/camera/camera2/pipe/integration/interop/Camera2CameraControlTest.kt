@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -50,7 +49,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 @OptIn(ExperimentalCamera2Interop::class)
 class Camera2CameraControlTest {
 
@@ -59,11 +58,7 @@ class Camera2CameraControlTest {
         val dispatcher = executor.asCoroutineDispatcher()
         val cameraScope = CoroutineScope(Job() + dispatcher)
 
-        UseCaseThreads(
-            cameraScope,
-            executor,
-            dispatcher,
-        )
+        UseCaseThreads(cameraScope, executor, dispatcher)
     }
     private val comboRequestListener = ComboRequestListener()
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
@@ -93,7 +88,7 @@ class Camera2CameraControlTest {
                 CaptureRequestOptions.Builder()
                     .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE,
-                        CaptureRequest.CONTROL_AE_MODE_OFF
+                        CaptureRequest.CONTROL_AE_MODE_OFF,
                     )
                     .build()
             )
@@ -129,7 +124,7 @@ class Camera2CameraControlTest {
                 CaptureRequestOptions.Builder()
                     .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE,
-                        CaptureRequest.CONTROL_AE_MODE_OFF
+                        CaptureRequest.CONTROL_AE_MODE_OFF,
                     )
                     .build()
             )
@@ -142,7 +137,7 @@ class Camera2CameraControlTest {
                 CaptureRequestOptions.Builder()
                     .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE,
-                        CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+                        CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                     )
                     .build()
             )
@@ -189,21 +184,14 @@ class Camera2CameraControlTest {
                                 }
                             }
                     ),
-                requestNumber = RequestNumber(1)
+                requestNumber = RequestNumber(1),
             )
-        val resultMetaData =
-            FakeFrameMetadata(
-                resultMetadata = results,
-                frameNumber = frameNumber,
-            )
+        val resultMetaData = FakeFrameMetadata(resultMetadata = results, frameNumber = frameNumber)
         fakeUseCaseThreads.sequentialExecutor.execute {
             onComplete(
                 requestMetadata,
                 frameNumber,
-                FakeFrameInfo(
-                    metadata = resultMetaData,
-                    requestMetadata = requestMetadata,
-                )
+                FakeFrameInfo(metadata = resultMetaData, requestMetadata = requestMetadata),
             )
         }
     }

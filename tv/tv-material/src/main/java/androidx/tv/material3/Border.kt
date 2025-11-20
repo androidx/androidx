@@ -36,7 +36,7 @@ import androidx.tv.material3.tokens.ShapeTokens
 class Border(
     val border: BorderStroke,
     val inset: Dp = 0.dp,
-    val shape: Shape = ShapeTokens.BorderDefaultShape
+    val shape: Shape = ShapeTokens.BorderDefaultShape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -66,7 +66,7 @@ class Border(
         Border(
             border = border ?: this.border,
             inset = inset ?: this.inset,
-            shape = shape ?: this.shape
+            shape = shape ?: this.shape,
         )
 
     companion object {
@@ -78,7 +78,7 @@ class Border(
             Border(
                 border = BorderStroke(width = 0.dp, color = Color.Transparent),
                 inset = 0.dp,
-                shape = RectangleShape
+                shape = RectangleShape,
             )
     }
 }

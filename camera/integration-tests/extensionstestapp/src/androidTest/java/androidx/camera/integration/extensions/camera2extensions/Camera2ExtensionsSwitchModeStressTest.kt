@@ -73,13 +73,13 @@ class Camera2ExtensionsSwitchModeStressTest(private val config: CameraIdExtensio
             Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession(
                 cameraManager,
                 cameraId,
-                extensionMode
+                extensionMode,
             )
 
             Camera2ExtensionsTestUtil.assertCanOpenExtensionsSession(
                 cameraManager,
                 cameraId,
-                nextMode
+                nextMode,
             )
         }
 
@@ -88,7 +88,7 @@ class Camera2ExtensionsSwitchModeStressTest(private val config: CameraIdExtensio
             cameraManager,
             cameraId,
             extensionMode,
-            verifyOutput = true
+            verifyOutput = true,
         )
     }
 }

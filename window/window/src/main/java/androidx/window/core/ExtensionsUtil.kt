@@ -40,6 +40,11 @@ internal object ExtensionsUtil {
                     Log.d(TAG, "Stub Extension")
                 }
                 0
+            } catch (e: NullPointerException) {
+                if (BuildConfig.verificationMode == LOG) {
+                    Log.d(TAG, "Error with Extension implementation")
+                }
+                0
             }
         }
 }

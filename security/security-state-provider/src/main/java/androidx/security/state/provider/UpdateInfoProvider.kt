@@ -86,7 +86,7 @@ public class UpdateInfoProvider : ContentProvider() {
         projection: Array<out String>?,
         selection: String?,
         selectionArgs: Array<out String>?,
-        sortOrder: String?
+        sortOrder: String?,
     ): Cursor {
         // Verify that the caller has requested a correct URI for this provider
         if (uri == contentUri) {
@@ -151,7 +151,7 @@ public class UpdateInfoProvider : ContentProvider() {
         uri: Uri,
         values: ContentValues?,
         selection: String?,
-        selectionArgs: Array<out String>?
+        selectionArgs: Array<out String>?,
     ): Int {
         throw UnsupportedOperationException("Update operation is not supported.")
     }
@@ -171,7 +171,7 @@ public class UpdateInfoProvider : ContentProvider() {
         return context.packageManager
             .getProviderInfo(
                 ComponentName(context, UpdateInfoProvider::class.java),
-                PackageManager.GET_META_DATA
+                PackageManager.GET_META_DATA,
             )
             .authority
     }

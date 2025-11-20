@@ -27,10 +27,10 @@ internal sealed interface TimeRange<T : Temporal> {
 
 internal data class InstantTimeRange(
     override val startTime: Instant,
-    override val endTime: Instant
+    override val endTime: Instant,
 ) : TimeRange<Instant>
 
 internal data class LocalTimeRange(
     override val startTime: LocalDateTime,
-    override val endTime: LocalDateTime
+    override val endTime: LocalDateTime,
 ) : TimeRange<LocalDateTime>

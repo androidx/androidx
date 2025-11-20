@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 /**
  * Helper for accessing features in {@link SubscriptionManager}.
  */
-@RequiresApi(22)
 public class SubscriptionManagerCompat {
 
     private static Method sGetSlotIndexMethod;

@@ -27,7 +27,7 @@ internal class UwbControllerSessionScopeAospImpl(
     private val uwbClient: IUwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
-    override val uwbComplexChannel: UwbComplexChannel
+    override val uwbComplexChannel: UwbComplexChannel,
 ) :
     UwbClientSessionScopeAospImpl(uwbClient, rangingCapabilities, localAddress),
     UwbControllerSessionScope {

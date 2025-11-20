@@ -64,7 +64,7 @@ private const val TabFadeOutAnimationDuration = 100
 fun ComposeCameraScreenTabRow(
     allScreens: List<ComposeCameraScreen>,
     onTabSelected: (ComposeCameraScreen) -> Unit,
-    currentScreen: ComposeCameraScreen
+    currentScreen: ComposeCameraScreen,
 ) {
     Surface(Modifier.height(TabHeight).fillMaxWidth()) {
         Row(Modifier.selectableGroup()) {
@@ -73,7 +73,7 @@ fun ComposeCameraScreenTabRow(
                     text = screen.name,
                     icon = screen.icon,
                     onSelected = { onTabSelected(screen) },
-                    selected = currentScreen == screen
+                    selected = currentScreen == screen,
                 )
             }
         }
@@ -86,7 +86,7 @@ private fun ComposeCameraTab(
     text: String,
     icon: ImageVector,
     onSelected: () -> Unit,
-    selected: Boolean
+    selected: Boolean,
 ) {
     val color = MaterialTheme.colors.onSurface
     val durationMillis = if (selected) TabFadeInAnimationDuration else TabFadeOutAnimationDuration
@@ -94,14 +94,14 @@ private fun ComposeCameraTab(
         tween<Color>(
             durationMillis = durationMillis,
             easing = LinearEasing,
-            delayMillis = TabFadeInAnimationDelay
+            delayMillis = TabFadeInAnimationDelay,
         )
     }
 
     val tabTintColor by
         animateColorAsState(
             targetValue = if (selected) color else color.copy(alpha = InactiveTabOpacity),
-            animationSpec = animSpec
+            animationSpec = animSpec,
         )
 
     Row(
@@ -115,7 +115,7 @@ private fun ComposeCameraTab(
                     role = Role.Tab,
                     interactionSource = remember { MutableInteractionSource() },
                     indication =
-                        ripple(bounded = false, radius = Dp.Unspecified, color = Color.Unspecified)
+                        ripple(bounded = false, radius = Dp.Unspecified, color = Color.Unspecified),
                 )
                 .clearAndSetSemantics { contentDescription = text }
     ) {

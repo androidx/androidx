@@ -21,10 +21,12 @@ import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.WindowInsets
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalConfiguration
@@ -32,12 +34,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.ConfigurationCompat
@@ -45,6 +51,9 @@ import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 actual fun DeviceConfigurationOverride.Companion.ForcedSize(
     size: DpSize
@@ -64,7 +73,7 @@ actual fun DeviceConfigurationOverride.Companion.ForcedSize(
                     densityDpi =
                         floor(LocalDensity.current.density * DisplayMetrics.DENSITY_DEFAULT).toInt()
                 },
-            content = contentUnderTest
+            content = contentUnderTest,
         )
     }
 }
@@ -81,7 +90,7 @@ actual fun DeviceConfigurationOverride.Companion.FontScale(
                 // Override font scale
                 this.fontScale = fontScale
             },
-        content = contentUnderTest
+        content = contentUnderTest,
     )
 }
 
@@ -103,7 +112,7 @@ actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
                             LayoutDirection.Rtl -> Configuration.SCREENLAYOUT_LAYOUTDIR_RTL
                         }
             },
-        content = contentUnderTest
+        content = contentUnderTest,
     )
 }
 
@@ -113,10 +122,12 @@ actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
  * This will change resource resolution for the content under test, and also override the layout
  * direction as specified by the locales.
  *
+ * @param locales the [LocaleList] to use for the content under test.
+ * @return a [DeviceConfigurationOverride] that specifies the locales for the content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLocalesSample
  */
 fun DeviceConfigurationOverride.Companion.Locales(
-    locales: LocaleList,
+    locales: LocaleList
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
         configuration =
@@ -129,10 +140,10 @@ fun DeviceConfigurationOverride.Companion.Locales(
                     this,
                     LocaleListCompat.forLanguageTags(
                         locales.localeList.fastJoinToString(",", transform = Locale::toLanguageTag)
-                    )
+                    ),
                 )
             },
-        content = contentUnderTest
+        content = contentUnderTest,
     )
 }
 
@@ -141,10 +152,12 @@ fun DeviceConfigurationOverride.Companion.Locales(
  * contained content. Inside the content under test, `isSystemInDarkTheme()` will return
  * [isDarkMode].
  *
+ * @param isDarkMode if `true`, render content under test in dark mode.
+ * @return a [DeviceConfigurationOverride] that specifies the dark mode for the content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideDarkModeSample
  */
 fun DeviceConfigurationOverride.Companion.DarkMode(
-    isDarkMode: Boolean,
+    isDarkMode: Boolean
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
         configuration =
@@ -162,7 +175,7 @@ fun DeviceConfigurationOverride.Companion.DarkMode(
                             Configuration.UI_MODE_NIGHT_NO
                         }
             },
-        content = contentUnderTest
+        content = contentUnderTest,
     )
 }
 
@@ -170,11 +183,14 @@ fun DeviceConfigurationOverride.Companion.DarkMode(
  * A [DeviceConfigurationOverride] that overrides the font weight adjustment for the contained
  * content.
  *
+ * @param fontWeightAdjustment the font weight adjustment to use to render the content under test.
+ * @return a [DeviceConfigurationOverride] that specifies the font weight adjustment for the content
+ *   under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontWeightAdjustmentSample
  */
 @RequiresApi(31)
 fun DeviceConfigurationOverride.Companion.FontWeightAdjustment(
-    fontWeightAdjustment: Int,
+    fontWeightAdjustment: Int
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
         configuration =
@@ -185,7 +201,7 @@ fun DeviceConfigurationOverride.Companion.FontWeightAdjustment(
                 // Override fontWeightAdjustment
                 this.fontWeightAdjustment = fontWeightAdjustment
             },
-        content = contentUnderTest
+        content = contentUnderTest,
     )
 }
 
@@ -193,11 +209,14 @@ fun DeviceConfigurationOverride.Companion.FontWeightAdjustment(
  * A [DeviceConfigurationOverride] that overrides whether the screen is round for the contained
  * content.
  *
+ * @param isScreenRound if `true`, render content under test in a round screen.
+ * @return a [DeviceConfigurationOverride] that specifies whether the screen is round for the
+ *   content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideRoundScreenSample
  */
 @RequiresApi(23)
 fun DeviceConfigurationOverride.Companion.RoundScreen(
-    isScreenRound: Boolean,
+    isScreenRound: Boolean
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
         configuration =
@@ -216,17 +235,175 @@ fun DeviceConfigurationOverride.Companion.RoundScreen(
                                 Configuration.SCREENLAYOUT_ROUND_NO
                     }
             },
-        content = contentUnderTest
+        content = contentUnderTest,
+    )
+}
+
+/** A constant for [Configuration.keyboard]. */
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(Configuration.KEYBOARD_NOKEYS, Configuration.KEYBOARD_QWERTY, Configuration.KEYBOARD_12KEY)
+private annotation class KeyboardType
+
+/**
+ * A [DeviceConfigurationOverride] that overrides the current keyboard type.
+ *
+ * @param keyboardType the keyboard type to render content under test in. This should be one of the
+ *   `Configuration.KEYBOARD_*` types.
+ * @param isHidden if `true`, render the content under test with a hidden keyboard.
+ * @param isHardKeyboardHidden if `true`, render the content under test with a hidden hard keyboard.
+ * @return a [DeviceConfigurationOverride] that specifies the keyboard status for the content under
+ *   test.
+ * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideKeyboard
+ * @see [Configuration.keyboard]
+ * @see [Configuration.keyboardHidden]
+ * @see [Configuration.hardKeyboardHidden]
+ */
+fun DeviceConfigurationOverride.Companion.Keyboard(
+    @KeyboardType keyboardType: Int,
+    isHardKeyboardHidden: Boolean = false,
+    isHidden: Boolean = false,
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    OverriddenConfiguration(
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
+
+                keyboard = keyboardType
+                hardKeyboardHidden =
+                    if (isHardKeyboardHidden) {
+                        Configuration.HARDKEYBOARDHIDDEN_YES
+                    } else {
+                        Configuration.HARDKEYBOARDHIDDEN_NO
+                    }
+                keyboardHidden =
+                    if (isHidden) {
+                        Configuration.KEYBOARDHIDDEN_YES
+                    } else {
+                        Configuration.KEYBOARDHIDDEN_NO
+                    }
+            },
+        content = contentUnderTest,
+    )
+}
+
+/** A constant for [Configuration.navigation]. */
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    Configuration.NAVIGATION_NONAV,
+    Configuration.NAVIGATION_DPAD,
+    Configuration.NAVIGATION_TRACKBALL,
+    Configuration.NAVIGATION_WHEEL,
+)
+private annotation class NavigationType
+
+/**
+ * A [DeviceConfigurationOverride] that overrides the current navigation type and whether it is
+ * hidden.
+ *
+ * @param navigationType the navigation type to render the content under test in. This should be one
+ *   of the `Configuration.NAVIGATION_*` values.
+ * @param isHidden if `true`, render the content under test with hidden navigation.
+ * @return a [DeviceConfigurationOverride] that specifies the navigation type for the content under
+ *   test.
+ * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideNavigation
+ * @see [Configuration.navigation]
+ * @see [Configuration.navigationHidden]
+ */
+fun DeviceConfigurationOverride.Companion.Navigation(
+    @NavigationType navigationType: Int,
+    isHidden: Boolean = false,
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    OverriddenConfiguration(
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
+
+                navigation = navigationType
+                navigationHidden =
+                    if (isHidden) {
+                        Configuration.NAVIGATIONHIDDEN_YES
+                    } else {
+                        Configuration.NAVIGATIONHIDDEN_NO
+                    }
+            },
+        content = contentUnderTest,
+    )
+}
+
+/**
+ * A [DeviceConfigurationOverride] that overrides the current touchscreen type.
+ *
+ * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideTouchscreen
+ */
+fun DeviceConfigurationOverride.Companion.Touchscreen(
+    isTouchScreen: Boolean
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    OverriddenConfiguration(
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
+
+                touchscreen =
+                    if (isTouchScreen) {
+                        Configuration.TOUCHSCREEN_FINGER
+                    } else {
+                        Configuration.TOUCHSCREEN_NOTOUCH
+                    }
+            },
+        content = contentUnderTest,
+    )
+}
+
+/** A constant for the [Configuration.UI_MODE_TYPE_MASK] of [Configuration.uiMode]. */
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    Configuration.UI_MODE_TYPE_NORMAL,
+    Configuration.UI_MODE_TYPE_DESK,
+    Configuration.UI_MODE_TYPE_CAR,
+    Configuration.UI_MODE_TYPE_TELEVISION,
+    Configuration.UI_MODE_TYPE_APPLIANCE,
+    Configuration.UI_MODE_TYPE_WATCH,
+    Configuration.UI_MODE_TYPE_VR_HEADSET,
+)
+private annotation class UiModeType
+
+/**
+ * A [DeviceConfigurationOverride] that overrides the current ui mode type.
+ *
+ * @param uiModeType the uiMode type to render the content under test in. This should be one of the
+ *   `Configuration.UI_MODE_TYPE_*` values.
+ * @return a [DeviceConfigurationOverride] that specifies the uiMode type for the content under
+ *   test.
+ * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideUiMode
+ */
+fun DeviceConfigurationOverride.Companion.UiMode(
+    @UiModeType uiModeType: Int
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    OverriddenConfiguration(
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
+
+                uiMode = (uiMode and Configuration.UI_MODE_TYPE_MASK.inv()) or uiModeType
+            },
+        content = contentUnderTest,
     )
 }
 
 /**
  * A [DeviceConfigurationOverride] that overrides the window insets for the contained content.
  *
+ * @param windowInsets the [WindowInsetsCompat] to render the content under test in.
+ * @return a [DeviceConfigurationOverride] that specifies the window insets for the content under
+ *   test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideWindowInsetsSample
  */
 fun DeviceConfigurationOverride.Companion.WindowInsets(
-    windowInsets: WindowInsetsCompat,
+    windowInsets: WindowInsetsCompat
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     val currentContentUnderTest by rememberUpdatedState(contentUnderTest)
     val currentWindowInsets by rememberUpdatedState(windowInsets)
@@ -252,13 +429,126 @@ fun DeviceConfigurationOverride.Companion.WindowInsets(
                  * method.
                  */
                 @Deprecated("Deprecated in Java")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun requestFitSystemWindows() {
                     dispatchApplyWindowInsets(WindowInsets(currentWindowInsets.toWindowInsets()!!))
                 }
             }
         },
-        update = { with(currentWindowInsets) { it.requestApplyInsets() } }
+        update = { with(currentWindowInsets) { it.requestApplyInsets() } },
     )
+}
+
+actual fun DeviceConfigurationOverride.Companion.WindowSize(
+    size: DpSize
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    // First override the density. Doing this first allows using the resulting density in the
+    // overridden window info and configuration.
+    DensityForcedSize(size) {
+        // Second, override the window info, to provide a containerDpSize that matches the
+        // requested size, and a containerSize that matches the requested size as close as
+        // possible
+        val currentDensity by rememberUpdatedState(LocalDensity.current)
+        val currentRequestedSize by rememberUpdatedState(size)
+        val currentWindowInfo = LocalWindowInfo.current
+        val newWindowInfo =
+            remember(currentWindowInfo) {
+                object : WindowInfo by currentWindowInfo {
+                    override val containerDpSize: DpSize
+                        get() = currentRequestedSize
+
+                    override val containerSize: IntSize
+                        get() = with(currentDensity) { containerDpSize.toSize() }.roundToIntSize()
+                }
+            }
+
+        CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
+            // Third, override the configuration to use the updated window size and updated
+            // density
+            OverriddenConfiguration(
+                configuration =
+                    Configuration().apply {
+                        // Initialize from the current configuration
+                        updateFrom(LocalConfiguration.current)
+
+                        screenWidthDp = currentRequestedSize.width.value.roundToInt()
+                        screenHeightDp = currentRequestedSize.height.value.roundToInt()
+                        smallestScreenWidthDp = min(screenWidthDp, screenHeightDp)
+                        // Square screens (after rounding) being considered portrait is
+                        // derived from DisplayContent.java
+                        orientation =
+                            if (screenWidthDp <= screenHeightDp) {
+                                Configuration.ORIENTATION_PORTRAIT
+                            } else {
+                                Configuration.ORIENTATION_LANDSCAPE
+                            }
+
+                        screenLayout =
+                            screenLayout and
+                                (Configuration.SCREENLAYOUT_SIZE_MASK or
+                                        Configuration.SCREENLAYOUT_LONG_MASK)
+                                    .inv() or
+                                calculateScreenLayout(screenWidthDp, screenHeightDp)
+                        densityDpi =
+                            floor(LocalDensity.current.density * DisplayMetrics.DENSITY_DEFAULT)
+                                .toInt()
+                    },
+                content = contentUnderTest,
+            )
+        }
+    }
+}
+
+/**
+ * Given the rounded [width] and [height] in dp, returns the combined values for the
+ * [Configuration.SCREENLAYOUT_SIZE_MASK] or-ed with the [Configuration.SCREENLAYOUT_LONG_MASK] for
+ * [Configuration.screenLayout].
+ *
+ * These calculations copied from Configuration.java:
+ * https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Configuration.java;l=428;drc=64130047e019cee612a85dde07755efd8f356f12
+ */
+private fun calculateScreenLayout(widthDp: Int, heightDp: Int): Int {
+    val shortSizeDp = min(widthDp, heightDp)
+    val longSizeDp = max(widthDp, heightDp)
+
+    val screenLayoutSize: Int
+    val screenLayoutLong: Boolean
+
+    // These semi-magic numbers define our compatibility modes for
+    // applications with different screens.  These are guarantees to
+    // app developers about the space they can expect for a particular
+    // configuration.  DO NOT CHANGE!
+    if (longSizeDp < 470) {
+        // This is shorter than an HVGA normal density screen (which
+        // is 480 pixels on its long side).
+        screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_SMALL
+        screenLayoutLong = false
+    } else {
+        // What size is this screen?
+        if (longSizeDp >= 960 && shortSizeDp >= 720) {
+            // 1.5xVGA or larger screens at medium density are the point
+            // at which we consider it to be an extra large screen.
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_XLARGE
+        } else if (longSizeDp >= 640 && shortSizeDp >= 480) {
+            // VGA or larger screens at medium density are the point
+            // at which we consider it to be a large screen.
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_LARGE
+        } else {
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_NORMAL
+        }
+
+        // Is this a long screen?
+        if (((longSizeDp * 3) / 5) >= (shortSizeDp - 1)) {
+            // Anything wider than WVGA (5:3) is considering to be long.
+            screenLayoutLong = true
+        } else {
+            screenLayoutLong = false
+        }
+    }
+
+    return screenLayoutSize or
+        if (screenLayoutLong) Configuration.SCREENLAYOUT_LONG_YES
+        else Configuration.SCREENLAYOUT_LONG_NO
 }
 
 /**
@@ -288,9 +578,9 @@ private fun OverriddenConfiguration(configuration: Configuration, content: @Comp
         LocalDensity provides
             Density(
                 configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT,
-                configuration.fontScale
+                configuration.fontScale,
             ),
         LocalFontFamilyResolver provides createFontFamilyResolver(newContext),
-        content = content
+        content = content,
     )
 }

@@ -97,7 +97,7 @@ class AndroidViewBindingTest {
                     SampleLayoutBinding::inflate,
                     Modifier.requiredSize(size).onGloballyPositioned {
                         Truth.assertThat(it.size).isEqualTo(IntSize(sizeIpx, sizeIpx))
-                    }
+                    },
                 )
             }
         }

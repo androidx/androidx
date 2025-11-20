@@ -48,7 +48,7 @@ class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosit
         /** The text to commit. We ignore any styles in the original API. */
         text: String,
         /** The cursor position after setting composing text. */
-        newCursorPosition: Int
+        newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
     val text: String
@@ -168,7 +168,7 @@ class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCurso
         /** The composing text. */
         text: String,
         /** The cursor position after setting composing text. */
-        newCursorPosition: Int
+        newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
     val text: String
@@ -303,7 +303,7 @@ class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterC
  */
 class DeleteSurroundingTextInCodePointsCommand(
     val lengthBeforeCursor: Int,
-    val lengthAfterCursor: Int
+    val lengthAfterCursor: Int,
 ) : EditCommand {
     init {
         requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {

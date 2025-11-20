@@ -26,10 +26,6 @@
         <td>Always fully AOT (<code>speed</code>) compiled.</td>
     </tr>
     <tr>
-        <td>Min API 23</td>
-        <td>Min API 19</td>
-    </tr>
-    <tr>
         <td>Relatively lower stability measurements</td>
         <td>Higher stability measurements</td>
     </tr>

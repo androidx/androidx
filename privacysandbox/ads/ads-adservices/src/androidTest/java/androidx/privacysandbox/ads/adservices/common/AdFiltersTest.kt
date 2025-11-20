@@ -38,8 +38,8 @@ class AdFiltersTest {
             listOf(
                 KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                 KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
-            )
+                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
+            ),
         )
 
     @Test
@@ -61,8 +61,8 @@ class AdFiltersTest {
                     listOf(
                         KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                         KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                        KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
-                    )
+                        KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
+                    ),
                 )
             )
         Truth.assertThat(adFilters1 == adFilters2).isTrue()

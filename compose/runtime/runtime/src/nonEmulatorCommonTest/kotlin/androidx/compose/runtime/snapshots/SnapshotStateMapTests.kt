@@ -19,6 +19,7 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -33,6 +34,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.test.IgnoreJsTarget
+import kotlinx.test.IgnoreNativeTarget
+import kotlinx.test.IgnoreWasmTarget
 
 class SnapshotStateMapTests {
     @Test
@@ -133,11 +136,11 @@ class SnapshotStateMapTests {
     }
 
     @Test
-    @IgnoreJsTarget
     fun validateEntriesIterator() {
         validateRead { map, normalMap ->
             for (entries in map.entries.zip(normalMap.entries)) {
-                assertEquals(entries.second, entries.first)
+                assertEquals(entries.first.key, entries.second.key)
+                assertEquals(entries.first.value, entries.second.value)
             }
         }
     }
@@ -181,11 +184,11 @@ class SnapshotStateMapTests {
             val two = map.entries.drop(1).first()
             assertEquals(
                 normalMap.entries.containsAll(listOf(normalOne, normalTwo)),
-                map.entries.containsAll(listOf(one, two))
+                map.entries.containsAll(listOf(one, two)),
             )
             assertEquals(
                 normalMap.entries.containsAll(listOf(one, two)),
-                map.entries.containsAll(listOf(normalOne, normalTwo))
+                map.entries.containsAll(listOf(normalOne, normalTwo)),
             )
             val independentOne =
                 object : MutableMap.MutableEntry<Int, Float> {
@@ -203,7 +206,7 @@ class SnapshotStateMapTests {
                 }
             assertEquals(
                 normalMap.entries.containsAll(listOf(independentOne, independentTwo)),
-                map.entries.containsAll(listOf(independentOne, independentTwo))
+                map.entries.containsAll(listOf(independentOne, independentTwo)),
             )
         }
     }
@@ -213,12 +216,22 @@ class SnapshotStateMapTests {
         validateWrite { map -> map.entries.remove(map.entries.first()) }
     }
 
+    // TODO: b/409727470
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-7397
     @Test
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
+    @IgnoreNativeTarget
     fun validateEntriesRemoveAll() {
         validateWrite { map -> map.entries.removeAll(map.entries.filter { it.key % 2 == 0 }) }
     }
 
+    // TODO: b/409727470
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-7397
     @Test
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
+    @IgnoreNativeTarget
     fun validateEntriesRetainAll() {
         validateWrite { map -> map.entries.retainAll(map.entries.filter { it.key % 2 == 0 }) }
     }
@@ -380,6 +393,13 @@ class SnapshotStateMapTests {
     }
 
     @Test
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
+    @IgnoreNativeTarget
+    // Ignored for js, wasm and native:
+    // SnapshotStateMap removes a correct element - entry(key=1,value=1f)
+    // The test fails because MutableMap (normalMap) removes entry(key=1, value=5f)
+    // due to an entry search by value starting from the end of an array (in native HashMap impl).
     fun validateValuesRemove() {
         validateWrite { map ->
             map.values.remove(1f)
@@ -584,14 +604,14 @@ class SnapshotStateMapTests {
 
     private fun validateRead(
         initialMap: MutableMap<Int, Float> = defaultMap(),
-        block: (Map<Int, Float>, Map<Int, Float>) -> Unit
+        block: (Map<Int, Float>, Map<Int, Float>) -> Unit,
     ) {
         validateMaps(initialMap) { map, normalMap -> block(map, normalMap) }
     }
 
     private fun validateWrite(
         initialMap: MutableMap<Int, Float> = defaultMap(),
-        block: (MutableMap<Int, Float>) -> Unit
+        block: (MutableMap<Int, Float>) -> Unit,
     ) {
         validateMaps(initialMap) { map, normalMap ->
             block(normalMap)
@@ -602,7 +622,7 @@ class SnapshotStateMapTests {
 
     private fun validateMaps(
         map: MutableMap<Int, Float> = defaultMap(),
-        block: (MutableMap<Int, Float>, MutableMap<Int, Float>) -> Unit
+        block: (MutableMap<Int, Float>, MutableMap<Int, Float>) -> Unit,
     ) {
         val normalMap = map.toMutableMap()
         block(map, normalMap)

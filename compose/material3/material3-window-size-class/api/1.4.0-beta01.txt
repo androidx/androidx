@@ -1,0 +1,70 @@
+// Signature format: 4.0
+package androidx.compose.material3.windowsizeclass {
+
+  public final class AndroidWindowSizeClass_androidKt {
+    method @SuppressCompatibility @androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi @androidx.compose.runtime.Composable public static androidx.compose.material3.windowsizeclass.WindowSizeClass calculateWindowSizeClass(android.app.Activity activity);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi @androidx.compose.runtime.Composable public static androidx.compose.material3.windowsizeclass.WindowSizeClass calculateWindowSizeClass(android.app.Activity, androidx.compose.runtime.Composer?, int);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-window-size-class API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3WindowSizeClassApi {
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class WindowHeightSizeClass implements java.lang.Comparable<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> {
+    method @BytecodeOnly public static androidx.compose.material3.windowsizeclass.WindowHeightSizeClass! box-impl(int);
+    method public operator int compareTo(int other);
+    method @BytecodeOnly public int compareTo-pav6bQQ(int);
+    method @BytecodeOnly public static int compareTo-pav6bQQ(int, int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.material3.windowsizeclass.WindowHeightSizeClass.Companion Companion;
+  }
+
+  public static final class WindowHeightSizeClass.Companion {
+    method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> getAllSizeClasses();
+    method @BytecodeOnly public int getCompact-Pt018CI();
+    method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> getDefaultSizeClasses();
+    method @BytecodeOnly public int getExpanded-Pt018CI();
+    method @BytecodeOnly public int getMedium-Pt018CI();
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> AllSizeClasses;
+    property public androidx.compose.material3.windowsizeclass.WindowHeightSizeClass Compact;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> DefaultSizeClasses;
+    property public androidx.compose.material3.windowsizeclass.WindowHeightSizeClass Expanded;
+    property public androidx.compose.material3.windowsizeclass.WindowHeightSizeClass Medium;
+  }
+
+  @androidx.compose.runtime.Immutable public final class WindowSizeClass {
+    method @BytecodeOnly public int getHeightSizeClass-Pt018CI();
+    method @BytecodeOnly public int getWidthSizeClass-Y0FxcvE();
+    property public androidx.compose.material3.windowsizeclass.WindowHeightSizeClass heightSizeClass;
+    property public androidx.compose.material3.windowsizeclass.WindowWidthSizeClass widthSizeClass;
+    field public static final androidx.compose.material3.windowsizeclass.WindowSizeClass.Companion Companion;
+  }
+
+  public static final class WindowSizeClass.Companion {
+    method @SuppressCompatibility @androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi public androidx.compose.material3.windowsizeclass.WindowSizeClass calculateFromSize(long size, optional java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> supportedWidthSizeClasses, optional java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass> supportedHeightSizeClasses);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi public androidx.compose.material3.windowsizeclass.WindowSizeClass calculateFromSize-qzXmJYc(long, java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass!>, java.util.Set<androidx.compose.material3.windowsizeclass.WindowHeightSizeClass!>);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class WindowWidthSizeClass implements java.lang.Comparable<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> {
+    method @BytecodeOnly public static androidx.compose.material3.windowsizeclass.WindowWidthSizeClass! box-impl(int);
+    method public operator int compareTo(int other);
+    method @BytecodeOnly public int compareTo-GxU_lZo(int);
+    method @BytecodeOnly public static int compareTo-GxU_lZo(int, int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Companion Companion;
+  }
+
+  public static final class WindowWidthSizeClass.Companion {
+    method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> getAllSizeClasses();
+    method @BytecodeOnly public int getCompact-Y0FxcvE();
+    method public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> getDefaultSizeClasses();
+    method @BytecodeOnly public int getExpanded-Y0FxcvE();
+    method @BytecodeOnly public int getMedium-Y0FxcvE();
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> AllSizeClasses;
+    property public androidx.compose.material3.windowsizeclass.WindowWidthSizeClass Compact;
+    property public java.util.Set<androidx.compose.material3.windowsizeclass.WindowWidthSizeClass> DefaultSizeClasses;
+    property public androidx.compose.material3.windowsizeclass.WindowWidthSizeClass Expanded;
+    property public androidx.compose.material3.windowsizeclass.WindowWidthSizeClass Medium;
+  }
+
+}
+

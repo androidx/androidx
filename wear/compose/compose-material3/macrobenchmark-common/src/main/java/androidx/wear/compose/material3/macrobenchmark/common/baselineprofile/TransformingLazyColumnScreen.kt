@@ -18,11 +18,70 @@ package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
-import androidx.wear.compose.material3.samples.TransformingLazyColumnScalingMorphingEffectSample
 
 val TransformingLazyColumnScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
-            get() = { TransformingLazyColumnScalingMorphingEffectSample() }
+            get() = {
+                val transformationSpec = rememberTransformationSpec()
+                val state = rememberTransformingLazyColumnState()
+                AppScaffold {
+                    ScreenScaffold(state) { contentPadding ->
+                        TransformingLazyColumn(state = state, contentPadding = contentPadding) {
+                            item {
+                                ListHeader(
+                                    modifier = Modifier.transformedHeight(this, transformationSpec)
+                                ) {
+                                    Text("Cards")
+                                }
+                            }
+                            items(count = 100) {
+                                Card(
+                                    onClick = {},
+                                    modifier =
+                                        Modifier.transformedHeight(this, transformationSpec)
+                                            .animateItem(),
+                                    transformation = SurfaceTransformation(transformationSpec),
+                                ) {
+                                    Text("Card $it")
+                                }
+                            }
+                            item {
+                                ListHeader(
+                                    modifier = Modifier.transformedHeight(this, transformationSpec),
+                                    transformation = SurfaceTransformation(transformationSpec),
+                                ) {
+                                    Text("Buttons")
+                                }
+                            }
+                            items(count = 100) {
+                                Button(
+                                    onClick = {},
+                                    modifier =
+                                        Modifier.transformedHeight(this, transformationSpec)
+                                            .animateItem(),
+                                    transformation = SurfaceTransformation(transformationSpec),
+                                ) {
+                                    Text("Button $it")
+                                }
+                            }
+                        }
+                    }
+                }
+                LaunchedEffect(Unit) { state.animateScrollToItem(202) }
+            }
     }

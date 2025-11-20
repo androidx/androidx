@@ -89,7 +89,7 @@ class FloatingActionButtonMenuBenchmark {
     fun fabMenu_toggle_recomposeMeasureLayout() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = floatingActionButtonMenuTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -108,11 +108,11 @@ internal class FloatingActionButtonMenuTestCase : LayeredComposeTestCase(), Togg
                 button = {
                     ToggleFloatingActionButton(
                         checked = state,
-                        onCheckedChange = { /* Do nothing */ }
+                        onCheckedChange = { /* Do nothing */ },
                     ) {
                         Spacer(Modifier.size(24.dp))
                     }
-                }
+                },
             ) {
                 repeat(6) {
                     FloatingActionButtonMenuItem(

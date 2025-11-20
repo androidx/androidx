@@ -288,14 +288,14 @@ public final class ShadowOverlayHelper {
      * Returns true if the platform sdk supports dynamic shadows.
      */
     public static boolean supportsDynamicShadow() {
-        return ShadowHelper.supportsDynamicShadow();
+        return true;
     }
 
     /**
      * Returns true if the platform sdk supports rounded corner through outline.
      */
     public static boolean supportsRoundedCorner() {
-        return RoundedRectHelper.supportsRoundedCorner();
+        return true;
     }
 
     /**
@@ -388,7 +388,8 @@ public final class ShadowOverlayHelper {
         if (!needsWrapper()) {
             if (!mNeedsShadow) {
                 if (mNeedsRoundedCorner) {
-                    RoundedRectHelper.setClipToRoundedOutline(view, true, mRoundedCornerRadius);
+                    RoundedRectHelperApi21.setClipToRoundedOutline(view, true,
+                            mRoundedCornerRadius);
                 }
             } else {
                 if (mShadowType == SHADOW_DYNAMIC) {
@@ -396,7 +397,8 @@ public final class ShadowOverlayHelper {
                             view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
                 } else if (mNeedsRoundedCorner) {
-                    RoundedRectHelper.setClipToRoundedOutline(view, true, mRoundedCornerRadius);
+                    RoundedRectHelperApi21.setClipToRoundedOutline(view, true,
+                            mRoundedCornerRadius);
                 }
             }
         }

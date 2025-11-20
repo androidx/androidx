@@ -27,10 +27,10 @@ import android.os.IBinder
 import android.support.wearable.complications.ComplicationProviderInfo as WireComplicationProviderInfo
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.complications.data.ComplicationText
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
@@ -70,7 +70,7 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
                     "DataSource1",
                     dataSourceIcon1,
                     ComplicationType.SHORT_TEXT,
-                    dataSource1
+                    dataSource1,
                 ),
             RIGHT_COMPLICATION_ID to
                 ComplicationDataSourceInfo(
@@ -78,29 +78,29 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
                     "DataSource2",
                     dataSourceIcon2,
                     ComplicationType.LONG_TEXT,
-                    dataSource2
-                )
+                    dataSource2,
+                ),
         )
     private val previewData =
         mapOf(
             dataSource1 to
                 ShortTextComplicationData.Builder(
                         PlainComplicationText.Builder("Left").build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
                     .asWireComplicationData(),
             dataSource2 to
                 LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("Right").build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
                     .asWireComplicationData(),
             dataSource3 to
                 LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("DataSource3").build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
                     .asWireComplicationData(),
@@ -108,7 +108,7 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
 
     override fun getProviderInfos(
         watchFaceComponentName: ComponentName,
-        ids: IntArray
+        ids: IntArray,
     ): Array<WireComplicationProviderInfo?>? {
         if (watchFaceComponentName != watchFaceComponent) {
             return null
@@ -127,7 +127,7 @@ public class TestProviderInfoServiceStub : IProviderInfoService.Stub() {
     override fun requestPreviewComplicationData(
         dataSourceComponent: ComponentName,
         complicationType: Int,
-        previewComplicationDataCallback: IPreviewComplicationDataCallback
+        previewComplicationDataCallback: IPreviewComplicationDataCallback,
     ): Boolean {
         previewComplicationDataCallback.updateComplicationData(previewData[dataSourceComponent])
         return true
@@ -143,7 +143,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     private val complicationDataSourceInfoRetriever =
         ComplicationDataSourceInfoRetriever(
             ApplicationProvider.getApplicationContext<Context>(),
-            serviceIntent
+            serviceIntent,
         )
 
     @Test
@@ -152,7 +152,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
             val complicationDataSourceInfos =
                 complicationDataSourceInfoRetriever.retrieveComplicationDataSourceInfo(
                     watchFaceComponent,
-                    intArrayOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID)
+                    intArrayOf(LEFT_COMPLICATION_ID, RIGHT_COMPLICATION_ID),
                 )!!
             assertThat(complicationDataSourceInfos.size).isEqualTo(2)
             assertThat(complicationDataSourceInfos[0].slotId).isEqualTo(LEFT_COMPLICATION_ID)
@@ -167,14 +167,14 @@ public class ComplicationDataSourceInfoRetrieverTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     public fun retrievePreviewComplicationData() {
         runBlocking {
             val complicationData =
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                     dataSource1,
-                    ComplicationType.SHORT_TEXT
+                    ComplicationType.SHORT_TEXT,
                 ) as ShortTextComplicationData
             assertThat(complicationData.text.getTextAt(context.resources, Instant.EPOCH))
                 .isEqualTo("Left")

@@ -26,11 +26,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     // Add dependencies here
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation("androidx.recyclerview:recyclerview:1.2.1")

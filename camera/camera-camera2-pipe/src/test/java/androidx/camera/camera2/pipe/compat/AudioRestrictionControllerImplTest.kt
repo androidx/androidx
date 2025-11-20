@@ -20,7 +20,14 @@ import android.os.Build
 import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION
 import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION_SOUND
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
@@ -29,172 +36,212 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 class AudioRestrictionControllerImplTest {
+    private val testScope = TestScope()
+    private val threads = FakeThreads.fromTestScope(testScope)
     private val cameraGraph1: CameraGraph = mock()
     private val cameraGraph2: CameraGraph = mock()
     private val listener1: AudioRestrictionController.Listener = mock()
     private val listener2: AudioRestrictionController.Listener = mock()
+    private val cameraPipeJob = Job()
+    private val cameraPipeLifetime = CameraPipeLifetime(cameraPipeJob)
 
     @Test
-    fun setAudioRestrictionMode_ListenerUpdatedToHighestMode() {
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-        audioRestrictionController.addListener(listener2)
+    fun setAudioRestrictionMode_ListenerUpdatedToHighestMode() =
+        testScope.runTest {
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+            audioRestrictionController.addListener(listener2)
 
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph1,
-            AUDIO_RESTRICTION_VIBRATION
-        )
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph1,
+                AUDIO_RESTRICTION_VIBRATION,
+            )
+            advanceUntilIdle()
 
-        verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-        verify(listener2, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+            verify(listener2, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
 
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph2,
-            AUDIO_RESTRICTION_VIBRATION_SOUND
-        )
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph2,
+                AUDIO_RESTRICTION_VIBRATION_SOUND,
+            )
+            advanceUntilIdle()
 
-        verify(listener1, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-        verify(listener2, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-    }
-
-    @Test
-    fun setGlobalAudioRestrictionMode_ListenerUpdatedToHighestMode() {
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-        audioRestrictionController.addListener(listener2)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph1,
-            AUDIO_RESTRICTION_VIBRATION
-        )
-
-        verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-        verify(listener2, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-
-        audioRestrictionController.globalAudioRestrictionMode = AUDIO_RESTRICTION_VIBRATION_SOUND
-
-        verify(listener1, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-        verify(listener2, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-    }
-
-    @Test
-    fun setAudioRestrictionMode_lowerModeNotOverrideHigherMode() {
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph1,
-            AUDIO_RESTRICTION_VIBRATION_SOUND
-        )
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph2,
-            AUDIO_RESTRICTION_VIBRATION
-        )
-
-        // If the mode hasn't changed, there shouldn't be a second update call
-        verify(listener1, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-        verify(listener1, never()).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-    }
-
-    @Test
-    fun setGlobalAudioRestrictionMode_lowerModeNotOverrideHigherMode() {
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph1,
-            AUDIO_RESTRICTION_VIBRATION_SOUND
-        )
-        audioRestrictionController.globalAudioRestrictionMode = AUDIO_RESTRICTION_VIBRATION
-
-        // If the mode hasn't changed, there shouldn't be a second update call
-        verify(listener1, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-        verify(listener1, never()).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-    }
-
-    @Test
-    fun removeCameraGraphAudioRestriction_associatedModeUpdated() {
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph1,
-            AUDIO_RESTRICTION_VIBRATION_SOUND
-        )
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(
-            cameraGraph2,
-            AUDIO_RESTRICTION_VIBRATION
-        )
-
-        verify(listener1, times(1))
-            .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
-
-        audioRestrictionController.removeCameraGraph(cameraGraph1)
-
-        verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
-    }
-
-    @Test
-    fun addListenerAfterUpdateMode_newListenerUpdated() {
-        val mode = AUDIO_RESTRICTION_VIBRATION
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
-        audioRestrictionController.addListener(listener2)
-
-        verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
-        verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
-    }
-
-    @Test
-    fun setRestrictionBeforeAddingListener_listenerSetToUpdatedMode() {
-        val mode = AUDIO_RESTRICTION_VIBRATION
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-
-        audioRestrictionController.globalAudioRestrictionMode = mode
-        audioRestrictionController.addListener(listener1)
-        audioRestrictionController.addListener(listener2)
-
-        verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
-        verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
-    }
-
-    @Test
-    fun removedListener_noLongerUpdated() {
-        val mode = AUDIO_RESTRICTION_VIBRATION
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-        audioRestrictionController.addListener(listener2)
-        audioRestrictionController.removeListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
-
-        verify(listener1, times(0)).onCameraAudioRestrictionUpdated(mode)
-        verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-    fun belowRBuild_addListenerNoOp() {
-        val mode = AUDIO_RESTRICTION_VIBRATION
-        val audioRestrictionController = AudioRestrictionControllerImpl()
-        audioRestrictionController.addListener(listener1)
-
-        audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            verify(listener1, times(0)).onCameraAudioRestrictionUpdated(mode)
-        } else {
-            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
+            verify(listener1, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+            verify(listener2, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
         }
-    }
+
+    @Test
+    fun setGlobalAudioRestrictionMode_ListenerUpdatedToHighestMode() =
+        testScope.runTest {
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+            audioRestrictionController.addListener(listener2)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph1,
+                AUDIO_RESTRICTION_VIBRATION,
+            )
+            advanceUntilIdle()
+
+            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+            verify(listener2, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+
+            audioRestrictionController.globalAudioRestrictionMode =
+                AUDIO_RESTRICTION_VIBRATION_SOUND
+            advanceUntilIdle()
+
+            verify(listener1, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+            verify(listener2, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+        }
+
+    @Test
+    fun setAudioRestrictionMode_lowerModeNotOverrideHigherMode() =
+        testScope.runTest {
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph1,
+                AUDIO_RESTRICTION_VIBRATION_SOUND,
+            )
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph2,
+                AUDIO_RESTRICTION_VIBRATION,
+            )
+            advanceUntilIdle()
+
+            // If the mode hasn't changed, there shouldn't be a second update call
+            verify(listener1, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+            verify(listener1, never()).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+        }
+
+    @Test
+    fun setGlobalAudioRestrictionMode_lowerModeNotOverrideHigherMode() =
+        testScope.runTest {
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph1,
+                AUDIO_RESTRICTION_VIBRATION_SOUND,
+            )
+            audioRestrictionController.globalAudioRestrictionMode = AUDIO_RESTRICTION_VIBRATION
+            advanceUntilIdle()
+
+            // If the mode hasn't changed, there shouldn't be a second update call
+            verify(listener1, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+            verify(listener1, never()).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+        }
+
+    @Test
+    fun removeCameraGraphAudioRestriction_associatedModeUpdated() =
+        testScope.runTest {
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph1,
+                AUDIO_RESTRICTION_VIBRATION_SOUND,
+            )
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(
+                cameraGraph2,
+                AUDIO_RESTRICTION_VIBRATION,
+            )
+            advanceUntilIdle()
+
+            verify(listener1, times(1))
+                .onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION_SOUND)
+
+            audioRestrictionController.removeCameraGraph(cameraGraph1)
+            advanceUntilIdle()
+
+            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(AUDIO_RESTRICTION_VIBRATION)
+        }
+
+    @Test
+    fun addListenerAfterUpdateMode_newListenerUpdated() =
+        testScope.runTest {
+            val mode = AUDIO_RESTRICTION_VIBRATION
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
+            advanceUntilIdle()
+            audioRestrictionController.addListener(listener2)
+            advanceUntilIdle()
+
+            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
+            verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
+        }
+
+    @Test
+    fun setRestrictionBeforeAddingListener_listenerSetToUpdatedMode() =
+        testScope.runTest {
+            val mode = AUDIO_RESTRICTION_VIBRATION
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+
+            audioRestrictionController.globalAudioRestrictionMode = mode
+            advanceUntilIdle()
+            audioRestrictionController.addListener(listener1)
+            audioRestrictionController.addListener(listener2)
+            advanceUntilIdle()
+
+            verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
+            verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
+        }
+
+    @Test
+    fun removedListener_noLongerUpdated() =
+        testScope.runTest {
+            val mode = AUDIO_RESTRICTION_VIBRATION
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+            audioRestrictionController.addListener(listener2)
+            audioRestrictionController.removeListener(listener1)
+            advanceUntilIdle()
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
+            advanceUntilIdle()
+
+            verify(listener1, times(0)).onCameraAudioRestrictionUpdated(mode)
+            verify(listener2, times(1)).onCameraAudioRestrictionUpdated(mode)
+        }
+
+    @Test
+    @Config(sdk = [Config.ALL_SDKS])
+    fun belowRBuild_addListenerNoOp() =
+        testScope.runTest {
+            val mode = AUDIO_RESTRICTION_VIBRATION
+            val audioRestrictionController =
+                AudioRestrictionControllerImpl(threads, cameraPipeLifetime, cameraPipeJob)
+            audioRestrictionController.addListener(listener1)
+
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(cameraGraph1, mode)
+            advanceUntilIdle()
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                verify(listener1, times(0)).onCameraAudioRestrictionUpdated(mode)
+            } else {
+                verify(listener1, times(1)).onCameraAudioRestrictionUpdated(mode)
+            }
+        }
 }

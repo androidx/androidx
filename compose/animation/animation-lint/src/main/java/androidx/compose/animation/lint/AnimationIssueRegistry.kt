@@ -41,6 +41,6 @@ class AnimationIssueRegistry : IssueRegistry() {
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.animation",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )
 }

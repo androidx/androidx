@@ -87,7 +87,7 @@ public abstract class RemoteMediator<Key : Any, Value : Any> {
      */
     public abstract suspend fun load(
         loadType: LoadType,
-        state: PagingState<Key, Value>
+        state: PagingState<Key, Value>,
     ): MediatorResult
 
     /**
@@ -141,6 +141,6 @@ public abstract class RemoteMediator<Key : Any, Value : Any> {
         /**
          * Wait for a refresh request from the UI before dispatching [load] with load type [REFRESH]
          */
-        SKIP_INITIAL_REFRESH
+        SKIP_INITIAL_REFRESH,
     }
 }

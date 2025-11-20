@@ -47,7 +47,7 @@ class UserInfoTest {
         assertEquals(
             expected = UserInfo.currentUserId,
             actual = getCurrentUserId(),
-            message = "currentUserId different from whoami user."
+            message = "currentUserId different from whoami user.",
         )
     }
 

@@ -43,8 +43,7 @@ import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
- * <a href="https://material.io/components/lists" class="external" target="_blank">Material Design
- * list</a> item.
+ * [Material Design list](https://material.io/components/lists)
  *
  * Lists are continuous, vertical indexes of text or images.
  *
@@ -85,7 +84,7 @@ fun ListItem(
     singleLineSecondaryText: Boolean = true,
     overlineText: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
-    text: @Composable () -> Unit
+    text: @Composable () -> Unit,
 ) {
     val typography = MaterialTheme.typography
 
@@ -107,7 +106,7 @@ fun ListItem(
             styledText,
             styledSecondaryText,
             styledOverlineText,
-            styledTrailing
+            styledTrailing,
         )
     } else {
         ThreeLine.ListItem(
@@ -116,7 +115,7 @@ fun ListItem(
             styledText,
             styledSecondaryText,
             styledOverlineText,
-            styledTrailing
+            styledTrailing,
         )
     }
 }
@@ -145,7 +144,7 @@ private object OneLine {
         modifier: Modifier = Modifier,
         icon: @Composable (() -> Unit)?,
         text: @Composable (() -> Unit),
-        trailing: @Composable (() -> Unit)?
+        trailing: @Composable (() -> Unit)?,
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(modifier.heightIn(min = minHeight)) {
@@ -156,9 +155,9 @@ private object OneLine {
                         .padding(
                             start = IconLeftPadding,
                             top = IconVerticalPadding,
-                            bottom = IconVerticalPadding
+                            bottom = IconVerticalPadding,
                         ),
-                    contentAlignment = Alignment.CenterStart
+                    contentAlignment = Alignment.CenterStart,
                 ) {
                     icon()
                 }
@@ -167,7 +166,7 @@ private object OneLine {
                 Modifier.weight(1f)
                     .align(Alignment.CenterVertically)
                     .padding(start = ContentLeftPadding, end = ContentRightPadding),
-                contentAlignment = Alignment.CenterStart
+                contentAlignment = Alignment.CenterStart,
             ) {
                 text()
             }
@@ -212,7 +211,7 @@ private object TwoLine {
         text: @Composable (() -> Unit),
         secondaryText: @Composable (() -> Unit)?,
         overlineText: @Composable (() -> Unit)?,
-        trailing: @Composable (() -> Unit)?
+        trailing: @Composable (() -> Unit)?,
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
         Row(modifier.heightIn(min = minHeight)) {
@@ -223,14 +222,14 @@ private object TwoLine {
                 Box(
                     Modifier.sizeIn(
                             minWidth = IconLeftPadding + IconMinPaddedWidth,
-                            minHeight = minHeight
+                            minHeight = minHeight,
                         )
                         .padding(
                             start = IconLeftPadding,
                             top = IconVerticalPadding,
-                            bottom = IconVerticalPadding
+                            bottom = IconVerticalPadding,
                         ),
-                    contentAlignment = Alignment.TopStart
+                    contentAlignment = Alignment.TopStart,
                 ) {
                     icon()
                 }
@@ -239,7 +238,7 @@ private object TwoLine {
             if (overlineText != null) {
                 BaselinesOffsetColumn(
                     listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
-                    columnModifier
+                    columnModifier,
                 ) {
                     overlineText()
                     text()
@@ -256,9 +255,9 @@ private object TwoLine {
                             PrimaryToSecondaryBaselineOffsetWithIcon
                         } else {
                             PrimaryToSecondaryBaselineOffsetNoIcon
-                        }
+                        },
                     ),
-                    columnModifier
+                    columnModifier,
                 ) {
                     text()
                     secondaryText!!()
@@ -275,7 +274,7 @@ private object TwoLine {
                     Box(
                         // TODO(popam): find way to center and wrap content without minHeight
                         Modifier.heightIn(min = minHeight).padding(end = TrailingRightPadding),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         trailing()
                     }
@@ -312,7 +311,7 @@ private object ThreeLine {
         text: @Composable (() -> Unit),
         secondaryText: @Composable (() -> Unit),
         overlineText: @Composable (() -> Unit)?,
-        trailing: @Composable (() -> Unit)?
+        trailing: @Composable (() -> Unit)?,
     ) {
         Row(modifier.heightIn(min = MinHeight)) {
             if (icon != null) {
@@ -322,9 +321,9 @@ private object ThreeLine {
                         .padding(
                             start = IconLeftPadding,
                             top = IconThreeLineVerticalPadding,
-                            bottom = IconThreeLineVerticalPadding
+                            bottom = IconThreeLineVerticalPadding,
                         ),
-                    contentAlignment = Alignment.CenterStart
+                    contentAlignment = Alignment.CenterStart,
                 ) {
                     icon()
                 }
@@ -333,9 +332,9 @@ private object ThreeLine {
                 listOf(
                     ThreeLineBaselineFirstOffset,
                     ThreeLineBaselineSecondOffset,
-                    ThreeLineBaselineThirdOffset
+                    ThreeLineBaselineThirdOffset,
                 ),
-                Modifier.weight(1f).padding(start = ContentLeftPadding, end = ContentRightPadding)
+                Modifier.weight(1f).padding(start = ContentLeftPadding, end = ContentRightPadding),
             ) {
                 if (overlineText != null) overlineText()
                 text()
@@ -345,7 +344,7 @@ private object ThreeLine {
                 OffsetToBaselineOrCenter(
                     ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
                     Modifier.padding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
-                    trailing
+                    trailing,
                 )
             }
         }
@@ -362,7 +361,7 @@ private object ThreeLine {
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout(content, modifier) { measurables, constraints ->
         val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
@@ -401,7 +400,7 @@ private fun BaselinesOffsetColumn(
 private fun OffsetToBaselineOrCenter(
     offset: Dp,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout(content, modifier) { measurables, constraints ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0))
@@ -417,7 +416,7 @@ private fun OffsetToBaselineOrCenter(
                 Alignment.Center.align(
                         IntSize.Zero,
                         IntSize(0, containerHeight - placeable.height),
-                        layoutDirection
+                        layoutDirection,
                     )
                     .y
         }
@@ -428,7 +427,7 @@ private fun OffsetToBaselineOrCenter(
 private fun applyTextStyle(
     textStyle: TextStyle,
     contentAlpha: Float,
-    icon: @Composable (() -> Unit)?
+    icon: @Composable (() -> Unit)?,
 ): @Composable (() -> Unit)? {
     if (icon == null) return null
     val lineHeightStyle =

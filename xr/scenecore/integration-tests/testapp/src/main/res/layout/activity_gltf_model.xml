@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".model.GltfModelActivity">
+
+  <com.google.android.material.appbar.MaterialToolbar
+      android:id="@+id/gltf_model_topAppBar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="@color/google_blue"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:navigationIcon="@drawable/arrow_back"
+      app:navigationIconTint="@color/white"
+      app:title="GLTF Model Test"
+      app:titleCentered="true" />
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow0"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/gltf_model_topAppBar">
+
+    <Button
+        android:id="@+id/gltf_model_toggle_hsm_fsm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/test_button"
+        android:text="Toggle HSM/FSM"
+        android:textFontWeight="400"
+        android:textSize="18sp" />
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow1"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow0">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+      <Button
+          android:id="@+id/gltf_model_button1_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Create Texture"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toStartOf="@id/gltf_model_button1_2"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintHorizontal_chainStyle="spread"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button1_2"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Dispose Texture"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button1_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow2"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow1">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+      <Button
+          android:id="@+id/gltf_model_button2_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Create Khronos PBR Material"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toStartOf="@id/gltf_model_button2_2"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintHorizontal_chainStyle="spread"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button2_2"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Dispose Khronos PBR Material"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button2_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow3"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow2">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+      <Button
+          android:id="@+id/gltf_model_button3_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Set Base Color Texture"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toStartOf="@id/gltf_model_metallic_slider"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintHorizontal_chainStyle="spread"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <TextView
+          android:id="@+id/gltf_model_slider_label"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:labelFor="@id/gltf_model_metallic_slider"
+          android:text="Set Metallic Factor"
+          app:layout_constraintBottom_toTopOf="@+id/gltf_model_metallic_slider"
+          app:layout_constraintStart_toStartOf="@+id/gltf_model_metallic_slider"
+          app:layout_constraintTop_toTopOf="@+id/gltf_model_button3_1"
+          app:layout_constraintVertical_chainStyle="packed" />
+
+      <com.google.android.material.slider.Slider
+          android:id="@+id/gltf_model_metallic_slider"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:stepSize="0.01"
+          android:value="1.0"
+          android:valueFrom="0.0"
+          android:valueTo="1.0"
+          app:layout_constraintBottom_toBottomOf="@+id/gltf_model_button3_1"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button3_1"
+          app:layout_constraintTop_toBottomOf="@+id/gltf_model_slider_label" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow4"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow3">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+      <Button
+          android:id="@+id/gltf_model_button4_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Create GLTF Model Entity"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toStartOf="@id/gltf_model_button4_2"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintHorizontal_chainStyle="spread"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button4_2"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Dispose GLTF Model Entity"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toStartOf="@+id/gltf_model_button4_3"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button4_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button4_3"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Toggle Animation"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button4_2"
+          app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+      android:id="@+id/gltf_model_cardRow5"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow4">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+      <Button
+          android:id="@+id/gltf_model_button5_1"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Set Material Override"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toStartOf="@id/gltf_model_button5_2"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintHorizontal_chainStyle="spread"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button5_2"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Clear Material Override"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button5_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </com.google.android.material.card.MaterialCardView>
+
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/bottomCenterFab"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_margin="16dp"
+      android:backgroundTint="@color/google_blue"
+      android:scaleX="1.25"
+      android:scaleY="1.25"
+      android:src="@drawable/recreate"
+      app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

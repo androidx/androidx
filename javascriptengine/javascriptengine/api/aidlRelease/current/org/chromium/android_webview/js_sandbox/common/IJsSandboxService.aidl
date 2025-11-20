@@ -45,4 +45,5 @@ interface IJsSandboxService {
   const String CONSOLE_MESSAGING = "CONSOLE_MESSAGING";
   const String ISOLATE_CLIENT = "ISOLATE_CLIENT";
   const String EVALUATE_FROM_FD = "EVALUATE_FROM_FD";
+  const String MESSAGE_PORTS = "MESSAGE_PORTS";
 }

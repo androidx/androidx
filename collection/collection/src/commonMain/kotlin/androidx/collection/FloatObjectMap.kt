@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE", "FacadeClassJvmName")
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -58,12 +59,7 @@ public fun <V> floatObjectMapOf(key1: Float, value1: V): FloatObjectMap<V> =
  * Returns a new [FloatObjectMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun <V> floatObjectMapOf(
-    key1: Float,
-    value1: V,
-    key2: Float,
-    value2: V,
-): FloatObjectMap<V> =
+public fun <V> floatObjectMapOf(key1: Float, value1: V, key2: Float, value2: V): FloatObjectMap<V> =
     MutableFloatObjectMap<V>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -227,7 +223,7 @@ public fun <V> mutableFloatObjectMapOf(
  * @param builderAction Lambda in which the [MutableFloatObjectMap] can be populated.
  */
 public inline fun <V> buildFloatObjectMap(
-    builderAction: MutableFloatObjectMap<V>.() -> Unit,
+    builderAction: MutableFloatObjectMap<V>.() -> Unit
 ): FloatObjectMap<V> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableFloatObjectMap<V>().apply(builderAction)
@@ -322,7 +318,8 @@ public sealed class FloatObjectMap<V> {
      */
     public operator fun get(key: Float): V? {
         val index = findKeyIndex(key)
-        @Suppress("UNCHECKED_CAST") return if (index >= 0) values[index] as V? else null
+        @Suppress("UNCHECKED_CAST")
+        return if (index >= 0) values[index] as V? else null
     }
 
     /**
@@ -332,7 +329,8 @@ public sealed class FloatObjectMap<V> {
     public fun getOrDefault(key: Float, defaultValue: V): V {
         val index = findKeyIndex(key)
         if (index >= 0) {
-            @Suppress("UNCHECKED_CAST") return values[index] as V
+            @Suppress("UNCHECKED_CAST")
+            return values[index] as V
         }
         return defaultValue
     }
@@ -450,19 +448,21 @@ public sealed class FloatObjectMap<V> {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@FloatObjectMap.forEach { key, value ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@FloatObjectMap.forEach { key, value ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(key)
+                append('=')
+                append(value)
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(key)
-            append('=')
-            append(value)
-            index++
         }
         append(postfix)
     }
@@ -482,20 +482,22 @@ public sealed class FloatObjectMap<V> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: Float, value: V) -> CharSequence
+        crossinline transform: (key: Float, value: V) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@FloatObjectMap.forEach { key, value ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@FloatObjectMap.forEach { key, value ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(key, value))
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(key, value))
-            index++
         }
         append(postfix)
     }
@@ -704,7 +706,8 @@ public class MutableFloatObjectMap<V>(initialCapacity: Int = DefaultScatterCapac
         keys[index] = key
         values[index] = value
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /** Puts all the key/value mappings in the [from] map into this map. */
@@ -784,7 +787,8 @@ public class MutableFloatObjectMap<V>(initialCapacity: Int = DefaultScatterCapac
         val oldValue = values[index]
         values[index] = null
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /** Removes all mappings from this map. */

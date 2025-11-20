@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
-import android.os.Build
 import android.os.Handler
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -31,7 +30,7 @@ import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class AndroidCaptureSessionStateCallbackTest {
     private val camera: CameraDeviceWrapper = mock()
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback = mock()
@@ -45,7 +44,7 @@ internal class AndroidCaptureSessionStateCallbackTest {
             stateCallback = stateCallback,
             lastStateCallback = previousStateCallback,
             cameraErrorListener = cameraErrorListener,
-            callbackHandler = callbackHandler
+            callbackHandler = callbackHandler,
         )
 
     @Test

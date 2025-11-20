@@ -45,7 +45,7 @@ class ActivityResultLauncherTest {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {
                 invokeCount++
                 invokeOptions = options
@@ -76,11 +76,11 @@ class ActivityResultLauncherTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     contract.createIntent(
                         InstrumentationRegistry.getInstrumentation().context,
-                        input
+                        input,
                     )
                     dispatchResult(requestCode, expectedResult)
                 }

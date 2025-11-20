@@ -27,6 +27,7 @@ import androidx.core.uwb.UwbRangeDataNtfConfig
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
+import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason
 import com.google.android.gms.nearby.uwb.UwbDevice
 import com.google.common.collect.ImmutableList
 import kotlinx.coroutines.channels.awaitClose
@@ -36,7 +37,7 @@ import kotlinx.coroutines.flow.callbackFlow
 class TestUwbClientSessionScope(
     private val uwbClient: TestUwbClient,
     override val rangingCapabilities: RangingCapabilities,
-    override val localAddress: UwbAddress
+    override val localAddress: UwbAddress,
 ) : UwbClientSessionScope {
     private var sessionStarted = false
     private val uwbDevice = createForAddress(ByteArray(0))
@@ -53,7 +54,7 @@ class TestUwbClientSessionScope(
                 0x03,
                 0x04,
                 0x05,
-                0x06
+                0x06,
             ),
             null,
             null,
@@ -61,7 +62,7 @@ class TestUwbClientSessionScope(
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
             UwbRangeDataNtfConfig(1, 1, 100),
             2,
-            false
+            false,
         )
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
@@ -97,16 +98,22 @@ class TestUwbClientSessionScope(
                                 RangingMeasurement(position.distance.value),
                                 position.azimuth?.let { RangingMeasurement(it.value) },
                                 position.elevation?.let { RangingMeasurement(it.value) },
-                                position.elapsedRealtimeNanos
-                            )
+                                position.elapsedRealtimeNanos,
+                            ),
                         )
                     )
                 }
 
-                override fun onRangingSuspended(device: UwbDevice, reason: Int) {
+                override fun onRangingSuspended(
+                    device: UwbDevice,
+                    @RangingSuspendedReason reason: Int,
+                ) {
+                    val jetpackReason = mapGmsReasonToJetpackReason(reason)
+
                     trySend(
                         RangingResult.RangingResultPeerDisconnected(
-                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
+                            androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
+                            jetpackReason,
                         )
                     )
                 }
@@ -128,10 +135,28 @@ class TestUwbClientSessionScope(
         }
     }
 
+    private fun mapGmsReasonToJetpackReason(@RangingSuspendedReason gmsReason: Int): Int {
+        return when (gmsReason) {
+            RangingSuspendedReason.WRONG_PARAMETERS ->
+                RangingResult.RANGING_FAILURE_REASON_BAD_PARAMETERS
+            RangingSuspendedReason.STOPPED_BY_PEER ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_PEER
+            RangingSuspendedReason.STOP_RANGING_CALLED ->
+                RangingResult.RANGING_FAILURE_REASON_STOPPED_BY_LOCAL
+            RangingSuspendedReason.MAX_RANGING_ROUND_RETRY_REACHED ->
+                RangingResult.RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED
+            RangingSuspendedReason.SYSTEM_POLICY ->
+                RangingResult.RANGING_FAILURE_REASON_SYSTEM_POLICY
+            RangingSuspendedReason.FAILED_TO_START ->
+                RangingResult.RANGING_FAILURE_REASON_FAILED_TO_START
+            else -> RangingResult.RANGING_FAILURE_REASON_UNKNOWN
+        }
+    }
+
     override suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     ) {
         TODO("Not yet implemented")
     }

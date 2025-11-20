@@ -85,8 +85,8 @@ fun ArbitraryValueTypeTransitionSample() {
                 mySize,
                 TwoWayConverter<MySize, AnimationVector2D>(
                     convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
-                    convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
-                )
+                    convertFromVector = { MySize(it.v1.dp, it.v2.dp) },
+                ),
             )
         Box(Modifier.size(animSize.width, animSize.height).background(color = Color.Red))
     }

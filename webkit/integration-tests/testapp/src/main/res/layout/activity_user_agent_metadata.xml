@@ -46,6 +46,13 @@
             android:minHeight="48dp"
             android:textColor="@color/colorAccent"
             android:text="@string/user_agent_metadata_with_override"/>
+        <RadioButton
+            android:id="@+id/user_agent_metadata_with_override_form_factors_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:textColor="@color/colorAccent"
+            android:text="@string/user_agent_metadata_with_override_form_factors"/>
     </RadioGroup>
     <WebView
         android:id="@+id/user_agent_metadata_webview"

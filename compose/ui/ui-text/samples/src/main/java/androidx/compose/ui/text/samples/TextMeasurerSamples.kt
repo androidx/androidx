@@ -35,7 +35,7 @@ fun measureTextStringWithConstraints(textMeasurer: TextMeasurer) {
     textMeasurer.measure(
         text = "Hello, World",
         style = TextStyle(color = Color.Red, fontSize = 16.sp, fontFamily = FontFamily.Cursive),
-        constraints = Constraints(minWidth = 400, maxWidth = 400, minHeight = 200, maxHeight = 400)
+        constraints = Constraints(minWidth = 400, maxWidth = 400, minHeight = 200, maxHeight = 400),
     )
 }
 
@@ -51,6 +51,6 @@ fun measureTextAnnotatedString(textMeasurer: TextMeasurer) {
                 append("Hello, ")
                 withStyle(SpanStyle(color = Color.Blue)) { append("World!") }
             },
-        style = TextStyle(fontSize = 16.sp, fontFamily = FontFamily.Monospace)
+        style = TextStyle(fontSize = 16.sp, fontFamily = FontFamily.Monospace),
     )
 }

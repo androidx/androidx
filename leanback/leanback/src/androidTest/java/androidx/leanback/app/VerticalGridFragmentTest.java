@@ -21,7 +21,6 @@ package androidx.leanback.app;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +36,6 @@ import androidx.leanback.widget.VerticalGridPresenter;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -124,7 +122,6 @@ public class VerticalGridFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
     @Test
     public void viewLeakTest() throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(

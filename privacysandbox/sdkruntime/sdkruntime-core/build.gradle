@@ -26,11 +26,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.2")
 
     implementation("androidx.core:core:1.15.0")
@@ -65,5 +64,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides shared components for SdkRuntime libraries"
-    legacyDisableKotlinStrictApiMode = true
 }

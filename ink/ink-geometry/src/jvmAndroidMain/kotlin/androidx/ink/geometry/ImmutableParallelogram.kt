@@ -23,17 +23,22 @@ import kotlin.math.atan2
 
 /**
  * Immutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
- * [width], [height], [rotation], and [shearFactor].
+ * [width], [height], [rotationDegrees], and [skew].
  */
 @UsedByNative
 public class ImmutableParallelogram
 private constructor(
     override val center: ImmutableVec,
-    override val width: Float,
+    @get:FloatRange(from = 0.0) override val width: Float,
     override val height: Float,
-    @AngleRadiansFloat override val rotation: Float,
-    override val shearFactor: Float,
+    @get:FloatRange(from = 0.0, to = 360.0, toInclusive = false)
+    @AngleDegreesFloat
+    override val rotationDegrees: Float,
+    override val skew: Float,
 ) : Parallelogram() {
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toImmutable(): ImmutableParallelogram = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Parallelogram && areEquivalent(this, other))
@@ -47,8 +52,10 @@ private constructor(
 
         /**
          * Constructs an [ImmutableParallelogram] with a given [center], [width] and [height]. The
-         * resulting [Parallelogram] has zero [rotation] and [shearFactor]. If the [width] is less
+         * resulting [Parallelogram] has zero [rotationDegrees] and [skew]. If the [width] is less
          * than zero, the Parallelogram will be normalized.
+         *
+         * See the corresponding fields on [Parallelogram] for details about these parameters.
          */
         @JvmStatic
         public fun fromCenterAndDimensions(
@@ -56,58 +63,66 @@ private constructor(
             @FloatRange(from = 0.0) width: Float,
             height: Float,
         ): ImmutableParallelogram =
-            normalizeAndRun(width, height, rotation = Angle.ZERO) { w: Float, h: Float, r: Float ->
-                ImmutableParallelogram(center, w, h, r, shearFactor = 0f)
-            }
+            fromCenterDimensionsAndRotationInDegrees(center, width, height, Angle.ZERO_DEGREES)
 
         /**
          * Constructs an [ImmutableParallelogram] with a given [center], [width], [height] and
-         * [rotation]. The resulting [Parallelogram] has zero [shearFactor]. If the [width] is less
-         * than zero or if the [rotation] is not in the range [0, 2π), the [Parallelogram] will be
-         * normalized.
+         * [rotationDegrees]. The resulting [Parallelogram] has zero [skew]. If the [width] is less
+         * than zero or if the [rotationDegrees] is not in the range [0, 360), the [Parallelogram]
+         * will be normalized.
+         *
+         * See the corresponding fields on [Parallelogram] for details about these parameters.
          */
         @UsedByNative
         @JvmStatic
-        public fun fromCenterDimensionsAndRotation(
+        public fun fromCenterDimensionsAndRotationInDegrees(
             center: ImmutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
-            @AngleRadiansFloat rotation: Float,
+            @AngleDegreesFloat rotationDegrees: Float,
         ): ImmutableParallelogram =
-            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
-                ImmutableParallelogram(center, w, h, r, shearFactor = 0f)
-            }
+            fromCenterDimensionsRotationInDegreesAndSkew(
+                center,
+                width,
+                height,
+                rotationDegrees,
+                skew = 0f,
+            )
 
         /**
          * Constructs an [ImmutableParallelogram] with a given [center], [width], [height],
-         * [rotation] and [shearFactor]. If the [width] is less than zero or if the [rotation] is
-         * not in the range [0, 2π), the [Parallelogram] will be normalized.
+         * [rotationDegrees] and [skew]. If the [width] is less than zero or if the
+         * [rotationDegrees] is not in the range [0, 360), the [Parallelogram] will be normalized.
+         *
+         * See the corresponding fields on [Parallelogram] for details about these parameters.
          */
+        @UsedByNative
         @JvmStatic
-        public fun fromCenterDimensionsRotationAndShear(
+        public fun fromCenterDimensionsRotationInDegreesAndSkew(
             center: ImmutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
-            @AngleRadiansFloat rotation: Float,
-            shearFactor: Float,
+            @AngleDegreesFloat rotationDegrees: Float,
+            skew: Float,
         ): ImmutableParallelogram =
-            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
-                ImmutableParallelogram(center, w, h, r, shearFactor)
+            normalizeAndRun(width, height, rotationDegrees) { w: Float, h: Float, r: Float ->
+                ImmutableParallelogram(center, w, h, r, skew)
             }
 
         /**
          * Constructs an [ImmutableParallelogram] that is aligned with the [segment] and whose
-         * bounds are [padding] units away from the segment and whose [shearFactor] is zero. This
-         * makes it a rectangle, that is axis-aligned only if [segment] is axis-aligned.
+         * bounds are [padding] units away from the segment and whose [skew] is zero. This makes it
+         * a rectangle, that is axis-aligned only if [segment] is axis-aligned.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
         @JvmStatic
         public fun fromSegmentAndPadding(segment: Segment, padding: Float): ImmutableParallelogram =
             normalizeAndRun(
                 width = segment.computeLength() + 2 * padding,
                 height = 2 * padding,
-                rotation =
-                    atan2((segment.start.y - segment.end.y), (segment.start.x - segment.end.x)),
+                rotationDegrees =
+                    Angle.radiansToDegrees(
+                        atan2((segment.start.y - segment.end.y), (segment.start.x - segment.end.x))
+                    ),
             ) { w: Float, h: Float, r: Float ->
                 ImmutableParallelogram(
                     center =
@@ -117,8 +132,8 @@ private constructor(
                         ),
                     width = w,
                     height = h,
-                    rotation = r,
-                    shearFactor = 0f,
+                    rotationDegrees = r,
+                    skew = 0f,
                 )
             }
     }

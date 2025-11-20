@@ -26,13 +26,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":wear:wear"))
     implementation("androidx.core:core:1.6.0")
-    implementation(libs.kotlinStdlib)
 }
 
 androidx {
@@ -52,7 +51,7 @@ android {
 	release {
 	    minifyEnabled = true
 	    shrinkResources = true
-	    proguardFiles getDefaultProguardFile('proguard-android.txt')
+	    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
 	}
     }
 

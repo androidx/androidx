@@ -23,7 +23,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.MultiProcessDataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -72,7 +72,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     private val PROTO_STORE_FILE_NAME = "datastore_test_app.pb"
 
     private val settingsStore: DataStore<Settings> by lazy {
-        DataStoreFactory.create(serializer = SettingsSerializer) {
+        MultiProcessDataStoreFactory.create(serializer = SettingsSerializer) {
             File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME)
         }
     }

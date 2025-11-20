@@ -60,7 +60,7 @@ internal class SelectableTextAnnotatedStringNode(
     private var selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null,
     autoSize: TextAutoSize? = null,
-    private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
+    private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
@@ -81,7 +81,7 @@ internal class SelectableTextAnnotatedStringNode(
                 selectionController = selectionController,
                 overrideColor = overrideColor,
                 autoSize = autoSize,
-                onShowTranslation = onShowTranslation
+                onShowTranslation = onShowTranslation,
             )
         )
 
@@ -99,27 +99,27 @@ internal class SelectableTextAnnotatedStringNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult = textAnnotatedStringNode.measureNonExtension(this, measurable, constraints)
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = textAnnotatedStringNode.minIntrinsicWidthNonExtension(this, measurable, height)
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = textAnnotatedStringNode.minIntrinsicHeightNonExtension(this, measurable, width)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = textAnnotatedStringNode.maxIntrinsicWidthNonExtension(this, measurable, height)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = textAnnotatedStringNode.maxIntrinsicHeightNonExtension(this, measurable, width)
 
     fun update(
@@ -135,7 +135,7 @@ internal class SelectableTextAnnotatedStringNode(
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
         selectionController: SelectionController?,
         color: ColorProducer?,
-        autoSize: TextAutoSize?
+        autoSize: TextAutoSize?,
     ) {
         textAnnotatedStringNode.doInvalidations(
             drawChanged = textAnnotatedStringNode.updateDraw(color, style),
@@ -149,14 +149,14 @@ internal class SelectableTextAnnotatedStringNode(
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = overflow,
-                    autoSize = autoSize
+                    autoSize = autoSize,
                 ),
             callbacksChanged =
                 textAnnotatedStringNode.updateCallbacks(
                     onTextLayout = onTextLayout,
                     onPlaceholderLayout = onPlaceholderLayout,
                     selectionController = selectionController,
-                    onShowTranslation = onShowTranslation
+                    onShowTranslation = onShowTranslation,
                 ),
         )
         this.selectionController = selectionController

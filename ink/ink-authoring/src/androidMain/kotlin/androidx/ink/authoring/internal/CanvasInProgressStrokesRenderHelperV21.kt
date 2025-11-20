@@ -28,27 +28,33 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.core.graphics.withMatrix
+import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalLatencyDataApi
+import androidx.ink.authoring.InProgressShape
+import androidx.ink.authoring.InProgressShapeRenderer
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
-import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.strokes.InProgressStroke
 
 /**
- * An implementation of [InProgressStrokesRenderHelper] that works on Android versions before
- * [android.os.Build.VERSION_CODES.Q]. This implementation renders in-progress strokes via the
- * [View] hierarchy using a [CanvasStrokeRenderer], where everything occurs on the UI thread.
- * Support of pre-Q Android versions comes with the expense of rendering latency that is higher than
- * it would be with [androidx.graphics.lowlatency.CanvasFrontBufferedRenderer].
+ * An implementation of [InProgressStrokesRenderHelper] that works on all Android versions. This
+ * implementation renders in-progress strokes via the [View] hierarchy using a
+ * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer], where everything occurs on the UI
+ * thread. Support of pre-Q Android versions comes with the expense of rendering latency that is
+ * higher than it would be with [CanvasInProgressStrokesRenderHelperV29] or
+ * [CanvasInProgressStrokesRenderHelperV33].
  */
-@OptIn(ExperimentalLatencyDataApi::class)
+@OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
 @UiThread
-internal class CanvasInProgressStrokesRenderHelperV21(
+internal class CanvasInProgressStrokesRenderHelperV21<
+    ShapeSpecT : Any,
+    InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
+    CompletedShapeT : Any,
+>(
     private val mainView: ViewGroup,
-    private val callback: InProgressStrokesRenderHelper.Callback,
-    private val renderer: CanvasStrokeRenderer,
-) : InProgressStrokesRenderHelper {
+    private val callback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>,
+    private val renderer: InProgressShapeRenderer<InProgressShapeT>,
+) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> {
 
     // View hierarchy rendering does not retain its contents between frames, so all contents must be
     // redrawn on every frame.
@@ -118,6 +124,9 @@ internal class CanvasInProgressStrokesRenderHelperV21(
         }
 
     init {
+        // Not checking that this is used for only pre-Q devices because InProgressStrokesView
+        // allows
+        // forcing this implementation as a fallback (with useHighLatencyRenderHelper).
         if (mainView.isAttachedToWindow) {
             addInnerToMainView()
         }
@@ -141,14 +150,14 @@ internal class CanvasInProgressStrokesRenderHelperV21(
     override fun prepareToDrawInModifiedRegion(modifiedRegionInMainView: MutableBox) = Unit
 
     override fun drawInModifiedRegion(
-        inProgressStroke: InProgressStroke,
+        inProgressShape: InProgressShapeT,
         strokeToMainViewTransform: Matrix,
     ) {
         assertOnUiThread()
         val canvas =
             checkNotNull(canvasForCurrentDraw) { "Can only render during Callback.onDraw." }
         canvas.withMatrix(strokeToMainViewTransform) {
-            renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+            renderer.draw(canvas, inProgressShape, strokeToMainViewTransform)
         }
     }
 
@@ -161,7 +170,7 @@ internal class CanvasInProgressStrokesRenderHelperV21(
     }
 
     override fun requestStrokeCohortHandoffToHwui(
-        handingOff: Map<InProgressStrokeId, FinishedStroke>
+        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
     ) {
         // The callback will ensure that the handoff data is drawn in HWUI in its next frame.
         callback.onStrokeCohortHandoffToHwui(handingOff)

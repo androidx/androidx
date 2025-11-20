@@ -32,8 +32,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -46,8 +44,8 @@ import java.util.ArrayList;
 /**
  * Tests for {@link IntentSanitizer}
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class IntentSanitizerTest {
     //private Context mContext;
     private static final ComponentName TEST_COMPONENT = new ComponentName(

@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"फिंगरप्रिन्ट प्रयोग गरी प्रमाणीकरण गर्ने डायलग"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"फिंगरप्रिन्ट सेन्सरमा छुनुहोस्‌"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"पहिचान भएन"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"फिंगरप्रिन्ट हार्डवेयर उपलब्ध छैन।"</string>
@@ -30,6 +31,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"कुनै पनि PIN, ढाँचा वा पासवर्ड सेट गरिएको छैन।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"यस डिभाइसमा PIN, ढाँचा वा पासवर्ड प्रयोग गर्न मिल्दैन।"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फिंगरप्रिन्ट जनाउने आइकन"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"More options button in the content view is clicked."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"फिंगरप्रिन्ट प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_face_label" msgid="6533512708069459542">"फेस प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"बायोमेट्रिक्स प्रयोग गरी पुष्टि गर्नुहोस्"</string>

@@ -45,7 +45,7 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
         key: Any?,
         span: (LazyGridItemSpanScope.() -> GridItemSpan)?,
         contentType: Any?,
-        content: @Composable LazyGridItemScope.() -> Unit
+        content: @Composable LazyGridItemScope.() -> Unit,
     ) {
         intervals.addInterval(
             1,
@@ -53,8 +53,8 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
                 key = key?.let { { key } },
                 span = span?.let { { span() } } ?: DefaultSpan,
                 type = { contentType },
-                item = { content() }
-            )
+                item = { content() },
+            ),
         )
         if (span != null) hasCustomSpans = true
     }
@@ -64,7 +64,7 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
         key: ((index: Int) -> Any)?,
         span: (LazyGridItemSpanScope.(Int) -> GridItemSpan)?,
         contentType: (index: Int) -> Any?,
-        itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyGridItemScope.(index: Int) -> Unit,
     ) {
         intervals.addInterval(
             count,
@@ -72,8 +72,8 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
                 key = key,
                 span = span ?: DefaultSpan,
                 type = contentType,
-                item = itemContent
-            )
+                item = itemContent,
+            ),
         )
         if (span != null) hasCustomSpans = true
     }
@@ -81,7 +81,7 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
     override fun stickyHeader(
         key: Any?,
         contentType: Any?,
-        content: @Composable LazyGridItemScope.(Int) -> Unit
+        content: @Composable LazyGridItemScope.(Int) -> Unit,
     ) {
         val headersIndexes = _headerIndexes ?: mutableIntListOf().also { _headerIndexes = it }
         val headerIndex = intervals.size
@@ -98,5 +98,5 @@ internal class LazyGridInterval(
     override val key: ((index: Int) -> Any)?,
     val span: LazyGridItemSpanScope.(Int) -> GridItemSpan,
     override val type: ((index: Int) -> Any?),
-    val item: @Composable LazyGridItemScope.(Int) -> Unit
+    val item: @Composable LazyGridItemScope.(Int) -> Unit,
 ) : LazyLayoutIntervalContent.Interval

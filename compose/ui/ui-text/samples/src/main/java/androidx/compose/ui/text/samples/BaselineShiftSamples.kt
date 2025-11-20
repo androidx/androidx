@@ -39,7 +39,7 @@ fun BaselineShiftSample() {
                         append("subscript")
                     }
                 }
-            }
+            },
     )
 }
 

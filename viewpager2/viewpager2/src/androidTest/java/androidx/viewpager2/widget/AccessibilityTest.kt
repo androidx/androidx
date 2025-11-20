@@ -16,9 +16,7 @@
 
 package androidx.viewpager2.widget
 
-import android.os.Build
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -77,12 +75,12 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
                     if (targetPage - currentPage == 1) {
                         viewPager.performAccessibilityAction(
                             getNextPageAction(config.orientation, viewPager.isRtl),
-                            null
+                            null,
                         )
                     } else {
                         viewPager.performAccessibilityAction(
                             getPreviousPageAction(config.orientation, viewPager.isRtl),
-                            null
+                            null,
                         )
                     }
                 }
@@ -119,9 +117,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
                 assertThat(collectionInfo.rowCount, equalTo(1))
             }
             assertThat(collectionInfo.isHierarchical, equalTo(false))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                assertThat(collectionInfo.selectionMode, equalTo(0))
-            }
+            assertThat(collectionInfo.selectionMode, equalTo(0))
         }
     }
 
@@ -164,31 +160,25 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun getNextPageAction(orientation: Int, isRtl: Boolean): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
-                if (isRtl) {
-                    return ACTION_ID_PAGE_LEFT
-                } else {
-                    return ACTION_ID_PAGE_RIGHT
-                }
+        if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
+            if (isRtl) {
+                return ACTION_ID_PAGE_LEFT
+            } else {
+                return ACTION_ID_PAGE_RIGHT
             }
-            return ACTION_ID_PAGE_DOWN
         }
-        return AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
+        return ACTION_ID_PAGE_DOWN
     }
 
     private fun getPreviousPageAction(orientation: Int, isRtl: Boolean): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
-                if (isRtl) {
-                    return ACTION_ID_PAGE_RIGHT
-                } else {
-                    return ACTION_ID_PAGE_LEFT
-                }
+        if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
+            if (isRtl) {
+                return ACTION_ID_PAGE_RIGHT
+            } else {
+                return ACTION_ID_PAGE_LEFT
             }
-            return ACTION_ID_PAGE_UP
         }
-        return AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+        return ACTION_ID_PAGE_UP
     }
 
     private fun getOppositeOrientation(orientation: Int): Int {

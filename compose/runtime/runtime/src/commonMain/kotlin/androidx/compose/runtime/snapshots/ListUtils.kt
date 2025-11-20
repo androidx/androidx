@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.snapshots
 
+import androidx.collection.ObjectList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -30,6 +31,20 @@ import kotlin.contracts.contract
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
+    contract { callsInPlace(action) }
+    for (index in indices) {
+        val item = get(index)
+        action(item)
+    }
+}
+
+/**
+ * Iterates through an [ObjectList] using the index and calls [action] for each item. This does not
+ * allocate an iterator like [Iterable.forEach].
+ */
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T> ObjectList<T>.fastForEach(action: (T) -> Unit) {
     contract { callsInPlace(action) }
     for (index in indices) {
         val item = get(index)
@@ -92,6 +107,14 @@ internal inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
     return false
 }
 
+@Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T> List<T>.fastNone(predicate: (T) -> Boolean): Boolean {
+    contract { callsInPlace(predicate) }
+    fastForEach { if (predicate(it)) return false }
+    return true
+}
+
 /**
  * Returns `true` if all elements match the given [predicate].
  *
@@ -114,7 +137,7 @@ internal inline fun <T, K> List<T>.fastGroupBy(keySelector: (T) -> K): Map<K, Li
     val destination = HashMap<K, ArrayList<T>>(size)
     fastForEach {
         val key = keySelector(it)
-        val list = destination.getOrPut(key) { ArrayList<T>() }
+        val list = destination.getOrPut(key) { ArrayList() }
         list.add(it)
     }
     return destination
@@ -138,7 +161,7 @@ internal fun <T> List<T>.fastJoinToString(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): String {
     return fastJoinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform)
         .toString()
@@ -163,7 +186,7 @@ private fun <T, A : Appendable> List<T>.fastJoinTo(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): A {
     buffer.append(prefix)
     var count = 0

@@ -43,7 +43,7 @@ private const val AUTO_FOCUS_TIMEOUT_DURATION_MS = 5000L
 @RequiresApi(31)
 class FocusMeteringControl(
     private val startAfTriggerImpl: (Array<MeteringRectangle?>) -> Unit,
-    private val cancelAfTriggerImpl: (Int) -> Unit
+    private val cancelAfTriggerImpl: (Int) -> Unit,
 ) {
 
     private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
@@ -58,7 +58,7 @@ class FocusMeteringControl(
             override fun onCaptureResultAvailable(
                 session: CameraExtensionSession,
                 request: CaptureRequest,
-                result: TotalCaptureResult
+                result: TotalCaptureResult,
             ) {
                 result.get(CaptureResult.CONTROL_AF_STATE)?.let { handleCaptureResultForAf(it) }
             }
@@ -69,7 +69,7 @@ class FocusMeteringControl(
             override fun onCaptureCompleted(
                 session: CameraCaptureSession,
                 request: CaptureRequest,
-                result: TotalCaptureResult
+                result: TotalCaptureResult,
             ) {
                 result.get(CaptureResult.CONTROL_AF_STATE)?.let { handleCaptureResultForAf(it) }
             }
@@ -120,7 +120,7 @@ class FocusMeteringControl(
                     }
                 },
                 AUTO_FOCUS_TIMEOUT_DURATION_MS,
-                TimeUnit.MILLISECONDS
+                TimeUnit.MILLISECONDS,
             )
         currentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE
         startAfTriggerImpl.invoke(meteringRectangles)

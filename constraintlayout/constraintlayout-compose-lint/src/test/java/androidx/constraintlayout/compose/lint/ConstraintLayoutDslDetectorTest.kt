@@ -176,7 +176,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         K0w/m5yaev0Ss8f45DxZEumIbLCV0CZTVgEPyL/ajrtN8xr9Uqy1yA3jU3zW
         ZRMenudnHZswH/HHsE6jTtg0xZrox3dR1gqqNFcJX6DYLzYRM/HIxJcmvsIi
         mVgyUcbXm2AS32B5E30SusRjiaTEYGSMSTyRKET2LYneyDD/BWglTVUgCAAA
-        """
+        """,
         )
 
     private val MotionSceneScopeStub =
@@ -330,7 +330,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         pzomN2Bn+SMaE0vY/OasC22vRZxJwuFVpq2aykDPVKoGsTx7d00o9kyWRPJC
         xSytvUqvPwjRgoeVF9t1rCLP3YEzjwJqnPPM191VTOovcR+HnFvMi6zf6CMX
         4FOAzQAlbAUoYztABTt9UIpdVPvwUqym2HsG4yzy1wsCAAA=
-        """
+        """,
         )
 
     @Test
@@ -338,7 +338,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
         lint()
             .files(
                 kotlin(
-                    """
+                        """
                     package example
                     
                     import androidx.constraintlayout.compose.*
@@ -365,10 +365,10 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
                         }                   
                     }
                 """
-                        .trimIndent()
-                ),
+                    )
+                    .indented(),
                 ConstraintSetScopeStub,
-                MotionSceneScopeStub
+                MotionSceneScopeStub,
             )
             .run()
             .expect(

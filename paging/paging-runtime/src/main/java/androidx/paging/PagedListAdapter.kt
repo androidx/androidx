@@ -107,7 +107,7 @@ import androidx.recyclerview.widget.RecyclerView
  */
 @Deprecated(
     message = "PagedListAdapter is deprecated and has been replaced by PagingDataAdapter",
-    replaceWith = ReplaceWith("PagingDataAdapter<T, VH>", "androidx.paging.PagingDataAdapter")
+    replaceWith = ReplaceWith("PagingDataAdapter<T, VH>", "androidx.paging.PagingDataAdapter"),
 )
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
     @Suppress("DEPRECATION") internal val differ: AsyncPagedListDiffer<T>
@@ -178,7 +178,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      */
     open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,
-        commitCallback: Runnable?
+        commitCallback: Runnable?,
     ) = differ.submitList(pagedList, commitCallback)
 
     protected open fun getItem(position: Int) = differ.getItem(position)
@@ -201,7 +201,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      */
     @Deprecated(
         "Use the two argument variant instead.",
-        ReplaceWith("onCurrentListChanged(previousList, currentList)")
+        ReplaceWith("onCurrentListChanged(previousList, currentList)"),
     )
     open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {}
 
@@ -222,7 +222,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      */
     open fun onCurrentListChanged(
         @Suppress("DEPRECATION") previousList: PagedList<T>?,
-        @Suppress("DEPRECATION") currentList: PagedList<T>?
+        @Suppress("DEPRECATION") currentList: PagedList<T>?,
     ) {}
 
     /**
@@ -281,7 +281,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      */
     fun withLoadStateHeaderAndFooter(
         header: LoadStateAdapter<*>,
-        footer: LoadStateAdapter<*>
+        footer: LoadStateAdapter<*>,
     ): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.PREPEND) {

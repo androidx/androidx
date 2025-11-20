@@ -79,7 +79,7 @@ private fun LongPressableContainer(modifier: Modifier = Modifier, content: @Comp
             .background(color)
             .border(BorderStroke(2.dp, BorderColor))
             .padding(2.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         content()
     }

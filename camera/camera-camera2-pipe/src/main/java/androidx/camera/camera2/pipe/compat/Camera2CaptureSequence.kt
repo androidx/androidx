@@ -88,13 +88,13 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
         captureTimestamp: Long,
-        captureFrameNumber: Long
+        captureFrameNumber: Long,
     ) = onCaptureStarted(captureRequest, captureFrameNumber, captureTimestamp)
 
     override fun onCaptureStarted(
         captureRequest: CaptureRequest,
         captureFrameNumber: Long,
-        captureTimestamp: Long
+        captureTimestamp: Long,
     ) {
         Debug.traceStart { "onCaptureStarted" }
         val timestamp = CameraTimestamp(captureTimestamp)
@@ -113,12 +113,12 @@ internal class Camera2CaptureSequence(
     override fun onCaptureProgressed(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
-        partialCaptureResult: CaptureResult
+        partialCaptureResult: CaptureResult,
     ) = onCaptureProgressed(captureRequest, partialCaptureResult)
 
     override fun onCaptureProgressed(
         captureRequest: CaptureRequest,
-        partialCaptureResult: CaptureResult
+        partialCaptureResult: CaptureResult,
     ) {
         Debug.traceStart { "onCaptureProgressed" }
         val frameNumber = FrameNumber(partialCaptureResult.frameNumber)
@@ -136,7 +136,7 @@ internal class Camera2CaptureSequence(
         session: CameraCaptureSession,
         captureRequest: CaptureRequest,
         captureTimestamp: Long,
-        captureFrameNumber: Long
+        captureFrameNumber: Long,
     ) {
         Debug.traceStart { "onReadoutStarted" }
         val readoutTimestamp = SensorTimestamp(captureTimestamp)
@@ -153,13 +153,13 @@ internal class Camera2CaptureSequence(
     override fun onCaptureCompleted(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
-        captureResult: TotalCaptureResult
+        captureResult: TotalCaptureResult,
     ) = onCaptureCompleted(captureRequest, captureResult, FrameNumber(captureResult.frameNumber))
 
     override fun onCaptureCompleted(
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult,
-        frameNumber: FrameNumber
+        frameNumber: FrameNumber,
     ) {
         Debug.traceStart { "onCaptureCompleted" }
         Debug.traceStart { "onCaptureSequenceComplete" }
@@ -195,7 +195,7 @@ internal class Camera2CaptureSequence(
     override fun onCaptureFailed(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
-        captureFailure: CaptureFailure
+        captureFailure: CaptureFailure,
     ) {
         Debug.traceStart { "onCaptureFailed" }
         hasStarted.complete(Unit)
@@ -208,7 +208,7 @@ internal class Camera2CaptureSequence(
         invokeCaptureFailure(
             request,
             FrameNumber(captureFailure.frameNumber),
-            androidCaptureFailure
+            androidCaptureFailure,
         )
         Debug.traceStop() // onCaptureFailed
     }
@@ -216,7 +216,7 @@ internal class Camera2CaptureSequence(
     private fun invokeCaptureFailure(
         request: RequestMetadata,
         frameNumber: FrameNumber,
-        requestFailure: RequestFailure
+        requestFailure: RequestFailure,
     ) {
         sequenceListener.onCaptureSequenceComplete(this)
         invokeOnRequest(request) { it.onFailed(request, frameNumber, requestFailure) }
@@ -234,7 +234,7 @@ internal class Camera2CaptureSequence(
                 requestMetadata,
                 false,
                 frameNumber,
-                CaptureFailure.REASON_ERROR
+                CaptureFailure.REASON_ERROR,
             )
 
         invokeCaptureFailure(requestMetadata, frameNumber, extensionRequestFailure)
@@ -245,7 +245,7 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
         surface: Surface,
-        frameId: Long
+        frameId: Long,
     ) {
         Debug.traceStart { "onCaptureBufferLost" }
         val frameNumber = FrameNumber(frameId)
@@ -265,7 +265,7 @@ internal class Camera2CaptureSequence(
     override fun onCaptureSequenceCompleted(
         captureSession: CameraCaptureSession,
         captureSequenceId: Int,
-        captureFrameNumber: Long
+        captureFrameNumber: Long,
     ) = onCaptureSequenceCompleted(captureSequenceId, captureFrameNumber)
 
     override fun onCaptureSequenceCompleted(captureSequenceId: Int, captureFrameNumber: Long) {
@@ -287,7 +287,7 @@ internal class Camera2CaptureSequence(
 
     override fun onCaptureSequenceAborted(
         captureSession: CameraCaptureSession,
-        captureSequenceId: Int
+        captureSequenceId: Int,
     ) = onCaptureSequenceAborted(captureSequenceId)
 
     override fun onCaptureSequenceAborted(captureSequenceId: Int) {

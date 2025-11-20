@@ -25,10 +25,10 @@ import androidx.camera.core.impl.Quirk
 
 /**
  * QuirkSummary
- * - Bug Id: 228800360
+ * - Bug Id: 228800360, 443619467
  * - Description: The image capturing may fail when the camera turns on the auto flash mode, and the
  *   devices also fail to fire the flash on the flash on mode.
- * - Device(s): Samsung Galaxy J7 (sm-j700f, sm-j710f) front camera
+ * - Device(s): Samsung Galaxy J7 (sm-j700f, sm-j710f, sm-j700m) front camera
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -41,6 +41,7 @@ public class ImageCaptureFailWithAutoFlashQuirk : Quirk {
             listOf(
                 "sm-j700f", // Samsung Galaxy J7
                 "sm-j710f", // Samsung Galaxy J7
+                "sm-j700m", // Samsung Galaxy J7
             )
 
         public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {

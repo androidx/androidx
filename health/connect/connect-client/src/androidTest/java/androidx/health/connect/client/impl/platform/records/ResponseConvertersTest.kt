@@ -80,13 +80,13 @@ class ResponseConvertersTest {
                         PlatformHeartRateRecord.BPM_MIN ->
                             setOf(
                                 PlatformDataOriginBuilder().setPackageName("HR App1").build(),
-                                PlatformDataOriginBuilder().setPackageName("HR App2").build()
+                                PlatformDataOriginBuilder().setPackageName("HR App2").build(),
                             )
                         PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL ->
                             setOf(PlatformDataOriginBuilder().setPackageName("Workout app").build())
                         else -> emptySet()
                     }
-                }
+                },
             )
 
         assertThat(aggregationResult[HeartRateRecord.BPM_MIN]).isEqualTo(53L)
@@ -96,7 +96,7 @@ class ResponseConvertersTest {
             .containsExactly(
                 DataOrigin("HR App1"),
                 DataOrigin("HR App2"),
-                DataOrigin("Workout app")
+                DataOrigin("Workout app"),
             )
     }
 
@@ -106,7 +106,7 @@ class ResponseConvertersTest {
             getLongMetricValues(
                 mapOf(
                     HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L,
-                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to 60_000L
+                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to 60_000L,
                 )
             )
         assertThat(metricValues)
@@ -114,7 +114,7 @@ class ResponseConvertersTest {
                 HeartRateRecord.BPM_MIN.metricKey,
                 53L,
                 ExerciseSessionRecord.EXERCISE_DURATION_TOTAL.metricKey,
-                60_000L
+                60_000L,
             )
     }
 
@@ -281,7 +281,7 @@ class ResponseConvertersTest {
                 HeartRateRecord.BPM_MIN.metricKey,
                 53L,
                 ExerciseSessionRecord.EXERCISE_DURATION_TOTAL.metricKey,
-                60_000L
+                60_000L,
             )
     }
 
@@ -324,7 +324,7 @@ class ResponseConvertersTest {
                 FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey,
                 10.0,
                 BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL.metricKey,
-                836.8
+                836.8,
             )
     }
 }

@@ -33,15 +33,15 @@ import com.android.tools.lint.detector.api.isBelow
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
+import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.calls.KtCall
-import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
-import org.jetbrains.kotlin.analysis.api.calls.KtCompoundAccessCall
-import org.jetbrains.kotlin.analysis.api.calls.KtImplicitReceiverValue
-import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
-import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtReceiverParameterSymbol
+import org.jetbrains.kotlin.analysis.api.resolution.KaCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaCompoundAccessCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaImplicitReceiverValue
+import org.jetbrains.kotlin.analysis.api.resolution.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaReceiverParameterSymbol
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.uast.UCallExpression
@@ -95,7 +95,7 @@ class SuspiciousModifierThenDetector : Detector(), SourceCodeScanner {
                         SuspiciousModifierThen,
                         node,
                         context.getNameLocation(node),
-                        "Using Modifier.then with a Modifier factory function with an implicit receiver"
+                        "Using Modifier.then with a Modifier factory function with an implicit receiver",
                     )
 
                     // Keep on searching for more errors
@@ -127,8 +127,8 @@ class SuspiciousModifierThenDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     SuspiciousModifierThenDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }
@@ -140,12 +140,12 @@ private const val ThenName = "then"
 /**
  * Returns the PSI for [this], which will be the owning lambda expression or the surrounding class.
  */
-private fun KtImplicitReceiverValue.getImplicitReceiverPsi(): PsiElement? {
+private fun KaImplicitReceiverValue.getImplicitReceiverPsi(): PsiElement? {
     return when (val receiverParameterSymbol = this.symbol) {
         // the owning lambda expression
-        is KtReceiverParameterSymbol -> receiverParameterSymbol.owningCallableSymbol.psi
+        is KaReceiverParameterSymbol -> receiverParameterSymbol.owningCallableSymbol.psi
         // the class that we are in, calling a method
-        is KtClassOrObjectSymbol -> receiverParameterSymbol.psi
+        is KaClassSymbol -> receiverParameterSymbol.psi
         else -> null
     }
 }
@@ -154,16 +154,16 @@ private fun KtImplicitReceiverValue.getImplicitReceiverPsi(): PsiElement? {
  * Returns the implicit receiver value of the call-like expression [ktExpression] (can include
  * property accesses, for example).
  */
-private fun KtAnalysisSession.getImplicitReceiverValue(
+private fun KaSession.getImplicitReceiverValue(
     ktExpression: KtExpression
-): KtImplicitReceiverValue? {
+): KaImplicitReceiverValue? {
     val partiallyAppliedSymbol =
-        when (val call = ktExpression.resolveCall()?.singleCallOrNull<KtCall>()) {
-            is KtCompoundAccessCall -> call.compoundAccess.operationPartiallyAppliedSymbol
-            is KtCallableMemberCall<*, *> -> call.partiallyAppliedSymbol
+        when (val call = ktExpression.resolveToCall()?.singleCallOrNull<KaCall>()) {
+            is KaCompoundAccessCall -> call.compoundOperation.operationPartiallyAppliedSymbol
+            is KaCallableMemberCall<*, *> -> call.partiallyAppliedSymbol
             else -> null
         } ?: return null
 
-    return partiallyAppliedSymbol.extensionReceiver as? KtImplicitReceiverValue
-        ?: partiallyAppliedSymbol.dispatchReceiver as? KtImplicitReceiverValue
+    return partiallyAppliedSymbol.extensionReceiver as? KaImplicitReceiverValue
+        ?: partiallyAppliedSymbol.dispatchReceiver as? KaImplicitReceiverValue
 }

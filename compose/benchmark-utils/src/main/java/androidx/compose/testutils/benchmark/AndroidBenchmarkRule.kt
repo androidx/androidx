@@ -53,7 +53,7 @@ class AndroidBenchmarkRule : TestRule {
      */
     fun <T : AndroidTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
-        @WorkerThread block: AndroidTestCaseRunner<T>.() -> Unit
+        @WorkerThread block: AndroidTestCaseRunner<T>.() -> Unit,
     ) {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Cannot invoke runBenchmarkFor from the main thread"

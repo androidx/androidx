@@ -95,7 +95,7 @@ internal constructor(
     private val remoteInteractionsManager: IRemoteInteractionsManager,
     private val serviceBinder: ServiceBinder,
     private val uiThreadExecutor: Executor,
-    private val packageName: String
+    private val packageName: String,
 ) : AutoCloseable {
     public companion object {
         /** The URL to be opened in a web browser on the companion. Value type: Uri */
@@ -189,7 +189,7 @@ internal constructor(
                     override fun bindService(
                         intent: Intent,
                         connection: ServiceConnection,
-                        flags: Int
+                        flags: Int,
                     ): Boolean {
                         return appContext.bindService(intent, connection, flags)
                     }
@@ -199,7 +199,7 @@ internal constructor(
                     }
                 },
                 { command -> Handler(appContext.mainLooper).post(command) },
-                context.packageName
+                context.packageName,
             )
         }
     }
@@ -273,7 +273,7 @@ internal constructor(
 
             remoteInteractionsManager.registerRemoteAuthClientStatusListener(
                 Runnable::run,
-                callback
+                callback,
             )
 
             awaitClose {
@@ -297,7 +297,7 @@ internal constructor(
     public fun sendAuthorizationRequest(
         request: OAuthRequest,
         executor: Executor,
-        clientCallback: Callback
+        clientCallback: Callback,
     ) {
         require(packageName == request.packageName) {
             "The request's package name is different from the auth client's package name."
@@ -396,7 +396,7 @@ internal constructor(
     internal constructor(
         private val request: OAuthRequest,
         private val clientCallback: Callback,
-        private val executor: Executor
+        private val executor: Executor,
     ) : IAuthenticationRequestCallback.Stub() {
 
         override fun getApiVersion(): Int = IAuthenticationRequestCallback.API_VERSION

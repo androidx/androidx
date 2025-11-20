@@ -38,7 +38,7 @@ internal class ItemPagingSource : PagingSource<Int, Item>() {
             is LoadParams.Refresh ->
                 loadInternal(
                     position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
-                    loadSize = params.loadSize
+                    loadSize = params.loadSize,
                 )
             is LoadParams.Prepend -> {
                 val loadSize = minOf(params.key, params.loadSize)
@@ -61,7 +61,7 @@ internal class ItemPagingSource : PagingSource<Int, Item>() {
                 prevKey = if (position > 0) position else null,
                 nextKey = if (endExclusive < COUNT) endExclusive else null,
                 itemsBefore = position,
-                itemsAfter = COUNT - endExclusive
+                itemsAfter = COUNT - endExclusive,
             )
         }
     }

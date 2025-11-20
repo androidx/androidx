@@ -27,7 +27,7 @@ import androidx.camera.integration.antelope.testEnded
 class CameraXDeviceStateCallback(
     internal var params: CameraParams,
     internal var activity: MainActivity,
-    internal var testConfig: TestConfig
+    internal var testConfig: TestConfig,
 ) : CameraDevice.StateCallback() {
 
     /** Camera device has opened successfully, record timing and initiate the preview stream. */

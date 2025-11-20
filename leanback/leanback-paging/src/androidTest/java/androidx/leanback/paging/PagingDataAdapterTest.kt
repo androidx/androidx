@@ -72,9 +72,9 @@ class PagingDataAdapterTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     pagingSource
                 }
@@ -103,9 +103,9 @@ class PagingDataAdapterTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -120,7 +120,7 @@ class PagingDataAdapterTest {
                         refreshLocal = LoadState.NotLoading(endOfPaginationReached = false)
                     ),
                 ),
-                loadEvents
+                loadEvents,
             )
             loadEvents.clear()
             job.cancel()
@@ -135,10 +135,10 @@ class PagingDataAdapterTest {
                         localLoadStatesOf(
                             refreshLocal = LoadState.NotLoading(endOfPaginationReached = false),
                             prependLocal = LoadState.NotLoading(endOfPaginationReached = true),
-                            appendLocal = LoadState.NotLoading(endOfPaginationReached = true)
+                            appendLocal = LoadState.NotLoading(endOfPaginationReached = true),
                         )
                     ),
-                actual = loadEvents
+                actual = loadEvents,
             )
         }
 
@@ -155,9 +155,9 @@ class PagingDataAdapterTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     pagingSource
                 }
@@ -168,7 +168,7 @@ class PagingDataAdapterTest {
             testScheduler.advanceUntilIdle()
             assertEquals(
                 List(50) { null } + listOf(50, 51) + List(48) { null },
-                pagingDataAdapter.snapshot()
+                pagingDataAdapter.snapshot(),
             )
 
             job.cancel()
@@ -187,9 +187,9 @@ class PagingDataAdapterTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     pagingSource
                 }

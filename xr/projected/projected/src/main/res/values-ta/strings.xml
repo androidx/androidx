@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="projected_continue_button" msgid="5174264446308284863">"தொடர்க"</string>
+    <string name="projected_cancel_button" msgid="6228792819175860740">"ரத்துசெய்"</string>
+    <string name="go_to_host_projected_activity_text" msgid="3196940006467730617">"உங்கள் ஹோஸ்ட் சாதனத்திலுள்ள அணுகல் கோரிக்கையைப் பாருங்கள்"</string>
+    <string name="request_permission_on_host_activity_label" msgid="5230501762635229968">"அணுகல் கோரிக்கை"</string>
+</resources>

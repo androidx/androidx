@@ -31,10 +31,12 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration
 import androidx.work.DirectExecutor
+import androidx.work.ExperimentalWorkRequestBuilderApi
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.Success
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State.ENQUEUED
@@ -99,6 +101,30 @@ class WorkerWrapperTestKt {
         workerWrapper.interrupt(0)
         assertThat(future.await()).isTrue()
         assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(ENQUEUED)
+    }
+
+    @Test
+    @OptIn(ExperimentalWorkRequestBuilderApi::class)
+    fun testInterruption_withBackOff(): Unit = runBlocking {
+        val workRequest =
+            OneTimeWorkRequestBuilder<DoWorkAwareWorker>()
+                .setBackoffForSystemInterruptions()
+                .build()
+
+        workRequest.workSpec.lastEnqueueTime = System.currentTimeMillis() // Simulate an enqueue()
+        testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val workerWrapper = WorkerWrapper(workRequest.workSpec)
+        val future = workerWrapper.launch()
+        val lastEnqueueTime =
+            testEnv.db.workSpecDao().getWorkSpec(workRequest.stringId)!!.lastEnqueueTime
+        val worker = factory.await(workRequest.id) as DoWorkAwareWorker
+        worker.doWorkEvent.await()
+        workerWrapper.interrupt(0)
+        assertThat(future.await()).isTrue()
+        assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(ENQUEUED)
+        val workSpec = testEnv.db.workSpecDao().getWorkSpec(workRequest.stringId)!!
+        val nextEnqueueTime = workSpec.lastEnqueueTime
+        assertThat(nextEnqueueTime > lastEnqueueTime)
     }
 
     @Test
@@ -201,7 +227,7 @@ class WorkerWrapperTestKt {
                 NoOpForegroundProcessor,
                 testEnv.db,
                 spec,
-                emptyList()
+                emptyList(),
             )
             .build()
 

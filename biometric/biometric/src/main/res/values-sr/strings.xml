@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"Дијалог за потврду идентитета отиском прста"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Додирн. сензор за отисак прста"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Није препознат"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Хардвер за отиске прстију није доступан."</string>
@@ -30,12 +31,13 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Нисте подесили ни PIN, ни шаблон, ни лозинку."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Овај уређај не подржава PIN, шаблон или лозинку."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Икона отиска прста"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Кликнули сте на дугме Још опција у приказу садржаја."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Користите отисак прста"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Користите лице"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Користите биометрију"</string>
     <string name="use_screen_lock_label" msgid="5459869335976243512">"Користи откључавање екрана"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Користите отисак прста или откључавање екрана"</string>
-    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Користите закључавање лицем или откључавање екрана"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Користите откључавање лицем или откључавање екрана"</string>
     <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Користите биометрију или откључавање екрана"</string>
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Наставите помоћу отиска прста"</string>
     <string name="face_prompt_message" msgid="2282389249605674226">"Потврдите идентитет лицем да бисте наставили"</string>

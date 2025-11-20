@@ -33,7 +33,7 @@ class HardwareFoldingFeatureTest {
         HardwareFoldingFeature(
             Bounds(0, 0, 0, 0),
             HardwareFoldingFeature.Type.HINGE,
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.State.HALF_OPENED,
         )
     }
 
@@ -42,7 +42,7 @@ class HardwareFoldingFeatureTest {
         HardwareFoldingFeature(
             Bounds(1, 10, 20, 10),
             HardwareFoldingFeature.Type.HINGE,
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.State.HALF_OPENED,
         )
     }
 
@@ -51,7 +51,7 @@ class HardwareFoldingFeatureTest {
         HardwareFoldingFeature(
             Bounds(10, 1, 19, 29),
             HardwareFoldingFeature.Type.HINGE,
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.State.HALF_OPENED,
         )
     }
 
@@ -60,7 +60,7 @@ class HardwareFoldingFeatureTest {
         HardwareFoldingFeature(
             Bounds(1, 10, 20, 10),
             HardwareFoldingFeature.Type.FOLD,
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.State.HALF_OPENED,
         )
     }
 
@@ -69,7 +69,7 @@ class HardwareFoldingFeatureTest {
         HardwareFoldingFeature(
             Bounds(10, 1, 10, 20),
             HardwareFoldingFeature.Type.FOLD,
-            FoldingFeature.State.HALF_OPENED
+            FoldingFeature.State.HALF_OPENED,
         )
     }
 
@@ -143,7 +143,7 @@ class HardwareFoldingFeatureTest {
             HardwareFoldingFeature(
                 bounds,
                 HardwareFoldingFeature.Type.FOLD,
-                FoldingFeature.State.FLAT
+                FoldingFeature.State.FLAT,
             )
         assertFalse(feature.isSeparating)
     }

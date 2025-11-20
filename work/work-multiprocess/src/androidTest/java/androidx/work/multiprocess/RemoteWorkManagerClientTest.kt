@@ -22,17 +22,22 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import androidx.work.Configuration
 import androidx.work.RunnableScheduler
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
+import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +46,7 @@ import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.spy
@@ -52,9 +58,9 @@ public class RemoteWorkManagerClientTest {
 
     private lateinit var mContext: Context
     private lateinit var mWorkManager: WorkManagerImpl
-    private lateinit var mExecutor: Executor
     private lateinit var mClient: RemoteWorkManagerClient
     private lateinit var mRunnableScheduler: RunnableScheduler
+    private lateinit var mTaskExecutor: TaskExecutor
 
     @Before
     public fun setUp() {
@@ -63,16 +69,29 @@ public class RemoteWorkManagerClientTest {
             return
         }
         mRunnableScheduler = mock(RunnableScheduler::class.java)
-        mContext = mock(Context::class.java)
-        mWorkManager = mock(WorkManagerImpl::class.java)
-        `when`(mContext.applicationContext).thenReturn(mContext)
-        mExecutor = Executor { it.run() }
-        val taskExecutor = mock(TaskExecutor::class.java)
-        `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
-        `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
+        mContext = spy(ApplicationProvider.getApplicationContext<Context>())
+        doReturn(mContext).`when`(mContext).applicationContext
+        mTaskExecutor =
+            object : TaskExecutor {
+                val executor = Executor { it.run() }
+                val serialExecutor = SerialExecutorImpl(executor)
+
+                override fun getMainThreadExecutor(): Executor {
+                    return serialExecutor
+                }
+
+                override fun getSerialTaskExecutor(): SerialExecutor {
+                    return serialExecutor
+                }
+            }
         val conf = Configuration.Builder().setRunnableScheduler(mRunnableScheduler).build()
-        `when`(mWorkManager.configuration).thenReturn(conf)
-        mClient = spy(RemoteWorkManagerClient(mContext, mWorkManager))
+        mWorkManager =
+            WorkManagerImpl(
+                context = mContext,
+                configuration = conf,
+                workTaskExecutor = mTaskExecutor,
+            )
+        mClient = spy(mWorkManager.remoteWorkManager) as RemoteWorkManagerClient
     }
 
     @Test
@@ -83,14 +102,9 @@ public class RemoteWorkManagerClientTest {
             return
         }
 
-        `when`(
-                mContext.bindService(
-                    any(Intent::class.java),
-                    any(ServiceConnection::class.java),
-                    anyInt()
-                )
-            )
-            .thenReturn(false)
+        doReturn(false)
+            .`when`(mContext)
+            .bindService(any(Intent::class.java), any(ServiceConnection::class.java), anyInt())
         val intent = mock(Intent::class.java)
         var exception: Throwable? = null
         try {
@@ -184,5 +198,55 @@ public class RemoteWorkManagerClientTest {
         verify(mClient, never()).cleanUp()
         verify(mRunnableScheduler, atLeastOnce())
             .scheduleWithDelay(anyLong(), any(Runnable::class.java))
+    }
+
+    @Test
+    @SmallTest
+    public fun defaultSessionTimeoutIsTenMinutes() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val tenMinutes = 10 * 60 * 1000L
+        assertEquals(tenMinutes, mClient.sessionTimeout)
+    }
+
+    @Test
+    @SmallTest
+    public fun sessionTimeoutIsClampedToTwentyMinutes() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val thirtyMinutes = 30 * 60 * 1000L
+        val conf = Configuration.Builder().setRemoteSessionTimeoutMillis(thirtyMinutes).build()
+        val workManager =
+            WorkManagerImpl(
+                context = mContext,
+                configuration = conf,
+                workTaskExecutor = mTaskExecutor,
+            )
+        val remoteWorkManagerClient = workManager.remoteWorkManager as RemoteWorkManagerClient
+
+        val twentyMinutes = 20 * 60 * 1000L
+        assertEquals(twentyMinutes, remoteWorkManagerClient.sessionTimeout)
+    }
+
+    @Test
+    @SmallTest
+    public fun sessionTimeoutMustNotBeNegative() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        try {
+            val conf = Configuration.Builder().setRemoteSessionTimeoutMillis(-1).build()
+            fail("Expected illegal argument exception thrown for negative session timeout")
+        } catch (e: IllegalArgumentException) {
+            assertEquals("The remote session timeout must not be negative.", e.message)
+        }
     }
 }

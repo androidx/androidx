@@ -26,7 +26,11 @@ package androidx.privacysandbox.ads.adservices.adid
  * @param adId The advertising ID.
  * @param isLimitAdTrackingEnabled the limit ad tracking enabled setting.
  */
-class AdId internal constructor(val adId: String, val isLimitAdTrackingEnabled: Boolean = false) {
+public class AdId
+internal constructor(
+    public val adId: String,
+    public val isLimitAdTrackingEnabled: Boolean = false,
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

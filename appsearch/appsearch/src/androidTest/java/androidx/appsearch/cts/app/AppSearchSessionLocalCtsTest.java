@@ -39,7 +39,7 @@ import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.LocalStorage;
-import androidx.appsearch.localstorage.stats.SearchStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -125,7 +125,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        assertThat(logger.mSearchStats).isNull();
+        assertThat(logger.mQueryStats).isNull();
 
         // Query for the document
         int resultCountPerPage = 4;
@@ -140,15 +140,16 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(page).hasSize(0);
 
         // Check searchStats has been set. We won't check all the fields here.
-        assertThat(logger.mSearchStats).isNotNull();
-        assertThat(logger.mSearchStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSearchStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
-        assertThat(logger.mSearchStats.getQueryLength()).isEqualTo(queryStr.length());
-        assertThat(logger.mSearchStats.isFirstPage()).isEqualTo(true);
-        assertThat(logger.mSearchStats.getVisibilityScope()).isEqualTo(
-                SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(logger.mSearchStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
-        assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(
+        assertThat(logger.mQueryStats).isNotNull();
+        assertThat(logger.mQueryStats.getDatabase()).isEqualTo(DB_NAME_2);
+        assertThat(logger.mQueryStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(logger.mQueryStats.getParentSearchStats().getNativeQueryLength())
+                .isEqualTo(queryStr.length());
+        assertThat(logger.mQueryStats.isFirstPage()).isEqualTo(true);
+        assertThat(logger.mQueryStats.getVisibilityScope()).isEqualTo(
+                QueryStats.VISIBILITY_SCOPE_LOCAL);
+        assertThat(logger.mQueryStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
+        assertThat(logger.mQueryStats.getCurrentPageReturnedResultCount()).isEqualTo(
                 0);
     }
 
@@ -184,7 +185,7 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         checkIsBatchResultSuccess(db2.putAsync(
                 new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1, inEmail2).build()));
 
-        assertThat(logger.mSearchStats).isNull();
+        assertThat(logger.mQueryStats).isNull();
 
         // Query for the document
         int resultCountPerPage = 4;
@@ -194,20 +195,21 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setResultCountPerPage(resultCountPerPage)
                 .build());
 
-        // Get first page
+        // Get first page, search stats will only generate in the first page.
         List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(2);
+        assertThat(logger.mQueryStats.getParentSearchStats().getNativeQueryLength())
+                .isEqualTo(queryStr.length());
 
         // Check searchStats has been set. We won't check all the fields here.
-        assertThat(logger.mSearchStats).isNotNull();
-        assertThat(logger.mSearchStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSearchStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
-        assertThat(logger.mSearchStats.getQueryLength()).isEqualTo(queryStr.length());
-        assertThat(logger.mSearchStats.isFirstPage()).isEqualTo(true);
-        assertThat(logger.mSearchStats.getVisibilityScope()).isEqualTo(
-                SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(logger.mSearchStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
-        assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(
+        assertThat(logger.mQueryStats).isNotNull();
+        assertThat(logger.mQueryStats.getDatabase()).isEqualTo(DB_NAME_2);
+        assertThat(logger.mQueryStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(logger.mQueryStats.isFirstPage()).isEqualTo(true);
+        assertThat(logger.mQueryStats.getVisibilityScope()).isEqualTo(
+                QueryStats.VISIBILITY_SCOPE_LOCAL);
+        assertThat(logger.mQueryStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
+        assertThat(logger.mQueryStats.getCurrentPageReturnedResultCount()).isEqualTo(
                 2);
     }
 
@@ -252,26 +254,19 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setResultCountPerPage(resultCountPerPage)
                 .build());
 
-        // Get first page
+        // Get first page, search stats will only generate in the first page.
         List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(2);
+        assertThat(logger.mQueryStats.getParentSearchStats().getNativeQueryLength())
+                .isEqualTo(queryStr.length());
 
         // Get second(empty) page
-        logger.mSearchStats = null;
+        logger.mQueryStats = null;
         page = searchResults.getNextPageAsync().get();
-        assertThat(page).hasSize(0);
+        assertThat(page).isEmpty();
 
-        // Check searchStats has been set. We won't check all the fields here.
-        assertThat(logger.mSearchStats).isNotNull();
-        assertThat(logger.mSearchStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSearchStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
-        // Query length is 0 for getNextPage in IcingLib
-        assertThat(logger.mSearchStats.getQueryLength()).isEqualTo(0);
-        assertThat(logger.mSearchStats.isFirstPage()).isEqualTo(false);
-        assertThat(logger.mSearchStats.getVisibilityScope()).isEqualTo(
-                SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(logger.mSearchStats.getRequestedPageSize()).isEqualTo(0);
-        assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(0);
+        // Check searchStats won't be set because now empty page token will avoid binder call.
+        assertThat(logger.mQueryStats).isNull();
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
@@ -315,26 +310,27 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                 .setResultCountPerPage(resultCountPerPage)
                 .build());
 
-        // Get first page
+        // Get first page, search stats will only generate in the first page.
         List<SearchResult> page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
+        assertThat(logger.mQueryStats.getParentSearchStats().getNativeQueryLength())
+                .isEqualTo(queryStr.length());
 
         // Get second page
-        logger.mSearchStats = null;
+        logger.mQueryStats = null;
         page = searchResults.getNextPageAsync().get();
         assertThat(page).hasSize(1);
 
         // Check searchStats has been set. We won't check all the fields here.
-        assertThat(logger.mSearchStats).isNotNull();
-        assertThat(logger.mSearchStats.getDatabase()).isEqualTo(DB_NAME_2);
-        assertThat(logger.mSearchStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(logger.mQueryStats).isNotNull();
+        assertThat(logger.mQueryStats.getDatabase()).isEqualTo(DB_NAME_2);
+        assertThat(logger.mQueryStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         // Query length is 0 for getNextPage in IcingLib
-        assertThat(logger.mSearchStats.getQueryLength()).isEqualTo(0);
-        assertThat(logger.mSearchStats.isFirstPage()).isEqualTo(false);
-        assertThat(logger.mSearchStats.getVisibilityScope()).isEqualTo(
-                SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(logger.mSearchStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
-        assertThat(logger.mSearchStats.getCurrentPageReturnedResultCount()).isEqualTo(1);
+        assertThat(logger.mQueryStats.isFirstPage()).isEqualTo(false);
+        assertThat(logger.mQueryStats.getVisibilityScope()).isEqualTo(
+                QueryStats.VISIBILITY_SCOPE_LOCAL);
+        assertThat(logger.mQueryStats.getRequestedPageSize()).isEqualTo(resultCountPerPage);
+        assertThat(logger.mQueryStats.getCurrentPageReturnedResultCount()).isEqualTo(1);
     }
 
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is

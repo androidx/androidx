@@ -53,9 +53,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     api("androidx.fragment:fragment:$FRAGMENT_VERSION")
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -82,9 +82,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     api("androidx.fragment:fragment:1.3.1")
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -111,9 +111,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0")
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -140,9 +140,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0-SNAPSHOT")
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -169,9 +169,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0-alpha01")
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -198,9 +198,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     implementation(project(":fragment:fragment-ktx"))
                 }
-            """
+            """,
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expectClean()
@@ -228,7 +228,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expect(
@@ -268,7 +268,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expect(
@@ -310,7 +310,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .run()
             .expect(
@@ -348,9 +348,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 dependencies {
                     implementation("androidx.fragment:fragment-ktx:1.2.4")
                 }
-            """
+            """,
                         )
-                        .indented()
+                        .indented(),
                 )
                 .withDependencyGraph(
                     """

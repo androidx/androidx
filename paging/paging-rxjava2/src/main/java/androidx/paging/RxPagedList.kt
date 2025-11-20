@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.paging
 
 import io.reactivex.BackpressureStrategy
@@ -28,7 +30,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     initialLoadKey: Key?,
     boundaryCallback: PagedList.BoundaryCallback<Value>?,
     fetchScheduler: Scheduler?,
-    notifyScheduler: Scheduler?
+    notifyScheduler: Scheduler?,
 ): RxPagedListBuilder<Key, Value> {
     val builder =
         RxPagedListBuilder(dataSourceFactory, config)
@@ -46,7 +48,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     initialLoadKey: Key?,
     boundaryCallback: PagedList.BoundaryCallback<Value>?,
     fetchScheduler: Scheduler?,
-    notifyScheduler: Scheduler?
+    notifyScheduler: Scheduler?,
 ): RxPagedListBuilder<Key, Value> {
     val builder =
         RxPagedListBuilder(pagingSourceFactory, config)
@@ -95,15 +97,15 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
             "androidx.paging.PagingConfig",
             "androidx.paging.rxjava2.getObservable",
             "kotlinx.coroutines.rx2.asCoroutineDispatcher",
-            "kotlinx.coroutines.Dispatchers"
-        )
+            "kotlinx.coroutines.Dispatchers",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
-    notifyScheduler: Scheduler? = null
+    notifyScheduler: Scheduler? = null,
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
             dataSourceFactory = this,
@@ -111,7 +113,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildObservable()
 }
@@ -148,15 +150,15 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             "androidx.paging.PagingConfig",
             "androidx.paging.rxjava2.getObservable",
             "kotlinx.coroutines.rx2.asCoroutineDispatcher",
-            "kotlinx.coroutines.Dispatchers"
-        )
+            "kotlinx.coroutines.Dispatchers",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
-    notifyScheduler: Scheduler? = null
+    notifyScheduler: Scheduler? = null,
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
             dataSourceFactory = this,
@@ -164,7 +166,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildObservable()
 }
@@ -208,8 +210,8 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             "androidx.paging.PagingConfig",
             "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.rx2.asCoroutineDispatcher",
-            "kotlinx.coroutines.Dispatchers"
-        )
+            "kotlinx.coroutines.Dispatchers",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     config: PagedList.Config,
@@ -217,7 +219,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
     notifyScheduler: Scheduler? = null,
-    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
+    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST,
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
             dataSourceFactory = this,
@@ -225,7 +227,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildFlowable(backpressureStrategy)
 }
@@ -263,8 +265,8 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             "androidx.paging.PagingConfig",
             "androidx.paging.rxjava2.getFlowable",
             "kotlinx.coroutines.rx2.asCoroutineDispatcher",
-            "kotlinx.coroutines.Dispatchers"
-        )
+            "kotlinx.coroutines.Dispatchers",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     pageSize: Int,
@@ -272,7 +274,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
     notifyScheduler: Scheduler? = null,
-    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
+    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST,
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
             dataSourceFactory = this,
@@ -280,7 +282,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildFlowable(backpressureStrategy)
 }
@@ -323,15 +325,15 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             "androidx.paging.PagingConfig",
             "androidx.paging.rxjava2.getObservable",
             "kotlinx.coroutines.rx2.asCoroutineDispatcher",
-            "kotlinx.coroutines.Dispatchers"
-        )
+            "kotlinx.coroutines.Dispatchers",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
-    notifyScheduler: Scheduler? = null
+    notifyScheduler: Scheduler? = null,
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
             pagingSourceFactory = this,
@@ -339,7 +341,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildObservable()
 }
@@ -374,15 +376,15 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
         ).observable""",
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
-            "androidx.paging.rxjava2.getObservable"
-        )
+            "androidx.paging.rxjava2.getObservable",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
-    notifyScheduler: Scheduler? = null
+    notifyScheduler: Scheduler? = null,
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
             pagingSourceFactory = this,
@@ -390,7 +392,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildObservable()
 }
@@ -432,8 +434,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
         ).flowable""",
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
-            "androidx.paging.rxjava2.getFlowable"
-        )
+            "androidx.paging.rxjava2.getFlowable",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     config: PagedList.Config,
@@ -441,7 +443,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
     notifyScheduler: Scheduler? = null,
-    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
+    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST,
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
             pagingSourceFactory = this,
@@ -449,7 +451,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildFlowable(backpressureStrategy)
 }
@@ -485,8 +487,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
         ).flowable""",
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
-            "androidx.paging.rxjava2.getFlowable"
-        )
+            "androidx.paging.rxjava2.getFlowable",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     pageSize: Int,
@@ -494,7 +496,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchScheduler: Scheduler? = null,
     notifyScheduler: Scheduler? = null,
-    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
+    backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST,
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
             pagingSourceFactory = this,
@@ -502,7 +504,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
             initialLoadKey = initialLoadKey,
             boundaryCallback = boundaryCallback,
             fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler
+            notifyScheduler = notifyScheduler,
         )
         .buildFlowable(backpressureStrategy)
 }

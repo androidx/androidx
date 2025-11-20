@@ -117,6 +117,15 @@ public class SearchNodeCtsTest {
     }
 
     @Test
+    public void testGetChild_returnsOnlyChild() {
+        TextNode node = new TextNode("foo");
+        SearchNode searchNode = new SearchNode(node);
+
+        Node childNode = searchNode.getChild();
+        assertThat(childNode).isEqualTo(node);
+    }
+
+    @Test
     public void testGetPropertyPaths_returnsListView() {
         PropertyPath examplePath = new PropertyPath(
                 List.of(PropertyPath.PathSegment.create("example"),

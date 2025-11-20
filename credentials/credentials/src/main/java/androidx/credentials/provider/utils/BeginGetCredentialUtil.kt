@@ -49,7 +49,7 @@ class BeginGetCredentialUtil {
                     request.callingAppInfo?.let {
                         CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                     },
-                beginGetCredentialOptions = beginGetCredentialOptions
+                beginGetCredentialOptions = beginGetCredentialOptions,
             )
         }
 
@@ -68,7 +68,7 @@ class BeginGetCredentialUtil {
         // happens at the framework level
         private fun populateRemoteEntry(
             frameworkBuilder: android.service.credentials.BeginGetCredentialResponse.Builder,
-            remoteEntry: RemoteEntry?
+            remoteEntry: RemoteEntry?,
         ) {
             if (remoteEntry == null) {
                 return
@@ -80,7 +80,7 @@ class BeginGetCredentialUtil {
 
         private fun populateAuthenticationEntries(
             frameworkBuilder: android.service.credentials.BeginGetCredentialResponse.Builder,
-            authenticationActions: List<AuthenticationAction>
+            authenticationActions: List<AuthenticationAction>,
         ) {
             authenticationActions.forEach {
                 frameworkBuilder.addAuthenticationAction(
@@ -91,7 +91,7 @@ class BeginGetCredentialUtil {
 
         private fun populateActionEntries(
             builder: android.service.credentials.BeginGetCredentialResponse.Builder,
-            actionEntries: List<Action>
+            actionEntries: List<Action>,
         ) {
             actionEntries.forEach {
                 builder.addAction(android.service.credentials.Action(Action.toSlice(it)))
@@ -100,7 +100,7 @@ class BeginGetCredentialUtil {
 
         private fun populateCredentialEntries(
             builder: android.service.credentials.BeginGetCredentialResponse.Builder,
-            credentialEntries: List<CredentialEntry>
+            credentialEntries: List<CredentialEntry>,
         ) {
             credentialEntries.forEach {
                 val entrySlice = CredentialEntry.toSlice(it)
@@ -110,9 +110,9 @@ class BeginGetCredentialUtil {
                             android.service.credentials.BeginGetCredentialOption(
                                 it.beginGetCredentialOption.id,
                                 it.type,
-                                Bundle.EMPTY
+                                Bundle.EMPTY,
                             ),
-                            entrySlice
+                            entrySlice,
                         )
                     )
                 }
@@ -128,7 +128,7 @@ class BeginGetCredentialUtil {
                     android.service.credentials.CallingAppInfo(
                         request.callingAppInfo.packageName,
                         request.callingAppInfo.signingInfo,
-                        request.callingAppInfo.origin
+                        request.callingAppInfo.origin,
                     )
                 )
             }
@@ -148,7 +148,7 @@ class BeginGetCredentialUtil {
             return android.service.credentials.BeginGetCredentialOption(
                 option.id,
                 option.type,
-                option.candidateQueryData
+                option.candidateQueryData,
             )
         }
 
@@ -178,7 +178,7 @@ class BeginGetCredentialUtil {
                         .map { entry -> entry!! }
                         .collect(Collectors.toList()),
                 remoteEntry =
-                    response.remoteCredentialEntry?.let { RemoteEntry.fromSlice(it.slice) }
+                    response.remoteCredentialEntry?.let { RemoteEntry.fromSlice(it.slice) },
             )
         }
     }

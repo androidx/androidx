@@ -87,7 +87,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
             nodeBounds.left.roundToInt(),
             nodeBounds.top.roundToInt(),
             nodeBounds.right.roundToInt(),
-            nodeBounds.bottom.roundToInt()
+            nodeBounds.bottom.roundToInt(),
         )
 
     val locationInWindow = intArrayOf(0, 0)
@@ -105,7 +105,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
 @RequiresApi(Build.VERSION_CODES.O)
 private fun processMultiWindowScreenshot(
     node: SemanticsNode,
-    testContext: TestContext
+    testContext: TestContext,
 ): ImageBitmap {
 
     (node.root as ViewRootForTest).view.forceRedraw(testContext)
@@ -121,7 +121,7 @@ private fun processMultiWindowScreenshot(
             (nodePositionInScreen.x + nodeBoundsInRoot.left).roundToInt(),
             (nodePositionInScreen.y + nodeBoundsInRoot.top).roundToInt(),
             nodeBoundsInRoot.width.roundToInt(),
-            nodeBoundsInRoot.height.roundToInt()
+            nodeBoundsInRoot.height.roundToInt(),
         )
     return finalBitmap.asImageBitmap()
 }

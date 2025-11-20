@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.hilt.lifecycle.viewmodel.compose.HiltViewModelKt#createHiltViewModelFactory(androidx.lifecycle.ViewModelStoreOwner):
+    Binary breaking change: method androidx.hilt.lifecycle.viewmodel.compose.HiltViewModelKt.createHiltViewModelFactory(androidx.lifecycle.ViewModelStoreOwner) has been removed from bytecode

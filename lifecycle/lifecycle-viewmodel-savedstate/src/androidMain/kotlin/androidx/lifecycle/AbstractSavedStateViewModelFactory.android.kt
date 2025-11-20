@@ -100,7 +100,7 @@ public abstract class AbstractSavedStateViewModelFactory :
                 savedStateRegistry!!,
                 lifecycle!!,
                 key,
-                defaultArgs
+                defaultArgs,
             )
         val viewModel = create(key, modelClass, controller.handle)
         viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
@@ -146,7 +146,7 @@ public abstract class AbstractSavedStateViewModelFactory :
     protected abstract fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
-        handle: SavedStateHandle
+        handle: SavedStateHandle,
     ): T
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

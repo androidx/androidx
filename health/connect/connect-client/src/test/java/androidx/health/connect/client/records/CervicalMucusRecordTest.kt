@@ -17,7 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_UNKNOWN
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -55,7 +54,7 @@ class CervicalMucusRecordTest {
                         zoneOffset = null,
                         appearance = CervicalMucusRecord.APPEARANCE_UNUSUAL,
                         sensation = CervicalMucusRecord.SENSATION_MEDIUM,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN),
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

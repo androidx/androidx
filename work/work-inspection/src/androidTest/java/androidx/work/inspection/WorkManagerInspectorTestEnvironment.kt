@@ -58,8 +58,8 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
                 environment =
                     DefaultTestInspectorEnvironment(
                         testInspectorExecutors = TestInspectorExecutors(job),
-                        artTooling = artTooling
-                    )
+                        artTooling = artTooling,
+                    ),
             )
         }
     }
@@ -136,13 +136,13 @@ private class FakeArtTooling : ArtTooling {
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtTooling.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>,
     ) {}
 
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtTooling.EntryHook
+        entryHook: ArtTooling.EntryHook,
     ) {
         // TODO: implement actual registerEntryHook behaviour
         registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
@@ -156,7 +156,7 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     class EntryHook(
         originClass: Class<*>,
         originMethod: String,
-        val entryHook: ArtTooling.EntryHook
+        val entryHook: ArtTooling.EntryHook,
     ) : Hook(originClass, originMethod)
 }
 

@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget
 
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewConfiguration
@@ -127,7 +126,7 @@ open class BaseTest {
     ) {
         fun recreateActivity(
             adapterProvider: AdapterProvider,
-            onCreateCallback: ((ViewPager2) -> Unit) = {}
+            onCreateCallback: ((ViewPager2) -> Unit) = {},
         ) {
             val orientation = viewPager.orientation
             val isUserInputEnabled = viewPager.isUserInputEnabled
@@ -177,7 +176,7 @@ open class BaseTest {
         enum class SwipeMethod {
             ESPRESSO,
             MANUAL,
-            FAKE_DRAG
+            FAKE_DRAG,
         }
 
         fun swipe(currentPageIx: Int, nextPageIx: Int, method: SwipeMethod = SwipeMethod.ESPRESSO) {
@@ -259,7 +258,7 @@ open class BaseTest {
                                 }
                                 coordinates
                             },
-                            Press.FINGER
+                            Press.FINGER,
                         )
                     )
                 )
@@ -278,28 +277,19 @@ open class BaseTest {
             var isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
 
             val expectPageLeftAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled &&
+                isUserInputEnabled &&
                     isHorizontalOrientation &&
                     (if (viewPager.isRtl) currentPage < numPages - 1 else currentPage > 0)
 
             val expectPageRightAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled &&
+                isUserInputEnabled &&
                     isHorizontalOrientation &&
                     (if (viewPager.isRtl) currentPage > 0 else currentPage < numPages - 1)
 
-            val expectPageUpAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled &&
-                    isVerticalOrientation &&
-                    currentPage > 0
+            val expectPageUpAction = isUserInputEnabled && isVerticalOrientation && currentPage > 0
 
             val expectPageDownAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled &&
-                    isVerticalOrientation &&
-                    currentPage < numPages - 1
+                isUserInputEnabled && isVerticalOrientation && currentPage < numPages - 1
 
             val expectScrollBackwardAction = isUserInputEnabled && currentPage > 0
 
@@ -308,23 +298,23 @@ open class BaseTest {
             assertThat(
                 "Left action expected: $expectPageLeftAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_LEFT),
-                equalTo(expectPageLeftAction)
+                equalTo(expectPageLeftAction),
             )
 
             assertThat(
                 "Right action expected: $expectPageRightAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_RIGHT),
-                equalTo(expectPageRightAction)
+                equalTo(expectPageRightAction),
             )
             assertThat(
                 "Up action expected: $expectPageUpAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_UP),
-                equalTo(expectPageUpAction)
+                equalTo(expectPageUpAction),
             )
             assertThat(
                 "Down action expected: $expectPageDownAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_DOWN),
-                equalTo(expectPageDownAction)
+                equalTo(expectPageDownAction),
             )
 
             @Suppress("DEPRECATION") var node = AccessibilityNodeInfo.obtain()
@@ -334,13 +324,13 @@ open class BaseTest {
             assertThat(
                 "scroll backward action expected: $expectScrollBackwardAction",
                 hasScrollAction(standardActions, ACTION_SCROLL_BACKWARD),
-                equalTo(expectScrollBackwardAction)
+                equalTo(expectScrollBackwardAction),
             )
 
             assertThat(
                 "Scroll forward action expected: $expectScrollForwardAction",
                 hasScrollAction(standardActions, ACTION_SCROLL_FORWARD),
-                equalTo(expectScrollForwardAction)
+                equalTo(expectScrollForwardAction),
             )
         }
 
@@ -350,7 +340,7 @@ open class BaseTest {
 
         private fun hasPageAction(
             actions: List<AccessibilityNodeInfoCompat.AccessibilityActionCompat>,
-            accessibilityActionId: Int
+            accessibilityActionId: Int,
         ): Boolean {
             return actions.any { it.id == accessibilityActionId }
         }
@@ -359,7 +349,7 @@ open class BaseTest {
         private fun getActionList(
             view: View
         ): List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> {
-            return view.getTag(R.id.tag_accessibility_actions)
+            return view.getTag(androidx.core.R.id.tag_accessibility_actions)
                 as? ArrayList<AccessibilityNodeInfoCompat.AccessibilityActionCompat> ?: ArrayList()
         }
     }
@@ -370,7 +360,7 @@ open class BaseTest {
      */
     fun ViewPager2.addWaitForScrolledLatch(
         targetPage: Int,
-        waitForIdle: Boolean = true
+        waitForIdle: Boolean = true,
     ): CountDownLatch {
         val latch = CountDownLatch(if (waitForIdle) 2 else 1)
         var lastScrollFired = false
@@ -386,7 +376,7 @@ open class BaseTest {
                 override fun onPageScrolled(
                     position: Int,
                     positionOffset: Float,
-                    positionOffsetPixels: Int
+                    positionOffsetPixels: Int,
                 ) {
                     if (position == targetPage && positionOffsetPixels == 0) {
                         latch.countDown()
@@ -445,7 +435,7 @@ open class BaseTest {
                 override fun onPageScrolled(
                     position: Int,
                     positionOffset: Float,
-                    positionOffsetPixels: Int
+                    positionOffsetPixels: Int,
                 ) {
                     if (abs(target - position - positionOffset) <= distance) {
                         latch.countDown()
@@ -498,12 +488,12 @@ open class BaseTest {
     fun Context.assertBasicState(
         pageIx: Int,
         value: String? = pageIx.toString(),
-        performSelfCheck: Boolean = true
+        performSelfCheck: Boolean = true,
     ) {
         assertThat<Int>(
             "viewPager.getCurrentItem() should return $pageIx",
             viewPager.currentItem,
-            equalTo(pageIx)
+            equalTo(pageIx),
         )
         assertThat("viewPager should be IDLE", viewPager.scrollState, equalTo(SCROLL_STATE_IDLE))
         if (value != null) {
@@ -541,7 +531,7 @@ open class BaseTest {
         smoothScroll: Boolean,
         timeout: Long,
         unit: TimeUnit,
-        expectEvents: Boolean = (targetPage != currentItem)
+        expectEvents: Boolean = (targetPage != currentItem),
     ) {
         val latch =
             if (expectEvents) addWaitForScrolledLatch(targetPage, smoothScroll)
@@ -557,7 +547,7 @@ open class BaseTest {
 
     enum class SortOrder(val sign: Int) {
         ASC(1),
-        DESC(-1)
+        DESC(-1),
     }
 
     fun <T, R : Comparable<R>> List<T>.assertSorted(selector: (T) -> R) {
@@ -611,7 +601,7 @@ typealias AdapterProvider = (TestActivity) -> RecyclerView.Adapter<out RecyclerV
 
 data class AdapterProviderForItems(
     val name: String,
-    val provider: (items: List<String>) -> AdapterProvider
+    val provider: (items: List<String>) -> AdapterProvider,
 ) {
     override fun toString(): String = name
 }

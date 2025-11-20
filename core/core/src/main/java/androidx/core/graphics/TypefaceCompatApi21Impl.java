@@ -29,7 +29,6 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry;
@@ -49,7 +48,6 @@ import java.lang.reflect.Method;
  * Implementation of the Typeface compat methods for API 21 and above.
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@RequiresApi(21)
 class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
     private static final String TAG = "TypefaceCompatApi21Impl";
 

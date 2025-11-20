@@ -62,7 +62,7 @@ fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
                 insights.sortedBy {
                     // sort by iteration (embedded in title)
                     it.traceLink.title.toInt()
-                }
+                },
             )
         }
 }
@@ -84,18 +84,14 @@ fun List<Insight>.createInsightSummaries(): List<InsightSummary> {
  * TODO(364598145): generalize
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class InsightSummary(
-    val category: String,
-    val observedV2: String,
-    val observedV3: String,
-) {
+data class InsightSummary(val category: String, val observedV2: String, val observedV3: String) {
     constructor(
         category: Insight.Category,
-        insights: List<Insight>
+        insights: List<Insight>,
     ) : this(
         category = category.header(LinkFormat.V3), // TODO: avoid this format hard coding!
         observedV2 = insights.toObserved(LinkFormat.V2),
-        observedV3 = insights.toObserved(LinkFormat.V3)
+        observedV3 = insights.toObserved(LinkFormat.V3),
     ) {
         require(insights.isNotEmpty())
         require(insights.all { it.category == category })

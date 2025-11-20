@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"Dialogové okno ověření otiskem prstu"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Dotkněte se snímače otisků prstů"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Nerozpoznáno"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Není k dispozici hardware ke snímání otisků prstů."</string>
@@ -30,6 +31,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Není nastaven žádný PIN, gesto ani heslo."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Toto zařízení nepodporuje kódy PIN, hesla ani gesta."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona otisku prstů"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Uživatel v zobrazení obsahu klikl na tlačítko Další možnosti."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Použít otisk prstu"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Použít obličej"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Použít biometrii"</string>

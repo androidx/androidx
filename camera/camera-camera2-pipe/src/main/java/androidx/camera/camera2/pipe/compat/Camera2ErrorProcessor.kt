@@ -39,7 +39,7 @@ public class Camera2ErrorProcessor @Inject constructor() : CameraErrorListener {
     override fun onCameraError(
         cameraId: CameraId,
         cameraError: CameraError,
-        willAttemptRetry: Boolean
+        willAttemptRetry: Boolean,
     ) {
         val virtualCameraState = synchronized(lock) { virtualCameraStateMap[cameraId] } ?: return
         virtualCameraState.graphListener.onGraphError(
@@ -54,6 +54,6 @@ public class Camera2ErrorProcessor @Inject constructor() : CameraErrorListener {
      */
     internal fun setActiveVirtualCamera(
         cameraId: CameraId,
-        virtualCameraState: VirtualCameraState
+        virtualCameraState: VirtualCameraState,
     ) = synchronized(lock) { virtualCameraStateMap[cameraId] = virtualCameraState }
 }

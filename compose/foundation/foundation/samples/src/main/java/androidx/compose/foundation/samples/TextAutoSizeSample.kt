@@ -50,7 +50,7 @@ fun CustomTextAutoSizeSample() {
     data class PresetsTextAutoSize(private val presets: Array<TextUnit>) : TextAutoSize {
         override fun TextAutoSizeLayoutScope.getFontSize(
             constraints: Constraints,
-            text: AnnotatedString
+            text: AnnotatedString,
         ): TextUnit {
             var lastTextSize: TextUnit = TextUnit.Unspecified
             for (presetSize in presets) {

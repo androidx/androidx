@@ -51,13 +51,13 @@ class LocalesCustomAttachBaseContextTestCase() {
         setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, NightSetMode.LOCAL)
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
         setLocalesAndWaitForRecreate(activityRule, CUSTOM_LOCALE_LIST)
         // Check that the custom configuration properties are maintained
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
     }
 

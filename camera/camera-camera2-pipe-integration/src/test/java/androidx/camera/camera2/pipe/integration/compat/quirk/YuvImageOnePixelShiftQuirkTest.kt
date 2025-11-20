@@ -31,11 +31,11 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = 21)
+@Config(sdk = [Config.ALL_SDKS])
 class YuvImageOnePixelShiftQuirkTest(
     private val brand: String,
     private val model: String,
-    private val quirkEnablingExpected: Boolean
+    private val quirkEnablingExpected: Boolean,
 ) {
     @Test
     fun canEnableOnePixelShiftQuirkCorrectly() {
@@ -49,9 +49,9 @@ class YuvImageOnePixelShiftQuirkTest(
                         StreamConfigurationMapBuilder.newBuilder().build(),
                         OutputSizesCorrector(
                             FakeCameraMetadata(),
-                            StreamConfigurationMapBuilder.newBuilder().build()
-                        )
-                    )
+                            StreamConfigurationMapBuilder.newBuilder().build(),
+                        ),
+                    ),
                 )
                 .quirks
 
@@ -60,6 +60,7 @@ class YuvImageOnePixelShiftQuirkTest(
     }
 
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0}, Model: {1}")
         fun data() =

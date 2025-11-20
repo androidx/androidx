@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package androidx.xr.runtime.math
 
-import kotlin.math.sign
 import kotlin.math.sqrt
 
 /**
@@ -75,9 +74,9 @@ public class Matrix4(dataToCopy: FloatArray) {
      * matrix.
      */
     public operator fun times(other: Matrix4): Matrix4 {
-        val result = Matrix4.Zero
+        val resultData = FloatArray(16)
         android.opengl.Matrix.multiplyMM(
-            /* result= */ result.data,
+            /* result= */ resultData,
             /* resultOffset= */ 0,
             /* lhs= */ this.data,
             /* lhsOffset= */ 0,
@@ -85,43 +84,43 @@ public class Matrix4(dataToCopy: FloatArray) {
             /* rhsOffset= */ 0,
         )
 
-        return Matrix4(result.data)
+        return Matrix4(resultData)
     }
 
     private fun inverse(): Matrix4 {
-        val result = Matrix4.Zero
+        val resultData = FloatArray(16)
         android.opengl.Matrix.invertM(
-            /* mInv= */ result.data,
+            /* mInv= */ resultData,
             /* mInvOffset= */ 0,
             /* m= */ this.data,
             /* mOffset= */ 0,
         )
 
-        return Matrix4(result.data)
+        return Matrix4(resultData)
     }
 
     private fun transpose(): Matrix4 {
-        val result = Matrix4.Zero
+        val resultData = FloatArray(16)
         android.opengl.Matrix.transposeM(
-            /* mTrans= */ result.data,
+            /* mTrans= */ resultData,
             /* mTransOffset= */ 0,
             /* m= */ this.data,
             /* mOffset= */ 0,
         )
 
-        return Matrix4(result.data)
+        return Matrix4(resultData)
     }
 
     private fun rotation(): Quaternion {
-        val m00 = data[0]
-        val m01 = data[4]
-        val m02 = data[8]
-        val m10 = data[1]
-        val m11 = data[5]
-        val m12 = data[9]
-        val m20 = data[2]
-        val m21 = data[6]
-        val m22 = data[10]
+        val m00 = data[0] / this.scale.x
+        val m01 = data[4] / this.scale.y
+        val m02 = data[8] / this.scale.z
+        val m10 = data[1] / this.scale.x
+        val m11 = data[5] / this.scale.y
+        val m12 = data[9] / this.scale.z
+        val m20 = data[2] / this.scale.x
+        val m21 = data[6] / this.scale.y
+        val m22 = data[10] / this.scale.z
 
         val trace = m00 + m11 + m22 + 1.0f
 
@@ -141,16 +140,52 @@ public class Matrix4(dataToCopy: FloatArray) {
     }
 
     private fun scale(): Vector3 {
-        // TODO: b/367780918 - Investigate why scale can have negative values when inputs were
-        // positive.
-        // We shouldn't use sign() directly because we don't want it to ever return 0
-        val signX = if (data[0] == 0.0f) 1.0f else sign(data[0])
-        val signY = if (data[5] == 0.0f) 1.0f else sign(data[5])
-        val signZ = if (data[10] == 0.0f) 1.0f else sign(data[10])
+        // use either a positive or negative scale based on the rotation matrix determinant
+        val rotationDeterminant =
+            data[0] * (data[5] * data[10] - data[9] * data[6]) -
+                data[4] * (data[1] * data[10] - data[9] * data[2]) +
+                data[8] * (data[1] * data[6] - data[5] * data[2])
+        val sign = if (rotationDeterminant < 0) -1.0f else 1.0f
         return Vector3(
-            signX * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
-            signY * sqrt(data[4] * data[4] + data[5] * data[5] + data[6] * data[6]),
-            signZ * sqrt(data[8] * data[8] + data[9] * data[9] + data[10] * data[10]),
+            sign * sqrt(data[0] * data[0] + data[1] * data[1] + data[2] * data[2]),
+            sign * sqrt(data[4] * data[4] + data[5] * data[5] + data[6] * data[6]),
+            sign * sqrt(data[8] * data[8] + data[9] * data[9] + data[10] * data[10]),
+        )
+    }
+
+    /**
+     * Returns a normalized transformation matrix.
+     *
+     * This method removes the scaling factors from this matrix, as determined by [scale], while
+     * preserving its core rotational and translational components. The resulting matrix is
+     * therefore ideal for accurate normal vector transformations and pure orientation extraction.
+     */
+    public fun unscaled(): Matrix4 {
+        // Matrix4.scale returns either a positive or negative scale based on the
+        // determinant of the rotation matrix.
+        val positiveScale = Vector3.abs(scale())
+        val scaleX = positiveScale.x
+        val scaleY = positiveScale.y
+        val scaleZ = positiveScale.z
+        return Matrix4(
+            floatArrayOf(
+                data[0] / scaleX,
+                data[1] / scaleX,
+                data[2] / scaleX,
+                data[3],
+                data[4] / scaleY,
+                data[5] / scaleY,
+                data[6] / scaleY,
+                data[7],
+                data[8] / scaleZ,
+                data[9] / scaleZ,
+                data[10] / scaleZ,
+                data[11],
+                data[12],
+                data[13],
+                data[14],
+                data[15],
+            )
         )
     }
 
@@ -182,23 +217,7 @@ public class Matrix4(dataToCopy: FloatArray) {
     }
 
     /** Standard hash code calculation using constructor values */
-    public override fun hashCode(): Int =
-        31 * data[0].hashCode() +
-            data[1].hashCode() +
-            data[2].hashCode() +
-            data[3].hashCode() +
-            data[4].hashCode() +
-            data[5].hashCode() +
-            data[6].hashCode() +
-            data[7].hashCode() +
-            data[8].hashCode() +
-            data[9].hashCode() +
-            data[10].hashCode() +
-            data[11].hashCode() +
-            data[12].hashCode() +
-            data[13].hashCode() +
-            data[14].hashCode() +
-            data[15].hashCode()
+    public override fun hashCode(): Int = data.contentHashCode()
 
     /** Standard toString() implementation */
     public override fun toString(): String =

@@ -371,7 +371,7 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
             renderEffect = renderEffect,
             blendMode = blendMode,
             colorFilter = colorFilter,
-            compositingStrategy = internalCompositingStrategy
+            compositingStrategy = internalCompositingStrategy,
         )
 
     override fun discardDisplayList() {
@@ -394,11 +394,11 @@ internal class RenderNodeApi23(val ownerView: AndroidComposeView) : DeviceRender
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             RenderNodeVerificationHelper28.setAmbientShadowColor(
                 renderNode,
-                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode)
+                RenderNodeVerificationHelper28.getAmbientShadowColor(renderNode),
             )
             RenderNodeVerificationHelper28.setSpotShadowColor(
                 renderNode,
-                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode)
+                RenderNodeVerificationHelper28.getSpotShadowColor(renderNode),
             )
         }
     }

@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 internal actual fun createPlatformTextStyle(
     spanStyle: PlatformSpanStyle?,
-    paragraphStyle: PlatformParagraphStyle?
+    paragraphStyle: PlatformParagraphStyle?,
 ): PlatformTextStyle = implementedInJetBrainsFork()
 
 actual class PlatformTextStyle {
@@ -49,11 +49,11 @@ actual class PlatformSpanStyle {
 actual fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformParagraphStyle = implementedInJetBrainsFork()
 
 actual fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformSpanStyle = implementedInJetBrainsFork()

@@ -93,6 +93,7 @@ public class VerticalGridSupportFragment extends BaseSupportFragment {
     /**
      * Returns the grid presenter.
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable VerticalGridPresenter getGridPresenter() {
         return mGridPresenter;
     }

@@ -11,8 +11,7 @@ import com.sdkwithvalues.SdkResponseConverter.fromParcelable as sdkResponseConve
 public class SdkInterfaceClientProxy(
     public val remote: ISdkInterface,
 ) : SdkInterface {
-    public override suspend fun exampleMethod(request: SdkRequest): SdkResponse =
-            suspendCancellableCoroutine {
+    public override suspend fun exampleMethod(request: SdkRequest): SdkResponse = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
         val transactionCallback = object: ISdkResponseTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
@@ -34,8 +33,7 @@ public class SdkInterfaceClientProxy(
         }
     }
 
-    public override suspend fun processEnum(requestFlag: RequestFlag): RequestFlag =
-            suspendCancellableCoroutine {
+    public override suspend fun processEnum(requestFlag: RequestFlag): RequestFlag = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
         val transactionCallback = object: IRequestFlagTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
@@ -57,8 +55,7 @@ public class SdkInterfaceClientProxy(
         }
     }
 
-    public override suspend fun processNullableValues(request: SdkRequest?): SdkResponse? =
-            suspendCancellableCoroutine {
+    public override suspend fun processNullableValues(request: SdkRequest?): SdkResponse? = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
         val transactionCallback = object: ISdkResponseTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
@@ -68,22 +65,19 @@ public class SdkInterfaceClientProxy(
                 mCancellationSignal = cancellationSignal
             }
             override fun onSuccess(result: ParcelableSdkResponse?) {
-                it.resumeWith(Result.success(result?.let { notNullValue ->
-                        sdkResponseConverterFromParcelable(notNullValue) }))
+                it.resumeWith(Result.success(result?.let { notNullValue -> sdkResponseConverterFromParcelable(notNullValue) }))
             }
             override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
                 it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
-        remote.processNullableValues(request?.let { notNullValue ->
-                sdkRequestConverterToParcelable(notNullValue) }, transactionCallback)
+        remote.processNullableValues(request?.let { notNullValue -> sdkRequestConverterToParcelable(notNullValue) }, transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }
     }
 
-    public override suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse> =
-            suspendCancellableCoroutine {
+    public override suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse> = suspendCancellableCoroutine {
         var mCancellationSignal: ICancellationSignal? = null
         val transactionCallback = object: IListSdkResponseTransactionCallback.Stub() {
             override fun onCancellable(cancellationSignal: ICancellationSignal) {
@@ -93,15 +87,13 @@ public class SdkInterfaceClientProxy(
                 mCancellationSignal = cancellationSignal
             }
             override fun onSuccess(result: Array<ParcelableSdkResponse>) {
-                it.resumeWith(Result.success(result.map { sdkResponseConverterFromParcelable(it)
-                        }.toList()))
+                it.resumeWith(Result.success(result.map { sdkResponseConverterFromParcelable(it) }.toList()))
             }
             override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
                 it.resumeWithException(fromThrowableParcel(throwableParcel))
             }
         }
-        remote.processValueList(x.map { sdkRequestConverterToParcelable(it) }.toTypedArray(),
-                transactionCallback)
+        remote.processValueList(x.map { sdkRequestConverterToParcelable(it) }.toTypedArray(), transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }

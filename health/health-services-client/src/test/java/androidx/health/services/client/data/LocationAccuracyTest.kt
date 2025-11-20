@@ -23,20 +23,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class LocationAccuracyTest {
 
     @Test
     fun rangeValidationForInvalidLocationAccuracy_throwsNoException() {
-        val invalidHorizontalPositionErrorMeters =
-            LocationAccuracy(
-                -1.0,
-                1.0,
-            )
-        val invalidVerticalPositionErrorMeters =
-            LocationAccuracy(
-                1.0,
-                -1.0,
-            )
+        val invalidHorizontalPositionErrorMeters = LocationAccuracy(-1.0, 1.0)
+        val invalidVerticalPositionErrorMeters = LocationAccuracy(1.0, -1.0)
 
         Truth.assertThat(invalidHorizontalPositionErrorMeters).isNotNull()
         Truth.assertThat(invalidVerticalPositionErrorMeters).isNotNull()

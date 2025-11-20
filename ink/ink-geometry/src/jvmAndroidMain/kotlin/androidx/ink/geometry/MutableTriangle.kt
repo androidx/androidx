@@ -40,7 +40,13 @@ public class MutableTriangle(
     /** Constructs a degenerate [MutableTriangle] with [p0], [p1], and [p2] set to (0, 0). */
     public constructor() : this(MutableVec(0f, 0f), MutableVec(0f, 0f), MutableVec(0f, 0f))
 
-    /** Copies the points from [input] to this [MutableTriangle] and returns `this`. */
+    /**
+     * Fills this [MutableTriangle] with the values from [input].
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
+     */
     public fun populateFrom(input: Triangle): MutableTriangle {
         p0.x = input.p0.x
         p0.y = input.p0.y
@@ -52,7 +58,7 @@ public class MutableTriangle(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asImmutable(): ImmutableTriangle = ImmutableTriangle(this.p0, this.p1, this.p2)
+    override fun toImmutable(): ImmutableTriangle = ImmutableTriangle(this.p0, this.p1, this.p2)
 
     /**
      * Equality for [MutableTriangle] is defined using the order in which [p0], [p1] and [p2] are

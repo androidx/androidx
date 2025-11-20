@@ -38,7 +38,7 @@ import org.xmlpull.v1.XmlPullParserException
 /** Class which translates a navigation XML file into a [NavGraph] */
 public class NavInflater(
     private val context: Context,
-    private val navigatorProvider: NavigatorProvider
+    private val navigatorProvider: NavigatorProvider,
 ) {
     /**
      * Inflate a NavGraph from the given XML resource id.
@@ -71,7 +71,7 @@ public class NavInflater(
         } catch (e: Exception) {
             throw RuntimeException(
                 "Exception inflating ${res.getResourceName(graphResId)} line ${parser.lineNumber}",
-                e
+                e,
             )
         } finally {
             parser.close()
@@ -83,7 +83,7 @@ public class NavInflater(
         res: Resources,
         parser: XmlResourceParser,
         attrs: AttributeSet,
-        graphResId: Int
+        graphResId: Int,
     ): NavDestination {
         val navigator = navigatorProvider.getNavigator<Navigator<*>>(parser.name)
         val dest = navigator.createDestination()
@@ -125,7 +125,7 @@ public class NavInflater(
         res: Resources,
         dest: NavDestination,
         attrs: AttributeSet,
-        graphResId: Int
+        graphResId: Int,
     ) {
         res.obtainAttributes(attrs, R.styleable.NavArgument).use { array ->
             val name =
@@ -141,7 +141,7 @@ public class NavInflater(
         res: Resources,
         savedState: SavedState,
         attrs: AttributeSet,
-        graphResId: Int
+        graphResId: Int,
     ) {
         res.obtainAttributes(attrs, R.styleable.NavArgument).use { array ->
             val name =
@@ -229,7 +229,7 @@ public class NavInflater(
                                         navType,
                                         NavType.FloatType,
                                         argType,
-                                        "float"
+                                        "float",
                                     )
                                 defaultValue = value.data.toFloat()
                             } else {
@@ -239,7 +239,7 @@ public class NavInflater(
                                         navType,
                                         NavType.IntType,
                                         argType,
-                                        "integer"
+                                        "integer",
                                     )
                                 defaultValue = value.data
                             }
@@ -292,7 +292,7 @@ public class NavInflater(
         dest: NavDestination,
         attrs: AttributeSet,
         parser: XmlResourceParser,
-        graphResId: Int
+        graphResId: Int,
     ) {
         context.withStyledAttributes(attrs, R.styleable.NavAction) {
             val id = getResourceId(R.styleable.NavAction_android_id, 0)
@@ -304,7 +304,7 @@ public class NavInflater(
             builder.setPopUpTo(
                 getResourceId(R.styleable.NavAction_popUpTo, -1),
                 getBoolean(R.styleable.NavAction_popUpToInclusive, false),
-                getBoolean(R.styleable.NavAction_popUpToSaveState, false)
+                getBoolean(R.styleable.NavAction_popUpToSaveState, false),
             )
             builder.setEnterAnim(getResourceId(R.styleable.NavAction_enterAnim, -1))
             builder.setExitAnim(getResourceId(R.styleable.NavAction_exitAnim, -1))
@@ -355,7 +355,7 @@ public class NavInflater(
             navType: NavType<*>?,
             expectedNavType: NavType<*>,
             argType: String?,
-            foundType: String
+            foundType: String,
         ): NavType<*> {
             if (navType != null && navType !== expectedNavType) {
                 throw XmlPullParserException("Type is $argType but found $foundType: ${value.data}")

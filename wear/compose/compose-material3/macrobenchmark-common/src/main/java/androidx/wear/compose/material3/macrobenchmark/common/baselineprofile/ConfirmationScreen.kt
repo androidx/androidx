@@ -72,7 +72,7 @@ val ConfirmationScreen =
                     retryIfStale {
                             device.wait(
                                 Until.findObject(By.desc(numberedContentDescription(i))),
-                                FIND_OBJECT_TIMEOUT_MS
+                                FIND_OBJECT_TIMEOUT_MS,
                             )
                         }
                         .click()
@@ -81,7 +81,7 @@ val ConfirmationScreen =
                 }
                 device.wait(
                     Until.findObject(By.desc(numberedContentDescription(0))),
-                    FIND_OBJECT_TIMEOUT_MS
+                    FIND_OBJECT_TIMEOUT_MS,
                 )
             }
     }
@@ -100,7 +100,7 @@ private fun ButtonsForSubmenu(
                         contentDescription = numberedContentDescription(index)
                     },
                 onClick = { showConfirmation.value = true },
-                label = { Text("Show Confirmation") }
+                label = { Text("Show Confirmation") },
             )
         }
         confirmation(showConfirmation)
@@ -114,10 +114,10 @@ private fun Confirmation(showConfirmation: MutableState<Boolean>) {
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
         curvedText = { confirmationDialogCurvedText("Confirmed", style) },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     ) {
         Icon(
-            painterResource(R.drawable.ic_favorite_rounded),
+            painterResource(R.drawable.icon_favorite_rounded),
             contentDescription = null,
             modifier = Modifier.size(ConfirmationDialogDefaults.IconSize),
         )
@@ -130,10 +130,10 @@ fun LongTextConfirmation(showConfirmation: MutableState<Boolean>) {
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
         text = { Text(text = "Your message has been sent") },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     ) {
         Icon(
-            painterResource(R.drawable.ic_favorite_rounded),
+            painterResource(R.drawable.icon_favorite_rounded),
             contentDescription = null,
             modifier = Modifier.size(ConfirmationDialogDefaults.SmallIconSize),
         )
@@ -148,7 +148,7 @@ fun SuccessConfirmation(showConfirmation: MutableState<Boolean>) {
         curvedText = { confirmationDialogCurvedText(text, style) },
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     )
 }
 
@@ -160,7 +160,7 @@ fun FailureConfirmation(showConfirmation: MutableState<Boolean>) {
         curvedText = { confirmationDialogCurvedText(text, style) },
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     )
 }
 

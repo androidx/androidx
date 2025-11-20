@@ -67,11 +67,11 @@ class SyncFenceV19Test {
         // an EGLSync, create a validity check to ensure we can get more presubmit test coverage
         Assert.assertEquals(
             SyncFenceCompat.SIGNAL_TIME_INVALID,
-            SyncFenceV19(7).getSignalTimeNanos()
+            SyncFenceV19(7).getSignalTimeNanos(),
         )
         Assert.assertEquals(
             SyncFenceCompat.SIGNAL_TIME_INVALID,
-            SyncFenceV19(-1).getSignalTimeNanos()
+            SyncFenceV19(-1).getSignalTimeNanos(),
         )
     }
 

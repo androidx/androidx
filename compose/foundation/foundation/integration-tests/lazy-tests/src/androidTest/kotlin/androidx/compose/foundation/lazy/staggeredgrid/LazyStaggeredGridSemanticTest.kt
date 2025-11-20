@@ -45,11 +45,7 @@ class LazyStaggeredGridSemanticTest(private val orientation: Orientation) :
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> =
-            arrayOf(
-                Orientation.Vertical,
-                Orientation.Horizontal,
-            )
+        fun initParameters(): Array<Any> = arrayOf(Orientation.Vertical, Orientation.Horizontal)
     }
 
     private fun key(index: Int): String = "key_$index"
@@ -72,7 +68,7 @@ class LazyStaggeredGridSemanticTest(private val orientation: Orientation) :
                 modifier =
                     Modifier.testTag(LazyStaggeredGridTag)
                         .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
-                        .crossAxisSize(itemSizeDp * 2)
+                        .crossAxisSize(itemSizeDp * 2),
             ) {
                 repeat(ItemCount) {
                     item(key = key(it)) {
@@ -92,7 +88,7 @@ class LazyStaggeredGridSemanticTest(private val orientation: Orientation) :
                 modifier =
                     Modifier.testTag(LazyStaggeredGridTag)
                         .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
-                        .crossAxisSize(itemSizeDp * 2)
+                        .crossAxisSize(itemSizeDp * 2),
             ) {
                 items(items = List(ItemCount) { it }, key = { key(it) }) {
                     BasicText("$it", Modifier.testTag(tag(it)).mainAxisSize(itemSizeDp))

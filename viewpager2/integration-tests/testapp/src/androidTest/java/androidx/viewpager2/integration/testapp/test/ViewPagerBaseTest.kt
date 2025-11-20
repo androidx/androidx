@@ -39,13 +39,13 @@ import org.junit.runners.Parameterized
  */
 abstract class ViewPagerBaseTest<T : BaseCardActivity>(
     clazz: Class<T>,
-    private val config: TestConfig
+    private val config: TestConfig,
 ) : BaseTest<T>(clazz) {
     data class TestConfig(
         val orientation: Int,
         val animateRotate: Boolean,
         val animateTranslate: Boolean,
-        val animateScale: Boolean
+        val animateScale: Boolean,
     )
 
     companion object {
@@ -105,7 +105,7 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
         verify(
             expectRotation = config.animateRotate,
             expectTranslation = config.animateTranslate,
-            expectScale = config.animateScale
+            expectScale = config.animateScale,
         )
     }
 }

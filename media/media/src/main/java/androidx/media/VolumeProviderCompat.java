@@ -23,7 +23,6 @@ import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.Nullable;
@@ -144,10 +143,8 @@ public abstract class VolumeProviderCompat {
      */
     public final void setCurrentVolume(int currentVolume) {
         mCurrentVolume = currentVolume;
-        if (Build.VERSION.SDK_INT >= 21) {
-            VolumeProvider volumeProviderFwk = (VolumeProvider) getVolumeProvider();
-            Api21Impl.setCurrentVolume(volumeProviderFwk, currentVolume);
-        }
+        VolumeProvider volumeProviderFwk = (VolumeProvider) getVolumeProvider();
+        Api21Impl.setCurrentVolume(volumeProviderFwk, currentVolume);
         if (mCallback != null) {
             mCallback.onVolumeChanged(this);
         }
@@ -213,7 +210,7 @@ public abstract class VolumeProviderCompat {
                         VolumeProviderCompat.this.onAdjustVolume(direction);
                     }
                 };
-            } else if (Build.VERSION.SDK_INT >= 21) {
+            } else {
                 mVolumeProviderFwk = new VolumeProvider(mControlType, mMaxVolume, mCurrentVolume) {
                     @Override
                     public void onSetVolumeTo(int volume) {
@@ -237,7 +234,6 @@ public abstract class VolumeProviderCompat {
         public abstract void onVolumeChanged(VolumeProviderCompat volumeProvider);
     }
 
-    @RequiresApi(21)
     private static class Api21Impl {
         private Api21Impl() {}
 

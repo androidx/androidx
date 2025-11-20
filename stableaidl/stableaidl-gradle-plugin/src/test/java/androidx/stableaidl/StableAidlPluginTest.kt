@@ -62,7 +62,7 @@ class StableAidlPluginTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         // Tasks should contain those defined in StableAidlTasks.
@@ -72,7 +72,7 @@ class StableAidlPluginTest {
     }
 
     @Test
-    fun applyPluginAndroidLibProject() {
+    fun applyPluginAndroidLibProject_withSdk34() {
         projectSetup.writeDefaultBuildGradle(
             prefix =
                 """
@@ -85,6 +85,7 @@ class StableAidlPluginTest {
             suffix =
                 """
             android {
+                compileSdk = 36
                 namespace 'androidx.stableaidl.testapp'
                 buildFeatures {
                   aidl = true
@@ -96,7 +97,42 @@ class StableAidlPluginTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
+        )
+
+        // Tasks should contain those defined in StableAidlTasks.
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
+        assertTrue { output.output.contains("compileDebugAidlApi - ") }
+        assertTrue { output.output.contains("checkDebugAidlApiRelease - ") }
+    }
+
+    @Test
+    fun applyPluginAndroidLibProject_withSdk36() {
+        projectSetup.writeDefaultBuildGradle(
+            prefix =
+                """
+                plugins {
+                    id('com.android.library')
+                    id('androidx.stableaidl')
+                }
+            """
+                    .trimIndent(),
+            suffix =
+                """
+            android {
+                compileSdk = 34
+                namespace 'androidx.stableaidl.testapp'
+                buildFeatures {
+                  aidl = true
+                }
+                buildTypes.all {
+                  stableAidl {
+                    version 1
+                  }
+                }
+            }
+            """
+                    .trimIndent(),
         )
 
         // Tasks should contain those defined in StableAidlTasks.

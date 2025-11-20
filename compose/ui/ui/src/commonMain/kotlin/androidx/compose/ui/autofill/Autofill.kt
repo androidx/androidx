@@ -84,7 +84,7 @@ interface Autofill {
 class AutofillNode(
     val autofillTypes: List<@Suppress("Deprecation") AutofillType> = listOf(),
     var boundingBox: Rect? = null,
-    val onFill: ((String) -> Unit)?
+    val onFill: ((String) -> Unit)?,
 ) {
     internal companion object {
         /*@GuardedBy("this")*/

@@ -65,7 +65,7 @@ fun ScrollableBox(
     orientation: Orientation,
     activeColor: Color,
     idleColor: Color,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -90,7 +90,7 @@ fun ScrollableBox(
                     rememberScrollableState { scrollDistance ->
                         offsetPx += scrollDistance
                         scrollDistance
-                    }
+                    },
             )
             .size(size)
             .background(color)

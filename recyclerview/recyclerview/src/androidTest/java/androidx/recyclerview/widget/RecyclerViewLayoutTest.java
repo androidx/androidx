@@ -70,6 +70,7 @@ import androidx.recyclerview.test.NestedScrollingParent2Adapter;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
 import androidx.testutils.AnimationDurationScaleRule;
 
@@ -1047,6 +1048,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         testScrollFrozen(true);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427263206
     @Test
     public void dragFrozen() throws Throwable {
         testScrollFrozen(false);
@@ -1861,11 +1863,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 verticalCounter.get());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427263206
     @Test
     public void dragHorizontal() throws Throwable {
         scrollInOtherOrientationTest(FLAG_HORIZONTAL);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427263206
     @Test
     public void dragVertical() throws Throwable {
         scrollInOtherOrientationTest(FLAG_VERTICAL);
@@ -1881,6 +1885,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         scrollInOtherOrientationTest(FLAG_VERTICAL | FLAG_FLING);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427263206
     @SuppressWarnings("WrongConstant")
     @Test
     public void nestedDragVertical() throws Throwable {
@@ -1908,6 +1913,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427263206
     @SuppressWarnings("WrongConstant")
     @Test
     public void nestedDragHorizontal() throws Throwable {

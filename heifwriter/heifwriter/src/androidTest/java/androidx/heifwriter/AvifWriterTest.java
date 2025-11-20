@@ -37,7 +37,6 @@ import androidx.heifwriter.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -158,7 +157,6 @@ public class AvifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_NoHandler() throws Throwable {
@@ -168,8 +166,7 @@ public class AvifWriterTest extends TestBase {
             new TestConfig.Builder(INPUT_MODE_SURFACE, false, false, OUTPUT_FILENAME);
         doTestForVariousNumberImages(builder);
     }
-    //
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
+
     @Test
     @LargeTest
     public void testInputSurface_Grid_NoHandler() throws Throwable {
@@ -180,7 +177,6 @@ public class AvifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_NoGrid_Handler() throws Throwable {
@@ -191,7 +187,6 @@ public class AvifWriterTest extends TestBase {
         doTestForVariousNumberImages(builder);
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputSurface_Grid_Handler() throws Throwable {
@@ -217,7 +212,6 @@ public class AvifWriterTest extends TestBase {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_Grid_NoHandler() throws Throwable {
@@ -232,7 +226,6 @@ public class AvifWriterTest extends TestBase {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_NoGrid_Handler() throws Throwable {
@@ -247,7 +240,6 @@ public class AvifWriterTest extends TestBase {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @LargeTest
     public void testInputBitmap_Grid_Handler() throws Throwable {
@@ -262,7 +254,6 @@ public class AvifWriterTest extends TestBase {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 29) // b/192261638
     @Test
     @SmallTest
     public void testCloseWithoutStart() throws Throwable {

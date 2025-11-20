@@ -1,0 +1,34 @@
+// Signature format: 4.0
+package androidx.xr.arcore.runtime {
+
+  public enum HandJointType {
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_INDEX_DISTAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_INDEX_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_INDEX_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_INDEX_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_INDEX_TIP;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_LITTLE_DISTAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_LITTLE_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_LITTLE_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_LITTLE_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_LITTLE_TIP;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_MIDDLE_DISTAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_MIDDLE_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_MIDDLE_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_MIDDLE_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_MIDDLE_TIP;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_PALM;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_RING_DISTAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_RING_INTERMEDIATE;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_RING_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_RING_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_RING_TIP;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_THUMB_DISTAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_THUMB_METACARPAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_THUMB_PROXIMAL;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_THUMB_TIP;
+    enum_constant public static final androidx.xr.arcore.runtime.HandJointType HAND_JOINT_TYPE_WRIST;
+  }
+
+}
+

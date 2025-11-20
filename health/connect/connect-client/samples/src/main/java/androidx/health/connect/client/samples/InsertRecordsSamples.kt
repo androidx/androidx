@@ -18,7 +18,6 @@
 
 package androidx.health.connect.client.samples
 
-import android.health.connect.datatypes.Metadata.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_EXERCISE_ROUTE
@@ -50,7 +49,7 @@ suspend fun InsertSteps(healthConnectClient: HealthConnectClient) {
             endTime = END_TIME,
             startZoneOffset = START_ZONE_OFFSET,
             endZoneOffset = END_ZONE_OFFSET,
-            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+            metadata = Metadata.manualEntry(),
         )
     healthConnectClient.insertRecords(listOf(stepsRecord))
 }
@@ -74,7 +73,7 @@ suspend fun InsertNutrition(healthConnectClient: HealthConnectClient) {
             endTime = END_TIME,
             startZoneOffset = START_ZONE_OFFSET,
             endZoneOffset = END_ZONE_OFFSET,
-            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+            metadata = Metadata.manualEntry(),
         )
     healthConnectClient.insertRecords(listOf(banana))
 }
@@ -87,7 +86,7 @@ suspend fun InsertHeartRateSeries(healthConnectClient: HealthConnectClient) {
             startZoneOffset = START_ZONE_OFFSET,
             endTime = END_TIME,
             endZoneOffset = END_ZONE_OFFSET,
-            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+            metadata = Metadata.manualEntry(),
             // records 10 arbitrary data, to replace with actual data
             samples =
                 List(10) { index ->
@@ -128,7 +127,7 @@ suspend fun InsertExerciseRoute(healthConnectClient: HealthConnectClient) {
                         longitude = startLongitude + longitudeDeltaPerSecond * timeSeconds,
                         horizontalAccuracy = Length.meters(2.0),
                         verticalAccuracy = Length.meters(2.0),
-                        altitude = Length.meters(19.0)
+                        altitude = Length.meters(19.0),
                     )
                 }
             )
@@ -142,11 +141,11 @@ suspend fun InsertExerciseRoute(healthConnectClient: HealthConnectClient) {
             startZoneOffset = ZoneOffset.UTC,
             endTime = sessionStartTime.plus(sessionDuration),
             endZoneOffset = ZoneOffset.UTC,
-            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+            metadata = Metadata.manualEntry(),
             exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_RUNNING,
             title = "Morning Run",
             notes = "A nice run in a park",
-            exerciseRoute = exerciseRoute
+            exerciseRoute = exerciseRoute,
         )
 
     healthConnectClient.insertRecords(listOf(exerciseSessionRecord))

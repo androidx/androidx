@@ -35,7 +35,7 @@ internal object ComposableInvoker {
      */
     private fun compatibleTypes(
         methodTypes: Array<Class<*>>,
-        actualTypes: Array<Class<*>>
+        actualTypes: Array<Class<*>>,
     ): Boolean =
         methodTypes.size == actualTypes.size &&
             methodTypes
@@ -49,7 +49,7 @@ internal object ComposableInvoker {
      */
     private fun Class<*>.getDeclaredCompatibleMethod(
         methodName: String,
-        vararg args: Class<*>
+        vararg args: Class<*>,
     ): Method {
         val actualTypes: Array<Class<*>> = arrayOf(*args)
         return declaredMethods.firstOrNull {
@@ -74,7 +74,7 @@ internal object ComposableInvoker {
                     methodName,
                     *args.mapNotNull { it?.javaClass }.toTypedArray(),
                     Composer::class.java, // composer param
-                    *kotlin.Int::class.java.dup(changedParams) // changed params
+                    *Int::class.java.dup(changedParams), // changed params
                 )
             } catch (e: ReflectiveOperationException) {
                 try {
@@ -93,7 +93,7 @@ internal object ComposableInvoker {
      */
     private fun Class<*>.getDefaultValue(): Any? =
         when (name) {
-            "int" -> 0.toInt()
+            "int" -> 0
             "short" -> 0.toShort()
             "byte" -> 0.toByte()
             "long" -> 0.toLong()
@@ -112,7 +112,7 @@ internal object ComposableInvoker {
     private fun Method.invokeComposableMethod(
         instance: Any?,
         composer: Composer,
-        vararg args: Any?
+        vararg args: Any?,
     ): Any? {
         val composerIndex = parameterTypes.indexOfLast { it == Composer::class.java }
         val realParams = composerIndex
@@ -151,7 +151,7 @@ internal object ComposableInvoker {
                     // changed parameters should be 0 to indicate "uncertain"
                     in changedStartIndex until defaultStartIndex -> 0
                     // Default values mask, all parameters set to use defaults
-                    in defaultStartIndex until totalParams -> 0b111111111111111111111.toInt()
+                    in defaultStartIndex until totalParams -> 0b111111111111111111111
                     else -> error("Unexpected index")
                 }
             }
@@ -180,7 +180,7 @@ internal object ComposableInvoker {
         className: String,
         methodName: String,
         composer: Composer,
-        vararg args: Any?
+        vararg args: Any?,
     ) {
         try {
             val composableClass = Class.forName(className)

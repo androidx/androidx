@@ -24,5 +24,5 @@ package androidx.credentials.registry.provider
  */
 public abstract class RegisterCredentialsException(
     public val type: String,
-    public val errorMessage: CharSequence? = null
+    public val errorMessage: CharSequence? = null,
 ) : Exception(errorMessage?.toString())

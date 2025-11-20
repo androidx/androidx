@@ -498,7 +498,6 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
 
         /** Puts an array of {@link AppSearchBlobHandle} in the property map. */
         @CanIgnoreReturnValue
-        @ExperimentalAppSearchApi
         public @NonNull Builder putInPropertyMap(@NonNull String name,
                 AppSearchBlobHandle @NonNull [] values) {
             Objects.requireNonNull(values);

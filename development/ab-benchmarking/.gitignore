@@ -1,0 +1,14 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# Ignore dependencies
+.deps
+
+# Ignore archived
+archive/*
+
+# Kotlin build cache
+.kotlin/

@@ -19,14 +19,12 @@ package androidx.camera.testing.mocks.helpers;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
-
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
 
 import org.junit.Test;
 import org.robolectric.annotation.Config;
 
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class CallTimesAtLeastTest {
     private final CallTimesAtLeast mCallTimes = new CallTimesAtLeast(5);
 

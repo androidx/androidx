@@ -30,7 +30,7 @@ import kotlinx.coroutines.runBlocking
 
 @JvmName("createWorkManager")
 @JvmOverloads
-fun WorkManagerImpl(
+public fun WorkManagerImpl(
     context: Context,
     configuration: Configuration,
     workTaskExecutor: TaskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor),
@@ -39,12 +39,12 @@ fun WorkManagerImpl(
             context.applicationContext,
             workTaskExecutor.serialTaskExecutor,
             configuration.clock,
-            context.resources.getBoolean(R.bool.workmanager_test_configuration)
+            context.resources.getBoolean(R.bool.workmanager_test_configuration),
         ),
     trackers: Trackers = Trackers(context.applicationContext, workTaskExecutor),
     processor: Processor =
         Processor(context.applicationContext, configuration, workTaskExecutor, workDatabase),
-    schedulersCreator: SchedulersCreator = ::createSchedulers
+    schedulersCreator: SchedulersCreator = ::createSchedulers,
 ): WorkManagerImpl {
     val schedulers =
         schedulersCreator(
@@ -53,7 +53,7 @@ fun WorkManagerImpl(
             workTaskExecutor,
             workDatabase,
             trackers,
-            processor
+            processor,
         )
     return WorkManagerImpl(
         context.applicationContext,
@@ -62,34 +62,34 @@ fun WorkManagerImpl(
         workDatabase,
         schedulers,
         processor,
-        trackers
+        trackers,
     )
 }
 
 @JvmName("createTestWorkManager")
-fun TestWorkManagerImpl(
+public fun TestWorkManagerImpl(
     context: Context,
     configuration: Configuration,
     workTaskExecutor: TaskExecutor,
-) =
+): WorkManagerImpl =
     WorkManagerImpl(
         context,
         configuration,
         workTaskExecutor,
-        WorkDatabase.create(context, workTaskExecutor.serialTaskExecutor, configuration.clock, true)
+        WorkDatabase.create(context, workTaskExecutor.serialTaskExecutor, configuration.clock, true),
     )
 
-typealias SchedulersCreator =
+public typealias SchedulersCreator =
     (
         context: Context,
         configuration: Configuration,
         workTaskExecutor: TaskExecutor,
         workDatabase: WorkDatabase,
         trackers: Trackers,
-        processor: Processor
+        processor: Processor,
     ) -> List<Scheduler>
 
-fun schedulers(vararg schedulers: Scheduler): SchedulersCreator = { _, _, _, _, _, _ ->
+public fun schedulers(vararg schedulers: Scheduler): SchedulersCreator = { _, _, _, _, _, _ ->
     schedulers.toList()
 }
 
@@ -109,7 +109,7 @@ private fun createSchedulers(
             trackers,
             processor,
             WorkLauncherImpl(processor, workTaskExecutor),
-            workTaskExecutor
+            workTaskExecutor,
         ),
     )
 
@@ -117,7 +117,7 @@ private fun createSchedulers(
 internal fun WorkManagerScope(taskExecutor: TaskExecutor) =
     CoroutineScope(taskExecutor.taskCoroutineDispatcher)
 
-fun WorkManagerImpl.close() {
+public fun WorkManagerImpl.close() {
     runBlocking { workManagerScope.coroutineContext[Job]!!.cancelAndJoin() }
     workDatabase.close()
 }

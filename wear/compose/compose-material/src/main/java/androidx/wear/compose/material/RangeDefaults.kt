@@ -28,7 +28,7 @@ internal fun Modifier.rangeSemantics(
     enabled: Boolean,
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
+    steps: Int,
 ): Modifier {
     val step = RangeDefaults.snapValueToStep(value, valueRange, steps)
     return semantics(mergeDescendants = true) {
@@ -48,7 +48,7 @@ internal fun Modifier.rangeSemantics(
         .progressSemantics(
             RangeDefaults.calculateCurrentStepValue(step, steps, valueRange),
             valueRange,
-            steps
+            steps,
         )
 }
 

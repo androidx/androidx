@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 class PlaceholderTest {
     val text = "text".complicationText
@@ -45,7 +46,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     ShortTextComplicationData.Builder(
                             ComplicationText.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .setTitle(ComplicationText.PLACEHOLDER)
                         .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
@@ -93,7 +94,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     ShortTextComplicationData.Builder(
                             ComplicationText.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .build()
                 )
@@ -111,7 +112,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     LongTextComplicationData.Builder(
                             ComplicationText.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .setTitle(ComplicationText.PLACEHOLDER)
                         .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
@@ -158,7 +159,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     LongTextComplicationData.Builder(
                             ComplicationText.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .build()
                 )
@@ -178,7 +179,7 @@ class PlaceholderTest {
                             value = RangedValueComplicationData.PLACEHOLDER,
                             min = 1f,
                             max = 10f,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(ComplicationText.PLACEHOLDER)
                         .setTitle(ComplicationText.PLACEHOLDER)
@@ -208,7 +209,7 @@ class PlaceholderTest {
                             value = 7f,
                             min = 1f,
                             max = 10f,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(text)
                         .setTitle(title)
@@ -239,7 +240,7 @@ class PlaceholderTest {
                             value = RangedValueComplicationData.PLACEHOLDER,
                             min = 1f,
                             max = 10f,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(ComplicationText.PLACEHOLDER)
                         .build()
@@ -261,7 +262,7 @@ class PlaceholderTest {
                     GoalProgressComplicationData.Builder(
                             value = GoalProgressComplicationData.PLACEHOLDER,
                             targetValue = 10000f,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(ComplicationText.PLACEHOLDER)
                         .setTitle(ComplicationText.PLACEHOLDER)
@@ -291,7 +292,7 @@ class PlaceholderTest {
                     GoalProgressComplicationData.Builder(
                             value = 1200f,
                             targetValue = 10000f,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(text)
                         .setTitle(title)
@@ -320,7 +321,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     WeightedElementsComplicationData.Builder(
                             elements = WeightedElementsComplicationData.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(ComplicationText.PLACEHOLDER)
                         .setTitle(ComplicationText.PLACEHOLDER)
@@ -357,7 +358,7 @@ class PlaceholderTest {
                                     WeightedElementsComplicationData.Element(1f, Color.GREEN),
                                     WeightedElementsComplicationData.Element(2f, Color.BLUE),
                                 ),
-                            contentDescription
+                            contentDescription,
                         )
                         .setText(text)
                         .setTitle(title)
@@ -391,7 +392,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     MonochromaticImageComplicationData.Builder(
                             MonochromaticImage.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .build()
                 )
@@ -403,7 +404,7 @@ class PlaceholderTest {
         assertThat(
                 placeholderMonochromaticImage.contentDescription!!.getTextAt(
                     resources,
-                    Instant.EPOCH
+                    Instant.EPOCH,
                 )
             )
             .isEqualTo("description")
@@ -416,7 +417,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     MonochromaticImageComplicationData.Builder(
                             monochromaticImage,
-                            contentDescription
+                            contentDescription,
                         )
                         .build()
                 )
@@ -462,7 +463,7 @@ class PlaceholderTest {
             NoDataComplicationData(
                     PhotoImageComplicationData.Builder(
                             PhotoImageComplicationData.PLACEHOLDER,
-                            contentDescription
+                            contentDescription,
                         )
                         .build()
                 )

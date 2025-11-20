@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.CarContext;
@@ -105,6 +106,10 @@ public final class CarPendingIntent {
 
         flags &= ~PendingIntent.FLAG_IMMUTABLE;
         flags |= FLAG_MUTABLE;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            flags |= PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT;
+        }
 
         if (isAutomotiveOS(context)) {
             return createForAutomotive(context, requestCode, intent, flags);

@@ -50,7 +50,7 @@ class RecyclerViewScrollFrameRateTest {
                 object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     override fun onCreateViewHolder(
                         parent: ViewGroup,
-                        viewType: Int
+                        viewType: Int,
                     ): RecyclerView.ViewHolder {
                         val view = TextView(parent.context)
                         view.textSize = 40f

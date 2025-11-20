@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.CheckResult
+
 /**
  * Finds a semantics node identified by the given tag.
  *
@@ -26,9 +28,10 @@ package androidx.compose.ui.test
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithTag(
     testTag: String,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction = onNode(hasTestTag(testTag), useUnmergedTree)
 
 /**
@@ -41,9 +44,10 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTag(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
     testTag: String,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection = onAllNodes(hasTestTag(testTag), useUnmergedTree)
 
 /**
@@ -59,11 +63,12 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction =
     onNode(hasContentDescription(label, substring, ignoreCase), useUnmergedTree)
 
@@ -80,11 +85,12 @@ fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection =
     onAllNodes(hasContentDescription(label, substring, ignoreCase), useUnmergedTree)
 
@@ -101,11 +107,12 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction = onNode(hasText(text, substring, ignoreCase), useUnmergedTree)
 
 /**
@@ -121,11 +128,12 @@ fun SemanticsNodeInteractionsProvider.onNodeWithText(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection =
     onAllNodes(hasText(text, substring, ignoreCase), useUnmergedTree)
 
@@ -139,6 +147,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
  * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
  *   semantics tree.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onRoot(
     useUnmergedTree: Boolean = false
 ): SemanticsNodeInteraction = onNode(isRoot(), useUnmergedTree)

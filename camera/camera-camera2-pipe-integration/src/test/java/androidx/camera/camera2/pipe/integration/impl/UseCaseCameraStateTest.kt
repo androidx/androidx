@@ -17,12 +17,13 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
-import android.os.Build
+import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureIntentPreviewQuirk
@@ -35,6 +36,8 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.R
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.Quirks
 import androidx.testutils.MainDispatcherRule
@@ -42,15 +45,22 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -61,35 +71,28 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 @DoNotInstrument
 @OptIn(ExperimentalCoroutinesApi::class)
 class UseCaseCameraStateTest {
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
+    private val testExecutor = Executors.newFixedThreadPool(4)
+    private val testIoDispatcher = testExecutor.asCoroutineDispatcher()
 
     @get:Rule val mainDispatcherRule = MainDispatcherRule(testDispatcher)
 
     private val surface = FakeSurface()
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId> = mapOf(surface to StreamId(0))
-    private val useCaseThreads by lazy {
-        UseCaseThreads(testScope, testDispatcher.asExecutor(), testDispatcher)
-    }
 
     private val fakeCameraGraphSession = FakeCameraGraphSession()
     private val fakeCameraGraph = FakeCameraGraph(fakeCameraGraphSession)
     private val fakeUseCaseGraphConfig =
-        UseCaseGraphConfig(
-            graph = fakeCameraGraph,
-            surfaceToStreamMap = surfaceToStreamMap,
-            cameraStateAdapter = CameraStateAdapter(),
-        )
+        UseCaseGraphConfig(graph = fakeCameraGraph, surfaceToStreamMap = surfaceToStreamMap)
 
     private val useCaseCameraState =
         UseCaseCameraState(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
-            threads = useCaseThreads,
-            sessionProcessorManager = null,
             templateParamsOverride = NoOpTemplateParamsOverride,
         )
 
@@ -101,6 +104,7 @@ class UseCaseCameraStateTest {
     @After
     fun tearDown() {
         surface.close()
+        testExecutor.shutdown()
     }
 
     @Test
@@ -204,8 +208,6 @@ class UseCaseCameraStateTest {
         val useCaseCameraState =
             UseCaseCameraState(
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
-                threads = useCaseThreads,
-                sessionProcessorManager = null,
                 templateParamsOverride =
                     TemplateParamsQuirkOverride(
                         Quirks(listOf(object : CaptureIntentPreviewQuirk {}))
@@ -216,10 +218,7 @@ class UseCaseCameraStateTest {
         val template = RequestTemplate(TEMPLATE_RECORD)
         val result =
             useCaseCameraState
-                .updateAsync(
-                    streams = setOf(StreamId(0)),
-                    template = template,
-                )
+                .updateAsync(streams = setOf(StreamId(0)), template = template)
                 .asListenableFuture()
 
         // simulate startRepeating request being completed in camera
@@ -231,6 +230,82 @@ class UseCaseCameraStateTest {
         val request = fakeCameraGraphSession.repeatingRequests[0]
         assertThat(request.template).isEqualTo(template)
         assertThat(request[CONTROL_CAPTURE_INTENT]).isEqualTo(CONTROL_CAPTURE_INTENT_PREVIEW)
+    }
+
+    @Test
+    fun updateCameraState_completesAllSignals_underHighConcurrentLoad() = runBlocking {
+        // --- Setup ---
+        val fakeSession = ControllableFakeCameraGraphSession()
+        val fakeGraph = FakeCameraGraph(fakeSession)
+        val useCaseGraphConfig = UseCaseGraphConfig(fakeGraph, surfaceToStreamMap)
+        val useCaseCameraState = UseCaseCameraState(useCaseGraphConfig, NoOpTemplateParamsOverride)
+
+        // --- Act ---
+        val jobCount = 500
+        val deferredList = mutableListOf<Deferred<Unit>>()
+
+        withContext(testIoDispatcher) {
+            repeat(jobCount) {
+                launch {
+                    val deferred =
+                        useCaseCameraState.updateAsync(
+                            parameters =
+                                mapOf(
+                                    CaptureRequest.CONTROL_AF_MODE to
+                                        CaptureRequest.CONTROL_AF_MODE_AUTO
+                                )
+                        )
+                    synchronized(deferredList) { deferredList.add(deferred) }
+                }
+            }
+        }
+
+        // --- Assert ---
+        deferredList.joinAll()
+        val exceptions = deferredList.mapNotNull { it.getCompletionExceptionOrNull() }
+        assertThat(exceptions).isEmpty()
+    }
+
+    @Test(timeout = 2000L) // Fail this test if it deadlocks
+    fun onTotalCaptureResult_fastPath_returnsImmediately_whenLockIsHeld() = runBlocking {
+        // --- Setup ---
+        val blocker = Semaphore(0)
+
+        val fakeSession =
+            ControllableFakeCameraGraphSession().apply { startRepeatingBlocker = blocker }
+        val fakeGraph = FakeCameraGraph(fakeSession)
+
+        val useCaseGraphConfig = UseCaseGraphConfig(fakeGraph, surfaceToStreamMap)
+        val useCaseCameraState = UseCaseCameraState(useCaseGraphConfig, NoOpTemplateParamsOverride)
+        // --- Act ---
+        val lockHoldingJob =
+            launch(testIoDispatcher) {
+                useCaseCameraState.updateAsync(
+                    streams = setOf(StreamId(0)),
+                    parameters =
+                        mapOf(CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO),
+                )
+            }
+
+        delay(250) // Allow time for lockHoldingJob to acquire the UseCaseCameraState lock
+        assertThat(lockHoldingJob.isActive).isTrue()
+
+        val capturedListener = fakeSession.lastCapturedListener
+        assertThat(capturedListener).isNotNull()
+        val frameNumber = FrameNumber(0)
+        val frameInfo = FakeFrameInfo()
+        val requestMetadata = FakeRequestMetadata()
+
+        val fastPathJob = launch {
+            capturedListener!!.onTotalCaptureResult(requestMetadata, frameNumber, frameInfo)
+        }
+
+        // --- Assert ---
+        fastPathJob.join()
+
+        // --- Cleanup ---
+        blocker.release()
+        lockHoldingJob.cancel()
     }
 
     private fun <T> assertFutureCompletes(future: ListenableFuture<T>) {
@@ -245,5 +320,24 @@ class UseCaseCameraStateTest {
         assertWithMessage("Future already completed instead of waiting")
             .that(future.isDone)
             .isFalse()
+    }
+
+    /**
+     * A test-specific fake session that adds asynchronous callbacks and blocking capabilities to
+     * simulate race conditions and lock-holding.
+     */
+    internal class ControllableFakeCameraGraphSession : FakeCameraGraphSession() {
+        var startRepeatingBlocker: Semaphore? = null
+        var lastCapturedListener: Request.Listener? = null
+
+        override fun startRepeating(request: Request) {
+            lastCapturedListener =
+                request.listeners.firstOrNull {
+                    it::class.java.enclosingClass?.simpleName == "UseCaseCameraState"
+                }
+
+            startRepeatingBlocker?.acquire()
+            super.startRepeating(request)
+        }
     }
 }

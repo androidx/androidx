@@ -22,19 +22,17 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
 
@@ -51,7 +49,6 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2021"
     description = "Contains the sample code for the Androidx Compose UI Animation Graphics Library"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

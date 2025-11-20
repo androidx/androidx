@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getAppName():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getAppName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getComponentName():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getComponentName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getFallbackPreviewData():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getFallbackPreviewData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getIcon():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getIcon() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getName():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfo#getType():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfo.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result#getInfo():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result.getInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result#getSlotId():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result.getSlotId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationSlotBounds#getPerComplicationTypeBounds():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationSlotBounds.getPerComplicationTypeBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.ComplicationSlotBounds#getPerComplicationTypeMargins():
+    Source breaking change: method androidx.wear.watchface.complications.ComplicationSlotBounds.getPerComplicationTypeMargins() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getPrimaryDataSource():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getPrimaryDataSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getPrimaryDataSourceDefaultType():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getPrimaryDataSourceDefaultType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getSecondaryDataSource():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getSecondaryDataSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getSecondaryDataSourceDefaultType():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getSecondaryDataSourceDefaultType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getSystemDataSourceFallback():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getSystemDataSourceFallback() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy#getSystemDataSourceFallbackDefaultType():
+    Source breaking change: method androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.getSystemDataSourceFallbackDefaultType() can no longer be resolved from Kotlin source

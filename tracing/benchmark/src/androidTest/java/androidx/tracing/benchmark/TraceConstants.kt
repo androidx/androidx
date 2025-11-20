@@ -18,7 +18,8 @@ package androidx.tracing.benchmark
 
 import java.util.UUID
 
+const val CATEGORY = "category"
 const val BASIC_STRING = "work"
-const val PROCESS_NAME = "process"
 
+const val PROCESS_NAME = "process"
 val LARGE_STRING_POOL = Array(50_000) { UUID.randomUUID().toString() }

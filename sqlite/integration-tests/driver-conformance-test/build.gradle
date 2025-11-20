@@ -23,42 +23,92 @@
  */
 
 
-import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.sqlite.driver.test"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
+apply(from: "GenerateLoadableExtensionSource.groovy")
+
+configurations {
+    // Configuration for resolving SQLite sources from sqlite-bundled.
+    register("sqliteSources") {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "sqlite-amalgamation"))
         }
     }
+}
+
+dependencies {
+    sqliteSources(project(":sqlite:sqlite-bundled"))
+}
+
+androidXMultiplatform {
+    def nativeTargets = [
+            KonanTarget.ANDROID_ARM32,
+            KonanTarget.ANDROID_ARM64,
+            KonanTarget.ANDROID_X64,
+            KonanTarget.ANDROID_X86,
+            KonanTarget.MACOS_ARM64,
+            KonanTarget.MACOS_X64,
+            KonanTarget.MINGW_X64,
+            KonanTarget.LINUX_X64,
+            KonanTarget.LINUX_ARM64,
+    ].collect { it.INSTANCE }
+
+    // Define C compilations of a SQLite loadable extension used for testing
+    // WARNING: If the name of the compilation changes, then also updates the `LoadableExtension`
+    // implementations in the various platform source sets.
+    // TODO(b/433546325): Expose or generate to remove hardcoded names.
+    def extensionCompilation = createNativeCompilation("sqliteExtension") {
+        configureEachTarget { nativeCompilation ->
+            // add searching for sqlite3ext.h from sqlite sources
+            nativeCompilation.includes.from(
+                    configurations.named("sqliteSources")
+            )
+            // add extension sources
+            nativeCompilation.sources.from(
+                    file("src/commonMain/cpp/sqlite_extension.cpp")
+            )
+        }
+        configureTargets(nativeTargets)
+    }
+
+    androidLibrary {
+        namespace = "androidx.sqlite.driver.test"
+        addNativeLibrariesToJniLibs(it, extensionCompilation)
+        // b/435705223
+        packaging.jniLibs.useLegacyPackaging = true
+    }
     ios()
-    jvm()
+    jvm() {
+        addNativeLibrariesToResources(it, extensionCompilation)
+    }
     linux()
     mac()
+    tvos()
+    watchos()
 
     sourceSets {
+        commonMain {
+            dependencies {
+            }
+        }
         commonTest {
             dependencies {
                 implementation(project(":sqlite:sqlite"))
                 implementation(project(":sqlite:sqlite-bundled"))
-                implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":kruth:kruth"))
             }
         }
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-framework"))
@@ -79,20 +129,45 @@ androidXMultiplatform {
                 implementation(project(":sqlite:sqlite-framework"))
             }
         }
+        iosTest {
+            dependsOn(nativeTest)
+        }
+        nonIosNativeTest {
+            dependsOn(nativeTest)
+        }
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
+                    if (target.konanTarget.family == Family.IOS) {
+                            dependsOn(iosTest)
+                    } else {
+                            dependsOn(nonIosNativeTest)
+                    }
+                }
+
+                // Configure the native SQLite text extension,
+                // see GenerateLoadableExtensionSource.groovy impl
+                if (extensionCompilation.canCompileOnCurrentHost(target.konanTarget)) {
+                    extensionCompilation.configureTarget(target.konanTarget)
+                    configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
                 }
             }
         }
     }
 }
 
+afterEvaluate {
+    // This project has commonTest/ sources, but none of these contain actual tests. This means that
+    // testAndroidHostTest will attempt to run as it has sources, but there will be no tests to run.
+    // Starting Gradle 9.0.0 this is an error, hence we disable this task here.
+    tasks.named("testAndroidHostTest") { it.enabled = false }
+}
 
 androidx {
     name = "SQLite Driver Coformance Base Tests"
     inceptionYear = "2023"
     description = "SQLite Kotlin driver coformance base tests"
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    deviceTests {
+        enableAlsoRunOn16KbPageSizeDevices = true
+    }
 }

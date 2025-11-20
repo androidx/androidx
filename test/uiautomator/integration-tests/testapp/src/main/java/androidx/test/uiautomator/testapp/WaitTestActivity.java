@@ -16,14 +16,13 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
 
 import org.jspecify.annotations.Nullable;
 
-public class WaitTestActivity extends Activity {
+public class WaitTestActivity extends TestActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

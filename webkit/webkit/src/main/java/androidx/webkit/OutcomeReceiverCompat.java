@@ -16,7 +16,7 @@
 
 package androidx.webkit;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Callback interface intended for use when an asynchronous operation may result in a failure.

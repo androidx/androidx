@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSharedTransitionApi::class)
-
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,7 +59,7 @@ fun TextSharedBoundsExperiments() {
     SharedTransitionLayout(
         Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) {
                 isHorizontal = !isHorizontal
             }
@@ -75,13 +72,13 @@ fun TextSharedBoundsExperiments() {
                 .aspectRatio(1f)
                 .shadow(10.dp, RoundedCornerShape(10), clip = false)
                 .background(color = Color.White, shape = RoundedCornerShape(10))
-                .clip(RoundedCornerShape(10))
+                .clip(RoundedCornerShape(10)),
         ) { isHorizontal ->
             if (isHorizontal) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
                 ) {
                     Text(
                         "Bold",
@@ -89,10 +86,10 @@ fun TextSharedBoundsExperiments() {
                         modifier =
                             Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Bold"),
-                                this@AnimatedContent
+                                this@AnimatedContent,
                             ),
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xff4f6d7a)
+                        color = Color(0xff4f6d7a),
                     )
                     Text(
                         "Italic",
@@ -100,10 +97,10 @@ fun TextSharedBoundsExperiments() {
                         modifier =
                             Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Italic"),
-                                this@AnimatedContent
+                                this@AnimatedContent,
                             ),
                         fontStyle = FontStyle.Italic,
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                     Text(
                         "Normal",
@@ -112,15 +109,15 @@ fun TextSharedBoundsExperiments() {
                         modifier =
                             Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Normal"),
-                                this@AnimatedContent
-                            )
+                                this@AnimatedContent,
+                            ),
                     )
                 }
             } else {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceAround
+                    verticalArrangement = Arrangement.SpaceAround,
                 ) {
                     Text(
                         "Normal",
@@ -132,7 +129,7 @@ fun TextSharedBoundsExperiments() {
                                     rememberSharedContentState(key = "Normal"),
                                     this@AnimatedContent,
                                 ),
-                        color = Color(0xffE85D04)
+                        color = Color(0xffE85D04),
                     )
                     Text(
                         "Bold",
@@ -144,8 +141,8 @@ fun TextSharedBoundsExperiments() {
                                 .wrapContentWidth(align = Alignment.CenterHorizontally)
                                 .sharedBounds(
                                     rememberSharedContentState(key = "Bold"),
-                                    this@AnimatedContent
-                                )
+                                    this@AnimatedContent,
+                                ),
                     )
                     Text(
                         "Italic",
@@ -154,9 +151,9 @@ fun TextSharedBoundsExperiments() {
                         modifier =
                             Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Italic"),
-                                this@AnimatedContent
+                                this@AnimatedContent,
                             ),
-                        color = Color(0xffFFBA08)
+                        color = Color(0xffFFBA08),
                     )
                 }
             }

@@ -18,8 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.core.impl.CaptureBundle;
 
 import org.junit.Test;
@@ -30,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class CaptureBundlesTest {
     @Test
     public void singleDefaultBundleSizeCheck() {

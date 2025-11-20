@@ -18,6 +18,7 @@ package androidx.benchmark.macro.junit4
 
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
+import androidx.benchmark.macro.BaselineProfileConfig
 import androidx.benchmark.macro.BaselineProfileResult
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.collect
@@ -88,7 +89,7 @@ class BaselineProfileRule : TestRule {
         includeInStartupProfile: Boolean = false,
         strictStability: Boolean = false,
         filterPredicate: ((String) -> Boolean) = { true },
-        profileBlock: MacrobenchmarkScope.() -> Unit
+        profileBlock: MacrobenchmarkScope.() -> Unit,
     ) {
         collect(
             uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
@@ -98,7 +99,7 @@ class BaselineProfileRule : TestRule {
             includeInStartupProfile = includeInStartupProfile,
             strictStability = strictStability,
             filterPredicate = filterPredicate,
-            profileBlock = profileBlock
+            profileBlock = profileBlock,
         )
     }
 
@@ -136,7 +137,7 @@ class BaselineProfileRule : TestRule {
         includeInStartupProfile: Boolean = false,
         strictStability: Boolean = false,
         filterPredicate: ((String) -> Boolean) = { true },
-        profileBlock: MacrobenchmarkScope.() -> Unit
+        profileBlock: MacrobenchmarkScope.() -> Unit,
     ): BaselineProfileResult {
         return collect(
             uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
@@ -146,7 +147,29 @@ class BaselineProfileRule : TestRule {
             includeInStartupProfile = includeInStartupProfile,
             strictStability = strictStability,
             filterPredicate = filterPredicate,
-            profileBlock = profileBlock
+            profileBlock = profileBlock,
+        )
+    }
+
+    /**
+     * Collects baseline profiles for a critical user journey, while ensuring that the generated
+     * profiles are stable.
+     *
+     * @param config which is used to manage the collection of Baseline Profiles.
+     * @return [BaselineProfileResult] which can be used to determine the absolute paths of the
+     *   collected baseline profiles.
+     * @see [BaselineProfileConfig.Builder] to construct an instance of [BaselineProfileConfig].
+     */
+    public fun collectWithResults(config: BaselineProfileConfig): BaselineProfileResult {
+        return collect(
+            uniqueName = config.getOutputFilePrefix() ?: currentDescription.toUniqueName(),
+            packageName = config.getPackageName(),
+            stableIterations = config.getStableIterations(),
+            maxIterations = config.getMaxIterations(),
+            includeInStartupProfile = config.isIncludeInStartupProfile(),
+            strictStability = config.isStrictStability(),
+            filterPredicate = config.getFilterPredicate(),
+            profileBlock = config.getProfileBlock(),
         )
     }
 

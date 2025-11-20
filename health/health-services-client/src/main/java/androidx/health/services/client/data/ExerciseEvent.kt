@@ -36,7 +36,7 @@ public abstract class ExerciseEvent @RestrictTo(Scope.LIBRARY_GROUP) constructor
                         Duration.ofMillis(proto.exerciseEventData.golfShotData.durationFromBootMs),
                         GolfShotEvent.GolfShotSwingType.fromProto(
                             proto.exerciseEventData.golfShotData.golfShotSwingType
-                        )
+                        ),
                     )
                 else -> throw IllegalStateException("Exercise event not set on $proto")
             }

@@ -16,13 +16,14 @@
 
 package androidx.car.app.sample.navigation.common.model;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.navigation.model.Destination;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Container for scripting navigation instructions.

@@ -80,8 +80,8 @@ class AppSetIdManagerFuturesTest {
             "maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 4,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
         assertThat(AppSetIdManagerFutures.from(mContext)).isEqualTo(null)
     }
@@ -92,8 +92,8 @@ class AppSetIdManagerFuturesTest {
             "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 4,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val appSetIdManager = mockAppSetIdManager(mContext, mValidAdExtServicesSdkExtVersion)
@@ -116,7 +116,7 @@ class AppSetIdManagerFuturesTest {
 
         private fun mockAppSetIdManager(
             spyContext: Context,
-            isExtServices: Boolean
+            isExtServices: Boolean,
         ): android.adservices.appsetid.AppSetIdManager {
             val appSetIdManager = mock(android.adservices.appsetid.AppSetIdManager::class.java)
             // mock the .get() method if using extServices version, otherwise mock getSystemService
@@ -139,7 +139,7 @@ class AppSetIdManagerFuturesTest {
             val appSetId =
                 android.adservices.appsetid.AppSetId(
                     "1234",
-                    android.adservices.appsetid.AppSetId.SCOPE_APP
+                    android.adservices.appsetid.AppSetId.SCOPE_APP,
                 )
             val answer = { args: InvocationOnMock ->
                 assertNotEquals(Looper.getMainLooper(), Looper.myLooper())

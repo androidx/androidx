@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.testing
 
+import androidx.annotation.RestrictTo
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
@@ -26,6 +27,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue
  * An instance of [SubspaceSemanticsNodeInteraction] can be obtained from [onSubspaceNode] and
  * convenience methods that use a specific filter.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteraction
 internal constructor(
     private val testContext: SubspaceTestContext,
@@ -109,7 +111,7 @@ internal constructor(
         val result =
             fetchSemanticsNodes(
                 atLeastOneRootRequired = true,
-                errorMessageOnFail = finalErrorMessage
+                errorMessageOnFail = finalErrorMessage,
             )
         if (result.selectedNodes.count() != 1) {
             if (result.customErrorOnNoMatch != null) {
@@ -132,6 +134,7 @@ internal constructor(
  * [onAllSubspaceNodes] and convenience methods that use a specific filter, such as
  * [onAllNodesWithText].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteractionCollection
 private constructor(
     internal val testContext: SubspaceTestContext,
@@ -165,7 +168,7 @@ private constructor(
             return selector
                 .map(
                     testContext.getAllSemanticsNodes(atLeastOneRootRequired),
-                    errorMessageOnFail.orEmpty()
+                    errorMessageOnFail.orEmpty(),
                 )
                 .apply { nodeIds = selectedNodes.map { it.semanticsId }.toList() }
                 .selectedNodes

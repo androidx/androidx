@@ -66,7 +66,7 @@ internal object AggregatorUtils {
         return max(
             0.0,
             (minOf(record.endTime, rangeEndTime) - maxOf(record.startTime, rangeStartTime)) /
-                record.duration
+                record.duration,
         )
     }
 

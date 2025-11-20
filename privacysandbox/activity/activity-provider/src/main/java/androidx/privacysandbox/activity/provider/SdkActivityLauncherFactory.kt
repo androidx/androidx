@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.activity.provider
 
@@ -26,7 +27,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-object SdkActivityLauncherFactory {
+@Deprecated("This library is no longer supported.")
+public object SdkActivityLauncherFactory {
 
     /**
      * Creates a [SdkActivityLauncher] using the given [launcherInfo] Bundle.
@@ -37,7 +39,7 @@ object SdkActivityLauncherFactory {
      * a key, [IllegalArgumentException] is thrown otherwise.
      */
     @JvmStatic
-    fun fromLauncherInfo(launcherInfo: Bundle): SdkActivityLauncher {
+    public fun fromLauncherInfo(launcherInfo: Bundle): SdkActivityLauncher {
         val remote: ISdkActivityLauncher? =
             ISdkActivityLauncher.Stub.asInterface(
                 launcherInfo.getBinder(SDK_ACTIVITY_LAUNCHER_BINDER_KEY)
@@ -64,7 +66,7 @@ object SdkActivityLauncherFactory {
                         override fun onLaunchError(message: String?) {
                             it.resumeWithException(RuntimeException(message))
                         }
-                    }
+                    },
                 )
             }
     }

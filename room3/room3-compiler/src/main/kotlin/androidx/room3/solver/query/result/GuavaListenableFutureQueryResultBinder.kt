@@ -1,0 +1,89 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.solver.query.result
+
+import androidx.room3.compiler.codegen.CodeLanguage
+import androidx.room3.compiler.codegen.XCodeBlock
+import androidx.room3.compiler.codegen.XCodeBlock.Builder.Companion.applyTo
+import androidx.room3.compiler.codegen.XPropertySpec
+import androidx.room3.compiler.codegen.XTypeName
+import androidx.room3.compiler.processing.XType
+import androidx.room3.ext.InvokeWithLambdaParameter
+import androidx.room3.ext.LambdaSpec
+import androidx.room3.ext.RoomGuavaMemberNames.GUAVA_ROOM_CREATE_LISTENABLE_FUTURE
+import androidx.room3.ext.SQLiteDriverTypeNames
+import androidx.room3.solver.CodeGenScope
+
+/**
+ * A ResultBinder that emits a ListenableFuture<T> where T is the input {@code typeArg}.
+ *
+ * <p>The Future runs on the background thread Executor.
+ */
+class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryResultAdapter?) :
+    BaseObservableQueryResultBinder(adapter) {
+
+    override fun convertAndReturn(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: (CodeGenScope.(String) -> Unit)?,
+        returnTypeName: XTypeName,
+        inTransaction: Boolean,
+        scope: CodeGenScope,
+    ) {
+        val connectionVar = scope.getTmpVar("_connection")
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ true, inTransaction),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = typeArg.asTypeName(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val statementVar = scope.getTmpVar("_stmt")
+                            addLocalVal(
+                                statementVar,
+                                SQLiteDriverTypeNames.STATEMENT,
+                                "%L.prepare(%L)",
+                                connectionVar,
+                                sqlQueryVar,
+                            )
+                            beginControlFlow("try")
+                            bindStatement?.invoke(scope, statementVar)
+                            val outVar = scope.getTmpVar("_result")
+                            adapter?.convert(outVar, statementVar, scope)
+                            applyTo { language ->
+                                when (language) {
+                                    CodeLanguage.JAVA -> addStatement("return %L", outVar)
+                                    CodeLanguage.KOTLIN -> addStatement("%L", outVar)
+                                }
+                            }
+                            nextControlFlow("finally")
+                            addStatement("%L.close()", statementVar)
+                            endControlFlow()
+                        }
+                    },
+            )
+        scope.builder.add("return %L", performBlock)
+    }
+}

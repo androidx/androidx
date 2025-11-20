@@ -41,7 +41,6 @@ import android.widget.CheckBox
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.ToggleButton
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -62,7 +61,6 @@ import kotlin.math.max
 import kotlin.math.min
 
 @SuppressLint("InlinedApi")
-@RequiresApi(21)
 class WindowInsetsControllerPlayground : Activity() {
 
     private val TAG: String = "WindowInsets_Playground"
@@ -105,7 +103,7 @@ class WindowInsetsControllerPlayground : Activity() {
         Log.e(
             TAG,
             "FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS: " +
-                (window.attributes.flags and FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS != 0)
+                (window.attributes.flags and FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS != 0),
         )
 
         fitSystemWindow.apply {
@@ -226,7 +224,7 @@ class WindowInsetsControllerPlayground : Activity() {
                     object : WindowInsetsAnimationControlListenerCompat {
                         override fun onReady(
                             controller: WindowInsetsAnimationControllerCompat,
-                            types: Int
+                            types: Int,
                         ) {
                             val anim = ValueAnimator.ofFloat(0f, 1f)
                             anim.duration = 1500
@@ -234,7 +232,7 @@ class WindowInsetsControllerPlayground : Activity() {
                                 controller.setInsetsAndAlpha(
                                     controller.shownStateInsets,
                                     animation.animatedValue as Float,
-                                    anim.animatedFraction
+                                    anim.animatedFraction,
                                 )
                             }
                             anim.addListener(
@@ -255,7 +253,7 @@ class WindowInsetsControllerPlayground : Activity() {
                         override fun onFinished(
                             controller: WindowInsetsAnimationControllerCompat
                         ) {}
-                    }
+                    },
                 )
         }
     }
@@ -280,14 +278,14 @@ class WindowInsetsControllerPlayground : Activity() {
 
             override fun onProgress(
                 insets: WindowInsetsCompat,
-                runningAnimations: List<WindowInsetsAnimationCompat>
+                runningAnimations: List<WindowInsetsAnimationCompat>,
             ): WindowInsetsCompat {
                 val systemInsets = insets.getInsets(systemBars())
                 mRoot.setPadding(
                     systemInsets.left,
                     systemInsets.top,
                     systemInsets.right,
-                    systemInsets.bottom
+                    systemInsets.bottom,
                 )
                 mTransitions.forEach { it.onProgress(insets) }
                 return insets
@@ -295,7 +293,7 @@ class WindowInsetsControllerPlayground : Activity() {
 
             override fun onStart(
                 animation: WindowInsetsAnimationCompat,
-                bounds: WindowInsetsAnimationCompat.BoundsCompat
+                bounds: WindowInsetsAnimationCompat.BoundsCompat,
             ): WindowInsetsAnimationCompat.BoundsCompat {
                 mTransitions.forEach { obj -> obj.onStart() }
                 return bounds
@@ -328,7 +326,7 @@ class WindowInsetsControllerPlayground : Activity() {
         arrayOf(
                 "STABLE" to View.SYSTEM_UI_FLAG_LAYOUT_STABLE,
                 "STAT" to View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN,
-                "NAV" to View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                "NAV" to View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION,
             )
             .forEach { (name, flag) ->
                 buttonsRow2.addView(
@@ -390,7 +388,7 @@ class WindowInsetsControllerPlayground : Activity() {
                                 object : WindowInsetsAnimationControlListenerCompat {
                                     override fun onReady(
                                         controller: WindowInsetsAnimationControllerCompat,
-                                        types: Int
+                                        types: Int,
                                     ) {
                                         if (mCurrentRequest === this) {
                                             mAnimationController = controller
@@ -420,7 +418,7 @@ class WindowInsetsControllerPlayground : Activity() {
                                     1000,
                                     LinearInterpolator(),
                                     null /* cancellationSignal */,
-                                    listener
+                                    listener,
                                 )
                         }
                     }
@@ -451,7 +449,7 @@ class WindowInsetsControllerPlayground : Activity() {
                 mAnimationController!!.setInsetsAndAlpha(
                     Insets.of(0, 0, 0, inset),
                     1f,
-                    (inset - start) / (end - start).toFloat()
+                    (inset - start) / (end - start).toFloat(),
                 )
             }
         }
@@ -464,14 +462,14 @@ class WindowInsetsControllerPlayground : Activity() {
                 "IME" to ime(),
                 "Navigation" to navigationBars(),
                 "Status" to statusBars(),
-                "All" to (systemBars() or ime())
+                "All" to (systemBars() or ime()),
             )
         findViewById<Spinner>(R.id.spn_insets_type).apply {
             adapter =
                 ArrayAdapter(
                     context,
                     android.R.layout.simple_spinner_dropdown_item,
-                    types.keys.toTypedArray()
+                    types.keys.toTypedArray(),
                 )
             onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -481,7 +479,7 @@ class WindowInsetsControllerPlayground : Activity() {
                         parent: AdapterView<*>?,
                         view: View?,
                         position: Int,
-                        id: Long
+                        id: Long,
                     ) {
                         if (parent != null) {
                             currentType = types[parent.selectedItem]
@@ -504,7 +502,7 @@ class WindowInsetsControllerPlayground : Activity() {
                 ArrayAdapter(
                     context,
                     android.R.layout.simple_spinner_dropdown_item,
-                    types.keys.toTypedArray()
+                    types.keys.toTypedArray(),
                 )
             onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {
@@ -514,7 +512,7 @@ class WindowInsetsControllerPlayground : Activity() {
                         parent: AdapterView<*>?,
                         view: View?,
                         position: Int,
-                        id: Long
+                        id: Long,
                     ) {
                         if (parent != null && view != null) {
                             WindowCompat.getInsetsController(window, view).systemBarsBehavior =

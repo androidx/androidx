@@ -71,8 +71,8 @@ class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScan
                 implementation =
                     Implementation(
                         EnsureInitializerMetadataDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST),
+                    ),
             )
     }
 

@@ -37,7 +37,7 @@ import androidx.wear.protolayout.types.argb
  */
 public fun dynamicColorScheme(
     context: Context,
-    defaultColorScheme: ColorScheme = ColorScheme()
+    defaultColorScheme: ColorScheme = ColorScheme(),
 ): ColorScheme {
     if (
         !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
@@ -47,7 +47,6 @@ public fun dynamicColorScheme(
     }
     // From
     // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/res/res/values/public-final.xml;l=3500;drc=2a8b6a18e0b7f696013ffede0cc0ab1904864d09
-    // TODO: b/340192801 - Confirm once it's fully supported in system.
     return ColorScheme(
         primary = getLayoutColor(context, android.R.color.system_primary_fixed),
         primaryDim = getLayoutColor(context, android.R.color.system_primary_fixed_dim),

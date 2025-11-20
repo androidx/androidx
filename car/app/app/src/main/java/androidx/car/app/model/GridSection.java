@@ -45,7 +45,8 @@ public final class GridSection extends Section<GridItem> {
             value = {
                     ITEM_SIZE_SMALL,
                     ITEM_SIZE_MEDIUM,
-                    ITEM_SIZE_LARGE
+                    ITEM_SIZE_LARGE,
+                    ITEM_SIZE_EXTRA_LARGE,
             })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -63,6 +64,10 @@ public final class GridSection extends Section<GridItem> {
     /** Renders the items within the section in a large format. */
     @ItemSize
     public static final int ITEM_SIZE_LARGE = 3;
+
+    /** Renders the items within the section in an extra large sized format. */
+    @ItemSize
+    public static final int ITEM_SIZE_EXTRA_LARGE = 4;
 
     /** Defines the possible shapes of the images shown on the grid items within a grid section. */
     @IntDef(

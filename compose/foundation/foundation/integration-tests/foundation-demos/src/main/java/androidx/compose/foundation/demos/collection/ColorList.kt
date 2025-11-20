@@ -162,7 +162,7 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: Color) -> R
+        operation: (index: Int, acc: R, element: Color) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldIndexed(initial) { index, acc, element ->
@@ -190,7 +190,7 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: Color, acc: R) -> R
+        operation: (index: Int, element: Color, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRightIndexed(initial) { index, element, acc ->
@@ -266,7 +266,7 @@ internal value class ColorList(val list: LongList) {
      */
     public inline fun elementAtOrElse(
         @IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> Color
+        defaultValue: (index: Int) -> Color,
     ): Color = Color(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
     /** Returns the index of [element] in the [ColorList] or `-1` if [element] is not there. */
@@ -458,7 +458,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: Color) -> R
+        operation: (index: Int, acc: R, element: Color) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldIndexed(initial) { index, acc, element ->
@@ -486,7 +486,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: Color, acc: R) -> R
+        operation: (index: Int, element: Color, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRightIndexed(initial) { index, element, acc ->
@@ -562,7 +562,7 @@ internal value class MutableColorList(val list: MutableLongList) {
      */
     public inline fun elementAtOrElse(
         @IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> Color
+        defaultValue: (index: Int) -> Color,
     ): Color = Color(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
     /** Returns the index of [element] in the [ColorList] or `-1` if [element] is not there. */
@@ -821,7 +821,7 @@ internal inline fun mutableColorListOf(element1: Color, element2: Color): Mutabl
 internal inline fun mutableColorListOf(
     element1: Color,
     element2: Color,
-    element3: Color
+    element3: Color,
 ): MutableColorList =
     MutableColorList(
         mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
@@ -835,9 +835,7 @@ internal inline fun mutableColorListOf(
  *
  * @param builderAction Lambda in which the [MutableColorList] can be populated.
  */
-internal inline fun buildColorList(
-    builderAction: MutableColorList.() -> Unit,
-): ColorList {
+internal inline fun buildColorList(builderAction: MutableColorList.() -> Unit): ColorList {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableColorList().apply(builderAction).asColorList()
 }

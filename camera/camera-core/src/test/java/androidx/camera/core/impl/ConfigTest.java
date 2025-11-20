@@ -24,8 +24,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELE
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionFilter;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
@@ -39,7 +37,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class ConfigTest {
     private static final String OPTION_ID = "OptionID";
     private static final String KEY = "Key";

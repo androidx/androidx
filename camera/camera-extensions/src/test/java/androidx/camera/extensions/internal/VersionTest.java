@@ -18,11 +18,8 @@ package androidx.camera.extensions.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SdkSuppress;
-
 import org.junit.Test;
 
-@SdkSuppress(minSdkVersion = 21)
 public class VersionTest {
 
     @Test

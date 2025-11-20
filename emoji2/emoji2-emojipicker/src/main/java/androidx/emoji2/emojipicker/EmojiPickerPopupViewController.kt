@@ -34,14 +34,14 @@ import kotlin.math.roundToInt
 internal class EmojiPickerPopupViewController(
     private val context: Context,
     private val emojiPickerPopupView: EmojiPickerPopupView,
-    private val clickedEmojiView: View
+    private val clickedEmojiView: View,
 ) {
     private val popupWindow: PopupWindow =
         PopupWindow(
             emojiPickerPopupView,
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT,
-            /* focusable= */ false
+            /* focusable= */ false,
         )
 
     fun show() {
@@ -69,7 +69,7 @@ internal class EmojiPickerPopupViewController(
                 Toast.makeText(
                         context,
                         "Don't use EmojiPickerView inside a Popup",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG,
                     )
                     .show()
             }

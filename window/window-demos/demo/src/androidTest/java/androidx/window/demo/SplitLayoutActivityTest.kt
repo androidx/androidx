@@ -144,7 +144,7 @@ class SplitLayoutActivityTest {
         feature: FoldingFeature?,
         layout: ViewGroup?,
         startView: View?,
-        endView: View?
+        endView: View?,
     ): Boolean {
         if (feature == null || layout == null || startView == null || endView == null) {
             return false
@@ -164,7 +164,7 @@ class SplitLayoutActivityTest {
                         paddingLeft,
                         featureBounds.bottom,
                         paddingLeft + paddedWidth,
-                        paddingTop + paddedHeight
+                        paddingTop + paddedHeight,
                     )
 
                 if (
@@ -181,7 +181,7 @@ class SplitLayoutActivityTest {
                         featureBounds.right,
                         paddingTop,
                         paddingLeft + paddedWidth,
-                        paddingTop + paddedHeight
+                        paddingTop + paddedHeight,
                     )
 
                 if (

@@ -146,13 +146,13 @@ private fun ChangeFilterDemo() {
                 onCheckedChange = {
                     filter =
                         if (filter == null) InputTransformation.allCaps(Locale.current) else null
-                }
+                },
             )
         }
         BasicTextField(
             state = state,
             inputTransformation = filter,
-            modifier = demoTextFieldModifiers
+            modifier = demoTextFieldModifiers,
         )
     }
 }

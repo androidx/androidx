@@ -75,6 +75,7 @@ import com.example.androidx.mediarouting.player.Player;
 import com.example.androidx.mediarouting.player.RemotePlayer;
 import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.providers.WrapperMediaRouteProvider;
+import com.example.androidx.mediarouting.services.WrapperMediaRouteProviderService;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
@@ -552,7 +553,8 @@ public class MainActivity extends AppCompatActivity {
                         .setTransferToLocalEnabled(
                                 true); // Phone speaker will be shown when casting.
         boolean wrapperRouteProviderEnabled =
-                SettingsPreferenceFragment.isWrapperRouteProviderEnabled(getApplicationContext());
+                SettingsActivity.isServiceEnabled(
+                        getApplicationContext(), WrapperMediaRouteProviderService.class);
         routerParams.setMediaTransferRestrictedToSelfProviders(wrapperRouteProviderEnabled);
         return routerParams.build();
     }

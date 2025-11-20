@@ -25,7 +25,7 @@ import java.io.File
  * Helper class to parse the settings.gradle file from the main build and extract a list of
  * projects.
  *
- * This is used by Playground projects too, so if it is changed please run `cd room && ./gradlew
+ * This is used by Playground projects too, so if it is changed please run `cd room3 && ./gradlew
  * tasks`
  */
 object SettingsParser {
@@ -36,19 +36,15 @@ object SettingsParser {
     private val includeProjectPattern =
         Regex(
                 """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
-                setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
+                setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE),
             )
             .toPattern()
 
-    fun findProjects(
-        settingsFile: File,
-    ): List<IncludedProject> {
+    fun findProjects(settingsFile: File): List<IncludedProject> {
         return findProjects(fileContents = settingsFile.readText(Charsets.UTF_8))
     }
 
-    fun findProjects(
-        fileContents: String,
-    ): List<IncludedProject> {
+    fun findProjects(fileContents: String): List<IncludedProject> {
         val matcher = includeProjectPattern.matcher(fileContents)
         val includedProjects = mutableListOf<IncludedProject>()
         while (matcher.find()) {

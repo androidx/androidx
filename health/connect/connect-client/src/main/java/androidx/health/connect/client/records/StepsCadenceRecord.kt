@@ -102,10 +102,7 @@ class StepsCadenceRecord(
      * @param time The point in time when the measurement was taken.
      * @param rate Rate in steps per minute. Valid range: 0-10000.
      */
-    class Sample(
-        val time: Instant,
-        @FloatRange(from = 0.0, to = 10_000.0) val rate: Double,
-    ) {
+    class Sample(val time: Instant, @FloatRange(from = 0.0, to = 10_000.0) val rate: Double) {
 
         init {
             requireNonNegative(value = rate, name = "rate")

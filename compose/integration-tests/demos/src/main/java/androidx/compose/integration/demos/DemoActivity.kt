@@ -31,6 +31,7 @@ import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsEffect
 import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsSetting
 import androidx.compose.integration.demos.settings.DynamicThemeSetting
 import androidx.compose.integration.demos.settings.LayoutDirectionSetting
+import androidx.compose.integration.demos.settings.MovableContentOfEverythingSetting
 import androidx.compose.integration.demos.settings.SoftInputModeEffect
 import androidx.compose.integration.demos.settings.SoftInputModeSetting
 import androidx.compose.material3.MaterialTheme
@@ -81,55 +82,62 @@ class DemoActivity : FragmentActivity() {
         ComposeView(this)
             .also { setContentView(it) }
             .setContent {
-                hostView = LocalView.current
-                focusManager = LocalFocusManager.current
-                val activityStarter =
-                    fun(demo: ActivityDemo<*>) {
-                        startActivity(Intent(this, demo.activityClass.java))
-                    }
-                val navigator =
-                    rememberSaveable(
-                        saver = Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
-                    ) {
-                        Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
-                    }
-
-                SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
-                DecorFitsSystemWindowsEffect(
-                    DecorFitsSystemWindowsSetting.asState().value,
-                    hostView,
-                    window
-                )
-
-                CompositionLocalProvider(
-                    LocalLayoutDirection provides LayoutDirectionSetting.asState().value,
+                MovableContentOfEverythingSetting(
+                    MovableContentOfEverythingSetting.asState().value
                 ) {
-                    DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
-                        val filteringMode =
-                            rememberSaveable(saver = FilterMode.Saver(onBackPressedDispatcher)) {
-                                FilterMode(onBackPressedDispatcher)
-                            }
-                        val onStartFiltering = { filteringMode.isFiltering = true }
-                        val onEndFiltering = { filteringMode.isFiltering = false }
-                        DemoApp(
-                            currentDemo = navigator.currentDemo,
-                            backStackTitle = navigator.backStackTitle,
-                            isFiltering = filteringMode.isFiltering,
-                            onStartFiltering = onStartFiltering,
-                            onEndFiltering = onEndFiltering,
-                            onNavigateToDemo = { demo ->
-                                if (filteringMode.isFiltering) {
-                                    onEndFiltering()
-                                    navigator.popAll()
+                    hostView = LocalView.current
+                    focusManager = LocalFocusManager.current
+                    val activityStarter =
+                        fun(demo: ActivityDemo<*>) {
+                            startActivity(Intent(this, demo.activityClass.java))
+                        }
+                    val navigator =
+                        rememberSaveable(
+                            saver =
+                                Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
+                        ) {
+                            Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
+                        }
+
+                    SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
+                    DecorFitsSystemWindowsEffect(
+                        DecorFitsSystemWindowsSetting.asState().value,
+                        hostView,
+                        window,
+                    )
+
+                    CompositionLocalProvider(
+                        LocalLayoutDirection provides LayoutDirectionSetting.asState().value
+                    ) {
+                        DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
+                            val filteringMode =
+                                rememberSaveable(
+                                    saver = FilterMode.Saver(onBackPressedDispatcher)
+                                ) {
+                                    FilterMode(onBackPressedDispatcher)
                                 }
-                                navigator.navigateTo(demo)
-                            },
-                            canNavigateUp = !navigator.isRoot,
-                            onNavigateUp = { onBackPressed() },
-                            launchSettings = {
-                                startActivity(Intent(this, DemoSettingsActivity::class.java))
-                            }
-                        )
+                            val onStartFiltering = { filteringMode.isFiltering = true }
+                            val onEndFiltering = { filteringMode.isFiltering = false }
+                            DemoApp(
+                                currentDemo = navigator.currentDemo,
+                                backStackTitle = navigator.backStackTitle,
+                                isFiltering = filteringMode.isFiltering,
+                                onStartFiltering = onStartFiltering,
+                                onEndFiltering = onEndFiltering,
+                                onNavigateToDemo = { demo ->
+                                    if (filteringMode.isFiltering) {
+                                        onEndFiltering()
+                                        navigator.popAll()
+                                    }
+                                    navigator.navigateTo(demo)
+                                },
+                                canNavigateUp = !navigator.isRoot,
+                                onNavigateUp = { onBackPressed() },
+                                launchSettings = {
+                                    startActivity(Intent(this, DemoSettingsActivity::class.java))
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -145,7 +153,7 @@ private fun DemoTheme(
     isDynamicThemeOn: Boolean,
     view: View,
     window: Window,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val isDarkMode = isSystemInDarkTheme()
 
@@ -175,12 +183,12 @@ private constructor(
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     private val rootDemo: Demo,
     initialDemo: Demo,
-    private val backStack: MutableList<Demo>
+    private val backStack: MutableList<Demo>,
 ) {
     constructor(
         rootDemo: Demo,
         backDispatcher: OnBackPressedDispatcher,
-        launchActivityDemo: (ActivityDemo<*>) -> Unit
+        launchActivityDemo: (ActivityDemo<*>) -> Unit,
     ) : this(backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>())
 
     private val onBackPressed =
@@ -232,7 +240,7 @@ private constructor(
         fun Saver(
             rootDemo: Demo,
             backDispatcher: OnBackPressedDispatcher,
-            launchActivityDemo: (ActivityDemo<*>) -> Unit
+            launchActivityDemo: (ActivityDemo<*>) -> Unit,
         ): Saver<Navigator, *> =
             listSaver<Navigator, String>(
                 save = { navigator ->
@@ -246,7 +254,7 @@ private constructor(
                         }
                     val initial = backStack.removeAt(backStack.lastIndex)
                     Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
-                }
+                },
             )
 
         fun findDemo(demo: Demo, title: String): Demo? {
@@ -323,7 +331,7 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
         fun Saver(backDispatcher: OnBackPressedDispatcher) =
             Saver<FilterMode, Boolean>(
                 save = { it.isFiltering },
-                restore = { FilterMode(backDispatcher, it) }
+                restore = { FilterMode(backDispatcher, it) },
             )
     }
 }

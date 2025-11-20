@@ -68,13 +68,13 @@ import kotlinx.coroutines.channels.Channel
 @Deprecated("Unnecessary, MotionLayout remeasures when its content changes.")
 enum class MotionLayoutFlag(@Suppress("UNUSED_PARAMETER") value: Long) {
     Default(0),
-    @Suppress("unused") FullMeasure(1)
+    @Suppress("unused") FullMeasure(1),
 }
 
 enum class MotionLayoutDebugFlags {
     NONE,
     SHOW_ALL,
-    UNKNOWN
+    UNKNOWN,
 }
 
 /**
@@ -135,7 +135,7 @@ inline fun MotionLayout(
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     invalidationStrategy: InvalidationStrategy = InvalidationStrategy.DefaultInvalidationStrategy,
-    crossinline content: @Composable MotionLayoutScope.() -> Unit
+    crossinline content: @Composable MotionLayoutScope.() -> Unit,
 ) {
     /**
      * MutableState used to track content recompositions. It's reassigned at the content's
@@ -178,7 +178,7 @@ inline fun MotionLayout(
         contentTracker = contentTracker,
         compositionSource = compositionSource,
         invalidationStrategy = invalidationStrategy,
-        content = contentDelegate
+        content = contentDelegate,
     )
 }
 
@@ -285,7 +285,7 @@ inline fun MotionLayout(
         contentTracker = contentTracker,
         compositionSource = compositionSource,
         invalidationStrategy = invalidationStrategy,
-        content = contentDelegate
+        content = contentDelegate,
     )
 }
 
@@ -371,7 +371,7 @@ inline fun MotionLayout(
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     invalidationStrategy: InvalidationStrategy = InvalidationStrategy.DefaultInvalidationStrategy,
-    @Suppress("HiddenTypeParameter") crossinline content: @Composable (MotionLayoutScope.() -> Unit)
+    @Suppress("HiddenTypeParameter") crossinline content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     /**
      * MutableState used to track content recompositions. It's reassigned at the content's
@@ -412,7 +412,7 @@ inline fun MotionLayout(
         contentTracker = contentTracker,
         compositionSource = compositionSource,
         invalidationStrategy = invalidationStrategy,
-        content = contentDelegate
+        content = contentDelegate,
     )
 }
 
@@ -430,7 +430,7 @@ internal fun MotionLayoutCore(
     contentTracker: MutableState<Unit>,
     compositionSource: Ref<CompositionSource>,
     invalidationStrategy: InvalidationStrategy,
-    @Suppress("HiddenTypeParameter") content: @Composable (MotionLayoutScope.() -> Unit)
+    @Suppress("HiddenTypeParameter") content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     val needsUpdate = remember { mutableLongStateOf(0L) }
 
@@ -503,7 +503,7 @@ internal fun MotionLayoutCore(
         contentTracker = contentTracker,
         compositionSource = compositionSource,
         invalidationStrategy = invalidationStrategy,
-        content = content
+        content = content,
     )
 }
 
@@ -553,7 +553,7 @@ internal fun MotionLayoutCore(
         contentTracker = contentTracker,
         compositionSource = compositionSource,
         invalidationStrategy = invalidationStrategy,
-        content = content
+        content = content,
     )
 }
 
@@ -574,7 +574,7 @@ internal fun MotionLayoutCore(
     contentTracker: MutableState<Unit>,
     compositionSource: Ref<CompositionSource>,
     invalidationStrategy: InvalidationStrategy,
-    @Suppress("HiddenTypeParameter") content: @Composable MotionLayoutScope.() -> Unit
+    @Suppress("HiddenTypeParameter") content: @Composable MotionLayoutScope.() -> Unit,
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
     val transitionImpl = (transition as? TransitionImpl) ?: TransitionImpl.EMPTY
@@ -585,7 +585,7 @@ internal fun MotionLayoutCore(
 
     UpdateWithForcedIfNoUserChange(
         motionProgress = motionProgress,
-        informationReceiver = informationReceiver
+        informationReceiver = informationReceiver,
     )
 
     val density = LocalDensity.current
@@ -599,7 +599,7 @@ internal fun MotionLayoutCore(
             end = end,
             layoutDirection = layoutDirection,
             transition = transitionImpl,
-            progress = motionProgress.floatValue
+            progress = motionProgress.floatValue,
         )
         true // Remember is required to return a non-Unit value
     }
@@ -619,7 +619,7 @@ internal fun MotionLayoutCore(
                     compositionSource.value = CompositionSource.Content
                 }
             },
-            block = invalidationStrategy.onObservedStateChange
+            block = invalidationStrategy.onObservedStateChange,
         )
     }
 
@@ -633,7 +633,7 @@ internal fun MotionLayoutCore(
             motionProgress = motionProgress,
             measurer = measurer,
             optimizationLevel = optimizationLevel,
-            invalidationStrategy = invalidationStrategy
+            invalidationStrategy = invalidationStrategy,
         )
 
     measurer.addLayoutInformationReceiver(informationReceiver)
@@ -666,16 +666,16 @@ internal fun MotionLayoutCore(
                     scaleFactor = forcedScaleFactor,
                     showBounds = doShowBounds,
                     showPaths = doShowPaths,
-                    showKeyPositions = doShowKeyPositions
+                    showKeyPositions = doShowKeyPositions,
                 )
                 .motionPointerInput(
                     key = transition ?: TransitionImpl.EMPTY,
                     motionProgress = motionProgress,
-                    measurer = measurer
+                    measurer = measurer,
                 )
                 .semantics { designInfoProvider = measurer },
         measurePolicy = measurePolicy,
-        content = { scope.content() }
+        content = { scope.content() },
     )
 }
 
@@ -685,7 +685,7 @@ class MotionLayoutScope
 @Suppress("ShowingMemberInHiddenClass")
 internal constructor(
     private val measurer: MotionMeasurer,
-    private val motionProgress: MutableFloatState
+    private val motionProgress: MutableFloatState,
 ) {
     /**
      * Invokes [onBoundsChanged] whenever the Start or End bounds may have changed for the
@@ -700,7 +700,7 @@ internal constructor(
      */
     fun Modifier.onStartEndBoundsChanged(
         layoutId: Any,
-        onBoundsChanged: (startBounds: Rect, endBounds: Rect) -> Unit
+        onBoundsChanged: (startBounds: Rect, endBounds: Rect) -> Unit,
     ): Modifier {
         return composed(
             inspectorInfo =
@@ -774,7 +774,7 @@ internal constructor(
                 if (changed) {
                     onBoundsChanged(
                         startBoundsRef.value ?: Rect.Zero,
-                        endBoundsRef.value ?: Rect.Zero
+                        endBoundsRef.value ?: Rect.Zero,
                     )
                 }
             }
@@ -865,7 +865,7 @@ internal constructor(
 
     @Deprecated(
         "Unnecessary composable, name is also inconsistent for custom properties",
-        ReplaceWith("customProperties(id)")
+        ReplaceWith("customProperties(id)"),
     )
     @Composable
     fun motionProperties(id: String): State<MotionProperties> =
@@ -978,7 +978,7 @@ internal fun motionLayoutMeasurePolicy(
     motionProgress: MutableFloatState,
     measurer: MotionMeasurer,
     optimizationLevel: Int,
-    invalidationStrategy: InvalidationStrategy
+    invalidationStrategy: InvalidationStrategy,
 ): MeasurePolicy = MeasurePolicy { measurables, constraints ->
     // Map to properly capture Placeables across Measure and Layout passes
     val placeableMap = mutableMapOf<Measurable, Placeable>()
@@ -999,7 +999,7 @@ internal fun motionLayoutMeasurePolicy(
             optimizationLevel = optimizationLevel,
             progress = motionProgress.floatValue,
             compositionSource = compositionSource.value ?: CompositionSource.Unknown,
-            invalidateOnConstraintsCallback = invalidationStrategy.shouldInvalidate
+            invalidateOnConstraintsCallback = invalidationStrategy.shouldInvalidate,
         )
     compositionSource.value = CompositionSource.Unknown // Reset after measuring
 
@@ -1016,7 +1016,7 @@ internal fun motionLayoutMeasurePolicy(
 @Composable
 internal fun UpdateWithForcedIfNoUserChange(
     motionProgress: MutableFloatState,
-    informationReceiver: LayoutInformationReceiver?
+    informationReceiver: LayoutInformationReceiver?,
 ) {
     if (informationReceiver == null) {
         return
@@ -1061,7 +1061,7 @@ internal fun Modifier.motionDebug(
     scaleFactor: Float,
     showBounds: Boolean,
     showPaths: Boolean,
-    showKeyPositions: Boolean
+    showKeyPositions: Boolean,
 ): Modifier {
     var debugModifier: Modifier = this
     if (!scaleFactor.isNaN()) {
@@ -1074,7 +1074,7 @@ internal fun Modifier.motionDebug(
                     drawDebug(
                         drawBounds = showBounds,
                         drawPaths = showPaths,
-                        drawKeyPositions = showKeyPositions
+                        drawKeyPositions = showKeyPositions,
                     )
                 }
             }
@@ -1101,7 +1101,7 @@ internal enum class CompositionSource {
      * Content recomposed, need to remeasure everything: **start**, **end** and **interpolated**
      * states.
      */
-    Content
+    Content,
 }
 
 /**
@@ -1126,7 +1126,7 @@ value class DebugFlags internal constructor(private val flags: Int) {
     constructor(
         showBounds: Boolean = false,
         showPaths: Boolean = false,
-        showKeyPositions: Boolean = false
+        showKeyPositions: Boolean = false,
     ) : this(
         (if (showBounds) BOUNDS_FLAG else 0) or
             (if (showPaths) PATHS_FLAG else 0) or
@@ -1230,7 +1230,7 @@ class InvalidationStrategySpecification internal constructor() {
         oldConstraints: Constraints,
         newConstraints: Constraints,
         skipCount: Int,
-        threshold: Int
+        threshold: Int,
     ): Boolean {
         if (oldConstraints.hasFixedWidth && newConstraints.hasFixedWidth) {
             val diff = (newConstraints.maxWidth - oldConstraints.maxWidth).absoluteValue
@@ -1274,7 +1274,7 @@ class InvalidationStrategySpecification internal constructor() {
         oldConstraints: Constraints,
         newConstraints: Constraints,
         skipCount: Int,
-        threshold: Int
+        threshold: Int,
     ): Boolean {
         if (oldConstraints.hasFixedHeight && newConstraints.hasFixedHeight) {
             val diff = (newConstraints.maxHeight - oldConstraints.maxHeight).absoluteValue
@@ -1616,7 +1616,7 @@ class InvalidationStrategy(
      * See [InvalidationStrategy] to learn more about common strategies regarding invalidation on
      * onObservedStateChange.
      */
-    val onObservedStateChange: (() -> Unit)?
+    val onObservedStateChange: (() -> Unit)?,
 ) {
     private val scope = InvalidationStrategySpecification()
 

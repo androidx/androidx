@@ -18,6 +18,7 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
+import androidx.build.registerAsComponentForKmpPublishing
 import androidx.build.registerAsComponentForPublishing
 import java.io.File
 import org.gradle.api.Project
@@ -59,7 +60,7 @@ fun getFilesForApiLevels(apiFiles: Collection<File>, currentVersion: Version): L
  */
 private fun filterVersions(
     versionToFileMap: Map<Version, File>,
-    currentVersion: Version
+    currentVersion: Version,
 ): List<Version> {
     val filteredVersions = mutableListOf<Version>()
     var prev: Version? = null
@@ -89,18 +90,20 @@ internal val Project.versionMetadataUsage: Usage
 internal fun Project.registerVersionMetadataComponent(
     generateApiTask: TaskProvider<GenerateApiTask>
 ) {
+    // This needs to non-eager because we call registerAsComponentForPublishing
+    // which has an enforced timing when we are allowed to add new artifacts
+    // https://github.com/gradle/gradle/issues/34570
     configurations.create("libraryVersionMetadata") { configuration ->
-        configuration.isVisible = false
         configuration.isCanBeResolved = false
 
         configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.versionMetadataUsage)
         configuration.attributes.attribute(
             Category.CATEGORY_ATTRIBUTE,
-            objects.named<Category>(Category.DOCUMENTATION)
+            objects.named<Category>(Category.DOCUMENTATION),
         )
         configuration.attributes.attribute(
             Bundling.BUNDLING_ATTRIBUTE,
-            objects.named<Bundling>(Bundling.EXTERNAL)
+            objects.named<Bundling>(Bundling.EXTERNAL),
         )
 
         // The generate API task has many output files, only add the version metadata as an artifact
@@ -111,5 +114,6 @@ internal fun Project.registerVersionMetadataComponent(
         configuration.outgoing.artifact(levelsFile) { it.classifier = "versionMetadata" }
 
         registerAsComponentForPublishing(configuration)
+        registerAsComponentForKmpPublishing(configuration)
     }
 }

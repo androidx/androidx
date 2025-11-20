@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -30,7 +29,7 @@ import androidx.annotation.RequiresApi;
 import org.jspecify.annotations.Nullable;
 
 @RequiresApi(24)
-public class DragTestActivity extends Activity {
+public class DragTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

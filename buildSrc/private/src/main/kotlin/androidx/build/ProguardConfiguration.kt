@@ -17,7 +17,7 @@
 package androidx.build
 
 import com.android.build.api.dsl.ConsumerKeepRules
-import com.android.build.api.dsl.LibraryBuildType
+import com.android.build.api.dsl.LibraryDefaultConfig
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -57,9 +57,9 @@ internal fun Project.setUpBlankProguardFileForJarIfNeeded(javaExtension: JavaPlu
  * Add a blank consumer proguard rules file to the AAR if the library has not set up an explicit set
  * of rules.
  */
-internal fun Project.setUpBlankProguardFileForAarIfNeeded(buildType: LibraryBuildType) {
-    if (buildType.consumerProguardFiles.isEmpty()) {
-        buildType.consumerProguardFiles.add(blankProguardRules())
+internal fun Project.setUpBlankProguardFileForAarIfNeeded(config: LibraryDefaultConfig) {
+    if (config.consumerProguardFiles.isEmpty()) {
+        config.consumerProguardFiles.add(blankProguardRules())
     }
 }
 
@@ -67,11 +67,11 @@ internal fun Project.setUpBlankProguardFileForAarIfNeeded(buildType: LibraryBuil
  * Add a blank consumer proguard rules file to the AAR if the library has not set up an explicit set
  * of rules.
  */
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage") // b/393137152
 internal fun Project.setUpBlankProguardFileForKmpAarIfNeeded(consumerKeepRules: ConsumerKeepRules) {
     if (consumerKeepRules.files.isEmpty()) {
-        file(project.blankProguardRules())
         consumerKeepRules.publish = true
+        consumerKeepRules.files.add(blankProguardRules())
     }
 }
 

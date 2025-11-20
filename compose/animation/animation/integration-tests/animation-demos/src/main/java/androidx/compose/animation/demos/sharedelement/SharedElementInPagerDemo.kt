@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,12 +32,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.lookaheadScopeCoordinates
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun SharedElementInPagerDemo() {
@@ -56,14 +59,27 @@ fun SharedElementInPagerDemo() {
                     flingBehavior =
                         PagerDefaults.flingBehavior(
                             state = pagerState,
-                            pagerSnapDistance = PagerSnapDistance.atMost(3)
-                        )
+                            pagerSnapDistance = PagerSnapDistance.atMost(3),
+                        ),
                 ) {
                     val cat = listCats[it]
+                    var coords: LayoutCoordinates? by remember { mutableStateOf(null) }
                     CatItem(
                         cat = cat,
                         onClick = { selectedCat = cat },
                         scope = this@AnimatedContent,
+                        modifier = Modifier.onPlaced { coords = it },
+                        isEnabled = {
+                            coords?.let {
+                                val scopeCoords = lookaheadScopeCoordinates(it)
+                                val (w, h) = scopeCoords.size
+                                val positionInScope = scopeCoords.localPositionOf(it)
+                                positionInScope.x >= 0 &&
+                                    positionInScope.y >= 0 &&
+                                    positionInScope.x + it.size.width <= w &&
+                                    positionInScope.y + it.size.height <= h
+                            } != false
+                        },
                     )
                 }
             } else {

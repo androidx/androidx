@@ -86,7 +86,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
         checkApi(
             33,
             "DynamicRangesCompat can only be " +
-                "converted to DynamicRangeProfiles on API 33 or higher."
+                "converted to DynamicRangeProfiles on API 33 or higher.",
         )
         return impl.unwrap()
     }
@@ -137,7 +137,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
             checkApi(
                 33,
                 "DynamicRangeProfiles can only " +
-                    "be converted to DynamicRangesCompat on API 33 or higher."
+                    "be converted to DynamicRangesCompat on API 33 or higher.",
             )
             return DynamicRangeProfilesCompat(
                 DynamicRangeProfilesCompatApi33Impl(dynamicRangeProfiles)

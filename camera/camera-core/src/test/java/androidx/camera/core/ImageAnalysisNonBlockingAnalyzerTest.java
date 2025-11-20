@@ -29,8 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
-import android.os.Build;
-
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -50,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, instrumentedPackages = { "androidx.camera.core" })
+@Config(sdk = {Config.ALL_SDKS}, instrumentedPackages = { "androidx.camera.core" })
 public class ImageAnalysisNonBlockingAnalyzerTest {
     private ImageAnalysisNonBlockingAnalyzer mImageAnalysisNonBlockingAnalyzer;
     private static final AtomicInteger ROTATION = new AtomicInteger(0);

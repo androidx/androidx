@@ -37,7 +37,7 @@ class FragmentIssueRegistry : IssueRegistry() {
                 UseGetLayoutInflater.ISSUE,
                 OnCreateDialogIncorrectCallbackDetector.ISSUE,
                 UnsafeRepeatOnLifecycleDetector.ISSUE,
-                AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE
+                AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE,
             )
 
     override val vendor =

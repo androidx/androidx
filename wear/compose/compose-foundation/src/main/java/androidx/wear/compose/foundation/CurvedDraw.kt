@@ -49,7 +49,7 @@ public fun CurvedModifier.background(
  */
 public fun CurvedModifier.radialGradientBackground(
     vararg colorStops: Pair<Float, Color>,
-    cap: StrokeCap = StrokeCap.Butt
+    cap: StrokeCap = StrokeCap.Butt,
 ): CurvedModifier =
     background(cap) { layoutInfo ->
         val radiusRatio = layoutInfo.innerRadius / layoutInfo.outerRadius
@@ -60,7 +60,7 @@ public fun CurvedModifier.radialGradientBackground(
                 .reversed()
                 .toTypedArray()),
             center = layoutInfo.centerOffset,
-            radius = layoutInfo.outerRadius
+            radius = layoutInfo.outerRadius,
         )
     }
 
@@ -73,7 +73,7 @@ public fun CurvedModifier.radialGradientBackground(
  */
 public fun CurvedModifier.radialGradientBackground(
     colors: List<Color>,
-    cap: StrokeCap = StrokeCap.Butt
+    cap: StrokeCap = StrokeCap.Butt,
 ): CurvedModifier = radialGradientBackground(*colorsToColorStops(colors), cap = cap)
 
 /**
@@ -88,7 +88,7 @@ public fun CurvedModifier.radialGradientBackground(
  */
 public fun CurvedModifier.angularGradientBackground(
     vararg colorStops: Pair<Float, Color>,
-    cap: StrokeCap = StrokeCap.Butt
+    cap: StrokeCap = StrokeCap.Butt,
 ): CurvedModifier =
     background(cap) { layoutInfo ->
         @Suppress("ListIterator")
@@ -110,7 +110,7 @@ public fun CurvedModifier.angularGradientBackground(
  */
 public fun CurvedModifier.angularGradientBackground(
     colors: List<Color>,
-    cap: StrokeCap = StrokeCap.Butt
+    cap: StrokeCap = StrokeCap.Butt,
 ): CurvedModifier = angularGradientBackground(*colorsToColorStops(colors), cap = cap)
 
 private fun colorsToColorStops(colors: List<Color>): Array<Pair<Float, Color>> =
@@ -118,7 +118,7 @@ private fun colorsToColorStops(colors: List<Color>): Array<Pair<Float, Color>> =
 
 internal fun CurvedModifier.background(
     cap: StrokeCap = StrokeCap.Butt,
-    brushProvider: (CurvedLayoutInfo) -> Brush
+    brushProvider: (CurvedLayoutInfo) -> Brush,
 ) = drawBefore {
     with(it) {
         val radius = outerRadius - thickness / 2
@@ -129,7 +129,7 @@ internal fun CurvedModifier.background(
             useCenter = false,
             topLeft = centerOffset - Offset(radius, radius),
             size = Size(2 * radius, 2 * radius),
-            style = Stroke(thickness, cap = cap)
+            style = Stroke(thickness, cap = cap),
         )
     }
 }
@@ -137,7 +137,7 @@ internal fun CurvedModifier.background(
 internal class DrawWrapper(
     child: CurvedChild,
     val customDraw: DrawScope.(CurvedLayoutInfo) -> Unit,
-    val drawBefore: Boolean
+    val drawBefore: Boolean,
 ) : BaseCurvedChildWrapper(child) {
 
     private var parentOuterRadius: Float = 0f
@@ -149,10 +149,7 @@ internal class DrawWrapper(
     ): PartialLayoutInfo {
         this.parentThickness = parentThickness
         this.parentOuterRadius = parentOuterRadius
-        return wrapped.radialPosition(
-            parentOuterRadius,
-            parentThickness,
-        )
+        return wrapped.radialPosition(parentOuterRadius, parentThickness)
     }
 
     private lateinit var outerLayoutInfo: CurvedLayoutInfo
@@ -160,7 +157,7 @@ internal class DrawWrapper(
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         /* We want the background to fill the space that our parent assigned us (outerLayoutInfo),
          * as opposed to the size of or wrapped child (layoutInfo).
@@ -172,7 +169,7 @@ internal class DrawWrapper(
                 thickness = parentThickness,
                 centerOffset = centerOffset,
                 measureRadius = parentOuterRadius - parentThickness / 2f,
-                startAngleRadians = parentStartAngleRadians
+                startAngleRadians = parentStartAngleRadians,
             )
         return wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
     }

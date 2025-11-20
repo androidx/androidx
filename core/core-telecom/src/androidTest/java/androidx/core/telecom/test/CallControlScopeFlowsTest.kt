@@ -19,7 +19,6 @@ package androidx.core.telecom.test
 import android.os.Build.VERSION_CODES
 import android.telecom.DisconnectCause
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -39,7 +38,6 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallControlScopeFlowsTest : BaseTelecomTest() {
 
@@ -55,7 +53,6 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testFlowsEchoValues_Transactional() {
-        setUpV2Test()
         runBlocking { assertFlowsEchoValues() }
     }
 
@@ -77,7 +74,7 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
                 TestUtils.OUTGOING_NAME,
                 TestUtils.TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
-                CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
             )
         ) {
             launch {
@@ -110,7 +107,7 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
                 awaitAll(
                     waitUntilCurrentEndpointJob,
                     waitUntilAvailableEndpointJob,
-                    waitUntilMuteStateJob
+                    waitUntilMuteStateJob,
                 )
                 Log.i(TAG, "after awaitAll")
 

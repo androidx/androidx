@@ -80,7 +80,7 @@ fun SimpleDecorationWithLabel() {
                 Spacer(modifier = Modifier.height(4.dp))
                 it()
             }
-        }
+        },
     )
 }
 
@@ -107,9 +107,9 @@ fun OutlinedBasicTextField() {
                 enabled = true,
                 isError = false,
                 interactionSource = remember { MutableInteractionSource() },
-                colors = TextFieldDefaults.outlinedTextFieldColors()
+                colors = TextFieldDefaults.outlinedTextFieldColors(),
             )
-        }
+        },
     )
 }
 
@@ -128,6 +128,6 @@ fun NoInnerTextField(modifier: Modifier = Modifier) {
             ) {
                 Text("${state.text}", Modifier.align(Alignment.Center))
             }
-        }
+        },
     )
 }

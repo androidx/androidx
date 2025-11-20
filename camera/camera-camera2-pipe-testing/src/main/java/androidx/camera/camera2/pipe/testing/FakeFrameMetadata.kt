@@ -37,7 +37,7 @@ public class FakeFrameMetadata(
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val camera: CameraId = FakeCameraIds.default,
     override val frameNumber: FrameNumber = nextFakeFrameNumber(),
-    override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
+    override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
 ) : FakeMetadata(extraResultMetadata), FrameMetadata {
 
     @Suppress("UNCHECKED_CAST")
@@ -56,7 +56,7 @@ public class FakeFrameMetadata(
 public class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
-    private val physicalMetadata: Map<CameraId, FrameMetadata> = emptyMap()
+    private val physicalMetadata: Map<CameraId, FrameMetadata> = emptyMap(),
 ) : FrameInfo {
     override fun get(camera: CameraId): FrameMetadata? = physicalMetadata[camera]
 

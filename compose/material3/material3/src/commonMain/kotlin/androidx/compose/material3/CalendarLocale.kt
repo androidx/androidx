@@ -25,17 +25,14 @@ import androidx.compose.runtime.ReadOnlyComposable
  *
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
  */
-@ExperimentalMaterial3Api expect class CalendarLocale
+expect class CalendarLocale
 
 /**
  * Returns the default [CalendarLocale].
  *
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-@ReadOnlyComposable
-internal expect fun defaultLocale(): CalendarLocale
+@Composable @ReadOnlyComposable internal expect fun defaultLocale(): CalendarLocale
 
 /**
  * Returns a string representation of an integer for the current Locale.
@@ -49,9 +46,12 @@ internal expect fun defaultLocale(): CalendarLocale
  * @param isGroupingUsed set whether or not grouping will be used when formatting into a local
  *   string. By default, this value is false, which eliminates any use of delimiters when formatting
  *   the integer.
+ * @param locale an optional [CalendarLocale] that will be used to format the integer in a given
+ *   locale. If `null` (default), the default locale will be used.
  */
 internal expect fun Int.toLocalString(
     minDigits: Int = 1,
     maxDigits: Int = 40,
-    isGroupingUsed: Boolean = false
+    isGroupingUsed: Boolean = false,
+    locale: CalendarLocale? = null,
 ): String

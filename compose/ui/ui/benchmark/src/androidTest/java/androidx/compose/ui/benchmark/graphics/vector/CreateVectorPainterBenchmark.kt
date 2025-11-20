@@ -49,7 +49,7 @@ class CreateVectorPainterBenchmark {
     fun recreateContent() {
         benchmarkRule.toggleStateBenchmarkDraw(
             { RecreateVectorPainterTestCase() },
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -57,7 +57,7 @@ class CreateVectorPainterBenchmark {
     fun renderVectorWithDifferentSizes() {
         benchmarkRule.toggleStateBenchmarkDraw(
             { ResizeVectorPainter() },
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -74,7 +74,7 @@ private class RecreateVectorPainterTestCase : ComposeTestCase, ToggleableTestCas
                     painter = painterResource(R.drawable.ic_hourglass),
                     contentDescription = null,
                     modifier = Modifier.size(200.dp),
-                    alpha = alpha
+                    alpha = alpha,
                 )
             }
         }
@@ -101,7 +101,7 @@ private class ResizeVectorPainter : ComposeTestCase, ToggleableTestCase {
                     painter = painterResource(R.drawable.ic_hourglass),
                     contentDescription = null,
                     modifier = Modifier.size(100.dp),
-                    alpha = alpha
+                    alpha = alpha,
                 )
             }
 
@@ -110,7 +110,7 @@ private class ResizeVectorPainter : ComposeTestCase, ToggleableTestCase {
                     painter = painterResource(R.drawable.ic_hourglass),
                     contentDescription = null,
                     modifier = Modifier.size(200.dp),
-                    alpha = alpha
+                    alpha = alpha,
                 )
             }
         }

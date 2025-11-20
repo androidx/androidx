@@ -52,6 +52,7 @@ public class PopupInterstitialActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_interstitial);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.custom_interstitial_title);
 
         Intent intent = getIntent();

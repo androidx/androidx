@@ -27,7 +27,7 @@ public data class EvCompValue(
     private val supported: Boolean,
     private val index: Int,
     private val range: Range<Int>,
-    private val step: Rational
+    private val step: Rational,
 ) : ExposureState {
     override fun getExposureCompensationIndex(): Int = index
 

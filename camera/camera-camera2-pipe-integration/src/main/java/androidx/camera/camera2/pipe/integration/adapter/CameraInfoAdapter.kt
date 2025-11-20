@@ -17,23 +17,26 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
-import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.maxTorchStrengthLevel
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsHighSpeedVideo
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPreviewStabilization
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsTorchStrength
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -42,26 +45,25 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger.warn
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.DeviceInfoLogger
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
-import androidx.camera.camera2.pipe.integration.internal.CameraFovInfo
+import androidx.camera.camera2.pipe.integration.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
-import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
-import androidx.camera.core.DynamicRange.HDR10_10_BIT
-import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
-import androidx.camera.core.DynamicRange.HLG_10_BIT
-import androidx.camera.core.DynamicRange.SDR
+import androidx.camera.core.ExperimentalLensFacing
+import androidx.camera.core.ExperimentalZeroShutterLag
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.UseCase
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
@@ -70,15 +72,15 @@ import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
+import androidx.camera.core.internal.StreamSpecsCalculator
+import androidx.core.util.Consumer
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
 /** Adapt the [CameraInfoInternal] interface to [CameraPipe]. */
-@SuppressLint(
-    "UnsafeOptInUsageError" // Suppressed due to experimental ExposureState
-)
 @CameraScope
 public class CameraInfoAdapter
 @Inject
@@ -92,7 +94,8 @@ constructor(
     private val cameraQuirks: CameraQuirks,
     private val encoderProfilesProvider: EncoderProfilesProvider,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
-    private val cameraFovInfo: CameraFovInfo,
+    private val intrinsicZoomCalculator: IntrinsicZoomCalculator,
+    private val streamSpecsCalculator: StreamSpecsCalculator,
 ) : CameraInfoInternal, UnsafeWrapper {
     init {
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
@@ -104,7 +107,7 @@ constructor(
             val cameraProperties =
                 CameraPipeCameraProperties(
                     CameraConfig(physicalCameraId),
-                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId)
+                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId),
                 )
             PhysicalCameraInfoAdapter(cameraProperties)
         }
@@ -125,8 +128,15 @@ constructor(
 
     override fun getCameraId(): String = cameraConfig.cameraId.value
 
-    override fun getLensFacing(): Int =
+    override fun getLensFacing(): @CameraSelector.LensFacing Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
+
+    @androidx.annotation.OptIn(ExperimentalLensFacing::class)
+    override fun isExternalCamera(): Boolean {
+        return lensFacing == CameraSelector.LENS_FACING_EXTERNAL ||
+            cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
+    }
 
     override fun getCameraCharacteristics(): CameraCharacteristics =
         cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
@@ -141,6 +151,7 @@ constructor(
             .unwrapAs(CameraCharacteristics::class)
     }
 
+    @androidx.annotation.OptIn(ExperimentalLensFacing::class)
     private fun getCameraSelectorLensFacing(lensFacingInt: Int): @CameraSelector.LensFacing Int {
         return when (lensFacingInt) {
             CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
@@ -170,7 +181,7 @@ constructor(
         return CameraOrientationUtil.getRelativeImageRotation(
             relativeRotationDegrees,
             sensorOrientation,
-            isOppositeFacingScreen
+            isOppositeFacingScreen,
         )
     }
 
@@ -178,14 +189,41 @@ constructor(
 
     override fun getTorchState(): LiveData<Int> = cameraControlStateAdapter.torchStateLiveData
 
+    override fun isTorchStrengthSupported(): Boolean =
+        cameraProperties.metadata.supportsTorchStrength
+
+    override fun getMaxTorchStrengthLevel(): Int =
+        if (isTorchStrengthSupported) cameraProperties.metadata.maxTorchStrengthLevel
+        else CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED
+
+    override fun getTorchStrengthLevel(): LiveData<Int> =
+        if (isTorchStrengthSupported) cameraControlStateAdapter.torchStrengthLiveData
+        else MutableLiveData(CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED)
+
+    override fun isLowLightBoostSupported(): Boolean =
+        cameraProperties.metadata.supportsLowLightBoost
+
+    override fun getLowLightBoostState(): LiveData<Int> =
+        cameraControlStateAdapter.lowLightBoostState
+
     @SuppressLint("UnsafeOptInUsageError")
     override fun getExposureState(): ExposureState = cameraControlStateAdapter.exposureState
 
     override fun getCameraState(): LiveData<CameraState> = cameraStateAdapter.cameraState
 
+    @VisibleForTesting
+    override fun addCameraStateListener(executor: Executor, listener: Consumer<CameraState>) {
+        cameraStateAdapter.addCameraStateListener(executor, listener)
+    }
+
+    @VisibleForTesting
+    override fun removeCameraStateListener(listener: Consumer<CameraState>) {
+        cameraStateAdapter.removeCameraStateListener(listener)
+    }
+
     override fun addSessionCaptureCallback(
         executor: Executor,
-        callback: CameraCaptureCallback
+        callback: CameraCaptureCallback,
     ): Unit = cameraCallbackMap.addCaptureCallback(callback, executor)
 
     override fun removeSessionCaptureCallback(callback: CameraCaptureCallback): Unit =
@@ -245,10 +283,9 @@ constructor(
         cameraProperties.metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]
             ?.toSet() ?: emptySet()
 
+    @androidx.annotation.OptIn(ExperimentalZeroShutterLag::class)
     override fun isZslSupported(): Boolean {
-        return Build.VERSION.SDK_INT >= 23 &&
-            isPrivateReprocessingSupported &&
-            DeviceQuirks[ZslDisablerQuirk::class.java] == null
+        return isPrivateReprocessingSupported && DeviceQuirks[ZslDisablerQuirk::class.java] == null
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {
@@ -260,8 +297,7 @@ constructor(
             .supportedDynamicRanges
     }
 
-    override fun isHighSpeedSupported(): Boolean =
-        Build.VERSION.SDK_INT >= 23 && cameraProperties.metadata.supportsHighSpeedVideo
+    override fun isHighSpeedSupported(): Boolean = cameraProperties.metadata.supportsHighSpeedVideo
 
     override fun getSupportedHighSpeedFrameRateRanges(): Set<Range<Int>> {
         return streamConfigurationMapCompat.getHighSpeedVideoFpsRanges()?.toSet() ?: emptySet()
@@ -285,6 +321,15 @@ constructor(
             .getOrNull() ?: emptyList()
     }
 
+    override fun getSensorRect(): Rect {
+        val sensorRect =
+            cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
+        if ("robolectric" == Build.FINGERPRINT && sensorRect == null) {
+            return Rect(0, 0, 4000, 3000)
+        }
+        return sensorRect!!
+    }
+
     override fun querySupportedDynamicRanges(
         candidateDynamicRanges: Set<DynamicRange>
     ): Set<DynamicRange> {
@@ -292,13 +337,7 @@ constructor(
     }
 
     override fun isPreviewStabilizationSupported(): Boolean {
-        val availableVideoStabilizationModes =
-            cameraProperties.metadata[
-                    CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
-        return availableVideoStabilizationModes != null &&
-            availableVideoStabilizationModes.contains(
-                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-            )
+        return cameraProperties.metadata.supportsPreviewStabilization
     }
 
     override fun isVideoStabilizationSupported(): Boolean {
@@ -309,46 +348,44 @@ constructor(
             availableVideoStabilizationModes.contains(CONTROL_VIDEO_STABILIZATION_MODE_ON)
     }
 
-    override fun getIntrinsicZoomRatio(): Float {
-        var intrinsicZoomRatio = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
+    override fun getIntrinsicZoomRatio(): Float =
+        intrinsicZoomCalculator.calculateIntrinsicZoomRatio(cameraProperties.metadata)
+            ?: run {
+                warn { "Failed to calculate intrinsic zoom ratio for ${cameraProperties.cameraId}" }
+                CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
+            }
+
+    override fun isUseCaseCombinationSupported(
+        useCases: List<UseCase>,
+        cameraMode: Int,
+        isFeatureComboInvocation: Boolean,
+        cameraConfig: androidx.camera.core.impl.CameraConfig,
+    ): Boolean {
+        // If the UseCases exceed the resolutions then it will throw an exception
         try {
-            intrinsicZoomRatio =
-                cameraFovInfo.getDefaultCameraDefaultViewAngleDegrees().toFloat() /
-                    cameraFovInfo.getDefaultViewAngleDegrees().toFloat()
-        } catch (e: Exception) {
-            Log.error(e) { "Failed to get the intrinsic zoom ratio" }
+            streamSpecsCalculator.calculateSuggestedStreamSpecs(
+                cameraMode = cameraMode,
+                cameraInfoInternal = this,
+                newUseCases = useCases,
+                cameraConfig = cameraConfig,
+                isFeatureComboInvocation = isFeatureComboInvocation,
+            )
+        } catch (e: IllegalArgumentException) {
+            Camera2Logger.debug(e) {
+                "CameraInfoAdapter#isUseCaseCombinationSupported:" +
+                    " calculateSuggestedStreamSpecs failed"
+            }
+            return false
         }
-
-        return intrinsicZoomRatio
+        return true
     }
 
-    private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
-        return profileSet.map { profileToDynamicRange(it) }.toSet()
-    }
-
-    private fun profileToDynamicRange(profile: Long): DynamicRange {
-        return checkNotNull(PROFILE_TO_DR_MAP[profile]) {
-            "Dynamic range profile cannot be converted to a DynamicRange object: $profile"
-        }
+    override fun getAvailableCapabilities(): Set<Int> {
+        return cameraProperties.metadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
+            ?.toSet() ?: emptySet()
     }
 
     public companion object {
-        private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> =
-            mapOf(
-                DynamicRangeProfiles.STANDARD to SDR,
-                DynamicRangeProfiles.HLG10 to HLG_10_BIT,
-                DynamicRangeProfiles.HDR10 to HDR10_10_BIT,
-                DynamicRangeProfiles.HDR10_PLUS to HDR10_PLUS_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
-            )
-
         public fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
             when (this) {
                 is UnsafeWrapper -> this.unwrapAs(type)

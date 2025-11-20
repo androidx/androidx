@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.BuildServerConfigurationKt
 import androidx.build.SoftwareType
 
 plugins {
@@ -31,12 +30,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
-}
-
-tasks.withType(Jar) {
-    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(rootProject))
 }
 
 androidx {

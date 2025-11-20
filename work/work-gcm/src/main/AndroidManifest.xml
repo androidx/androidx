@@ -14,21 +14,4 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <application>
-        <service
-            android:name=".WorkManagerGcmService"
-            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-            android:exported="@bool/enable_gcm_scheduler_default"
-            android:directBootAware="false"
-            tools:targetApi="n"
-            tools:ignore="MissingServiceExportedEqualsTrue">
-            <intent-filter>
-                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
-            </intent-filter>
-        </service>
-    </application>
-
-</manifest>
+<manifest />

@@ -44,6 +44,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import java.lang.IllegalArgumentException
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +52,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TextTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private val ExpectedTextStyle =
         TextStyle(
@@ -73,7 +74,7 @@ class TextTest {
             TextWithDefaults(
                 text = AnnotatedString(TestText),
                 modifier = Modifier.testTag(TEST_TAG),
-                style = ExpectedTextStyle
+                style = ExpectedTextStyle,
             )
         }
 
@@ -92,7 +93,7 @@ class TextTest {
                     minLines = 1,
                     maxLines = 3,
                     onTextLayout = { size1 = it.size.height },
-                    style = ExpectedTextStyle
+                    style = ExpectedTextStyle,
                 )
 
                 TextWithDefaults(
@@ -100,7 +101,7 @@ class TextTest {
                     minLines = 2,
                     maxLines = 3,
                     onTextLayout = { size2 = it.size.height },
-                    style = ExpectedTextStyle
+                    style = ExpectedTextStyle,
                 )
             }
         }
@@ -115,7 +116,7 @@ class TextTest {
                 AnnotatedString(TestText),
                 minLines = 0,
                 maxLines = 1,
-                style = ExpectedTextStyle
+                style = ExpectedTextStyle,
             )
         }
     }
@@ -127,7 +128,7 @@ class TextTest {
                 AnnotatedString(TestText),
                 minLines = 2,
                 maxLines = 1,
-                style = ExpectedTextStyle
+                style = ExpectedTextStyle,
             )
         }
     }
@@ -164,7 +165,7 @@ class TextTest {
                     textDecoration = it.layoutInput.style.textDecoration
                     textAlign = it.layoutInput.style.textAlign
                 },
-                style = ExpectedTextStyle
+                style = ExpectedTextStyle,
             )
         }
 
@@ -206,7 +207,7 @@ class TextTest {
                     fontStyle = it.layoutInput.style.fontStyle
                     letterSpacing = it.layoutInput.style.letterSpacing
                 },
-                style = ExpectedTextStyle
+                style = ExpectedTextStyle,
             )
         }
 
@@ -227,7 +228,7 @@ class TextTest {
                 color = color,
                 modifier = Modifier.testTag(TEST_TAG),
                 onTextLayout = { textColor = it.layoutInput.style.color },
-                style = style
+                style = style,
             )
         }
 
@@ -256,7 +257,7 @@ internal fun TextWithDefaults(
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle
+    style: TextStyle,
 ) {
     Text(
         text = text,
@@ -276,6 +277,6 @@ internal fun TextWithDefaults(
         minLines = minLines,
         inlineContent = inlineContent,
         onTextLayout = onTextLayout,
-        style = style
+        style = style,
     )
 }

@@ -140,7 +140,7 @@ class UseRequireInsteadOfGetTest {
                   }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -260,7 +260,7 @@ class UseRequireInsteadOfGetTest {
                   }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -347,7 +347,7 @@ class UseRequireInsteadOfGetTest {
                   }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -462,7 +462,7 @@ class UseRequireInsteadOfGetTest {
               }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -695,7 +695,7 @@ class UseRequireInsteadOfGetTest {
               }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -739,7 +739,7 @@ class UseRequireInsteadOfGetTest {
               }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -852,7 +852,7 @@ class UseRequireInsteadOfGetTest {
               }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -1087,7 +1087,7 @@ class UseRequireInsteadOfGetTest {
                   }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .run()
@@ -1115,7 +1115,7 @@ class UseRequireInsteadOfGetTest {
                   }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .allowCompilationErrors(false)
             .run()

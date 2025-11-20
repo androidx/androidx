@@ -54,6 +54,8 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -157,6 +159,47 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.TITLE_VISIBILITY";
 
     /**
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({OPEN_IN_BROWSER_STATE_DEFAULT, OPEN_IN_BROWSER_STATE_ON, OPEN_IN_BROWSER_STATE_OFF})
+    @Retention(RetentionPolicy.SOURCE)
+    @ExperimentalOpenInBrowser
+    public @interface OpenInBrowserState {
+    }
+
+    /**
+     * Applies the default Open in Browser button state in the toolbar depending on the browser.
+     */
+    @ExperimentalOpenInBrowser
+    public static final int OPEN_IN_BROWSER_STATE_DEFAULT = 0;
+
+    /**
+     * Shows the Open in Browser button in the toolbar.
+     */
+    @ExperimentalOpenInBrowser
+    public static final int OPEN_IN_BROWSER_STATE_ON = 1;
+
+    /**
+     * Explicitly does not show the Open in Browser button in the toolbar.
+     */
+    @ExperimentalOpenInBrowser
+    public static final int OPEN_IN_BROWSER_STATE_OFF = 2;
+
+    /**
+     * Maximum value for the OPEN_IN_BROWSER_STATE_* configuration options. For validation purposes
+     * only.
+     */
+    @ExperimentalOpenInBrowser
+    private static final int OPEN_IN_BROWSER_STATE_MAX = 2;
+
+    /**
+     * Extra to set the state for the Open in Browser button in the toolbar.
+     */
+    @ExperimentalOpenInBrowser
+    public static final String EXTRA_OPEN_IN_BROWSER_STATE =
+            "androidx.browser.customtabs.extra.OPEN_IN_BROWSER_STATE";
+
+    /**
      * Extra to disable the bookmarks button in the overflow menu.
      */
     public static final String EXTRA_DISABLE_BOOKMARKS_BUTTON =
@@ -169,7 +212,8 @@ public final class CustomTabsIntent {
             "org.chromium.chrome.browser.customtabs.EXTRA_DISABLE_DOWNLOAD_BUTTON";
 
     /**
-     * Extra to favor sending initial urls to external handler apps, if possible.
+     * Extra to favor sending redirects off of the initial URL to external handler apps, if
+     * possible.
      *
      * A Custom Tab Intent from a Custom Tab session will always have the package set,
      * so the Intent will always be to the browser. This extra can be used to allow
@@ -177,6 +221,15 @@ public final class CustomTabsIntent {
      */
     public static final String EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER =
             "android.support.customtabs.extra.SEND_TO_EXTERNAL_HANDLER";
+
+    /**
+     * Extra to favor the Custom Tab forwarding the initial URL sent to the Custom Tab to the
+     * default handling app for that URL instead of loading it (including following any
+     * redirects) in the Custom Tab.
+     */
+    @ExperimentalInitialNavigationCanLeaveBrowser
+    public static final String EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER =
+            "androidx.browser.customtabs.extra.INITIAL_NAVIGATION_CAN_LEAVE_BROWSER";
 
     /**
      * Extra that specifies the target locale the Translate UI should be triggered with.
@@ -630,6 +683,13 @@ public final class CustomTabsIntent {
             "androidx.browser.customtabs.extra.ENABLE_EPHEMERAL_BROWSING";
 
     /**
+     * Extra that enables the close button and shows it in the toolbar. The close button is enabled
+     * by default, this extra provides a way to disable the close button in the toolbar.
+     */
+    public static final String EXTRA_CLOSE_BUTTON_ENABLED =
+            "androidx.browser.customtabs.extra.CLOSE_BUTTON_ENABLED";
+
+    /**
      * Key that specifies the unique ID for an action button. To make a button to show on the
      * toolbar, use {@link #TOOLBAR_ACTION_BUTTON_ID} as its ID.
      */
@@ -639,6 +699,107 @@ public final class CustomTabsIntent {
      * The ID allocated to the custom action button that is shown on the toolbar.
      */
     public static final int TOOLBAR_ACTION_BUTTON_ID = 0;
+
+    /**
+     * Content target type: Image. Used with
+     * {@link CustomContentAction.Builder#Builder(int, String, PendingIntent, int)}.
+     * An action with this target type may be shown by the browser when the user interacts
+     * with an image element on the web page.
+     */
+    @ExperimentalCustomContentAction
+    public static final int CONTENT_TARGET_TYPE_IMAGE = 1;
+
+    /**
+     * Content target type: Link. Used with
+     * {@link CustomContentAction.Builder#Builder(int, String, PendingIntent, int)}.
+     * An action with this target type may be shown by the browser when the user interacts
+     * with a link (hyperlink) element on the web page.
+     */
+    @ExperimentalCustomContentAction
+    public static final int CONTENT_TARGET_TYPE_LINK = 2;
+
+    /**
+     * Defines the type of content a {@link CustomContentAction} can target.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @IntDef({CONTENT_TARGET_TYPE_IMAGE, CONTENT_TARGET_TYPE_LINK})
+    @Retention(RetentionPolicy.SOURCE)
+    @ExperimentalCustomContentAction
+    public @interface ContentTargetType {
+    }
+
+    /**
+     * Extra for an {@link ArrayList} of {@link Bundle} objects, each representing a
+     * {@link CustomContentAction}. The browser reads this to display custom actions.
+     * The client application adds this via
+     * {@link Builder#addCustomContentAction(CustomContentAction)}.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CUSTOM_CONTENT_ACTIONS =
+            "androidx.browser.customtabs.extra.CUSTOM_CONTENT_ACTIONS";
+
+    /**
+     * Extra added to the {@link PendingIntent} by the browser when a custom content action is
+     * triggered. This extra contains the integer ID of the specific
+     * {@link CustomContentAction} that was selected by the user. The client application
+     * should use this ID to determine which custom action was invoked. The action id cannot be set
+     * to negative numbers.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID =
+            "androidx.browser.customtabs.extra.TRIGGERED_CUSTOM_CONTENT_ACTION_ID";
+
+    /**
+     * Extra added to the {@link PendingIntent} by the browser when a custom content action is
+     * triggered. This extra contains an integer indicating the
+     * {@link ContentTargetType} (e.g., {@link #CONTENT_TARGET_TYPE_IMAGE} or
+     * {@link #CONTENT_TARGET_TYPE_LINK}) of the web content element that was interacted with.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CLICKED_CONTENT_TARGET_TYPE =
+            "androidx.browser.customtabs.extra.CLICKED_CONTENT_TARGET_TYPE";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * If the action was triggered on an image, this extra may contain the URL of that image.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_IMAGE_URL =
+            "androidx.browser.customtabs.extra.CONTEXT_IMAGE_URL";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * If the action was triggered on an image, this extra may contain the byte data of that image.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_IMAGE_DATA_URI =
+            "androidx.browser.customtabs.extra.CONTEXT_IMAGE_DATA_URI";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * If the action was triggered on an image, this extra may contain the URL of the page
+     * displaying that image.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_LINK_URL =
+            "androidx.browser.customtabs.extra.CONTEXT_LINK_URL";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * If the action was triggered on an image, this extra may contain the alt text of the
+     * clicked image, if available.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_IMAGE_ALT_TEXT =
+            "androidx.browser.customtabs.extra.CONTEXT_IMAGE_ALT_TEXT";
+
+    /**
+     * Extra added to the custom content action {@link PendingIntent} by the browser.
+     * If the action was triggered on a link, this extra may contain the visible text if available.
+     */
+    @ExperimentalCustomContentAction
+    public static final String EXTRA_CONTEXT_LINK_TEXT =
+            "androidx.browser.customtabs.extra.CONTEXT_LINK_TEXT";
 
     /**
      * The maximum allowed number of toolbar items.
@@ -696,6 +857,7 @@ public final class CustomTabsIntent {
         @ShareState private int mShareState = SHARE_STATE_DEFAULT;
         private boolean mInstantAppsEnabled = true;
         private boolean mShareIdentity;
+        private @Nullable ArrayList<Bundle> mCustomContentActionBundles;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -735,7 +897,6 @@ public final class CustomTabsIntent {
          * Overrides the effect of {@link #setSession}.
          *
          */
-        @ExperimentalPendingSession
         public @NonNull Builder setPendingSession(
                 CustomTabsSession.@NonNull PendingSession session) {
             setSessionParameters(null, session.getId());
@@ -795,6 +956,9 @@ public final class CustomTabsIntent {
 
         /**
          * Sets the Close button icon for the custom tab.
+         *
+         * If the close button is disabled (see {@link #setCloseButtonEnabled(boolean)}), then
+         * calling this function has no effect.
          *
          * @param icon The icon {@link Bitmap}
          */
@@ -1334,6 +1498,9 @@ public final class CustomTabsIntent {
         /**
          * Sets the position of the close button.
          *
+         * If the close button is disabled (see {@link #setCloseButtonEnabled(boolean)}), then
+         * calling this function has no effect.
+         *
          * @param position The desired position.
          * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_DEFAULT
          * @see CustomTabsIntent#CLOSE_BUTTON_POSITION_START
@@ -1345,6 +1512,28 @@ public final class CustomTabsIntent {
             }
 
             mIntent.putExtra(EXTRA_CLOSE_BUTTON_POSITION, position);
+            return this;
+        }
+
+        /**
+         * Sets the state for the Open in Browser button in the toolbar for this Custom Tab.
+         *
+         * @param openInBrowserState Desired Open in Browser state.
+         * @see CustomTabsIntent#EXTRA_OPEN_IN_BROWSER_STATE
+         * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_DEFAULT
+         * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_ON
+         * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_OFF
+         * @throws IllegalArgumentException when an invalid option is provided.
+         */
+        @ExperimentalOpenInBrowser
+        public @NonNull Builder setOpenInBrowserButtonState(
+                @OpenInBrowserState int openInBrowserState) {
+            if (openInBrowserState < 0 || openInBrowserState > OPEN_IN_BROWSER_STATE_MAX) {
+                throw new IllegalArgumentException(
+                        "Invalid value for the openInBrowserState argument.");
+            }
+
+            mIntent.putExtra(EXTRA_OPEN_IN_BROWSER_STATE, openInBrowserState);
             return this;
         }
 
@@ -1373,13 +1562,32 @@ public final class CustomTabsIntent {
         }
 
         /**
-         * Enables sending initial urls to external handler apps, if possible.
+         * Enables sending any redirects off of the initial URL sent to the Custom Tab to default
+         * handling apps. Unless #EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER is also set, the
+         * initial URL will still always load in the Custom Tab.
          *
          * @param enabled Whether to send urls to external handler.
          * @see CustomTabsIntent#EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER
          */
         public @NonNull Builder setSendToExternalDefaultHandlerEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER, enabled);
+            return this;
+        }
+
+        /**
+         * Allows the Custom Tab to forward the initial URL sent to the Custom Tab to the default
+         * handling app for that URL instead of loading it (including following any redirects) in
+         * the Custom Tab.
+         * <p>
+         * Note: This is not the default behavior. The default for this is to be set to false.
+         *
+         * @param enabled Whether the initial URL sent to the custom tab should be sent to the
+         *                default handling app for that URL.
+         * @see CustomTabsIntent#EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER
+         */
+        @ExperimentalInitialNavigationCanLeaveBrowser
+        public @NonNull Builder setInitialNavigationAllowedToLeaveBrowser(boolean enabled) {
+            mIntent.putExtra(EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER, enabled);
             return this;
         }
 
@@ -1447,9 +1655,60 @@ public final class CustomTabsIntent {
          * @param enabled Whether ephemeral browsing is enabled.
          * @see CustomTabsIntent#EXTRA_ENABLE_EPHEMERAL_BROWSING
          */
-        @ExperimentalEphemeralBrowsing
         public @NonNull Builder setEphemeralBrowsingEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_ENABLE_EPHEMERAL_BROWSING, enabled);
+            return this;
+        }
+
+        /**
+         * Sets whether to enable the close button for custom tab.
+         *
+         * The close button is enabled by default. If the close button is disabled, calls
+         * to {@link #setCloseButtonIcon(Bitmap)} or {@link #setCloseButtonPosition(int)}
+         * have no effect.
+         *
+         * @param enabled Whether the close button is enabled.
+         * @see CustomTabsIntent#EXTRA_CLOSE_BUTTON_ENABLED
+         */
+        public @NonNull Builder setCloseButtonEnabled(boolean enabled) {
+            mIntent.putExtra(EXTRA_CLOSE_BUTTON_ENABLED, enabled);
+            return this;
+        }
+
+        /**
+         * Adds a custom content action that can be invoked by the user on specific content types
+         * (image or link) within the Custom Tab.
+         * <p>
+         * The number of actions shown to the user is at the browser's discretion. The browser
+         * may choose not to display all the actions provided. Additionally, priority will be based
+         * on the order the actions were added, with the earliest added action being given the
+         * highest priority.
+         * <p>
+         * When the user triggers this action, the browser will send the
+         * {@link CustomContentAction#getPendingIntent()} associated with this action. The
+         * {@link Intent} within the {@link PendingIntent} will include the current URL of the
+         * Custom Tab as its data, {@link CustomTabsIntent#EXTRA_TRIGGERED_CUSTOM_CONTENT_ACTION_ID}
+         * with the ID of this action, {@link CustomTabsIntent#EXTRA_CLICKED_CONTENT_TARGET_TYPE}
+         * with the type of content interacted with, and potentially other contextual extras
+         * (e.g., {@link CustomTabsIntent#EXTRA_CONTEXT_IMAGE_URL}).
+         *
+         * @param action The {@link CustomContentAction} to add. Must not be null.
+         * @return This Builder.
+         * @throws IllegalArgumentException if an action with the same ID has already been added.
+         */
+        @ExperimentalCustomContentAction
+        public @NonNull Builder addCustomContentAction(@NonNull CustomContentAction action) {
+            if (mCustomContentActionBundles == null) {
+                mCustomContentActionBundles = new ArrayList<>();
+            }
+            // Check for duplicate IDs
+            for (Bundle existingBundle : mCustomContentActionBundles) {
+                if (existingBundle.getInt(CustomContentAction.KEY_ID) == action.getId()) {
+                    throw new IllegalArgumentException("CustomContentAction with ID "
+                            + action.getId() + " already exists.");
+                }
+            }
+            mCustomContentActionBundles.add(action.toBundle());
             return this;
         }
 
@@ -1482,6 +1741,10 @@ public final class CustomTabsIntent {
                 mIntent.putExtras(bundle);
             }
             mIntent.putExtra(EXTRA_SHARE_STATE, mShareState);
+            if (mCustomContentActionBundles != null && !mCustomContentActionBundles.isEmpty()) {
+                mIntent.putParcelableArrayListExtra(EXTRA_CUSTOM_CONTENT_ACTIONS,
+                        mCustomContentActionBundles);
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 setCurrentLocaleAsDefaultAcceptLanguage();
@@ -1490,6 +1753,9 @@ public final class CustomTabsIntent {
             Bundle bundle = null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 setShareIdentityEnabled();
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                setAllowPassThroughOnTouchOutside();
             }
             if (mActivityOptions != null) {
                 bundle = mActivityOptions.toBundle();
@@ -1526,12 +1792,20 @@ public final class CustomTabsIntent {
             }
             Api34Impl.setShareIdentityEnabled(mActivityOptions, mShareIdentity);
         }
+
+        @RequiresApi(api = Build.VERSION_CODES.BAKLAVA)
+        private void setAllowPassThroughOnTouchOutside() {
+            if (mActivityOptions == null) {
+                mActivityOptions = Api23Impl.makeBasicActivityOptions();
+            }
+            boolean enabled = isBackgroundInteractionEnabled(mIntent);
+            Api36Impl.setAllowPassThroughOnTouchOutside(mActivityOptions, enabled);
+        }
     }
 
     /**
      * Returns whether ephemeral browsing is enabled.
      */
-    @ExperimentalEphemeralBrowsing
     public boolean isEphemeralBrowsingEnabled() {
         return intent.getBooleanExtra(EXTRA_ENABLE_EPHEMERAL_BROWSING, false);
     }
@@ -1745,6 +2019,19 @@ public final class CustomTabsIntent {
     }
 
     /**
+     * @return The state for the Open in Browser button in the toolbar.
+     * @see CustomTabsIntent#EXTRA_OPEN_IN_BROWSER_STATE
+     * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_DEFAULT
+     * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_ON
+     * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_OFF
+     */
+    @ExperimentalOpenInBrowser
+    @OpenInBrowserState
+    public static int getOpenInBrowserButtonState(@NonNull Intent intent) {
+        return intent.getIntExtra(EXTRA_OPEN_IN_BROWSER_STATE, OPEN_IN_BROWSER_STATE_DEFAULT);
+    }
+
+    /**
      * @return Whether the bookmarks button is enabled.
      * @see CustomTabsIntent#EXTRA_DISABLE_BOOKMARKS_BUTTON
      */
@@ -1766,6 +2053,16 @@ public final class CustomTabsIntent {
      */
     public static boolean isSendToExternalDefaultHandlerEnabled(@NonNull Intent intent) {
         return intent.getBooleanExtra(EXTRA_SEND_TO_EXTERNAL_DEFAULT_HANDLER, false);
+    }
+
+    /**
+     * @return Whether the initial URL sent to the custom tab should be sent to the default
+     * handling app for that URL.
+     * @see CustomTabsIntent#EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER
+     */
+    @ExperimentalInitialNavigationCanLeaveBrowser
+    public static boolean isInitialNavigationAllowedToLeaveBrowser(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_INITIAL_NAVIGATION_CAN_LEAVE_BROWSER, false);
     }
 
     /**
@@ -1816,7 +2113,44 @@ public final class CustomTabsIntent {
         return intent.getParcelableExtra(EXTRA_SECONDARY_TOOLBAR_SWIPE_UP_GESTURE);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    /**
+     * @return Whether the close button is enabled.
+     * @see CustomTabsIntent#EXTRA_CLOSE_BUTTON_ENABLED
+     */
+    public static boolean isCloseButtonEnabled(@NonNull Intent intent) {
+        return intent.getBooleanExtra(EXTRA_CLOSE_BUTTON_ENABLED, true);
+    }
+
+    /**
+     * Retrieves the list of {@link CustomContentAction}s configured for the given intent.
+     * <p>
+     * This method is primarily for inspection or debugging by the client application.
+     * The browser implementation directly consumes the {@link #EXTRA_CUSTOM_CONTENT_ACTIONS} extra.
+     *
+     * @param intent The intent from which to retrieve the custom content actions. Must not be null.
+     * @return A {@link List} of {@link CustomContentAction}s. Returns an empty list if
+     * no actions were set or if the extra is malformed or missing. The list is unmodifiable.
+     */
+    @ExperimentalCustomContentAction
+    public static @NonNull List<CustomContentAction> getCustomContentActions(
+            @NonNull Intent intent) {
+        ArrayList<Bundle> bundles = IntentCompat.getParcelableArrayListExtra(
+                intent,
+                EXTRA_CUSTOM_CONTENT_ACTIONS,
+                Bundle.class);
+        if (bundles == null) {
+            return Collections.emptyList();
+        }
+        List<CustomContentAction> actions = new ArrayList<>(bundles.size());
+        for (Bundle bundle : bundles) {
+            CustomContentAction action = CustomContentAction.fromBundle(bundle);
+            if (action != null) {
+                actions.add(action);
+            }
+        }
+        return Collections.unmodifiableList(actions);
+    }
+
     private static class Api21Impl {
         static void setLanguageTag(Intent intent, Locale locale) {
             intent.putExtra(EXTRA_TRANSLATE_LANGUAGE_TAG, locale.toLanguageTag());
@@ -1847,6 +2181,14 @@ public final class CustomTabsIntent {
     private static class Api34Impl {
         static void setShareIdentityEnabled(ActivityOptions activityOptions, boolean enabled) {
             activityOptions.setShareIdentityEnabled(enabled);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.BAKLAVA)
+    private static class Api36Impl {
+        static void setAllowPassThroughOnTouchOutside(
+                ActivityOptions activityOptions, boolean enabled) {
+            activityOptions.setAllowPassThroughOnTouchOutside(enabled);
         }
     }
 }

@@ -65,7 +65,7 @@ class LocalContextCastIssueDetector : Detector(), SourceCodeScanner {
                                     ContextCastToActivity,
                                     node,
                                     context.getNameLocation(node),
-                                    DESCRIPTION
+                                    DESCRIPTION,
                                 )
                             }
                         }
@@ -87,8 +87,8 @@ class LocalContextCastIssueDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     LocalContextCastIssueDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

@@ -28,5 +28,5 @@ class TransformingLazyColumnBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = TransformingLazyColumnBenchmark,
-        actionSuffix = "TRANSFORMING_LAZY_COLUMN_ACTIVITY"
+        actionSuffix = "TRANSFORMING_LAZY_COLUMN_ACTIVITY",
     )

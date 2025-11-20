@@ -138,7 +138,7 @@ NoByteOrShort: androidx.work.Data.Builder#putByte(String, byte) parameter #1:
 
 
 NullableCollection: androidx.work.Data#getStringArray(String):
-    Return type of method androidx.work.Data.getStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.work.Data.getStringArray(String) uses a nullable collection (`java.lang.String[]`); must be non-null
 
 
 SetterReturnsThis: androidx.work.WorkRequest.Builder#addTag(String):

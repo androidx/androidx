@@ -44,7 +44,7 @@ class MonoSplineTest {
                 floatArrayOf(1f, 0f),
                 floatArrayOf(2f, 0f),
                 floatArrayOf(2f, 0f),
-                floatArrayOf(3f, 0f)
+                floatArrayOf(3f, 0f),
             )
         val time = floatArrayOf(0f, 1f, 2f, 3f, 4f, 5f)
         val mspline = MonoSpline(time, points, Float.NaN)
@@ -98,7 +98,7 @@ internal fun drawTextGraph(
     dimy: Int,
     x: FloatArray,
     y: FloatArray,
-    flip: Boolean
+    flip: Boolean,
 ): String {
     var minX = x[0]
     var maxX = x[0]

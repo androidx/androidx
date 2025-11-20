@@ -35,7 +35,7 @@ class AndroidRectsInLinearLayoutTestCase(private val numberOfRectangles: Int) : 
         column.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             )
         repeat(numberOfRectangles) {
             val rectangle = View(activity)
@@ -43,7 +43,7 @@ class AndroidRectsInLinearLayoutTestCase(private val numberOfRectangles: Int) : 
             rectangle.layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
 
             column.addView(rectangle)

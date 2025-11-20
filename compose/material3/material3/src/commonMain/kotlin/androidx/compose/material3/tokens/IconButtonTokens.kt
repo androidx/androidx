@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_11_0
+// VERSION: 14_1_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object StandardIconButtonTokens {
-    val DisabledColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val DisabledColor = ColorSchemeKeyTokens.OnSurface
     val DisabledOpacity = 0.38f
     val FocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val HoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant

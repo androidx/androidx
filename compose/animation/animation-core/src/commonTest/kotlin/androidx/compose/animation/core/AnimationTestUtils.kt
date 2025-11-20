@@ -26,13 +26,13 @@ internal fun VectorizedAnimationSpec<AnimationVector1D>.getValue(
     playTime: Long,
     start: Number,
     end: Number,
-    startVelocity: Number
+    startVelocity: Number,
 ) =
     getValueFromMillis(
             playTime,
             AnimationVector1D(start.toFloat()),
             AnimationVector1D(end.toFloat()),
-            AnimationVector1D(startVelocity.toFloat())
+            AnimationVector1D(startVelocity.toFloat()),
         )
         .value
 
@@ -40,13 +40,13 @@ internal fun VectorizedAnimationSpec<AnimationVector1D>.getVelocity(
     playTime: Long,
     start: Number,
     end: Number,
-    startVelocity: Number
+    startVelocity: Number,
 ) =
     getVelocityFromNanos(
             playTime * MillisToNanos,
             AnimationVector1D(start.toFloat()),
             AnimationVector1D(end.toFloat()),
-            AnimationVector1D(startVelocity.toFloat())
+            AnimationVector1D(startVelocity.toFloat()),
         )
         .value
 
@@ -83,7 +83,7 @@ internal fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromMillis(
 internal fun FloatAnimationSpec.getDurationMillis(
     start: Float,
     end: Float,
-    startVelocity: Float
+    startVelocity: Float,
 ): Long = getDurationNanos(start, end, startVelocity) / MillisToNanos
 
 /**
@@ -100,7 +100,7 @@ internal fun FloatAnimationSpec.getValueFromMillis(
     playTimeMillis: Long,
     start: Float,
     end: Float,
-    startVelocity: Float
+    startVelocity: Float,
 ): Float = getValueFromNanos(playTimeMillis * MillisToNanos, start, end, startVelocity)
 
 /**
@@ -117,7 +117,7 @@ internal fun FloatAnimationSpec.getVelocityFromMillis(
     playTimeMillis: Long,
     start: Float,
     end: Float,
-    startVelocity: Float
+    startVelocity: Float,
 ): Float = getVelocityFromNanos(playTimeMillis * MillisToNanos, start, end, startVelocity)
 
 /** Creates a TwoWayConverter for FloatArray and the given AnimationVector type. */
@@ -130,16 +130,13 @@ internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
                     AnimationVector(it.getOrElse(0) { 0f })
                 }
                 AnimationVector2D::class -> {
-                    AnimationVector(
-                        it.getOrElse(0) { 0f },
-                        it.getOrElse(1) { 0f },
-                    )
+                    AnimationVector(it.getOrElse(0) { 0f }, it.getOrElse(1) { 0f })
                 }
                 AnimationVector3D::class -> {
                     AnimationVector(
                         it.getOrElse(0) { 0f },
                         it.getOrElse(1) { 0f },
-                        it.getOrElse(2) { 0f }
+                        it.getOrElse(2) { 0f },
                     )
                 }
                 else -> { // 4D
@@ -147,7 +144,7 @@ internal inline fun <reified V : AnimationVector> createFloatArrayConverter():
                         it.getOrElse(0) { 0f },
                         it.getOrElse(1) { 0f },
                         it.getOrElse(2) { 0f },
-                        it.getOrElse(3) { 0f }
+                        it.getOrElse(3) { 0f },
                     )
                 }
             }

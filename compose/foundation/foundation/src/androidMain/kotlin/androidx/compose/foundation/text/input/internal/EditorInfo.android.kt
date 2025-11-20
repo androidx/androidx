@@ -41,7 +41,7 @@ internal fun EditorInfo.update(
     text: CharSequence,
     selection: TextRange,
     imeOptions: ImeOptions,
-    contentMimeTypes: Array<String>? = null
+    contentMimeTypes: Array<String>? = null,
 ) {
     this.imeOptions =
         when (imeOptions.imeAction) {
@@ -181,14 +181,14 @@ private object EditorInfoApi34 {
                 DeleteRangeGesture::class.java,
                 JoinOrSplitGesture::class.java,
                 InsertGesture::class.java,
-                RemoveSpaceGesture::class.java
+                RemoveSpaceGesture::class.java,
             )
         editorInfo.supportedHandwritingGesturePreviews =
             setOf(
                 SelectGesture::class.java,
                 DeleteGesture::class.java,
                 SelectRangeGesture::class.java,
-                DeleteRangeGesture::class.java
+                DeleteRangeGesture::class.java,
             )
     }
 }

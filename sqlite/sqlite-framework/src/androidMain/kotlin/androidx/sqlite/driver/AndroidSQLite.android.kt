@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("AndroidSQLite")
+
 package androidx.sqlite.driver
 
 internal object ResultCode {

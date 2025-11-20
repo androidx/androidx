@@ -19,22 +19,18 @@
 package androidx.core.util
 
 import android.util.Range
-import androidx.annotation.RequiresApi
 
 /**
  * Creates a range from this [Comparable] value to [that].
  *
  * @throws IllegalArgumentException if this value is comparatively smaller than [that].
  */
-@RequiresApi(21)
 public inline infix fun <T : Comparable<T>> T.rangeTo(that: T): Range<T> = Range(this, that)
 
 /** Return the smallest range that includes this and [value]. */
-@RequiresApi(21)
 public inline operator fun <T : Comparable<T>> Range<T>.plus(value: T): Range<T> = extend(value)
 
 /** Return the smallest range that includes this and [other]. */
-@RequiresApi(21)
 public inline operator fun <T : Comparable<T>> Range<T>.plus(other: Range<T>): Range<T> =
     extend(other)
 
@@ -43,12 +39,10 @@ public inline operator fun <T : Comparable<T>> Range<T>.plus(other: Range<T>): R
  *
  * @throws IllegalArgumentException if this is disjoint from [other].
  */
-@RequiresApi(21)
 public inline infix fun <T : Comparable<T>> Range<T>.and(other: Range<T>): Range<T> =
     intersect(other)
 
 /** Returns this [Range] as a [ClosedRange]. */
-@RequiresApi(21)
 public fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> =
     object : ClosedRange<T> {
         override val endInclusive
@@ -59,5 +53,4 @@ public fun <T : Comparable<T>> Range<T>.toClosedRange(): ClosedRange<T> =
     }
 
 /** Returns this [ClosedRange] as a [Range]. */
-@RequiresApi(21)
 public fun <T : Comparable<T>> ClosedRange<T>.toRange(): Range<T> = Range(start, endInclusive)

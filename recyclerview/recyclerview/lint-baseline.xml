@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="BanThreadSleep"
@@ -112,8 +112,8 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(0, 1);"
-        errorLine2="                   ~~~~~">
+        errorLine1="        Thread.sleep(0, 1);"
+        errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"/>
     </issue>
@@ -264,52 +264,16 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtilImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtilImpl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
+        message="Unnecessary; `SDK_INT` is never &lt; 23"
         errorLine1="    static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 19"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -327,18 +291,18 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    static final boolean ALLOW_SIZE_IN_UNSPECIFIED_SPEC = Build.VERSION.SDK_INT >= 23;"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 23) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
@@ -1111,7 +1075,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type, @NonNull int[] consumed) {"
+        errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type, int @NonNull [] consumed) {"
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
@@ -1678,8 +1642,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,"
-        errorLine2="                                    ~~~~">
+        errorLine1="    public @Nullable View onFocusSearchFailed(View focused, int direction,"
+        errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
@@ -1687,8 +1651,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
@@ -1696,8 +1660,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            RecyclerView.State state) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>

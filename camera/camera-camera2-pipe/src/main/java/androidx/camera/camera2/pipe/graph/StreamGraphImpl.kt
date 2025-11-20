@@ -38,6 +38,8 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.Api24Compat
 import androidx.camera.camera2.pipe.config.CameraGraphScope
+import androidx.camera.camera2.pipe.internal.ImageSourceMap
+import androidx.camera.camera2.pipe.media.ImageSource
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.atomicfu.atomic
@@ -54,6 +56,7 @@ constructor(
     val cameraMetadata: CameraMetadata,
     val graphConfig: CameraGraph.Config,
     private val cameraControllerProvider: Provider<CameraController>,
+    private val imageSourceMapProvider: Provider<ImageSourceMap>,
 ) : StreamGraph {
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
@@ -69,7 +72,7 @@ constructor(
 
     override fun getOutputLatency(
         streamId: StreamId,
-        outputId: OutputId?
+        outputId: OutputId?,
     ): StreamGraph.OutputLatency? {
         val cameraController = cameraControllerProvider.get()
         val outputLatency = cameraController.getOutputLatency(streamId)
@@ -92,6 +95,10 @@ constructor(
         val stallDuration =
             streamConfigurationMap?.getOutputStallDuration(output.format.value, output.size)
         return stallDuration?.let { StreamGraph.OutputLatency(it, 0) }
+    }
+
+    override fun getImageSource(streamId: StreamId): ImageSource? {
+        return imageSourceMapProvider.get().imageSources[streamId]
     }
 
     init {
@@ -168,7 +175,7 @@ constructor(
                             outputConfig.dynamicRangeProfile,
                             outputConfig.streamUseCase,
                             outputConfig.deferredOutputType,
-                            outputConfig.streamUseHint
+                            outputConfig.streamUseHint,
                         )
                     outputStream
                 }
@@ -184,13 +191,8 @@ constructor(
             }
         }
         inputs =
-            graphConfig.input?.map {
-                InputStreamImpl(
-                    nextInputId(),
-                    it.maxImages,
-                    it.streamFormat,
-                )
-            } ?: emptyList()
+            graphConfig.input?.map { InputStreamImpl(nextInputId(), it.maxImages, it.streamFormat) }
+                ?: emptyList()
 
         val streamSortedByPreview = sortOutputsByPreviewStream(streamListBuilder)
         val streamSortedByVideo = sortOutputsByVideoStream(streamSortedByPreview)
@@ -227,7 +229,8 @@ constructor(
         val deferrable: Boolean
             get() = deferredOutputType != null
 
-        val surfaceSharing = streamBuilder.size > 1
+        val surfaceSharing: Boolean
+            get() = streamBuilder.size > 1
 
         override fun toString(): String = id.toString()
     }
@@ -242,7 +245,7 @@ constructor(
         override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
         override val streamUseCase: OutputStream.StreamUseCase?,
         override val outputType: OutputStream.OutputType?,
-        override val streamUseHint: OutputStream.StreamUseHint?
+        override val streamUseHint: OutputStream.StreamUseHint?,
     ) : OutputStream {
         override lateinit var stream: CameraStream
 
@@ -252,7 +255,7 @@ constructor(
     private class InputStreamImpl(
         override val id: InputStreamId,
         override val maxImages: Int,
-        override val format: StreamFormat
+        override val format: StreamFormat,
     ) : InputStream
 
     interface SurfaceListener {
@@ -300,7 +303,7 @@ constructor(
 
     private fun computeIfDeferredStreamsAreSupported(
         cameraMetadata: CameraMetadata,
-        graphConfig: CameraGraph.Config
+        graphConfig: CameraGraph.Config,
     ): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             graphConfig.sessionMode == CameraGraph.OperatingMode.NORMAL &&

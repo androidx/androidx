@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.graphics.shapes
 
 import android.graphics.Matrix
@@ -70,7 +72,7 @@ private fun pathFromCubics(path: Path, cubics: List<Cubic>) {
             cubic.control1X,
             cubic.control1Y,
             cubic.anchor1X,
-            cubic.anchor1Y
+            cubic.anchor1Y,
         )
     }
     path.close()

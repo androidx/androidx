@@ -53,7 +53,7 @@ class PrimitiveInCollectionDetectorTest(parameters: Parameters) : LintDetectorTe
                         fun foo(): Set<$type>? = null
                         fun bar(): Set<String>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -79,7 +79,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type Set<$longType> of foo: r
                         fun foo(): HashSet<$type>? = null
                         fun bar(): HashSet<String>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -105,7 +105,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type HashSet<$longType> of fo
                         fun foo(): List<$type>? = null
                         fun bar(): List<String>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -131,7 +131,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type List<$longType> of foo: 
                         fun foo(): ArrayList<$type>? = null
                         fun bar(): ArrayList<String>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -157,7 +157,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type ArrayList<$longType> of 
                         fun foo(): Map<$type, Any>? = null
                         fun bar(): Map<String, Any>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -183,7 +183,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type Map<$longType, Object> o
                         fun foo(): HashMap<$type, Any>? = null
                         fun bar(): HashMap<String, Any>? = null // no warning for this
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -216,7 +216,7 @@ src/androidx/compose/lint/test.kt:4: Error: return type HashMap<$longType, Objec
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -249,7 +249,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type Set<$longType>:
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -282,7 +282,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type HashSet<$longTy
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -315,7 +315,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type List<$longType>
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -348,7 +348,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type ArrayList<$long
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -381,7 +381,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type Map<String, $lo
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -409,7 +409,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type HashMap<$longTy
                             println(s)
                         }
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -434,7 +434,7 @@ src/androidx/compose/lint/test.kt:5: Error: variable s with type HashMap<$longTy
 
                         data class Foo(val foo: Set<$type>)
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -480,7 +480,7 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
         val type: String,
         val value: String,
         val longType: String,
-        val collectionType: String
+        val collectionType: String,
     )
 
     companion object {
@@ -504,8 +504,8 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
                     "test.SimpleValueClass",
                     "test.SimpleValueClass(0)",
                     "SimpleValueClass",
-                    "Int"
-                )
+                    "Int",
+                ),
             )
 
         val ContainsIntClass =
@@ -567,7 +567,7 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
             +pL62PeISz9BivTEjpLYCxe1SuJxIHUSH/r1cTz33T/FJq27tHtCq0HQ5U1E
             DHxkoGRgBU9pi1UDH+OTTTAXa1jfxJAL1cUzF3H/O+8i7yLqIubigW+5T+/K
             xYyLKRc5F9d9Y8rFwH8DJohDBwgAAA==
-            """
+            """,
             )
     }
 }

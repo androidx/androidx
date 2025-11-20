@@ -17,7 +17,6 @@
 package androidx.appcompat.widget;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.PopupWindow;
@@ -31,11 +30,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 class AppCompatPopupWindow extends PopupWindow {
-
-    private static final boolean COMPAT_OVERLAP_ANCHOR = Build.VERSION.SDK_INT < 21;
-
-    private boolean mOverlapAnchor;
-
     public AppCompatPopupWindow(@NonNull Context context, @Nullable AttributeSet attrs,
             @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -62,36 +56,20 @@ class AppCompatPopupWindow extends PopupWindow {
 
     @Override
     public void showAsDropDown(View anchor, int xoff, int yoff) {
-        if (COMPAT_OVERLAP_ANCHOR && mOverlapAnchor) {
-            // If we're pre-L, emulate overlapAnchor by modifying the yOff
-            yoff -= anchor.getHeight();
-        }
         super.showAsDropDown(anchor, xoff, yoff);
     }
 
     @Override
     public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
-        if (COMPAT_OVERLAP_ANCHOR && mOverlapAnchor) {
-            // If we're pre-L, emulate overlapAnchor by modifying the yOff
-            yoff -= anchor.getHeight();
-        }
         super.showAsDropDown(anchor, xoff, yoff, gravity);
     }
 
     @Override
     public void update(View anchor, int xoff, int yoff, int width, int height) {
-        if (COMPAT_OVERLAP_ANCHOR && mOverlapAnchor) {
-            // If we're pre-L, emulate overlapAnchor by modifying the yOff
-            yoff -= anchor.getHeight();
-        }
         super.update(anchor, xoff, yoff, width, height);
     }
 
     private void setSupportOverlapAnchor(boolean overlapAnchor) {
-        if (COMPAT_OVERLAP_ANCHOR) {
-            mOverlapAnchor = overlapAnchor;
-        } else {
-            PopupWindowCompat.setOverlapAnchor(this, overlapAnchor);
-        }
+        PopupWindowCompat.setOverlapAnchor(this, overlapAnchor);
     }
 }

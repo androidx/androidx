@@ -117,7 +117,7 @@ class CanvasDrawScope : DrawScope {
         pathEffect: PathEffect?,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawLine(
             start,
@@ -131,8 +131,8 @@ class CanvasDrawScope : DrawScope {
                 pathEffect,
                 alpha,
                 colorFilter,
-                blendMode
-            )
+                blendMode,
+            ),
         )
 
     /** @see [DrawScope.drawLine] */
@@ -145,7 +145,7 @@ class CanvasDrawScope : DrawScope {
         pathEffect: PathEffect?,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawLine(
             start,
@@ -159,8 +159,8 @@ class CanvasDrawScope : DrawScope {
                 pathEffect,
                 alpha,
                 colorFilter,
-                blendMode
-            )
+                blendMode,
+            ),
         )
 
     /** @see [DrawScope.drawRect] */
@@ -171,14 +171,14 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
             bottom = topLeft.y + size.height,
-            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawRect] */
@@ -189,14 +189,14 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
             bottom = topLeft.y + size.height,
-            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawImage] */
@@ -206,12 +206,12 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawImage(
             image,
             topLeft,
-            configurePaint(null, style, alpha, colorFilter, blendMode)
+            configurePaint(null, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawImage] */
@@ -222,9 +222,9 @@ class CanvasDrawScope : DrawScope {
                 "drawImage(image, srcOffset, srcSize, dstOffset, dstSize, alpha, style," +
                     " colorFilter, blendMode, FilterQuality.Low)",
                 "androidx.compose.ui.graphics.drawscope",
-                "androidx.compose.ui.graphics.FilterQuality"
+                "androidx.compose.ui.graphics.FilterQuality",
             ),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     override fun drawImage(
         image: ImageBitmap,
@@ -235,7 +235,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawImageRect(
             image,
@@ -243,7 +243,7 @@ class CanvasDrawScope : DrawScope {
             srcSize,
             dstOffset,
             dstSize,
-            configurePaint(null, style, alpha, colorFilter, blendMode)
+            configurePaint(null, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawImage] */
@@ -257,7 +257,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-        filterQuality: FilterQuality
+        filterQuality: FilterQuality,
     ) =
         drawParams.canvas.drawImageRect(
             image,
@@ -265,7 +265,7 @@ class CanvasDrawScope : DrawScope {
             srcSize,
             dstOffset,
             dstSize,
-            configurePaint(null, style, alpha, colorFilter, blendMode, filterQuality)
+            configurePaint(null, style, alpha, colorFilter, blendMode, filterQuality),
         )
 
     /** @see [DrawScope.drawRoundRect] */
@@ -277,7 +277,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawRoundRect(
             topLeft.x,
@@ -286,7 +286,7 @@ class CanvasDrawScope : DrawScope {
             topLeft.y + size.height,
             cornerRadius.x,
             cornerRadius.y,
-            configurePaint(brush, style, alpha, colorFilter, blendMode)
+            configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawRoundRect] */
@@ -298,7 +298,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawRoundRect(
             topLeft.x,
@@ -307,7 +307,7 @@ class CanvasDrawScope : DrawScope {
             topLeft.y + size.height,
             cornerRadius.x,
             cornerRadius.y,
-            configurePaint(color, style, alpha, colorFilter, blendMode)
+            configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawCircle] */
@@ -318,12 +318,12 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawCircle(
             center,
             radius,
-            configurePaint(brush, style, alpha, colorFilter, blendMode)
+            configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawCircle] */
@@ -334,12 +334,12 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawCircle(
             center,
             radius,
-            configurePaint(color, style, alpha, colorFilter, blendMode)
+            configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawOval] */
@@ -350,14 +350,14 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
             bottom = topLeft.y + size.height,
-            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawOval] */
@@ -368,14 +368,14 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
             right = topLeft.x + size.width,
             bottom = topLeft.y + size.height,
-            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawArc] */
@@ -389,7 +389,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawArc(
             left = topLeft.x,
@@ -399,7 +399,7 @@ class CanvasDrawScope : DrawScope {
             startAngle = startAngle,
             sweepAngle = sweepAngle,
             useCenter = useCenter,
-            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawArc] */
@@ -413,7 +413,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawArc(
             left = topLeft.x,
@@ -423,7 +423,7 @@ class CanvasDrawScope : DrawScope {
             startAngle = startAngle,
             sweepAngle = sweepAngle,
             useCenter = useCenter,
-            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawPath] */
@@ -433,11 +433,11 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawPath(
             path,
-            configurePaint(color, style, alpha, colorFilter, blendMode)
+            configurePaint(color, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawPath] */
@@ -447,11 +447,11 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         style: DrawStyle,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawPath(
             path,
-            configurePaint(brush, style, alpha, colorFilter, blendMode)
+            configurePaint(brush, style, alpha, colorFilter, blendMode),
         )
 
     /** @see [DrawScope.drawPoints] */
@@ -464,7 +464,7 @@ class CanvasDrawScope : DrawScope {
         pathEffect: PathEffect?,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawPoints(
             pointMode,
@@ -478,8 +478,8 @@ class CanvasDrawScope : DrawScope {
                 pathEffect,
                 alpha,
                 colorFilter,
-                blendMode
-            )
+                blendMode,
+            ),
         )
 
     /** @see [DrawScope.drawPoints] */
@@ -492,7 +492,7 @@ class CanvasDrawScope : DrawScope {
         pathEffect: PathEffect?,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     ) =
         drawParams.canvas.drawPoints(
             pointMode,
@@ -506,8 +506,8 @@ class CanvasDrawScope : DrawScope {
                 pathEffect,
                 alpha,
                 colorFilter,
-                blendMode
-            )
+                blendMode,
+            ),
         )
 
     /**
@@ -527,7 +527,7 @@ class CanvasDrawScope : DrawScope {
         layoutDirection: LayoutDirection,
         canvas: Canvas,
         size: Size,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         // Remember the previous drawing parameters in case we are temporarily re-directing our
         // drawing to a separate Layer/RenderNode only to draw that content back into the original
@@ -598,7 +598,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-        filterQuality: FilterQuality = DefaultFilterQuality
+        filterQuality: FilterQuality = DefaultFilterQuality,
     ): Paint =
         selectPaint(style).apply {
             if (brush != null) {
@@ -623,7 +623,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-        filterQuality: FilterQuality = DefaultFilterQuality
+        filterQuality: FilterQuality = DefaultFilterQuality,
     ): Paint =
         selectPaint(style).apply {
             // Modulate the color alpha directly
@@ -646,7 +646,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-        filterQuality: FilterQuality = DefaultFilterQuality
+        filterQuality: FilterQuality = DefaultFilterQuality,
     ) =
         obtainStrokePaint().apply {
             // Modulate the color alpha directly
@@ -674,7 +674,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-        filterQuality: FilterQuality = DefaultFilterQuality
+        filterQuality: FilterQuality = DefaultFilterQuality,
     ) =
         obtainStrokePaint().apply {
             if (brush != null) {
@@ -706,11 +706,12 @@ class CanvasDrawScope : DrawScope {
      * individually
      */
     @PublishedApi
+    @Suppress("DataClassDefinition")
     internal data class DrawParams(
         var density: Density = DefaultDensity,
         var layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         var canvas: Canvas = EmptyCanvas,
-        var size: Size = Size.Zero
+        var size: Size = Size.Zero,
     )
 }
 
@@ -739,7 +740,7 @@ private fun DrawContext.asDrawTransform(): DrawTransform =
             top: Float,
             right: Float,
             bottom: Float,
-            clipOp: ClipOp
+            clipOp: ClipOp,
         ) {
             this@asDrawTransform.canvas.clipRect(left, top, right, bottom, clipOp)
         }

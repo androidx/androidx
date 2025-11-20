@@ -33,10 +33,10 @@
         android:id="@+id/autofill_no"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:importantForAutofill="no"/>>
+        android:importantForAutofill="no"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/autofill_auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:importantForAutofill="auto"/>>
+        android:importantForAutofill="auto"/>
 </LinearLayout>

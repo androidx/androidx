@@ -135,7 +135,7 @@ private fun PhoneScreen(gridColumns: Int) {
                     icon = { Icon(icons[index], contentDescription = item) },
                     label = { Text(item) },
                     selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    onClick = { selectedItem = index },
                 )
             }
         }
@@ -154,7 +154,7 @@ private fun TabletScreen(gridColumns: Int) {
                     icon = { Icon(icons[index], contentDescription = item) },
                     label = { Text(item) },
                     selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    onClick = { selectedItem = index },
                 )
             }
         }
@@ -170,7 +170,7 @@ private fun Grid(gridColumns: Int, modifier: Modifier = Modifier) {
                 text = "$it",
                 fontSize = 20.sp,
                 modifier =
-                    Modifier.background(Color.Gray.copy(alpha = (it % 10) / 10f)).padding(8.dp)
+                    Modifier.background(Color.Gray.copy(alpha = (it % 10) / 10f)).padding(8.dp),
             )
         }
     }

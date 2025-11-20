@@ -133,11 +133,8 @@ public class ActivityOptionsCompat {
      */
     public static @NonNull ActivityOptionsCompat makeClipRevealAnimation(@NonNull View source,
             int startX, int startY, int width, int height) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompatImpl(
-                    ActivityOptions.makeClipRevealAnimation(source, startX, startY, width, height));
-        }
-        return new ActivityOptionsCompat();
+        return new ActivityOptionsCompatImpl(
+                ActivityOptions.makeClipRevealAnimation(source, startX, startY, width, height));
     }
 
     /**
@@ -242,10 +239,7 @@ public class ActivityOptionsCompat {
      * Other options can still be set.
      */
     public static @NonNull ActivityOptionsCompat makeBasic() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeBasic());
-        }
-        return new ActivityOptionsCompat();
+        return new ActivityOptionsCompatImpl(ActivityOptions.makeBasic());
     }
 
     private static class ActivityOptionsCompatImpl extends ActivityOptionsCompat {
@@ -271,9 +265,7 @@ public class ActivityOptionsCompat {
 
         @Override
         public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                mActivityOptions.requestUsageTimeReport(receiver);
-            }
+            mActivityOptions.requestUsageTimeReport(receiver);
         }
 
         @Override

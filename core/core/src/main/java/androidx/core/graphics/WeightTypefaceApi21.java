@@ -24,7 +24,6 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.LongSparseArray;
 
@@ -41,7 +40,6 @@ import java.lang.reflect.Method;
  */
 @SuppressLint("SoonBlockedPrivateApi")
 @RestrictTo(LIBRARY)
-@RequiresApi(21)
 final class WeightTypefaceApi21 {
     private static final String TAG = "WeightTypeface";
 

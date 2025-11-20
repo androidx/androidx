@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 internal class LazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
     private val graphicsContext: GraphicsContext? = null,
-    private val onLayerPropertyChanged: () -> Unit = {}
+    private val onLayerPropertyChanged: () -> Unit = {},
 ) {
     var fadeInSpec: FiniteAnimationSpec<Float>? = null
     var placementSpec: FiniteAnimationSpec<IntOffset>? = null
@@ -243,7 +243,7 @@ internal class LazyLayoutItemAnimation(
 internal data class LazyLayoutAnimateItemElement(
     private val fadeInSpec: FiniteAnimationSpec<Float>?,
     private val placementSpec: FiniteAnimationSpec<IntOffset>?,
-    private val fadeOutSpec: FiniteAnimationSpec<Float>?
+    private val fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
     override fun create(): LazyLayoutAnimationSpecsNode =
@@ -266,7 +266,7 @@ internal data class LazyLayoutAnimateItemElement(
 internal class LazyLayoutAnimationSpecsNode(
     var fadeInSpec: FiniteAnimationSpec<Float>?,
     var placementSpec: FiniteAnimationSpec<IntOffset>?,
-    var fadeOutSpec: FiniteAnimationSpec<Float>?
+    var fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : Modifier.Node(), ParentDataModifierNode {
 
     override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
@@ -276,5 +276,5 @@ internal class LazyLayoutAnimationSpecsNode(
 private val InterruptionSpec =
     spring(
         stiffness = Spring.StiffnessMediumLow,
-        visibilityThreshold = IntOffset.VisibilityThreshold
+        visibilityThreshold = IntOffset.VisibilityThreshold,
     )

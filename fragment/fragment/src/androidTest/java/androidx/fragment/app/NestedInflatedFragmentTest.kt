@@ -34,11 +34,11 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class NestedInflatedFragmentTest {
 
-    @Suppress("DEPRECATION")
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     // Detect leaks BEFORE and AFTER activity is destroyed
@@ -181,6 +181,7 @@ class NestedInflatedFragmentTest {
             childFragmentManager.addFragmentOnAttachListener(this)
         }
 
+        @Deprecated("Deprecated in Fragment")
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -203,6 +204,7 @@ class NestedInflatedFragmentTest {
             childFragmentManager.addFragmentOnAttachListener(this)
         }
 
+        @Deprecated("Deprecated in Fragment")
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)
             if (host != null) {
@@ -232,7 +234,7 @@ class NestedInflatedFragmentTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) = TextView(inflater.context).apply { text = "Simple fragment" }
     }
 }

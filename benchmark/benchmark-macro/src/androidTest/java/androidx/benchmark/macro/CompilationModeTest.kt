@@ -63,11 +63,11 @@ class CompilationModeTest {
             assertEquals(
                 "WarmupProfile(iterations=3)",
                 CompilationMode.Partial(BaselineProfileMode.Disable, warmupIterations = 3)
-                    .toString()
+                    .toString(),
             )
             assertEquals(
                 "Partial(baselineProfile=Require,iterations=3)",
-                CompilationMode.Partial(warmupIterations = 3).toString()
+                CompilationMode.Partial(warmupIterations = 3).toString(),
             )
             assertEquals("Full", CompilationMode.Full().toString())
         }
@@ -112,7 +112,7 @@ class CompilationModeTest {
             kotlin.test.assertTrue { path.isEmpty() }
             mode.installPackageFromPaths(
                 packageName = Packages.TARGET,
-                copiedApkPaths = copiedApkPaths
+                copiedApkPaths = copiedApkPaths,
             )
             path = Shell.pmPath(Packages.TARGET)
             kotlin.test.assertTrue { path.isNotEmpty() }

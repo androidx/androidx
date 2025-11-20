@@ -35,35 +35,35 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Primary",
                 MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.onPrimary,
             )
         }
         item {
             ButtonWithColor(
                 "Primary Dim",
                 MaterialTheme.colorScheme.primaryDim,
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.onPrimary,
             )
         }
         item {
             ButtonWithColor(
                 "Primary Container",
                 MaterialTheme.colorScheme.primaryContainer,
-                MaterialTheme.colorScheme.onPrimaryContainer
+                MaterialTheme.colorScheme.onPrimaryContainer,
             )
         }
         item {
             ButtonWithColor(
                 "On Primary",
                 MaterialTheme.colorScheme.onPrimary,
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.primary,
             )
         }
         item {
             ButtonWithColor(
                 "On Primary Container",
                 MaterialTheme.colorScheme.onPrimaryContainer,
-                MaterialTheme.colorScheme.primaryContainer
+                MaterialTheme.colorScheme.primaryContainer,
             )
         }
         item { ListHeader { Text("Secondary Colors") } }
@@ -71,35 +71,35 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Secondary",
                 MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.onSecondary
+                MaterialTheme.colorScheme.onSecondary,
             )
         }
         item {
             ButtonWithColor(
                 "Secondary Dim",
                 MaterialTheme.colorScheme.secondaryDim,
-                MaterialTheme.colorScheme.onSecondary
+                MaterialTheme.colorScheme.onSecondary,
             )
         }
         item {
             ButtonWithColor(
                 "Secondary Container",
                 MaterialTheme.colorScheme.secondaryContainer,
-                MaterialTheme.colorScheme.onSecondaryContainer
+                MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
         item {
             ButtonWithColor(
                 "On Secondary",
                 MaterialTheme.colorScheme.onSecondary,
-                MaterialTheme.colorScheme.secondary
+                MaterialTheme.colorScheme.secondary,
             )
         }
         item {
             ButtonWithColor(
                 "On Secondary Container",
                 MaterialTheme.colorScheme.onSecondaryContainer,
-                MaterialTheme.colorScheme.secondaryContainer
+                MaterialTheme.colorScheme.secondaryContainer,
             )
         }
         item { ListHeader { Text("Tertiary Colors") } }
@@ -107,35 +107,35 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Tertiary",
                 MaterialTheme.colorScheme.tertiary,
-                MaterialTheme.colorScheme.onTertiary
+                MaterialTheme.colorScheme.onTertiary,
             )
         }
         item {
             ButtonWithColor(
                 "Tertiary Dim",
                 MaterialTheme.colorScheme.tertiaryDim,
-                MaterialTheme.colorScheme.onTertiary
+                MaterialTheme.colorScheme.onTertiary,
             )
         }
         item {
             ButtonWithColor(
                 "Tertiary Container",
                 MaterialTheme.colorScheme.tertiaryContainer,
-                MaterialTheme.colorScheme.onTertiaryContainer
+                MaterialTheme.colorScheme.onTertiaryContainer,
             )
         }
         item {
             ButtonWithColor(
                 "On Tertiary",
                 MaterialTheme.colorScheme.onTertiary,
-                MaterialTheme.colorScheme.tertiary
+                MaterialTheme.colorScheme.tertiary,
             )
         }
         item {
             ButtonWithColor(
                 "On Tertiary Container",
                 MaterialTheme.colorScheme.onTertiaryContainer,
-                MaterialTheme.colorScheme.tertiaryContainer
+                MaterialTheme.colorScheme.tertiaryContainer,
             )
         }
         item { ListHeader { Text("Surface Colors") } }
@@ -143,35 +143,35 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Surface Container",
                 MaterialTheme.colorScheme.surfaceContainer,
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.onSurface,
             )
         }
         item {
             ButtonWithColor(
                 "Surface Container Low",
                 MaterialTheme.colorScheme.surfaceContainerLow,
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.onSurface,
             )
         }
         item {
             ButtonWithColor(
                 "Surface Container High",
                 MaterialTheme.colorScheme.surfaceContainerHigh,
-                MaterialTheme.colorScheme.onSurface
+                MaterialTheme.colorScheme.onSurface,
             )
         }
         item {
             ButtonWithColor(
                 "On Surface",
                 MaterialTheme.colorScheme.onSurface,
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.surfaceContainer,
             )
         }
         item {
             ButtonWithColor(
                 "On Surface Variant",
                 MaterialTheme.colorScheme.onSurfaceVariant,
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.surfaceContainer,
             )
         }
         item { ListHeader { Text("Background Colors") } }
@@ -179,14 +179,14 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Background",
                 MaterialTheme.colorScheme.background,
-                MaterialTheme.colorScheme.onBackground
+                MaterialTheme.colorScheme.onBackground,
             )
         }
         item {
             ButtonWithColor(
                 "On Background",
                 MaterialTheme.colorScheme.onBackground,
-                MaterialTheme.colorScheme.background
+                MaterialTheme.colorScheme.background,
             )
         }
         item { ListHeader { Text("Outline Colors") } }
@@ -194,14 +194,14 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Outline",
                 MaterialTheme.colorScheme.outline,
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.surfaceContainer,
             )
         }
         item {
             ButtonWithColor(
                 "Outline Variant",
                 MaterialTheme.colorScheme.outlineVariant,
-                MaterialTheme.colorScheme.surfaceContainer
+                MaterialTheme.colorScheme.surfaceContainer,
             )
         }
         item { ListHeader { Text("Error Colors") } }
@@ -209,35 +209,35 @@ fun ColorSchemeDemos() {
             ButtonWithColor(
                 "Error",
                 MaterialTheme.colorScheme.error,
-                MaterialTheme.colorScheme.onError
+                MaterialTheme.colorScheme.onError,
             )
         }
         item {
             ButtonWithColor(
                 "ErrorDim",
                 MaterialTheme.colorScheme.errorDim,
-                MaterialTheme.colorScheme.onError
+                MaterialTheme.colorScheme.onError,
             )
         }
         item {
             ButtonWithColor(
                 "Error Container",
                 MaterialTheme.colorScheme.errorContainer,
-                MaterialTheme.colorScheme.onErrorContainer
+                MaterialTheme.colorScheme.onErrorContainer,
             )
         }
         item {
             ButtonWithColor(
                 "On Error",
                 MaterialTheme.colorScheme.onError,
-                MaterialTheme.colorScheme.error
+                MaterialTheme.colorScheme.error,
             )
         }
         item {
             ButtonWithColor(
                 "On Error Container",
                 MaterialTheme.colorScheme.onErrorContainer,
-                MaterialTheme.colorScheme.errorContainer
+                MaterialTheme.colorScheme.errorContainer,
             )
         }
     }
@@ -252,7 +252,7 @@ private fun ButtonWithColor(text: String, containerColor: Color, contentColor: C
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = containerColor,
-                contentColor = contentColor
-            )
+                contentColor = contentColor,
+            ),
     )
 }

@@ -5,9 +5,13 @@ import androidx.privacysandbox.activity.core.SdkActivityLauncher
 public interface MyInterface {
     public suspend fun add(x: Int, y: Int): Int
 
-    public fun doSomething(firstInterface: MyInterface, secondInterface: MySecondInterface)
+    public fun doSomething(
+        firstInterface: MyInterface,
+        secondInterface: MySecondInterface,
+        sharedUiInterface: MySharedUiInterface,
+    )
 
-    public fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?)
+    public fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?, maybeSharedUiInterface: MySharedUiInterface?)
 
     public fun doSomethingWithSdkActivityLauncher(launcher: SdkActivityLauncher)
 

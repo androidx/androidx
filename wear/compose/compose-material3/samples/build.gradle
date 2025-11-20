@@ -21,20 +21,22 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation-layout"))
+    implementation("androidx.compose.foundation:foundation:1.8.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.8.0")
+
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.compose.animation:animation:1.6.0")
     implementation("androidx.compose.animation:animation-core:1.6.0")

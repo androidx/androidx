@@ -30,7 +30,7 @@ internal object AndroidVectorResources {
             android.R.attr.autoMirrored,
             android.R.attr.tintMode,
             android.R.attr.viewportWidth,
-            android.R.attr.viewportHeight
+            android.R.attr.viewportHeight,
         )
     val STYLEABLE_VECTOR_DRAWABLE_ALPHA = 4
     val STYLEABLE_VECTOR_DRAWABLE_AUTO_MIRRORED = 5
@@ -50,7 +50,7 @@ internal object AndroidVectorResources {
             android.R.attr.scaleY,
             android.R.attr.rotation,
             android.R.attr.translateX,
-            android.R.attr.translateY
+            android.R.attr.translateY,
         )
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_NAME = 0
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_PIVOT_X = 1
@@ -77,7 +77,7 @@ internal object AndroidVectorResources {
             android.R.attr.fillAlpha,
             // android.R.attr.fillType is in API level 24+ use hardcoded value to extract the
             // attribute if it exists
-            0x101051E
+            0x101051E,
         )
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_ALPHA = 12
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_COLOR = 1

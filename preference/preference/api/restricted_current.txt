@@ -441,7 +441,7 @@ package androidx.preference {
 
   public abstract class PreferenceHeaderFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     ctor public PreferenceHeaderFragmentCompat();
-    method public final androidx.slidingpanelayout.widget.SlidingPaneLayout getSlidingPaneLayout();
+    method @InaccessibleFromKotlin public final androidx.slidingpanelayout.widget.SlidingPaneLayout getSlidingPaneLayout();
     method public androidx.fragment.app.Fragment? onCreateInitialDetailFragment();
     method public abstract androidx.preference.PreferenceFragmentCompat onCreatePreferenceHeader();
     method @CallSuper public boolean onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat caller, androidx.preference.Preference pref);

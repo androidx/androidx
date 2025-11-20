@@ -54,7 +54,7 @@ constructor(
     config: PagingConfig,
     initialKey: Key? = null,
     remoteMediator: RemoteMediator<Key, Value>?,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
+    pagingSourceFactory: () -> PagingSource<Key, Value>,
 ) {
     // Experimental usage is internal, so opt-in is allowed here.
     @JvmOverloads
@@ -62,7 +62,7 @@ constructor(
     public constructor(
         config: PagingConfig,
         initialKey: Key? = null,
-        pagingSourceFactory: () -> PagingSource<Key, Value>
+        pagingSourceFactory: () -> PagingSource<Key, Value>,
     ) : this(config, initialKey, null, pagingSourceFactory)
 
     /**
@@ -84,8 +84,9 @@ constructor(
     public val flow: Flow<PagingData<Value>> =
         PageFetcher(
                 pagingSourceFactory =
-                    if (pagingSourceFactory is SuspendingPagingSourceFactory<Key, Value>) {
-                        pagingSourceFactory::create
+                    if ((pagingSourceFactory as Any) is SuspendingPagingSourceFactory<*, *>) {
+                        @Suppress("CAST_NEVER_SUCCEEDS")
+                        (pagingSourceFactory as SuspendingPagingSourceFactory<Key, Value>)::create
                     } else {
                         // cannot pass it as is since it is not a suspend function. Hence, we wrap
                         // it in {}
@@ -94,7 +95,7 @@ constructor(
                     },
                 initialKey = initialKey,
                 config = config,
-                remoteMediator = remoteMediator
+                remoteMediator = remoteMediator,
             )
             .flow
 }

@@ -55,9 +55,9 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         UnsafeRepeatOnLifecycleDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 
@@ -85,7 +85,7 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
             context.report(
                 ISSUE,
                 context.getLocation(node),
-                "The repeatOnLifecycle API should be used with viewLifecycleOwner"
+                "The repeatOnLifecycle API should be used with viewLifecycleOwner",
             )
         }
     }

@@ -30,9 +30,11 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.kotlin.readWriteAccess
 
 class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
 
@@ -53,21 +55,32 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         return type == AnnotationUsageType.FIELD_REFERENCE
     }
 
+    // https://youtrack.jetbrains.com/issue/IDEA-374002
+    @Suppress("UnstableApiUsage")
     override fun visitAnnotationUsage(
         context: JavaContext,
         element: UElement,
         annotationInfo: AnnotationInfo,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         val resolvedPropertyName = element.identifier ?: "<unknown identifier>"
         val preferredPropertyName =
             annotationInfo.annotation.preferredPropertyName ?: "<unknown replacement>"
 
+        val readWriteAccess = (element.sourcePsi as? KtExpression)?.readWriteAccess()
         val accessKind =
-            when (element.resolvedName?.takeWhile { it.isLowerCase() }) {
-                "get" -> "Reading"
-                "set" -> "Assigning"
-                else -> "Accessing"
+            when {
+                readWriteAccess?.isWrite == true -> "Assigning"
+                readWriteAccess?.isRead == true -> "Reading"
+                else -> {
+                    // We may (i.e., not necessary) go back to use this part only after
+                    // https://youtrack.jetbrains.com/issue/KT-78076 is fixed/available.
+                    when (element.resolvedName?.takeWhile { it.isLowerCase() }) {
+                        "get" -> "Reading"
+                        "set" -> "Assigning"
+                        else -> "Accessing"
+                    }
+                }
             }
 
         context.report(
@@ -78,14 +91,14 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
                 "Use `$preferredPropertyName` to avoid unnecessary allocations.",
             createPropertyReplacementQuickFix(
                 resolvedPropertyName = resolvedPropertyName,
-                preferredPropertyName = preferredPropertyName
-            )
+                preferredPropertyName = preferredPropertyName,
+            ),
         )
     }
 
     private fun createPropertyReplacementQuickFix(
         resolvedPropertyName: String,
-        preferredPropertyName: String
+        preferredPropertyName: String,
     ): LintFix {
         return fix()
             .name("Replace with `$preferredPropertyName`")
@@ -111,8 +124,8 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     AutoboxingStateValuePropertyDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

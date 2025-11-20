@@ -39,7 +39,7 @@ object NightModeUtils {
         DEFAULT,
 
         /** Set the night mode using [AppCompatDelegate.setLocalNightMode] */
-        LOCAL
+        LOCAL,
     }
 
     fun assertConfigurationNightModeEquals(expectedNightMode: Int, context: Context) {
@@ -49,12 +49,12 @@ object NightModeUtils {
     fun assertConfigurationNightModeEquals(
         message: String?,
         expectedNightMode: Int,
-        context: Context
+        context: Context,
     ) {
         assertConfigurationNightModeEquals(
             message,
             expectedNightMode,
-            context.resources.configuration
+            context.resources.configuration,
         )
     }
 
@@ -65,19 +65,19 @@ object NightModeUtils {
     fun assertConfigurationNightModeEquals(
         message: String?,
         expectedNightMode: Int,
-        configuration: Configuration
+        configuration: Configuration,
     ) {
         assertEquals(
             message,
             expectedNightMode.toLong(),
-            (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK).toLong()
+            (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK).toLong(),
         )
     }
 
     fun <T : AppCompatActivity> setNightModeAndWait(
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
-        setMode: NightSetMode
+        setMode: NightSetMode,
     ) {
         setNightModeAndWait(activityRule.activity, activityRule, nightMode, setMode)
     }
@@ -86,7 +86,7 @@ object NightModeUtils {
         activity: AppCompatActivity?,
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
-        setMode: NightSetMode
+        setMode: NightSetMode,
     ) {
         Log.d(
             LOG_TAG,
@@ -95,7 +95,7 @@ object NightModeUtils {
                 " to mode: " +
                 nightMode +
                 " using set mode: " +
-                setMode
+                setMode,
         )
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -106,13 +106,13 @@ object NightModeUtils {
     fun <T : AppCompatActivity> setNightModeAndWaitForRecreate(
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         @NightMode nightMode: Int,
-        setMode: NightSetMode
+        setMode: NightSetMode,
     ): T = setNightModeAndWaitForRecreate(activityRule.activity, nightMode, setMode)
 
     fun <T : AppCompatActivity> setNightModeAndWaitForRecreate(
         activity: T,
         @NightMode nightMode: Int,
-        setMode: NightSetMode
+        setMode: NightSetMode,
     ): T {
         Log.d(
             LOG_TAG,
@@ -121,7 +121,7 @@ object NightModeUtils {
                 " to mode: " +
                 nightMode +
                 " using set mode: " +
-                setMode
+                setMode,
         )
 
         LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
@@ -171,7 +171,7 @@ object NightModeUtils {
     fun setNightMode(
         @NightMode nightMode: Int,
         activity: AppCompatActivity?,
-        setMode: NightSetMode
+        setMode: NightSetMode,
     ) =
         when (setMode) {
             NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)

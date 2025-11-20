@@ -109,13 +109,7 @@ public object Log {
         // VMStack.getThreadStackTrace
         // Thread.currentThread().getStackTrace()
         // dumpStackTrace()
-        return elements
-            .drop(3)
-            .joinToString(
-                prefix = "\n\t",
-                separator = "\t",
-                limit = limit,
-            )
+        return elements.drop(3).joinToString(prefix = "\n\t", separator = "\t", limit = limit)
     }
 
     /**

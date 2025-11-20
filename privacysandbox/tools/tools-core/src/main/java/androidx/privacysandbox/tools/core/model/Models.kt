@@ -70,17 +70,20 @@ object Types {
     val bundle = Type("android.os", "Bundle")
     val sandboxedUiAdapter =
         Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
+    val sharedUiAdapter =
+        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SharedUiAdapter")
+    val uiAdapters = setOf(sandboxedUiAdapter, sharedUiAdapter)
     val sdkActivityLauncher =
         Type(
             packageName = "androidx.privacysandbox.activity.core",
-            simpleName = "SdkActivityLauncher"
+            simpleName = "SdkActivityLauncher",
         )
 
     fun list(elementType: Type) =
         Type(
             packageName = "kotlin.collections",
             simpleName = "List",
-            typeParameters = listOf(elementType)
+            typeParameters = listOf(elementType),
         )
 
     fun Type.asNullable(): Type {

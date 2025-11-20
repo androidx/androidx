@@ -15,7 +15,6 @@
  */
 package androidx.fragment.testapp.kittenfragmenttransitions
 
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -47,16 +46,10 @@ class GridFragment : Fragment(R.layout.kitten_fragment_grid) {
     private val callback = { holder: KittenViewHolder, position: Int ->
         val kittenNumber = position % 6 + 1
         val kittenDetails = newInstance(kittenNumber)
-        // Note that we need the API version check here because the actual transition
-        // classes(e.g. Fade) are not in the support library and are only available in API 21+.
-        // The methods we are calling on the Fragment ARE available in the support library
-        // (though they don't do anything on API < 21)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            kittenDetails.sharedElementEnterTransition = DetailsTransition()
-            kittenDetails.enterTransition = Fade()
-            exitTransition = Fade()
-            kittenDetails.sharedElementReturnTransition = DetailsTransition()
-        }
+        kittenDetails.sharedElementEnterTransition = DetailsTransition()
+        kittenDetails.enterTransition = Fade()
+        exitTransition = Fade()
+        kittenDetails.sharedElementReturnTransition = DetailsTransition()
         val radioReplace = requireActivity().findViewById<RadioButton>(R.id.radioButton1)
         if (radioReplace.isChecked) {
             parentFragmentManager.commit {

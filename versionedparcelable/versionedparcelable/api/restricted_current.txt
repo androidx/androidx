@@ -70,8 +70,8 @@ package androidx.versionedparcelable {
     method public <T extends android.os.Parcelable> T? readParcelable(T?, int);
     method protected java.io.Serializable? readSerializable();
     method public <T> java.util.Set<T!>? readSet(java.util.Set<T!>?, int);
-    method @RequiresApi(21) public android.util.Size? readSize(android.util.Size?, int);
-    method @RequiresApi(21) public android.util.SizeF? readSizeF(android.util.SizeF?, int);
+    method public android.util.Size? readSize(android.util.Size?, int);
+    method public android.util.SizeF? readSizeF(android.util.SizeF?, int);
     method public android.util.SparseBooleanArray? readSparseBooleanArray(android.util.SparseBooleanArray?, int);
     method protected abstract String? readString();
     method public String? readString(String?, int);
@@ -121,8 +121,8 @@ package androidx.versionedparcelable {
     method public void writeParcelable(android.os.Parcelable?, int);
     method public void writeSerializable(java.io.Serializable?, int);
     method public <T> void writeSet(java.util.Set<T!>?, int);
-    method @RequiresApi(21) public void writeSize(android.util.Size?, int);
-    method @RequiresApi(21) public void writeSizeF(android.util.SizeF?, int);
+    method public void writeSize(android.util.Size?, int);
+    method public void writeSizeF(android.util.SizeF?, int);
     method public void writeSparseBooleanArray(android.util.SparseBooleanArray?, int);
     method protected abstract void writeString(String?);
     method public void writeString(String?, int);

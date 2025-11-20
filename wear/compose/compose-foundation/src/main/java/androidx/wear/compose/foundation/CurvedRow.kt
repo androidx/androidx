@@ -47,21 +47,21 @@ public fun CurvedScope.curvedRow(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
     angularDirection: CurvedDirection.Angular? = null,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ): Unit =
     add(
         CurvedRowChild(
             curvedLayoutDirection.copy(overrideAngular = angularDirection),
             radialAlignment,
-            contentBuilder
+            contentBuilder,
         ),
-        modifier
+        modifier,
     )
 
 internal class CurvedRowChild(
     curvedLayoutDirection: CurvedLayoutDirection,
     val radialAlignment: CurvedAlignment.Radial? = null,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.clockwise(), contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
@@ -92,14 +92,14 @@ internal class CurvedRowChild(
             totalSweep,
             parentOuterRadius,
             parentThickness,
-            parentOuterRadius - parentThickness / 2
+            parentOuterRadius - parentThickness / 2,
         )
     }
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         val weights =
             childrenInLayoutOrder.fastMap { node ->

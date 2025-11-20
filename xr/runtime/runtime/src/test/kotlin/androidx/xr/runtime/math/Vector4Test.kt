@@ -17,6 +17,8 @@
 package androidx.xr.runtime.math
 
 import com.google.common.truth.Truth.assertThat
+import java.lang.IllegalArgumentException
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -129,10 +131,10 @@ class Vector4Test {
     }
 
     @Test
-    fun multiply_returnsTwoVectorsMultiplied() {
+    fun scale_returnsTwoVectorsMultiplied() {
         val underTest = Vector4(1f, 2f, 3f, 4f)
         val underTest2 = Vector4(3f, 4f, 5f, 6f)
-        val underTestMultiply = underTest * underTest2
+        val underTestMultiply = underTest.scale(underTest2)
 
         assertThat(underTestMultiply).isEqualTo(Vector4(3f, 8f, 15f, 24f))
     }
@@ -193,12 +195,27 @@ class Vector4Test {
     }
 
     @Test
-    fun divide_returnsVectorDividedByVector() {
+    fun componentwiseDivision_returnsVectorDividedByVector() {
         val underTest = Vector4(1f, 2f, 6f, 12f)
         val underTest2 = Vector4(-2f, 4f, -3f, 2f)
-        val underTestDiv = underTest / underTest2
+        val underTestDiv = underTest.scale(underTest2.inverse())
 
         assertThat(underTestDiv).isEqualTo(Vector4(-0.5f, 0.5f, -2f, 6f))
+    }
+
+    @Test
+    fun inverse_nonZeroComponentVector_returnsInverseVector() {
+        val underTest = Vector4(2f, 3f, 4f, 5f)
+        val underTestInverse = underTest.inverse()
+
+        assertThat(underTestInverse).isEqualTo(Vector4(1 / 2f, 1 / 3f, 1 / 4f, 1 / 5f))
+    }
+
+    @Test
+    fun inverse_zeroComponent_returnsIllegalArgumentException() {
+        val underTest = Vector4(0f, 1f, 2f, 3f)
+
+        assertThrows(IllegalArgumentException::class.java) { underTest.inverse() }
     }
 
     @Test

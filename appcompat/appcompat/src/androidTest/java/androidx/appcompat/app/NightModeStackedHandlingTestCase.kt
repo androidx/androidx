@@ -124,7 +124,7 @@ public class NightModeStackedHandlingTestCase {
                 NightModeUtils.assertConfigurationNightModeEquals(
                     "Activity ${activity.title}'s effective configuration has night mode set",
                     Configuration.UI_MODE_NIGHT_YES,
-                    activityC.effectiveConfiguration!!
+                    activityC.effectiveConfiguration!!,
                 )
             }
         }
@@ -222,7 +222,7 @@ public class NightModeStackedHandlingTestCase {
                 NightModeUtils.assertConfigurationNightModeEquals(
                     "Activity ${activity.title}'s effective configuration has night mode set",
                     Configuration.UI_MODE_NIGHT_YES,
-                    activity.effectiveConfiguration!!
+                    activity.effectiveConfiguration!!,
                 )
             }
         }
@@ -286,7 +286,7 @@ public class NightModeStackedHandlingTestCase {
                 NightModeUtils.assertConfigurationNightModeEquals(
                     "Activity ${activity.title}'s effective configuration has night mode set",
                     Configuration.UI_MODE_NIGHT_NO,
-                    activity.effectiveConfiguration!!
+                    activity.effectiveConfiguration!!,
                 )
             }
         }

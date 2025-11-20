@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.test.uiautomator.By
 import androidx.wear.compose.material3.TimePicker
 import androidx.wear.compose.material3.TimePickerType
 import java.time.LocalTime
@@ -33,28 +34,52 @@ object TimePickerBenchmark : MacrobenchmarkScreen {
             TimePicker(
                 onTimePicked = {},
                 timePickerType = TimePickerType.HoursMinutesAmPm12H,
-                initialTime = LocalTime.of(11, 30)
+                initialTime = LocalTime.of(11, 30),
             )
         }
 
     override val exercise: MacrobenchmarkScope.() -> Unit
         get() = {
-            repeat(20) {
-                val startY = device.displayHeight / 2
-                val endY = device.displayHeight * 9 / 10 // scroll down
+            val startY = device.displayHeight / 2
+            val endY = device.displayHeight * 9 / 10 // scroll down
 
-                val hourX = device.displayWidth / 4
-                device.swipe(hourX, startY, hourX, endY, 10)
-                device.waitForIdle()
-                SystemClock.sleep(500)
+            // Find hour/minute/AmPm by searching for clickable items with content description
+            val testObjects =
+                device.findObjects(By.clickable(true)).filter { it ->
+                    it.contentDescription != null
+                }
+            assert(testObjects.size == 3)
 
-                val minutesX = device.displayWidth / 2
-                device.swipe(minutesX, startY, minutesX, endY, 10)
-                device.waitForIdle()
-                SystemClock.sleep(500)
+            repeat(6) {
+                for (obj in testObjects) {
+                    val x = obj.visibleBounds.centerX()
+                    device.swipe(x, startY, x, endY, 10)
+                    device.waitForIdle()
+                    SystemClock.sleep(500)
+                }
+            }
+        }
+}
 
-                val amPmX = device.displayWidth * 3 / 4
-                device.swipe(amPmX, startY, amPmX, endY, 10)
+@RequiresApi(Build.VERSION_CODES.O)
+object TimePickerScrollMinutesBenchmark : MacrobenchmarkScreen {
+    override val content: @Composable (BoxScope.() -> Unit)
+        get() = {
+            TimePicker(
+                onTimePicked = {},
+                timePickerType = TimePickerType.HoursMinutesAmPm12H,
+                initialTime = LocalTime.of(11, 30),
+            )
+        }
+
+    override val exercise: MacrobenchmarkScope.() -> Unit
+        get() = {
+            val startY = device.displayHeight / 2
+            val endY = device.displayHeight * 9 / 10 // scroll down
+            val x = device.displayWidth / 2
+
+            repeat(6) {
+                device.swipe(x, startY, x, endY, 10)
                 device.waitForIdle()
                 SystemClock.sleep(500)
             }

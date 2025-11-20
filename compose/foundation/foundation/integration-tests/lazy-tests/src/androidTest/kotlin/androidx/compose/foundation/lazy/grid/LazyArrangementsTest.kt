@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +56,7 @@ class LazyArrangementsTest {
 
     private val ContainerTag = "ContainerTag"
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var itemSize: Dp = Dp.Infinity
     private var smallerItemSize: Dp = Dp.Infinity
@@ -75,7 +76,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyVerticalGrid(
                 modifier = Modifier.requiredSize(containerSize),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -108,7 +109,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyHorizontalGrid(
                 modifier = Modifier.requiredSize(containerSize),
-                rows = GridCells.Fixed(1)
+                rows = GridCells.Fixed(1),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -163,7 +164,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.width(itemSize).testTag(ContainerTag),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize)) }
             }
@@ -181,7 +182,7 @@ class LazyArrangementsTest {
             LazyHorizontalGrid(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.height(itemSize).testTag(ContainerTag),
-                rows = GridCells.Fixed(1)
+                rows = GridCells.Fixed(1),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize)) }
             }
@@ -201,7 +202,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.requiredSize(itemSize * 3.5f),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -218,7 +219,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -237,7 +238,7 @@ class LazyArrangementsTest {
             LazyHorizontalGrid(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.requiredSize(itemSize * 3.5f),
-                rows = GridCells.Fixed(1)
+                rows = GridCells.Fixed(1),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -254,7 +255,7 @@ class LazyArrangementsTest {
             LazyHorizontalGrid(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
                 modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag),
-                rows = GridCells.Fixed(1)
+                rows = GridCells.Fixed(1),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -279,7 +280,7 @@ class LazyArrangementsTest {
                 modifier = Modifier.size(itemSize * 3),
                 state = rememberLazyGridState().also { state = it },
                 verticalArrangement = Arrangement.spacedBy(spacingSize),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -307,7 +308,7 @@ class LazyArrangementsTest {
                 modifier = Modifier.size(itemSize * 3),
                 state = rememberLazyGridState().also { state = it },
                 verticalArrangement = Arrangement.spacedBy(spacingSize),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -337,7 +338,7 @@ class LazyArrangementsTest {
                 GridCells.Fixed(1),
                 Modifier.size(itemSize * 3),
                 state = rememberLazyGridState().also { state = it },
-                horizontalArrangement = Arrangement.spacedBy(spacingSize)
+                horizontalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -365,7 +366,7 @@ class LazyArrangementsTest {
                 GridCells.Fixed(1),
                 Modifier.size(itemSize * 3),
                 state = rememberLazyGridState().also { state = it },
-                horizontalArrangement = Arrangement.spacedBy(spacingSize)
+                horizontalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -391,7 +392,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 GridCells.Fixed(1),
                 reverseLayout = true,
-                modifier = Modifier.size(containerSize)
+                modifier = Modifier.size(containerSize),
             ) {
                 items(2) { Item(it) }
             }
@@ -406,7 +407,7 @@ class LazyArrangementsTest {
             LazyHorizontalGrid(
                 GridCells.Fixed(1),
                 reverseLayout = true,
-                modifier = Modifier.requiredSize(containerSize)
+                modifier = Modifier.requiredSize(containerSize),
             ) {
                 items(2) { Item(it) }
             }
@@ -422,7 +423,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 modifier = Modifier.requiredSize(containerSize),
                 verticalArrangement = arrangement,
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(2) { Item(it) }
             }
@@ -442,7 +443,7 @@ class LazyArrangementsTest {
             LazyHorizontalGrid(
                 GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(containerSize),
-                horizontalArrangement = arrangement
+                horizontalArrangement = arrangement,
             ) {
                 items(2) { Item(it) }
             }
@@ -464,7 +465,7 @@ class LazyArrangementsTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(itemSize),
                 verticalArrangement = Arrangement.spacedBy(-halfItemSize),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -496,7 +497,7 @@ class LazyArrangementsTest {
                 rows = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(itemSize),
                 horizontalArrangement = Arrangement.spacedBy(-halfItemSize),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -528,7 +529,7 @@ class LazyArrangementsTest {
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.requiredSize(width = itemSize * 2, height = itemSize),
                 verticalArrangement = Arrangement.spacedBy(-largerThanItemSize),
-                state = state
+                state = state,
             ) {
                 items(8) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -551,7 +552,7 @@ class LazyArrangementsTest {
                 rows = GridCells.Fixed(2),
                 modifier = Modifier.requiredSize(width = itemSize, height = itemSize * 2),
                 horizontalArrangement = Arrangement.spacedBy(-largerThanItemSize),
-                state = state
+                state = state,
             ) {
                 items(8) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -573,7 +574,7 @@ class LazyArrangementsTest {
                 rows = GridCells.FixedSize(itemSize * 2),
                 modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
                 verticalArrangement = Arrangement.Center,
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -598,7 +599,7 @@ class LazyArrangementsTest {
                 columns = GridCells.FixedSize(itemSize * 2),
                 modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
                 horizontalArrangement = Arrangement.Center,
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -623,7 +624,7 @@ class LazyArrangementsTest {
                 rows = GridCells.FixedSize(itemSize * 2),
                 modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
                 verticalArrangement = Arrangement.spacedBy(itemSize * 0.5f, Alignment.Bottom),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -648,7 +649,7 @@ class LazyArrangementsTest {
                 columns = GridCells.FixedSize(itemSize * 2),
                 modifier = Modifier.requiredSize(width = itemSize * 5, height = itemSize * 5),
                 horizontalArrangement = Arrangement.spacedBy(itemSize * 0.5f, Alignment.End),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -670,7 +671,7 @@ class LazyArrangementsTest {
             LazyVerticalGrid(
                 verticalArrangement = arrangement,
                 modifier = Modifier.requiredSize(containerSize),
-                columns = GridCells.Fixed(1)
+                columns = GridCells.Fixed(1),
             ) {
                 items(2) { Item(it) }
             }
@@ -679,14 +680,14 @@ class LazyArrangementsTest {
 
     fun composeHorizontalWith(
         arrangement: Arrangement.Horizontal,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) {
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 LazyHorizontalGrid(
                     horizontalArrangement = arrangement,
                     modifier = Modifier.requiredSize(containerSize),
-                    rows = GridCells.Fixed(1)
+                    rows = GridCells.Fixed(1),
                 ) {
                     items(2) { Item(it) }
                 }
@@ -703,7 +704,7 @@ class LazyArrangementsTest {
 
     fun assertArrangementForTwoItems(
         arrangement: Arrangement.Vertical,
-        reverseLayout: Boolean = false
+        reverseLayout: Boolean = false,
     ) {
         with(rule.density) {
             val sizes =
@@ -724,7 +725,7 @@ class LazyArrangementsTest {
     fun assertArrangementForTwoItems(
         arrangement: Arrangement.Horizontal,
         layoutDirection: LayoutDirection,
-        reverseLayout: Boolean = false
+        reverseLayout: Boolean = false,
     ) {
         with(rule.density) {
             val sizes =

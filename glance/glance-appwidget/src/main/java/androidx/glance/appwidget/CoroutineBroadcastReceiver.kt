@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.util.Log
 import kotlin.coroutines.CoroutineContext
@@ -32,10 +33,14 @@ import kotlinx.coroutines.launch
  * The coroutine scope will finish once the block return, as the broadcast will finish at that point
  * too, allowing the system to kill the broadcast.
  */
+@SuppressLint("VisibleForTests")
 internal fun BroadcastReceiver.goAsync(
     coroutineContext: CoroutineContext = Dispatchers.Default,
     block: suspend CoroutineScope.() -> Unit,
 ) {
+    check(!ForceAsyncRequestWorker.get()) {
+        "goAsync must never be called when the AsyncRequestWorker is meant to be used"
+    }
     val parentScope = CoroutineScope(coroutineContext)
     val pendingResult = goAsync()
 

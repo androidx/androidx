@@ -1,0 +1,68 @@
+{
+  "projectPath": ":wear:wear-remote-interactions",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "wear-sdk.jar"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.android.gms:play-services-basement",
+        "resolvedVersion": "17.5.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:guava",
+        "resolvedVersion": "33.3.1-jre"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:annotations",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:sandbox",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadows-framework",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

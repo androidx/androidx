@@ -16,21 +16,48 @@
 
 package androidx.wear.tiles;
 
+import android.os.Bundle;
+
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Holder for Tiles' Tile class, to be parceled and transferred to Wear.
  *
- * <p>All this does is to serialize Tile as a protobuf and transmit it.
+ * <ul>
+ *   <li>Version 1: encodes the version (int) and the Tile as a proto contents (byte[]).
+ *   <li>Version 2: encodes the version (int), the Tile as a proto contents (byte[]) and a {@link
+ *       Bundle}.
+ * </ul>
+ *
+ * <p>IMPORTANT: Only use Version 2 if the reader of this Parcelable can also handle V2.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileData extends ProtoParcelable {
-    public static final int VERSION_PROTOBUF = 1;
-    public static final Creator<TileData> CREATOR = newCreator(TileData.class, TileData::new);
+    /** Version 1: encodes the version (int) and the Tile as a proto contents (byte[]). */
+    public static final int VERSION_PROTOBUF_1 = 1;
+
+    /**
+     * Version 2: encodes the version (int), the Tile as a proto contents (byte[]) and a {@link
+     * Bundle}.
+     */
+    public static final int VERSION_PROTOBUF_2 = 2;
+
+    /** The key for retrieving {@code PendingIntent} bundle from the extras of the tile data. */
+    public static final String PENDING_INTENT_KEY = "pending_intents";
+
+    public static final Creator<TileData> CREATOR =
+            newCreator(
+                    TileData.class,
+                    (bytes, extras, version) -> new TileData(bytes, extras, version));
 
     public TileData(byte @NonNull [] tile, int version) {
-        super(tile, version);
+        this(tile, /* extras= */ null, version);
+    }
+
+    public TileData(byte @NonNull [] tile, @Nullable Bundle extras, int version) {
+        super(tile, extras, version);
     }
 }

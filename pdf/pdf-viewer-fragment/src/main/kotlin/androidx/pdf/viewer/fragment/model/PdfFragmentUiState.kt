@@ -27,23 +27,23 @@ import androidx.pdf.PdfDocument
  * implements this interface.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal sealed interface PdfFragmentUiState {
+public sealed interface PdfFragmentUiState {
     /** Indicates that the PDF document is loading. */
-    object Loading : PdfFragmentUiState
+    public object Loading : PdfFragmentUiState
 
     /**
      * Indicates that the PDF document has been loaded successfully.
      *
      * @property pdfDocument The loaded PDF document.
      */
-    class DocumentLoaded(val pdfDocument: PdfDocument) : PdfFragmentUiState
+    public class DocumentLoaded(public val pdfDocument: PdfDocument) : PdfFragmentUiState
 
     /**
      * Indicates that an error occurred while loading the PDF document.
      *
      * @property exception The exception that occurred.
      */
-    class DocumentError(val exception: Exception) : PdfFragmentUiState
+    public class DocumentError(public val exception: Exception) : PdfFragmentUiState
 
     /**
      * Indicates that the PDF document is password-protected and requires a password to be entered.
@@ -51,5 +51,5 @@ internal sealed interface PdfFragmentUiState {
      * @property passwordFailed Whether this is a retry attempt after an incorrect password was
      *   entered.
      */
-    class PasswordRequested(val passwordFailed: Boolean) : PdfFragmentUiState
+    public class PasswordRequested(public val passwordFailed: Boolean) : PdfFragmentUiState
 }

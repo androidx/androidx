@@ -40,13 +40,19 @@ fun interface OutputTransformation {
      *
      * Selection and cursor positions are managed internally by [BasicTextField]. If there's a range
      * of inserted characters via this [OutputTransformation], selection or cursor never goes in
-     * between these inserted characters.
+     * between these inserted characters. Furthermore, changing the selection or cursor position of
+     * this [TextFieldBuffer] does not have any affect. Please use [InputTransformation] or
+     * [TextFieldState.edit] to manipulate the current selection placement.
      *
      * Note that this transformation is called every time a new text needs to be displayed. This
      * implies that the contents of [TextFieldBuffer] will always be what the [TextFieldState] holds
      * currently. All the changes made here are discarded after text is presented to the user.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldOutputTransformationSample
+     *
+     * You can call [TextFieldBuffer.addStyle] to add partial styling to the presented text.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextFieldAnnotatedOutputTransformationSample
      */
     fun TextFieldBuffer.transformOutput()
 }

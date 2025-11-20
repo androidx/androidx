@@ -23,17 +23,16 @@ import static org.junit.Assert.fail;
 
 import android.util.SparseArray;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class CollectUtilsTest {
 
     @Test

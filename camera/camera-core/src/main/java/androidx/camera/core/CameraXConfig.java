@@ -20,6 +20,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -37,6 +38,8 @@ import androidx.camera.core.internal.TargetConfig;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -62,6 +65,32 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("HiddenSuperclass")
 public final class CameraXConfig implements TargetConfig<CameraX> {
+
+    /**
+     * Unknown CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN = -1;
+    /**
+     * camera-camera2 CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2 = 0;
+    /**
+     * camera-camera2-pipe-integration CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_PIPE = 1;
+
+    /**
+     * The different implementation types the CameraXConfig can be configured for.
+     */
+    @IntDef({CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN, CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2,
+            CAMERAX_CONFIG_IMPL_TYPE_PIPE})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface ImplType {
+    }
 
     /**
      * An interface which can be implemented to provide the configuration for CameraX.
@@ -127,6 +156,12 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.quirksSettings",
                     QuirkSettings.class);
+
+    static final Option<Integer> OPTION_CONFIG_IMPL_TYPE =
+            Option.create("camerax.core.appConfig.configImplType", int.class);
+
+    static final Option<Boolean> OPTION_REPEATING_STREAM_FORCED = Option.create(
+            "camerax.core.appConfig.repeatingStreamForced", boolean.class);
 
     // *********************************************************************************************
 
@@ -234,6 +269,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     }
 
     /**
+     * Returns whether the internal repeating stream should be added.
+     *
+     * <p>If not set, default to {@code true}.
+     *
+     * @see Builder#setRepeatingStreamForced(boolean)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isRepeatingStreamForced() {
+        return mConfig.retrieveOption(OPTION_REPEATING_STREAM_FORCED, true);
+    }
+
+    /**
      * Returns the quirk settings.
      *
      * <p>If this value is not set, a default quirk settings will be returned.
@@ -245,6 +292,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @Nullable QuirkSettings getQuirkSettings() {
         return mConfig.retrieveOption(OPTION_QUIRK_SETTINGS, null);
+    }
+
+    /**
+     * Returns the config impl type.
+     *
+     * @return the config impl type.
+     *
+     * @see Builder#setConfigImplType(int)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @ImplType int getConfigImplType() {
+        return mConfig.retrieveOption(OPTION_CONFIG_IMPL_TYPE, CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -461,6 +520,30 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         }
 
         /**
+         * Sets whether to force a repeating stream to be added.
+         *
+         * <p>A repeating stream is required for handling certain camera controls such as focus
+         * and metering. If there's no repeating stream added explicitly, CameraX will add one
+         * internally by default, for example when a {@link ImageCapture} is the only bound use
+         * case.
+         *
+         * <p>If {@code false} is passed to this method, CameraX will not add the repeating
+         * stream internally and the controls that require a repeating stream, such as
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}, will throw an
+         * exception when called. Disabling it can be useful if the extra stream is not supported
+         * on the device.
+         *
+         * @param forced Whether the internal repeating stream should be added. Defaults to
+         * {@code true} if not set.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setRepeatingStreamForced(boolean forced) {
+            getMutableConfig().insertOption(OPTION_REPEATING_STREAM_FORCED, forced);
+            return this;
+        }
+
+        /**
          * Sets the quirk settings.
          *
          * @param quirkSettings the quirk settings.
@@ -472,7 +555,8 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             return this;
         }
 
-        private @NonNull MutableConfig getMutableConfig() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
 
@@ -505,6 +589,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         @Override
         public @NonNull Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
+            return this;
+        }
+
+        /**
+         * Sets the config impl type.
+         *
+         * <p>The available impl types are {@link #CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2},
+         * {@link #CAMERAX_CONFIG_IMPL_TYPE_PIPE} and {@link #CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setConfigImplType(@ImplType int configImplType) {
+            getMutableConfig().insertOption(OPTION_CONFIG_IMPL_TYPE, configImplType);
             return this;
         }
     }

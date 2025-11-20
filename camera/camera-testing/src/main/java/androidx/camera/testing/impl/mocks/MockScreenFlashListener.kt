@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 /** A mock implementations of [ScreenFlashListener] for testing purpose. */
 public class MockScreenFlashListener : ScreenFlashListener {
-    private val lock = Object()
+    private val lock = Any()
 
     @GuardedBy("lock") private var completeCount: Int = 0
     private val completeLatch = CountDownLatch(1)

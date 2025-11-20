@@ -101,7 +101,7 @@ open class EmptyLayoutBaselineParent(private val size: Int) {
     fun recomposeMeasureLayout() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory,
-            requireRecomposition = false
+            requireRecomposition = false,
         )
     }
 }

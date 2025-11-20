@@ -71,10 +71,8 @@ public class ParcelableConstraints implements Parcelable {
         boolean requiresStorageNotLow = readBooleanValue(in);
         builder.setRequiresStorageNotLow(requiresStorageNotLow);
         // requiresDeviceIdle
-        if (Build.VERSION.SDK_INT >= 23) {
-            boolean requiresDeviceIdle = readBooleanValue(in);
-            builder.setRequiresDeviceIdle(requiresDeviceIdle);
-        }
+        boolean requiresDeviceIdle = readBooleanValue(in);
+        builder.setRequiresDeviceIdle(requiresDeviceIdle);
         // ContentUriTriggers
         if (Build.VERSION.SDK_INT >= 24) {
             boolean hasTriggers = readBooleanValue(in);
@@ -135,9 +133,7 @@ public class ParcelableConstraints implements Parcelable {
         // requiresStorageNotLow
         writeBooleanValue(parcel, mConstraints.requiresStorageNotLow());
         // requiresDeviceIdle
-        if (Build.VERSION.SDK_INT >= 23) {
-            writeBooleanValue(parcel, mConstraints.requiresDeviceIdle());
-        }
+        writeBooleanValue(parcel, mConstraints.requiresDeviceIdle());
         // ContentUriTriggers
         if (Build.VERSION.SDK_INT >= 24) {
             boolean hasTriggers = mConstraints.hasContentUriTriggers();

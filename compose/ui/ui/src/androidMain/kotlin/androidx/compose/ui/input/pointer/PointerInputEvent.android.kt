@@ -21,5 +21,5 @@ import android.view.MotionEvent
 internal actual class PointerInputEvent(
     actual val uptime: Long,
     actual val pointers: List<PointerInputEventData>,
-    val motionEvent: MotionEvent
+    var motionEvent: MotionEvent?,
 )

@@ -16,14 +16,13 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
 import org.jspecify.annotations.Nullable;
 
-public class KeycodeTestActivity extends Activity {
+public class KeycodeTestActivity extends TestActivity {
 
     int mLastPressedKeyCode;
     @Override

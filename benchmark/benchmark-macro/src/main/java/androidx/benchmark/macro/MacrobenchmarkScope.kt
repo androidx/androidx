@@ -31,7 +31,7 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiAutomatorTestScope
 import androidx.tracing.trace
 import java.io.File
 
@@ -48,10 +48,8 @@ public class MacrobenchmarkScope(
      * Default to true, so Activity launches go through full creation lifecycle stages, instead of
      * just resume.
      */
-    private val launchWithClearTask: Boolean
-) {
-
-    internal val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val launchWithClearTask: Boolean,
+) : UiAutomatorTestScope() {
 
     internal val context = instrumentation.context
 
@@ -103,7 +101,7 @@ public class MacrobenchmarkScope(
     internal inline fun <T> withKillMode(
         current: KillMode,
         override: KillMode,
-        block: MacrobenchmarkScope.() -> T
+        block: MacrobenchmarkScope.() -> T,
     ): T {
         check(killMode == current) { "Expected KFM = $current, was $killMode" }
         killMode = override
@@ -138,9 +136,6 @@ public class MacrobenchmarkScope(
     internal var hasClearedRuntimeImage: Boolean = false
         private set
 
-    /** `true` if the app is a system app. */
-    internal var isSystemApp: Boolean = false
-
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
      *
@@ -158,14 +153,6 @@ public class MacrobenchmarkScope(
      * benchmarking session, if method tracing was on.
      */
     private val methodTraces: MutableList<Pair<String, String>> = mutableListOf()
-
-    /**
-     * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
-     * UI via touches, scrolls, or other inputs.
-     *
-     * Convenience for `UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())`
-     */
-    val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
      * Start an activity, by default the launcher activity of the package, and wait until its launch
@@ -227,6 +214,10 @@ public class MacrobenchmarkScope(
         } else {
             amStartAndWait(uri)
         }
+    }
+
+    override fun startActivityIntent(intent: Intent) {
+        startActivityAndWait(intent)
     }
 
     @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
@@ -351,7 +342,7 @@ public class MacrobenchmarkScope(
      */
     @Deprecated(
         "Use the parameter-less killProcess() API instead",
-        replaceWith = ReplaceWith("killProcess()")
+        replaceWith = ReplaceWith("killProcess()"),
     )
     @Suppress("UNUSED_PARAMETER")
     fun killProcess(useKillAll: Boolean = false) {
@@ -464,32 +455,47 @@ public class MacrobenchmarkScope(
     }
 
     @RequiresApi(24)
-    private fun killProcessAndFlushArtProfiles() {
+    internal fun killProcessAndFlushArtProfiles(allowFlushWithBroadcast: Boolean = true) {
         Log.d(TAG, "Flushing ART profiles for $packageName")
         // For speed profile compilation, ART team recommended to wait for 5 secs when app
         // is in the foreground, dump the profile in each process waiting an additional second each
         // before speed-profile compilation.
         @Suppress("BanThreadSleep") Thread.sleep(5000)
-        val saveResult = ProfileInstallBroadcast.saveProfilesForAllProcesses(packageName)
+        val saveResult =
+            if (allowFlushWithBroadcast) {
+                ProfileInstallBroadcast.saveProfilesForAllProcesses(packageName)
+            } else {
+                // test codepath only, force failed save result (as if broadcast receiver not
+                // present)
+                val processCount = Shell.getRunningPidsAndProcessesForPackage(packageName).size
+                ProfileInstallBroadcast.SaveProfileResult(
+                    processCount = processCount,
+                    error = if (processCount == 0) null else "skipped",
+                )
+            }
         if (saveResult.processCount > 0) {
+            if (saveResult.error != null) {
+                if (Shell.isSessionRooted()) {
+                    Log.d(
+                        TAG,
+                        "Unable to saveProfile with profileinstaller ($saveResult), trying kill",
+                    )
+                    val response =
+                        Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
+                    check(response.isBlank()) {
+                        "Failed to dump profile for $packageName ($response),\n" +
+                            " and failed to save profile with broadcast: ${saveResult.error}"
+                    }
+                    @SuppressLint("BanThreadSleep") Thread.sleep(Arguments.saveProfileWaitMillis)
+                } else {
+                    // unable to flush profiles, throw
+                    throw RuntimeException(saveResult.error)
+                }
+            }
+            // we only mark flush successful and kill the target if running processes found
             Log.d(TAG, "Flushed profiles in ${saveResult.processCount} processes")
             hasFlushedArtProfiles = true
-        }
-        if (saveResult.error == null) {
             killProcessImpl()
-        } else {
-            if (Shell.isSessionRooted()) {
-                // fallback on `killall -s SIGUSR1`, if available with root
-                Log.d(TAG, "Unable to saveProfile with profileinstaller ($saveResult), trying kill")
-                val response =
-                    Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
-                check(response.isBlank()) {
-                    "Failed to dump profile for $packageName ($response),\n" +
-                        " and failed to save profile with broadcast: ${saveResult.error}"
-                }
-            } else {
-                throw RuntimeException(saveResult.error)
-            }
         }
     }
 
@@ -503,15 +509,9 @@ public class MacrobenchmarkScope(
             }
         }
         Shell.killProcessesAndWait(packageName, onFailure = onFailure) {
-            val isRooted = Shell.isSessionRooted()
-            Log.d(TAG, "Killing process $packageName")
-            if (isRooted && isSystemApp) {
-                device.executeShellCommand("killall $packageName")
-            } else {
-                // We want to use `am force-stop` for apps that are not system apps
-                // to make sure app components are not automatically restarted by system_server.
-                device.executeShellCommand("am force-stop $packageName")
-            }
+            Log.d(TAG, "Force-stopping process $packageName")
+            Shell.executeScriptSilent("am force-stop $packageName")
+
             // System Apps need an additional Thread.sleep() to ensure that the process is killed.
             @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
         }
@@ -632,7 +632,7 @@ public class MacrobenchmarkScope(
                 maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
                 maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
                 stableIterations = 8, // 400ms of stability after flush starts
-                pollDurationMs = 50L
+                pollDurationMs = 50L,
             ) {
                 Shell.executeScriptSilent("am profile stop $packageName")
             }

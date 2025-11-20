@@ -82,7 +82,7 @@ public fun Checkbox(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /**
@@ -140,7 +140,7 @@ public fun Switch(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /**
@@ -191,7 +191,7 @@ public fun RadioButton(
         easing = STANDARD_IN,
         width = WIDTH,
         height = HEIGHT,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /** Represents the content colors used in [Checkbox] in different states. */
@@ -391,7 +391,7 @@ private fun DrawScope.drawBox(color: Color) {
         topLeft = Offset(topCornerPx + halfStrokeWidthPx, topCornerPx + halfStrokeWidthPx),
         size = Size(checkboxSizePx - strokeWidthPx, checkboxSizePx - strokeWidthPx),
         cornerRadius = CornerRadius(radiusPx - halfStrokeWidthPx),
-        style = Stroke(strokeWidthPx)
+        style = Stroke(strokeWidthPx),
     )
 }
 
@@ -404,14 +404,14 @@ private fun DrawScope.drawThumb(color: Color, progress: Float, isRtl: Boolean) {
         lerp(
             start = if (isRtl) switchTrackLengthPx - switchThumbRadiusPx else switchThumbRadiusPx,
             stop = if (isRtl) switchThumbRadiusPx else switchTrackLengthPx - switchThumbRadiusPx,
-            fraction = progress
+            fraction = progress,
         )
 
     drawCircle(
         color = color,
         radius = switchThumbRadiusPx,
         center = Offset(thumbProgressPx, center.y),
-        blendMode = BlendMode.Src
+        blendMode = BlendMode.Src,
     )
 }
 
@@ -436,7 +436,7 @@ private class DefaultCheckboxColors(
             uncheckedColor = uncheckedBoxColor,
             disabledCheckedColor = disabledCheckedBoxColor,
             disabledUncheckedColor = disabledUncheckedBoxColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     @Composable
@@ -448,7 +448,7 @@ private class DefaultCheckboxColors(
             uncheckedColor = uncheckedCheckmarkColor,
             disabledCheckedColor = disabledCheckedCheckmarkColor,
             disabledUncheckedColor = disabledUncheckedCheckmarkColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -504,7 +504,7 @@ private class DefaultSwitchColors(
             uncheckedColor = uncheckedThumbColor,
             disabledCheckedColor = disabledCheckedThumbColor,
             disabledUncheckedColor = disabledUncheckedThumbColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     @Composable
@@ -516,7 +516,7 @@ private class DefaultSwitchColors(
             uncheckedColor = uncheckedTrackColor,
             disabledCheckedColor = disabledCheckedTrackColor,
             disabledUncheckedColor = disabledUncheckedTrackColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -572,7 +572,7 @@ private class DefaultRadioButtonColors(
             uncheckedColor = unselectedRingColor,
             disabledCheckedColor = disabledSelectedRingColor,
             disabledUncheckedColor = disabledUnselectedRingColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     @Composable
@@ -584,7 +584,7 @@ private class DefaultRadioButtonColors(
             uncheckedColor = unselectedDotColor,
             disabledCheckedColor = disabledSelectedDotColor,
             disabledUncheckedColor = disabledUnselectedDotColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {

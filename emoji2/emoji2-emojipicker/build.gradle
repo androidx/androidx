@@ -26,12 +26,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.core:core:1.9.0")
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.appcompat:appcompat:1.6.1")
@@ -55,7 +54,6 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
     namespace = "androidx.emoji2.emojipicker"
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {

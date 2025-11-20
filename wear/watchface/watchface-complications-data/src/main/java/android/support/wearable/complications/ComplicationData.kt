@@ -81,7 +81,7 @@ private constructor(
     ) : this(
         input.readInt(),
         input.readBundle(ComplicationData::class.java.classLoader)
-            ?: Bundle().also { Log.w(TAG, "ComplicationData parcel input has null bundle.") }
+            ?: Bundle().also { Log.w(TAG, "ComplicationData parcel input has null bundle.") },
     )
 
     // This constructor should only be used with a fully-owned Bundle, as this Bundle can be mutated
@@ -108,7 +108,7 @@ private constructor(
         TYPE_GOAL_PROGRESS,
         TYPE_WEIGHTED_ELEMENTS,
         EXP_TYPE_PROTO_LAYOUT,
-        EXP_TYPE_LIST
+        EXP_TYPE_LIST,
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
@@ -299,7 +299,7 @@ private constructor(
                 putIfNotNull(
                     fields,
                     FIELD_CONTENT_DESCRIPTION,
-                    ois.readObject() as ComplicationText?
+                    ois.readObject() as ComplicationText?,
                 )
             }
             if (isFieldValidForType(FIELD_ICON, type)) {
@@ -309,7 +309,7 @@ private constructor(
                 putIfNotNull(
                     fields,
                     FIELD_ICON_BURN_IN_PROTECTION,
-                    IconSerializableHelper.read(ois)
+                    IconSerializableHelper.read(ois),
                 )
             }
             if (isFieldValidForType(FIELD_SMALL_IMAGE, type)) {
@@ -319,7 +319,7 @@ private constructor(
                 putIfNotNull(
                     fields,
                     FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    IconSerializableHelper.read(ois)
+                    IconSerializableHelper.read(ois),
                 )
             }
             if (isFieldValidForType(FIELD_IMAGE_STYLE, type)) {
@@ -459,7 +459,7 @@ private constructor(
             internal fun putIfNotNull(
                 fields: MutableMap<String, Any>,
                 field: String,
-                value: Parcelable?
+                value: Parcelable?,
             ) {
                 if (value != null) {
                     fields[field] = value
@@ -579,7 +579,7 @@ private constructor(
                         it.bundle.putInt(FIELD_TIMELINE_ENTRY_TYPE, it.type)
                         it.bundle
                     }
-                    .toTypedArray()
+                    .toTypedArray(),
             )
         }
     }
@@ -942,7 +942,7 @@ private constructor(
         get() {
             checkFieldValidForTypeWithoutThrowingException(
                 FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                type
+                type,
             )
             return fields[FIELD_SMALL_IMAGE_BURN_IN_PROTECTION] as Icon?
         }
@@ -1929,28 +1929,27 @@ private constructor(
          */
         fun build(): ComplicationData {
             // Validate.
-            for (requiredField in REQUIRED_FIELDS[type]!!) {
-                check(fields.containsKey(requiredField)) {
-                    "Field $requiredField is required for type $type"
-                }
-                check(
-                    !(fields.containsKey(FIELD_ICON_BURN_IN_PROTECTION) &&
-                        !fields.containsKey(FIELD_ICON))
-                ) {
-                    "Field ICON must be provided when field ICON_BURN_IN_PROTECTION is provided."
-                }
-                check(
-                    !(fields.containsKey(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION) &&
-                        !fields.containsKey(FIELD_SMALL_IMAGE))
-                ) {
-                    "Field SMALL_IMAGE must be provided when field SMALL_IMAGE_BURN_IN_PROTECTION" +
-                        " is provided."
-                }
+            check(REQUIRED_FIELDS[type]!!.all { fields.containsKey(it) }) {
+                val missingField = REQUIRED_FIELDS[type]!!.first { !fields.containsKey(it) }
+                "Field $missingField is required for type $type"
             }
-            for (requiredOneOfFieldGroup in REQUIRED_ONE_OF_FIELDS[type]!!) {
-                check(requiredOneOfFieldGroup.count { fields.containsKey(it) } >= 1) {
-                    "One of $requiredOneOfFieldGroup must be provided."
-                }
+            check(
+                !(fields.containsKey(FIELD_ICON_BURN_IN_PROTECTION) &&
+                    !fields.containsKey(FIELD_ICON))
+            ) {
+                "Field ICON must be provided when field ICON_BURN_IN_PROTECTION is provided."
+            }
+            check(
+                !(fields.containsKey(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION) &&
+                    !fields.containsKey(FIELD_SMALL_IMAGE))
+            ) {
+                "Field SMALL_IMAGE must be provided when field SMALL_IMAGE_BURN_IN_PROTECTION" +
+                    " is provided."
+            }
+            check(REQUIRED_ONE_OF_FIELDS[type]!!.all { group -> group.any(fields::containsKey) }) {
+                val missingField =
+                    REQUIRED_ONE_OF_FIELDS[type]!!.first { grp -> grp.none(fields::containsKey) }
+                "One of $missingField must be provided."
             }
             return ComplicationData(this)
         }
@@ -2331,20 +2330,10 @@ private constructor(
                         FIELD_COLOR_RAMP_INTERPOLATED,
                         FIELD_VALUE_TYPE,
                     ),
-                TYPE_ICON to
-                    setOf(
-                        *COMMON_OPTIONAL_FIELDS,
-                        FIELD_ICON_BURN_IN_PROTECTION,
-                    ),
+                TYPE_ICON to setOf(*COMMON_OPTIONAL_FIELDS, FIELD_ICON_BURN_IN_PROTECTION),
                 TYPE_SMALL_IMAGE to
-                    setOf(
-                        *COMMON_OPTIONAL_FIELDS,
-                        FIELD_SMALL_IMAGE_BURN_IN_PROTECTION,
-                    ),
-                TYPE_LARGE_IMAGE to
-                    setOf(
-                        *COMMON_OPTIONAL_FIELDS,
-                    ),
+                    setOf(*COMMON_OPTIONAL_FIELDS, FIELD_SMALL_IMAGE_BURN_IN_PROTECTION),
+                TYPE_LARGE_IMAGE to setOf(*COMMON_OPTIONAL_FIELDS),
                 TYPE_NO_PERMISSION to
                     setOf(
                         *COMMON_OPTIONAL_FIELDS,
@@ -2390,15 +2379,8 @@ private constructor(
                         EXP_FIELD_PROTO_LAYOUT_INTERACTIVE,
                         EXP_FIELD_PROTO_LAYOUT_RESOURCES,
                     ),
-                EXP_TYPE_PROTO_LAYOUT to
-                    setOf(
-                        *COMMON_OPTIONAL_FIELDS,
-                    ),
-                EXP_TYPE_LIST to
-                    setOf(
-                        *COMMON_OPTIONAL_FIELDS,
-                        EXP_FIELD_LIST_STYLE_HINT,
-                    ),
+                EXP_TYPE_PROTO_LAYOUT to setOf(*COMMON_OPTIONAL_FIELDS),
+                EXP_TYPE_LIST to setOf(*COMMON_OPTIONAL_FIELDS, EXP_FIELD_LIST_STYLE_HINT),
                 TYPE_GOAL_PROGRESS to
                     setOf(
                         *COMMON_OPTIONAL_FIELDS,
@@ -2447,10 +2429,7 @@ private constructor(
                         ComplicationData(bundle.getInt(typeKey), bundle.getBundle(fieldsKey)!!)
                 }
             }
-            fun putComplicationDataArrayFromBundle(
-                arrayKey: String,
-                entryTypeKey: String,
-            ) {
+            fun putComplicationDataArrayFromBundle(arrayKey: String, entryTypeKey: String) {
                 putFromBundle(arrayKey) { key ->
                     @Suppress("DEPRECATION")
                     bundle.getParcelableArray(key)?.map {
@@ -2553,10 +2532,7 @@ private constructor(
                     bundle.putBundle(fieldsKey, (fields[fieldsKey] as ComplicationData).bundle)
                 }
             }
-            fun putComplicationDataArrayFromFields(
-                arrayKey: String,
-                entryTypeKey: String,
-            ) {
+            fun putComplicationDataArrayFromFields(arrayKey: String, entryTypeKey: String) {
                 if (arrayKey in fields) {
                     @Suppress("UNCHECKED_CAST")
                     bundle.putParcelableArray(
@@ -2566,7 +2542,7 @@ private constructor(
                                 it.bundle.putInt(entryTypeKey, it.type)
                                 it.bundle
                             }
-                            .toTypedArray()
+                            .toTypedArray(),
                     )
                 }
             }
@@ -2641,7 +2617,7 @@ private constructor(
                     TAG,
                     "Could not unparcel ComplicationData. Provider apps must exclude wearable " +
                         "support complication classes from proguard.",
-                    e
+                    e,
                 )
                 null
             }
@@ -2679,7 +2655,8 @@ private constructor(
         }
 
         /** Returns whether or not we should redact complication data in toString(). */
-        @JvmStatic fun shouldRedact() = !Log.isLoggable(TAG, Log.DEBUG)
+        @JvmStatic
+        fun shouldRedact() = !Log.isLoggable(TAG, Log.DEBUG) && !Build.TYPE.equals("userdebug")
 
         @JvmStatic
         fun maybeRedact(unredacted: CharSequence?): String =

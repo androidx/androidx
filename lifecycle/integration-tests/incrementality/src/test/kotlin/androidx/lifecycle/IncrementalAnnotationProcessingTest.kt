@@ -196,7 +196,7 @@ class IncrementalAnnotationProcessingTest {
                 delete rootProject.buildDir
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -207,12 +207,12 @@ class IncrementalAnnotationProcessingTest {
             apply plugin: 'com.android.application'
 
             android {
-                namespace "androidx.lifecycle.incap"
-                compileSdk ${projectSetup.props.compileSdk}
-                buildToolsVersion "${projectSetup.props.buildToolsVersion}"
+                namespace = "androidx.lifecycle.incap"
+                compileSdk = ${projectSetup.props.compileSdk}
+                buildToolsVersion = "${projectSetup.props.buildToolsVersion}"
 
                 defaultConfig {
-                    minSdkVersion ${projectSetup.props.minSdkVersion}
+                    minSdk = ${projectSetup.props.minSdkVersion}
                 }
 
                 signingConfigs {
@@ -229,7 +229,7 @@ class IncrementalAnnotationProcessingTest {
                 annotationProcessor "androidx.lifecycle:lifecycle-compiler:+"
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -239,7 +239,7 @@ class IncrementalAnnotationProcessingTest {
             """
             include ':app'
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -249,7 +249,7 @@ class IncrementalAnnotationProcessingTest {
             """
             <manifest/>
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
@@ -274,7 +274,7 @@ class IncrementalAnnotationProcessingTest {
                 }
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
 
         addFileWithContent(
@@ -297,7 +297,7 @@ class IncrementalAnnotationProcessingTest {
                 }
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 

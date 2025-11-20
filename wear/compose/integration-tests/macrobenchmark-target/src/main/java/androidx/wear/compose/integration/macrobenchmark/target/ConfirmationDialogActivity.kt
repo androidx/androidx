@@ -52,7 +52,7 @@ class ConfirmationDialogActivity : ComponentActivity() {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Chip(
                         onClick = { showDialog = true },
@@ -73,7 +73,7 @@ class ConfirmationDialogActivity : ComponentActivity() {
                                 painter = painterResource(id = R.drawable.ic_favorite_rounded),
                                 modifier =
                                     Modifier.size(48.dp).wrapContentSize(align = Alignment.Center),
-                                contentDescription = "Favorite"
+                                contentDescription = "Favorite",
                             )
                         },
                     ) {

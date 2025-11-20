@@ -27,7 +27,6 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -48,7 +47,6 @@ public class ShortcutAdapterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 21)
     public void createShortcutFromDocument_WorksCorrectly() throws AppSearchException {
         final Context context = ApplicationProvider.getApplicationContext();
         final String name = "Timer 1";
@@ -69,7 +67,6 @@ public class ShortcutAdapterTest {
 
     @Test(expected = IllegalArgumentException.class)
     @SmallTest
-    @SdkSuppress(minSdkVersion = 21)
     public void createShortcutFromDocumentWithCustomNamespace_ThrowsException()
             throws AppSearchException {
         final Context context = ApplicationProvider.getApplicationContext();
@@ -79,7 +76,6 @@ public class ShortcutAdapterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 21)
     public void extractDocumentFromShortcut_WorksCorrectly()
             throws AppSearchException {
         final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -92,7 +88,6 @@ public class ShortcutAdapterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 21)
     public void getDocumentUriFromDocument_WorksCorrectly() throws AppSearchException {
         final Timer timer = timer("id 1");
         assertThat(ShortcutAdapter.getDocumentUri(timer))
@@ -101,7 +96,6 @@ public class ShortcutAdapterTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 21)
     public void getDocumentUriFromShortcutId_WorksCorrectly() throws AppSearchException {
         assertThat(ShortcutAdapter.getDocumentUri("id 1"))
                 .isEqualTo(Uri.parse(EXPECTED_URI));

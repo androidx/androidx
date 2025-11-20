@@ -37,14 +37,13 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
+
     androidTestAnnotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
@@ -52,9 +51,8 @@ android {
     buildFeatures {
         aidl = true
     }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-
         stableAidl {
             version = 1
         }
@@ -69,4 +67,5 @@ androidx {
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."
     failOnDeprecationWarnings = false
+    enableRobolectric()
 }

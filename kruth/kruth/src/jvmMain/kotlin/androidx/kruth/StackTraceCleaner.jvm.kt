@@ -289,7 +289,7 @@ internal class StackTraceCleaner(private val throwable: Throwable) {
         val loader: ClassLoader =
             firstNonNull(
                 currentThread().getContextClassLoader(),
-                StackTraceCleaner::class.java.classLoader!!
+                StackTraceCleaner::class.java.classLoader!!,
             )
         return loader.loadClass(name)
     }
@@ -305,7 +305,7 @@ internal class StackTraceElementWrapper(
     /** The wrapped [StackTraceElement]. */
     internal val stackTraceElement: StackTraceElement,
     /** The type of this frame. */
-    internal val stackFrameType: StackFrameType
+    internal val stackFrameType: StackFrameType,
 ) {
 
     /** Creates a wrapper with the given frame with frame type inferred from frame's class name. */
@@ -326,7 +326,7 @@ internal class StackTraceElementWrapper(
 internal enum class StackFrameType(
     /** Returns the name of this frame type to display in the cleaned trace */
     private val stackFrameName: String,
-    private val prefixes: ImmutableList<String> = ImmutableList.of()
+    private val prefixes: ImmutableList<String> = ImmutableList.of(),
 ) {
     NEVER_REMOVE("N/A"),
     TEST_FRAMEWORK(
@@ -338,20 +338,20 @@ internal enum class StackFrameType(
             "com.github.bazel_contrib.contrib_rules_jvm.junit5",
             "com.google.testing.junit",
             "com.google.testing.testsize",
-            "com.google.testing.util"
-        )
+            "com.google.testing.util",
+        ),
     ),
     REFLECTION(
         "Reflective call",
-        ImmutableList.of("java.lang.reflect", "jdk.internal.reflect", "sun.reflect")
+        ImmutableList.of("java.lang.reflect", "jdk.internal.reflect", "sun.reflect"),
     ),
     CONCURRENT_FRAMEWORK(
         "Concurrent framework",
         ImmutableList.of(
             "com.google.tracing.CurrentContext",
             "com.google.common.util.concurrent",
-            "java.util.concurrent.ForkJoin"
-        )
+            "java.util.concurrent.ForkJoin",
+        ),
     );
 
     /**
@@ -405,9 +405,9 @@ internal enum class StackFrameType(
                     "[[${stackFrameType.stackFrameName}: $length frames collapsed ($CLEANER_LINK)]]",
                     "",
                     "",
-                    0
+                    0,
                 ),
-                stackFrameType
+                stackFrameType,
             )
     }
 }

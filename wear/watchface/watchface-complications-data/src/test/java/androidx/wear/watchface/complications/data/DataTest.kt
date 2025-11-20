@@ -31,8 +31,8 @@ import android.os.PersistableBundle
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import com.google.common.truth.Expect
@@ -53,6 +53,7 @@ import org.junit.runner.RunWith
 import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class AsWireComplicationDataTest {
     val resources = ApplicationProvider.getApplicationContext<Context>().resources
@@ -132,7 +133,7 @@ public class AsWireComplicationDataTest {
         val data =
             ShortTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .setDataSource(dataSource)
@@ -176,13 +177,13 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun shortTextComplicationData_withImages() {
         val data =
             ShortTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .setMonochromaticImage(monochromaticImage)
@@ -237,7 +238,7 @@ public class AsWireComplicationDataTest {
         val data =
             ShortTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .setDataSource(dataSource)
@@ -258,7 +259,7 @@ public class AsWireComplicationDataTest {
         val data =
             LongTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .setDataSource(dataSource)
@@ -300,13 +301,13 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun longTextComplicationData_withImages() {
         val data =
             LongTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .setMonochromaticImage(monochromaticImage)
@@ -364,7 +365,7 @@ public class AsWireComplicationDataTest {
                     value = 95f,
                     min = 0f,
                     max = 100f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("battery".complicationText)
                 .setDataSource(dataSource)
@@ -419,7 +420,7 @@ public class AsWireComplicationDataTest {
                     fallbackValue = 5f,
                     min = 5f,
                     max = 100f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("battery".complicationText)
                 .setDataSource(dataSource)
@@ -474,7 +475,7 @@ public class AsWireComplicationDataTest {
                     value = 95f,
                     min = 0f,
                     max = 100f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle(DynamicComplicationText(DynamicString.constant("title"), "fallback"))
                 .setDataSource(dataSource)
@@ -520,7 +521,7 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun rangedValueComplicationData_withImages() {
         val data =
@@ -528,7 +529,7 @@ public class AsWireComplicationDataTest {
                     value = 95f,
                     min = 0f,
                     max = 100f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("battery".complicationText)
                 .setMonochromaticImage(monochromaticImage)
@@ -592,7 +593,7 @@ public class AsWireComplicationDataTest {
             GoalProgressComplicationData.Builder(
                     value = 1200f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setDataSource(dataSource)
@@ -643,7 +644,7 @@ public class AsWireComplicationDataTest {
                     dynamicValue = DynamicFloat.constant(10f),
                     fallbackValue = 0f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setDataSource(dataSource)
@@ -695,7 +696,7 @@ public class AsWireComplicationDataTest {
             GoalProgressComplicationData.Builder(
                     value = 1200f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setDataSource(dataSource)
@@ -740,14 +741,14 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun goalProgressComplicationData_withColorRampAndImages() {
         val data =
             GoalProgressComplicationData.Builder(
                     value = 1200f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setMonochromaticImage(monochromaticImage)
@@ -812,7 +813,7 @@ public class AsWireComplicationDataTest {
                     value = 95f,
                     min = 0f,
                     max = 100f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("battery".complicationText)
                 .setDataSource(dataSource)
@@ -870,7 +871,7 @@ public class AsWireComplicationDataTest {
                     MutableList(WeightedElementsComplicationData.getMaxElements() + 5) {
                         WeightedElementsComplicationData.Element(0.5f, Color.RED)
                     },
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("test".complicationText)
                 .build()
@@ -888,7 +889,7 @@ public class AsWireComplicationDataTest {
                         WeightedElementsComplicationData.Element(1f, Color.GREEN),
                         WeightedElementsComplicationData.Element(2f, Color.BLUE),
                     ),
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setElementBackgroundColor(Color.GRAY)
                 .setTitle("calories".complicationText)
@@ -940,7 +941,7 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun weightedElementsComplicationData_withImages() {
         val data =
@@ -950,7 +951,7 @@ public class AsWireComplicationDataTest {
                         WeightedElementsComplicationData.Element(1f, Color.GREEN),
                         WeightedElementsComplicationData.Element(2f, Color.BLUE),
                     ),
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("calories".complicationText)
                 .setMonochromaticImage(monochromaticImage)
@@ -1010,14 +1011,14 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun monochromaticImageComplicationData() {
         val extras = PersistableBundle().apply { putInt("Key", 123) }
         val data =
             MonochromaticImageComplicationData.Builder(
                     image,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setDataSource(dataSource)
                 .setExtras(extras)
@@ -1054,7 +1055,7 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun smallImageComplicationData() {
         val extras = PersistableBundle().apply { putInt("Key", 123) }
@@ -1098,7 +1099,7 @@ public class AsWireComplicationDataTest {
             )
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun smallImageComplicationData_with_BitmapIcon() {
         val bitmapIcon =
@@ -1132,7 +1133,7 @@ public class AsWireComplicationDataTest {
         assertThat(bitmap.height).isEqualTo(100)
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
     public fun backgroundImageComplicationData() {
         val extras = PersistableBundle().apply { putInt("Key", 123) }
@@ -1261,7 +1262,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 ShortTextComplicationData.Builder(
                         ComplicationText.PLACEHOLDER,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setTitle(ComplicationText.PLACEHOLDER)
                     .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
@@ -1325,7 +1326,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 ShortTextComplicationData.Builder(
                         ComplicationText.PLACEHOLDER,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setTitle(ComplicationText.PLACEHOLDER)
                     .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
@@ -1347,7 +1348,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 LongTextComplicationData.Builder(
                         "text".complicationText,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setDataSource(dataSource)
                     .setExtras(extras)
@@ -1406,7 +1407,7 @@ public class AsWireComplicationDataTest {
                         value = RangedValueComplicationData.PLACEHOLDER,
                         min = 0f,
                         max = 100f,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setText(ComplicationText.PLACEHOLDER)
                     .setDataSource(dataSource)
@@ -1470,7 +1471,7 @@ public class AsWireComplicationDataTest {
                 GoalProgressComplicationData.Builder(
                         value = GoalProgressComplicationData.PLACEHOLDER,
                         targetValue = 10000f,
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setText(ComplicationText.PLACEHOLDER)
                     .setDataSource(dataSource)
@@ -1540,7 +1541,7 @@ public class AsWireComplicationDataTest {
                             WeightedElementsComplicationData.Element(1f, Color.GREEN),
                             WeightedElementsComplicationData.Element(2f, Color.BLUE),
                         ),
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("calories".complicationText)
                     .setElementBackgroundColor(Color.GRAY)
@@ -1606,7 +1607,7 @@ public class AsWireComplicationDataTest {
                         value = RangedValueComplicationData.PLACEHOLDER,
                         min = 0f,
                         max = 100f,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setText(ComplicationText.PLACEHOLDER)
                     .setDataSource(dataSource)
@@ -1675,7 +1676,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 MonochromaticImageComplicationData.Builder(
                         MonochromaticImage.PLACEHOLDER,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setDataSource(dataSource)
                     .setExtras(extras)
@@ -1731,7 +1732,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 SmallImageComplicationData.Builder(
                         SmallImage.PLACEHOLDER,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setDataSource(dataSource)
                     .setExtras(extras)
@@ -1788,7 +1789,7 @@ public class AsWireComplicationDataTest {
             NoDataComplicationData(
                 PhotoImageComplicationData.Builder(
                         PhotoImageComplicationData.PLACEHOLDER,
-                        "content description".complicationText
+                        "content description".complicationText,
                     )
                     .setDataSource(dataSource)
                     .setExtras(extras)
@@ -1859,6 +1860,7 @@ public class AsWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class FromWireComplicationDataTest {
     @Test
@@ -1869,7 +1871,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -1877,7 +1879,7 @@ public class FromWireComplicationDataTest {
     public fun emptyComplicationData() {
         assertRoundtrip(
             WireComplicationData.Builder(WireComplicationData.TYPE_EMPTY).build(),
-            ComplicationType.EMPTY
+            ComplicationType.EMPTY,
         )
     }
 
@@ -1885,7 +1887,7 @@ public class FromWireComplicationDataTest {
     public fun notConfiguredComplicationData() {
         assertRoundtrip(
             WireComplicationData.Builder(WireComplicationData.TYPE_NOT_CONFIGURED).build(),
-            ComplicationType.NOT_CONFIGURED
+            ComplicationType.NOT_CONFIGURED,
         )
     }
 
@@ -1899,7 +1901,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.SHORT_TEXT
+            ComplicationType.SHORT_TEXT,
         )
     }
 
@@ -1913,7 +1915,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.LONG_TEXT
+            ComplicationType.LONG_TEXT,
         )
     }
 
@@ -1929,7 +1931,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.RANGED_VALUE
+            ComplicationType.RANGED_VALUE,
         )
     }
 
@@ -1945,7 +1947,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.RANGED_VALUE
+            ComplicationType.RANGED_VALUE,
         )
     }
 
@@ -1961,7 +1963,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.RANGED_VALUE
+            ComplicationType.RANGED_VALUE,
         )
     }
 
@@ -1978,7 +1980,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.GOAL_PROGRESS
+            ComplicationType.GOAL_PROGRESS,
         )
     }
 
@@ -1995,7 +1997,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.GOAL_PROGRESS
+            ComplicationType.GOAL_PROGRESS,
         )
     }
 
@@ -2011,7 +2013,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.WEIGHTED_ELEMENTS
+            ComplicationType.WEIGHTED_ELEMENTS,
         )
     }
 
@@ -2025,7 +2027,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.MONOCHROMATIC_IMAGE
+            ComplicationType.MONOCHROMATIC_IMAGE,
         )
     }
 
@@ -2040,7 +2042,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.SMALL_IMAGE
+            ComplicationType.SMALL_IMAGE,
         )
     }
 
@@ -2054,7 +2056,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.PHOTO_IMAGE
+            ComplicationType.PHOTO_IMAGE,
         )
     }
 
@@ -2066,7 +2068,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_PERMISSION
+            ComplicationType.NO_PERMISSION,
         )
     }
 
@@ -2090,7 +2092,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2114,7 +2116,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2141,7 +2143,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2168,7 +2170,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2192,7 +2194,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2215,7 +2217,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2237,7 +2239,7 @@ public class FromWireComplicationDataTest {
                 .setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED)
                 .setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY)
                 .build(),
-            ComplicationType.NO_DATA
+            ComplicationType.NO_DATA,
         )
     }
 
@@ -2247,7 +2249,7 @@ public class FromWireComplicationDataTest {
         val strippedData =
             ShortTextComplicationData.Builder(
                     ComplicationText.PLACEHOLDER,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle(ComplicationText.PLACEHOLDER)
                 .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
@@ -2272,6 +2274,7 @@ public class FromWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @SuppressLint("NewApi")
 class GetContentDescriptionTest {
     @get:Rule val expect = Expect.create()
@@ -2282,11 +2285,11 @@ class GetContentDescriptionTest {
         // NoDataComplicationData
         NO_DATA_WITH_NO_PLACEHOLDER_RETURNS_DEFAULT_TEXT(
             NoDataComplicationData(),
-            contentDescription = "No data"
+            contentDescription = "No data",
         ),
         NO_DATA_WITH_PLACEHOLDER_WITH_NULL_DESCRIPTION_RETURNS_DEFAULT_TEXT(
             NoDataComplicationData(EmptyComplicationData() /* getContentDescription() = null */),
-            contentDescription = "No data"
+            contentDescription = "No data",
         ),
         NO_DATA_WITH_PLACEHOLDER_WITH_EMPTY_DESCRIPTION_RETURNS_DEFAULT_TEXT(
             NoDataComplicationData(
@@ -2296,7 +2299,7 @@ class GetContentDescriptionTest {
                     )
                     .build()
             ),
-            contentDescription = "No data"
+            contentDescription = "No data",
         ),
         NO_DATA_WITH_PLACEHOLDER_WITH_DESCRIPTION_RETURNS_PLACEHOLDER_DESCRIPTION(
             NoDataComplicationData(
@@ -2306,7 +2309,7 @@ class GetContentDescriptionTest {
                     )
                     .build()
             ),
-            contentDescription = "Placeholder description"
+            contentDescription = "Placeholder description",
         ),
         // Complications with text and title, including:
         // - ShortTextComplicationData
@@ -2362,11 +2365,11 @@ class GetContentDescriptionTest {
                 .setText("Text".complicationText)
                 .setTitle("Title".complicationText)
                 .build(),
-            contentDescription = "Text Title No permission to access data"
+            contentDescription = "Text Title No permission to access data",
         ),
         NO_PERMISSION_WITH_EMPTY_TEXT_AND_TITLE_RETURNS_DEFAULT_TEXT(
             NoPermissionComplicationData.Builder().build(),
-            contentDescription = "No permission to access data"
+            contentDescription = "No permission to access data",
         ),
         // RangedValueComplicationData
         RANGED_VALUE_WITH_EMPTY_DESCRIPTION_AND_TEXT_RETURNS_DEFAULT_TEXT(
@@ -2377,7 +2380,7 @@ class GetContentDescriptionTest {
                     contentDescription = ComplicationText.EMPTY,
                 )
                 .build(),
-            contentDescription = "2.000000 of 10.000000"
+            contentDescription = "2.000000 of 10.000000",
         ),
         // GoalProgressComplicationData
         GOAL_PROGRESS_WITH_EMPTY_DESCRIPTION_AND_TEXT_RETURNS_DEFAULT_TEXT(
@@ -2387,7 +2390,7 @@ class GetContentDescriptionTest {
                     contentDescription = ComplicationText.EMPTY,
                 )
                 .build(),
-            contentDescription = "2.000000 of 10.000000"
+            contentDescription = "2.000000 of 10.000000",
         ),
     }
 
@@ -2408,6 +2411,7 @@ class GetContentDescriptionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class TapActionTest {
     private val mPendingIntent =
         PendingIntent.getBroadcast(ApplicationProvider.getApplicationContext(), 0, Intent(), 0)
@@ -2443,7 +2447,7 @@ public class TapActionTest {
                         value = 95f,
                         min = 0f,
                         max = 100f,
-                        contentDescription = ComplicationText.EMPTY
+                        contentDescription = ComplicationText.EMPTY,
                     )
                     .setText("battery".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2461,7 +2465,7 @@ public class TapActionTest {
                 GoalProgressComplicationData.Builder(
                         value = 1200f,
                         targetValue = 10000f,
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("steps".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2483,7 +2487,7 @@ public class TapActionTest {
                             WeightedElementsComplicationData.Element(1f, Color.GREEN),
                             WeightedElementsComplicationData.Element(2f, Color.BLUE),
                         ),
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("calories".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2541,7 +2545,7 @@ public class TapActionTest {
                 NoDataComplicationData(
                         ShortTextComplicationData.Builder(
                                 ComplicationText.PLACEHOLDER,
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .setTapAction(mPendingIntent)
                             .build()
@@ -2555,6 +2559,7 @@ public class TapActionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class RoundtripTapActionTest {
     private val mPendingIntent =
         PendingIntent.getBroadcast(ApplicationProvider.getApplicationContext(), 0, Intent(), 0)
@@ -2592,7 +2597,7 @@ public class RoundtripTapActionTest {
                         value = 95f,
                         min = 0f,
                         max = 100f,
-                        contentDescription = ComplicationText.EMPTY
+                        contentDescription = ComplicationText.EMPTY,
                     )
                     .setText("battery".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2611,7 +2616,7 @@ public class RoundtripTapActionTest {
                 GoalProgressComplicationData.Builder(
                         value = 1200f,
                         targetValue = 10000f,
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("steps".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2634,7 +2639,7 @@ public class RoundtripTapActionTest {
                             WeightedElementsComplicationData.Element(1f, Color.GREEN),
                             WeightedElementsComplicationData.Element(2f, Color.BLUE),
                         ),
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("calories".complicationText)
                     .setTapAction(mPendingIntent)
@@ -2696,7 +2701,7 @@ public class RoundtripTapActionTest {
                 NoDataComplicationData(
                         MonochromaticImageComplicationData.Builder(
                                 MonochromaticImage.PLACEHOLDER,
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .setTapAction(mPendingIntent)
                             .build()
@@ -2710,6 +2715,7 @@ public class RoundtripTapActionTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @Suppress("NewApi")
 public class ValidTimeRangeTest {
     private val testStartInstant = Instant.ofEpochMilli(1000L)
@@ -2758,7 +2764,7 @@ public class ValidTimeRangeTest {
                     value = 95f,
                     min = 0f,
                     max = 100f,
-                    contentDescription = ComplicationText.EMPTY
+                    contentDescription = ComplicationText.EMPTY,
                 )
                 .setText("battery".complicationText)
                 .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
@@ -2785,7 +2791,7 @@ public class ValidTimeRangeTest {
             GoalProgressComplicationData.Builder(
                     value = 1200f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
@@ -2817,7 +2823,7 @@ public class ValidTimeRangeTest {
                         WeightedElementsComplicationData.Element(1f, Color.GREEN),
                         WeightedElementsComplicationData.Element(2f, Color.BLUE),
                     ),
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("calories".complicationText)
                 .setValidTimeRange(TimeRange.between(testStartInstant, testEndDateInstant))
@@ -2903,7 +2909,7 @@ public class ValidTimeRangeTest {
         val data =
             NoDataComplicationData(
                 ShortTextComplicationData.Builder("text".complicationText, ComplicationText.EMPTY)
-                    .build(),
+                    .build()
             )
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -2952,7 +2958,7 @@ public class ValidTimeRangeTest {
                         value = 95f,
                         min = 0f,
                         max = 100f,
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .setText("battery".complicationText)
                     .build()
@@ -2984,7 +2990,7 @@ public class ValidTimeRangeTest {
                 GoalProgressComplicationData.Builder(
                         value = 1200f,
                         targetValue = 10000f,
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("steps".complicationText)
                     .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), false))
@@ -3023,7 +3029,7 @@ public class ValidTimeRangeTest {
                             WeightedElementsComplicationData.Element(1f, Color.GREEN),
                             WeightedElementsComplicationData.Element(2f, Color.BLUE),
                         ),
-                        contentDescription = "content description".complicationText
+                        contentDescription = "content description".complicationText,
                     )
                     .setTitle("calories".complicationText)
                     .build()
@@ -3124,6 +3130,7 @@ public class ValidTimeRangeTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class RedactionTest {
     @Before
     fun setup() {
@@ -3144,7 +3151,7 @@ public class RedactionTest {
         val data =
             ShortTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .build()
@@ -3171,7 +3178,7 @@ public class RedactionTest {
         val data =
             LongTextComplicationData.Builder(
                     "text".complicationText,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setTitle("title".complicationText)
                 .build()
@@ -3200,7 +3207,7 @@ public class RedactionTest {
                     50f,
                     0f,
                     100f,
-                    "content description".complicationText
+                    "content description".complicationText,
                 )
                 .setText("text".complicationText)
                 .setTitle("title".complicationText)
@@ -3230,7 +3237,7 @@ public class RedactionTest {
             GoalProgressComplicationData.Builder(
                     value = 1200f,
                     targetValue = 10000f,
-                    contentDescription = "content description".complicationText
+                    contentDescription = "content description".complicationText,
                 )
                 .setTitle("steps".complicationText)
                 .setColorRamp(ColorRamp(intArrayOf(Color.RED, Color.GREEN, Color.BLUE), true))
@@ -3259,7 +3266,7 @@ public class RedactionTest {
             NoDataComplicationData(
                 LongTextComplicationData.Builder(
                         ComplicationText.PLACEHOLDER,
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
             )
@@ -3296,7 +3303,7 @@ class ValidationTest {
             rangedValueComplicationData(
                 value = RangedValueComplicationData.PLACEHOLDER,
                 min = 10f,
-                max = 20f
+                max = 20f,
             )
         ),
     }
@@ -3322,7 +3329,7 @@ class ValidationTest {
         private fun rangedValueComplicationData(
             value: Float,
             min: Float,
-            max: Float
+            max: Float,
         ): () -> RangedValueComplicationData = {
             RangedValueComplicationData.Builder(
                     value = value,

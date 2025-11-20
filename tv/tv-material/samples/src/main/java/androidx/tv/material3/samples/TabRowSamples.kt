@@ -54,14 +54,11 @@ fun PillIndicatorTabRow() {
     TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.focusRestorer()) {
         tabs.forEachIndexed { index, tab ->
             key(index) {
-                Tab(
-                    selected = index == selectedTabIndex,
-                    onFocus = { selectedTabIndex = index },
-                ) {
+                Tab(selected = index == selectedTabIndex, onFocus = { selectedTabIndex = index }) {
                     Text(
                         text = tab,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -85,7 +82,7 @@ fun UnderlinedIndicatorTabRow() {
                 doesTabRowHaveFocus = doesTabRowHaveFocus,
             )
         },
-        modifier = Modifier.focusRestorer()
+        modifier = Modifier.focusRestorer(),
     ) {
         tabs.forEachIndexed { index, tab ->
             key(index) {
@@ -97,7 +94,7 @@ fun UnderlinedIndicatorTabRow() {
                     Text(
                         text = tab,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -125,14 +122,11 @@ fun TabRowWithDebounce() {
     TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.focusRestorer()) {
         tabs.forEachIndexed { index, tab ->
             key(index) {
-                Tab(
-                    selected = index == selectedTabIndex,
-                    onFocus = { selectedTabIndex = index },
-                ) {
+                Tab(selected = index == selectedTabIndex, onFocus = { selectedTabIndex = index }) {
                     Text(
                         text = tab,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -174,7 +168,7 @@ fun OnClickNavigation() {
                     doesTabRowHaveFocus = doesTabRowHaveFocus,
                 )
             },
-            modifier = Modifier.focusRestorer()
+            modifier = Modifier.focusRestorer(),
         ) {
             repeat(bgColors.size) {
                 key(it) {
@@ -184,12 +178,12 @@ fun OnClickNavigation() {
                         onClick = {
                             focusedTabIndex = it
                             activeTabIndex = it
-                        }
+                        },
                     ) {
                         Text(
                             text = "Tab ${it + 1}",
                             fontSize = 12.sp,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                         )
                     }
                 }

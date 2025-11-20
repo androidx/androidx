@@ -38,7 +38,7 @@ class PixelMap(
     val width: Int,
     val height: Int,
     val bufferOffset: Int,
-    val stride: Int
+    val stride: Int,
 ) {
     /**
      * Obtain the color of the pixel at the given coordinate.

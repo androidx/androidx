@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -45,10 +45,10 @@ android {
 
 dependencies {
     api(libs.jspecify)
-    annotationProcessor(project(":room:room-compiler"))
-    implementation(project(":room:room-runtime"))
-    implementation(project(":room:room-ktx"))
+    annotationProcessor("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-runtime:2.7.2")
 
+    implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.constraintLayout)
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")

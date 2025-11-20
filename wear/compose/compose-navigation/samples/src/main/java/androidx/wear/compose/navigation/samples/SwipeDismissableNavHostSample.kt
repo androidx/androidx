@@ -17,6 +17,7 @@
 package androidx.wear.compose.navigation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
@@ -46,18 +48,18 @@ fun SimpleNavHost() {
     SwipeDismissableNavHost(navController = navController, startDestination = "off") {
         composable("off") {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(onClick = { navController.navigate("on") }) { Text("On") }
             }
         }
         composable("on") {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(onClick = { navController.navigate("off") }) { Text("Off") }
             }
@@ -73,7 +75,7 @@ fun NavHostWithNamedArgument() {
     SwipeDismissableNavHost(navController = navController, startDestination = "list") {
         composable("list") {
             ScalingLazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 32.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -86,22 +88,22 @@ fun NavHostWithNamedArgument() {
                             Text(
                                 text = "Item $index",
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             )
-                        }
+                        },
                     )
                 }
             }
         }
         composable(
             route = "detail/{Id}",
-            arguments = listOf(navArgument("Id") { type = NavType.IntType })
+            arguments = listOf(navArgument("Id") { type = NavType.IntType }),
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("Id") ?: 0
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 ListHeader { Text("Details Screen") }
                 Text("Item $itemId")

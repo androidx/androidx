@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.core
 
-import android.os.Build
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.testing.rules.FakeCameraTestRule
@@ -32,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraXInitTest {
     @get:Rule val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
 

@@ -16,14 +16,13 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.jspecify.annotations.Nullable;
 
-public class IsFocusedTestActivity extends Activity {
+public class IsFocusedTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

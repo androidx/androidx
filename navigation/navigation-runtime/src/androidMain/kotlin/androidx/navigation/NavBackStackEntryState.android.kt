@@ -15,75 +15,50 @@
  */
 package androidx.navigation
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.internal.NavBackStackEntryStateImpl
+import androidx.navigation.internal.NavContext
 import androidx.savedstate.SavedState
 
-@SuppressLint("BanParcelableUsage")
-internal class NavBackStackEntryState : Parcelable {
-    val id: String
-    val destinationId: Int
-    val args: SavedState?
-    val savedState: SavedState
+internal actual class NavBackStackEntryState {
+    actual val id: String
+        get() = impl.id
 
-    constructor(entry: NavBackStackEntry) {
-        id = entry.id
-        destinationId = entry.destination.id
-        args = entry.arguments
-        savedState = SavedState()
-        entry.saveState(savedState)
+    actual val destinationId: Int
+        get() = impl.destinationId
+
+    actual val args: SavedState?
+        get() = impl.args
+
+    actual val savedState: SavedState
+        get() = impl.savedState
+
+    private val impl: NavBackStackEntryStateImpl
+
+    actual constructor(entry: NavBackStackEntry) {
+        impl = NavBackStackEntryStateImpl(entry, entry.destination.id)
     }
 
-    constructor(inParcel: Parcel) {
-        id = inParcel.readString()!!
-        destinationId = inParcel.readInt()
-        args = inParcel.readBundle(javaClass.classLoader)
-        savedState = inParcel.readBundle(javaClass.classLoader)!!
+    actual constructor(state: SavedState) {
+        state.classLoader = javaClass.classLoader
+        impl = NavBackStackEntryStateImpl(state)
     }
 
-    fun instantiate(
-        context: Context,
+    actual fun writeToState(): SavedState {
+        return impl.writeToState()
+    }
+
+    actual fun instantiate(
+        context: NavContext,
         destination: NavDestination,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?
+        viewModel: NavControllerViewModel?,
     ): NavBackStackEntry {
-        val args = args?.apply { classLoader = context.classLoader }
-        return NavBackStackEntry.create(
-            context,
-            destination,
-            args,
-            hostLifecycleState,
-            viewModel,
-            id,
-            savedState
-        )
+        val preparedArgs = args?.let { prepareArgs(it, context) }
+        return impl.instantiate(context, destination, preparedArgs, hostLifecycleState, viewModel)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(parcel: Parcel, i: Int) {
-        parcel.writeString(id)
-        parcel.writeInt(destinationId)
-        parcel.writeBundle(args)
-        parcel.writeBundle(savedState)
-    }
-
-    companion object {
-        @JvmField
-        val CREATOR: Parcelable.Creator<NavBackStackEntryState> =
-            object : Parcelable.Creator<NavBackStackEntryState> {
-                override fun createFromParcel(inParcel: Parcel): NavBackStackEntryState {
-                    return NavBackStackEntryState(inParcel)
-                }
-
-                override fun newArray(size: Int): Array<NavBackStackEntryState?> {
-                    return arrayOfNulls(size)
-                }
-            }
+    actual fun prepareArgs(args: SavedState, context: NavContext): SavedState? {
+        return args.apply { classLoader = context.context?.classLoader }
     }
 }

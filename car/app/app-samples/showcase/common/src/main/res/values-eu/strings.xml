@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"Gasolindegia"</string>
     <string name="short_route" msgid="4831864276538141265">"Ibilbide laburra"</string>
     <string name="less_busy" msgid="310625272281710983">"Trafiko gutxiago"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"OHIetarako egokia"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Okupazio handiko ibilgailuetarako egokia"</string>
     <string name="long_route" msgid="4737969235741057506">"Ibilbide luzea"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"Egin aurrera nabigatzen hasteko"</string>
     <string name="continue_route" msgid="5172258139245088080">"Egin aurrera ibilbidean"</string>
@@ -231,6 +231,17 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Mezuen txantiloien demo-bertsioa"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Hemen idatzi behar da mezua.\nBigarren lerroan testu gehiago duzu."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Mezu laburren txantiloiaren demo-bertsioa"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Banatutako elementuen txantiloiaren demo-bertsioa"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Elementu ataldunen AlphaJump demo-bertsio gaituta"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Aukera-botoien atala"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Etengailuen atala"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Errenkada askoren atala"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Saretako elementuen atala"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Zerrenden demo-bertsioa duen elementu atalduna"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Zerrenda 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Zerrenda 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Zerrenda bakoitzaren beheko azpitestua"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Amaiera-irudiaren eta ekintzen demo-bertsioa"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Panelen txantiloien demo-bertsioa"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Tokien zerrenden txantiloien demo-bertsioa"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Arakatu tokiak"</string>
@@ -325,10 +336,6 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Errenkada ere hauta daiteke"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Bigarren mailako ekintza hautatuta dago"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Errenkadari dagokion ekintza nagusia hautatuta dago"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Zerrenden demo-bertsioa duen elementu atalduna"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Zerrenda 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Zerrenda 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Zerrenda bakoitzaren beheko azpitestua"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Zerrenda huts baten adibidea"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Zerrenda hutsik dago"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Bestelako txantiloien demo-bertsioak"</string>

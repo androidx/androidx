@@ -20,25 +20,23 @@ import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +45,6 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 21)
 class RecorderVideoCapabilitiesTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
@@ -55,9 +52,7 @@ class RecorderVideoCapabilitiesTest(
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -71,13 +66,13 @@ class RecorderVideoCapabilitiesTest(
         fun data() =
             listOf(
                 arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
             )
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+    private lateinit var cameraInfo: CameraInfoInternal
     private lateinit var videoCapabilities: RecorderVideoCapabilities
 
     @Before
@@ -85,21 +80,22 @@ class RecorderVideoCapabilitiesTest(
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+        val cameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
 
         CameraXUtil.initialize(context, cameraConfig).get()
 
-        val cameraInfo =
+        cameraInfo =
             CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
                 as CameraInfoInternal
         videoCapabilities =
             RecorderVideoCapabilities(
                 VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
                 cameraInfo,
-                VideoEncoderInfoImpl.FINDER
+                QUALITY_SOURCE_REGULAR,
+                VideoEncoderInfoImpl.FINDER,
             )
     }
 
@@ -111,15 +107,33 @@ class RecorderVideoCapabilitiesTest(
     @Test
     fun supportStandardDynamicRange() {
         assumeFalse(isSpecificSkippedDevice())
-        assumeFalse(AndroidUtil.isEmulatorAndAPI21())
         assertThat(videoCapabilities.supportedDynamicRanges).contains(SDR)
     }
 
     @Test
     fun supportedQualitiesOfSdrIsNotEmpty() {
         assumeFalse(isSpecificSkippedDevice())
-        assumeFalse(AndroidUtil.isEmulatorAndAPI21())
         assertThat(videoCapabilities.getSupportedQualities(SDR)).isNotEmpty()
+    }
+
+    @Test
+    fun whenCameraDoesNotSupportHighSpeed_highSpeedVideoCapabilitiesIsEmpty() {
+        assumeFalse(cameraInfo.isHighSpeedSupported)
+
+        for (sourceType in
+            listOf(
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE,
+                VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES,
+            )) {
+            val capabilities =
+                RecorderVideoCapabilities(
+                    sourceType,
+                    cameraInfo,
+                    Recorder.VIDEO_RECORDING_TYPE_HIGH_SPEED,
+                    VideoEncoderInfoImpl.FINDER,
+                )
+            assertThat(capabilities.supportedDynamicRanges).isEmpty()
+        }
     }
 
     private fun isSpecificSkippedDevice(): Boolean {

@@ -42,7 +42,6 @@ import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assume
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +60,7 @@ class LazyStaggeredGridScrollingBenchmark(
             StaggeredGridRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -72,7 +71,7 @@ class LazyStaggeredGridScrollingBenchmark(
             StaggeredGridRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -86,7 +85,7 @@ class LazyStaggeredGridScrollingBenchmark(
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = false
+                usePointerInput = false,
             )
         }
     }
@@ -98,7 +97,7 @@ class LazyStaggeredGridScrollingBenchmark(
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -112,20 +111,19 @@ class LazyStaggeredGridScrollingBenchmark(
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
 
     @Test
-    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -139,7 +137,7 @@ class LazyStaggeredGridScrollingBenchmark(
             StaggeredGridRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -153,7 +151,7 @@ class LazyStaggeredGridScrollingBenchmark(
             StaggeredGridRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -175,7 +173,7 @@ class LazyStaggeredGridScrollingBenchmark(
 class LazyStaggeredGridScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
-    val content: @Composable StaggeredGridRemeasureTestCase.(LazyStaggeredGridState) -> Unit
+    val content: @Composable StaggeredGridRemeasureTestCase.(LazyStaggeredGridState) -> Unit,
 ) {
     override fun toString(): String {
         return name
@@ -188,7 +186,7 @@ private val Vertical =
             columns = StaggeredGridCells.Fixed(2),
             state = state,
             modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             items(2) { FirstLargeItem() }
             items(items) { RegularItem() }
@@ -201,7 +199,7 @@ private val Horizontal =
             rows = StaggeredGridCells.Fixed(2),
             state = state,
             modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             items(2) { FirstLargeItem() }
             items(items) { RegularItem() }
@@ -214,7 +212,7 @@ class StaggeredGridRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
     val content: @Composable StaggeredGridRemeasureTestCase.(LazyStaggeredGridState) -> Unit,
     val isVertical: Boolean,
-    val usePointerInput: Boolean = false
+    val usePointerInput: Boolean = false,
 ) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(300) { LazyItem(it) }
@@ -260,7 +258,7 @@ class StaggeredGridRemeasureTestCase(
     override fun afterToggleCheck() {
         assertEquals(
             if (scrollUp) firstItemIndex - 2 else firstItemIndex,
-            state.firstVisibleItemIndex
+            state.firstVisibleItemIndex,
         )
         assertEquals(targetItemOffset, state.firstVisibleItemScrollOffset)
     }

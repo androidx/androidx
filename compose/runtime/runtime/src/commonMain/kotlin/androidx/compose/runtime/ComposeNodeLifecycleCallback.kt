@@ -30,12 +30,12 @@ package androidx.compose.runtime
  *
  * Important: the runtime only supports node implementation of this interface.
  */
-interface ComposeNodeLifecycleCallback {
+public interface ComposeNodeLifecycleCallback {
     /**
      * Invoked when the node was reused in the composition. Consumers might use this callback to
      * reset data associated with the previous content, as it is no longer valid.
      */
-    fun onReuse()
+    public fun onReuse()
 
     /**
      * Invoked when the group containing the node was deactivated. This happens when the content of
@@ -48,11 +48,11 @@ interface ComposeNodeLifecycleCallback {
      * If the node is reused, [onReuse] will be called again to prepare the node for reuse.
      * Similarly, [onRelease] will indicate that deactivated node will never be reused again.
      */
-    fun onDeactivate()
+    public fun onDeactivate()
 
     /**
      * Invoked when the node exits the composition entirely and won't be reused again. All
      * intermediate data related to the node can be safely disposed.
      */
-    fun onRelease()
+    public fun onRelease()
 }

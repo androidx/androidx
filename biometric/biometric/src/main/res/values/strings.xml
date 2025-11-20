@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
+    <string name="fingerprint_dialog_activity_label">Fingerprint Authentication Dialog</string>
     <!-- Message shown when the system-provided fingerprint dialog is shown, asking for
          authentication. [CHAR LIMIT=30] -->
     <string name="fingerprint_dialog_touch_sensor">Touch the fingerprint sensor</string>
@@ -50,11 +51,6 @@
     <string name="fingerprint_dialog_icon_description">Fingerprint icon</string>
     <!-- Error message shown when the more options button on content view is clicked. [CHAR LIMIT=NONE] -->
     <string name="content_view_more_options_button_clicked">More options button in the content view is clicked.</string>
-    <!-- Error message shown when the lockout error dialog is dismissed. [CHAR LIMIT=NONE] -->
-    <string name="lockout_error_dialog_dismissed">The error dialog informs users that the biometric is locked out and is dismissed by the user for cancellation, switching to the settings page, or locking the screen.</string>
-    <!-- Error message shown when the hardware error dialog is dismissed. [CHAR LIMIT=NONE] -->
-    <string name="biometric_hardware_error_dialog_dismissed">The error dialog informs users that the biometric hardware is unavailable and is dismissed by the user for cancellation, or switching to the settings page.</string>
-
 
     <!-- Label for a button or in-app setting that allows the user to authenticate with their
     fingerprint. [CHAR LIMIT=70] -->
@@ -101,32 +97,4 @@
     their biometric credential (e.g. face or fingerprint) or their device screen lock (i.e. PIN,
     pattern, or password). [CHAR LIMIT=90] -->
     <string name="biometric_or_screen_lock_prompt_message">Use your biometric or screen lock to continue</string>
-
-
-    <!-- Title for the generic biometrics error dialog [CHAR_LIMIT=50] -->
-    <string name="identity_check_general_error_title">Biometric required to continue</string>
-    <!-- Dialog message when identity check auth is requested but biometric hardware has an error. [CHAR LIMIT=NONE] -->
-    <string name="identity_check_general_error_description_1">Identity Check is on and requires a biometric, but your face or fingerprint sensor is unavailable\n<ul><li>Check that your camera is on and try again</li>\n<li>You can turn off Identity Check using your Google Account</li></ul></string>
-
-    <!--
-    Title for the biometric lockout error dialog
-    "Identity Check" is a brand name and should not be translated. [CHAR_LIMIT=NONE]
-    -->
-    <string name="identity_check_lockout_error_title">Identity Check is on and can\'t verify it\'s you</string>
-    <!-- First line in the description of the lockout error dialog.  [CHAR_LIMIT=NONE] -->
-    <string name="identity_check_lockout_error_two_factor_auth_description_1">
-      Biometrics failed too many times. Lock and unlock your device to retry.
-   </string>
-    <!-- Dialog message when identity check auth is requested but biometrics is in lockout state. "Go to Settings" launches theft protection settings, in case user wishes to disable the feature. [CHAR LIMIT=NONE] -->
-    <string name="identity_check_lockout_error_description_2">You can manage Identity Check in theft protection settings. Go to Settings</string>
-
-    <!-- Primary button text for the biometric error dialog when a lockout occurs. [CHAR_LIMIT=20] -->
-    <string name="identity_check_lockout_error_lock_screen">Lock screen</string>
-    <!--  Button text for launching the Identity Check settings [CHAR_LIMIT=25] -->
-    <string name="identity_check_go_to_settings">Go to Settings</string>
-    <!-- Button text to confirm understanding or continue the current operation. [CHAR LIMIT=15] -->
-    <string name="common_ok">OK</string>
-    <!-- Button text to cancel the current operation. [CHAR LIMIT=15] -->
-    <string name="common_cancel">Cancel</string>
-
 </resources>

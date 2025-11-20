@@ -33,7 +33,7 @@ public class Configuration {
     private static final Object sLock = new Object();
 
     private final boolean mPredictLift;
-    private final boolean mPreferSystemPrediction;
+    private final boolean mPreferLibraryPrediction;
     private final int mPredictionOffset;
     private final int mPredictionStrategy;
 
@@ -55,20 +55,21 @@ public class Configuration {
 
     private Configuration() {
         // This class is non-instantiable externally.
-        mPreferSystemPrediction = SystemProperty
-                .getBoolean("debug.input.androidx_prefer_system_prediction");
+        mPreferLibraryPrediction = SystemProperty
+                .getBoolean("debug.input.androidx_prefer_library_prediction");
         mPredictionOffset = SystemProperty.getInt("debug.input.androidx_prediction_offset");
         mPredictLift = SystemProperty.getBoolean("debug.input.androidx_predict_lift");
         mPredictionStrategy = SystemProperty.getInt("debug.input.androidx_prediction_strategy");
     }
 
     /**
-     * Returns whether or not the library should prefer the system prediction when available
+     * Returns whether or not the library should prefer its own prediction even when system
+     * prediction is available
      *
-     * @return true if the system prediction should be used when available
+     * @return true if the library prediction should always be used
      */
-    public boolean preferSystemPrediction() {
-        return mPreferSystemPrediction;
+    public boolean preferLibraryPrediction() {
+        return mPreferLibraryPrediction;
     }
 
     /**

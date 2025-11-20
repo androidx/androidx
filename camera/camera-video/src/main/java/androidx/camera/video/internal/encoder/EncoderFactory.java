@@ -24,6 +24,6 @@ import java.util.concurrent.Executor;
 public interface EncoderFactory {
 
     /** Factory method to create {@link Encoder}. */
-    @NonNull Encoder createEncoder(@NonNull Executor executor, @NonNull EncoderConfig encoderConfig)
-            throws InvalidConfigException;
+    @NonNull Encoder createEncoder(@NonNull Executor executor, @NonNull EncoderConfig encoderConfig,
+            int sessionType) throws InvalidConfigException;
 }

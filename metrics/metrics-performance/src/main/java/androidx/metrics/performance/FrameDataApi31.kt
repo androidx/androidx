@@ -49,7 +49,7 @@ class FrameDataApi31(
     frameDurationTotalNanos: Long,
     frameOverrunNanos: Long,
     isJank: Boolean,
-    states: List<StateInfo>
+    states: List<StateInfo>,
 ) : FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank, states) {
 
     var frameDurationTotalNanos = frameDurationTotalNanos
@@ -66,7 +66,7 @@ class FrameDataApi31(
             frameDurationTotalNanos,
             frameOverrunNanos,
             isJank,
-            ArrayList(states)
+            ArrayList(states),
         )
     }
 
@@ -76,7 +76,7 @@ class FrameDataApi31(
         frameDurationCpuNanos: Long,
         frameDurationTotalNanos: Long,
         frameOverrunNanos: Long,
-        isJank: Boolean
+        isJank: Boolean,
     ) {
         super.update(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank)
         this.frameDurationTotalNanos = frameDurationTotalNanos

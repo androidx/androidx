@@ -17,16 +17,20 @@
 package androidx.appcompat.widget;
 
 import static androidx.appcompat.testutils.TestUtilsActions.setEnabled;
+import static androidx.core.view.ViewKt.drawToBitmap;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
@@ -34,11 +38,14 @@ import android.text.Layout;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.EditText;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
@@ -120,14 +127,12 @@ public class AppCompatEditTextTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyDefaultValue_withDefaultConstructor() {
         final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
         assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, editText.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyDefaultValue_withInflator() {
         final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
@@ -135,7 +140,6 @@ public class AppCompatEditTextTest {
         assertEquals(Layout.HYPHENATION_FREQUENCY_NONE, editText.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testHyphenationFrequencyOverride_withInflator() {
         final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
@@ -143,14 +147,12 @@ public class AppCompatEditTextTest {
         assertEquals(Layout.HYPHENATION_FREQUENCY_FULL, editText.getHyphenationFrequency());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyDefaultValue_withDefaultConstructor() {
         final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
         assertEquals(Layout.BREAK_STRATEGY_SIMPLE, editText.getBreakStrategy());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyDefaultValue_withInflator() {
         final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
@@ -158,7 +160,6 @@ public class AppCompatEditTextTest {
         assertEquals(Layout.BREAK_STRATEGY_SIMPLE, editText.getBreakStrategy());
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testBreakStrategyOverride_withInflator() {
         final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
@@ -445,5 +446,58 @@ public class AppCompatEditTextTest {
                 tint,
                 0,
                 true);
+    }
+
+    @RequiresApi(26)
+    private void assertSystemHasVariableFont() {
+        AppCompatEditText editText = new AppCompatEditText(mActivity);
+        editText.setText("Hello, world.");
+        editText.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        editText.measure(
+                View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.AT_MOST)
+        );
+        editText.layout(0, 0, editText.getMeasuredWidth(), editText.getMeasuredHeight());
+
+        editText.setFontVariationSettings("'wght' 400");
+        Bitmap regular = drawToBitmap(editText, Bitmap.Config.ARGB_8888);
+
+        editText.setFontVariationSettings("'wght' 700");
+        Bitmap bold = drawToBitmap(editText, Bitmap.Config.ARGB_8888);
+
+        assumeFalse(regular.sameAs(bold));
+    }
+
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testFontAdjustment() {
+        // Skip if the system default font is not a variable font.
+        assertSystemHasVariableFont();
+
+        AppCompatEditText editText = new AppCompatEditText(mActivity);
+        editText.setText("Hello, world.");
+        editText.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        editText.measure(
+                View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.AT_MOST)
+        );
+        editText.layout(0, 0, editText.getMeasuredWidth(), editText.getMeasuredHeight());
+
+        editText.setFontVariationSettings("'wght' 400.0");
+        Bitmap before = drawToBitmap(editText, Bitmap.Config.ARGB_8888);
+
+        editText.getFontVariationSettingsManager().setFontWeightAdjustmentForTesting(300);
+        editText.setFontVariationSettings("'wght' 400.0");
+        Bitmap after = drawToBitmap(editText, Bitmap.Config.ARGB_8888);
+
+        // The font weight adjustment should change the weight of the variation settings.
+        assertFalse(before.sameAs(after));
     }
 }

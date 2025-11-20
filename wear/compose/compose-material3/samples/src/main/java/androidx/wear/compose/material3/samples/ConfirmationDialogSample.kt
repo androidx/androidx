@@ -48,7 +48,7 @@ fun ConfirmationDialogSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
@@ -73,7 +73,7 @@ fun LongTextConfirmationDialogSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
@@ -101,7 +101,7 @@ fun FailureConfirmationDialogSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
@@ -110,7 +110,30 @@ fun FailureConfirmationDialogSample() {
     FailureConfirmationDialog(
         visible = showConfirmation,
         onDismissRequest = { showConfirmation = false },
-        curvedText = { confirmationDialogCurvedText(text, style) }
+        curvedText = { confirmationDialogCurvedText(text, style) },
+    )
+}
+
+@Sampled
+@Composable
+fun FailureConfirmationDialogWithGenericFailureIconSample() {
+    var showConfirmation by remember { mutableStateOf(false) }
+
+    Box(Modifier.fillMaxSize()) {
+        FilledTonalButton(
+            modifier = Modifier.align(Alignment.Center),
+            onClick = { showConfirmation = true },
+            label = { Text("Show Confirmation") },
+        )
+    }
+
+    val text = "Failure"
+    val style = ConfirmationDialogDefaults.curvedTextStyle
+    FailureConfirmationDialog(
+        visible = showConfirmation,
+        onDismissRequest = { showConfirmation = false },
+        curvedText = { confirmationDialogCurvedText(text, style) },
+        content = { ConfirmationDialogDefaults.GenericFailureIcon() },
     )
 }
 
@@ -123,7 +146,7 @@ fun SuccessConfirmationDialogSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
@@ -132,6 +155,6 @@ fun SuccessConfirmationDialogSample() {
     SuccessConfirmationDialog(
         visible = showConfirmation,
         onDismissRequest = { showConfirmation = false },
-        curvedText = { confirmationDialogCurvedText(text, style) }
+        curvedText = { confirmationDialogCurvedText(text, style) },
     )
 }

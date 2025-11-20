@@ -71,7 +71,7 @@ internal constructor(
     isSystemProviderRequired: Boolean,
     isAutoSelectAllowed: Boolean = false,
     allowedProviders: Set<ComponentName> = emptySet(),
-    typePriorityHint: @PriorityHints Int = PRIORITY_DEFAULT
+    typePriorityHint: @PriorityHints Int = PRIORITY_DEFAULT,
 ) :
     CredentialOption(
         type = type,
@@ -136,7 +136,7 @@ internal constructor(
         candidateQueryData,
         isSystemProviderRequired,
         isAutoSelectAllowed,
-        allowedProviders
+        allowedProviders,
     )
 
     /**
@@ -197,6 +197,6 @@ internal constructor(
         isSystemProviderRequired,
         isAutoSelectAllowed,
         allowedProviders,
-        typePriorityHint
+        typePriorityHint,
     )
 }

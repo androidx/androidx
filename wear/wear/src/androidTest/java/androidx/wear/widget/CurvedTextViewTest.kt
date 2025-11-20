@@ -27,6 +27,7 @@ import android.widget.FrameLayout
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import java.util.concurrent.CountDownLatch
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CurvedTextViewTest {
 
     private val bitmap = Bitmap.createBitmap(SCREEN_WIDTH, SCREEN_HEIGHT, Bitmap.Config.ARGB_8888)
@@ -84,7 +86,7 @@ class CurvedTextViewTest {
                 setBackgroundColor(Color.rgb(100, 0, 100))
                 anchorType = ArcLayout.ANCHOR_END
                 anchorAngleDegrees = 120f
-            }
+            },
         )
 
     private fun createThree(): List<CurvedTextView> = createThree("Center", "Left", "Right")
@@ -113,7 +115,7 @@ class CurvedTextViewTest {
                     it.setSweepRangeDegrees(0f, 55f)
                     it.ellipsize = TextUtils.TruncateAt.END
                 }
-            }
+            },
         )
     }
 
@@ -127,7 +129,7 @@ class CurvedTextViewTest {
                     it.setSweepRangeDegrees(55f, 360f)
                     it.ellipsize = TextUtils.TruncateAt.END
                 }
-            }
+            },
         )
     }
 
@@ -144,10 +146,10 @@ class CurvedTextViewTest {
                         listOf(
                             View.TEXT_ALIGNMENT_CENTER,
                             View.TEXT_ALIGNMENT_TEXT_START,
-                            View.TEXT_ALIGNMENT_TEXT_END
+                            View.TEXT_ALIGNMENT_TEXT_END,
                         )[ix]
                 }
-            }
+            },
         )
     }
 
@@ -156,7 +158,7 @@ class CurvedTextViewTest {
     fun testCounterClockwise() {
         doOneTest(
             "counter_clockwise_screenshot",
-            createThree().apply { forEach { it.isClockwise = false } }
+            createThree().apply { forEach { it.isClockwise = false } },
         )
     }
 
@@ -165,7 +167,7 @@ class CurvedTextViewTest {
     fun testTextSize() {
         doOneTest(
             "text_size_screenshot",
-            createThree().apply { forEachIndexed { ix, it -> it.textSize = 20f + ix * 4f } }
+            createThree().apply { forEachIndexed { ix, it -> it.textSize = 20f + ix * 4f } },
         )
     }
 
@@ -178,14 +180,14 @@ class CurvedTextViewTest {
                     listOf(
                         TextUtils.TruncateAt.START,
                         TextUtils.TruncateAt.MIDDLE,
-                        TextUtils.TruncateAt.END
+                        TextUtils.TruncateAt.END,
                     ))
                 .map { (v, e) ->
                     v.ellipsize = e
                     v.setSweepRangeDegrees(0f, 50f)
                     v.text += " but Longer"
                     v
-                }
+                },
         )
     }
 
@@ -200,10 +202,10 @@ class CurvedTextViewTest {
                         ix * 10,
                         ((ix + 1) % 4) * 10,
                         ((ix + 2) % 4) * 10,
-                        ((ix + 3) % 4) * 10
+                        ((ix + 3) % 4) * 10,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -226,8 +228,8 @@ class CurvedTextViewTest {
                     anchorAngleDegrees = 70.0f
                     anchorType = ArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -250,8 +252,8 @@ class CurvedTextViewTest {
                     anchorAngleDegrees = 230.0f
                     anchorType = ArcLayout.ANCHOR_START
                     setBackgroundColor(Color.rgb(0, 100, 100))
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -278,7 +280,7 @@ class CurvedTextViewTest {
                     anchorType = ArcLayout.ANCHOR_START
                     setTypeface(null, Typeface.BOLD_ITALIC)
                 },
-            )
+            ),
         )
     }
 

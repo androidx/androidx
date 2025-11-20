@@ -57,7 +57,7 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
     }
 
     /** Returns whether the underlying proto should be stored as an in-place [ByteArray]. */
-    private fun shouldStoreInPlace(): Boolean {
+    protected open fun shouldStoreInPlace(): Boolean {
         return bytes.size <= MAX_IN_PLACE_SIZE
     }
 

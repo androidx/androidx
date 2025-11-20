@@ -78,7 +78,7 @@ class GtestRunnerTest {
                     "adder_pass(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
                     "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
                     "JUnitNotifyingListener_handles_null_file_names(androidx.test.ext.junitgtesttest." +
-                        "GtestRunnerTest\$NativeTests)"
+                        "GtestRunnerTest\$NativeTests)",
                 )
             )
     }

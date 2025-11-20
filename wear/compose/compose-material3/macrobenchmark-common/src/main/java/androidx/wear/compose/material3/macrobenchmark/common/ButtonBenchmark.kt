@@ -34,7 +34,7 @@ object ButtonBenchmark : ButtonBenchmarkBase {
             Column(
                 Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 repeat(4) {
                     Button(
@@ -42,7 +42,7 @@ object ButtonBenchmark : ButtonBenchmarkBase {
                             Modifier.semantics {
                                 contentDescription = numberedContentDescription(it)
                             },
-                        onClick = {}
+                        onClick = {},
                     ) {
                         Text("Button $it")
                     }

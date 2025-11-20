@@ -19,7 +19,6 @@ package androidx.camera.video
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -32,7 +31,6 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class PersistentRecordingTest(
     private val implName: String,
     private var cameraSelector: CameraSelector,

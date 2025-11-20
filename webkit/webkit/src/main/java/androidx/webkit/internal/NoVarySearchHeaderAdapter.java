@@ -17,12 +17,14 @@
 package androidx.webkit.internal;
 
 import androidx.webkit.NoVarySearchHeader;
+import androidx.webkit.Profile;
 
 import org.chromium.support_lib_boundary.NoVarySearchDataBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@Profile.ExperimentalUrlPrefetch
 public class NoVarySearchHeaderAdapter implements NoVarySearchDataBoundaryInterface {
     private final @NonNull NoVarySearchHeader mImpl;
 

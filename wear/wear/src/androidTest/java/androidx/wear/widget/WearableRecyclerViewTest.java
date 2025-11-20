@@ -190,7 +190,7 @@ public class WearableRecyclerViewTest {
     @SdkSuppress(maxSdkVersion = 33) // b/322537327
     @Test
     public void testCircularScrollingGesture() throws Throwable {
-        onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
+        onView(withId(R.id.wrv)).perform(swipeRightFromTopCenter());
         assertNotScrolledY(R.id.wrv);
         mActivityRule.getScenario().onActivity(activity -> {
             final WearableRecyclerView wrv =
@@ -211,7 +211,9 @@ public class WearableRecyclerViewTest {
         // with "Gesture navigation" enabled. This is not a particularly satisfactory fix to this
         // problem and ideally we should look to move these tests to use a watch AVD which should
         // not be susceptible to phone gesture issues. b/151202035 raised to track.
-        onView(withId(R.id.wrv)).perform(swipeDownFromTopRightSlowly());
+        //
+        // Swipe from top center to the right so we should avoid all gesture nav insets.
+        onView(withId(R.id.wrv)).perform(swipeRightFromTopCenterSlowly());
         assertScrolledY(R.id.wrv);
     }
 
@@ -250,10 +252,16 @@ public class WearableRecyclerViewTest {
             });
         });
     }
-    private static ViewAction swipeDownFromTopRightSlowly() {
+    private static ViewAction swipeRightFromTopCenterSlowly() {
         return new GeneralSwipeAction(
-                Swipe.SLOW, GeneralLocation.TOP_RIGHT,
-                GeneralLocation.BOTTOM_RIGHT, Press.FINGER);
+                Swipe.SLOW, GeneralLocation.TOP_CENTER,
+                GeneralLocation.TOP_RIGHT, Press.FINGER);
+    }
+
+    private static ViewAction swipeRightFromTopCenter() {
+        return new GeneralSwipeAction(
+                Swipe.FAST, GeneralLocation.TOP_CENTER,
+                GeneralLocation.TOP_RIGHT, Press.FINGER);
     }
 
     private static ViewAction swipeDownFromTopRight() {

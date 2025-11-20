@@ -229,7 +229,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         private fun configureSelectionCriteriaAndAttestation(
             options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
+            json: JSONObject,
         ) {
             val selectionCriteria = options.authenticatorSelection
             selectionCriteria?.let {
@@ -254,7 +254,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         private fun configureDescriptors(
             options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
+            json: JSONObject,
         ) {
             val descriptors = options.excludeList
             val descriptor = JSONArray()
@@ -266,7 +266,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     descriptorJSON.transports?.let {
                         descriptorI.put(
                             "transports",
-                            createJSONArrayFromTransports(descriptorJSON.transports!!)
+                            createJSONArrayFromTransports(descriptorJSON.transports!!),
                         )
                     }
                     descriptor.put(descriptorI)
@@ -285,7 +285,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         private fun configureChallengeParamsAndTimeout(
             options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
+            json: JSONObject,
         ) {
             val requiredChallenge = options.challenge
             json.put("challenge", TestUtils.Companion.b64Encode(requiredChallenge))
@@ -306,7 +306,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         private fun configureRpAndUser(
             options: PublicKeyCredentialCreationOptions,
-            json: JSONObject
+            json: JSONObject,
         ) {
             val rpJson = JSONObject()
             val rpRequired = options.rp
@@ -408,43 +408,43 @@ class CreatePublicKeyCredentialControllerTestUtils {
             publicKeyCredType: String,
             authenticatorAttachment: String?,
             hasClientExtensionResults: Boolean,
-            isDiscoverableCredential: Boolean?
+            isDiscoverableCredential: Boolean?,
         ): JSONObject {
             val json = JSONObject()
             val responseJson = JSONObject()
             responseJson.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CLIENT_DATA,
-                PublicKeyCredentialControllerUtility.Companion.b64Encode(clientDataJSON)
+                PublicKeyCredentialControllerUtility.Companion.b64Encode(clientDataJSON),
             )
             responseJson.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_AUTH_DATA,
-                PublicKeyCredentialControllerUtility.Companion.b64Encode(authenticatorData)
+                PublicKeyCredentialControllerUtility.Companion.b64Encode(authenticatorData),
             )
             responseJson.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_SIGNATURE,
-                PublicKeyCredentialControllerUtility.Companion.b64Encode(signature)
+                PublicKeyCredentialControllerUtility.Companion.b64Encode(signature),
             )
             userHandle?.let {
                 responseJson.put(
                     PublicKeyCredentialControllerUtility.Companion.JSON_KEY_USER_HANDLE,
-                    PublicKeyCredentialControllerUtility.Companion.b64Encode(userHandle)
+                    PublicKeyCredentialControllerUtility.Companion.b64Encode(userHandle),
                 )
             }
             json.put(PublicKeyCredentialControllerUtility.Companion.JSON_KEY_RESPONSE, responseJson)
             json.put(PublicKeyCredentialControllerUtility.Companion.JSON_KEY_ID, publicKeyCredId)
             json.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_RAW_ID,
-                PublicKeyCredentialControllerUtility.Companion.b64Encode(publicKeyCredRawId)
+                PublicKeyCredentialControllerUtility.Companion.b64Encode(publicKeyCredRawId),
             )
             json.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_TYPE,
-                publicKeyCredType
+                publicKeyCredType,
             )
             addOptionalAuthenticatorAttachmentAndRequiredExtensions(
                 authenticatorAttachment,
                 hasClientExtensionResults,
                 isDiscoverableCredential,
-                json
+                json,
             )
             return json
         }
@@ -454,12 +454,12 @@ class CreatePublicKeyCredentialControllerTestUtils {
             authenticatorAttachment: String?,
             hasClientExtensionResults: Boolean,
             isDiscoverableCredential: Boolean?,
-            json: JSONObject
+            json: JSONObject,
         ) {
 
             json.putOpt(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_AUTH_ATTACHMENT,
-                authenticatorAttachment
+                authenticatorAttachment,
             )
 
             val clientExtensionsJson = JSONObject()
@@ -469,18 +469,18 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     val credPropsObject = JSONObject()
                     credPropsObject.put(
                         PublicKeyCredentialControllerUtility.Companion.JSON_KEY_RK,
-                        isDiscoverableCredential
+                        isDiscoverableCredential,
                     )
                     clientExtensionsJson.put(
                         PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CRED_PROPS,
-                        credPropsObject
+                        credPropsObject,
                     )
                 }
             }
 
             json.put(
                 PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CLIENT_EXTENSION_RESULTS,
-                clientExtensionsJson
+                clientExtensionsJson,
             )
         }
     }

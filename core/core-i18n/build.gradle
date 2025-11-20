@@ -26,20 +26,18 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.annotation:annotation:1.8.1")
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":core:core"))
 }
 
 androidx {

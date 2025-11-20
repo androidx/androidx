@@ -32,7 +32,7 @@ class ImageCaptureLockedOrientationTest(
     private val lensFacing: Int,
     private val rotationDegrees: Int,
     private val captureMode: Int,
-    private val cameraXConfig: String
+    private val cameraXConfig: String,
 ) : ImageCaptureBaseTest<LockedOrientationActivity>(cameraXConfig) {
 
     companion object {

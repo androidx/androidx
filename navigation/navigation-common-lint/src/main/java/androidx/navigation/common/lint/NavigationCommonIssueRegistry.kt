@@ -44,6 +44,6 @@ class NavigationCommonIssueRegistry : IssueRegistry() {
         Vendor(
             feedbackUrl = "https://issuetracker.google.com/issues/new?component=409828",
             vendorName = "Android Open Source Project",
-            identifier = "androidx.navigation.common"
+            identifier = "androidx.navigation.common",
         )
 }

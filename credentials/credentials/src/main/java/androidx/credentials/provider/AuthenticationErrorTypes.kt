@@ -56,7 +56,7 @@ import androidx.biometric.BiometricPrompt.ERROR_VENDOR
             ERROR_TIMEOUT,
             ERROR_UNABLE_TO_PROCESS,
             ERROR_USER_CANCELED,
-            ERROR_VENDOR
+            ERROR_VENDOR,
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)

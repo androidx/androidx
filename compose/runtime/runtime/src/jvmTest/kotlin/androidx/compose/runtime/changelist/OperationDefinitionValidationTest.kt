@@ -90,14 +90,14 @@ internal class OperationDefinitionValidationTest<T : Operation>(private val oper
 
     private fun checkNoDuplicateOffsets(
         intParams: List<Pair<String, IntParameter>>,
-        objParams: List<Pair<String, ObjectParameter<*>>>
+        objParams: List<Pair<String, ObjectParameter<*>>>,
     ): List<String> {
         val errors = mutableListOf<String>()
         val duplicateIntOffsets =
             intParams
                 .groupBy(
                     keySelector = { (_, param) -> param },
-                    valueTransform = { (name, _) -> name }
+                    valueTransform = { (name, _) -> name },
                 )
                 .filterValues { it.size != 1 }
 
@@ -114,7 +114,7 @@ internal class OperationDefinitionValidationTest<T : Operation>(private val oper
             objParams
                 .groupBy(
                     keySelector = { (_, param) -> param.offset },
-                    valueTransform = { (name, _) -> name }
+                    valueTransform = { (name, _) -> name },
                 )
                 .filterValues { it.size != 1 }
 
@@ -132,7 +132,7 @@ internal class OperationDefinitionValidationTest<T : Operation>(private val oper
 
     private fun checkValidOffsetRange(
         intParams: List<Pair<String, IntParameter>>,
-        objParams: List<Pair<String, ObjectParameter<*>>>
+        objParams: List<Pair<String, ObjectParameter<*>>>,
     ): List<String> {
         val errors = mutableListOf<String>()
 

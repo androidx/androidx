@@ -19,7 +19,6 @@ package androidx.camera.video.internal.audio
 import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.MediaRecorder
-import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
 import androidx.camera.core.impl.utils.futures.Futures.immediateFuture
@@ -42,7 +41,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class AudioSourceTest {
 
     companion object {
@@ -72,7 +71,7 @@ class AudioSourceTest {
         val audioSource =
             createAudioSource(
                 audioStreamFactory = { _, _ -> audioStream },
-                bufferProvider = bufferProvider
+                bufferProvider = bufferProvider,
             )
 
         // Act.
@@ -90,7 +89,7 @@ class AudioSourceTest {
         // Assert: Buffers are continuously written.
         bufferProvider.verifySubmittedBufferCall(
             CallTimesAtLeast(verifyCount),
-            COMMON_TIMEOUT_MS
+            COMMON_TIMEOUT_MS,
         ) { submittedBuffers ->
             // Assert: Ensure buffers are written correctly.
             for (i in 0 until verifyCount) {
@@ -259,17 +258,13 @@ class AudioSourceTest {
     fun failedToStartAudioStream_retryStart() {
         // Arrange.
         val error = AudioStream.AudioStreamException()
-        val audioStream =
-            createAudioStream(
-                exceptionOnStart = error,
-                exceptionOnStartMaxTimes = 1,
-            )
+        val audioStream = createAudioStream(exceptionOnStart = error, exceptionOnStartMaxTimes = 1)
         val audioSourceCallback = createAudioSourceCallback()
         val audioSource =
             createAudioSource(
                 audioStreamFactory = { _, _ -> audioStream },
                 audioSourceCallback = audioSourceCallback,
-                retryStartIntervalMs = 200L
+                retryStartIntervalMs = 200L,
             )
 
         // Act.
@@ -305,7 +300,7 @@ class AudioSourceTest {
         val verifyCount = 3
         bufferProvider.verifySubmittedBufferCall(
             CallTimesAtLeast(verifyCount),
-            COMMON_TIMEOUT_MS
+            COMMON_TIMEOUT_MS,
         ) { submittedBuffers ->
             // Assert: Ensure buffers are written correctly.
             for (i in 0 until verifyCount) {
@@ -336,7 +331,7 @@ class AudioSourceTest {
         val verifyCount = 3
         bufferProvider.verifySubmittedBufferCall(
             CallTimesAtLeast(verifyCount),
-            COMMON_TIMEOUT_MS
+            COMMON_TIMEOUT_MS,
         ) { submittedBuffers ->
             // Assert: Ensure buffers are written correctly.
             for (i in 0 until verifyCount) {
@@ -384,7 +379,7 @@ class AudioSourceTest {
         FakeAudioStream(
             audioDataProvider,
             exceptionOnStart = exceptionOnStart,
-            exceptionOnStartMaxTimes = exceptionOnStartMaxTimes
+            exceptionOnStartMaxTimes = exceptionOnStartMaxTimes,
         )
 
     @SuppressLint("BanThreadSleep") // Needed to simulate the audio recording delays.
@@ -407,12 +402,8 @@ class AudioSourceTest {
         bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer> = { _ ->
             val inputBuffer = FakeInputBuffer(BYTE_BUFFER_CAPACITY)
             immediateFuture(inputBuffer)
-        }
-    ): FakeBufferProvider =
-        FakeBufferProvider(
-            state = initState,
-            bufferFactory = bufferFactory,
-        )
+        },
+    ): FakeBufferProvider = FakeBufferProvider(state = initState, bufferFactory = bufferFactory)
 
     private fun createAudioSource(
         audioSettings: AudioSettings = createAudioSettings(),
@@ -439,7 +430,8 @@ class AudioSourceTest {
     private fun createAudioSettings() =
         AudioSettings.builder()
             .setAudioSource(AUDIO_SOURCE)
-            .setSampleRate(SAMPLE_RATE)
+            .setCaptureSampleRate(SAMPLE_RATE)
+            .setEncodeSampleRate(SAMPLE_RATE)
             .setChannelCount(CHANNEL_COUNT)
             .setAudioFormat(AUDIO_FORMAT)
             .build()
@@ -448,7 +440,7 @@ class AudioSourceTest {
 
     private fun verifyBufferContentEquals(
         inputBuffer: FakeInputBuffer,
-        audioData: FakeAudioStream.AudioData
+        audioData: FakeAudioStream.AudioData,
     ) {
         assertThat(inputBuffer.isSubmitted).isTrue()
         assertThat(inputBuffer.byteBuffer).isEqualTo(audioData.byteBuffer.rewind())

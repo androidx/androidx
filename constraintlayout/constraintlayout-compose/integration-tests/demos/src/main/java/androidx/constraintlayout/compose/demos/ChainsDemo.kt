@@ -111,7 +111,7 @@ fun ChainsAnimatedOrientationDemo1() {
     Column(Modifier.fillMaxSize()) {
         ConstraintLayout(
             modifier = Modifier.fillMaxWidth().weight(1.0f, true),
-            animateChangesSpec = tween(800)
+            animateChangesSpec = tween(800),
         ) {
             val (box0, box1, box2) = createRefs()
             if (isHorizontal) {

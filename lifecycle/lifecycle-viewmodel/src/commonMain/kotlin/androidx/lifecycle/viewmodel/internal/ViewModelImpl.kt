@@ -20,7 +20,7 @@ package androidx.lifecycle.viewmodel.internal
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
-import kotlin.jvm.Volatile
+import kotlin.concurrent.Volatile
 import kotlinx.coroutines.CoroutineScope
 
 /**

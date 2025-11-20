@@ -29,9 +29,9 @@ enum class ProjectLayoutType {
         fun from(project: Project): ProjectLayoutType {
             val value = project.extraPropertyOrNull(STUDIO_TYPE)
             return when (value) {
-                "playground" -> ProjectLayoutType.PLAYGROUND
+                "playground" -> PLAYGROUND
                 null,
-                "androidx" -> ProjectLayoutType.ANDROIDX
+                "androidx" -> ANDROIDX
                 else -> error("Invalid project type $value")
             }
         }
@@ -39,7 +39,7 @@ enum class ProjectLayoutType {
         /** @return `true` if running in a Playground (Github) setup, `false` otherwise. */
         @JvmStatic
         fun isPlayground(project: Project): Boolean {
-            return ProjectLayoutType.from(project) == ProjectLayoutType.PLAYGROUND
+            return ProjectLayoutType.from(project) == PLAYGROUND
         }
     }
 }

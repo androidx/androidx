@@ -35,7 +35,7 @@ fun SpanStyleSample() {
             buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Red)) { append("Hello") }
                 withStyle(SpanStyle(color = Color.Blue)) { append(" World") }
-            }
+            },
     )
 }
 
@@ -51,6 +51,6 @@ fun SpanStyleBrushSample() {
                 withStyle(SpanStyle(brush = Brush.radialGradient(brushColors.asReversed()))) {
                     append(" World")
                 }
-            }
+            },
     )
 }

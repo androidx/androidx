@@ -42,7 +42,6 @@ import java.io.StringReader
 
 /** Enables capturing a Perfetto trace */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(23)
 public class PerfettoCapture(
     /**
      * Bundled is available above API 28, but we default to using unbundled as well on API 29, as
@@ -83,8 +82,10 @@ public class PerfettoCapture(
      * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable, such
      *   as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
      */
-    public fun stop(destinationPath: String) =
-        inMemoryTrace("stop perfetto") { helper.stopCollecting(destinationPath) }
+    public fun stop(destinationPath: String, inMemoryTracingLabel: String?) =
+        inMemoryTrace("stop perfetto") {
+            helper.stopCollecting(destinationPath, inMemoryTracingLabel)
+        }
 
     /**
      * Enables Perfetto SDK tracing in the [PerfettoSdkConfig.targetPackage]
@@ -98,12 +99,7 @@ public class PerfettoCapture(
         enableAndroidxTracingPerfetto(
             targetPackage = config.targetPackage,
             provideBinariesIfMissing = config.provideBinariesIfMissing,
-            isColdStartupTracing =
-                when (config.processState) {
-                    InitialProcessState.Alive -> false
-                    InitialProcessState.NotAlive -> true
-                    InitialProcessState.Unknown -> Shell.isPackageAlive(config.targetPackage)
-                }
+            isColdStartupTracing = config.launchWouldBeCold(),
         )
 
     @RequiresApi(30) // TODO(234351579): Support API < 30
@@ -117,7 +113,7 @@ public class PerfettoCapture(
     private fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean,
-        isColdStartupTracing: Boolean
+        isColdStartupTracing: Boolean,
     ): Pair<Int, String> {
         if (!isAbiSupported()) {
             throw IllegalStateException("Unsupported ABI (${Build.SUPPORTED_ABIS.joinToString()})")
@@ -144,7 +140,7 @@ public class PerfettoCapture(
                     listOf(stdout, stderr)
                         .filter { it.isNotBlank() }
                         .joinToString(separator = System.lineSeparator())
-                }
+                },
             )
 
         // try without supplying external Perfetto SDK tracing binaries
@@ -199,7 +195,7 @@ public class PerfettoCapture(
                         binaryMissingResponseString(
                             responseNoSideloading.requiredVersion,
                             response
-                                .message // note: we're using the error from the sideloading attempt
+                                .message, // note: we're using the error from the sideloading attempt
                         )
                     } else {
                         "Error: ${response.message}."
@@ -235,14 +231,14 @@ public class PerfettoCapture(
         return PerfettoSdkHandshake.LibrarySource.apkLibrarySource(
             baseApk,
             Outputs.dirUsableByAppAndShell,
-            mvTmpFileDstFile
+            mvTmpFileDstFile,
         )
     }
 
     class PerfettoSdkConfig(
         val targetPackage: String,
         val processState: InitialProcessState,
-        val provideBinariesIfMissing: Boolean = true
+        val provideBinariesIfMissing: Boolean = true,
     ) {
         /** State of process before tracing begins. */
         enum class InitialProcessState {
@@ -253,7 +249,19 @@ public class PerfettoCapture(
             Alive,
 
             /** trigger cold start vs running tracing based on a check if process is alive */
-            Unknown
+            Unknown,
+        }
+
+        /**
+         * Returns true if the target package is not running, and thus will require a cold start
+         * tracing handshake
+         */
+        fun launchWouldBeCold(): Boolean {
+            return when (processState) {
+                InitialProcessState.NotAlive -> true
+                InitialProcessState.Alive -> false
+                InitialProcessState.Unknown -> !Shell.isPackageAlive(targetPackage)
+            }
         }
     }
 }

@@ -44,14 +44,14 @@ class RecyclerViewKeyEventTest {
 
     enum class InitialPosition {
         FIRST,
-        LAST
+        LAST,
     }
 
     private fun setupRecyclerViewAndScrollByKeyEvent(
         viewHeight: Int,
         initialPosition: InitialPosition,
         keyEvent: Int,
-        layoutManager: RecyclerView.LayoutManager
+        layoutManager: RecyclerView.LayoutManager,
     ): Pair<Int, Int> {
         val context = mActivityTestRule.activity
         val recyclerView = RecyclerView(context)
@@ -123,7 +123,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_PAGE_DOWN,
-                layoutManager
+                layoutManager,
             )
         // PageUp should scroll down one-page i.e. view height.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
@@ -138,7 +138,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_PAGE_UP,
-                layoutManager
+                layoutManager,
             )
         // PageUp should scroll up one-page i.e. view height.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
@@ -153,7 +153,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_PAGE_UP,
-                layoutManager
+                layoutManager,
             )
         // No scroll for horizontal layout.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(-viewWidth))
@@ -168,7 +168,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_PAGE_DOWN,
-                layoutManager
+                layoutManager,
             )
         // No scroll for horizontal layout.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(viewWidth))
@@ -183,13 +183,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_MOVE_HOME,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.not(0))
         MatcherAssert.assertThat(
             layoutManager.findFirstCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(0)
+            CoreMatchers.`is`(0),
         )
     }
 
@@ -201,13 +201,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_MOVE_END,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.not(0))
         MatcherAssert.assertThat(
             layoutManager.findLastCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(testItemCount - 1)
+            CoreMatchers.`is`(testItemCount - 1),
         )
     }
 
@@ -219,13 +219,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_MOVE_HOME,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.not(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(
             layoutManager.findFirstCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(0)
+            CoreMatchers.`is`(0),
         )
     }
 
@@ -237,13 +237,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_MOVE_END,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.not(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(
             layoutManager.findLastCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(testItemCount - 1)
+            CoreMatchers.`is`(testItemCount - 1),
         )
     }
 
@@ -255,7 +255,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_PAGE_DOWN,
-                layoutManager
+                layoutManager,
             )
         // PageUp should scroll down one-page i.e. view height.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
@@ -270,7 +270,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_PAGE_UP,
-                layoutManager
+                layoutManager,
             )
         // PageUp should scroll up one-page i.e. view height.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
@@ -285,7 +285,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_PAGE_UP,
-                layoutManager
+                layoutManager,
             )
         // No scroll for horizontal layout.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(-viewWidth))
@@ -300,7 +300,7 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_PAGE_DOWN,
-                layoutManager
+                layoutManager,
             )
         // No scroll for horizontal layout.
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(viewWidth))
@@ -315,13 +315,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_MOVE_HOME,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.not(0))
         MatcherAssert.assertThat(
             layoutManager.findLastCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(testItemCount - 1)
+            CoreMatchers.`is`(testItemCount - 1),
         )
     }
 
@@ -333,13 +333,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_MOVE_END,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.not(0))
         MatcherAssert.assertThat(
             layoutManager.findFirstCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(0)
+            CoreMatchers.`is`(0),
         )
     }
 
@@ -351,13 +351,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.FIRST,
                 KeyEvent.KEYCODE_MOVE_HOME,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.not(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(
             layoutManager.findFirstCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(testItemCount - 1)
+            CoreMatchers.`is`(testItemCount - 1),
         )
     }
 
@@ -369,13 +369,13 @@ class RecyclerViewKeyEventTest {
                 viewHeight,
                 InitialPosition.LAST,
                 KeyEvent.KEYCODE_MOVE_END,
-                layoutManager
+                layoutManager,
             )
         MatcherAssert.assertThat(scrollWidth, CoreMatchers.not(0))
         MatcherAssert.assertThat(scrollHeight, CoreMatchers.`is`(0))
         MatcherAssert.assertThat(
             layoutManager.findFirstCompletelyVisibleItemPosition(),
-            CoreMatchers.`is`(0)
+            CoreMatchers.`is`(0),
         )
     }
 

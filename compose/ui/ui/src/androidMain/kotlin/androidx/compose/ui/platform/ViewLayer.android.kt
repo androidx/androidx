@@ -49,7 +49,7 @@ internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: DrawChildContainer,
     drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-    invalidateParentLayer: () -> Unit
+    invalidateParentLayer: () -> Unit,
 ) : View(ownerView.context), OwnedLayer, GraphicLayerInfo {
     private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
@@ -83,6 +83,10 @@ internal class ViewLayer(
 
     override val underlyingMatrix: Matrix
         get() = matrixCache.calculateMatrix(this)
+
+    override var frameRate: Float = 0f
+
+    override var isFrameRateFromParent = false
 
     /**
      * Local copy of the transform origin as GraphicsLayerModifier can be implemented as a model
@@ -181,7 +185,7 @@ internal class ViewLayer(
                 scope.alpha,
                 clipToOutline,
                 scope.shadowElevation,
-                scope.size
+                scope.size,
             )
         if (outlineResolver.cacheIsDirty) {
             updateOutlineResolver()
@@ -200,13 +204,13 @@ internal class ViewLayer(
             if (maybeChangedFields and Fields.AmbientShadowColor != 0) {
                 ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
                     this,
-                    scope.ambientShadowColor.toArgb()
+                    scope.ambientShadowColor.toArgb(),
                 )
             }
             if (maybeChangedFields and Fields.SpotShadowColor != 0) {
                 ViewLayerVerificationHelper28.setOutlineSpotShadowColor(
                     this,
-                    scope.spotShadowColor.toArgb()
+                    scope.spotShadowColor.toArgb(),
                 )
             }
         }
@@ -412,7 +416,7 @@ internal class ViewLayer(
 
     override fun reuseLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {
             container.addView(this)
@@ -477,13 +481,13 @@ internal class ViewLayer(
                                 .getDeclaredMethod(
                                     "getDeclaredMethod",
                                     String::class.java,
-                                    arrayOf<Class<*>>()::class.java
+                                    arrayOf<Class<*>>()::class.java,
                                 )
                         updateDisplayListIfDirtyMethod =
                             getDeclaredMethod.invoke(
                                 View::class.java,
                                 "updateDisplayListIfDirty",
-                                emptyArray<Class<*>>()
+                                emptyArray<Class<*>>(),
                             ) as Method?
                         val getDeclaredField =
                             Class::class

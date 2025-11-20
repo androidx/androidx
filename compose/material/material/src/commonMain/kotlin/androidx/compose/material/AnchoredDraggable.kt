@@ -168,7 +168,7 @@ internal fun <T> Modifier.anchoredDraggable(
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
-    startDragImmediately: Boolean = state.isAnimationRunning
+    startDragImmediately: Boolean = state.isAnimationRunning,
 ) =
     draggable(
         state = state.draggableState,
@@ -177,7 +177,7 @@ internal fun <T> Modifier.anchoredDraggable(
         interactionSource = interactionSource,
         reverseDirection = reverseDirection,
         startDragImmediately = startDragImmediately,
-        onDragStopped = { velocity -> launch { state.settle(velocity) } }
+        onDragStopped = { velocity -> launch { state.settle(velocity) } },
     )
 
 /**
@@ -224,7 +224,7 @@ internal class AnchoredDraggableState<T>(
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
     val animationSpec: AnimationSpec<Float>,
-    internal val confirmValueChange: (newValue: T) -> Boolean = { true }
+    internal val confirmValueChange: (newValue: T) -> Boolean = { true },
 ) {
 
     /**
@@ -251,13 +251,13 @@ internal class AnchoredDraggableState<T>(
         positionalThreshold: (totalDistance: Float) -> Float,
         velocityThreshold: () -> Float,
         animationSpec: AnimationSpec<Float>,
-        confirmValueChange: (newValue: T) -> Boolean = { true }
+        confirmValueChange: (newValue: T) -> Boolean = { true },
     ) : this(
         initialValue,
         positionalThreshold,
         velocityThreshold,
         animationSpec,
-        confirmValueChange
+        confirmValueChange,
     ) {
         this.anchors = anchors
         trySnapTo(initialValue)
@@ -277,7 +277,7 @@ internal class AnchoredDraggableState<T>(
 
             override suspend fun drag(
                 dragPriority: MutatePriority,
-                block: suspend DragScope.() -> Unit
+                block: suspend DragScope.() -> Unit,
             ) {
                 this@AnchoredDraggableState.anchoredDrag(dragPriority) {
                     with(dragScope) { block() }
@@ -401,7 +401,7 @@ internal class AnchoredDraggableState<T>(
         newTarget: T =
             if (!offset.isNaN()) {
                 newAnchors.closestAnchor(offset) ?: targetValue
-            } else targetValue
+            } else targetValue,
     ) {
         if (anchors != newAnchors) {
             anchors = newAnchors
@@ -430,7 +430,7 @@ internal class AnchoredDraggableState<T>(
             computeTarget(
                 offset = requireOffset(),
                 currentValue = previousValue,
-                velocity = velocity
+                velocity = velocity,
             )
         if (confirmValueChange(targetValue)) {
             animateTo(targetValue, velocity)
@@ -477,10 +477,7 @@ internal class AnchoredDraggableState<T>(
         }
     }
 
-    private fun computeTargetWithoutThresholds(
-        offset: Float,
-        currentValue: T,
-    ): T {
+    private fun computeTargetWithoutThresholds(offset: Float, currentValue: T): T {
         val currentAnchors = anchors
         val currentAnchorPosition = currentAnchors.positionOf(currentValue)
         return if (currentAnchorPosition == offset || currentAnchorPosition.isNaN()) {
@@ -520,7 +517,7 @@ internal class AnchoredDraggableState<T>(
      */
     suspend fun anchoredDrag(
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>) -> Unit
+        block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>) -> Unit,
     ) {
         try {
             dragMutex.mutate(dragPriority) {
@@ -566,7 +563,7 @@ internal class AnchoredDraggableState<T>(
     suspend fun anchoredDrag(
         targetValue: T,
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>, targetValue: T) -> Unit
+        block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>, targetValue: T) -> Unit,
     ) {
         if (anchors.hasAnchorFor(targetValue)) {
             try {
@@ -597,7 +594,7 @@ internal class AnchoredDraggableState<T>(
     internal fun newOffsetForDelta(delta: Float) =
         ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(
             anchors.minAnchor(),
-            anchors.maxAnchor()
+            anchors.maxAnchor(),
         )
 
     /**
@@ -648,9 +645,9 @@ internal class AnchoredDraggableState<T>(
                         animationSpec = animationSpec,
                         confirmValueChange = confirmValueChange,
                         positionalThreshold = positionalThreshold,
-                        velocityThreshold = velocityThreshold
+                        velocityThreshold = velocityThreshold,
                     )
-                }
+                },
             )
     }
 }
@@ -708,10 +705,7 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
 @ExperimentalMaterialApi
 internal object AnchoredDraggableDefaults {
     /** The default animation used by [AnchoredDraggableState]. */
-    @get:ExperimentalMaterialApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalMaterialApi
-    val AnimationSpec = SpringSpec<Float>()
+    @ExperimentalMaterialApi val AnimationSpec = SpringSpec<Float>()
 }
 
 internal class AnchoredDragFinishedSignal :
@@ -799,7 +793,7 @@ internal fun <T> Modifier.draggableAnchors(
 private class DraggableAnchorsElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
-    private val orientation: Orientation
+    private val orientation: Orientation,
 ) : ModifierNodeElement<DraggableAnchorsNode<T>>() {
 
     override fun create() = DraggableAnchorsNode(state, anchors, orientation)
@@ -842,7 +836,7 @@ private class DraggableAnchorsElement<T>(
 private class DraggableAnchorsNode<T>(
     var state: AnchoredDraggableState<T>,
     var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
-    var orientation: Orientation
+    var orientation: Orientation,
 ) : Modifier.Node(), LayoutModifierNode {
     private var didLookahead: Boolean = false
 
@@ -852,7 +846,7 @@ private class DraggableAnchorsNode<T>(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         // If we are in a lookahead pass, we only want to update the anchors here and not in

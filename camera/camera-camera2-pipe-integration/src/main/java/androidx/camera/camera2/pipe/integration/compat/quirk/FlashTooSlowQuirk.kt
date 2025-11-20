@@ -47,7 +47,7 @@ public class FlashTooSlowQuirk : UseTorchAsFlashQuirk {
                 "SM-A320",
                 "MOTO G(20)",
                 "ITEL L6006", // Itel A48
-                "RMX3231" // Realme C11 2021
+                "RMX3231", // Realme C11 2021
             )
 
         public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {

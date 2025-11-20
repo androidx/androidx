@@ -17,9 +17,6 @@ import android.graphics.Outline;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 
-import androidx.annotation.RequiresApi;
-
-@RequiresApi(21)
 class ShadowHelperApi21 {
 
     static class ShadowImpl {

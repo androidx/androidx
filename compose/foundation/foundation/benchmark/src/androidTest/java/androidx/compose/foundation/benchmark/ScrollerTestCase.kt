@@ -127,11 +127,7 @@ private fun ColorStripe(red: Int, green: Int, blue: Int) {
     Canvas(Modifier.size(45.dp, 5.dp)) { drawRect(Color(red = red, green = green, blue = blue)) }
 }
 
-private fun dispatchMouseWheelScroll(
-    scrollAmount: Int,
-    eventTime: Long,
-    view: View,
-) {
+private fun dispatchMouseWheelScroll(scrollAmount: Int, eventTime: Long, view: View) {
     val properties =
         MotionEvent.PointerProperties().apply { toolType = MotionEvent.TOOL_TYPE_MOUSE }
 
@@ -157,7 +153,7 @@ private fun dispatchMouseWheelScroll(
             0, /* deviceId */
             0, /* edgeFlags */
             InputDevice.SOURCE_MOUSE, /* source */
-            0 /* flags */
+            0, /* flags */
         )
 
     view.dispatchGenericMotionEvent(event)

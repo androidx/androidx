@@ -16,44 +16,24 @@
 
 package androidx.camera.video.internal.compat.quirk
 
-import android.os.Build
-import androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT709
-import androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace.ENCODER_DATA_SPACE_SRGB
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowBuild
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class MediaCodecDefaultDataSpaceQuirkTest {
 
     @Test
-    fun getSuggestedDataSpace_forAffectedDevice() {
-        ShadowBuild.setModel(MODEL_PIXEL_9_PRO)
-
-        val isAffectedDevice = MediaCodecDefaultDataSpaceQuirk.load()
-        assertThat(isAffectedDevice).isTrue()
-        val dataSpace = MediaCodecDefaultDataSpaceQuirk().getSuggestedDataSpace()
-        assertThat(dataSpace).isEqualTo(ENCODER_DATA_SPACE_BT709)
-    }
-
-    @Test
-    fun getSuggestedDataSpace_forNonAffectedDevice() {
-        ShadowBuild.setModel(MODEL_ANOTHER)
-
-        val isAffectedDevice = MediaCodecDefaultDataSpaceQuirk.load()
-        assertThat(isAffectedDevice).isFalse()
-        val dataSpace = MediaCodecDefaultDataSpaceQuirk().getSuggestedDataSpace()
-        assertThat(dataSpace).isEqualTo(ENCODER_DATA_SPACE_UNSPECIFIED)
-    }
-
-    companion object {
-        private const val MODEL_PIXEL_9_PRO = "pixel 9 pro"
-        private const val MODEL_ANOTHER = "other model"
+    fun getSuggestedDataSpace() {
+        val isLoad = MediaCodecDefaultDataSpaceQuirk.load()
+        assertThat(isLoad).isTrue()
+        val dataSpace = MediaCodecDefaultDataSpaceQuirk().suggestedDataSpace
+        assertThat(dataSpace).isEqualTo(ENCODER_DATA_SPACE_SRGB)
     }
 }

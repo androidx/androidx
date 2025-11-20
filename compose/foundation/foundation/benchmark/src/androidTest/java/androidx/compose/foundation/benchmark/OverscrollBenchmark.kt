@@ -138,7 +138,7 @@ private class OverscrollTestCase : LayeredComposeTestCase(), ToggleableTestCase 
                     wrappedScrollState,
                     orientation = Orientation.Vertical,
                     reverseDirection = true,
-                    overscrollEffect = overscrollEffect
+                    overscrollEffect = overscrollEffect,
                 )
                 .overscroll(overscrollEffect)
                 .fillMaxSize()

@@ -87,17 +87,9 @@ internal class TimeTextTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         TimeText(
-            startLinearContent = {
-                Text(
-                    text = "Leading content",
-                )
-            },
+            startLinearContent = { Text(text = "Leading content") },
             textLinearSeparator = { TimeTextDefaults.TextSeparator() },
-            endLinearContent = {
-                Text(
-                    text = "Trailing content",
-                )
-            },
+            endLinearContent = { Text(text = "Trailing content") },
             startCurvedContent = { curvedText(text = "Leading content") },
             textCurvedSeparator = { CurvedTextSeparator() },
             endCurvedContent = { curvedText(text = "Trailing content") },

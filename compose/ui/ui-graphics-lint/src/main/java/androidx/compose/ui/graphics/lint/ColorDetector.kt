@@ -92,7 +92,7 @@ class ColorDetector : Detector(), SourceCodeScanner {
                                 .text(argumentText)
                                 .with(replacement)
                                 .autoFix()
-                                .build()
+                                .build(),
                         )
                     }
                     // Otherwise report a generic warning for an valid value - there is no quick fix
@@ -125,8 +125,8 @@ class ColorDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ColorDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
 
         val InvalidColorHexValue =
@@ -141,8 +141,8 @@ class ColorDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ColorDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

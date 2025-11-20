@@ -22,18 +22,16 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.compose.foundation:foundation:1.5.0")
@@ -47,7 +45,6 @@ androidx {
     type = SoftwareType.SAMPLES
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

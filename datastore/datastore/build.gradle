@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
@@ -39,14 +38,6 @@ androidXMultiplatform {
     linux()
     androidLibrary {
         namespace = "androidx.datastore.datastore"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -54,7 +45,6 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.9.1")
                 api(project(":datastore:datastore-core"))
@@ -63,8 +53,7 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core"))
@@ -96,7 +85,7 @@ androidXMultiplatform {
                 implementation(libs.okio)
             }
         }
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.junit)
@@ -120,5 +109,4 @@ androidx {
     description = "Android DataStore - contains the underlying store used by each serialization " +
             "method along with components that require an Android dependency"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -93,7 +93,7 @@ val ProgressIndicatorDemos =
                         Button({ /* No op */ }, modifier = Modifier.align(Alignment.Center)) {
                             Text(
                                 "Loading...",
-                                modifier = Modifier.align(Alignment.CenterVertically)
+                                modifier = Modifier.align(Alignment.CenterVertically),
                             )
                             Spacer(modifier = Modifier.size(10.dp))
                             CircularProgressIndicator(
@@ -103,7 +103,7 @@ val ProgressIndicatorDemos =
                                 endAngle = 60f,
                                 strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                                 colors =
-                                    ProgressIndicatorDefaults.colors(indicatorColor = Color.Red)
+                                    ProgressIndicatorDefaults.colors(indicatorColor = Color.Red),
                             )
                         }
                     }
@@ -120,7 +120,7 @@ val ProgressIndicatorDemos =
                 ComposableDemo("Custom animation") {
                     Centralize { CircularProgressIndicatorCustomAnimationSample() }
                 },
-            )
+            ),
         ),
         Material3DemoCategory(
             title = "Segmented progress",
@@ -141,7 +141,7 @@ val ProgressIndicatorDemos =
                 ComposableDemo("Customize") {
                     Centralize { SegmentedProgressCustomisableFullScreenDemo() }
                 },
-            )
+            ),
         ),
         Material3DemoCategory(
             title = "Linear progress",
@@ -149,10 +149,8 @@ val ProgressIndicatorDemos =
                 ComposableDemo("Linear Samples") {
                     Centralize { LinearProgressIndicatorSamples() }
                 },
-                ComposableDemo("Animation") {
-                    Centralize { LinearProgressIndicatorAnimatedDemo() }
-                },
-            )
+                ComposableDemo("Animation") { Centralize { LinearProgressIndicatorAnimatedDemo() } },
+            ),
         ),
         Material3DemoCategory(
             title = "Arc Progress Indicator",
@@ -163,8 +161,8 @@ val ProgressIndicatorDemos =
                 ComposableDemo("Custom indeterminate arc") {
                     Centralize { ArcProgressCustomisableFullScreenDemo() }
                 },
-            )
-        )
+            ),
+        ),
     )
 
 @Composable
@@ -173,7 +171,7 @@ fun LinearProgressIndicatorSamples() {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item { ListHeader { Text("Progress 0%") } }
             item { LinearProgressIndicatorSample(progress = { 0f }) }
@@ -233,9 +231,9 @@ fun CircularProgressCustomisableFullScreenDemo() {
         )
 
         CircularProgressIndicator(
-            progress = { progress.value },
-            startAngle = startAngle.value,
-            endAngle = endAngle.value,
+            progress = { progress.floatValue },
+            startAngle = startAngle.floatValue,
+            endAngle = endAngle.floatValue,
             enabled = enabled.value,
             allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
@@ -282,14 +280,14 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
             hasLargeStroke = hasLargeStroke,
             hasCustomColors = hasCustomColors,
             numSegments = numSegments,
-            overflowAllowed = overflowAllowed
+            overflowAllowed = overflowAllowed,
         )
 
         SegmentedCircularProgressIndicator(
-            segmentCount = numSegments.value,
-            progress = { progress.value },
-            startAngle = startAngle.value,
-            endAngle = endAngle.value,
+            segmentCount = numSegments.intValue,
+            progress = { progress.floatValue },
+            startAngle = startAngle.floatValue,
+            endAngle = endAngle.floatValue,
             enabled = enabled.value,
             allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
@@ -346,7 +344,7 @@ fun ArcProgressCustomisableFullScreenDemo() {
                 strokeWidth = strokeWidth.floatValue.dp,
                 angularDirection = angularDirection.value,
                 colors = colors,
-                modifier = Modifier.size(diameter.floatValue.dp)
+                modifier = Modifier.size(diameter.floatValue.dp),
             )
         }
     }
@@ -366,7 +364,7 @@ fun ProgressIndicatorCustomizer(
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().padding(12.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { Text(String.format("Progress: %.0f%%", progress.value * 100)) }
         item {
@@ -377,9 +375,9 @@ fun ProgressIndicatorCustomizer(
                 steps = 9,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
-                segmented = false
+                segmented = false,
             )
         }
         if (numSegments != null) {
@@ -392,7 +390,7 @@ fun ProgressIndicatorCustomizer(
                     steps = 10,
                     colors =
                         SliderDefaults.sliderColors(
-                            containerColor = MaterialTheme.colorScheme.background,
+                            containerColor = MaterialTheme.colorScheme.background
                         ),
                 )
             }
@@ -407,7 +405,7 @@ fun ProgressIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -421,7 +419,7 @@ fun ProgressIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -494,7 +492,7 @@ fun ArcIndicatorCustomizer(
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().padding(12.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { Text("Start Angle: ${startAngle.value.toInt()}") }
         item {
@@ -506,7 +504,7 @@ fun ArcIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -520,7 +518,7 @@ fun ArcIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -534,7 +532,7 @@ fun ArcIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -548,7 +546,7 @@ fun ArcIndicatorCustomizer(
                 segmented = false,
                 colors =
                     SliderDefaults.sliderColors(
-                        containerColor = MaterialTheme.colorScheme.background,
+                        containerColor = MaterialTheme.colorScheme.background
                     ),
             )
         }
@@ -591,13 +589,13 @@ fun LinearProgressIndicatorAnimatedDemo() {
             ScalingLazyColumn(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 item { Text(String.format("Progress: %.0f%%", progress * 100)) }
                 item {
                     LinearProgressIndicator(
                         modifier = Modifier.padding(top = 8.dp),
-                        progress = { progress }
+                        progress = { progress },
                     )
                 }
             }

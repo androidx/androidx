@@ -80,7 +80,7 @@ internal fun <T, V : AnimationVector, S> Transition<S>.TransitionAnimationState<
 internal fun <T, V : AnimationVector> Animation<T, V>.createTransitionInfo(
     label: String,
     animationSpec: AnimationSpec<T>,
-    stepMs: Long = 1
+    stepMs: Long = 1,
 ): TransitionInfo {
     val endTimeMs = nanosToMillis(this.durationNanos)
     val startTimeMs: Long by lazy {
@@ -187,22 +187,22 @@ internal fun <T> parseParametersToValue(currentValue: T, par1: Any, par2: Any?):
                 is IntSize ->
                     TargetState(
                         IntSize(par1[0] as Int, par1[1] as Int),
-                        IntSize(par2[0] as Int, par2[1] as Int)
+                        IntSize(par2[0] as Int, par2[1] as Int),
                     )
                 is IntOffset ->
                     TargetState(
                         IntOffset(par1[0] as Int, par1[1] as Int),
-                        IntOffset(par2[0] as Int, par2[1] as Int)
+                        IntOffset(par2[0] as Int, par2[1] as Int),
                     )
                 is Size ->
                     TargetState(
                         Size(par1[0] as Float, par1[1] as Float),
-                        Size(par2[0] as Float, par2[1] as Float)
+                        Size(par2[0] as Float, par2[1] as Float),
                     )
                 is Offset ->
                     TargetState(
                         Offset(par1[0] as Float, par1[1] as Float),
-                        Offset(par2[0] as Float, par2[1] as Float)
+                        Offset(par2[0] as Float, par2[1] as Float),
                     )
                 is Rect ->
                     TargetState(
@@ -210,14 +210,9 @@ internal fun <T> parseParametersToValue(currentValue: T, par1: Any, par2: Any?):
                             par1[0] as Float,
                             par1[1] as Float,
                             par1[2] as Float,
-                            par1[3] as Float
+                            par1[3] as Float,
                         ),
-                        Rect(
-                            par2[0] as Float,
-                            par2[1] as Float,
-                            par2[2] as Float,
-                            par2[3] as Float
-                        ),
+                        Rect(par2[0] as Float, par2[1] as Float, par2[2] as Float, par2[3] as Float),
                     )
                 is Color ->
                     TargetState(
@@ -225,13 +220,13 @@ internal fun <T> parseParametersToValue(currentValue: T, par1: Any, par2: Any?):
                             par1[0] as Float,
                             par1[1] as Float,
                             par1[2] as Float,
-                            par1[3] as Float
+                            par1[3] as Float,
                         ),
                         Color(
                             par2[0] as Float,
                             par2[1] as Float,
                             par2[2] as Float,
-                            par2[3] as Float
+                            par2[3] as Float,
                         ),
                     )
                 is Dp -> parseDp(par1[0]!!, par2[0]!!)

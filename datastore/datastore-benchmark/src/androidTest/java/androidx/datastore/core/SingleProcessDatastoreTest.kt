@@ -89,7 +89,7 @@ class SingleProcessDatastoreTest {
                 DataStoreFactory.create(
                     serializer = TestingSerializer(),
                     scope = CoroutineScope(job),
-                    produceFile = { dataFile }
+                    produceFile = { dataFile },
                 )
         }
 

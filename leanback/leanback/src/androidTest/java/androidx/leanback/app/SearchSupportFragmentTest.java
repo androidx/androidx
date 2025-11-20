@@ -18,7 +18,6 @@ package androidx.leanback.app;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.speech.SpeechRecognizer;
 import android.view.KeyEvent;
@@ -40,7 +39,6 @@ import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.AnimationTest;
 
@@ -130,7 +128,6 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
     @Test
     public void viewLeakTest() throws Throwable {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(F_LeakFragment.class,
@@ -172,7 +169,7 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
                 SpeechRecognizerDisabledFragment.class, 1000);
 
-        assertTrue(activity.findViewById(R.id.lb_search_text_editor).hasFocus());
+        assertTrue(activity.findViewById(androidx.leanback.R.id.lb_search_text_editor).hasFocus());
 
         sendKeys(KeyEvent.KEYCODE_A);
         sendKeys(KeyEvent.KEYCODE_ENTER);
@@ -189,7 +186,8 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
-                return activity.findViewById(R.id.lb_search_text_editor).hasFocus();
+                return activity.findViewById(androidx.leanback.R.id.lb_search_text_editor)
+                        .hasFocus();
             }
         });
     }
@@ -207,11 +205,12 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
                 SpeechRecognizerEnabledFragment.class, 1000);
 
-        assertTrue(activity.findViewById(R.id.lb_search_bar_speech_orb).hasFocus());
+        assertTrue(activity.findViewById(androidx.leanback.R.id.lb_search_bar_speech_orb)
+                .hasFocus());
 
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
 
-        assertTrue(activity.findViewById(R.id.lb_search_text_editor).hasFocus());
+        assertTrue(activity.findViewById(androidx.leanback.R.id.lb_search_text_editor).hasFocus());
 
         sendKeys(KeyEvent.KEYCODE_A);
         sendKeys(KeyEvent.KEYCODE_ENTER);
@@ -227,7 +226,8 @@ public class SearchSupportFragmentTest extends SingleSupportFragmentTestBase {
         Thread.sleep(1000);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_UP);
-        assertTrue(activity.findViewById(R.id.lb_search_bar_speech_orb).hasFocus());
+        assertTrue(activity.findViewById(androidx.leanback.R.id.lb_search_bar_speech_orb)
+                .hasFocus());
     }
 
     static class SearchSupportTestFragment extends SearchSupportFragment

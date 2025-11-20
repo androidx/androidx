@@ -71,7 +71,7 @@ internal fun Cubic.straightIsh(): Boolean =
             anchor1Y,
             control0X,
             control0Y,
-            RelaxedDistanceEpsilon
+            RelaxedDistanceEpsilon,
         ) &&
         collinearIsh(
             anchor0X,
@@ -80,7 +80,7 @@ internal fun Cubic.straightIsh(): Boolean =
             anchor1Y,
             control1X,
             control1Y,
-            RelaxedDistanceEpsilon
+            RelaxedDistanceEpsilon,
         )
 
 /**
@@ -96,7 +96,7 @@ internal fun Cubic.smoothesIntoIsh(next: Cubic): Boolean =
         next.control0Y,
         anchor1X,
         anchor1Y,
-        RelaxedDistanceEpsilon
+        RelaxedDistanceEpsilon,
     )
 
 /**
@@ -119,7 +119,7 @@ private fun Cubic.Companion.extend(a: Cubic, b: Cubic): Cubic {
             b.control1X,
             b.control1Y,
             b.anchor1X,
-            b.anchor1Y
+            b.anchor1Y,
         )
     else
         Cubic(
@@ -130,6 +130,6 @@ private fun Cubic.Companion.extend(a: Cubic, b: Cubic): Cubic {
             a.control1X,
             a.control1Y,
             b.anchor1X,
-            b.anchor1Y
+            b.anchor1Y,
         )
 }

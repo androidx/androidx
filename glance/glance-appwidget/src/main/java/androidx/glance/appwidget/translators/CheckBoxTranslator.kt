@@ -33,7 +33,7 @@ import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 
 internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
-    element: EmittableCheckBox
+    element: EmittableCheckBox,
 ) {
 
     val layoutType =
@@ -82,6 +82,6 @@ internal fun RemoteViews.translateEmittableCheckBox(
         translationContext.forActionTargetId(actionTargetId),
         this,
         element.modifier,
-        viewDef
+        viewDef,
     )
 }

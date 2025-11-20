@@ -29,21 +29,23 @@ import androidx.annotation.RestrictTo
  * features from this version should be specified (NO FUTURE CHANGES SUPPORTED).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-enum class ClientApiVersion(
-    val apiLevel: Int,
-    private val newFeatures: Set<ClientFeature> = emptySet()
+public enum class ClientApiVersion(
+    public val apiLevel: Int,
+    public val stable: Boolean = false,
+    private val newFeatures: Set<ClientFeature> = emptySet(),
 ) {
-    V4__1_0_ALPHA05(
-        apiLevel = 4,
-        newFeatures =
-            setOf(
-                ClientFeature.SDK_ACTIVITY_HANDLER,
-                ClientFeature.APP_OWNED_INTERFACES,
-            )
-    ),
-    V5__1_0_ALPHA13(apiLevel = 5, newFeatures = setOf(ClientFeature.LOAD_SDK)),
+    V5__1_0_ALPHA13(apiLevel = 5),
     V6__1_0_ALPHA14(apiLevel = 6, newFeatures = setOf(ClientFeature.GET_CLIENT_PACKAGE_NAME)),
-    V7__1_0_ALPHA16(apiLevel = 7, newFeatures = setOf(ClientFeature.CLIENT_IMPORTANCE_LISTENER)),
+    V7__1_0_ALPHA16(
+        apiLevel = 7,
+        /** Temporary mark as stable to run cross version tests only for V7+ */
+        stable = true,
+        newFeatures = setOf(ClientFeature.CLIENT_IMPORTANCE_LISTENER),
+    ),
+    V8__1_0_ALPHA18(
+        apiLevel = 8,
+        newFeatures = setOf(ClientFeature.SDK_SANDBOX_CONTROLLER_BACKEND_HOLDER),
+    ),
 
     /**
      * Unreleased API version. Features not added to other versions will be automatically added here
@@ -51,13 +53,28 @@ enum class ClientApiVersion(
      */
     FUTURE_VERSION(apiLevel = Int.MAX_VALUE);
 
-    companion object {
-        val MIN_SUPPORTED = values().minBy { v -> v.apiLevel }
-        val CURRENT_VERSION = values().filter { v -> v != FUTURE_VERSION }.maxBy { v -> v.apiLevel }
+    public companion object {
+        /**
+         * Minimal version of sdkruntime-client lib that could load SDK built with current version
+         * of sdkruntime-provider lib.
+         */
+        public val MIN_SUPPORTED_CLIENT_VERSION: ClientApiVersion = V6__1_0_ALPHA14
+
+        /**
+         * Minimal version of sdkruntime-provider lib that could be loaded by current version of
+         * sdkruntime-client lib.
+         */
+        public val MIN_SUPPORTED_SDK_VERSION: ClientApiVersion = values().minBy { v -> v.apiLevel }
+
+        public val CURRENT_VERSION: ClientApiVersion =
+            values().filter { v -> v != FUTURE_VERSION }.maxBy { v -> v.apiLevel }
+
+        public val LATEST_STABLE_VERSION: ClientApiVersion =
+            values().filter { v -> v.stable }.maxBy { v -> v.apiLevel }
 
         private val FEATURE_TO_VERSION_MAP = buildFeatureMap()
 
-        fun minAvailableVersionFor(clientFeature: ClientFeature): ClientApiVersion {
+        public fun minAvailableVersionFor(clientFeature: ClientFeature): ClientApiVersion {
             return FEATURE_TO_VERSION_MAP[clientFeature] ?: FUTURE_VERSION
         }
 
@@ -65,6 +82,13 @@ enum class ClientApiVersion(
         private fun buildFeatureMap(): Map<ClientFeature, ClientApiVersion> {
             if (FUTURE_VERSION.newFeatures.isNotEmpty()) {
                 throw IllegalStateException("FUTURE_VERSION MUST NOT define any features")
+            }
+            if (MIN_SUPPORTED_SDK_VERSION.newFeatures.isNotEmpty()) {
+                throw IllegalStateException(
+                    "$MIN_SUPPORTED_SDK_VERSION MUST NOT define any features. " +
+                        "Features added in this version are available without version checks because " +
+                        "it is minimum supported version."
+                )
             }
             return buildMap {
                 values().forEach { version ->

@@ -105,7 +105,7 @@ public class CubicBezierEasing(
     private val a: Float,
     private val b: Float,
     private val c: Float,
-    private val d: Float
+    private val d: Float,
 ) : Easing {
     private val min: Float
     private val max: Float
@@ -134,13 +134,7 @@ public class CubicBezierEasing(
             // but we need to make sure the translation can be done at 1.0f so we take at
             // least 1 ulp at 1.0f
             val f = max(fraction, OneUlpAt1)
-            val t =
-                findFirstCubicRoot(
-                    0.0f - f,
-                    a - f,
-                    c - f,
-                    1.0f - f,
-                )
+            val t = findFirstCubicRoot(0.0f - f, a - f, c - f, 1.0f - f)
 
             // No root, the cubic curve has no solution
             if (t.isNaN()) {

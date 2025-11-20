@@ -97,7 +97,7 @@ class MarginPageTransformerTest :
                 override fun onPageScrolled(
                     position: Int,
                     positionOffset: Float,
-                    positionOffsetPixels: Int
+                    positionOffsetPixels: Int,
                 ) {
                     // then
                     val pageA =
@@ -173,7 +173,7 @@ class MarginPageTransformerTest :
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         32f,
-                        viewPager.resources.displayMetrics
+                        viewPager.resources.displayMetrics,
                     )
                     .toDouble()
             else -> throw IllegalArgumentException()

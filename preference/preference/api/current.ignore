@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.preference.PreferenceHeaderFragmentCompat#getSlidingPaneLayout():
+    Source breaking change: method androidx.preference.PreferenceHeaderFragmentCompat.getSlidingPaneLayout() can no longer be resolved from Kotlin source

@@ -131,7 +131,7 @@ fun DrawTextString() {
             textMeasurer,
             text = "Hello, World!",
             topLeft = Offset(padding, padding),
-            style = TextStyle(fontSize = fontSize8)
+            style = TextStyle(fontSize = fontSize8),
         )
     }
 }
@@ -149,7 +149,7 @@ fun DrawTextLongString() {
             topLeft = Offset(padding, padding),
             style = TextStyle(fontSize = fontSize6),
             overflow = TextOverflow.Visible,
-            size = Size(width = size.width - 2 * padding, height = size.height - 2 * padding)
+            size = Size(width = size.width - 2 * padding, height = size.height - 2 * padding),
         )
     }
 }
@@ -185,14 +185,14 @@ fun DrawTextCenter() {
                         color = Color.White,
                         fontSize = 24.sp,
                         textAlign = TextAlign.Center,
-                        platformStyle = PlatformTextStyle(includeFontPadding = includeFontPadding)
+                        platformStyle = PlatformTextStyle(includeFontPadding = includeFontPadding),
                     ),
-                constraints = Constraints.fixedWidth((radius * 2).roundToPx())
+                constraints = Constraints.fixedWidth((radius * 2).roundToPx()),
             )
 
         drawText(
             textLayoutResult,
-            topLeft = center - Offset(radius.toPx(), textLayoutResult.size.height / 2f)
+            topLeft = center - Offset(radius.toPx(), textLayoutResult.size.height / 2f),
         )
 
         if (drawLines) {
@@ -200,21 +200,21 @@ fun DrawTextCenter() {
                 Color.Black,
                 start = Offset(0f, center.y - textLayoutResult.size.height / 2f),
                 end = Offset(size.width, center.y - textLayoutResult.size.height / 2f),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.dp.toPx(),
             )
 
             drawLine(
                 Color.Black,
                 start = Offset(0f, center.y + textLayoutResult.size.height / 2f),
                 end = Offset(size.width, center.y + textLayoutResult.size.height / 2f),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.dp.toPx(),
             )
 
             drawLine(
                 Color.Black,
                 start = Offset(0f, center.y),
                 end = Offset(size.width, center.y),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.dp.toPx(),
             )
         }
     }
@@ -253,7 +253,7 @@ fun DrawTextMeasure() {
             textLayoutResult =
                 textMeasurer.measure(
                     AnnotatedString("Hello, World!"),
-                    style = TextStyle(fontSize = fontSize8)
+                    style = TextStyle(fontSize = fontSize8),
                 )
             layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
         }
@@ -319,13 +319,13 @@ fun DrawTextBlendMode() {
                 drawRect(
                     color = Color.Green,
                     size = Size(size.width / 2, size.height),
-                    topLeft = Offset(size.width / 2, 0f)
+                    topLeft = Offset(size.width / 2, 0f),
                 )
                 // Clear the circular clock background
                 drawCircle(
                     color = Color.Black,
                     radius = size.width / 3f,
-                    blendMode = BlendMode.Clear
+                    blendMode = BlendMode.Clear,
                 )
 
                 val textLayout =
@@ -340,10 +340,10 @@ fun DrawTextBlendMode() {
                                 lineHeightStyle =
                                     LineHeightStyle(
                                         trim = LineHeightStyle.Trim.Both,
-                                        alignment = LineHeightStyle.Alignment.Center
-                                    )
+                                        alignment = LineHeightStyle.Alignment.Center,
+                                    ),
                             ),
-                        constraints = Constraints(maxWidth = size.width.roundToInt())
+                        constraints = Constraints(maxWidth = size.width.roundToInt()),
                     )
                 drawText(textLayout, blendMode = blendModeState, topLeft = Offset(0f, -50f))
 
@@ -361,7 +361,7 @@ fun DrawTextAndAnimateColor() {
         infiniteTransition.animateColor(
             initialValue = Color.Red,
             targetValue = Color.Blue,
-            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
+            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse),
         )
 
     var skipCache by remember { mutableStateOf(false) }
@@ -385,7 +385,7 @@ fun DrawTextAndAnimateColor() {
                     textMeasurer,
                     text = AnnotatedString("Hello, World!"),
                     style = TextStyle(color = color, fontSize = fontSize8),
-                    topLeft = Offset(padding, padding)
+                    topLeft = Offset(padding, padding),
                 )
             }
             totalMeasurer.addMeasure(duration)
@@ -402,7 +402,7 @@ fun DrawTextMeasureAndAnimateColor() {
         infiniteTransition.animateColor(
             initialValue = Color.Red,
             targetValue = Color.Blue,
-            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse)
+            animationSpec = infiniteRepeatable(tween(3000), RepeatMode.Reverse),
         )
 
     var skipCache by remember { mutableStateOf(false) }
@@ -428,7 +428,7 @@ fun DrawTextMeasureAndAnimateColor() {
                         textMeasurer.measure(
                             AnnotatedString("Hello, World!"),
                             style = TextStyle(fontSize = fontSize8),
-                            skipCache = skipCache
+                            skipCache = skipCache,
                         )
                 }
                 layoutMeasurer.addMeasure(duration)

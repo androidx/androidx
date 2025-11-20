@@ -25,9 +25,9 @@ import androidx.glance.GlanceNode
 import androidx.glance.unit.Dimension
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableBox : EmittableWithChildren() {
+public class EmittableBox : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    var contentAlignment: Alignment = Alignment.TopStart
+    public var contentAlignment: Alignment = Alignment.TopStart
 
     override fun copy(): Emittable =
         EmittableBox().also {
@@ -60,10 +60,10 @@ class EmittableBox : EmittableWithChildren() {
  * @param content The content inside the [Box].
  */
 @Composable
-fun Box(
+public fun Box(
     modifier: GlanceModifier = GlanceModifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     GlanceNode(
         factory = ::EmittableBox,
@@ -71,6 +71,6 @@ fun Box(
             this.set(modifier) { this.modifier = it }
             this.set(contentAlignment) { this.contentAlignment = it }
         },
-        content = content
+        content = content,
     )
 }

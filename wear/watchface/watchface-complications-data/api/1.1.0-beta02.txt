@@ -226,8 +226,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class ProtoLayoutComplicationData.Builder {
-    ctor public ProtoLayoutComplicationData.Builder(byte[] ambientLayout, byte[] interactiveLayout, byte[] layoutResources, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor public ProtoLayoutComplicationData.Builder(androidx.wear.tiles.LayoutElementBuilders.Layout ambientLayout, androidx.wear.tiles.LayoutElementBuilders.Layout interactiveLayout, androidx.wear.tiles.ResourceBuilders.Resources resources, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
+    ctor public ProtoLayoutComplicationData.Builder(byte[] ambientLayout, byte[] interactiveLayout, byte[] layoutResources, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData build();
     method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
     method public androidx.wear.watchface.complications.data.ProtoLayoutComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
@@ -336,8 +336,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
-    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountUpTimeReference countUpTimeReference);
     ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountDownTimeReference countDownTimeReference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountUpTimeReference countUpTimeReference);
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText build();
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder setDisplayAsNow(boolean displayAsNow);
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder setMinimumTimeUnit(java.util.concurrent.TimeUnit? minimumUnit);

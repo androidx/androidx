@@ -26,7 +26,7 @@ import java.util.IdentityHashMap
  */
 internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>(
     private val source: DataSource<Key, ValueFrom>,
-    private val listFunction: Function<List<ValueFrom>, List<ValueTo>>
+    private val listFunction: Function<List<ValueFrom>, List<ValueTo>>,
 ) : DataSource<Key, ValueTo>(source.type) {
     private val keyMap =
         when (source.type) {

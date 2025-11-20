@@ -41,7 +41,7 @@ internal fun Modifier.animateWithFading(
     enabled: Boolean,
     animateFraction: () -> Float,
     lookaheadScope: LookaheadScope,
-    fadingAnimationSpec: FiniteAnimationSpec<Float> = tween()
+    fadingAnimationSpec: FiniteAnimationSpec<Float> = tween(),
 ) =
     this.then(
         AnimateWithFadingElement(animateFraction, lookaheadScope, enabled, fadingAnimationSpec)
@@ -51,7 +51,7 @@ private class AnimateWithFadingElement(
     val animateFraction: () -> Float,
     val lookaheadScope: LookaheadScope,
     val enabled: Boolean,
-    val fadingAnimationSpec: FiniteAnimationSpec<Float>
+    val fadingAnimationSpec: FiniteAnimationSpec<Float>,
 ) : ModifierNodeElement<AnimateWithFadingNode>() {
     private val inspectorInfo = debugInspectorInfo {
         name = "animateWithFading"
@@ -103,7 +103,7 @@ private class AnimateWithFadingNode(
     var animateFraction: () -> Float,
     var lookaheadScope: LookaheadScope,
     var enabled: Boolean,
-    fadingAnimationSpec: FiniteAnimationSpec<Float>
+    fadingAnimationSpec: FiniteAnimationSpec<Float>,
 ) : ApproachLayoutModifierNode, Modifier.Node() {
     private var originalOffset: IntOffset = InvalidOffset
     private var targetOffset: IntOffset = InvalidOffset
@@ -130,7 +130,7 @@ private class AnimateWithFadingNode(
 
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val currentAnimatedValue = animation.getValue(animateFraction())
         return measurable.measure(constraints).run {
@@ -142,7 +142,7 @@ private class AnimateWithFadingNode(
                         } else {
                             originalOffset - targetOffset
                         },
-                        layerBlock = { alpha = abs(currentAnimatedValue) }
+                        layerBlock = { alpha = abs(currentAnimatedValue) },
                     )
                 }
             }

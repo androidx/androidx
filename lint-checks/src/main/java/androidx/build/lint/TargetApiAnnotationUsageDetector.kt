@@ -83,7 +83,7 @@ class TargetApiAnnotationUsageDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(TargetApiAnnotationUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(TargetApiAnnotationUsageDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

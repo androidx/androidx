@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 internal class ExerciseGoalTest {
 
     @Test
@@ -51,7 +52,7 @@ internal class ExerciseGoalTest {
         val proto =
             ExerciseGoal.createMilestone(
                     DataTypeCondition(DISTANCE_TOTAL, 500.0, GREATER_THAN),
-                    period = 1000.0
+                    period = 1000.0,
                 )
                 .proto
 

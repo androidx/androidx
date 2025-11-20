@@ -42,14 +42,14 @@ internal class CredentialProviderGetRestoreCredentialController(private val cont
         GetRestoreCredentialRequest,
         GetRestoreCredentialResponse,
         GetCredentialResponse,
-        GetCredentialException
+        GetCredentialException,
     >(context) {
 
     override fun invokePlayServices(
         request: GetCredentialRequest,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
         executor: Executor,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ) {
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
@@ -123,7 +123,7 @@ internal class CredentialProviderGetRestoreCredentialController(private val cont
         return GetCredentialResponse(
             Credential.createFrom(
                 androidx.credentials.RestoreCredential.TYPE_RESTORE_CREDENTIAL,
-                response.responseBundle
+                response.responseBundle,
             )
         )
     }

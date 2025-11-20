@@ -45,6 +45,7 @@ public class InvisibleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invisible);
         setTitle(R.string.invisible_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         WebView invisibleWebView = findViewById(R.id.invisible_webview);

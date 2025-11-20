@@ -365,6 +365,8 @@ A few notes about version updates:
 -   The version of your library listed in `androidx-main` should *always* be
     higher than the version publicly available on Google Maven. This allows us
     to do proper version tracking and API tracking.
+-   Major and minor versions must be incremented by one -- versions may not be
+    skipped.
 -   Version increments must be done before the CL cutoff date (aka the build cut
     date).
 -   **Increments to the next stability suffix** (like `alpha` to `beta`) should
@@ -434,4 +436,4 @@ until API review is complete and addressed.
 ### How often can a beta release?
 
 As often as needed; however, releases outside of the bi-weekly (every 2 weeks)
-release will need to get approval from the TPM (natnaelbelay@).
+release will need to get approval from the TPMs (toolkit-tpgms@).

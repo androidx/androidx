@@ -55,7 +55,7 @@ val ScalingLazyColumnBenchmark =
                             ) {
                                 Text("To top")
                             }
-                        }
+                        },
                     ) { contentPadding ->
                         ScalingLazyColumn(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,14 +63,14 @@ val ScalingLazyColumnBenchmark =
                             state = state,
                             modifier =
                                 Modifier.background(MaterialTheme.colorScheme.background)
-                                    .semantics { contentDescription = CONTENT_DESCRIPTION }
+                                    .semantics { contentDescription = CONTENT_DESCRIPTION },
                         ) {
                             items(5000) {
                                 Text(
                                     "Item $it",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.fillMaxWidth().padding(10.dp)
+                                    modifier = Modifier.fillMaxWidth().padding(10.dp),
                                 )
                             }
                         }

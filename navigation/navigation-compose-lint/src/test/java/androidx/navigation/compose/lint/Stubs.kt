@@ -46,7 +46,7 @@ internal val NAV_BACK_STACK_ENTRY =
     +kFTxYrTU61Dk+4Yow7Bp/gdOrkMY5WVk2ogt/eKqRcmAiuMVmpmscpY+CnA
     NOw0X0txGevpvxFmOCvcI+Ni1sWci3kUmaLkooyFe1CMChY5j2HHWIphfQMn
     9fXa9AEAAA==
-    """
+    """,
     )
 
 internal val NAV_CONTROLLER =
@@ -84,7 +84,7 @@ internal val NAV_CONTROLLER =
     MAiP9CiGKJLrFe8QmpMuro+NfML4F0y+PcHUhz4Whyoty8QZMmOxVhHTlF/P
     cFdI36XfZZnDca8nl7FB+jFFZ4hq9gC5Mq6XcaOMOdwkE7fKmMftA7AUC1g8
     gJvCS7GUwkkxlOJOiiK5PwElc7kHIAQAAA==
-    """
+    """,
     )
 
 internal val NAV_GRAPH_BUILDER =
@@ -115,7 +115,7 @@ internal val NAV_GRAPH_BUILDER =
     owZeU0WK0wutA5O8L8IRBK9hOnK8FcYyKyfRQGb/DTOvTAQqjFZiprHGmP8t
     QA52kq8nuIqN5McIs5zlW0jVMFfDfA0FFJlioYYSFlugCEtY5jyCHWElgvUD
     nsoUQO4BAAA=
-    """
+    """,
     )
 
 internal val NAV_GRAPH_COMPOSABLE =
@@ -163,7 +163,7 @@ internal val NAV_GRAPH_COMPOSABLE =
     prUQbUWDnmrZYfpdoH+ri/5Ah/7tLvqjbfoj5+sbeBxYC09o3KDVMbqROzsI
     ZTCewd0M7mEig0lMZXAf0ztgCjOY3cGAQq/CnMINhUTgJBXmFR4oLCgMK4wq
     LP4F8P5Vs6MGAAA=
-    """
+    """,
     )
 
 internal val NAV_HOST =
@@ -201,7 +201,7 @@ internal val NAV_HOST =
     OfV+xggROzCQRH/a80ghjQQe0mmP4gbZ8U0z/xWFLdMk/BItA2uEaaKPEa6T
     P9MnIoepuNA4irhN9xsxO4PNKGZQIBt3ycbhrRhX8YjsPkWnqffMCRI2Zm3M
     2aSlZOMO7tq4h4UTsACLWDpBNkAqwP0AuRiLAR4EWA6w8hvNMdYWNAQAAA==
-    """
+    """,
     )
 
 internal val COMPOSABLE_NAV_HOST =
@@ -257,7 +257,7 @@ public fun NavHost(
                 sEXRGfEeYemgWvyG8otqlexXNzZsk81SutvnDvkr40QUsJQKlVDBAzp/PsnL
                 Ee463qMgn1bKp0J7qX2GfcLXxC5T/ZUrZAKsBqgF9J71ABt4GOARNq/ADB7j
                 yRWyBvMGTw0KBksGFfJ/A2uvkva7AwAA
-                """
+                """,
     )
 
 internal val COMPOSE_NAVIGATOR_DESTINATION_BUILDER =
@@ -367,7 +367,7 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation() {}
                 F2LjVE2pRp4RDk5Nnk3ka1U87LzLtVNzOVRWkfOV1saVvWxlF5zOfHGQ4uoU
                 7xCLSg5U21/Q+EyA4y5FvxR93KPYXBsQYIOyh/uly8ODMt/GQ8o98jTJc2UE
                 b4CrA2wOEGKLILYHuIbrIzCLG7g5QtViw+KWRctix6L2C0Mu1/6bAgAA
-                """
+                """,
     )
 
 internal val DIALOG_NAVIGATOR_DESTINATION_BUILDER =
@@ -459,5 +459,5 @@ public inline fun <reified T : Any> NavGraphBuilder.dialog() {}
                 iufSbJTfzZSWU9GTkSTlE6UCHfeKsA8LScTzFspYQorqe1Q9omyZf7FXzH5C
                 PtH4aH4FqhRTNEMGeWwT3iAuQ3UBqxRJjiLWKN+P1WlaOzHaQo3yIWmuUZP1
                 PhIONhxcd1BC2UEFNxzcxK0+WIRN3O5jKTLfnQh347j2A9YTBm1VAwAA
-                """
+                """,
     )

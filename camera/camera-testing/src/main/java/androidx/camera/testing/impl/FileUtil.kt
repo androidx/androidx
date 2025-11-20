@@ -52,7 +52,7 @@ public object FileUtil {
     public fun writeTextToExternalFile(
         text: String,
         fileName: String,
-        extension: String = EXTENSION_TEXT
+        extension: String = EXTENSION_TEXT,
     ) {
         val fileNameWithExtension = "$fileName.$extension"
         val folder = getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS)
@@ -95,7 +95,7 @@ public object FileUtil {
     @JvmStatic
     public fun generateVideoFileOutputOptions(
         fileName: String,
-        extension: String = EXTENSION_MP4
+        extension: String = EXTENSION_MP4,
     ): FileOutputOptions {
         val fileNameWithExtension = "$fileName.$extension"
         val folder = getExternalStoragePublicDirectory(DIRECTORY_MOVIES)
@@ -115,11 +115,11 @@ public object FileUtil {
     @JvmStatic
     public fun generateVideoMediaStoreOptions(
         contentResolver: ContentResolver,
-        fileName: String
+        fileName: String,
     ): MediaStoreOutputOptions =
         MediaStoreOutputOptions.Builder(
                 contentResolver,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
             )
             .setContentValues(generateVideoContentValues(fileName))
             .build()
@@ -201,9 +201,9 @@ public object FileUtil {
                 String.format(
                     "Failed in getting absolute path for Uri %s with Exception %s",
                     contentUri,
-                    e
+                    e,
                 ),
-                e
+                e,
             )
             return null
         }

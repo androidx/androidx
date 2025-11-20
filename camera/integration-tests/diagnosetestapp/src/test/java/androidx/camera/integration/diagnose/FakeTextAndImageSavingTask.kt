@@ -25,7 +25,7 @@ class FakeTextAndImageSavingTask : DiagnosisTask("FakeTextAndImageSavingTask") {
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
         dataStore: DataStore,
-        context: Context
+        context: Context,
     ) {
         dataStore.appendText("This is fake task 2.")
         // append bitmap with each pixel set to blue

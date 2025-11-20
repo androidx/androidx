@@ -17,7 +17,7 @@
 package androidx.wear.phone.interactions.authentication
 
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 /** Unit tests for [CodeVerifier] and [CodeChallenge] */
 @Config(minSdk = 26)
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testVerifierDefaultConstructor() {

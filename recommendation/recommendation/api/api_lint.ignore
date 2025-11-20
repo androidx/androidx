@@ -18,13 +18,13 @@ MissingNullability: androidx.recommendation.app.RecommendationExtender#extend(an
 
 
 NullableCollection: androidx.recommendation.app.ContentRecommendation#getContentTypes():
-    Return type of method androidx.recommendation.app.ContentRecommendation.getContentTypes() is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.recommendation.app.ContentRecommendation.getContentTypes() uses a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.recommendation.app.ContentRecommendation#getGenres():
-    Return type of method androidx.recommendation.app.ContentRecommendation.getGenres() is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.recommendation.app.ContentRecommendation.getGenres() uses a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.recommendation.app.RecommendationExtender#getContentTypes():
-    Return type of method androidx.recommendation.app.RecommendationExtender.getContentTypes() is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.recommendation.app.RecommendationExtender.getContentTypes() uses a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.recommendation.app.RecommendationExtender#getGenres():
-    Return type of method androidx.recommendation.app.RecommendationExtender.getGenres() is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.recommendation.app.RecommendationExtender.getGenres() uses a nullable collection (`java.lang.String[]`); must be non-null
 
 
 PublicTypedef: androidx.recommendation.app.ContentRecommendation.ContentMaturity:

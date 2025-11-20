@@ -24,10 +24,7 @@ package androidx.kruth
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
 expect open class ComparableSubject<T : Comparable<T>>
-protected constructor(
-    metadata: FailureMetadata,
-    actual: T?,
-) : Subject<T> {
+protected constructor(metadata: FailureMetadata, actual: T?) : Subject<T> {
 
     internal constructor(actual: T?, metadata: FailureMetadata)
 

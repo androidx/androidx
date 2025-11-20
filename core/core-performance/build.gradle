@@ -26,20 +26,17 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
 
     implementation(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.testCore)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(project(":core:core-performance-testing"))
 }
 
@@ -51,6 +48,7 @@ androidx {
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
     legacyDisableKotlinStrictApiMode = true
     samples(project(":core:core-performance:core-performance-samples"))
+    enableRobolectric()
 }
 
 android {

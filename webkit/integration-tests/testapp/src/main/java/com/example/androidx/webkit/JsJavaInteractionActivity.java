@@ -35,6 +35,7 @@ public class JsJavaInteractionActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_js_java_interaction);
         setTitle(R.string.js_java_interaction_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         final Context activityContext = this;

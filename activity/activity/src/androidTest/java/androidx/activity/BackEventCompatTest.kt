@@ -18,7 +18,6 @@ package androidx.activity
 
 import android.window.BackEvent
 import android.window.BackEvent.EDGE_LEFT
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -32,14 +31,14 @@ class BackEventCompatTest {
 
     @Test
     fun testCreateBackEventCompat() {
-        val event = BackEventCompat(1f, 2f, 3f, BackEventCompat.EDGE_LEFT)
+        val event = BackEventCompat(1f, 2f, 3f, BackEventCompat.EDGE_LEFT, 2)
         assertThat(event.touchX).isEqualTo(1f)
         assertThat(event.touchY).isEqualTo(2f)
         assertThat(event.progress).isEqualTo(3f)
         assertThat(event.swipeEdge).isEqualTo(BackEventCompat.EDGE_LEFT)
+        assertThat(event.frameTimeMillis).isEqualTo(2)
     }
 
-    @RequiresApi(34)
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun testCreateBackEventCompatFromBackEvent() {
@@ -50,7 +49,6 @@ class BackEventCompatTest {
         assertThat(event.swipeEdge).isEqualTo(BackEventCompat.EDGE_LEFT)
     }
 
-    @RequiresApi(34)
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun testToBackEventFromBackEventCompat() {
@@ -59,5 +57,27 @@ class BackEventCompatTest {
         assertThat(event.touchY).isEqualTo(2f)
         assertThat(event.progress).isEqualTo(3f)
         assertThat(event.swipeEdge).isEqualTo(BackEventCompat.EDGE_LEFT)
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @Test
+    fun testCreateBackEventCompatFromBackEventWithFrameTimeMillis() {
+        val event = BackEventCompat(BackEvent(1f, 2f, 3f, EDGE_LEFT, 5))
+        assertThat(event.touchX).isEqualTo(1f)
+        assertThat(event.touchY).isEqualTo(2f)
+        assertThat(event.progress).isEqualTo(3f)
+        assertThat(event.swipeEdge).isEqualTo(BackEventCompat.EDGE_LEFT)
+        assertThat(event.frameTimeMillis).isEqualTo(5)
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @Test
+    fun testToBackEventFromBackEventCompatWithFrameTimeMillis() {
+        val event = BackEventCompat(1f, 2f, 3f, BackEventCompat.EDGE_LEFT, 5).toBackEvent()
+        assertThat(event.touchX).isEqualTo(1f)
+        assertThat(event.touchY).isEqualTo(2f)
+        assertThat(event.progress).isEqualTo(3f)
+        assertThat(event.swipeEdge).isEqualTo(BackEventCompat.EDGE_LEFT)
+        assertThat(event.frameTimeMillis).isEqualTo(5)
     }
 }

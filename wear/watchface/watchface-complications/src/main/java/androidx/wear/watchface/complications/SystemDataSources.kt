@@ -22,8 +22,8 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 
 /**
- * Methods to retrieve the component names for system complication complication data sources. This
- * will allow these complication data sources to be used as defaults by watch faces.
+ * Methods to retrieve the component names for system complication data sources. This will allow
+ * these complication data sources to be used as defaults by watch faces.
  */
 public class SystemDataSources private constructor() {
     public companion object {
@@ -237,7 +237,7 @@ public class SystemDataSources private constructor() {
         DATA_SOURCE_DAY_OF_WEEK,
         DATA_SOURCE_FAVORITE_CONTACT,
         DATA_SOURCE_DAY_AND_DATE,
-        DATA_SOURCE_HEART_RATE
+        DATA_SOURCE_HEART_RATE,
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)

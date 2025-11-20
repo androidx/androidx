@@ -40,7 +40,7 @@ internal class BeginSignInControllerUtility {
 
         internal fun constructBeginSignInRequest(
             request: GetCredentialRequest,
-            context: Context
+            context: Context,
         ): BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
@@ -118,7 +118,7 @@ internal class BeginSignInControllerUtility {
             if (option.linkedServiceId != null) {
                 idTokenOption.associateLinkedAccounts(
                     option.linkedServiceId!!,
-                    option.idTokenDepositionScopes
+                    option.idTokenDepositionScopes,
                 )
             }
             return idTokenOption.build()

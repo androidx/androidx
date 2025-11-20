@@ -62,7 +62,7 @@ fun OffsetKeyframeWithSplineDemo() {
                 pointMode = PointMode.Lines,
                 color = Color.LightGray,
                 strokeWidth = 4f,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(30f, 20f))
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(30f, 20f)),
             )
         }
     ) {
@@ -99,7 +99,7 @@ fun OffsetKeyframeWithSplineDemo() {
                                 val sign = if (i % 2 == 0) 1 else -1
                                 Offset(
                                     x = maxXOff * (i.toFloat() / 5f) * sign,
-                                    y = (maxYOff) * (i.toFloat() / 5f)
+                                    y = (maxYOff) * (i.toFloat() / 5f),
                                 ) atFraction (0.1f * i)
                             }
 
@@ -112,10 +112,10 @@ fun OffsetKeyframeWithSplineDemo() {
                                 val sign = if (i % 2 == 0) 1 else -1
                                 Offset(
                                     x = maxXOff * (1f - i.toFloat() / 5f) * sign,
-                                    y = (maxYOff) * (1f - i.toFloat() / 5f)
+                                    y = (maxYOff) * (1f - i.toFloat() / 5f),
                                 ) atFraction ((0.1f * i) + 0.5f)
                             }
-                        }
+                        },
                 )
                 points.clear()
             }

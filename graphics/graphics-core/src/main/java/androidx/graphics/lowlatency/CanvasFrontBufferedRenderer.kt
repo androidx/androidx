@@ -71,7 +71,7 @@ class CanvasFrontBufferedRenderer<T>
 constructor(
     surfaceView: SurfaceView,
     callback: Callback<T>,
-    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
+    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888,
 ) {
 
     /** Target SurfaceView for rendering */
@@ -149,10 +149,10 @@ constructor(
     @Volatile private var mFrontBufferReleaseFence: SyncFenceCompat? = null
     private val mCommitCount = AtomicInteger(0)
     private var mColorSpace: ColorSpace = CanvasBufferedRenderer.DefaultColorSpace
-    private var mInverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private var mConsumerBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
     private var mWidth = -1
     private var mHeight = -1
-    private var mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private var mProducerBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
     private val mTransformResolver = BufferTransformHintResolver()
     private val mHolderCallback =
         object : SurfaceHolder.Callback2 {
@@ -165,7 +165,7 @@ constructor(
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
                 mSurfaceView?.let { update(it, width, height) }
             }
@@ -182,7 +182,7 @@ constructor(
 
             override fun surfaceRedrawNeededAsync(
                 holder: SurfaceHolder,
-                drawingFinished: Runnable
+                drawingFinished: Runnable,
             ) {
                 renderMultiBufferedLayerInternal(callback = drawingFinished)
             }
@@ -205,17 +205,22 @@ constructor(
             Log.w(
                 TAG,
                 "Invalid dimensions provided, width and height must be > 0. " +
-                    "width: $width height: $height"
+                    "width: $width height: $height",
             )
             return
         }
-        val transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
-        if ((mTransform != transformHint || mWidth != width || mHeight != height) && isValid()) {
+        val producerBufferTransformHint = mTransformResolver.getBufferTransformHint(surfaceView)
+        if (
+            (mProducerBufferTransform != producerBufferTransformHint ||
+                mWidth != width ||
+                mHeight != height) && isValid()
+        ) {
             releaseInternal(true)
 
             val bufferTransform = BufferTransformer()
-            val inverse = bufferTransform.invertBufferTransform(transformHint)
-            bufferTransform.computeTransform(width, height, inverse)
+            val consumerBufferTransform =
+                bufferTransform.invertBufferTransform(producerBufferTransformHint)
+            bufferTransform.computeTransform(width, height, consumerBufferTransform)
             val bufferWidth = bufferTransform.bufferWidth
             val bufferHeight = bufferTransform.bufferHeight
 
@@ -246,7 +251,7 @@ constructor(
                         bufferWidth,
                         bufferHeight,
                         bufferFormat,
-                        inverse,
+                        producerBufferTransformHint,
                         mHandlerThread,
                         object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
 
@@ -265,7 +270,7 @@ constructor(
                             @SuppressLint("WrongConstant")
                             override fun onBufferReady(
                                 hardwareBuffer: HardwareBuffer,
-                                syncFenceCompat: SyncFenceCompat?
+                                syncFenceCompat: SyncFenceCompat?,
                             ) {
                                 if (frontBufferSurfaceControl.isValid()) {
                                     val transaction =
@@ -280,7 +285,7 @@ constructor(
                                                     null
                                                 } else {
                                                     syncFenceCompat
-                                                }
+                                                },
                                             ) { releaseFence ->
                                                 mFrontBufferReleaseFence?.close()
                                                 mFrontBufferReleaseFence = releaseFence
@@ -288,27 +293,27 @@ constructor(
                                             .setVisibility(frontBufferSurfaceControl, true)
                                             .reparent(
                                                 frontBufferSurfaceControl,
-                                                parentSurfaceControl
+                                                parentSurfaceControl,
                                             )
                                     if (
-                                        transformHint !=
+                                        producerBufferTransformHint !=
                                             BufferTransformHintResolver.UNKNOWN_TRANSFORM
                                     ) {
                                         transaction.setBufferTransform(
                                             frontBufferSurfaceControl,
-                                            transformHint
+                                            consumerBufferTransform,
                                         )
                                     }
                                     mCallback?.onFrontBufferedLayerRenderComplete(
                                         frontBufferSurfaceControl,
-                                        transaction
+                                        transaction,
                                     )
                                     transaction.commit()
                                     singleBufferedCanvasRenderer?.isVisible = true
                                 }
                                 syncFenceCompat?.close()
                             }
-                        }
+                        },
                     )
                     .apply { colorSpace = mColorSpace }
 
@@ -325,10 +330,10 @@ constructor(
             mFrontBufferSurfaceControl = frontBufferSurfaceControl
             mPersistedCanvasRenderer = singleBufferedCanvasRenderer
             mParentSurfaceControl = parentSurfaceControl
-            mTransform = transformHint
+            mProducerBufferTransform = producerBufferTransformHint
             mWidth = width
             mHeight = height
-            mInverse = inverse
+            mConsumerBufferTransform = consumerBufferTransform
         }
     }
 
@@ -366,7 +371,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to front buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -405,7 +410,7 @@ constructor(
      */
     internal fun renderMultiBufferedLayerInternal(
         params: Collection<T> = Collections.emptyList(),
-        callback: Runnable? = null
+        callback: Runnable? = null,
     ) {
         if (isValid()) {
             mParams.addAll(params)
@@ -414,7 +419,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -436,7 +441,7 @@ constructor(
         multiBufferedCanvasRenderer: CanvasBufferedRenderer,
         transform: Int,
         buffer: HardwareBuffer,
-        fence: SyncFenceCompat?
+        fence: SyncFenceCompat?,
     ) {
         if (
             frontBufferSurfaceControl != null &&
@@ -470,7 +475,7 @@ constructor(
             mCallback?.onMultiBufferedLayerRenderComplete(
                 frontBufferSurfaceControl,
                 parentSurfaceControl,
-                transaction
+                transaction,
             )
             transaction.commit()
         }
@@ -489,8 +494,8 @@ constructor(
                     cancelPending()
                     clear()
                 }
-            val transform = mTransform
-            val inverse = mInverse
+            val producerTransform = mProducerBufferTransform
+            val consumerTransform = mConsumerBufferTransform
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl
             val parentSurfaceControl = mParentSurfaceControl
             val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
@@ -506,8 +511,11 @@ constructor(
 
                         obtainRenderRequest()
                             .apply {
-                                if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                                    setBufferTransform(inverse)
+                                if (
+                                    producerTransform !=
+                                        BufferTransformHintResolver.UNKNOWN_TRANSFORM
+                                ) {
+                                    setBufferTransform(producerTransform)
                                 }
                             }
                             .setColorSpace(targetColorSpace)
@@ -517,9 +525,9 @@ constructor(
                                     parentSurfaceControl,
                                     persistedCanvasRenderer,
                                     multiBufferRenderer,
-                                    transform,
+                                    consumerTransform,
                                     result.hardwareBuffer,
-                                    result.fence
+                                    result.fence,
                                 )
                             }
                     }
@@ -529,7 +537,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
-                    "has been released"
+                    "has been released",
             )
         }
     }
@@ -565,8 +573,8 @@ constructor(
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl
             val parentSurfaceControl = mParentSurfaceControl
             val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
-            val inverse = mInverse
-            val transform = mTransform
+            val consumerTransform = mConsumerBufferTransform
+            val producerTransform = mProducerBufferTransform
             val targetColorSpace = mColorSpace
             mHandlerThread.execute {
                 multiBufferedCanvasRenderer?.let { multiBufferedRenderer ->
@@ -580,8 +588,11 @@ constructor(
                         params.clear()
                         obtainRenderRequest()
                             .apply {
-                                if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                                    setBufferTransform(inverse)
+                                if (
+                                    producerTransform !=
+                                        BufferTransformHintResolver.UNKNOWN_TRANSFORM
+                                ) {
+                                    setBufferTransform(producerTransform)
                                 }
                             }
                             .setColorSpace(targetColorSpace)
@@ -591,9 +602,9 @@ constructor(
                                     parentSurfaceControl,
                                     persistedCanvasRenderer,
                                     multiBufferedCanvasRenderer,
-                                    transform,
+                                    consumerTransform,
                                     result.hardwareBuffer,
-                                    result.fence
+                                    result.fence,
                                 )
                                 onComplete?.run()
                             }
@@ -604,7 +615,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -630,7 +641,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to cancel rendering to front buffer after " +
-                    "CanvasFrontBufferRenderer has been released"
+                    "CanvasFrontBufferRenderer has been released",
             )
         }
     }
@@ -653,7 +664,7 @@ constructor(
             mMultiBufferedRenderNode = null
             mWidth = -1
             mHeight = -1
-            mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+            mProducerBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
 
             renderer.release(cancelPending) {
                 mCurrentMultiBuffer?.close()
@@ -739,7 +750,7 @@ constructor(
             canvas: Canvas,
             bufferWidth: Int,
             bufferHeight: Int,
-            params: Collection<T>
+            params: Collection<T>,
         )
 
         /**
@@ -758,7 +769,7 @@ constructor(
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }
@@ -784,7 +795,7 @@ constructor(
         fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             multiBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }

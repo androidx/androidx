@@ -1,187 +1,187 @@
 // Baseline format: 1.0
 ChangedType: androidx.kruth.ExpectFailure#assertThat(T):
-    Method androidx.kruth.ExpectFailure.assertThat has changed return type from androidx.kruth.TruthFailureSubject to androidx.kruth.TruthFailureSubject<T>
+    Binary breaking change: Method androidx.kruth.ExpectFailure.assertThat has changed return type from androidx.kruth.TruthFailureSubject to androidx.kruth.TruthFailureSubject<T>
 ChangedType: androidx.kruth.MultimapSubject#valuesForKey(K):
-    Method androidx.kruth.MultimapSubject.valuesForKey has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<V>
+    Binary breaking change: Method androidx.kruth.MultimapSubject.valuesForKey has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<V>
 ChangedType: androidx.kruth.ObjectArraySubject#asList():
-    Method androidx.kruth.ObjectArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<?>
+    Binary breaking change: Method androidx.kruth.ObjectArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<?>
 ChangedType: androidx.kruth.PrimitiveBooleanArraySubject#asList():
-    Method androidx.kruth.PrimitiveBooleanArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Boolean>
+    Binary breaking change: Method androidx.kruth.PrimitiveBooleanArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Boolean>
 ChangedType: androidx.kruth.PrimitiveByteArraySubject#asList():
-    Method androidx.kruth.PrimitiveByteArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Byte>
+    Binary breaking change: Method androidx.kruth.PrimitiveByteArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Byte>
 ChangedType: androidx.kruth.PrimitiveCharArraySubject#asList():
-    Method androidx.kruth.PrimitiveCharArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Character>
+    Binary breaking change: Method androidx.kruth.PrimitiveCharArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Character>
 ChangedType: androidx.kruth.PrimitiveIntArraySubject#asList():
-    Method androidx.kruth.PrimitiveIntArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Integer>
+    Binary breaking change: Method androidx.kruth.PrimitiveIntArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Integer>
 ChangedType: androidx.kruth.PrimitiveLongArraySubject#asList():
-    Method androidx.kruth.PrimitiveLongArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Long>
+    Binary breaking change: Method androidx.kruth.PrimitiveLongArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Long>
 ChangedType: androidx.kruth.PrimitiveShortArraySubject#asList():
-    Method androidx.kruth.PrimitiveShortArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Short>
+    Binary breaking change: Method androidx.kruth.PrimitiveShortArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Short>
 ChangedType: androidx.kruth.SimpleSubjectBuilder#that(T):
-    Method androidx.kruth.SimpleSubjectBuilder.that has changed return type from SubjectT (extends androidx.kruth.Subject) to S (extends androidx.kruth.Subject<? extends T>)
+    Binary breaking change: Method androidx.kruth.SimpleSubjectBuilder.that has changed return type from SubjectT (extends androidx.kruth.Subject) to S (extends androidx.kruth.Subject<? extends T>)
 ChangedType: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
-    Method androidx.kruth.StandardSubjectBuilder.about has changed return type from androidx.kruth.SimpleSubjectBuilder<S,A> to androidx.kruth.SimpleSubjectBuilder<S,T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.about has changed return type from androidx.kruth.SimpleSubjectBuilder<S,A> to androidx.kruth.SimpleSubjectBuilder<S,T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ComparableSubject<ComparableT> to androidx.kruth.ComparableSubject<T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<T>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.GuavaOptionalSubject to androidx.kruth.GuavaOptionalSubject<T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.GuavaOptionalSubject to androidx.kruth.GuavaOptionalSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<K,V>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultimapSubject to androidx.kruth.MultimapSubject<K,V>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultimapSubject to androidx.kruth.MultimapSubject<K,V>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multiset<T>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultisetSubject to androidx.kruth.MultisetSubject<T>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultisetSubject to androidx.kruth.MultisetSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Table<R,C,V>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.TableSubject to androidx.kruth.TableSubject<R,C,V>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.TableSubject to androidx.kruth.TableSubject<R,C,V>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
+    Binary breaking change: Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT):
-    Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
+    Binary breaking change: Method androidx.kruth.Subject.Factory.createSubject has changed return type from SubjectT (extends androidx.kruth.Subject) to SubjectT (extends androidx.kruth.Subject<? extends ActualT>)
 ChangedType: androidx.kruth.ThrowableSubject#hasCauseThat():
-    Method androidx.kruth.ThrowableSubject.hasCauseThat has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<java.lang.Throwable>
+    Binary breaking change: Method androidx.kruth.ThrowableSubject.hasCauseThat has changed return type from androidx.kruth.ThrowableSubject to androidx.kruth.ThrowableSubject<java.lang.Throwable>
 ChangedType: androidx.kruth.TruthFailureSubject#factKeys():
-    Method androidx.kruth.TruthFailureSubject.factKeys has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.String>
+    Binary breaking change: Method androidx.kruth.TruthFailureSubject.factKeys has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.String>
 ChangedType: androidx.kruth.TruthFailureSubject#truthFailures():
-    Method androidx.kruth.TruthFailureSubject.truthFailures has changed return type from androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject,java.lang.AssertionError> to androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T>
+    Binary breaking change: Method androidx.kruth.TruthFailureSubject.truthFailures has changed return type from androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject,java.lang.AssertionError> to androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T>
 
 
 InvalidNullConversion: androidx.kruth.IterableSubject#containsAnyOf(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.containsAnyOf(Object first, Object second, java.lang.Object... rest)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.containsAnyOf(Object first, Object second, java.lang.Object... rest)
 InvalidNullConversion: androidx.kruth.IterableSubject#containsAtLeast(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExpected in androidx.kruth.IterableSubject.containsAtLeast(Object firstExpected, Object secondExpected, java.lang.Object... restOfExpected)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExpected in androidx.kruth.IterableSubject.containsAtLeast(Object firstExpected, Object secondExpected, java.lang.Object... restOfExpected)
 InvalidNullConversion: androidx.kruth.IterableSubject#containsExactly(java.lang.Object...) parameter #0:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter expected in androidx.kruth.IterableSubject.containsExactly(java.lang.Object... expected)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter expected in androidx.kruth.IterableSubject.containsExactly(java.lang.Object... expected)
 InvalidNullConversion: androidx.kruth.IterableSubject#containsNoneOf(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExcluded in androidx.kruth.IterableSubject.containsNoneOf(Object firstExcluded, Object secondExcluded, java.lang.Object... restOfExcluded)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExcluded in androidx.kruth.IterableSubject.containsNoneOf(Object firstExcluded, Object secondExcluded, java.lang.Object... restOfExcluded)
 InvalidNullConversion: androidx.kruth.IterableSubject#isNoneOf(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.isNoneOf(Object first, Object second, java.lang.Object... rest)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.isNoneOf(Object first, Object second, java.lang.Object... rest)
 InvalidNullConversion: androidx.kruth.Subject#check(String, java.lang.Object...) parameter #1:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter args in androidx.kruth.Subject.check(String format, java.lang.Object... args)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter args in androidx.kruth.Subject.check(String format, java.lang.Object... args)
 InvalidNullConversion: androidx.kruth.Subject#isAnyOf(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isAnyOf(Object first, Object second, java.lang.Object... rest)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isAnyOf(Object first, Object second, java.lang.Object... rest)
 InvalidNullConversion: androidx.kruth.Subject#isNoneOf(Object, Object, java.lang.Object...) parameter #2:
-    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isNoneOf(Object first, Object second, java.lang.Object... rest)
+    Source breaking change: Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isNoneOf(Object first, Object second, java.lang.Object... rest)
 
 
 RemovedClass: androidx.kruth.Correspondence:
-    Removed class androidx.kruth.Correspondence
+    Binary breaking change: Removed class androidx.kruth.Correspondence
 RemovedClass: androidx.kruth.CustomSubjectBuilder:
-    Removed class androidx.kruth.CustomSubjectBuilder
+    Binary breaking change: Removed class androidx.kruth.CustomSubjectBuilder
 RemovedClass: androidx.kruth.IntStreamSubject:
-    Removed class androidx.kruth.IntStreamSubject
+    Binary breaking change: Removed class androidx.kruth.IntStreamSubject
 RemovedClass: androidx.kruth.IntegerSubject.TolerantIntegerComparison:
-    Removed class androidx.kruth.IntegerSubject.TolerantIntegerComparison
+    Binary breaking change: Removed class androidx.kruth.IntegerSubject.TolerantIntegerComparison
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
-    Removed class androidx.kruth.IterableSubject.UsingCorrespondence
+    Binary breaking change: Removed class androidx.kruth.IterableSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.LongStreamSubject:
-    Removed class androidx.kruth.LongStreamSubject
+    Binary breaking change: Removed class androidx.kruth.LongStreamSubject
 RemovedClass: androidx.kruth.MapSubject.UsingCorrespondence:
-    Removed class androidx.kruth.MapSubject.UsingCorrespondence
+    Binary breaking change: Removed class androidx.kruth.MapSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.MultimapSubject.UsingCorrespondence:
-    Removed class androidx.kruth.MultimapSubject.UsingCorrespondence
+    Binary breaking change: Removed class androidx.kruth.MultimapSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.OptionalDoubleSubject:
-    Removed class androidx.kruth.OptionalDoubleSubject
+    Binary breaking change: Removed class androidx.kruth.OptionalDoubleSubject
 RemovedClass: androidx.kruth.OptionalIntSubject:
-    Removed class androidx.kruth.OptionalIntSubject
+    Binary breaking change: Removed class androidx.kruth.OptionalIntSubject
 RemovedClass: androidx.kruth.OptionalLongSubject:
-    Removed class androidx.kruth.OptionalLongSubject
+    Binary breaking change: Removed class androidx.kruth.OptionalLongSubject
 RemovedClass: androidx.kruth.OptionalSubject:
-    Removed class androidx.kruth.OptionalSubject
+    Binary breaking change: Removed class androidx.kruth.OptionalSubject
 RemovedClass: androidx.kruth.PathSubject:
-    Removed class androidx.kruth.PathSubject
+    Binary breaking change: Removed class androidx.kruth.PathSubject
 RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable:
-    Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
+    Binary breaking change: Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
 RemovedClass: androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable:
-    Removed class androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable
+    Binary breaking change: Removed class androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable
 RemovedClass: androidx.kruth.StreamSubject:
-    Removed class androidx.kruth.StreamSubject
+    Binary breaking change: Removed class androidx.kruth.StreamSubject
 RemovedClass: androidx.kruth.Truth:
-    Removed class androidx.kruth.Truth
+    Binary breaking change: Removed class androidx.kruth.Truth
 RemovedClass: androidx.kruth.TruthJUnit:
-    Removed class androidx.kruth.TruthJUnit
+    Binary breaking change: Removed class androidx.kruth.TruthJUnit
 
 
 RemovedDeprecatedClass: androidx.kruth.Truth8:
-    Removed deprecated class androidx.kruth.Truth8
+    Binary breaking change: Removed deprecated class androidx.kruth.Truth8
 
 
 RemovedInterface: androidx.kruth.Fact:
-    Class androidx.kruth.Fact no longer implements java.io.Serializable
+    Binary breaking change: Class androidx.kruth.Fact no longer implements java.io.Serializable
 
 
 RemovedMethod: androidx.kruth.IntegerSubject#isNotWithin(int):
-    Removed method androidx.kruth.IntegerSubject.isNotWithin(int)
+    Binary breaking change: Removed method androidx.kruth.IntegerSubject.isNotWithin(int)
 RemovedMethod: androidx.kruth.IntegerSubject#isWithin(int):
-    Removed method androidx.kruth.IntegerSubject.isWithin(int)
+    Binary breaking change: Removed method androidx.kruth.IntegerSubject.isWithin(int)
 RemovedMethod: androidx.kruth.IterableSubject#IterableSubject(androidx.kruth.FailureMetadata, Iterable<?>):
-    Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
+    Binary breaking change: Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
 RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>):
-    Removed method androidx.kruth.IterableSubject.comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>)
+    Binary breaking change: Removed method androidx.kruth.IterableSubject.comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>)
 RemovedMethod: androidx.kruth.IterableSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>):
-    Removed method androidx.kruth.IterableSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>)
+    Binary breaking change: Removed method androidx.kruth.IterableSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>)
 RemovedMethod: androidx.kruth.LongSubject#LongSubject(androidx.kruth.FailureMetadata, Long):
-    Removed constructor androidx.kruth.LongSubject(androidx.kruth.FailureMetadata,Long)
+    Binary breaking change: Removed constructor androidx.kruth.LongSubject(androidx.kruth.FailureMetadata,Long)
 RemovedMethod: androidx.kruth.LongSubject#isAtLeast(int):
-    Removed method androidx.kruth.LongSubject.isAtLeast(int)
+    Binary breaking change: Removed method androidx.kruth.LongSubject.isAtLeast(int)
 RemovedMethod: androidx.kruth.LongSubject#isAtMost(int):
-    Removed method androidx.kruth.LongSubject.isAtMost(int)
+    Binary breaking change: Removed method androidx.kruth.LongSubject.isAtMost(int)
 RemovedMethod: androidx.kruth.LongSubject#isGreaterThan(int):
-    Removed method androidx.kruth.LongSubject.isGreaterThan(int)
+    Binary breaking change: Removed method androidx.kruth.LongSubject.isGreaterThan(int)
 RemovedMethod: androidx.kruth.LongSubject#isLessThan(int):
-    Removed method androidx.kruth.LongSubject.isLessThan(int)
+    Binary breaking change: Removed method androidx.kruth.LongSubject.isLessThan(int)
 RemovedMethod: androidx.kruth.MapSubject#MapSubject(androidx.kruth.FailureMetadata, java.util.Map<?,?>):
-    Removed constructor androidx.kruth.MapSubject(androidx.kruth.FailureMetadata,java.util.Map<?,?>)
+    Binary breaking change: Removed constructor androidx.kruth.MapSubject(androidx.kruth.FailureMetadata,java.util.Map<?,?>)
 RemovedMethod: androidx.kruth.MapSubject#comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>):
-    Removed method androidx.kruth.MapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
+    Binary breaking change: Removed method androidx.kruth.MapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
 RemovedMethod: androidx.kruth.MapSubject#containsAtLeast(Object, Object, java.lang.Object...):
-    Removed method androidx.kruth.MapSubject.containsAtLeast(Object,Object,java.lang.Object...)
+    Binary breaking change: Removed method androidx.kruth.MapSubject.containsAtLeast(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.MapSubject#containsExactly():
-    Removed method androidx.kruth.MapSubject.containsExactly()
+    Binary breaking change: Removed method androidx.kruth.MapSubject.containsExactly()
 RemovedMethod: androidx.kruth.MapSubject#containsExactly(Object, Object, java.lang.Object...):
-    Removed method androidx.kruth.MapSubject.containsExactly(Object,Object,java.lang.Object...)
+    Binary breaking change: Removed method androidx.kruth.MapSubject.containsExactly(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.MapSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>):
-    Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
+    Binary breaking change: Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
 RemovedMethod: androidx.kruth.MultimapSubject#MultimapSubject(androidx.kruth.FailureMetadata, com.google.common.collect.Multimap<?,?>):
-    Removed constructor androidx.kruth.MultimapSubject(androidx.kruth.FailureMetadata,com.google.common.collect.Multimap<?,?>)
+    Binary breaking change: Removed constructor androidx.kruth.MultimapSubject(androidx.kruth.FailureMetadata,com.google.common.collect.Multimap<?,?>)
 RemovedMethod: androidx.kruth.MultimapSubject#comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>):
-    Removed method androidx.kruth.MultimapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
+    Binary breaking change: Removed method androidx.kruth.MultimapSubject.comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>)
 RemovedMethod: androidx.kruth.MultimapSubject#containsAtLeast(Object, Object, java.lang.Object...):
-    Removed method androidx.kruth.MultimapSubject.containsAtLeast(Object,Object,java.lang.Object...)
+    Binary breaking change: Removed method androidx.kruth.MultimapSubject.containsAtLeast(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.MultimapSubject#containsExactly(Object, Object, java.lang.Object...):
-    Removed method androidx.kruth.MultimapSubject.containsExactly(Object,Object,java.lang.Object...)
+    Binary breaking change: Removed method androidx.kruth.MultimapSubject.containsExactly(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingExactEquality():
-    Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingExactEquality()
+    Binary breaking change: Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingExactEquality()
 RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingTolerance(double):
-    Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingTolerance(double)
+    Binary breaking change: Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingExactEquality():
-    Removed method androidx.kruth.PrimitiveFloatArraySubject.usingExactEquality()
+    Binary breaking change: Removed method androidx.kruth.PrimitiveFloatArraySubject.usingExactEquality()
 RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingTolerance(double):
-    Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
+    Binary breaking change: Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
-    Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.nio.file.Path):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.nio.file.Path)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.nio.file.Path)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.Optional<?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.Optional<?>)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.Optional<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalDouble):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalDouble)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalDouble)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalInt):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalInt)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalInt)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalLong):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalLong)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalLong)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.IntStream):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.IntStream)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.IntStream)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.LongStream):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.LongStream)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.LongStream)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.Stream<?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.Stream<?>)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.Stream<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
-    Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
+    Binary breaking change: Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
 RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Object):
-    Removed constructor androidx.kruth.Subject(androidx.kruth.FailureMetadata,Object)
+    Binary breaking change: Removed constructor androidx.kruth.Subject(androidx.kruth.FailureMetadata,Object)
 RemovedMethod: androidx.kruth.Subject#isInstanceOf(Class<?>):
-    Removed method androidx.kruth.Subject.isInstanceOf(Class<?>)
+    Binary breaking change: Removed method androidx.kruth.Subject.isInstanceOf(Class<?>)
 RemovedMethod: androidx.kruth.Subject#isNotInstanceOf(Class<?>):
-    Removed method androidx.kruth.Subject.isNotInstanceOf(Class<?>)
+    Binary breaking change: Removed method androidx.kruth.Subject.isNotInstanceOf(Class<?>)
 RemovedMethod: androidx.kruth.ThrowableSubject#ThrowableSubject(androidx.kruth.FailureMetadata, Throwable):
-    Removed constructor androidx.kruth.ThrowableSubject(androidx.kruth.FailureMetadata,Throwable)
+    Binary breaking change: Removed constructor androidx.kruth.ThrowableSubject(androidx.kruth.FailureMetadata,Throwable)

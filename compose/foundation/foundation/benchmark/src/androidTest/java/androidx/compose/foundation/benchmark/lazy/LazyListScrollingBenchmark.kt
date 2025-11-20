@@ -60,7 +60,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
             ListRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -72,7 +72,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                useStickyHeader = true
+                useStickyHeader = true,
             )
         }
     }
@@ -83,7 +83,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
             ListRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -95,7 +95,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                useKeys = false
+                useKeys = false,
             )
         }
     }
@@ -107,7 +107,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                useKeys = false
+                useKeys = false,
             )
         }
     }
@@ -119,7 +119,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -132,7 +132,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 content = testCase.content,
                 isVertical = testCase.isVertical,
                 usePointerInput = true,
-                useStickyHeader = true
+                useStickyHeader = true,
             )
         }
     }
@@ -144,7 +144,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = true,
                 content = testCase.content,
                 isVertical = testCase.isVertical,
-                usePointerInput = true
+                usePointerInput = true,
             )
         }
     }
@@ -158,7 +158,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
             ListRemeasureTestCase(
                 addNewItemOnToggle = false,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -172,7 +172,7 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
             ListRemeasureTestCase(
                 addNewItemOnToggle = true,
                 content = testCase.content,
-                isVertical = testCase.isVertical
+                isVertical = testCase.isVertical,
             )
         }
     }
@@ -195,7 +195,7 @@ class LazyListScrollingTestCase(
     val isVertical: Boolean,
     val content:
         @Composable
-        ListRemeasureTestCase.(LazyListState, useKeys: Boolean, useStickyHeader: Boolean) -> Unit
+        ListRemeasureTestCase.(LazyListState, useKeys: Boolean, useStickyHeader: Boolean) -> Unit,
 ) {
     override fun toString(): String {
         return name
@@ -207,7 +207,7 @@ private val LazyColumn =
         LazyColumn(
             state = state,
             modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             if (useStickyHeader) {
                 stickyHeader(key = if (useKeys) "header" else null) { FirstLargeItem() }
@@ -222,7 +222,7 @@ private val LazyColumn =
                         { it.index }
                     } else {
                         null
-                    }
+                    },
             ) {
                 RegularItem()
             }
@@ -234,7 +234,7 @@ private val LazyRow =
         LazyRow(
             state = state,
             modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             if (useStickyHeader) {
                 stickyHeader(key = if (useKeys) "header" else null) { FirstLargeItem() }
@@ -248,7 +248,7 @@ private val LazyRow =
                         { it.index }
                     } else {
                         null
-                    }
+                    },
             ) {
                 RegularItem()
             }
@@ -263,7 +263,7 @@ class ListRemeasureTestCase(
     val isVertical: Boolean,
     val usePointerInput: Boolean = false,
     val useKeys: Boolean = true,
-    val useStickyHeader: Boolean = false
+    val useStickyHeader: Boolean = false,
 ) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(100) { LazyItem(it) }

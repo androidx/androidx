@@ -21,11 +21,15 @@ import static com.google.common.base.Preconditions.checkState;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.annotation.SuppressLint;
+
+import androidx.annotation.RestrictTo;
 
 import com.google.common.collect.Lists;
 import com.google.errorprone.annotations.CheckReturnValue;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -50,7 +54,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * Fake implementation of {@link ScheduledExecutorService} that lets tests control when tasks are
  * executed.
  */
+@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 @SuppressWarnings("NotCloseable")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeScheduledExecutorService extends AbstractExecutorService
         implements ScheduledExecutorService, AutoCloseable {
 
@@ -97,8 +103,7 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
     }
 
     @Override
-    @NonNull
-    public List<Runnable> shutdownNow() {
+    public @NonNull List<Runnable> shutdownNow() {
         mRunning = false;
         List<Runnable> commands = Lists.newArrayList();
         commands.addAll(mExecuteQueue);
@@ -131,8 +136,7 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
     }
 
     @Override
-    @NonNull
-    public ScheduledFuture<?> schedule(
+    public @NonNull ScheduledFuture<?> schedule(
             @Nullable Runnable command, long delay, @Nullable TimeUnit unit) {
         assertRunning();
         DelayedFuture<?> future = new DelayedFuture<>(command, delay, unit);
@@ -141,8 +145,7 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
     }
 
     @Override
-    @NonNull
-    public <V> ScheduledFuture<V> schedule(
+    public <V> @NonNull ScheduledFuture<V> schedule(
             @Nullable Callable<V> callable, long delay, @Nullable TimeUnit unit) {
         assertRunning();
         DelayedFuture<V> future = new DelayedCallable<V>(callable, delay, unit);
@@ -151,15 +154,13 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
     }
 
     @Override
-    @NonNull
-    public ScheduledFuture<?> scheduleAtFixedRate(
+    public @NonNull ScheduledFuture<?> scheduleAtFixedRate(
             @Nullable Runnable command, long initialDelay, long period, @Nullable TimeUnit unit) {
         throw new UnsupportedOperationException("not implemented");
     }
 
     @Override
-    @NonNull
-    public ScheduledFuture<?> scheduleWithFixedDelay(
+    public @NonNull ScheduledFuture<?> scheduleWithFixedDelay(
             @Nullable Runnable command, long initialDelay, long delay, @Nullable TimeUnit unit) {
         throw new UnsupportedOperationException("not implemented");
     }

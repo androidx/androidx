@@ -76,7 +76,7 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                         node,
                         target,
                         "return type ${node.returnType?.presentableText} of ${node.name}:" +
-                            " replace with $primitiveCollection"
+                            " replace with $primitiveCollection",
                     )
                 }
             }
@@ -120,7 +120,7 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                         // easy to do and still catch all uses.
                         if (
                             context.evaluator.isOverride(parent) ||
-                                (context.evaluator.isData(parent) && parent.name.startsWith("copy"))
+                                parent.isDataClassGeneratedMethod(context)
                         ) {
                             return
                         }
@@ -173,14 +173,17 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         PrimitiveInCollectionDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 }
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val SetType = java.util.Set::class.java.canonicalName
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val ListType = java.util.List::class.java.canonicalName
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
 private val MapType = java.util.Map::class.java.canonicalName
 
 // Map from the kotlin type to the primitive type used in the collection

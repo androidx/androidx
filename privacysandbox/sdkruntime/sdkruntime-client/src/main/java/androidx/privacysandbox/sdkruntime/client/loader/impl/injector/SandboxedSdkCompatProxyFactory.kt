@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
@@ -51,27 +52,27 @@ private constructor(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val sandboxedSdkInfoClass =
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val sandboxedSdkCompatConstructor =
                 sandboxedSdkCompatClass.getConstructor(
                     /* parameter1 */ IBinder::class.java,
-                    /* parameter2 */ sandboxedSdkInfoClass
+                    /* parameter2 */ sandboxedSdkInfoClass,
                 )
             val sandboxedSdkInfoConstructor =
                 sandboxedSdkInfoClass.getConstructor(
                     /* parameter1 */ String::class.java,
-                    /* parameter2 */ Long::class.java
+                    /* parameter2 */ Long::class.java,
                 )
             return SandboxedSdkCompatProxyFactory(
                 sandboxedSdkInfoConstructor = sandboxedSdkInfoConstructor,
-                sandboxedSdkCompatConstructor = sandboxedSdkCompatConstructor
+                sandboxedSdkCompatConstructor = sandboxedSdkCompatConstructor,
             )
         }
     }

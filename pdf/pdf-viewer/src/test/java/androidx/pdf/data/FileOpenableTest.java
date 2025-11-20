@@ -26,6 +26,7 @@ import android.os.Parcelable.Creator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +35,7 @@ import java.io.FileNotFoundException;
  * Tests for {@link FileOpenable}.
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class FileOpenableTest {
 
     private static final String PDF_MIME_TYPE = "application/pdf";

@@ -27,8 +27,8 @@ import androidx.glance.action.StartActivityAction
 import androidx.glance.action.actionParametersOf
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class StartActivityIntentAction(
-    val intent: Intent,
+public class StartActivityIntentAction(
+    public val intent: Intent,
     override val parameters: ActionParameters = actionParametersOf(),
     override val activityOptions: Bundle?,
 ) : StartActivityAction
@@ -53,7 +53,7 @@ class StartActivityIntentAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  *   the activity intent, keyed by the parameter key name string.
  */
-fun actionStartActivity(
+public fun actionStartActivity(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
 ): Action = StartActivityIntentAction(intent, parameters, null)
@@ -81,7 +81,7 @@ fun actionStartActivity(
  *   an activity start.
  */
 @ExperimentalGlanceApi
-fun actionStartActivity(
+public fun actionStartActivity(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null,

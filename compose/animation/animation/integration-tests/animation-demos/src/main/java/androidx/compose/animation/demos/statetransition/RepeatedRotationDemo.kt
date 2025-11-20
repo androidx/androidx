@@ -50,7 +50,7 @@ fun RepeatedRotationDemo() {
     val state = remember { mutableStateOf(RotationStates.Original) }
     Column(
         Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly,
     ) {
         Button({ state.value = RotationStates.Rotated }) { Text(text = "Rotate 10 times") }
         Spacer(Modifier.requiredHeight(10.dp))
@@ -69,7 +69,7 @@ fun RepeatedRotationDemo() {
                                     durationMillis = 1000
                                     0f at 0 using LinearEasing
                                     360f at 1000
-                                }
+                                },
                         )
                     } else {
                         tween(durationMillis = 300)
@@ -86,5 +86,5 @@ fun RepeatedRotationDemo() {
 
 private enum class RotationStates {
     Original,
-    Rotated
+    Rotated,
 }

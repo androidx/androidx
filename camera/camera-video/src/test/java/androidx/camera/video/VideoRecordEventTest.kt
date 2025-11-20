@@ -17,7 +17,6 @@
 package androidx.camera.video
 
 import android.net.Uri
-import android.os.Build
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN
 import com.google.common.truth.Truth.assertThat
@@ -37,7 +36,7 @@ private val TEST_OUTPUT_RESULT = OutputResults.of(Uri.EMPTY)
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class VideoRecordEventTest {
 
     @Test
@@ -73,7 +72,7 @@ class VideoRecordEventTest {
                 TEST_RECORDING_STATE,
                 TEST_OUTPUT_RESULT,
                 error,
-                cause
+                cause,
             )
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
@@ -93,7 +92,7 @@ class VideoRecordEventTest {
                 TEST_RECORDING_STATE,
                 TEST_OUTPUT_RESULT,
                 ERROR_NONE,
-                RuntimeException()
+                RuntimeException(),
             )
         }
     }

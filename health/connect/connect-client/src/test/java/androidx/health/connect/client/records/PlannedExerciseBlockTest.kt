@@ -38,9 +38,9 @@ class PlannedExerciseBlockTest {
                                 ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
                                 PlannedExerciseStep.EXERCISE_PHASE_ACTIVE,
                                 completionGoal = ExerciseCompletionGoal.DistanceGoal(3.kilometers),
-                                performanceTargets = listOf()
+                                performanceTargets = listOf(),
                             )
-                        )
+                        ),
                 )
             )
             .isEqualTo(
@@ -53,9 +53,9 @@ class PlannedExerciseBlockTest {
                                 ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
                                 PlannedExerciseStep.EXERCISE_PHASE_ACTIVE,
                                 completionGoal = ExerciseCompletionGoal.DistanceGoal(3.kilometers),
-                                performanceTargets = listOf()
+                                performanceTargets = listOf(),
                             )
-                        )
+                        ),
                 )
             )
     }
@@ -72,9 +72,9 @@ class PlannedExerciseBlockTest {
                                 ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
                                 PlannedExerciseStep.EXERCISE_PHASE_ACTIVE,
                                 completionGoal = ExerciseCompletionGoal.DistanceGoal(1.kilometers),
-                                performanceTargets = listOf()
+                                performanceTargets = listOf(),
                             )
-                        )
+                        ),
                 )
             )
             .isNotEqualTo(
@@ -87,9 +87,9 @@ class PlannedExerciseBlockTest {
                                 ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
                                 PlannedExerciseStep.EXERCISE_PHASE_WARMUP,
                                 completionGoal = ExerciseCompletionGoal.DistanceGoal(200.meters),
-                                performanceTargets = listOf()
+                                performanceTargets = listOf(),
                             )
-                        )
+                        ),
                 )
             )
     }

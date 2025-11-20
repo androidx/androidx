@@ -1,9 +1,9 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public abstract class LiveData<T> {
-    ctor public LiveData(T!);
     ctor public LiveData();
+    ctor public LiveData(T!);
     method public T? getValue();
     method public boolean hasActiveObservers();
     method public boolean hasObservers();
@@ -18,8 +18,8 @@ package androidx.lifecycle {
   }
 
   public class MutableLiveData<T> extends androidx.lifecycle.LiveData<T> {
-    ctor public MutableLiveData(T!);
     ctor public MutableLiveData();
+    ctor public MutableLiveData(T!);
     method public void postValue(T!);
     method public void setValue(T!);
   }

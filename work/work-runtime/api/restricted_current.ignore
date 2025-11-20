@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, boolean, long, long, java.util.Set, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,boolean,long,long,java.util.Set,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.NetworkType, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.NetworkType,boolean,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.Constraints#Constraints(androidx.work.impl.utils.NetworkRequestCompat, androidx.work.NetworkType, boolean, boolean, boolean, boolean, long, long, java.util.Set, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.Constraints(androidx.work.impl.utils.NetworkRequestCompat,androidx.work.NetworkType,boolean,boolean,boolean,boolean,long,long,java.util.Set,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.WorkInfo#WorkInfo(java.util.UUID, androidx.work.WorkInfo.State, java.util.Set, androidx.work.Data, androidx.work.Data, int, int, androidx.work.Constraints, long, androidx.work.WorkInfo.PeriodicityInfo, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.WorkInfo(java.util.UUID,androidx.work.WorkInfo.State,java.util.Set,androidx.work.Data,androidx.work.Data,int,int,androidx.work.Constraints,long,androidx.work.WorkInfo.PeriodicityInfo,long,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.work.WorkQuery#WorkQuery(java.util.List, java.util.List, java.util.List, java.util.List, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.work.WorkQuery(java.util.List,java.util.List,java.util.List,java.util.List,int,kotlin.jvm.internal.DefaultConstructorMarker)

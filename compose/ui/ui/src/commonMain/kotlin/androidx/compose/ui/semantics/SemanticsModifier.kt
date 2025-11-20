@@ -37,7 +37,7 @@ interface SemanticsModifier : Modifier.Element {
         message =
             "SemanticsModifier.id is now unused and has been set to a fixed value. " +
                 "Retrieve the id from LayoutInfo instead.",
-        replaceWith = ReplaceWith("")
+        replaceWith = ReplaceWith(""),
     )
     val id: Int
         get() = -1
@@ -52,7 +52,7 @@ interface SemanticsModifier : Modifier.Element {
 internal class CoreSemanticsModifierNode(
     var mergeDescendants: Boolean,
     var isClearingSemantics: Boolean,
-    var properties: SemanticsPropertyReceiver.() -> Unit
+    var properties: SemanticsPropertyReceiver.() -> Unit,
 ) : Modifier.Node(), SemanticsModifierNode {
     override val shouldClearDescendantSemantics: Boolean
         get() = isClearingSemantics
@@ -104,14 +104,14 @@ internal class EmptySemanticsModifier : Modifier.Node(), SemanticsModifierNode {
  */
 fun Modifier.semantics(
     mergeDescendants: Boolean = false,
-    properties: (SemanticsPropertyReceiver.() -> Unit)
+    properties: (SemanticsPropertyReceiver.() -> Unit),
 ): Modifier =
     this then AppendedSemanticsElement(mergeDescendants = mergeDescendants, properties = properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
 internal class AppendedSemanticsElement(
     val mergeDescendants: Boolean,
-    val properties: (SemanticsPropertyReceiver.() -> Unit)
+    val properties: (SemanticsPropertyReceiver.() -> Unit),
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
 
     // This should only ever be called by layout inspector
@@ -126,7 +126,7 @@ internal class AppendedSemanticsElement(
         return CoreSemanticsModifierNode(
             mergeDescendants = mergeDescendants,
             isClearingSemantics = false,
-            properties = properties
+            properties = properties,
         )
     }
 
@@ -197,7 +197,7 @@ internal class ClearAndSetSemanticsElement(val properties: SemanticsPropertyRece
         return CoreSemanticsModifierNode(
             mergeDescendants = false,
             isClearingSemantics = true,
-            properties = properties
+            properties = properties,
         )
     }
 

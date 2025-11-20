@@ -22,18 +22,16 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:foundation:foundation"))
@@ -47,7 +45,6 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Samples for Compose Material integration with Navigation"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

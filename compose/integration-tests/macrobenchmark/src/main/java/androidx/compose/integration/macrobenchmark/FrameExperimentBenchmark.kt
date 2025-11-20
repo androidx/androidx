@@ -67,7 +67,7 @@ class FrameExperimentBenchmark {
                 intent.action = ACTION
                 intent.putExtra("FRAME_MODE", mode.id)
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             device.click(device.displayWidth / 2, device.displayHeight / 2)
             Thread.sleep(4_000) // empirically enough to produce expected frames

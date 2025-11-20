@@ -30,5 +30,5 @@ fun <T : Record> toReadRecordsResponse(
 ): ReadRecordsResponse<T> =
     ReadRecordsResponse(
         records = proto.dataPointList.map { toRecord(it) as T },
-        pageToken = proto.pageToken
+        pageToken = proto.pageToken,
     )

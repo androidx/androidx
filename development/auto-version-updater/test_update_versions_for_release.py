@@ -153,8 +153,6 @@ class TestVersionUpdates(unittest.TestCase):
             "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto"))
         self.assertTrue(should_update_artifact_version_in_library_versions_toml(
             "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-binary"))
-        self.assertTrue(should_update_artifact_version_in_library_versions_toml(
-            "1.1.0-alpha02", "1.1.0-alpha03", "tracing-perfetto-common"))
 
     def test_get_library_constants_in_library_versions_toml(self):
         self.assertEqual(

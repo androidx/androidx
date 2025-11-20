@@ -70,12 +70,9 @@ suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
  * Example usage to delete written steps data in a time range:
  */
 suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
-    timeRangeFilter: TimeRangeFilter,
+    timeRangeFilter: TimeRangeFilter
 ) {
-    deleteRecords(
-        recordType = T::class,
-        timeRangeFilter = timeRangeFilter,
-    )
+    deleteRecords(recordType = T::class, timeRangeFilter = timeRangeFilter)
 }
 
 /**
@@ -93,8 +90,4 @@ suspend inline fun <reified T : Record> HealthConnectClient.deleteRecords(
  */
 suspend inline fun <reified T : Record> HealthConnectClient.readRecord(
     recordId: String
-): ReadRecordResponse<T> =
-    readRecord(
-        recordType = T::class,
-        recordId = recordId,
-    )
+): ReadRecordResponse<T> = readRecord(recordType = T::class, recordId = recordId)

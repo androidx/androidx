@@ -66,6 +66,22 @@ interface SemanticsModifierNode : DelegatableNode {
         get() = false
 
     /**
+     * Whether this semantics modifier node should be taken into account when computing the layout
+     * boundaries of the corresponding [SemanticsNode], which are used for accessibility and
+     * testing. By default, all semantics modifier nodes affect semantics bounds.
+     *
+     * This property should be set to false if this node should be skipped when looking for a
+     * semantics modifier node that will be used to determine the semantics bounds of the layout
+     * node. For example, in a chain of Modifier.outerSemantics(..).padding(..).innerSemantics(..),
+     * the outerSemantics modifier should have [isImportantForBounds] set to false if the semantics
+     * and accessibility bounds for the node should be determined by the bounds inside of the
+     * padding.
+     */
+    @get:Suppress("GetterSetterNames")
+    val isImportantForBounds: Boolean
+        get() = true
+
+    /**
      * Add semantics key/value pairs to the layout node, for use in testing, accessibility, etc.
      *
      * The [SemanticsPropertyReceiver] provides "key = value"-style setters for any

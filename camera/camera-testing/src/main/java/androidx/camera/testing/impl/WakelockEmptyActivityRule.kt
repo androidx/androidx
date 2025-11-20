@@ -64,10 +64,10 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                                     setClassName(
                                         ApplicationProvider.getApplicationContext<Context>()
                                             .packageName,
-                                        EmptyActivity::class.java.name
+                                        EmptyActivity::class.java.name,
                                     )
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
+                                },
                             )
                             ?.also { activity ->
                                 instrumentation.runOnMainSync {
@@ -87,15 +87,17 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                                     }
                                 }
                             }
-                } catch (exception: Exception) {
+                } catch (_: Exception) {
                     Logger.w("WakelockEmptyActivityRule", "Fail to open Activity + wakelock")
                 }
 
-                base.evaluate()
-
-                if (activityRef != null) {
-                    instrumentation.runOnMainSync { activityRef.finish() }
-                    instrumentation.waitForIdleSync()
+                try {
+                    base.evaluate()
+                } finally {
+                    if (activityRef != null) {
+                        instrumentation.runOnMainSync { activityRef.finish() }
+                        instrumentation.waitForIdleSync()
+                    }
                 }
             }
         }

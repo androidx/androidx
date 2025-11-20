@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig.Companion.CAPTURE_REQUEST_ID_STEM
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder.Companion.from
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
@@ -30,44 +31,11 @@ import androidx.camera.core.impl.MutableConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 
-internal const val CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option."
-internal val TEMPLATE_TYPE_OPTION: Config.Option<Int> =
-    Config.Option.create("camera2.captureRequest.templateType", Int::class.javaPrimitiveType!!)
-internal val DEVICE_STATE_CALLBACK_OPTION: Config.Option<CameraDevice.StateCallback> =
-    Config.Option.create(
-        "camera2.cameraDevice.stateCallback",
-        CameraDevice.StateCallback::class.java
-    )
-internal val SESSION_STATE_CALLBACK_OPTION: Config.Option<CameraCaptureSession.StateCallback> =
-    Config.Option.create(
-        "camera2.cameraCaptureSession.stateCallback",
-        CameraCaptureSession.StateCallback::class.java
-    )
-internal val SESSION_CAPTURE_CALLBACK_OPTION: Config.Option<CaptureCallback> =
-    Config.Option.create(
-        "camera2.cameraCaptureSession.captureCallback",
-        CaptureCallback::class.java
-    )
-internal val STREAM_USE_CASE_OPTION: Config.Option<Long> =
-    Config.Option.create(
-        "camera2.cameraCaptureSession.streamUseCase",
-        Long::class.javaPrimitiveType!!
-    )
-internal val STREAM_USE_HINT_OPTION: Config.Option<Long> =
-    Config.Option.create(
-        "camera2.cameraCaptureSession.streamUseHint",
-        Long::class.javaPrimitiveType!!
-    )
-internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> =
-    Config.Option.create("camera2.captureRequest.tag", Any::class.java)
-internal val SESSION_PHYSICAL_CAMERA_ID_OPTION: Config.Option<String> =
-    Config.Option.create("camera2.cameraCaptureSession.physicalCameraId", String::class.java)
-
 /**
  * Internal shared implementation details for camera 2 interop.
  *
- * @constructor Creates a Camera2ImplConfig for reading Camera2 options from the given config.
  * @property config The config that potentially contains Camera2 options.
+ * @constructor Creates a Camera2ImplConfig for reading Camera2 options from the given config.
  */
 @OptIn(ExperimentalCamera2Interop::class)
 public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
@@ -202,7 +170,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         /** Inserts new capture request option with specific [CaptureRequest.Key] setting. */
         public fun <ValueT> setCaptureRequestOption(
             key: CaptureRequest.Key<ValueT>,
-            value: ValueT
+            value: ValueT,
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, value)
@@ -216,7 +184,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         public fun <ValueT> setCaptureRequestOptionWithPriority(
             key: CaptureRequest.Key<ValueT>,
             value: ValueT,
-            priority: Config.OptionPriority
+            priority: Config.OptionPriority,
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, priority, value)
@@ -229,11 +197,22 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
          */
         public fun addAllCaptureRequestOptionsWithPriority(
             values: Map<CaptureRequest.Key<*>, Any>,
-            priority: Config.OptionPriority
+            priority: Config.OptionPriority,
         ): Builder {
             values.forEach { (key, value) ->
                 val opt = key.createCaptureRequestOption()
                 mutableOptionsBundle.insertOption(opt, priority, value)
+            }
+            return this
+        }
+
+        /**
+         * Removes the capture request options in the map with the specified [CaptureRequest.Key].
+         */
+        public fun removeCaptureRequestOptions(keys: List<CaptureRequest.Key<*>>): Builder {
+            keys.forEach { key ->
+                val opt = key.createCaptureRequestOption()
+                mutableOptionsBundle.removeOption(opt)
             }
             return this
         }
@@ -246,7 +225,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
                 mutableOptionsBundle.insertOption(
                     objectOpt,
                     config.getOptionPriority(option),
-                    config.retrieveOption(objectOpt)
+                    config.retrieveOption(objectOpt),
                 )
             }
             return this
@@ -260,6 +239,65 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         override fun build(): Camera2ImplConfig {
             return Camera2ImplConfig(OptionsBundle.from(mutableOptionsBundle))
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public companion object {
+        public const val CAPTURE_REQUEST_ID_STEM: String = "camera2.captureRequest.option."
+
+        @JvmField
+        public val TEMPLATE_TYPE_OPTION: Config.Option<Int> =
+            Config.Option.create(
+                "camera2.captureRequest.templateType",
+                Int::class.javaPrimitiveType!!,
+            )
+
+        @JvmField
+        public val DEVICE_STATE_CALLBACK_OPTION: Config.Option<CameraDevice.StateCallback> =
+            Config.Option.create(
+                "camera2.cameraDevice.stateCallback",
+                CameraDevice.StateCallback::class.java,
+            )
+
+        @JvmField
+        public val SESSION_STATE_CALLBACK_OPTION:
+            Config.Option<CameraCaptureSession.StateCallback> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.stateCallback",
+                CameraCaptureSession.StateCallback::class.java,
+            )
+
+        @JvmField
+        public val SESSION_CAPTURE_CALLBACK_OPTION: Config.Option<CaptureCallback> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.captureCallback",
+                CaptureCallback::class.java,
+            )
+
+        @JvmField
+        public val STREAM_USE_CASE_OPTION: Config.Option<Long> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.streamUseCase",
+                Long::class.javaPrimitiveType!!,
+            )
+
+        @JvmField
+        public val STREAM_USE_HINT_OPTION: Config.Option<Long> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.streamUseHint",
+                Long::class.javaPrimitiveType!!,
+            )
+
+        @JvmField
+        public val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> =
+            Config.Option.create("camera2.captureRequest.tag", Any::class.java)
+
+        @JvmField
+        public val SESSION_PHYSICAL_CAMERA_ID_OPTION: Config.Option<String> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.physicalCameraId",
+                String::class.java,
+            )
     }
 }
 

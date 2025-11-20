@@ -111,7 +111,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
             isFloatingActionButtonDocked = true,
             content = { innerPadding ->
                 LazyColumn(state = state, contentPadding = innerPadding) { items(20) { Card(it) } }
-            }
+            },
         )
     }
 }
@@ -121,7 +121,7 @@ private fun Fab(scrollFraction: ScrollFraction) {
     val fabText = emojiForScrollFraction(scrollFraction.value)
     ExtendedFloatingActionButton(
         text = { Text(fabText, style = MaterialTheme.typography.h5) },
-        onClick = {}
+        onClick = {},
     )
 }
 
@@ -137,7 +137,7 @@ private fun Card(index: Int) {
             .fillMaxWidth()
             .height(150.dp)
             .background(shapeColor, RoundedCornerShape(10.dp)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text("Card ${index + 1}", color = textColor)
     }

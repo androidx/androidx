@@ -16,17 +16,25 @@
 
 package androidx.pdf.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.pdf.PdfRendererPreV
 import android.graphics.pdf.RenderParams
+import android.graphics.pdf.component.PdfAnnotation
+import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
 import android.graphics.pdf.content.PdfPageLinkContent
 import android.graphics.pdf.content.PdfPageTextContent
+import android.graphics.pdf.models.FormEditRecord
+import android.graphics.pdf.models.FormWidgetInfo
 import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
 import android.os.Build
+import android.util.Pair
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.pdf.utils.getTransformationMatrix
@@ -55,7 +63,7 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
         left: Int,
         top: Int,
         scaledPageWidth: Int,
-        scaledPageHeight: Int
+        scaledPageHeight: Int,
     ) {
         val transformationMatrix =
             getTransformationMatrix(
@@ -64,7 +72,7 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
                 scaledPageWidth.toFloat(),
                 scaledPageHeight.toFloat(),
                 width,
-                height
+                height,
             )
         page.render(bitmap, null, transformationMatrix, getRenderParams())
     }
@@ -75,6 +83,24 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
 
     override fun getPageImageContents(): List<PdfPageImageContent> {
         return page.imageContents
+    }
+
+    override fun getFormWidgetInfos(): List<FormWidgetInfo> {
+        return page.formWidgetInfos
+    }
+
+    @SuppressLint("WrongConstant")
+    override fun getFormWidgetInfos(types: IntArray): List<FormWidgetInfo> {
+        return page.getFormWidgetInfos(types)
+    }
+
+    @SuppressLint("WrongConstant")
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    override fun getTopPageObjectAtPosition(
+        point: PointF,
+        types: IntArray,
+    ): Pair<Int, PdfPageObject>? {
+        return page.getTopPageObjectAtPosition(point, types)
     }
 
     override fun selectPageText(start: SelectionBoundary, stop: SelectionBoundary): PageSelection? {
@@ -102,7 +128,51 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
             .build()
     }
 
+    override fun applyEdit(editRecord: FormEditRecord): List<Rect> {
+        return page.applyEdit(editRecord)
+    }
+
     override fun close() {
         page.close()
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun getPageObjects(): List<Pair<Int, PdfPageObject>> {
+        return page.pageObjects
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun addPageObject(pageObject: PdfPageObject): Int {
+        return page.addPageObject(pageObject)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun updatePageObject(objectId: Int, pageObject: PdfPageObject): Boolean {
+        return page.updatePageObject(objectId, pageObject)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun removePageObject(objectId: Int) {
+        page.removePageObject(objectId)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun getPageAnnotations(): List<Pair<Int, PdfAnnotation>> {
+        return page.pageAnnotations
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun addPageAnnotation(annotation: PdfAnnotation): Int {
+        return page.addPageAnnotation(annotation)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun updatePageAnnotation(annotationId: Int, annotation: PdfAnnotation): Boolean {
+        return page.updatePageAnnotation(annotationId, annotation)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun removePageAnnotation(annotationId: Int) {
+        page.removePageAnnotation(annotationId)
     }
 }

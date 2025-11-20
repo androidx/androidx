@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
@@ -46,19 +45,19 @@ class MetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class CameraMetadataTest {
     @Test
     fun cameraMetadataIsNotEqual() {
         val metadata1 =
             FakeCameraMetadata(
                 mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42)
+                mapOf(FakeMetadata.TEST_KEY to 42),
             )
         val metadata2 =
             FakeCameraMetadata(
                 mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42)
+                mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata1).isNotEqualTo(metadata2)
@@ -69,7 +68,7 @@ class CameraMetadataTest {
         val metadata =
             FakeCameraMetadata(
                 mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-                mapOf(FakeMetadata.TEST_KEY to 42)
+                mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
@@ -81,7 +80,7 @@ class CameraMetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class RequestMetadataTest {
 
     @Test
@@ -93,8 +92,8 @@ class RequestMetadataTest {
                     Request(
                         streams = listOf(),
                         parameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
-                        extras = mapOf(FakeMetadata.TEST_KEY to 42)
-                    )
+                        extras = mapOf(FakeMetadata.TEST_KEY to 42),
+                    ),
             )
 
         assertThat(requestMetadata[CaptureRequest.JPEG_QUALITY]).isEqualTo(95)
@@ -110,14 +109,14 @@ class RequestMetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class FrameMetadataTest {
     @Test
     fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
         val metadata =
             FakeFrameMetadata(
                 resultMetadata = mapOf(CaptureResult.JPEG_QUALITY to 95),
-                extraResultMetadata = mapOf(FakeMetadata.TEST_KEY to 42)
+                extraResultMetadata = mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
@@ -129,12 +128,12 @@ class FrameMetadataTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class MetadataTransformTest {
     private val metadata =
         FakeCameraMetadata(
             mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
-            mapOf(FakeMetadata.TEST_KEY to 42)
+            mapOf(FakeMetadata.TEST_KEY to 42),
         )
 
     private val requestMetadata =
@@ -144,8 +143,8 @@ class MetadataTransformTest {
                 Request(
                     streams = listOf(),
                     parameters = mapOf(CaptureRequest.JPEG_QUALITY to 20),
-                    extras = mapOf(FakeMetadata.TEST_KEY to 42)
-                )
+                    extras = mapOf(FakeMetadata.TEST_KEY to 42),
+                ),
         )
 
     private val fakeFrameInfo = FakeFrameInfo(requestMetadata = requestMetadata)
@@ -168,7 +167,7 @@ class MetadataTransformTest {
                         override fun computeOverridesFor(
                             result: FrameInfo,
                             camera: CameraId,
-                            related: List<FrameInfo?>
+                            related: List<FrameInfo?>,
                         ): Map<*, Any?> {
                             return mapOf(FakeMetadata.TEST_KEY to result.frameNumber.value)
                         }
@@ -178,7 +177,7 @@ class MetadataTransformTest {
             transform.transformFn.computeOverridesFor(
                 FakeFrameInfo(metadata = FakeFrameMetadata(frameNumber = FrameNumber(128))),
                 CameraId("Fake"),
-                listOf()
+                listOf(),
             )
 
         assertThat(overrides).hasSize(1)
@@ -194,7 +193,7 @@ class MetadataTransformTest {
                         override fun computeOverridesFor(
                             result: FrameInfo,
                             camera: CameraId,
-                            related: List<FrameInfo?>
+                            related: List<FrameInfo?>,
                         ): Map<*, Any?> {
                             return mapOf(FakeMetadata.TEST_KEY to metadata[FakeMetadata.TEST_KEY])
                         }

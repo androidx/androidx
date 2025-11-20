@@ -36,10 +36,7 @@ configurations {
     neededForGradleTestKit {
         canBeResolved = true
     }
-    neededForGradleTestKitAgp80 {
-        canBeResolved = true
-    }
-    neededForGradleTestKitAgp81 {
+    neededForGradleTestKitAgp82 {
         canBeResolved = true
     }
 }
@@ -49,7 +46,7 @@ dependencies {
     compileOnly(libs.kotlinGradlePlugin)
 
     implementation(gradleApi())
-    implementation("com.google.protobuf:protobuf-java:3.22.3")
+    implementation("com.google.protobuf:protobuf-java:3.25.5")
     implementation(libs.agpTestingPlatformCoreProto)
 
     testImplementation(gradleTestKit())
@@ -60,22 +57,16 @@ dependencies {
 
     neededForGradleTestKit(libs.androidGradlePlugin)
     neededForGradleTestKit(libs.kotlinGradlePlugin)
-    neededForGradleTestKit(libs.kotlinStdlib)
 
-    neededForGradleTestKitAgp80("com.android.tools.build:gradle:8.0.0")
-    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358")
-    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358:linux")
-    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358:osx")
-    neededForGradleTestKitAgp81("com.android.tools.build:gradle:8.1.0")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469:linux")
-    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469:osx")
+    neededForGradleTestKitAgp82("com.android.tools.build:gradle:8.2.1")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469:linux")
+    neededForGradleTestKitAgp82("com.android.tools.build:aapt2:8.2.1-10154469:osx")
 }
 
 tasks.withType(Test).configureEach {
     it.dependsOn(configurations.neededForGradleTestKit)
-    it.dependsOn(configurations.neededForGradleTestKitAgp80)
-    it.dependsOn(configurations.neededForGradleTestKitAgp81)
+    it.dependsOn(configurations.neededForGradleTestKitAgp82)
 }
 
 gradlePlugin {
@@ -108,10 +99,5 @@ androidx {
 
 tasks.withType(Test).configureEach { test ->
     test.maxParallelForks = 2
-    test.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }

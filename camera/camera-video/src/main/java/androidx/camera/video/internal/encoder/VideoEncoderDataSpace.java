@@ -47,16 +47,6 @@ public abstract class VideoEncoderDataSpace {
                     VIDEO_COLOR_RANGE_UNSPECIFIED);
 
     /**
-     * Color standard BT.601 625 with SDR video transfer function.
-     *
-     * <p>This mirrors the data space from {@link android.hardware.DataSpace#DATASPACE_BT601_625}.
-     */
-    public static final VideoEncoderDataSpace ENCODER_DATA_SPACE_BT601_625 =
-            create(MediaFormat.COLOR_STANDARD_BT601_PAL,
-                    MediaFormat.COLOR_TRANSFER_SDR_VIDEO,
-                    MediaFormat.COLOR_RANGE_LIMITED);
-
-    /**
      * Color standard BT.709 with SDR video transfer function.
      *
      * <p>This mirrors the data space from {@link android.hardware.DataSpace#DATASPACE_BT709}.
@@ -65,6 +55,21 @@ public abstract class VideoEncoderDataSpace {
             create(MediaFormat.COLOR_STANDARD_BT709,
                     MediaFormat.COLOR_TRANSFER_SDR_VIDEO,
                     MediaFormat.COLOR_RANGE_LIMITED);
+
+    /**
+     * Data space with sRGB gamma encoding.
+     *
+     * <p>This references the data space from {@link android.hardware.DataSpace#DATASPACE_SRGB}.
+     *
+     * <p>Use {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO} as the transfer function for sRGB. In
+     * theory, {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO} is different from the sRGB transfer
+     * function. But in practice, both transfer functions approximate the "gamma 2.2" power
+     * function. In most Android displays, sRGB and BT.709 are treated the same.
+     */
+    public static final VideoEncoderDataSpace ENCODER_DATA_SPACE_SRGB =
+            create(MediaFormat.COLOR_STANDARD_BT709,
+                    MediaFormat.COLOR_TRANSFER_SDR_VIDEO,
+                    MediaFormat.COLOR_RANGE_FULL);
 
     /**
      * Color standard BT.2020 with HLG transfer function.

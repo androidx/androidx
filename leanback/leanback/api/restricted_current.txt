@@ -1469,7 +1469,7 @@ package androidx.leanback.system {
 
 package androidx.leanback.transition {
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FadeAndShortSlide extends android.transition.Visibility {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FadeAndShortSlide extends android.transition.Visibility {
     ctor public FadeAndShortSlide();
     ctor public FadeAndShortSlide(android.content.Context!, android.util.AttributeSet!);
     ctor public FadeAndShortSlide(int);
@@ -1483,12 +1483,12 @@ package androidx.leanback.transition {
     method public static Object! loadTitleOutTransition(android.content.Context!);
   }
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ParallaxTransition extends android.transition.Visibility {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ParallaxTransition extends android.transition.Visibility {
     ctor public ParallaxTransition();
     ctor public ParallaxTransition(android.content.Context!, android.util.AttributeSet!);
   }
 
-  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SlideNoPropagation extends android.transition.Slide {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SlideNoPropagation extends android.transition.Slide {
     ctor public SlideNoPropagation();
     ctor public SlideNoPropagation(android.content.Context!, android.util.AttributeSet!);
     ctor public SlideNoPropagation(int);

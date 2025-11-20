@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -29,7 +29,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))

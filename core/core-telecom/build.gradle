@@ -26,12 +26,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     // core-telecom dependencies
-    api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
     implementation("androidx.annotation:annotation:1.9.0") // OptIn, RestrictTo, etc.
     implementation("androidx.core:core:1.13.1")
@@ -40,7 +39,6 @@ dependencies {
     // Test dependencies
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(libs.androidx.annotation)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -48,10 +46,15 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-test:2.2.10"
 }
 
 android {
+    compileSdk = 36
+    compileSdkMinor = 1
     namespace = "androidx.core.telecom"
+    compileSdk = 36
+    compileSdkMinor = 1
     buildFeatures {
         aidl = true
     }

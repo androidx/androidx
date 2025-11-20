@@ -28,25 +28,36 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ThemeSystemBarsTest {
-
-    @SdkSuppress(maxSdkVersion = 22)
     @Test
-    fun statusBar_dark_before_supported() {
+    fun statusBar_light() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
-
         val insetsController =
             scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
+        val lightStatusOnCreate = scenario.withActivity { isLightStatusOnCreate }
 
-        assertThat(insetsController.isAppearanceLightStatusBars).isFalse()
+        assertThat(insetsController.isAppearanceLightStatusBars).isTrue()
+        assertThat(lightStatusOnCreate).isTrue()
 
         scenario.close()
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun statusBar_light() {
-        val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
+    fun statusBar_dark() {
+        val scenario = ActivityScenario.launch(DarkSystemBarsActivity::class.java)
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
+        val lightStatusOnCreate = scenario.withActivity { isLightStatusOnCreate }
 
+        assertThat(insetsController.isAppearanceLightStatusBars).isFalse()
+        assertThat(lightStatusOnCreate).isFalse()
+
+        scenario.close()
+    }
+
+    @SdkSuppress(minSdkVersion = 27)
+    @Test
+    fun statusBar_light_not_affected_by_navigationBar() {
+        val scenario = ActivityScenario.launch(LightStatusBarDarkNavigationBarActivity::class.java)
         val insetsController =
             scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
@@ -55,28 +66,16 @@ class ThemeSystemBarsTest {
         scenario.close()
     }
 
-    @SdkSuppress(minSdkVersion = 23)
-    @Test
-    fun statusBar_dark() {
-        val scenario = ActivityScenario.launch(DarkSystemBarsActivity::class.java)
-
-        val insetsController =
-            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
-
-        assertThat(insetsController.isAppearanceLightStatusBars).isFalse()
-
-        scenario.close()
-    }
-
     @SdkSuppress(maxSdkVersion = 26)
     @Test
     fun navigationBar_dark_before_supported() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
-
         val insetsController =
             scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
+        val lightNavigationOnCreate = scenario.withActivity { isLightNavigationOnCreate }
 
         assertThat(insetsController.isAppearanceLightNavigationBars).isFalse()
+        assertThat(lightNavigationOnCreate).isFalse()
 
         scenario.close()
     }
@@ -85,7 +84,20 @@ class ThemeSystemBarsTest {
     @Test
     fun navigationBar_light() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
+        val lightNavigationOnCreate = scenario.withActivity { isLightNavigationOnCreate }
 
+        assertThat(insetsController.isAppearanceLightNavigationBars).isTrue()
+        assertThat(lightNavigationOnCreate).isTrue()
+
+        scenario.close()
+    }
+
+    @SdkSuppress(minSdkVersion = 27)
+    @Test
+    fun navigationBar_light_not_affected_by_statusBar() {
+        val scenario = ActivityScenario.launch(LightNavigationBarDarkStatusBarActivity::class.java)
         val insetsController =
             scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
@@ -98,11 +110,12 @@ class ThemeSystemBarsTest {
     @Test
     fun navigationBar_dark() {
         val scenario = ActivityScenario.launch(DarkSystemBarsActivity::class.java)
-
         val insetsController =
             scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
+        val lightNavigationOnCreate = scenario.withActivity { isLightNavigationOnCreate }
 
         assertThat(insetsController.isAppearanceLightNavigationBars).isFalse()
+        assertThat(lightNavigationOnCreate).isFalse()
 
         scenario.close()
     }

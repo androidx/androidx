@@ -23,8 +23,8 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -33,9 +33,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm {
-        withJava()
-    }
+    jvm()
     mac()
     linux()
     ios()
@@ -62,22 +60,13 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlibCommon)
-                api(libs.kotlinTestCommon)
-            }
-        }
-
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestAnnotationsCommon)
+                api(libs.kotlinTest)
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinTest)
                 implementation(libs.guavaAndroid)
                 implementation(libs.junit)
             }
@@ -100,32 +89,13 @@ androidXMultiplatform {
 
         webMain {
             dependsOn(nonJvmMain)
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
         }
         webTest {
             dependsOn(nonJvmTest)
             dependencies {
-                // https://youtrack.jetbrains.com/issue/KT-71032
-                implementation(libs.kotlinTestForWasmTests)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
             }
-        }
-
-        jsMain {
-            dependsOn(webMain)
-        }
-        jsTest {
-            dependsOn(webTest)
-        }
-
-        wasmJsMain {
-            dependsOn(webMain)
-        }
-        wasmJsTest {
-            dependsOn(webTest)
         }
 
         nativeMain {
@@ -137,19 +107,12 @@ androidXMultiplatform {
 
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
         }
     }
 }
@@ -158,5 +121,5 @@ androidx {
     legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
     type = SoftwareType.SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS // Used to diff against Google Truth
     doNotDocumentReason = "Not shipped externally"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

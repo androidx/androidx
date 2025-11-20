@@ -30,7 +30,7 @@ internal actual fun FontSynthesis.synthesizeTypeface(
     typeface: Any,
     font: Font,
     requestedWeight: FontWeight,
-    requestedStyle: FontStyle
+    requestedStyle: FontStyle,
 ): Any {
     if (typeface !is Typeface) return typeface
 
@@ -47,7 +47,7 @@ internal actual fun FontSynthesis.synthesizeTypeface(
         val targetStyle =
             getAndroidTypefaceStyle(
                 isBold = synthesizeWeight,
-                isItalic = synthesizeStyle && requestedStyle == FontStyle.Italic
+                isItalic = synthesizeStyle && requestedStyle == FontStyle.Italic,
             )
         Typeface.create(typeface, targetStyle)
     } else {

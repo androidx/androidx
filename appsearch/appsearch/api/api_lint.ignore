@@ -1,5 +1,19 @@
 // Baseline format: 1.0
 NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyDocumentArray(String):
-    Return type of method androidx.appsearch.app.GenericDocument.getPropertyDocumentArray(String) is a nullable collection (`androidx.appsearch.app.GenericDocument[]`); must be non-null
+    Return type of method androidx.appsearch.app.GenericDocument.getPropertyDocumentArray(String) uses a nullable collection (`androidx.appsearch.app.GenericDocument[]`); must be non-null
 NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyStringArray(String):
-    Return type of method androidx.appsearch.app.GenericDocument.getPropertyStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
+    Return type of method androidx.appsearch.app.GenericDocument.getPropertyStringArray(String) uses a nullable collection (`java.lang.String[]`); must be non-null
+
+
+TypeParameterName: androidx.appsearch.app.AppSearchBatchResult:
+    Invalid type parameter name "KeyType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.appsearch.app.AppSearchBatchResult.Builder:
+    Invalid type parameter name "KeyType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.appsearch.app.AppSearchResult:
+    Invalid type parameter name "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.appsearch.app.AppSearchResult#newFailedResult(int, String):
+    Invalid type parameter name "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.appsearch.app.AppSearchResult#newSuccessfulResult(ValueType):
+    Invalid type parameter name "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.appsearch.app.GenericDocument.Builder:
+    Invalid type parameter name "BuilderType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

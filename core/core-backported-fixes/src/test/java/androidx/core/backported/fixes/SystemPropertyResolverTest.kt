@@ -25,6 +25,7 @@ import org.robolectric.shadows.ShadowSystemProperties
 
 /** Unit tests for [SystemPropertyResolver]. */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SystemPropertyResolverTest {
 
     @Test
@@ -56,7 +57,7 @@ class SystemPropertyResolverTest {
         ShadowSystemProperties.override(
             ALIAS_BITSET_PROP_NAME,
             // java.lang.Long.parseLong("-9223372036854775808").toHexString()) = 8000000000000000
-            "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9223372036854775808"
+            "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9223372036854775808",
         )
         ShadowBuild.reset()
         val resolver = SystemPropertyResolver()
@@ -68,5 +69,29 @@ class SystemPropertyResolverTest {
         ShadowBuild.reset()
         val resolver = SystemPropertyResolver()
         assertThat(resolver.aliases).containsExactly(3)
+    }
+
+    @Test
+    fun getStatus_Null() {
+        ShadowSystemProperties.override(ALIAS_BITSET_PROP_NAME, "10") // 1,3
+        ShadowBuild.reset()
+        val resolver = SystemPropertyResolver()
+        assertThat(resolver.getStatus(KnownIssue(123456, null))).isEqualTo(Status.Unknown)
+    }
+
+    @Test
+    fun getStatus_Fixed() {
+        ShadowSystemProperties.override(ALIAS_BITSET_PROP_NAME, "10") // 1,3
+        ShadowBuild.reset()
+        val resolver = SystemPropertyResolver()
+        assertThat(resolver.getStatus(KnownIssue(123456, 1))).isEqualTo(Status.Fixed)
+    }
+
+    @Test
+    fun getStatus_NotFixed() {
+        ShadowSystemProperties.override(ALIAS_BITSET_PROP_NAME, "10") // 1,3
+        ShadowBuild.reset()
+        val resolver = SystemPropertyResolver()
+        assertThat(resolver.getStatus(KnownIssue(123456, 5))).isEqualTo(Status.NotFixed)
     }
 }

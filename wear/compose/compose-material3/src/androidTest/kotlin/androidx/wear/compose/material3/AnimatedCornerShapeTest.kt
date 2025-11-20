@@ -27,11 +27,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class AnimatedCornerShapeTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun convertsRoundedCornerShape() {
@@ -41,7 +42,7 @@ class AnimatedCornerShapeTest {
             roundedCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -73,7 +74,7 @@ class AnimatedCornerShapeTest {
             cutCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -105,7 +106,7 @@ class AnimatedCornerShapeTest {
             roundedCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -137,7 +138,7 @@ class AnimatedCornerShapeTest {
             cutCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()

@@ -30,7 +30,7 @@ import kotlin.math.sqrt
  * @param z Z component of the vector.
  * @param w W component of the vector.
  */
-internal class Vector4
+public class Vector4
 @JvmOverloads
 constructor(
     public val x: Float = 0F,
@@ -63,20 +63,29 @@ constructor(
     /** Get a new vector multiplied by a scalar amount. */
     public operator fun times(c: Float): Vector4 = Vector4(x * c, y * c, z * c, w * c)
 
-    /** Returns a new vector with the product of this vector and the [other] vector. */
-    public operator fun times(other: Vector4): Vector4 =
+    /**
+     * Returns a new vector with each component of this vector multiplied by each corresponding
+     * component of the [other] vector.
+     */
+    public fun scale(other: Vector4): Vector4 =
         Vector4(x * other.x, y * other.y, z * other.z, w * other.w)
 
     /** Returns a new vector with this vector divided by a scalar amount. */
     public operator fun div(c: Float): Vector4 = Vector4(x / c, y / c, z / c, w / c)
 
-    /** Returns a new vector with this vector divided by the [other] vector. */
-    public operator fun div(other: Vector4): Vector4 =
-        Vector4(x / other.x, y / other.y, z / other.z, w / other.w)
-
     /** Returns the dot product of this vector and the [other] vector. */
     public infix fun dot(other: Vector4): Float =
         x * other.x + y * other.y + z * other.z + w * other.w
+
+    /** Returns the component-wise multiplicative inverse of this vector. */
+    public fun inverse(): Vector4 {
+        if (this.x == 0f || this.y == 0f || this.z == 0f || this.w == 0f) {
+            throw IllegalArgumentException(
+                "Cannot take the multiplicative inverse if any component of the Vector4 is zero."
+            )
+        }
+        return Vector4(1 / this.x, 1 / this.y, 1 / this.z, 1 / this.w)
+    }
 
     /** Returns the normalized version of this vector. */
     public fun toNormalized(): Vector4 {
@@ -85,7 +94,10 @@ constructor(
         return Vector4(x * norm, y * norm, z * norm, w * norm)
     }
 
-    /** Returns a new vector with the values clamped between [min] and [max] vectors. */
+    /**
+     * Returns a new vector with the each component of this vector clamped between corresponding
+     * components of [min] and [max] vectors.
+     */
     public fun clamp(min: Vector4, max: Vector4): Vector4 {
         val clampedX = clamp(x, min.x, max.x)
         val clampedY = clamp(y, min.y, max.y)
@@ -112,7 +124,13 @@ constructor(
         return this.x == other.x && this.y == other.y && this.z == other.z && this.w == other.w
     }
 
-    override fun hashCode(): Int = 31 * x.hashCode() + y.hashCode() + z.hashCode() + w.hashCode()
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        result = 31 * result + z.hashCode()
+        result = 31 * result + w.hashCode()
+        return result
+    }
 
     override fun toString(): String = "[x=$x, y=$y, z=$z, w=$w]"
 

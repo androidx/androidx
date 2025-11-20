@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -39,13 +38,11 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    js()
+    wasmJs()
+    mingwX64()
     androidLibrary {
         namespace = "androidx.paging.testing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -53,7 +50,6 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 implementation(project(":paging:paging-common"))
             }
         }
@@ -68,6 +64,17 @@ androidXMultiplatform {
 
         androidMain {
             dependsOn(commonJvmMain)
+        }
+
+        nonJvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
         }
 
         commonTest {
@@ -90,41 +97,32 @@ androidXMultiplatform {
             dependsOn(commonJvmTest)
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonJvmTest)
             dependencies {
                 implementation(libs.testRunner)
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
+        webTest {
+            dependsOn(commonTest)
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
             dependencies {
-                implementation(libs.atomicFu)
+                implementation(libs.kotlinXw3c)
             }
-        }
-        darwinMain {
-            dependsOn(nativeMain)
-        }
-        linuxMain {
-            dependsOn(nativeMain)
         }
 
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX ||
-                            konanTargetFamily == Family.IOS ||
-                            konanTargetFamily == Family.WATCHOS ||
-                            konanTargetFamily == Family.TVOS) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
+                    dependsOn(nonJvmMain)
                 }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -135,6 +133,5 @@ androidx {
     type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 

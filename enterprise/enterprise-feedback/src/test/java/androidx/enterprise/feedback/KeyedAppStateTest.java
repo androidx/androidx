@@ -42,8 +42,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 /** Tests {@link KeyedAppState}. */
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
-@Config(minSdk = 21)
 public class KeyedAppStateTest {
 
     private static final String KEY = "key";

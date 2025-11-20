@@ -136,10 +136,10 @@ class ImmutableVecTest {
     }
 
     @Test
-    fun asImmutable_returnsThis() {
+    fun toImmutable_returnsThis() {
         val vec = ImmutableVec(1f, 2f)
 
-        assertThat(vec.asImmutable()).isSameInstanceAs(vec)
+        assertThat(vec.toImmutable()).isSameInstanceAs(vec)
     }
 
     @Test
@@ -148,48 +148,49 @@ class ImmutableVecTest {
     }
 
     @Test
-    fun fromDirectionAndMagnitude_returnsCorrectValue() {
+    fun fromDirectionInDegreesAndMagnitude_returnsCorrectValue() {
         assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(0f, 5f).isAlmostEqual(ImmutableVec(5f, 0f))
-            )
-            .isTrue()
-        assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(90f), 5f)
-                    .isAlmostEqual(ImmutableVec(0f, 5f))
-            )
-            .isTrue()
-        assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(180f), 5f)
-                    .isAlmostEqual(ImmutableVec(-5f, 0f))
-            )
-            .isTrue()
-        assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(270f), 5f)
-                    .isAlmostEqual(ImmutableVec(0f, -5f))
-            )
-            .isTrue()
-        assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(360f), 5f)
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(0f, 5f)
                     .isAlmostEqual(ImmutableVec(5f, 0f))
             )
             .isTrue()
         assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(45f), sqrt(50f))
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(90f, 5f)
+                    .isAlmostEqual(ImmutableVec(0f, 5f))
+            )
+            .isTrue()
+        assertThat(
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(180f, 5f)
+                    .isAlmostEqual(ImmutableVec(-5f, 0f))
+            )
+            .isTrue()
+        assertThat(
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(270f, 5f)
+                    .isAlmostEqual(ImmutableVec(0f, -5f))
+            )
+            .isTrue()
+        assertThat(
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(360f, 5f)
+                    .isAlmostEqual(ImmutableVec(5f, 0f))
+            )
+            .isTrue()
+        assertThat(
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(45f, sqrt(50f))
                     .isAlmostEqual(ImmutableVec(5f, 5f))
             )
             .isTrue()
         assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(135f), sqrt(50f))
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(135f, sqrt(50f))
                     .isAlmostEqual(ImmutableVec(-5f, 5f))
             )
             .isTrue()
         assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(225f), sqrt(50f))
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(225f, sqrt(50f))
                     .isAlmostEqual(ImmutableVec(-5f, -5f))
             )
             .isTrue()
         assertThat(
-                ImmutableVec.fromDirectionAndMagnitude(Angle.degreesToRadians(315f), sqrt(50f))
+                ImmutableVec.fromDirectionInDegreesAndMagnitude(315f, sqrt(50f))
                     .isAlmostEqual(ImmutableVec(5f, -5f))
             )
             .isTrue()

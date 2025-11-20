@@ -16,12 +16,11 @@
 
 package androidx.build
 
-import java.io.File
 import java.io.FileNotFoundException
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -34,36 +33,24 @@ import org.gradle.api.tasks.TaskAction
  * double-checks that all expected artifacts were built
  */
 @CacheableTask
-open class BuildOnServerTask : DefaultTask() {
+abstract class BuildOnServerTask : DefaultTask() {
 
     init {
         group = "Build"
         description = "Builds all of the Androidx libraries and documentation"
     }
 
-    @Internal lateinit var distributionDirectory: File
-
-    @InputFiles
-    @PathSensitive(PathSensitivity.RELATIVE)
-    fun getRequiredFiles(): List<File> {
-        return mutableListOf(
-                "androidx_aggregate_build_info.txt",
-            )
-            .map { fileName -> File(distributionDirectory, fileName) }
-    }
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val aggregateBuildInfoFile: RegularFileProperty
 
     @TaskAction
     fun checkAllBuildOutputs() {
-        val missingFiles = mutableListOf<String>()
-        getRequiredFiles().forEach { file ->
-            if (!file.exists()) {
-                missingFiles.add(file.path)
-            }
-        }
-
-        if (missingFiles.isNotEmpty()) {
-            val missingFileString = missingFiles.reduce { acc, s -> "$acc, $s" }
-            throw FileNotFoundException("buildOnServer required output missing: $missingFileString")
+        if (!aggregateBuildInfoFile.get().asFile.exists()) {
+            throw FileNotFoundException(
+                "buildOnServer required output missing: " +
+                    "${aggregateBuildInfoFile.get().asFile.path}"
+            )
         }
     }
 }

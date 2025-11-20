@@ -23,7 +23,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import androidx.camera.integration.uiwidgets.R
 import androidx.camera.integration.uiwidgets.databinding.ActivityViewpagerBinding
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -57,6 +59,11 @@ class ViewPagerActivity : BaseActivity() {
         binding = ActivityViewpagerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        EdgeToEdgeUtil.enableEdgeToEdge(
+            activity = this,
+            viewIdsTopPaddingRequired = listOf(R.id.root_layout),
+        )
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (allPermissionsGranted()) {
                 setupAdapter()
@@ -64,7 +71,7 @@ class ViewPagerActivity : BaseActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     REQUIRED_PERMISSIONS,
-                    REQUEST_CODE_PERMISSIONS
+                    REQUEST_CODE_PERMISSIONS,
                 )
             }
         } else {
@@ -86,7 +93,7 @@ class ViewPagerActivity : BaseActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 

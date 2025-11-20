@@ -23,10 +23,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.macrobenchmark.common.baselineprofile.BaselineProfileScreens
 
@@ -38,13 +41,23 @@ class BaselineActivity : ComponentActivity() {
                 AppScaffold {
                     val pagerState = rememberPagerState(pageCount = { BaselineProfileScreens.size })
 
-                    HorizontalPagerScaffold(pagerState = pagerState) { page ->
-                        ScreenScaffold {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                BaselineProfileScreens[page].content.invoke(this)
+                    HorizontalPagerScaffold(pagerState = pagerState) {
+                        HorizontalPager(
+                            state = pagerState,
+                            flingBehavior =
+                                PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                                    state = pagerState
+                                ),
+                        ) { page ->
+                            AnimatedPage(pageIndex = page, pagerState = pagerState) {
+                                ScreenScaffold {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        BaselineProfileScreens[page].content.invoke(this)
+                                    }
+                                }
                             }
                         }
                     }

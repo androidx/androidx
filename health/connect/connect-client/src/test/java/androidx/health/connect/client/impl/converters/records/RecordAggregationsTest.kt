@@ -24,7 +24,6 @@ import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -49,9 +48,9 @@ class RecordAggregationsTest {
                             startZoneOffset = null,
                             endTime = END_TIME,
                             endZoneOffset = null,
-                            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                            metadata = Metadata.manualEntry(),
                         )
-                    )
+                    ),
             )
 
         assertEquals(1.kilocalories, total)
@@ -68,7 +67,7 @@ class RecordAggregationsTest {
                             basalMetabolicRate = 1.kilocaloriesPerDay,
                             time = START_TIME,
                             zoneOffset = null,
-                            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                            metadata = Metadata.manualEntry(),
                         )
                     ),
                 fieldName = "bmr",
@@ -90,7 +89,7 @@ class RecordAggregationsTest {
                             startZoneOffset = null,
                             endTime = END_TIME,
                             endZoneOffset = null,
-                            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                            metadata = Metadata.manualEntry(),
                         )
                     ),
             )
@@ -111,7 +110,7 @@ class RecordAggregationsTest {
                             startZoneOffset = null,
                             endTime = END_TIME,
                             endZoneOffset = null,
-                            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                            metadata = Metadata.manualEntry(),
                         )
                     ),
             )
@@ -132,7 +131,7 @@ class RecordAggregationsTest {
                             startZoneOffset = null,
                             endTime = END_TIME,
                             endZoneOffset = null,
-                            metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                            metadata = Metadata.manualEntry(),
                         )
                     ),
             )

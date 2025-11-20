@@ -39,7 +39,7 @@ import java.time.Instant
  */
 public class DynamicDataPair<T : DynamicType>(
     public val key: DynamicDataKey<T>,
-    public val value: DynamicDataValue<T>
+    public val value: DynamicDataValue<T>,
 ) {
     public fun asPair(): Pair<DynamicDataKey<T>, DynamicDataValue<T>> = Pair(key, value)
 }

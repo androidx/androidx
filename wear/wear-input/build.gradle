@@ -26,19 +26,17 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
-    api(libs.kotlinStdlib)
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
     testImplementation(project(":wear:wear-input-testing"))
@@ -51,9 +49,6 @@ android {
     defaultConfig {
         minSdk = 25
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.input"
 }
 
@@ -65,4 +60,5 @@ androidx {
     description = "Android Wear Support Input"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:wear-input-samples"))
+    enableRobolectric()
 }

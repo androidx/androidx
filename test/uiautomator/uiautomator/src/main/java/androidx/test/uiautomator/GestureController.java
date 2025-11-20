@@ -82,11 +82,9 @@ class GestureController {
     private GestureController(UiDevice device) {
         mDevice = device;
 
-        // TODO(b/392953049): The XR feature string is deprecated and being replaced but the
-        // replacement does not yet exist. Update when ready.
         Instrumentation instrumentation = device.getInstrumentation();
         Context context = instrumentation.getContext();
-        if (context.getPackageManager().hasSystemFeature("android.software.xr.immersive")) {
+        if (context.getPackageManager().hasSystemFeature("android.software.xr.api.spatial")) {
             try {
                 // TODO(b/392961976): Replace this reflection with usage of xr-stubs once @TestApi
                 // stubs are flowing into androidx.

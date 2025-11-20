@@ -1,0 +1,21 @@
+{
+  "projectPath": ":javascriptengine:javascriptengine",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.code.findbugs:jsr305",
+        "resolvedVersion": "3.0.2"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

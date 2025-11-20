@@ -72,7 +72,6 @@ import java.util.Map;
  * Service invoked by {@link JobScheduler} to run work tasks.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;

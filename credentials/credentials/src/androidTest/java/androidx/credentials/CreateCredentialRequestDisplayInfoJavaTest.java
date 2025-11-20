@@ -103,7 +103,7 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
     public void constructWithOptionalParameters_success() {
         CharSequence expectedUserId = "userId";
         CharSequence expectedDisplayName = "displayName";
-        Icon expectedIcon = Icon.createWithResource(mContext, R.drawable.ic_passkey);
+        Icon expectedIcon = Icon.createWithResource(mContext, R.drawable.adx_ic_passkey);
         String expectedDefaultProvider = "defaultProvider";
 
         CreateCredentialRequest.DisplayInfo displayInfo =
@@ -131,7 +131,7 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
         assertThat(displayInfo.getUserId()).isEqualTo(expectedUserId);
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getCredentialTypeIcon().getResId()).isEqualTo(
-                R.drawable.ic_password);
+                R.drawable.adx_ic_password);
         assertThat(displayInfo.getPreferDefaultProvider()).isNull();
     }
 }

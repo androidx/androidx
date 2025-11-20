@@ -13,6 +13,8 @@ androidx.compose.foundation.lazy.layout
 androidx.compose.foundation.lazy.staggeredgrid
 androidx.compose.foundation.pager
 androidx.compose.foundation.text
+androidx.compose.foundation.text.contextmenu.internal
+androidx.compose.foundation.text.contextmenu.provider
 androidx.compose.foundation.text.input
 androidx.compose.foundation.text.selection
 androidx.compose.material
@@ -38,6 +40,7 @@ androidx.compose.runtime.reflect
 androidx.compose.runtime.rxjava2
 androidx.compose.runtime.rxjava3
 androidx.compose.runtime.saveable
+androidx.compose.runtime.tooling
 androidx.compose.ui
 androidx.compose.ui.graphics
 androidx.compose.ui.graphics.benchmark
@@ -50,8 +53,10 @@ androidx.compose.ui.viewinterop
 androidx.compose.ui.window
 androidx.lifecycle.compose
 androidx.navigation.compose
+androidx.navigation.compose.internal
 androidx.wear.compose.foundation
 androidx.wear.compose.foundation.lazy
+androidx.wear.compose.foundation.lazy.layout
 androidx.wear.compose.foundation.pager
 androidx.wear.compose.foundation.rotary
 androidx.wear.compose.material
@@ -59,6 +64,13 @@ androidx.wear.compose.material.dialog
 androidx.wear.compose.material3
 androidx.wear.compose.material3.internal
 androidx.wear.compose.material3.lazy
+androidx.wear.compose.material3.macrobenchmark.common
 androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 androidx.wear.compose.materialcore
 androidx.wear.compose.navigation
+androidx.xr.compose.material3
+androidx.xr.compose.platform
+androidx.xr.compose.spatial
+androidx.xr.compose.subspace
+androidx.xr.compose.subspace.layout
+androidx.xr.compose.testing

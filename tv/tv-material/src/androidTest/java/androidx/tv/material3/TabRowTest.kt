@@ -48,11 +48,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class TabRowTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun tabRow_shouldNotCrashWithOnly1Tab() {
@@ -183,9 +184,9 @@ class TabRowTest {
                                     currentTabPosition = tabPositions[activeTabIndex],
                                     doesTabRowHaveFocus = doesTabRowHaveFocus,
                                 )
-                            }
+                            },
                     )
-                }
+                },
         )
 
         rule.onNodeWithText(firstPanel).assertIsDisplayed()
@@ -213,7 +214,7 @@ class TabRowTest {
             TabRowSample(
                 tabs = tabs,
                 selectedTabIndex = selectedTabIndex,
-                onFocus = { selectedTabIndex = it }
+                onFocus = { selectedTabIndex = it },
             )
         },
     ) {
@@ -299,7 +300,7 @@ private fun TabRowScope.TabSample(
                 .width(100.dp)
                 .height(50.dp)
                 .testTag(tag)
-                .border(2.dp, Color.White, RoundedCornerShape(50))
+                .border(2.dp, Color.White, RoundedCornerShape(50)),
     ) {}
 }
 
@@ -311,5 +312,5 @@ private fun performKeyPress(keyCode: Int, count: Int = 1) {
 
 private fun constructTabs(
     count: Int = 3,
-    buildTab: (index: Int) -> String = { "Season $it" }
+    buildTab: (index: Int) -> String = { "Season $it" },
 ): List<String> = List(count, buildTab)

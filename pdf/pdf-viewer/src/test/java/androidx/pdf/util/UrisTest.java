@@ -20,15 +20,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link Uris}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class UrisTest {
 
     @Test

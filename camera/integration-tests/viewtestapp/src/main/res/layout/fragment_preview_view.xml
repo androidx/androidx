@@ -17,7 +17,8 @@
     android:id="@+id/layout_camera"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
 
     <FrameLayout
         android:id="@+id/container"

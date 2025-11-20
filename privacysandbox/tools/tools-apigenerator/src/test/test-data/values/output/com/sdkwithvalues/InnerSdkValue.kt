@@ -12,6 +12,7 @@ public data class InnerSdkValue(
     public val hugeNumber: Double,
     public val myInterface: MyInterface,
     public val myUiInterface: MyUiInterface,
+    public val mySharedUiInterface: MySharedUiInterface,
     public val numbers: List<Int>,
     public val bundle: Bundle,
     public val maybeNumber: Int?,

@@ -59,7 +59,7 @@ class UpdateInfoProviderTest {
     private val expectedJson =
         Json.encodeToString(
             SerializableUpdateInfo.serializer(),
-            updateInfo.toSerializableUpdateInfo()
+            updateInfo.toSerializableUpdateInfo(),
         )
     private val mockEmptyEditor: SharedPreferences.Editor = mock<SharedPreferences.Editor> {}
     private val mockEditor: SharedPreferences.Editor =
@@ -75,7 +75,7 @@ class UpdateInfoProviderTest {
     private val componentName =
         ComponentName(
             mock<Context> { on { packageName } doReturn packageName },
-            UpdateInfoProvider::class.java
+            UpdateInfoProvider::class.java,
         )
     private val providerInfo =
         ProviderInfo().apply { authority = this@UpdateInfoProviderTest.authority }

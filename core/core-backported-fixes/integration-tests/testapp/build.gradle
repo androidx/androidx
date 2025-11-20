@@ -18,35 +18,30 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":core:core-backported-fixes"))
 
-    implementation(project(":activity:activity-compose"))
-    implementation(project(":activity:activity"))
-    implementation(project(":core:core-ktx"))
-    implementation(project(":compose:material:material"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.compose.material:material:1.8.1")
+    implementation("androidx.compose.material3:material3:1.3.2")
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation(project(":compose:ui:ui-tooling"))
 
 
-    androidTestImplementation(project(":core:core"))
-    androidTestImplementation(project(":core:core-ktx"))
-    androidTestImplementation(project(":activity:activity-compose"))
-    androidTestImplementation(project(":activity:activity-ktx"))
+    androidTestImplementation("androidx.core:core:1.15.0")
+    androidTestImplementation("androidx.core:core-ktx:1.15.0")
+    androidTestImplementation("androidx.activity:activity-compose:1.10.1")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
-
-    androidTestImplementation(project(":collection:collection"))
-    androidTestImplementation(project(":collection:collection-ktx"))
 }
 
 android {

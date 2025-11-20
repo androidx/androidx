@@ -27,12 +27,10 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.ProgressBar;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
@@ -94,9 +92,15 @@ class AppCompatProgressBarHelper {
             LayerDrawable clone = new LayerDrawable(outDrawables);
             for (int i = 0; i < N; i++) {
                 clone.setId(i, background.getId(i));
-                if (Build.VERSION.SDK_INT >= 23) {
-                    Api23Impl.transferLayerProperties(background, clone, i);
-                }
+                clone.setLayerGravity(i, background.getLayerGravity(i));
+                clone.setLayerWidth(i, background.getLayerWidth(i));
+                clone.setLayerHeight(i, background.getLayerHeight(i));
+                clone.setLayerInsetLeft(i, background.getLayerInsetLeft(i));
+                clone.setLayerInsetRight(i, background.getLayerInsetRight(i));
+                clone.setLayerInsetTop(i, background.getLayerInsetTop(i));
+                clone.setLayerInsetBottom(i, background.getLayerInsetBottom(i));
+                clone.setLayerInsetStart(i, background.getLayerInsetStart(i));
+                clone.setLayerInsetEnd(i, background.getLayerInsetEnd(i));
             }
 
             return clone;
@@ -150,27 +154,5 @@ class AppCompatProgressBarHelper {
 
     Bitmap getSampleTile() {
         return mSampleTile;
-    }
-
-    @RequiresApi(23)
-    private static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        /**
-         * Transfers all layer properties that were made public in SDK 23.
-         */
-        public static void transferLayerProperties(LayerDrawable src, LayerDrawable dst, int i) {
-            dst.setLayerGravity(i, src.getLayerGravity(i));
-            dst.setLayerWidth(i, src.getLayerWidth(i));
-            dst.setLayerHeight(i, src.getLayerHeight(i));
-            dst.setLayerInsetLeft(i, src.getLayerInsetLeft(i));
-            dst.setLayerInsetRight(i, src.getLayerInsetRight(i));
-            dst.setLayerInsetTop(i, src.getLayerInsetTop(i));
-            dst.setLayerInsetBottom(i, src.getLayerInsetBottom(i));
-            dst.setLayerInsetStart(i, src.getLayerInsetStart(i));
-            dst.setLayerInsetEnd(i, src.getLayerInsetEnd(i));
-        }
     }
 }

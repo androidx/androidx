@@ -16,7 +16,7 @@
 
 package androidx.collection
 
-internal class LruCacheCreateThenFetchWithAllHitsBenchmark(
+class LruCacheCreateThenFetchWithAllHitsBenchmark(
     private val keyList: List<Int>,
     private val size: Int,
 ) : CollectionBenchmark {
@@ -32,10 +32,8 @@ internal class LruCacheCreateThenFetchWithAllHitsBenchmark(
     }
 }
 
-internal class LruCacheAllMissesBenchmark(
-    private val keyList: List<Int>,
-    private val size: Int,
-) : CollectionBenchmark {
+class LruCacheAllMissesBenchmark(private val keyList: List<Int>, private val size: Int) :
+    CollectionBenchmark {
     override fun measuredBlock() {
         val cache = MyCache(size)
         for (e in keyList) {
@@ -52,4 +50,4 @@ private class MyCache(maxSize: Int) : LruCache<Int, String>(maxSize) {
     override fun create(key: Int): String? = "value of $key"
 }
 
-internal fun createKeyList(size: Int) = List(size) { it }
+fun createKeyList(size: Int) = List(size) { it }

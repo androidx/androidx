@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.core.telecom.util:
+    Removed package androidx.core.telecom.util from compatibility checked API surface
+
+
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getAddress():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getAddress() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getCallCapabilities():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getCallCapabilities() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getCallType():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getCallType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getDirection():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getDisplayName():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getDisplayName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallAttributesCompat#getPreferredStartingCallEndpoint():
+    Source breaking change: method androidx.core.telecom.CallAttributesCompat.getPreferredStartingCallEndpoint() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallControlResult.Error#getErrorCode():
+    Source breaking change: method androidx.core.telecom.CallControlResult.Error.getErrorCode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallControlScope#getAvailableEndpoints():
+    Source breaking change: method androidx.core.telecom.CallControlScope.getAvailableEndpoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallControlScope#getCurrentCallEndpoint():
+    Source breaking change: method androidx.core.telecom.CallControlScope.getCurrentCallEndpoint() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallControlScope#isMuted():
+    Source breaking change: method androidx.core.telecom.CallControlScope.isMuted() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallEndpointCompat#getIdentifier():
+    Source breaking change: method androidx.core.telecom.CallEndpointCompat.getIdentifier() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallEndpointCompat#getName():
+    Source breaking change: method androidx.core.telecom.CallEndpointCompat.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallEndpointCompat#getType():
+    Source breaking change: method androidx.core.telecom.CallEndpointCompat.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.telecom.CallException#getCode():
+    Source breaking change: method androidx.core.telecom.CallException.getCode() can no longer be resolved from Kotlin source

@@ -327,7 +327,7 @@ private constructor(private val config: PagingConfig) {
                             !config.enablePlaceholders -> 0
                             loadType == PREPEND -> placeholdersBefore + itemsToDrop
                             else -> placeholdersAfter + itemsToDrop
-                        }
+                        },
                 )
         }
     }
@@ -404,7 +404,7 @@ private constructor(private val config: PagingConfig) {
                     return@let anchorPosition
                 },
             config = config,
-            leadingPlaceholderCount = placeholdersBefore
+            leadingPlaceholderCount = placeholdersBefore,
         )
 
     /**

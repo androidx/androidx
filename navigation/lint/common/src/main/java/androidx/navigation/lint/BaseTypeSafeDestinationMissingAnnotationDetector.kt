@@ -42,7 +42,7 @@ import org.jetbrains.uast.toUElement
  */
 abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
     private val methodNames: List<String>,
-    private val constructorNames: List<String>
+    private val constructorNames: List<String>,
 ) : Detector(), SourceCodeScanner {
 
     // Issue instantiation requires specific Detector class which is the child class
@@ -57,7 +57,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
     final override fun visitMethodCall(
         context: JavaContext,
         node: UCallExpression,
-        method: PsiMethod
+        method: PsiMethod,
     ) {
         val packageName = (method.containingFile as? PsiClassOwner)?.packageName
         if (
@@ -92,7 +92,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
     final override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
-        constructor: PsiMethod
+        constructor: PsiMethod,
     ) {
         val kClazzType = node.getRouteKClassType() ?: return
         checkMissingSerializableAnnotation(kClazzType, context)
@@ -124,7 +124,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
                 getMissingSerializableIssue(),
                 uElement,
                 context.getNameLocation(uElement),
-                """To use this class or object as a type-safe destination, annotate it with @Serializable"""
+                """To use this class or object as a type-safe destination, annotate it with @Serializable""",
             )
         }
     }
@@ -146,7 +146,7 @@ abstract class BaseTypeSafeDestinationMissingAnnotationDetector(
                     context.getNameLocation(uElement),
                     """To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep
                         """
-                        .trimMargin()
+                        .trimMargin(),
                 )
             }
         }
@@ -171,7 +171,7 @@ fun createMissingSerializableAnnotationIssue(
                 "into a NavDestination.",
         category = Category.CORRECTNESS,
         severity = Severity.ERROR,
-        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE)
+        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE),
     )
 
 fun createMissingKeepAnnotationIssue(
@@ -187,5 +187,5 @@ fun createMissingKeepAnnotationIssue(
                 "incorrectly obfuscated in minified builds when not referenced directly",
         category = Category.CORRECTNESS,
         severity = Severity.WARNING,
-        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE)
+        implementation = Implementation(detectorClass, Scope.JAVA_FILE_SCOPE),
     )

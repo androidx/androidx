@@ -183,6 +183,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_message_listener);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.web_message_listener_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

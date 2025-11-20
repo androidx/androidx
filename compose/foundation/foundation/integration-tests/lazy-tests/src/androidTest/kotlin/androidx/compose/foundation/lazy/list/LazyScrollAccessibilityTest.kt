@@ -55,6 +55,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROL
 import androidx.test.filters.MediumTest
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -85,7 +86,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
             }
     }
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     private val scrollerTag = "ScrollerTest"
     private var composeView: View? = null
@@ -152,7 +153,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
         createScrollableContent_StartAtStart()
         verifyNodeInfoScrollActions(
             expectForward = !config.reversed,
-            expectBackward = config.reversed
+            expectBackward = config.reversed,
         )
     }
 
@@ -167,7 +168,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
         createScrollableContent_StartAtEnd()
         verifyNodeInfoScrollActions(
             expectForward = config.reversed,
-            expectBackward = !config.reversed
+            expectBackward = !config.reversed,
         )
     }
 
@@ -196,7 +197,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
     private fun testAbsoluteDirection(
         canonicalTarget: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean
+        expectActionSuccess: Boolean,
     ) {
         var target = canonicalTarget
         if (config.horizontal && config.rtl) {
@@ -215,7 +216,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
     private fun testScrollAction(
         target: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean = true
+        expectActionSuccess: Boolean = true,
     ) {
         createScrollableContent_StartInMiddle()
         rule.onNodeWithText("$target").assertDoesNotExist()
@@ -336,7 +337,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
                             state = state,
                             contentPadding = PaddingValues(contentPaddingDp),
                             reverseLayout = config.reversed,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             lazyContent()
                         }
@@ -346,7 +347,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
                             state = state,
                             contentPadding = PaddingValues(contentPaddingDp),
                             reverseLayout = config.reversed,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             lazyContent()
                         }

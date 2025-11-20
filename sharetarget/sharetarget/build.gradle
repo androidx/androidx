@@ -51,9 +51,6 @@ androidx {
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.sharetarget"
 }

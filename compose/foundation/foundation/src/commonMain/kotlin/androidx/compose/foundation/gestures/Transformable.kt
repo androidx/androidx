@@ -71,7 +71,7 @@ import kotlinx.coroutines.launch
 fun Modifier.transformable(
     state: TransformableState,
     lockRotationOnZoomPan: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) = transformable(state, { true }, lockRotationOnZoomPan, enabled)
 
 /**
@@ -100,14 +100,14 @@ fun Modifier.transformable(
     state: TransformableState,
     canPan: (Offset) -> Boolean,
     lockRotationOnZoomPan: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) = this then TransformableElement(state, canPan, lockRotationOnZoomPan, enabled)
 
 private class TransformableElement(
     private val state: TransformableState,
     private val canPan: (Offset) -> Boolean,
     private val lockRotationOnZoomPan: Boolean,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) : ModifierNodeElement<TransformableNode>() {
     override fun create(): TransformableNode =
         TransformableNode(state, canPan, lockRotationOnZoomPan, enabled)
@@ -152,7 +152,7 @@ private class TransformableNode(
     private var state: TransformableState,
     private var canPan: (Offset) -> Boolean,
     private var lockRotationOnZoomPan: Boolean,
-    private var enabled: Boolean
+    private var enabled: Boolean,
 ) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
 
     private val updatedCanPan: (Offset) -> Boolean = { canPan.invoke(it) }
@@ -181,7 +181,7 @@ private class TransformableNode(
                                             transformBy(
                                                 it.zoomChange,
                                                 it.panChange,
-                                                it.rotationChange
+                                                it.rotationChange,
                                             )
                                         }
                                         event = channel.receive()
@@ -212,7 +212,7 @@ private class TransformableNode(
         state: TransformableState,
         canPan: (Offset) -> Boolean,
         lockRotationOnZoomPan: Boolean,
-        enabled: Boolean
+        enabled: Boolean,
     ) {
         this.canPan = canPan
         val needsReset =
@@ -230,7 +230,7 @@ private class TransformableNode(
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         val scrollConfig = scrollConfig
         if (
@@ -263,7 +263,7 @@ internal const val SCROLL_FACTOR = 545f
 
 private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
     channel: Channel<TransformEvent>,
-    scrollConfig: ScrollConfig
+    scrollConfig: ScrollConfig,
 ) {
     val currentContext = currentCoroutineContext()
     awaitPointerEventScope {
@@ -278,7 +278,7 @@ private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
                         TransformDelta(
                             zoomChange = zoomChange,
                             panChange = Offset.Zero,
-                            rotationChange = 0f
+                            rotationChange = 0f,
                         )
                     )
                     scrollDelta = awaitCtrlMouseScrollOrNull(scrollConfig) ?: break
@@ -326,7 +326,7 @@ private suspend fun AwaitPointerEventScope.awaitCtrlMouseScrollOrNull(
 private suspend fun AwaitPointerEventScope.detectZoom(
     panZoomLock: Boolean,
     channel: Channel<TransformEvent>,
-    canPan: (Offset) -> Boolean
+    canPan: (Offset) -> Boolean,
 ) {
     var rotation = 0f
     var zoom = 1f

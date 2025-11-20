@@ -156,7 +156,7 @@ fun View.isLoading(): Boolean {
         context.resources.getIdentifier(
             DefaultLoadingViewConstants.id,
             "id",
-            DefaultLoadingViewConstants.resource_package
+            DefaultLoadingViewConstants.resource_package,
         )
     return findViewById<View>(defaultLoadingViewId) != null ||
         findViewById<View>(emptyLoadingViewID) != null
@@ -179,7 +179,7 @@ fun ListView.areItemsFullyLoaded(): Boolean {
         context.resources.getIdentifier(
             DefaultLoadingViewConstants.id,
             "id",
-            DefaultLoadingViewConstants.resource_package
+            DefaultLoadingViewConstants.resource_package,
         )
     if (childCount > 0 && adapter != null) {
         // Searching directly on listView doesn't seem to return matching items, so we search each

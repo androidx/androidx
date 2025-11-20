@@ -307,20 +307,14 @@ public class WorkSpecDaoTest extends DatabaseTest {
     @SmallTest
     public void insertWithNetworkRequest() {
         Constraints constraints;
-        if (Build.VERSION.SDK_INT >= 21) {
-            NetworkRequest request = new NetworkRequest.Builder()
-                    .addCapability(NET_CAPABILITY_MMS)
-                    .addCapability(NET_CAPABILITY_NOT_VPN)
-                    .addTransportType(TRANSPORT_CELLULAR)
-                    .build();
-            constraints = new Constraints.Builder()
-                    .setRequiredNetworkRequest(request, NetworkType.CONNECTED)
-                    .build();
-        } else {
-            constraints = new Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build();
-        }
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NET_CAPABILITY_MMS)
+                .addCapability(NET_CAPABILITY_NOT_VPN)
+                .addTransportType(TRANSPORT_CELLULAR)
+                .build();
+        constraints = new Constraints.Builder()
+                .setRequiredNetworkRequest(request, NetworkType.CONNECTED)
+                .build();
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)

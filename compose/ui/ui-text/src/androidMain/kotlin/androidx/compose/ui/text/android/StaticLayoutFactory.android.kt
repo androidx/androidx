@@ -72,7 +72,7 @@ object StaticLayoutFactory {
         @HyphenationFrequency
         hyphenationFrequency: Int = LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY,
         leftIndents: IntArray? = null,
-        rightIndents: IntArray? = null
+        rightIndents: IntArray? = null,
     ): StaticLayout {
         return delegate.create(
             StaticLayoutParams(
@@ -96,7 +96,7 @@ object StaticLayoutFactory {
                 lineBreakWordStyle = lineBreakWordStyle,
                 hyphenationFrequency = hyphenationFrequency,
                 leftIndents = leftIndents,
-                rightIndents = rightIndents
+                rightIndents = rightIndents,
             )
         )
     }
@@ -110,7 +110,7 @@ object StaticLayoutFactory {
      */
     fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
-        useFallbackLineSpacing: Boolean
+        useFallbackLineSpacing: Boolean,
     ): Boolean {
         return delegate.isFallbackLineSpacingEnabled(layout, useFallbackLineSpacing)
     }
@@ -137,7 +137,7 @@ private class StaticLayoutParams(
     val lineBreakWordStyle: Int,
     val hyphenationFrequency: Int,
     val leftIndents: IntArray?,
-    val rightIndents: IntArray?
+    val rightIndents: IntArray?,
 ) {
     init {
         requirePrecondition(start in 0..end) { "invalid start value" }
@@ -179,14 +179,14 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
                 if (Build.VERSION.SDK_INT >= 28) {
                     StaticLayoutFactory28.setUseLineSpacingFromFallbacks(
                         this,
-                        params.useFallbackLineSpacing
+                        params.useFallbackLineSpacing,
                     )
                 }
                 if (Build.VERSION.SDK_INT >= 33) {
                     StaticLayoutFactory33.setLineBreakConfig(
                         this,
                         params.lineBreakStyle,
-                        params.lineBreakWordStyle
+                        params.lineBreakWordStyle,
                     )
                 }
                 if (Build.VERSION.SDK_INT >= 35) { // b/391378120
@@ -201,7 +201,7 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
     override fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
-        useFallbackLineSpacing: Boolean
+        useFallbackLineSpacing: Boolean,
     ): Boolean {
         return if (Build.VERSION.SDK_INT >= 33) {
             StaticLayoutFactory33.isFallbackLineSpacingEnabled(layout)
@@ -281,7 +281,7 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
                             Boolean::class.javaPrimitiveType, /* includePadding */
                             TruncateAt::class.java,
                             Int::class.javaPrimitiveType, /* ellipsizeWidth */
-                            Int::class.javaPrimitiveType /* maxLines */
+                            Int::class.javaPrimitiveType, /* maxLines */
                         )
             } catch (e: NoSuchMethodException) {
                 staticLayoutConstructor = null
@@ -311,7 +311,7 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
                         params.includePadding,
                         params.ellipsize,
                         params.ellipsizedWidth,
-                        params.maxLines
+                        params.maxLines,
                     )
                 } catch (e: IllegalAccessException) {
                     staticLayoutConstructor = null
@@ -344,13 +344,13 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
             params.lineSpacingExtra,
             params.includePadding,
             params.ellipsize,
-            params.ellipsizedWidth
+            params.ellipsizedWidth,
         )
     }
 
     override fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
-        useFallbackLineSpacing: Boolean
+        useFallbackLineSpacing: Boolean,
     ): Boolean {
         return false
     }

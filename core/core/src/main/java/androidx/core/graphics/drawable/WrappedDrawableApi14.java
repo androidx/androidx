@@ -25,8 +25,6 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -202,15 +200,13 @@ class WrappedDrawableApi14 extends Drawable
     }
 
     @Override
-    @RequiresApi(23)
     public boolean onLayoutDirectionChanged(int layoutDirection) {
-        return DrawableCompat.setLayoutDirection(mDrawable, layoutDirection);
+        return mDrawable.setLayoutDirection(layoutDirection);
     }
 
     @Override
-    @RequiresApi(23)
     public int getLayoutDirection() {
-        return DrawableCompat.getLayoutDirection(mDrawable);
+        return mDrawable.getLayoutDirection();
     }
 
     @Override

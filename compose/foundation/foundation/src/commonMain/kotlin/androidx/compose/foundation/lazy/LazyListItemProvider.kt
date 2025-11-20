@@ -17,7 +17,6 @@
 package androidx.compose.foundation.lazy
 
 import androidx.collection.IntList
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
@@ -28,7 +27,6 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 
-@OptIn(ExperimentalFoundationApi::class)
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
@@ -37,11 +35,10 @@ internal interface LazyListItemProvider : LazyLayoutItemProvider {
     val itemScope: LazyItemScopeImpl
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberLazyListItemProviderLambda(
     state: LazyListState,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ): () -> LazyListItemProvider {
     val latestContent = rememberUpdatedState(content)
     return remember(state) {
@@ -58,14 +55,13 @@ internal fun rememberLazyListItemProviderLambda(
                     state = state,
                     intervalContent = intervalContent,
                     itemScope = scope,
-                    keyIndexMap = map
+                    keyIndexMap = map,
                 )
             }
         itemProviderState::value
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class LazyListItemProviderImpl
 constructor(
     private val state: LazyListState,

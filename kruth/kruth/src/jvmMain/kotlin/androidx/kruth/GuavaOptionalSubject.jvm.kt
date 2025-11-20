@@ -22,10 +22,8 @@ import com.google.common.base.Optional
 
 /** Propositions for Guava [Optional] subjects. */
 class GuavaOptionalSubject<T : Any>
-internal constructor(
-    actual: Optional<out T>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Optional<out T>>(actual, metadata = metadata, typeDescriptionOverride = "optional") {
+internal constructor(actual: Optional<out T>?, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<Optional<out T>>(actual, metadata = metadata, typeDescriptionOverride = "optional") {
 
     /** Fails if the [Optional]`<T>` is absent or the subject is null. */
     fun isPresent() {
@@ -65,7 +63,7 @@ internal constructor(
         } else if (!actual.isPresent) {
             failWithoutActual(
                 fact("expected to have value", expected),
-                simpleFact("but was absent")
+                simpleFact("but was absent"),
             )
         } else {
             checkNoNeedToDisplayBothValues("get()").that(actual.get()).isEqualTo(expected)

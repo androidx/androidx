@@ -52,7 +52,7 @@ class StartupBenchmarkTest(
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = PACKAGE_NAME
+            packageName = PACKAGE_NAME,
         ) {
             action = "${PACKAGE_NAME}.STARTUP_ACTIVITY"
         }

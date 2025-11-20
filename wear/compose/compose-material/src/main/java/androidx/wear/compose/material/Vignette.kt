@@ -82,10 +82,7 @@ public value class VignettePosition constructor(private val key: Int) {
  * @param modifier optional Modifier for the root of the [Vignette]
  */
 @Composable
-public fun Vignette(
-    vignettePosition: VignettePosition,
-    modifier: Modifier = Modifier,
-) {
+public fun Vignette(vignettePosition: VignettePosition, modifier: Modifier = Modifier) {
 
     Box(modifier = modifier.fillMaxSize()) {
         if (vignettePosition.drawTop()) {

@@ -50,7 +50,7 @@ fun BitmapPainterSubsectionSample() {
     // Lays out and draws an image sized to the rectangular subsection of the ImageBitmap
     Image(
         painter = BitmapPainter(ImageBitmap, IntOffset(10, 12), IntSize(50, 60)),
-        contentDescription = "Localized description"
+        contentDescription = "Localized description",
     )
 }
 
@@ -72,7 +72,7 @@ fun BitmapPainterSample() {
     Image(
         painter = customPainter,
         contentDescription = "Localized description",
-        modifier = Modifier.size(100.dp, 100.dp)
+        modifier = Modifier.size(100.dp, 100.dp),
     )
 }
 

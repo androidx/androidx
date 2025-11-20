@@ -15,10 +15,10 @@ package androidx.compose.material3.adaptive.navigation {
     method public String getPopUntilContentChange();
     method public String getPopUntilCurrentDestinationChange();
     method public String getPopUntilScaffoldValueChange();
-    property public String PopLatest;
-    property public String PopUntilContentChange;
-    property public String PopUntilCurrentDestinationChange;
-    property public String PopUntilScaffoldValueChange;
+    property public final String PopLatest;
+    property public final String PopUntilContentChange;
+    property public final String PopUntilCurrentDestinationChange;
+    property public final String PopUntilScaffoldValueChange;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public interface ThreePaneScaffoldNavigator<T> {

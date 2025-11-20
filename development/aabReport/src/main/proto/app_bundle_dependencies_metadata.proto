@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+option java_package = "com.android.tools.build.libraries.metadata";
+option java_multiple_files = true;
+
+message Int32Value {
+  // The int32 value.
+  int32 value = 1;
+}
+
+message AppDependencies {
+    // List of all the dependencies, direct and indirect.
+    repeated Library library = 1;
+
+    // Dependencies of the libraries from the list above.
+    repeated LibraryDependencies library_dependencies = 2;
+
+    // List of direct dependencies per bundle module.
+    repeated ModuleDependencies module_dependencies = 3;
+
+    // List of repositories where dependencies were found
+    repeated Repository repositories = 4;
+}
+
+// List of dependencies of a given library.
+message LibraryDependencies {
+    // Indices correspond to the pool of libraries defined in AppDependencies.
+    int32 library_index = 1;
+    repeated int32 library_dep_index = 2;
+}
+
+
+message ModuleDependencies {
+    string module_name = 1;
+    // Direct module dependencies.
+    // Index is from the pool of libraries defined in AppDependencies.
+    repeated int32 dependency_index = 2;
+}
+
+message Library {
+    // Oneof allows for support of other library identification systems in the future.
+    oneof library_oneof {
+        MavenLibrary maven_library = 1;
+    }
+
+    // This message contains various digests of the library contents.
+    message Digests {
+        // SHA256 hash value of the file contents.
+        bytes sha256 = 1;
+    }
+
+    Digests digests = 2;
+
+    // Repository from which the artifact was retrieved (if known)
+    // Index is from pool of repositories defined in AppDependencies
+    Int32Value repo_index = 3;
+}
+
+message MavenLibrary {
+    string groupId = 1;
+    string artifactId = 2;
+    string packaging = 3;
+    string classifier = 4;
+    string version = 5;
+}
+
+// A repository for resolving artifacts and metadata
+message Repository {
+    // The type of the repository, and any type-specific configuration info
+    oneof repo_oneof {
+        MavenRepo maven_repo = 1;
+        IvyRepo ivy_repo = 2;
+    }
+}
+
+message MavenRepo {
+    // The root url for the repository
+    string url = 1;
+}
+
+message IvyRepo {
+    // The root url for the repository
+    string url = 1;
+}

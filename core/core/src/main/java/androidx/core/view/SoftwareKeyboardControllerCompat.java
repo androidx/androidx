@@ -47,10 +47,8 @@ public final class SoftwareKeyboardControllerCompat {
     public SoftwareKeyboardControllerCompat(@NonNull View view) {
         if (SDK_INT >= 30) {
             mImpl = new Impl30(view);
-        } else if (SDK_INT >= 20) {
-            mImpl = new Impl20(view);
         } else {
-            mImpl = new Impl();
+            mImpl = new Impl20(view);
         }
     }
 
@@ -94,7 +92,6 @@ public final class SoftwareKeyboardControllerCompat {
         }
     }
 
-    @RequiresApi(20)
     private static class Impl20 extends Impl {
 
         private final @Nullable View mView;

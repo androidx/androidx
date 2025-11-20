@@ -50,7 +50,7 @@ public fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Row(
         modifier =

@@ -42,6 +42,7 @@ public class MuteAudioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_mute_audio);
+        WebkitHelpers.enableEdgeToEdge(this);
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.MUTE_AUDIO)) {
             WebkitHelpers.showMessageInActivity(MuteAudioActivity.this,
                     R.string.mute_audio_not_supported);

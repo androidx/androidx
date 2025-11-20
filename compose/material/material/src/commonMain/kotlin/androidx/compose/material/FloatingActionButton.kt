@@ -50,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://material.io/components/buttons-floating-action-button" class="external"
- * target="_blank">Material Design floating action button</a>.
+ * [Material Design floating action
+ * button](https://material.io/components/buttons-floating-action-button)
  *
  * A floating action button (FAB) represents the primary action of a screen.
  *
@@ -87,7 +87,7 @@ fun FloatingActionButton(
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -98,13 +98,13 @@ fun FloatingActionButton(
         color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation.elevation(interactionSource).value,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(MaterialTheme.typography.button) {
                 Box(
                     modifier = Modifier.defaultMinSize(minWidth = FabSize, minHeight = FabSize),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     content()
                 }
@@ -114,8 +114,8 @@ fun FloatingActionButton(
 }
 
 /**
- * <a href="https://material.io/components/buttons-floating-action-button#extended-fab"
- * class="external" target="_blank">Material Design extended floating action button</a>.
+ * [Material Design extended floating action
+ * button](https://material.io/components/buttons-floating-action-button#extended-fab)
  *
  * The extended FAB is wider than a regular FAB, and it includes a text label.
  *
@@ -156,7 +156,7 @@ fun ExtendedFloatingActionButton(
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
-    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation()
+    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
 ) {
     FloatingActionButton(
         modifier = modifier.sizeIn(minWidth = ExtendedFabSize, minHeight = ExtendedFabSize),
@@ -165,12 +165,12 @@ fun ExtendedFloatingActionButton(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        elevation = elevation
+        elevation = elevation,
     ) {
         val startPadding = if (icon == null) ExtendedFabTextPadding else ExtendedFabIconPadding
         Row(
             modifier = Modifier.padding(start = startPadding, end = ExtendedFabTextPadding),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
                 icon()
@@ -242,7 +242,7 @@ object FloatingActionButtonDefaults {
                 defaultElevation = defaultElevation,
                 pressedElevation = pressedElevation,
                 hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
+                focusedElevation = focusedElevation,
             )
         }
     }
@@ -254,7 +254,7 @@ private class DefaultFloatingActionButtonElevation(
     private val defaultElevation: Dp,
     private val pressedElevation: Dp,
     private val hoveredElevation: Dp,
-    private val focusedElevation: Dp
+    private val focusedElevation: Dp,
 ) : FloatingActionButtonElevation {
     @Composable
     override fun elevation(interactionSource: InteractionSource): State<Dp> {
@@ -264,7 +264,7 @@ private class DefaultFloatingActionButtonElevation(
                     defaultElevation = defaultElevation,
                     pressedElevation = pressedElevation,
                     hoveredElevation = hoveredElevation,
-                    focusedElevation = focusedElevation
+                    focusedElevation = focusedElevation,
                 )
             }
 
@@ -273,7 +273,7 @@ private class DefaultFloatingActionButtonElevation(
                 defaultElevation = defaultElevation,
                 pressedElevation = pressedElevation,
                 hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
+                focusedElevation = focusedElevation,
             )
         }
 
@@ -334,7 +334,7 @@ private class FloatingActionButtonElevationAnimatable(
     private var defaultElevation: Dp,
     private var pressedElevation: Dp,
     private var hoveredElevation: Dp,
-    private var focusedElevation: Dp
+    private var focusedElevation: Dp,
 ) {
     private val animatable = Animatable(defaultElevation, Dp.VectorConverter)
 
@@ -354,7 +354,7 @@ private class FloatingActionButtonElevationAnimatable(
         defaultElevation: Dp,
         pressedElevation: Dp,
         hoveredElevation: Dp,
-        focusedElevation: Dp
+        focusedElevation: Dp,
     ) {
         this.defaultElevation = defaultElevation
         this.pressedElevation = pressedElevation

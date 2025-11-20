@@ -54,6 +54,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class MeasureClientTest {
 
     private lateinit var callback: FakeCallback
@@ -83,7 +84,7 @@ class MeasureClientTest {
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent().setPackage(packageName).setAction(action),
                 ComponentName(packageName, CLIENT),
-                service
+                service,
             )
         cleanup = true
     }
@@ -184,7 +185,7 @@ class MeasureClientTest {
     class FakeCallback : MeasureCallback {
         data class AvailabilityChangeEvent(
             val dataType: DataType<*, *>,
-            val availability: Availability
+            val availability: Availability,
         )
 
         data class DataReceivedEvent(val data: DataPointContainer)
@@ -204,7 +205,7 @@ class MeasureClientTest {
 
         override fun onAvailabilityChanged(
             dataType: DeltaDataType<*, *>,
-            availability: Availability
+            availability: Availability,
         ) {
             availabilityChangeEvents += AvailabilityChangeEvent(dataType, availability)
         }
@@ -220,13 +221,13 @@ class MeasureClientTest {
         class RegisterEvent(
             val request: MeasureRegistrationRequest,
             val callback: IMeasureCallback,
-            val statusCallback: IStatusCallback
+            val statusCallback: IStatusCallback,
         )
 
         class UnregisterEvent(
             val request: MeasureUnregistrationRequest,
             val callback: IMeasureCallback,
-            val statusCallback: IStatusCallback
+            val statusCallback: IStatusCallback,
         )
 
         var statusCallbackAction: (IStatusCallback) -> Unit = { it.onSuccess() }
@@ -241,7 +242,7 @@ class MeasureClientTest {
         override fun registerCallback(
             request: MeasureRegistrationRequest,
             callback: IMeasureCallback,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             if (callingAppHasPermissions) {
                 registerEvents += RegisterEvent(request, callback, statusCallback)
@@ -254,7 +255,7 @@ class MeasureClientTest {
         override fun unregisterCallback(
             request: MeasureUnregistrationRequest,
             callback: IMeasureCallback,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             unregisterEvents += UnregisterEvent(request, callback, statusCallback)
             statusCallbackAction.invoke(statusCallback)
@@ -278,7 +279,7 @@ class MeasureClientTest {
             ClientConfiguration(
                 CLIENT,
                 IpcConstants.SERVICE_PACKAGE_NAME,
-                IpcConstants.MEASURE_API_BIND_ACTION
+                IpcConstants.MEASURE_API_BIND_ACTION,
             )
     }
 }

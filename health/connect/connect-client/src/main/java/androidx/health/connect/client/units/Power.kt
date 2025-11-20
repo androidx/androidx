@@ -21,11 +21,8 @@ package androidx.health.connect.client.units
  * - watts - see [Power.watts], [Double.watts]
  * - kilocalories/day - see [Power.kilocaloriesPerDay], [Double.kilocaloriesPerDay]
  */
-class Power
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Power> {
+class Power private constructor(private val value: Double, private val type: Type) :
+    Comparable<Power> {
 
     /** Returns the power in Watts. */
     @get:JvmName("getWatts")

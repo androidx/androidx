@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.MaterialTheme
@@ -44,7 +45,7 @@ fun WindowInsetsDemo() {
     val insets = WindowInsets.safeDrawing
     val density = LocalDensity.current
 
-    Column {
+    Column(Modifier.windowInsetsPadding(insets)) {
         Text(
             "The numbers around the text field below show the respective WindowInsets values for" +
                 " the safeDrawing insets. To use this demo, go the demo app settings (⚙️ icon), " +
@@ -59,29 +60,29 @@ fun WindowInsetsDemo() {
             value = "Click to show keyboard",
             onValueChange = {},
             modifier = Modifier.fillMaxWidth().wrapContentSize(),
-            textStyle = TextStyle(color = Color.Black.copy(alpha = 0.5f))
+            textStyle = TextStyle(color = Color.Black.copy(alpha = 0.5f)),
         ) { field ->
             with(density) {
                 Column(horizontalAlignment = CenterHorizontally) {
                     Text(
                         insets.getTop(density).toDp().toString(),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.caption,
                     )
                     Row(verticalAlignment = CenterVertically) {
                         val layoutDirection = LocalLayoutDirection.current
                         Text(
                             insets.getLeft(density, layoutDirection).toDp().toString(),
-                            style = MaterialTheme.typography.caption
+                            style = MaterialTheme.typography.caption,
                         )
                         Box(Modifier.padding(2.dp).border(1.dp, Color.Black)) { field() }
                         Text(
                             insets.getRight(density, layoutDirection).toDp().toString(),
-                            style = MaterialTheme.typography.caption
+                            style = MaterialTheme.typography.caption,
                         )
                     }
                     Text(
                         insets.getBottom(density).toDp().toString(),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.caption,
                     )
                 }
             }

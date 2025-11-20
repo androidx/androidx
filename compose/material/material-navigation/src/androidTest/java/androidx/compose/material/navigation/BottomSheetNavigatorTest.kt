@@ -64,6 +64,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToLong
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +73,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class BottomSheetNavigatorTest {
 
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testNavigateAddsDestinationToBackStack(): Unit = runBlocking {
@@ -190,14 +191,14 @@ internal class BottomSheetNavigatorTest {
         composeTestRule.setContent {
             ModalBottomSheetLayout(
                 bottomSheetNavigator = navigator,
-                content = { Box(Modifier.fillMaxSize().testTag(bodyContentTag)) }
+                content = { Box(Modifier.fillMaxSize().testTag(bodyContentTag)) },
             )
         }
 
         val destination =
             BottomSheetNavigator.Destination(
                 navigator = navigator,
-                content = { Box(Modifier.height(20.dp)) }
+                content = { Box(Modifier.height(20.dp)) },
             )
         val backStackEntry = navigatorState.createBackStackEntry(destination, null)
         navigator.navigate(listOf(backStackEntry), null, null)
@@ -271,7 +272,7 @@ internal class BottomSheetNavigatorTest {
         composeTestRule.setContent {
             ModalBottomSheetLayout(
                 bottomSheetNavigator = navigator,
-                content = { Box(Modifier.fillMaxSize()) }
+                content = { Box(Modifier.fillMaxSize()) },
             )
         }
 
@@ -283,7 +284,7 @@ internal class BottomSheetNavigatorTest {
         navigator.navigate(
             entries = listOf(backStackEntry1, backStackEntry2),
             navOptions = null,
-            navigatorExtras = null
+            navigatorExtras = null,
         )
 
         composeTestRule.awaitIdle()
@@ -303,7 +304,7 @@ internal class BottomSheetNavigatorTest {
         composeTestRule.setContent {
             ModalBottomSheetLayout(
                 bottomSheetNavigator = navigator,
-                content = { Box(Modifier.fillMaxSize()) }
+                content = { Box(Modifier.fillMaxSize()) },
             )
         }
 
@@ -342,7 +343,7 @@ internal class BottomSheetNavigatorTest {
                                 Button(onClick = { navController.navigate("bottomSheet") }) {
                                     Text(text = "open drawer")
                                 }
-                            }
+                            },
                         )
 
                         bottomSheet(
@@ -351,7 +352,7 @@ internal class BottomSheetNavigatorTest {
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     Text(text = "bottomSheet")
                                 }
-                            }
+                            },
                         )
                     }
                 }

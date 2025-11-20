@@ -128,7 +128,7 @@ public class ShadowOverlayContainer extends FrameLayout {
      * Returns true if the platform sdk supports dynamic shadows.
      */
     public static boolean supportsDynamicShadow() {
-        return ShadowHelper.supportsDynamicShadow();
+        return true;
     }
 
     /**

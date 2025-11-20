@@ -51,7 +51,9 @@ fun CreationExtrasViewModel() {
             ?: CreationExtras.Empty
     // Custom extras should always be added on top of the default extras
     val extras = MutableCreationExtras(defaultExtras)
-    extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "my_value")
+    extras[DEFAULT_ARGS_KEY] =
+        @Suppress("DEPRECATION") // bundleOf is deprecated
+        bundleOf("test" to "my_value")
     // This factory is normally created separately and passed in
     val customFactory = remember {
         object : ViewModelProvider.Factory {
@@ -115,8 +117,8 @@ fun SnapshotStateViewModel() {
                                     Item(id = UUID.fromString(saved[0]), value = saved[1])
                                 }
                                 .toMutableStateList()
-                        }
-                    )
+                        },
+                    ),
             ) {
                 mutableStateListOf()
             }
@@ -135,8 +137,8 @@ fun SnapshotStateViewModel() {
                         save = { it.keys.map(UUID::toString) },
                         restore = {
                             it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
-                        }
-                    )
+                        },
+                    ),
             ) {
                 mutableStateMapOf()
             }
@@ -191,7 +193,7 @@ fun SnapshotStateViewModelWithDelegates() {
                                     Item(id = UUID.fromString(saved[0]), value = saved[1])
                                 }
                                 .toMutableStateList()
-                        }
+                        },
                     )
             ) {
                 mutableStateListOf()
@@ -210,7 +212,7 @@ fun SnapshotStateViewModelWithDelegates() {
                         save = { it.keys.map(UUID::toString) },
                         restore = {
                             it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
-                        }
+                        },
                     )
             ) {
                 mutableStateMapOf()

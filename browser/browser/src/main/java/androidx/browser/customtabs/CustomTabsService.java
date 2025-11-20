@@ -32,7 +32,6 @@ import android.support.customtabs.ICustomTabsService;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.browser.auth.AuthTabSessionToken;
-import androidx.browser.auth.ExperimentalAuthTab;
 import androidx.collection.SimpleArrayMap;
 
 import org.jspecify.annotations.NonNull;
@@ -72,6 +71,14 @@ public abstract class CustomTabsService extends Service {
             "androidx.browser.customtabs.category.ColorSchemeCustomization";
 
     /**
+     * An Intent filter category to signify that the Custom Tabs provider supports ephemeral
+     * browsing feature which opens Custom Tab that does not share cookies or other data with
+     * the browser that handles the Custom Tab.
+     */
+    public static final String CATEGORY_EPHEMERAL_BROWSING =
+            "androidx.browser.customtabs.category.EphemeralBrowsing";
+
+    /**
      * An Intent filter category to signify that the Custom Tabs provider supports multi-network,
      * bind a custom tab to a particular network via {@link CustomTabsIntent.Builder#setNetwork}.
      */
@@ -99,6 +106,11 @@ public abstract class CustomTabsService extends Service {
      */
     public static final String CATEGORY_TRUSTED_WEB_ACTIVITY_IMMERSIVE_MODE =
             "androidx.browser.trusted.category.ImmersiveMode";
+
+    /**
+     * An Intent filter category to signify that the Custom Tabs provider supports Auth Tab.
+     */
+    public static final String CATEGORY_AUTH_TAB = "androidx.browser.auth.category.AuthTab";
 
     /**
      * For {@link CustomTabsService#mayLaunchUrl} calls that wants to specify more than one url,
@@ -311,12 +323,6 @@ public abstract class CustomTabsService extends Service {
                     remote, extras);
         }
 
-        @Override
-        @ExperimentalEphemeralBrowsing
-        public boolean isEphemeralBrowsingSupported(@NonNull Bundle extras) {
-            return CustomTabsService.this.isEphemeralBrowsingSupported(extras);
-        }
-
         @SuppressWarnings("deprecation")
         private @Nullable PendingIntent getSessionIdFromBundle(@Nullable Bundle bundle) {
             if (bundle == null) return null;
@@ -337,7 +343,6 @@ public abstract class CustomTabsService extends Service {
             }
         }
 
-        @ExperimentalAuthTab
         @Override
         public boolean newAuthTabSession(IAuthTabCallback callback, Bundle extras) {
             PendingIntent sessionId = getSessionIdFromBundle(extras);
@@ -348,7 +353,7 @@ public abstract class CustomTabsService extends Service {
                     callback.asBinder().linkToDeath(deathRecipient, 0);
                     mDeathRecipientMap.put(callback.asBinder(), deathRecipient);
                 }
-                return CustomTabsService.this.newAuthTabSession(sessionToken);
+                return CustomTabsService.this.registerAuthTabSession(sessionToken);
             } catch (RemoteException e) {
                 return false;
             }
@@ -390,10 +395,9 @@ public abstract class CustomTabsService extends Service {
      *
      * @param sessionToken The session token for which the {@link DeathRecipient} call has been
      *                     received.
-     * @return Whether the clean up was successful. Multiple calls with two tokens holdings the
-     * same binder will return false.
+     * @return True if the provided session was cleaned up as a result of this call, false if the
+     * session doesn't exist or has already been cleaned up.
      */
-    @ExperimentalAuthTab
     protected boolean cleanUpSession(@NonNull AuthTabSessionToken sessionToken) {
         try {
             synchronized (mDeathRecipientMap) {
@@ -654,20 +658,6 @@ public abstract class CustomTabsService extends Service {
     }
 
     /**
-     * Returns whether ephemeral browsing is supported.
-     *
-     * Ephemeral browsing allows apps to open Custom Tab that does not share cookies or other
-     * data with the browser that handles the Custom Tab.
-     *
-     * @param extras Reserved for future use.
-     * @return Whether ephemeral browsing is supported.
-     */
-    @ExperimentalEphemeralBrowsing
-    protected boolean isEphemeralBrowsingSupported(@NonNull Bundle extras) {
-        return false;
-    }
-
-    /**
      * Creates a new Auth Tab session through an ICustomTabsService with the optional callback. This
      * session can be used to associate any related communication through the service with an intent
      * and then later with an Auth Tab. The client can then send later service calls or intents
@@ -678,8 +668,7 @@ public abstract class CustomTabsService extends Service {
      *                     {@link AuthTabSessionToken#getCallback()}.
      * @return Whether a new session was successfully created.
      */
-    @ExperimentalAuthTab
-    protected boolean newAuthTabSession(@NonNull AuthTabSessionToken sessionToken) {
+    protected boolean registerAuthTabSession(@NonNull AuthTabSessionToken sessionToken) {
         return false;
     }
 }

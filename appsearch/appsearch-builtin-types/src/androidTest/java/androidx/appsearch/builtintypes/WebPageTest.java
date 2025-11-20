@@ -32,6 +32,7 @@ public class WebPageTest {
                 .setName("my web page")
                 .setFavicon(new ImageObject.Builder("namespace", "image-id1")
                         .setSha256("123456").build())
+                .setSource("tab")
                 .build();
 
         assertThat(webPage.getNamespace()).isEqualTo("namespace");
@@ -40,6 +41,7 @@ public class WebPageTest {
         assertThat(webPage.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(webPage.getDocumentTtlMillis()).isEqualTo(6000);
         assertThat(webPage.getFavicon().getSha256()).isEqualTo("123456");
+        assertThat(webPage.getSource()).isEqualTo("tab");
     }
 
     @Test
@@ -50,6 +52,7 @@ public class WebPageTest {
                 .setDocumentTtlMillis(6000)
                 .setFavicon(new ImageObject.Builder("namespace", "image-id1")
                         .setSha256("123456").build())
+                .setSource("tab")
                 .build();
         WebPage webPage2 = new WebPage.Builder(webPage1).build();
 
@@ -59,6 +62,7 @@ public class WebPageTest {
         assertThat(webPage2.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(webPage2.getDocumentTtlMillis()).isEqualTo(6000);
         assertThat(webPage2.getFavicon().getSha256()).isEqualTo("123456");
+        assertThat(webPage2.getSource()).isEqualTo("tab");
     }
 
     @Test
@@ -70,6 +74,7 @@ public class WebPageTest {
                 .setName("my web page")
                 .setFavicon(new ImageObject.Builder("namespace", "image-id1")
                         .setSha256("123456").build())
+                .setSource("tab")
                 .build();
 
         GenericDocument document = GenericDocument.fromDocumentClass(webPage);
@@ -80,6 +85,7 @@ public class WebPageTest {
         assertThat(document.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(document.getTtlMillis()).isEqualTo(6000);
         assertThat(document.getPropertyString("favicon.sha256")).isEqualTo("123456");
+        assertThat(document.getPropertyString("source")).isEqualTo("tab");
 
         // Test that toDocumentClass doesn't lose information.
         GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(

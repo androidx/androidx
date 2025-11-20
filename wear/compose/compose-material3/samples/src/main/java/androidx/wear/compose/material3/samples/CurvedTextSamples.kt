@@ -63,13 +63,13 @@ fun CurvedTextBottom() {
                 Icon(
                     Icons.Filled.Warning,
                     contentDescription = "Warning",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
             }
             curvedText(
                 "Network lost",
                 maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

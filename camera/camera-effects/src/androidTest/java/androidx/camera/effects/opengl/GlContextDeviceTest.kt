@@ -30,7 +30,6 @@ import org.junit.runner.RunWith
 /** Instrumentation tests for [GlContext]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class GlContextDeviceTest {
 
     companion object {
@@ -75,6 +74,7 @@ class GlContextDeviceTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/441561813
     @Test
     fun drawRegisteredSurface_noException() {
         instrumentation.runOnMainSync {

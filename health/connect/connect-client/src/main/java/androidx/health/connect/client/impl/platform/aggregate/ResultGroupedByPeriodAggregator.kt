@@ -34,7 +34,7 @@ import java.time.Period
 internal class ResultGroupedByPeriodAggregator<T : Record>(
     private val timeRange: LocalTimeRange,
     private val bucketPeriod: Period,
-    private val initProcessor: (LocalTimeRange) -> AggregationProcessor<T>
+    private val initProcessor: (LocalTimeRange) -> AggregationProcessor<T>,
 ) : Aggregator<T, List<AggregationResultGroupedByPeriod>> {
 
     private val bucketProcessors = mutableMapOf<LocalDateTime, AggregationProcessor<T>>()
@@ -59,7 +59,7 @@ internal class ResultGroupedByPeriodAggregator<T : Record>(
                             )
                         )
                     else -> error("Unsupported value for aggregation: $record")
-                }
+                },
             )
 
         val lastBucketStartTime =
@@ -88,7 +88,7 @@ internal class ResultGroupedByPeriodAggregator<T : Record>(
             AggregationResultGroupedByPeriod(
                 result = processor.getProcessedAggregationResult(),
                 startTime = startTime,
-                endTime = getBucketTimeRange(startTime).endTime
+                endTime = getBucketTimeRange(startTime).endTime,
             )
         }
     }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.wear.protolayout.modifiers
 
 import androidx.annotation.Dimension
@@ -32,7 +34,7 @@ fun LayoutModifier.border(@Dimension(DP) width: Float, color: LayoutColor): Layo
     this then BaseBorderElement(width, color)
 
 internal class BaseBorderElement(@Dimension(DP) val width: Float, val color: LayoutColor) :
-    LayoutModifier.Element {
-    fun mergeTo(initial: Border.Builder?): Border.Builder =
-        (initial ?: Border.Builder()).setWidth(width.dp).setColor(color.prop)
+    BaseProtoLayoutModifiersElement<Border.Builder> {
+    override fun mergeTo(initialBuilder: Border.Builder?): Border.Builder =
+        (initialBuilder ?: Border.Builder()).setWidth(width.dp).setColor(color.prop)
 }

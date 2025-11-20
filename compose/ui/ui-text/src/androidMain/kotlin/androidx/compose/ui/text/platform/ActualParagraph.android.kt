@@ -50,7 +50,7 @@ internal actual fun ActualParagraph(
     ellipsis: Boolean,
     width: Float,
     density: Density,
-    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
+    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader,
 ): Paragraph =
     AndroidParagraph(
         AndroidParagraphIntrinsics(
@@ -59,11 +59,11 @@ internal actual fun ActualParagraph(
             placeholders = placeholders,
             annotations = annotations,
             fontFamilyResolver = createFontFamilyResolver(resourceLoader),
-            density = density
+            density = density,
         ),
         maxLines,
         if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
-        Constraints(maxWidth = width.ceilToInt())
+        Constraints(maxWidth = width.ceilToInt()),
     )
 
 internal actual fun ActualParagraph(
@@ -75,7 +75,7 @@ internal actual fun ActualParagraph(
     overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): Paragraph =
     AndroidParagraph(
         AndroidParagraphIntrinsics(
@@ -84,22 +84,22 @@ internal actual fun ActualParagraph(
             placeholders = placeholders,
             annotations = annotations,
             fontFamilyResolver = fontFamilyResolver,
-            density = density
+            density = density,
         ),
         maxLines,
         overflow,
-        constraints
+        constraints,
     )
 
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     overflow: TextOverflow,
-    constraints: Constraints
+    constraints: Constraints,
 ): Paragraph =
     AndroidParagraph(
         paragraphIntrinsics as AndroidParagraphIntrinsics,
         maxLines,
         overflow,
-        constraints
+        constraints,
     )

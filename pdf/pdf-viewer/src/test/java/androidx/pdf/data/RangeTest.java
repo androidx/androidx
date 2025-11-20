@@ -18,15 +18,14 @@ package androidx.pdf.data;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link Range}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class RangeTest {
 
     @Test

@@ -19,7 +19,6 @@ package androidx.camera.video
 import android.os.Build
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeFalse
@@ -28,7 +27,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class AudioSpecTest {
 
     @Test
@@ -36,15 +34,15 @@ class AudioSpecTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         val audioSpec = AudioSpec.builder().build()
 
         assertThat(audioSpec.source).isEqualTo(AudioSpec.SOURCE_AUTO)
         assertThat(audioSpec.sourceFormat).isEqualTo(AudioSpec.SOURCE_FORMAT_AUTO)
-        assertThat(audioSpec.bitrate).isEqualTo(AudioSpec.BITRATE_RANGE_AUTO)
+        assertThat(audioSpec.bitrate).isEqualTo(AudioSpec.BITRATE_AUTO)
         assertThat(audioSpec.channelCount).isEqualTo(AudioSpec.CHANNEL_COUNT_AUTO)
-        assertThat(audioSpec.sampleRate).isEqualTo(AudioSpec.SAMPLE_RATE_RANGE_AUTO)
+        assertThat(audioSpec.sampleRate).isEqualTo(AudioSpec.SAMPLE_RATE_AUTO)
     }
 }

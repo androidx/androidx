@@ -22,7 +22,7 @@ import static androidx.profileinstaller.ProfileTranscoder.MAGIC_PROFM;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.truth.Truth;
 
@@ -41,7 +41,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4.class)
 public class ProfileTranscoderTests {
     private static final String APK_NAME = "base.apk";

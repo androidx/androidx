@@ -28,12 +28,14 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    // Remove when b/442128557 is fixed
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
 }
 
 android {
+    compileSdk = 35
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.fragment.TestRunner"
     }
@@ -41,9 +43,8 @@ android {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(project(":hilt:hilt-navigation"))
-    api("androidx.navigation:navigation-fragment-ktx:2.5.1")
+    api(project(":hilt:hilt-lifecycle-viewmodel"))
+    api("androidx.navigation:navigation-fragment-ktx:2.9.0")
 
     androidTestImplementation("androidx.fragment:fragment-testing:1.3.0")
     androidTestImplementation(libs.testExtJunit)
@@ -55,9 +56,7 @@ dependencies {
     androidTestImplementation(libs.hiltAndroidTesting)
     kspAndroidTest(libs.hiltCompiler)
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: 'androidx.navigation', module: 'navigation-common'
-    })
+    androidTestImplementation(project(":internal-testutils-navigation"))
 }
 
 hilt {
@@ -71,9 +70,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Navigation Fragment Hilt Extension"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
-ksp {
-    useKsp2 = true
-}

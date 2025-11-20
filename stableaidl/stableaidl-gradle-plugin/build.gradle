@@ -21,16 +21,14 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
+import androidx.build.KotlinTarget
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("java-gradle-plugin")
 }
-
-apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 configurations {
     // Config for plugin classpath to be used during tests
@@ -41,24 +39,20 @@ configurations {
 }
 
 dependencies {
-    runtimeOnly(findGradleKotlinDsl())
+    compileOnly(libs.kotlinGradlePlugin)
 
-    // Pinned AGP and lint versions that use an older version of Kotlin (pre 2.1) to avoid bumping
-    // the Kotlin target of this project to 2.1.
-    api("com.android.tools.build:gradle-api:8.8.0-alpha06")
-    api("com.android.tools:common:31.8.0-alpha06")
-    api("com.android.tools:sdk-common:31.8.0-alpha06")
+    api(libs.androidGradlePluginApi)
+    api(libs.androidToolsCommon)
+    api(libs.androidToolsSdkCommon)
+    api(libs.androidToolsRepository)
     api(libs.guava)
 
-    implementation(gradleApi())
-    implementation("com.android.tools:repository:31.8.0-alpha06")
     implementation(libs.apacheCommonIo)
     implementation(libs.apacheAnt)
-    implementation(libs.kotlinStdlib)
 
     testPlugin(libs.androidGradlePlugin)
 
-    testImplementation("com.android.tools.build:gradle:8.8.0-alpha06")
+    testImplementation(libs.androidGradlePlugin)
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)
@@ -88,5 +82,5 @@ androidx {
     type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

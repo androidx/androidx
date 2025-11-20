@@ -132,7 +132,7 @@ fun Project.registerValidateMultiplatformSourceSetNamingTask() {
     tasks
         .register(
             "validateMultiplatformSourceSetNaming",
-            ValidateMultiplatformSourceSetNaming::class.java
+            ValidateMultiplatformSourceSetNaming::class.java,
         ) { task ->
             targets
                 .filterNot { target -> target.platformType.name == "common" }
@@ -141,13 +141,7 @@ fun Project.registerValidateMultiplatformSourceSetNamingTask() {
             task.cacheEvenIfNoOutputs()
         }
         .also { validateTask ->
-            // Multiplatform projects with no enabled platforms do not actually apply the Kotlin
-            // plugin
-            // and therefore do not have the check task. They are skipped unless a platform is
-            // enabled.
-            if (project.tasks.findByName("check") != null) {
-                project.addToCheckTask(validateTask)
-                project.addToBuildOnServer(validateTask)
-            }
+            project.addToCheckTask(validateTask)
+            project.addToBuildOnServer(validateTask)
         }
 }

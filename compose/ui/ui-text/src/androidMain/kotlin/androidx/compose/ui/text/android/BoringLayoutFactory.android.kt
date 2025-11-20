@@ -90,7 +90,7 @@ internal object BoringLayoutFactory {
                 includePadding,
                 useFallbackLineSpacing,
                 ellipsize,
-                ellipsizedWidth
+                ellipsizedWidth,
             )
         } else {
             BoringLayoutFactoryDefault.create(
@@ -103,7 +103,7 @@ internal object BoringLayoutFactory {
                 metrics,
                 includePadding,
                 ellipsize,
-                ellipsizedWidth
+                ellipsizedWidth,
             )
         }
     }
@@ -129,7 +129,7 @@ private object BoringLayoutFactory33 {
             paint,
             textDir,
             LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
-            null /* metrics */
+            null, /* metrics */
         )
     }
 
@@ -145,7 +145,7 @@ private object BoringLayoutFactory33 {
         includePadding: Boolean,
         useFallbackLineSpacing: Boolean,
         ellipsize: TruncateAt? = null,
-        ellipsizedWidth: Int = width
+        ellipsizedWidth: Int = width,
     ): BoringLayout {
         return BoringLayout(
             text,
@@ -158,7 +158,7 @@ private object BoringLayoutFactory33 {
             includePadding,
             ellipsize,
             ellipsizedWidth,
-            useFallbackLineSpacing
+            useFallbackLineSpacing,
         )
     }
 
@@ -189,7 +189,7 @@ private object BoringLayoutFactoryDefault {
         metrics: Metrics,
         includePadding: Boolean,
         ellipsize: TruncateAt? = null,
-        ellipsizedWidth: Int = width
+        ellipsizedWidth: Int = width,
     ): BoringLayout {
         return BoringLayout(
             text,
@@ -201,7 +201,7 @@ private object BoringLayoutFactoryDefault {
             metrics,
             includePadding,
             ellipsize,
-            ellipsizedWidth
+            ellipsizedWidth,
         )
     }
 }

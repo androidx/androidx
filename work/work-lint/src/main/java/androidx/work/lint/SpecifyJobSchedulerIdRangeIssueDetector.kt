@@ -54,14 +54,14 @@ class SpecifyJobSchedulerIdRangeIssueDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         SpecifyJobSchedulerIdRangeIssueDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
 
         private val WELL_KNOWN_JOB_SERVICES =
             listOf(
                 "android.app.job.JobService",
-                "androidx.work.impl.background.systemjob.SystemJobService"
+                "androidx.work.impl.background.systemjob.SystemJobService",
             )
     }
 
@@ -102,7 +102,7 @@ class SpecifyJobSchedulerIdRangeIssueDetector : Detector(), SourceCodeScanner {
             context.report(
                 issue = ISSUE,
                 location = location ?: Location.create(context.file),
-                message = "Specify a valid range of job id's for `WorkManager` to use."
+                message = "Specify a valid range of job id's for `WorkManager` to use.",
             )
         }
     }

@@ -41,7 +41,7 @@ class ImageCaptureOrientationConfigChangesTest(
     private val lensFacing: Int,
     private val rotation: Int,
     private val captureMode: Int,
-    private val cameraXConfig: String
+    private val cameraXConfig: String,
 ) : ImageCaptureBaseTest<OrientationConfigChangesOverriddenActivity>(cameraXConfig) {
 
     companion object {
@@ -50,7 +50,7 @@ class ImageCaptureOrientationConfigChangesTest(
                 Surface.ROTATION_0,
                 Surface.ROTATION_90,
                 Surface.ROTATION_180,
-                Surface.ROTATION_270
+                Surface.ROTATION_270,
             )
 
         @JvmStatic
@@ -80,9 +80,9 @@ class ImageCaptureOrientationConfigChangesTest(
                     "redmi note 8",
                     "m2003j15sc", // Redmi Note 9
                     "m2006c3lg", // Redmi 9A
-                    "m2006c3mg" // Redmi 9C
+                    "m2006c3mg", // Redmi 9C
                 )
-                .contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180
+                .contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180,
         )
         CoreAppTestUtil.assumeCompatibleDevice()
         setUp(lensFacing)
@@ -99,7 +99,7 @@ class ImageCaptureOrientationConfigChangesTest(
         verifyRotation<OrientationConfigChangesOverriddenActivity>(
             lensFacing,
             captureMode,
-            cameraXConfig
+            cameraXConfig,
         ) {
             if (rotate(rotation)) {
 

@@ -60,7 +60,7 @@ fun ContextualFlowRowMaxLineDynamicSeeMore() {
         text =
             "ContextualFlowRow (based on Subcompose)" +
                 " is great for Large Items & +N dynamic labels",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
     val moreOrCollapseIndicator =
         @Composable { scope: ContextualFlowRowOverflowScope ->
@@ -83,9 +83,9 @@ fun ContextualFlowRowMaxLineDynamicSeeMore() {
             ContextualFlowRowOverflow.expandOrCollapseIndicator(
                 minRowsToShowCollapse = 4,
                 expandIndicator = moreOrCollapseIndicator,
-                collapseIndicator = moreOrCollapseIndicator
+                collapseIndicator = moreOrCollapseIndicator,
             ),
-        itemCount = totalCount
+        itemCount = totalCount,
     ) {
         Box(
             Modifier.align(Alignment.CenterVertically)
@@ -96,7 +96,7 @@ fun ContextualFlowRowMaxLineDynamicSeeMore() {
             Text(
                 text = it.toString(),
                 fontSize = 18.sp,
-                modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                modifier = Modifier.padding(3.dp).align(Alignment.Center),
             )
         }
     }
@@ -112,7 +112,7 @@ fun ContextualFlowRow_ItemPosition() {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxItemsInEachRow = 4,
-        itemCount = 12
+        itemCount = 12,
     ) {
         val width = Random.nextInt(80, 100).dp.coerceAtMost(maxWidthInLine)
         val height = 50.dp.coerceAtMost(maxHeight)
@@ -126,7 +126,7 @@ fun ContextualFlowRow_ItemPosition() {
                     "Ln: ${this@ContextualFlowRow.lineIndex}" +
                         "\nPs: ${this@ContextualFlowRow.indexInLine}",
                 fontSize = 18.sp,
-                modifier = Modifier.padding(3.dp)
+                modifier = Modifier.padding(3.dp),
             )
         }
     }
@@ -157,7 +157,7 @@ internal fun DynamicSeeMore(isHorizontal: Boolean, remainingItems: Int, onClick:
         Text(
             modifier = Modifier.align(Alignment.Center).padding(3.dp),
             text = if (remainingItems == 0) collapseText else "+$remainingItems",
-            fontSize = 18.sp
+            fontSize = 18.sp,
         )
     }
 }

@@ -43,36 +43,36 @@ private val KeyboardOptionsList =
             keyboardOptions =
                 KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Characters
+                    capitalization = KeyboardCapitalization.Characters,
                 ),
-            name = "Capitalize Characters"
+            name = "Capitalize Characters",
         ),
         ImeOptionsData(
             keyboardOptions =
                 KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Words
+                    capitalization = KeyboardCapitalization.Words,
                 ),
-            name = "Capitalize Words"
+            name = "Capitalize Words",
         ),
         ImeOptionsData(
             keyboardOptions =
                 KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Sentences
+                    capitalization = KeyboardCapitalization.Sentences,
                 ),
-            name = "Capitalize Sentences"
+            name = "Capitalize Sentences",
         ),
         ImeOptionsData(
             keyboardOptions =
                 KeyboardOptions(autoCorrectEnabled = true, keyboardType = KeyboardType.Text),
-            name = "AutoCorrect On"
+            name = "AutoCorrect On",
         ),
         ImeOptionsData(
             keyboardOptions =
                 KeyboardOptions(autoCorrectEnabled = false, keyboardType = KeyboardType.Text),
-            name = "AutoCorrect Off"
-        )
+            name = "AutoCorrect Off",
+        ),
     )
 
 @Preview
@@ -98,6 +98,6 @@ private fun MyTextField(data: ImeOptionsData) {
         keyboardActions = KeyboardActions { keyboardController?.hide() },
         onValueChange = { state = it },
         textStyle = TextStyle(fontSize = fontSize8),
-        cursorBrush = SolidColor(Color.Red)
+        cursorBrush = SolidColor(Color.Red),
     )
 }

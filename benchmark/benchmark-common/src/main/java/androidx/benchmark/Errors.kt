@@ -246,6 +246,11 @@ object Errors {
             """
                     .trimMarginWrapNewlines()
         }
+        if (DeviceMirroring.isAndroidStudioDeviceMirroringActive()) {
+            warningPrefix += "${DeviceMirroring.Error.ID}_"
+            warningString += "ERROR: " + DeviceMirroring.Error.SUMMARY
+            warningString += DeviceMirroring.Error.MESSAGE.trimMarginWrapNewlines()
+        }
 
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {

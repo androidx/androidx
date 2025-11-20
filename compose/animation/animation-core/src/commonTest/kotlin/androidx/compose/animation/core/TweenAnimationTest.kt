@@ -32,7 +32,7 @@ class TweenAnimationTest {
             VectorizedTweenSpec<AnimationVector1D>(
                 delayMillis = 100,
                 durationMillis = testDuration,
-                easing = LinearEasing
+                easing = LinearEasing,
             )
 
         fun atPlaytime(playTime: Long) =
@@ -51,7 +51,7 @@ class TweenAnimationTest {
         val animation =
             VectorizedTweenSpec<AnimationVector1D>(
                 durationMillis = totalDuration,
-                easing = accelerateEasing
+                easing = accelerateEasing,
             )
 
         val fraction = 0.3f

@@ -57,7 +57,7 @@ class GoogleFontTest {
         GoogleFont.Provider(
             "providerAuthority",
             "providerPackage",
-            listOf(listOf(ByteArray(100) { it.toByte() }))
+            listOf(listOf(ByteArray(100) { it.toByte() })),
         )
 
     @Test
@@ -199,7 +199,7 @@ class GoogleFontTest {
                 GoogleFontTypefaceLoader.awaitLoad(
                     context,
                     Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
-                    compatLoader
+                    compatLoader,
                 )
             }
             compatLoader.callback?.onTypefaceRetrieved(Typeface.MONOSPACE)
@@ -217,7 +217,7 @@ class GoogleFontTest {
                     GoogleFontTypefaceLoader.awaitLoad(
                         context,
                         Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
-                        compatLoader
+                        compatLoader,
                     )
                 }
             compatLoader.callback?.onTypefaceRequestFailed(42)
@@ -242,7 +242,7 @@ class GoogleFontTest {
                     GoogleFontTypefaceLoader.awaitLoad(
                         context,
                         Font(GoogleFont("Foo"), TestProvider) as AndroidFont,
-                        compatLoader
+                        compatLoader,
                     )
                 }
             compatLoader.callback?.onTypefaceRequestFailed(FAIL_REASON_FONT_NOT_FOUND)
@@ -283,7 +283,7 @@ class GoogleFontTest {
             GoogleFont.Provider(
                 "provider",
                 "package",
-                listOf(listOf(ByteArray(100) { it.toByte() }))
+                listOf(listOf(ByteArray(100) { it.toByte() })),
             )
         assertThat(provider.certificatesRes).isEqualTo(0)
         assertThat(provider.certificates).isNotNull()
@@ -303,7 +303,7 @@ class GoogleFontTest {
             GoogleFont.Provider(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
-                listOf() /* this is never a valid cert */
+                listOf(), /* this is never a valid cert */
             )
         provider.isAvailableOnDevice(context)
     }
@@ -322,8 +322,8 @@ class GoogleFontTest {
                 "com.google.android.gms",
                 listOf(
                     listOf(loadComGoogleAndroidGmsProdCertificateByteArray(context.assets)),
-                    listOf(loadComGoogleAndroidGmsDevCertificateByteArray(context.assets))
-                )
+                    listOf(loadComGoogleAndroidGmsDevCertificateByteArray(context.assets)),
+                ),
             )
 
         assertThat(provider.isAvailableOnDevice(context)).isTrue()
@@ -341,7 +341,7 @@ class GoogleFontTest {
             GoogleFont.Provider(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
-                R.array.com_google_android_gms_fonts_certs
+                R.array.com_google_android_gms_fonts_certs,
             )
         assertThat(provider.isAvailableOnDevice(context)).isTrue()
     }
@@ -356,7 +356,7 @@ class GoogleFontTest {
             GoogleFont.Provider(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
-                listOf() /* this is never a valid cert */
+                listOf(), /* this is never a valid cert */
             )
         assertThat(provider.isAvailableOnDevice(context)).isFalse()
     }
@@ -378,7 +378,7 @@ class GoogleFontTest {
             fontRequest: FontRequest,
             typefaceStyle: Int,
             handler: Handler,
-            callback: FontsContractCompat.FontRequestCallback
+            callback: FontsContractCompat.FontRequestCallback,
         ) {
             this.callback = callback
         }

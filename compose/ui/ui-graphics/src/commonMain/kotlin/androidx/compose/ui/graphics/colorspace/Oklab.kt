@@ -91,7 +91,7 @@ internal class Oklab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, i
         y: Float,
         z: Float,
         a: Float,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Color {
         var v0 = mul3x3Float3_0(M1, x, y, z)
         var v1 = mul3x3Float3_1(M1, x, y, z)
@@ -136,13 +136,13 @@ internal class Oklab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, i
                     0.2643662691f,
                     -0.1288597137f,
                     0.0361456387f,
-                    0.6338517070f
+                    0.6338517070f,
                 ),
                 chromaticAdaptation(
                     matrix = Adaptation.Bradford.transform,
                     srcWhitePoint = Illuminant.D50.toXyz(),
-                    dstWhitePoint = Illuminant.D65.toXyz()
-                )
+                    dstWhitePoint = Illuminant.D65.toXyz(),
+                ),
             )
 
         /** Matrix applied after the nonlinear transform. */
@@ -156,7 +156,7 @@ internal class Oklab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, i
                 0.7827717662f,
                 -0.0040720468f,
                 0.4505937099f,
-                -0.8086757660f
+                -0.8086757660f,
             )
 
         /** The inverse of the [M1] matrix, transforming back to XYZ (D50) */

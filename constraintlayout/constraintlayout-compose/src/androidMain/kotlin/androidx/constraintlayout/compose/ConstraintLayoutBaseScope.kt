@@ -50,7 +50,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         ConstraintSetParser.populateState(
             containerObject,
             state,
-            ConstraintSetParser.LayoutVariables()
+            ConstraintSetParser.LayoutVariables(),
         )
     }
 
@@ -78,11 +78,12 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param reference The [LayoutReference] that this anchor belongs to.
      */
     @Stable
+    @Suppress("DataClassDefinition", "DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     data class VerticalAnchor
     internal constructor(
         internal val id: Any,
         internal val index: Int,
-        val reference: LayoutReference
+        val reference: LayoutReference,
     )
 
     /**
@@ -92,11 +93,12 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param reference The [LayoutReference] that this anchor belongs to.
      */
     @Stable
+    @Suppress("DataClassDefinition", "DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     data class HorizontalAnchor
     internal constructor(
         internal val id: Any,
         internal val index: Int,
-        val reference: LayoutReference
+        val reference: LayoutReference,
     )
 
     /**
@@ -107,6 +109,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     // TODO(popam): investigate if this can be just a HorizontalAnchor
     @Stable
+    @Suppress("DataClassDefinition", "DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     data class BaselineAnchor
     internal constructor(internal val id: Any, val reference: LayoutReference)
 
@@ -115,26 +118,26 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     fun constrain(
         ref: HorizontalChainReference,
-        constrainBlock: HorizontalChainScope.() -> Unit
+        constrainBlock: HorizontalChainScope.() -> Unit,
     ): HorizontalChainScope =
         HorizontalChainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /** Specifies additional constraints associated to the vertical chain identified with [ref]. */
     fun constrain(
         ref: VerticalChainReference,
-        constrainBlock: VerticalChainScope.() -> Unit
+        constrainBlock: VerticalChainScope.() -> Unit,
     ): VerticalChainScope = VerticalChainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /** Specifies the constraints associated to the layout identified with [ref]. */
     fun constrain(
         ref: ConstrainedLayoutReference,
-        constrainBlock: ConstrainScope.() -> Unit
+        constrainBlock: ConstrainScope.() -> Unit,
     ): ConstrainScope = ConstrainScope(ref.id, ref.asCLContainer()).apply(constrainBlock)
 
     /** Convenient way to apply the same constraints to multiple [ConstrainedLayoutReference]s. */
     fun constrain(
         vararg refs: ConstrainedLayoutReference,
-        constrainBlock: ConstrainScope.() -> Unit
+        constrainBlock: ConstrainScope.() -> Unit,
     ) {
         refs.forEach { ref -> constrain(ref, constrainBlock) }
     }
@@ -348,7 +351,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     /** Creates and returns a left barrier, containing the specified elements. */
     fun createAbsoluteLeftBarrier(
         vararg elements: LayoutReference,
-        margin: Dp = 0.dp
+        margin: Dp = 0.dp,
     ): VerticalAnchor {
         val ref = LayoutReferenceImpl(createHelperId())
 
@@ -411,7 +414,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     /** Creates and returns a right barrier, containing the specified elements. */
     fun createAbsoluteRightBarrier(
         vararg elements: LayoutReference,
-        margin: Dp = 0.dp
+        margin: Dp = 0.dp,
     ): VerticalAnchor {
         val ref = LayoutReferenceImpl(createHelperId())
 
@@ -503,7 +506,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             horizontalFlowBias = horizontalFlowBias,
             verticalFlowBias = verticalFlowBias,
             verticalStyle = verticalStyle,
-            horizontalStyle = horizontalStyle
+            horizontalStyle = horizontalStyle,
         )
     }
 
@@ -561,7 +564,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             horizontalFlowBias = horizontalFlowBias,
             verticalFlowBias = verticalFlowBias,
             verticalStyle = verticalStyle,
-            horizontalStyle = horizontalStyle
+            horizontalStyle = horizontalStyle,
         )
     }
 
@@ -830,7 +833,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     fun createHorizontalChain(
         vararg elements: LayoutReference,
-        chainStyle: ChainStyle = ChainStyle.Spread
+        chainStyle: ChainStyle = ChainStyle.Spread,
     ): HorizontalChainReference {
         val ref = HorizontalChainReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
@@ -875,7 +878,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      */
     fun createVerticalChain(
         vararg elements: LayoutReference,
-        chainStyle: ChainStyle = ChainStyle.Spread
+        chainStyle: ChainStyle = ChainStyle.Spread,
     ): VerticalChainReference {
         val ref = VerticalChainReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
@@ -962,7 +965,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
                     topGoneMargin = topGoneMargin,
                     endGoneMargin = endGoneMargin,
                     bottomGoneMargin = bottomGoneMargin,
-                    weight = weight
+                    weight = weight,
                 )
             )
         }
@@ -995,7 +998,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         endMargin: Dp = 0.dp,
         startGoneMargin: Dp = 0.dp,
         endGoneMargin: Dp = 0.dp,
-        weight: Float = Float.NaN
+        weight: Float = Float.NaN,
     ): LayoutReference =
         withChainParams(
             startMargin = startMargin,
@@ -1006,7 +1009,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             topGoneMargin = 0.dp,
             endGoneMargin = endGoneMargin,
             bottomGoneMargin = 0.dp,
-            weight = weight
+            weight = weight,
         )
 
     /**
@@ -1037,7 +1040,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         bottomMargin: Dp = 0.dp,
         topGoneMargin: Dp = 0.dp,
         bottomGoneMargin: Dp = 0.dp,
-        weight: Float = Float.NaN
+        weight: Float = Float.NaN,
     ): LayoutReference =
         withChainParams(
             startMargin = 0.dp,
@@ -1048,7 +1051,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             topGoneMargin = topGoneMargin,
             endGoneMargin = 0.dp,
             bottomGoneMargin = bottomGoneMargin,
-            weight = weight
+            weight = weight,
         )
 
     internal fun LayoutReference.asCLContainer(): CLObject {
@@ -1148,7 +1151,7 @@ internal class ChainParams(
                 topGoneMargin = 0.dp,
                 endGoneMargin = 0.dp,
                 bottomGoneMargin = 0.dp,
-                weight = Float.NaN
+                weight = Float.NaN,
             )
     }
 }
@@ -1316,7 +1319,7 @@ value class GridFlag private constructor(internal val value: Int) {
     private constructor(
         isPlaceLayoutsOnSpansFirst: Boolean = false,
         // isSubGridByColRow is only expected to be used on tests
-        isSubGridByColRow: Boolean = false
+        isSubGridByColRow: Boolean = false,
     ) : this(
         (if (isPlaceLayoutsOnSpansFirst) 0 else GridCore.SPANS_RESPECT_WIDGET_ORDER) or
             (if (isSubGridByColRow) GridCore.SUB_GRID_BY_COL_ROW else 0)
@@ -1328,7 +1331,7 @@ value class GridFlag private constructor(internal val value: Int) {
         // :constraintlayout-core flag behaviors.
         GridFlag(
             isPlaceLayoutsOnSpansFirst or other.isPlaceLayoutsOnSpansFirst,
-            isSubGridByColRow or other.isSubGridByColRow
+            isSubGridByColRow or other.isSubGridByColRow,
         )
 
     /**
@@ -1422,12 +1425,12 @@ value class Skip private constructor(val description: String) {
     constructor(
         @IntRange(from = 0) position: Int,
         @IntRange(from = 1) rows: Int,
-        @IntRange(from = 1) columns: Int
+        @IntRange(from = 1) columns: Int,
     ) : this("$position:${rows}x$columns")
 
     constructor(
         @IntRange(from = 0) position: Int,
-        @IntRange(from = 1) size: Int
+        @IntRange(from = 1) size: Int,
     ) : this("$position:$size")
 }
 
@@ -1445,11 +1448,11 @@ value class Span(val description: String) {
     constructor(
         @IntRange(from = 0) position: Int,
         @IntRange(from = 1) rows: Int,
-        @IntRange(from = 1) columns: Int
+        @IntRange(from = 1) columns: Int,
     ) : this("$position:${rows}x$columns")
 
     constructor(
         @IntRange(from = 0) position: Int,
-        @IntRange(from = 1) size: Int
+        @IntRange(from = 1) size: Int,
     ) : this("$position:$size")
 }

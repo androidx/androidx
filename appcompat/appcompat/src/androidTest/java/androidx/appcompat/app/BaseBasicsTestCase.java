@@ -40,8 +40,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.custom.FitWindowsContentLayout;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.view.ActionMode;
@@ -148,43 +146,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 20)
-    public void testFitSystemWindowsReachesContent() throws Throwable {
-        final A activity = mActivityTestRule.getActivity();
-        if (!canShowSystemUi(activity)) {
-            // Device cannot show system UI so setSystemUiVisibility will do nothing.
-            return;
-        }
-
-        final FitWindowsContentLayout content = activity.findViewById(R.id.test_content);
-        assertNotNull(content);
-
-        // Tell the window that we will handle insets
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WindowCompat.setDecorFitsSystemWindows(activity.getWindow(), false);
-            }
-        });
-
-        // Wait for the next layout
-        final CountDownLatch latch = new CountDownLatch(1);
-        content.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                v.removeOnLayoutChangeListener(this);
-                latch.countDown();
-            }
-        });
-        latch.await(5, TimeUnit.SECONDS);
-
-        assertTrue(content.getFitsSystemWindowsCalled());
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 21)
-    @RequiresApi(21)
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     public void testOnApplyWindowInsetsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -200,7 +162,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     public void testOnApplyWindowInsetsReachesContent_matchesRootBottom() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -223,7 +185,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     @SdkSuppress(minSdkVersion = 28, maxSdkVersion = 33) // maxSdk 33 b/322355781
-    @RequiresApi(28)
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {

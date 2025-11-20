@@ -37,6 +37,7 @@ public class RestrictedContentActivity extends AppCompatActivity {
 
     private void setupLayout() {
         setContentView(R.layout.activity_restricted_content);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.restricted_content_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

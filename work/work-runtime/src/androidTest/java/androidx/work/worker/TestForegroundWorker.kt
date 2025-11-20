@@ -24,7 +24,7 @@ import androidx.work.WorkerParameters
 
 public open class TestForegroundWorker(
     private val context: Context,
-    private val parameters: WorkerParameters
+    private val parameters: WorkerParameters,
 ) : Worker(context, parameters) {
 
     override fun doWork(): Result {

@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.wear.protolayout.modifiers
 
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
 import androidx.wear.protolayout.ModifiersBuilders
+import androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility
 import androidx.wear.protolayout.ModifiersBuilders.Background
 import androidx.wear.protolayout.ModifiersBuilders.Border
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ModifiersBuilders.Corner
 import androidx.wear.protolayout.ModifiersBuilders.ElementMetadata
+import androidx.wear.protolayout.ModifiersBuilders.EnterTransition
+import androidx.wear.protolayout.ModifiersBuilders.ExitTransition
 import androidx.wear.protolayout.ModifiersBuilders.Padding
 import androidx.wear.protolayout.ModifiersBuilders.Semantics
 import androidx.wear.protolayout.TypeBuilders.BoolProp
 import androidx.wear.protolayout.TypeBuilders.FloatProp
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental
+import androidx.wear.protolayout.modifiers.LayoutModifier.Element
 
 /** Creates a [ModifiersBuilders.Modifiers] from a [LayoutModifier]. */
 @SuppressLint("ProtoLayoutMinSchema")
@@ -43,6 +49,8 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
     var border: Border.Builder? = null
     var visible: BoolProp.Builder? = null
     var opacity: FloatProp.Builder? = null
+    var enterTransition: EnterTransition.Builder? = null
+    var exitTransition: ExitTransition.Builder? = null
 
     this.foldRight(Unit) { _, e ->
         when (e) {
@@ -55,6 +63,8 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
             is BaseBorderElement -> border = e.mergeTo(border)
             is BaseVisibilityElement -> visible = e.mergeTo(visible)
             is BaseOpacityElement -> opacity = e.mergeTo(opacity)
+            is BaseEnterTransitionElement -> enterTransition = e.mergeTo(enterTransition)
+            is BaseExitTransitionElement -> exitTransition = e.mergeTo(exitTransition)
         }
     }
 
@@ -70,6 +80,18 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
             border?.let { setBorder(it.build()) }
             visible?.let { setVisible(it.build()) }
             opacity?.let { setOpacity(it.build()) }
+            if (enterTransition != null || exitTransition != null) {
+                val transition = AnimatedVisibility.Builder()
+                enterTransition?.let { transition.setEnterTransition(it.build()) }
+                exitTransition?.let { transition.setExitTransition(it.build()) }
+                setContentUpdateAnimation(transition.build())
+            }
         }
         .build()
+}
+
+/** Base class for all modifiers that can merge to a ProtoLayout modifiers builder. */
+internal interface BaseProtoLayoutModifiersElement<T> : Element {
+    /** Merges the modifier to the passed in builder. */
+    fun mergeTo(initialBuilder: T?): T?
 }

@@ -54,7 +54,7 @@ internal object HapticSignalConverter {
 
     internal fun toVibration(
         initialWaveform: WaveformSignal?,
-        repeatingWaveform: WaveformSignal?
+        repeatingWaveform: WaveformSignal?,
     ): VibrationWrapper? =
         if (Build.VERSION.SDK_INT >= 26) {
             Api26Impl.toVibrationEffect(initialWaveform, repeatingWaveform)

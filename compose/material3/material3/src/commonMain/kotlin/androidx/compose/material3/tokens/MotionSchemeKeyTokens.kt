@@ -23,5 +23,5 @@ internal enum class MotionSchemeKeyTokens {
     SlowSpatial,
     DefaultEffects,
     FastEffects,
-    SlowEffects
+    SlowEffects,
 }

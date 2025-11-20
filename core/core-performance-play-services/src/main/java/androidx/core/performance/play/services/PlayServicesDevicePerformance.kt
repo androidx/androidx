@@ -46,7 +46,7 @@ public class PlayServicesDevicePerformance
 internal constructor(
     private val context: Context,
     client: DevicePerformanceClient,
-    private val performanceStore: DataStore<Preferences>
+    private val performanceStore: DataStore<Preferences>,
 ) : DevicePerformance {
     private val tag = "PlayServicesDevicePerformance"
 
@@ -71,7 +71,7 @@ internal constructor(
         Log.v(
             tag,
             "Getting mediaPerformanceClass from " +
-                "com.google.android.gms.deviceperformance.DevicePerformanceClient"
+                "com.google.android.gms.deviceperformance.DevicePerformanceClient",
         )
         updatePerformanceStore(client)
     }
@@ -88,7 +88,7 @@ internal constructor(
         com.google.android.gms.deviceperformance.DevicePerformance.getClient(context),
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("media_performance_class") }
-        )
+        ),
     )
 
     private fun getPerformanceClass(): Flow<Int?> {

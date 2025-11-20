@@ -16,10 +16,8 @@
 
 package androidx.hilt.integration.workerapp
 
-import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.ListenableWorker
@@ -38,7 +36,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 // TODO: Find out why random ClassNotFoundException is thrown in APIs lower than 21.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class SimpleTest {
 
     @get:Rule val testRule = HiltAndroidRule(this)

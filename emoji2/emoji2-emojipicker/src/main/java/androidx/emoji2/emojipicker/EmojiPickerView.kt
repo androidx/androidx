@@ -110,7 +110,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         emojiGridColumns =
             typedArray.getInt(
                 R.styleable.EmojiPickerView_emojiGridColumns,
-                EmojiPickerConstants.DEFAULT_BODY_COLUMNS
+                EmojiPickerConstants.DEFAULT_BODY_COLUMNS,
             )
         typedArray.recycle()
 
@@ -158,7 +158,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 onEmojiPickedListener?.accept(emojiViewItem)
                 recentEmojiProvider.recordSelection(emojiViewItem.emoji)
                 recentNeedsRefreshing = true
-            }
+            },
         )
     }
 
@@ -174,7 +174,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                             emptyPlaceholderItem =
                                 PlaceholderText(
                                     context.getString(R.string.emoji_empty_recent_category)
-                                )
+                                ),
                         )
                         .also { recentItemGroup = it }
                 )
@@ -188,7 +188,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                             category.emojiDataList.mapIndexed { j, emojiData ->
                                 EmojiViewData(
                                     stickyVariantProvider[emojiData.emoji],
-                                    dataIndex = i + j
+                                    dataIndex = i + j,
                                 )
                             },
                         )
@@ -205,7 +205,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                     context,
                     emojiGridColumns,
                     LinearLayoutManager.VERTICAL,
-                    /* reverseLayout = */ false
+                    /* reverseLayout = */ false,
                 )
                 .apply {
                     spanSizeLookup =
@@ -235,7 +235,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                         // so force a new layout call here.
                         invalidate()
                     }
-                }
+                },
             )
 
         // clear view's children in case of resetting layout
@@ -286,7 +286,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                     RecyclerView.RecycledViewPool().apply {
                         setMaxRecycledViews(
                             ItemType.EMOJI.ordinal,
-                            EmojiPickerConstants.EMOJI_VIEW_POOL_SIZE
+                            EmojiPickerConstants.EMOJI_VIEW_POOL_SIZE,
                         )
                     }
                 )
@@ -302,30 +302,23 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         val recent = recentEmojiProvider.getRecentEmojiList()
         withContext(Dispatchers.Main) {
             recentItems.clear()
-            recentItems.addAll(
-                recent.map {
-                    EmojiViewData(
-                        it,
-                        updateToSticky = false,
-                    )
-                }
-            )
+            recentItems.addAll(recent.map { EmojiViewData(it, updateToSticky = false) })
             if (::emojiPickerItems.isInitialized) {
                 val range = emojiPickerItems.groupRange(recentItemGroup)
                 if (recentItemGroup.size > oldGroupSize) {
                     bodyAdapter.notifyItemRangeInserted(
                         range.first + oldGroupSize,
-                        recentItemGroup.size - oldGroupSize
+                        recentItemGroup.size - oldGroupSize,
                     )
                 } else if (recentItemGroup.size < oldGroupSize) {
                     bodyAdapter.notifyItemRangeRemoved(
                         range.first + recentItemGroup.size,
-                        oldGroupSize - recentItemGroup.size
+                        oldGroupSize - recentItemGroup.size,
                     )
                 }
                 bodyAdapter.notifyItemRangeChanged(
                     range.first,
-                    minOf(oldGroupSize, recentItemGroup.size)
+                    minOf(oldGroupSize, recentItemGroup.size),
                 )
                 recentNeedsRefreshing = false
             }

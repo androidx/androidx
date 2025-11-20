@@ -22,42 +22,20 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * An affine transformation in the plane. The transformation can be thought of as a 3x3 matrix:
- * ```
- *   ⎡m00  m10  m20⎤
- *   ⎢m01  m11  m21⎥
- *   ⎣ 0    0    1 ⎦
- * ```
+ * A mutable affine transformation in the plane. Individual operations can be populated with methods
+ * like [populateFromTranslation] and [populateFromRotationDegrees].
  *
- * Applying the transformation can be thought of as a matrix multiplication, with the
- * to-be-transformed point represented as a column vector with an extra 1:
- * ```
- *   ⎡m00  m10  m20⎤   ⎡x⎤   ⎡m00*x + m10*y + m20⎤
- *   ⎢m01  m11  m21⎥ * ⎢y⎥ = ⎢m01*x + m11*y + m21⎥
- *   ⎣ 0    0    1 ⎦   ⎣1⎦   ⎣         1         ⎦
- * ```
- *
- * Transformations are composed via multiplication. Multiplication is not commutative (i.e. A*B !=
- * B*A), and the left-hand transformation is composed "after" the right hand transformation. E.g.,
- * if you have:
- * ```
- * val rotate = ImmutableAffineTransform.rotate(Angle.degreesToRadians(45))
- * val translate = ImmutableAffineTransform.translate(Vec(10, 0))
- * ```
- *
- * then `rotate * translate` first translates 10 units in the positive x-direction, then rotates 45°
- * about the origin.
- *
+ * See [AffineTransform] for more general documentation about how these transforms are represented.
  * See [ImmutableAffineTransform] for an immutable alternative to this class.
  *
  * @constructor Constructs this transform with 6 float values, starting with the top left corner of
  *   the matrix and proceeding in row-major order. Prefer to create this object with functions that
- *   apply specific transform operations, such as [populateFromScale] or [populateFromRotate],
- *   rather than directly passing in the actual numeric values of this transform. This constructor
- *   is useful for when the values are needed to be provided all at once, for example for
- *   serialization. To access these values in the same order as they are passed in here, use
- *   [AffineTransform.getValues]. To construct this object using an array as input, there is another
- *   public constructor for that.
+ *   apply specific transform operations, such as [populateFromScale] or
+ *   [populateFromRotationDegrees], rather than directly passing in the actual numeric values of
+ *   this transform. This constructor is useful for when the values are needed to be provided all at
+ *   once, for example for serialization. To access these values in the same order as they are
+ *   passed in here, use [AffineTransform.getValues]. To construct this object using an array as
+ *   input, there is another public constructor for that.
  */
 public class MutableAffineTransform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -99,9 +77,9 @@ public constructor(
      * matrix and proceeding in row-major order.
      *
      * Prefer to modify this object with functions that apply specific transform operations, such as
-     * [populateFromScale] or [populateFromRotate], rather than directly setting the actual numeric
-     * values of this transform. This function is useful for when the values are needed to be
-     * provided in bulk, for example for serialization.
+     * [populateFromScale] or [populateFromRotationDegrees], rather than directly setting the actual
+     * numeric values of this transform. This function is useful for when the values are needed to
+     * be provided in bulk, for example for serialization.
      *
      * To access these values in the same order as they are set here, use
      * [AffineTransform.getValues].
@@ -126,14 +104,20 @@ public constructor(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asImmutable(): ImmutableAffineTransform =
-        ImmutableAffineTransform(m00, m10, m20, m01, m11, m21)
+    override fun toImmutable(): ImmutableAffineTransform =
+        if (this == AffineTransform.IDENTITY) {
+            AffineTransform.IDENTITY
+        } else {
+            ImmutableAffineTransform(m00, m10, m20, m01, m11, m21)
+        }
 
     /**
-     * Fills this [MutableAffineTransform] with the same values contained in [input]. Returns
-     * [this].
+     * Fills this [MutableAffineTransform] with the same values contained in [input].
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFrom(input: AffineTransform): MutableAffineTransform {
         m00 = input.m00
         m10 = input.m10
@@ -146,9 +130,12 @@ public constructor(
 
     /**
      * Fills this [MutableAffineTransform] with an identity transformation, which maps a point to
-     * itself, i.e. it leaves it unchanged. Returns [this].
+     * itself, i.e. it leaves it unchanged.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFromIdentity(): MutableAffineTransform {
         m00 = 1f
         m10 = 0f
@@ -161,10 +148,13 @@ public constructor(
 
     /**
      * Fills this [MutableAffineTransform] with a transformation that translates by the given
-     * [offset] vector. Returns [this].
+     * [offset] vector.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun populateFromTranslate(offset: Vec): MutableAffineTransform {
+    public fun populateFromTranslation(offset: Vec): MutableAffineTransform {
         m00 = 1f
         m10 = 0f
         m20 = offset.x
@@ -175,10 +165,13 @@ public constructor(
     }
 
     /**
-     * Fills this [MutableAffineTransform] with a transformation that scales in both the x- and
-     * y-direction by the given [scaleFactor], centered about the origin. Returns [this].
+     * Fills this [MutableAffineTransform] with a transformation that scales in both the x and y
+     * direction by the given [scaleFactor], centered about the origin.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFromScale(scaleFactor: Float): MutableAffineTransform {
         m00 = scaleFactor
         m10 = 0f
@@ -192,9 +185,12 @@ public constructor(
     /**
      * Fills this [MutableAffineTransform] with a transformation that scales in both the x- and
      * y-direction by the given pair of factors; [xScaleFactor] and [yScaleFactor] respectively,
-     * centered about the origin. Returns [this].
+     * centered about the origin.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFromScale(xScaleFactor: Float, yScaleFactor: Float): MutableAffineTransform {
         m00 = xScaleFactor
         m10 = 0f
@@ -207,9 +203,12 @@ public constructor(
 
     /**
      * Fills this [MutableAffineTransform] with a transformation that scales in the x-direction by
-     * the given factor, centered about the origin. Returns [this].
+     * the given factor, centered about the origin.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFromScaleX(scaleFactor: Float): MutableAffineTransform {
         m00 = scaleFactor
         m10 = 0f
@@ -222,9 +221,12 @@ public constructor(
 
     /**
      * Fills this [MutableAffineTransform] with a transformation that scales in the y-direction by
-     * the given factor, centered about the origin. Returns [this].
+     * the given factor, centered about the origin.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun populateFromScaleY(scaleFactor: Float): MutableAffineTransform {
         m00 = 1f
         m10 = 0f
@@ -236,13 +238,16 @@ public constructor(
     }
 
     /**
-     * Fills this [MutableAffineTransform] with a transformation that shears in the x-direction by
-     * the given factor. Returns [this].
+     * Fills this [MutableAffineTransform] with a transformation that skews in the x-direction by
+     * the given factor.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun populateFromShearX(shearFactor: Float): MutableAffineTransform {
+    public fun populateFromSkewX(sx: Float): MutableAffineTransform {
         m00 = 1f
-        m10 = shearFactor
+        m10 = sx
         m20 = 0f
         m01 = 0f
         m11 = 1f
@@ -251,35 +256,42 @@ public constructor(
     }
 
     /**
-     * Fills this [MutableAffineTransform] with a transformation that shears in the y-direction by
-     * the given factor. Returns [this].
+     * Fills this [MutableAffineTransform] with a transformation that skews in the y-direction by
+     * the given factor.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun populateFromShearY(shearFactor: Float): MutableAffineTransform {
+    public fun populateFromSkewY(sy: Float): MutableAffineTransform {
         m00 = 1f
         m10 = 0f
         m20 = 0f
-        m01 = shearFactor
+        m01 = sy
         m11 = 1f
         m21 = 0f
         return this
     }
 
     /**
-     * Fills this [MutableAffineTransform] with a transformation that rotates by the given angle,
-     * centered about the origin. Returns [this].
+     * Fills this [MutableAffineTransform] with a transformation that rotates [degrees] in the
+     * direction from the positive x-axis towards the positive y-axis.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun populateFromRotate(
-        @AngleRadiansFloat angleOfRotation: Float
+    public fun populateFromRotationDegrees(
+        @AngleDegreesFloat degrees: Float
     ): MutableAffineTransform {
-        val sin = sin(angleOfRotation)
-        val cos = cos(angleOfRotation)
-        m00 = cos
-        m10 = -sin
+        val radians = Angle.degreesToRadians(degrees)
+        val y = sin(radians)
+        val x = cos(radians)
+        m00 = x
+        m10 = -y
         m20 = 0f
-        m01 = sin
-        m11 = cos
+        m01 = y
+        m11 = x
         m21 = 0f
         return this
     }

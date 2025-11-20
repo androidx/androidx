@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.test
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +27,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -51,21 +48,22 @@ import androidx.wear.compose.material3.StepperDefaults
 import androidx.wear.compose.material3.StepperDefaults.IconSize
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.goldenIdentifier
 import androidx.wear.compose.material3.setContentWithTheme
+import androidx.wear.compose.material3.verifyScreenshot
 import androidx.wear.compose.materialcore.RangeIcons
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(TestParameterInjector::class)
 class StepperScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -94,9 +92,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 onValueChange = {},
                 decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
-                increaseIcon = {
-                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
-                },
+                increaseIcon = { Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "") },
             ) {}
         }
     }
@@ -115,7 +111,7 @@ class StepperScreenshotTest {
                 FilledTonalButton(
                     onClick = {},
                     modifier = Modifier.width(146.dp),
-                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) }
+                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) },
                 )
             }
         }
@@ -136,7 +132,7 @@ class StepperScreenshotTest {
                         buttonContainerColor = Color.Green,
                         contentColor = Color.Yellow,
                         buttonIconColor = Color.Magenta,
-                    )
+                    ),
             ) {
                 Text("Demo")
             }
@@ -153,7 +149,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 increaseIcon = { IncreaseIcon() },
                 decreaseIcon = { DecreaseIcon() },
-                onValueChange = {}
+                onValueChange = {},
             ) {}
         }
     }
@@ -168,7 +164,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 increaseIcon = { IncreaseIcon() },
                 decreaseIcon = { DecreaseIcon() },
-                onValueChange = {}
+                onValueChange = {},
             ) {}
         }
     }
@@ -206,7 +202,7 @@ class StepperScreenshotTest {
                             Icon(
                                 modifier = Modifier.testTag("increase_icon"),
                                 imageVector = Icons.Filled.Add,
-                                contentDescription = "Increase"
+                                contentDescription = "Increase",
                             )
                         },
                         decreaseIcon = { DecreaseIcon() },
@@ -218,10 +214,7 @@ class StepperScreenshotTest {
         rule.onNodeWithTag("increase_icon", true).performTouchInput { down(center) }
         rule.waitForIdle()
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Test
@@ -242,7 +235,7 @@ class StepperScreenshotTest {
                             Icon(
                                 modifier = Modifier.testTag("decrease_icon"),
                                 imageVector = RangeIcons.Minus,
-                                contentDescription = "Decrease"
+                                contentDescription = "Decrease",
                             )
                         },
                     ) {}
@@ -253,10 +246,7 @@ class StepperScreenshotTest {
         rule.onNodeWithTag("decrease_icon", true).performTouchInput { down(center) }
         rule.waitForIdle()
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     private fun verifyScreenshot(screenSize: ScreenSize, content: @Composable () -> Unit) {
@@ -271,10 +261,7 @@ class StepperScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }
 
@@ -283,7 +270,7 @@ private fun IncreaseIcon() =
     Icon(
         imageVector = Icons.Filled.Add,
         contentDescription = "Increase",
-        modifier = Modifier.size(IconSize)
+        modifier = Modifier.size(IconSize),
     )
 
 @Composable
@@ -291,5 +278,5 @@ private fun DecreaseIcon() =
     Icon(
         imageVector = RangeIcons.Minus,
         contentDescription = "Decrease",
-        modifier = Modifier.size(IconSize)
+        modifier = Modifier.size(IconSize),
     )

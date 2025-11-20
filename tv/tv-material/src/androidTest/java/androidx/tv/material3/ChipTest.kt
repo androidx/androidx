@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ChipTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun assistChip_defaultSemantics() {
@@ -81,7 +82,7 @@ class ChipTest {
                 AssistChip(
                     modifier = Modifier.testTag(AssistChipTag),
                     onClick = {},
-                    onLongClick = { count++ }
+                    onLongClick = { count++ },
                 ) {
                     Text("Test Text")
                 }
@@ -109,7 +110,7 @@ class ChipTest {
                 AssistChip(
                     modifier = Modifier.testTag(AssistChipTag),
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Text("Test Text")
                 }
@@ -149,7 +150,7 @@ class ChipTest {
                 AssistChip(
                     modifier = Modifier.testTag(AssistChipTag),
                     onClick = { enabled = false },
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Text("Test Text")
                 }
@@ -184,7 +185,7 @@ class ChipTest {
                 }
                 AssistChip(
                     modifier = Modifier.testTag(registerChipTag),
-                    onClick = registerChipOnClick
+                    onClick = registerChipOnClick,
                 ) {
                     Text("Register")
                 }
@@ -217,7 +218,7 @@ class ChipTest {
                 FilterChip(
                     modifier = Modifier.testTag(FilterChipTag),
                     onClick = {},
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -239,7 +240,7 @@ class ChipTest {
                     modifier = Modifier.testTag(FilterChipTag),
                     onClick = {},
                     onLongClick = { count++ },
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -268,7 +269,7 @@ class ChipTest {
                     modifier = Modifier.testTag(FilterChipTag),
                     onClick = {},
                     enabled = false,
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -291,7 +292,7 @@ class ChipTest {
                 FilterChip(
                     modifier = Modifier.testTag(FilterChipTag),
                     onClick = onClick,
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -316,9 +317,9 @@ class ChipTest {
                         Box(
                             modifier =
                                 Modifier.testTag(FilterChipLeadingContentTag)
-                                    .size(FilterChipDefaults.IconSize),
+                                    .size(FilterChipDefaults.IconSize)
                         )
-                    }
+                    },
                 ) {
                     Text(text = "Test Text")
                 }
@@ -347,7 +348,7 @@ class ChipTest {
                                 }
                         )
                     },
-                    onClick = { isSelected = true }
+                    onClick = { isSelected = true },
                 ) {
                     Text(text = "Test Text")
                 }
@@ -369,7 +370,7 @@ class ChipTest {
                     modifier = Modifier.testTag(FilterChipTag),
                     onClick = { enabled = false },
                     enabled = enabled,
-                    selected = true
+                    selected = true,
                 ) {
                     Text("Test Text")
                 }
@@ -402,14 +403,14 @@ class ChipTest {
                 FilterChip(
                     modifier = Modifier.testTag(loginChipTag),
                     onClick = loginChipOnClick,
-                    selected = true
+                    selected = true,
                 ) {
                     Text("Login")
                 }
                 FilterChip(
                     modifier = Modifier.testTag(registerChipTag),
                     onClick = registerChpOnClick,
-                    selected = true
+                    selected = true,
                 ) {
                     Text("Register")
                 }
@@ -442,7 +443,7 @@ class ChipTest {
                 InputChip(
                     modifier = Modifier.testTag(InputChipTag),
                     onClick = {},
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -464,7 +465,7 @@ class ChipTest {
                     modifier = Modifier.testTag(InputChipTag),
                     onClick = {},
                     onLongClick = { count++ },
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -493,7 +494,7 @@ class ChipTest {
                     modifier = Modifier.testTag(InputChipTag),
                     onClick = {},
                     enabled = false,
-                    selected = false
+                    selected = false,
                 ) {
                     Text("Test Text")
                 }
@@ -517,7 +518,7 @@ class ChipTest {
                 InputChip(
                     modifier = Modifier.testTag(InputChipTag),
                     onClick = onClick,
-                    selected = false
+                    selected = false,
                 ) {
                     Text(text)
                 }
@@ -538,7 +539,7 @@ class ChipTest {
                     modifier = Modifier.testTag(InputChipTag),
                     onClick = { enabled = false },
                     enabled = enabled,
-                    selected = true
+                    selected = true,
                 ) {
                     Text("Test Text")
                 }
@@ -573,14 +574,14 @@ class ChipTest {
                 InputChip(
                     modifier = Modifier.testTag(loginChipTag),
                     onClick = loginChipOnClick,
-                    selected = true
+                    selected = true,
                 ) {
                     Text(loginChipText)
                 }
                 InputChip(
                     modifier = Modifier.testTag(registerChipTag),
                     onClick = registerChipOnClick,
-                    selected = true
+                    selected = true,
                 ) {
                     Text(registerChipText)
                 }
@@ -630,7 +631,7 @@ class ChipTest {
                 SuggestionChip(
                     modifier = Modifier.testTag(SuggestionChipTag),
                     onLongClick = { count++ },
-                    onClick = {}
+                    onClick = {},
                 ) {
                     Text("mvTvSelectableChip")
                 }
@@ -658,7 +659,7 @@ class ChipTest {
                 SuggestionChip(
                     modifier = Modifier.testTag(SuggestionChipTag),
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Text("mvTvSelectableChip")
                 }
@@ -698,7 +699,7 @@ class ChipTest {
                 SuggestionChip(
                     modifier = Modifier.testTag(SuggestionChipTag),
                     onClick = { enabled = false },
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Text("Hello")
                 }
@@ -732,14 +733,14 @@ class ChipTest {
             Column {
                 SuggestionChip(
                     modifier = Modifier.testTag(loginChipTag),
-                    onClick = loginChipOnClick
+                    onClick = loginChipOnClick,
                 ) {
                     Text(text = loginChipText)
                 }
 
                 SuggestionChip(
                     modifier = Modifier.testTag(registerChipTag),
-                    onClick = registerChipOnClick
+                    onClick = registerChipOnClick,
                 ) {
                     Text(text = registerChipText)
                 }

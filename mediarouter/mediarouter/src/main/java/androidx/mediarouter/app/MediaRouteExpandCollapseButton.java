@@ -22,7 +22,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
-import android.view.View;
 
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
@@ -49,10 +48,11 @@ class MediaRouteExpandCollapseButton extends AppCompatImageButton {
 
     public MediaRouteExpandCollapseButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mExpandAnimationDrawable = (AnimationDrawable) ContextCompat.getDrawable(
-                context, R.drawable.mr_group_expand);
-        mCollapseAnimationDrawable = (AnimationDrawable) ContextCompat.getDrawable(
-                context, R.drawable.mr_group_collapse);
+        mExpandAnimationDrawable =
+                (AnimationDrawable) ContextCompat.getDrawable(context, R.drawable.mr_group_expand);
+        mCollapseAnimationDrawable =
+                (AnimationDrawable)
+                        ContextCompat.getDrawable(context, R.drawable.mr_group_collapse);
 
         ColorFilter filter = new PorterDuffColorFilter(
                 MediaRouterThemeHelper.getControllerColor(context, defStyleAttr),
@@ -66,24 +66,22 @@ class MediaRouteExpandCollapseButton extends AppCompatImageButton {
         setImageDrawable(mExpandAnimationDrawable.getFrame(0));
         setContentDescription(mExpandGroupDescription);
 
-        super.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mIsGroupExpanded = !mIsGroupExpanded;
-                if (mIsGroupExpanded) {
-                    setImageDrawable(mExpandAnimationDrawable);
-                    mExpandAnimationDrawable.start();
-                    setContentDescription(mCollapseGroupDescription);
-                } else {
-                    setImageDrawable(mCollapseAnimationDrawable);
-                    mCollapseAnimationDrawable.start();
-                    setContentDescription(mExpandGroupDescription);
-                }
-                if (mListener != null) {
-                    mListener.onClick(view);
-                }
-            }
-        });
+        super.setOnClickListener(
+                view -> {
+                    mIsGroupExpanded = !mIsGroupExpanded;
+                    if (mIsGroupExpanded) {
+                        setImageDrawable(mExpandAnimationDrawable);
+                        mExpandAnimationDrawable.start();
+                        setContentDescription(mCollapseGroupDescription);
+                    } else {
+                        setImageDrawable(mCollapseAnimationDrawable);
+                        mCollapseAnimationDrawable.start();
+                        setContentDescription(mExpandGroupDescription);
+                    }
+                    if (mListener != null) {
+                        mListener.onClick(view);
+                    }
+                });
     }
 
     @Override

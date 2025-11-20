@@ -51,7 +51,7 @@ fun SoftwareKeyboardControllerSample() {
             setText,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.focusRequester(focusRequester).fillMaxWidth()
+            modifier = Modifier.focusRequester(focusRequester).fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))
         Button(
@@ -59,7 +59,7 @@ fun SoftwareKeyboardControllerSample() {
                 focusRequester.requestFocus()
                 keyboardController?.show()
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Show software keyboard.")
         }

@@ -24,10 +24,10 @@ import androidx.annotation.RestrictTo
  */
 public class ImmutableSegment(start: Vec, end: Vec) : Segment() {
 
-    @Suppress("Immutable") override val start: Vec = start.asImmutable()
-    @Suppress("Immutable") override val end: Vec = end.asImmutable()
+    override val start: ImmutableVec = start.toImmutable()
+    override val end: ImmutableVec = end.toImmutable()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableSegment = this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toImmutable(): ImmutableSegment = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Segment && areEquivalent(this, other))

@@ -47,7 +47,7 @@ public class ViewModelScenario<VM : ViewModel>
 internal constructor(
     private val modelClass: KClass<VM>,
     private val modelFactory: Factory,
-    initialModelExtras: CreationExtras = Empty
+    initialModelExtras: CreationExtras = Empty,
 ) : AutoCloseable {
 
     /**
@@ -91,11 +91,7 @@ internal constructor(
      */
     public fun recreate() {
         val savedState = saveScenarioExtras(modelExtras)
-        modelExtras =
-            createScenarioExtras(
-                initialExtras = modelExtras,
-                restoredState = savedState,
-            )
+        modelExtras = createScenarioExtras(initialExtras = modelExtras, restoredState = savedState)
         modelProvider =
             ViewModelProvider.create(
                 owner = modelExtras[VIEW_MODEL_STORE_OWNER_KEY]!!,

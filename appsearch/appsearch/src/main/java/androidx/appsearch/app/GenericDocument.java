@@ -66,7 +66,8 @@ import java.util.Set;
  * @see AppSearchSession#getByDocumentIdAsync
  * @see AppSearchSession#search
  */
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings("JSpecifyNullness")
 public class GenericDocument {
     private static final String TAG = "AppSearchGenericDocumen";
@@ -815,7 +816,6 @@ public class GenericDocument {
      * {@code null} if there is no such value or the value is of a different type.
      */
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-    @ExperimentalAppSearchApi
     public @Nullable AppSearchBlobHandle getPropertyBlobHandle(@NonNull String path) {
         Preconditions.checkNotNull(path);
         AppSearchBlobHandle[] propertyArray = getPropertyBlobHandleArray(path);
@@ -1020,7 +1020,6 @@ public class GenericDocument {
      * {@code null} if no value is set or the value is of a different type.
      */
     @SuppressLint({"ArrayReturn", "NullableCollection"})
-    @ExperimentalAppSearchApi
     @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
     public @Nullable AppSearchBlobHandle[] getPropertyBlobHandleArray(@NonNull String path) {
         Preconditions.checkNotNull(path);
@@ -1682,10 +1681,9 @@ public class GenericDocument {
          */
         @CanIgnoreReturnValue
         @FlaggedApi(Flags.FLAG_ENABLE_BLOB_STORE)
-        @ExperimentalAppSearchApi
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
-                name = Features.BLOB_STORAGE)
+                name = Features.SCHEMA_BLOB_HANDLE)
         public @NonNull BuilderType setPropertyBlobHandle(@NonNull String name,
                 @NonNull AppSearchBlobHandle... values) {
             Preconditions.checkNotNull(name);

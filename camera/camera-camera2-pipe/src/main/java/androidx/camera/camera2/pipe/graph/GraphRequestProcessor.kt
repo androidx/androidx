@@ -117,7 +117,7 @@ private constructor(
         defaultParameters: Map<*, Any?>,
         graphParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
-        listeners: List<Request.Listener>
+        listeners: List<Request.Listener>,
     ): Boolean {
         // Reject incoming requests if this instance has been stopped or closed.
         if (closed.value) {
@@ -135,7 +135,7 @@ private constructor(
                     graphParameters,
                     requiredParameters,
                     activeBurstListener,
-                    listeners
+                    listeners,
                 )
             }
 

@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -29,9 +31,7 @@ plugins {
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.hilt.work"
 }
 
@@ -50,4 +50,5 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"
     description = "Android Lifecycle WorkManager Hilt Extension"
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

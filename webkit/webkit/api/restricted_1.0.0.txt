@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.webkit {
 
   public abstract class SafeBrowsingResponseCompat {
@@ -48,8 +48,8 @@ package androidx.webkit {
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract android.webkit.WebMessagePort! getFrameworkPort();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract java.lang.reflect.InvocationHandler! getInvocationHandler();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(androidx.webkit.WebMessageCompat);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(android.os.Handler?, androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
   }
 
   public abstract static class WebMessagePortCompat.WebMessageCallbackCompat {
@@ -85,12 +85,12 @@ package androidx.webkit {
   public class WebViewClientCompat extends android.webkit.WebViewClient {
     ctor public WebViewClientCompat();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final String![]! getSupportedFeatures();
-    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, java.lang.reflect.InvocationHandler);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
     method @RequiresApi(21) public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, java.lang.reflect.InvocationHandler);
+    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, java.lang.reflect.InvocationHandler);
     method @RequiresApi(27) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, android.webkit.SafeBrowsingResponse);
     method public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, androidx.webkit.SafeBrowsingResponseCompat);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, java.lang.reflect.InvocationHandler);
   }
 
   @IntDef({android.webkit.WebViewClient.SAFE_BROWSING_THREAT_UNKNOWN, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_MALWARE, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_PHISHING, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WebViewClientCompat.SafeBrowsingThreat {

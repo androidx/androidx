@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 
@@ -43,10 +42,9 @@ tasks.register("strippedAndroidJar", Jar).configure {
 dependencies {
     implementation(libs.xpp3)
     implementation(libs.xmlpull)
-    implementation(libs.kotlinStdlib)
 
     implementation(libs.javapoet)
-    implementation(libs.kotlinPoet)
+    implementation("com.squareup:kotlinpoet:2.0.0")
 
     implementation("androidx.annotation:annotation:1.9.1")
 
@@ -55,9 +53,8 @@ dependencies {
     testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(project(":room:room-compiler-processing-testing"), {
-        exclude group: "androidx.room", module: "room-compiler-processing"
-    })
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     testImplementationAarAsJar(project(":navigation:navigation-common"))
     testImplementationAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     testImplementation(tasks.named("strippedAndroidJar").map { it.outputs.files })
@@ -73,5 +70,4 @@ androidx {
     type = SoftwareType.OTHER_CODE_PROCESSOR
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Generator"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -57,5 +57,5 @@ public annotation class LongDef(
      * generation and so on, but without flagging compilation warnings if other values are
      * specified.
      */
-    val open: Boolean = false
+    val open: Boolean = false,
 )

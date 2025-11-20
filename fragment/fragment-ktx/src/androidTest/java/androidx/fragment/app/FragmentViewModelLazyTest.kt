@@ -70,7 +70,11 @@ class FragmentViewModelLazyTest {
                     MutableCreationExtras().apply {
                         set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
                         set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
-                        set(DEFAULT_ARGS_KEY, bundleOf("test" to "value2"))
+                        set(
+                            DEFAULT_ARGS_KEY,
+                            @Suppress("DEPRECATION") // bundleOf is deprecated
+                            bundleOf("test" to "value2"),
+                        )
                     }
                 }
             )
@@ -81,9 +85,13 @@ class FragmentViewModelLazyTest {
                     MutableCreationExtras().apply {
                         set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
                         set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
-                        set(DEFAULT_ARGS_KEY, bundleOf("test" to "value3"))
+                        set(
+                            DEFAULT_ARGS_KEY,
+                            @Suppress("DEPRECATION") // bundleOf is deprecated
+                            bundleOf("test" to "value3"),
+                        )
                     }
-                }
+                },
             )
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +117,9 @@ class FragmentViewModelLazyTest {
                 extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
                 extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
                 extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-                extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+                extras[DEFAULT_ARGS_KEY] =
+                    @Suppress("DEPRECATION") // bundleOf is deprecated
+                    bundleOf("test" to "value")
                 return extras
             }
     }

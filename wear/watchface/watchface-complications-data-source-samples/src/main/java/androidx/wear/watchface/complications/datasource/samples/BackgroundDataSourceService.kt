@@ -43,7 +43,7 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
             updateRequester =
                 ComplicationDataSourceUpdateRequester.create(
                     this,
-                    ComponentName(this, BackgroundDataSourceService::class.java)
+                    ComponentName(this, BackgroundDataSourceService::class.java),
                 )
         }
     }
@@ -61,20 +61,20 @@ class BackgroundDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(
                             plainText("# $counter"),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .build()
                 ComplicationType.LONG_TEXT ->
                     LongTextComplicationData.Builder(
                             plainText("Count $counter"),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .build()
                 else -> null

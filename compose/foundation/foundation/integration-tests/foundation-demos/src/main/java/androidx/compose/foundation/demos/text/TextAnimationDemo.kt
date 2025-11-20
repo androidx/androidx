@@ -86,16 +86,16 @@ fun TextColorAnimation() {
             animationSpec =
                 InfiniteRepeatableSpec(
                     tween(5_000, 50, CubicBezierEasing(0.2f, 0.0f, 0.5f, 0.6f)),
-                    repeatMode = RepeatMode.Reverse
+                    repeatMode = RepeatMode.Reverse,
                 ),
-            label = "slow gray"
+            label = "slow gray",
         )
     Box(contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             BasicText(
                 "This text has animated color",
                 style = TextStyle.Default.copy(fontSize = 45.sp, textAlign = TextAlign.Center),
-                color = { color.value }
+                color = { color.value },
             )
             BasicText(
                 buildAnnotatedString {
@@ -104,7 +104,7 @@ fun TextColorAnimation() {
                 },
                 style = TextStyle.Default.copy(fontSize = 30.sp, textAlign = TextAlign.Center),
                 color = { color.value },
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 16.dp),
             )
         }
     }
@@ -127,7 +127,7 @@ class TextMotionState(initialTextStyle: TextStyle) {
         Row(Modifier.fillMaxSize()) {
             Row(
                 Modifier.weight(1f).clickable { isStatic = true },
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = isStatic, onClick = { isStatic = true })
                 Text(text = "Static")
@@ -135,7 +135,7 @@ class TextMotionState(initialTextStyle: TextStyle) {
 
             Row(
                 Modifier.weight(1f).clickable { isStatic = false },
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(selected = !isStatic, onClick = { isStatic = false })
                 Text(text = "Animated")
@@ -162,7 +162,7 @@ fun TextScaleAnimation() {
             infiniteTransition.animateFloat(
                 initialValue = 1f,
                 targetValue = 2.5f,
-                animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse)
+                animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse),
             )
         Text(
             text = "Lorem Ipsum\ndolor sit amet",
@@ -172,7 +172,7 @@ fun TextScaleAnimation() {
                 Modifier.graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }
+                },
         )
     }
 }
@@ -189,7 +189,7 @@ fun TextTranslationAnimation() {
             infiniteTransition.animateFloat(
                 initialValue = -100f,
                 targetValue = 100f,
-                animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse)
+                animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse),
             )
         Text(
             text = "Lorem Ipsum\ndolor sit amet",
@@ -199,7 +199,7 @@ fun TextTranslationAnimation() {
                 Modifier.graphicsLayer {
                     translationX = translation
                     translationY = translation
-                }
+                },
         )
     }
 }
@@ -213,7 +213,7 @@ fun TextRotationAnimation() {
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 360f,
-            animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse)
+            animationSpec = infiniteRepeatable(tween(3500), RepeatMode.Reverse),
         )
     textMotionState.TextMotionPanel()
 
@@ -222,7 +222,7 @@ fun TextRotationAnimation() {
             text = "Lorem Ipsum\ndolor sit amet",
             fontSize = 24.sp,
             style = textMotionState.textStyle,
-            modifier = Modifier.graphicsLayer { rotationX = rotation }
+            modifier = Modifier.graphicsLayer { rotationX = rotation },
         )
     }
     Box(modifier = Modifier.fillMaxSize().height(200.dp), contentAlignment = Alignment.Center) {
@@ -230,7 +230,7 @@ fun TextRotationAnimation() {
             text = "Lorem Ipsum\ndolor sit amet",
             fontSize = 24.sp,
             style = textMotionState.textStyle,
-            modifier = Modifier.graphicsLayer { rotationY = rotation }
+            modifier = Modifier.graphicsLayer { rotationY = rotation },
         )
     }
     Box(modifier = Modifier.fillMaxSize().height(200.dp), contentAlignment = Alignment.Center) {
@@ -238,7 +238,7 @@ fun TextRotationAnimation() {
             text = "Lorem Ipsum\ndolor sit amet",
             fontSize = 24.sp,
             style = textMotionState.textStyle,
-            modifier = Modifier.graphicsLayer { rotationZ = rotation }
+            modifier = Modifier.graphicsLayer { rotationZ = rotation },
         )
     }
 }

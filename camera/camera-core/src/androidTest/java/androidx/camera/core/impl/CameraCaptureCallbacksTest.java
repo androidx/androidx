@@ -25,14 +25,12 @@ import static org.mockito.Mockito.verify;
 import androidx.camera.core.impl.CameraCaptureCallbacks.NoOpCameraCaptureCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
 public final class CameraCaptureCallbacksTest {
 
     @Test

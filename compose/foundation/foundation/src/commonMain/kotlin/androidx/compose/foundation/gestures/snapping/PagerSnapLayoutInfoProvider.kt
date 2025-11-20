@@ -32,7 +32,7 @@ import kotlin.math.sign
 internal fun SnapLayoutInfoProvider(
     pagerState: PagerState,
     pagerSnapDistance: PagerSnapDistance,
-    calculateFinalSnappingBound: (Float, Float, Float) -> Float
+    calculateFinalSnappingBound: (Float, Float, Float) -> Float,
 ): SnapLayoutInfoProvider {
     return object : SnapLayoutInfoProvider {
         val layoutInfo: PagerLayoutInfo
@@ -109,7 +109,7 @@ internal fun SnapLayoutInfoProvider(
                         targetPage,
                         velocity,
                         pagerState.pageSize,
-                        pagerState.pageSpacing
+                        pagerState.pageSpacing,
                     )
                     .coerceIn(0, pagerState.pageCount)
 
@@ -137,7 +137,7 @@ internal fun SnapLayoutInfoProvider(
 
         private fun searchForSnappingBounds(
             snapPosition: SnapPosition,
-            velocity: Float
+            velocity: Float,
         ): Pair<Float, Float> {
             debugLog { "Calculating Snapping Bounds" }
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
@@ -153,7 +153,7 @@ internal fun SnapLayoutInfoProvider(
                         itemOffset = page.offset,
                         itemIndex = page.index,
                         snapPosition = snapPosition,
-                        itemCount = pagerState.pageCount
+                        itemCount = pagerState.pageCount,
                     )
 
                 // Find page that is closest to the snap position, but before it
@@ -234,7 +234,7 @@ internal fun calculateFinalSnappingBound(
     snapPositionalThreshold: Float,
     flingVelocity: Float,
     lowerBoundOffset: Float,
-    upperBoundOffset: Float
+    upperBoundOffset: Float,
 ): Float {
     val isScrollingForward = pagerState.isScrollingForward(flingVelocity)
     val isForward =

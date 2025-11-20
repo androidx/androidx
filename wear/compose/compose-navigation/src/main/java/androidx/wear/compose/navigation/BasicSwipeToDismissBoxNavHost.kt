@@ -191,7 +191,7 @@ internal fun BasicSwipeToDismissBoxNavHost(
                 if (isBackground || wearNavigator.isPop.value) {
                     Color.Unspecified
                 } else FLASH_COLOR,
-            animatable = animationProgress
+            animatable = animationProgress,
         )
     }
 
@@ -207,8 +207,8 @@ internal fun BasicSwipeToDismissBoxNavHost(
                             durationMillis =
                                 NAV_HOST_ENTER_TRANSITION_DURATION_MEDIUM +
                                     NAV_HOST_ENTER_TRANSITION_DURATION_SHORT,
-                            easing = LinearEasing
-                        )
+                            easing = LinearEasing,
+                        ),
                 )
             }
         }
@@ -234,7 +234,7 @@ private fun BoxedStackEntryContent(
     saveableStateHolder: SaveableStateHolder,
     modifier: Modifier = Modifier,
     layerColor: Color,
-    animatable: Animatable<Float, AnimationVector1D>
+    animatable: Animatable<Float, AnimationVector1D>,
 ) {
     if (entry != null) {
         val isRoundDevice = isRoundDevice()

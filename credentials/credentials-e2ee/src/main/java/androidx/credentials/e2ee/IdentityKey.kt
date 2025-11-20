@@ -67,7 +67,7 @@ private constructor(val public: ByteArray, val private: ByteArray, @IdentityKeyT
         fun createFromPrf(
             prf: ByteArray,
             salt: ByteArray?,
-            @IdentityKeyType keyType: Int
+            @IdentityKeyType keyType: Int,
         ): IdentityKey {
             if (keyType != IDENTITY_KEY_TYPE_ED25519) {
                 throw IllegalArgumentException("Only Ed25519 is supported at this stage.")
@@ -82,7 +82,7 @@ private constructor(val public: ByteArray, val private: ByteArray, @IdentityKeyT
                     // as the hash digest.
                     /* salt= */ salt ?: ByteArray(32),
                     /* info= */ ByteArray(0),
-                    /* size= */ 32
+                    /* size= */ 32,
                 )
             val keyPair: Ed25519Sign.KeyPair = Ed25519Sign.KeyPair.newKeyPairFromSeed(hkdf)
             return IdentityKey(keyPair.publicKey, keyPair.privateKey, IDENTITY_KEY_TYPE_ED25519)

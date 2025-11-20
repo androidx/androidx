@@ -80,14 +80,12 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private val launchIntent =
         Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
@@ -170,7 +168,7 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
     fun testSwitchCameraToggleButton() {
         assumeTrue(
             "Ignore the camera switch test since there's no front camera.",
-            CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)
+            CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT),
         )
         ActivityScenario.launch<CameraXActivity>(launchIntent).useInCameraTest { scenario ->
             WaitForViewToShow(R.id.direction_toggle).wait()
@@ -214,12 +212,12 @@ class ToggleButtonUITest(private val implName: String, private val cameraConfig:
             listOf(
                 arrayOf(
                     Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
                 ),
                 arrayOf(
                     CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
-                )
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+                ),
             )
     }
 }

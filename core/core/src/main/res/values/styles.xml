@@ -17,22 +17,27 @@
 
 <resources>
     <style name="TextAppearance.Compat.Notification"
-        parent="@android:style/TextAppearance.StatusBar.EventContent"/>
+        parent="@android:style/TextAppearance.Material.Notification"/>
 
     <style name="TextAppearance.Compat.Notification.Title"
-        parent="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
+        parent="@android:style/TextAppearance.Material.Notification.Title"/>
 
-    <style name="TextAppearance.Compat.Notification.Info">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-    </style>
-    <style name="TextAppearance.Compat.Notification.Time">
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-    </style>
+    <style name="TextAppearance.Compat.Notification.Info"
+        parent="@android:style/TextAppearance.Material.Notification.Info"/>
+
+    <style name="TextAppearance.Compat.Notification.Time"
+        parent="@android:style/TextAppearance.Material.Notification.Time"/>
+
     <style name="TextAppearance.Compat.Notification.Line2"
          parent="TextAppearance.Compat.Notification.Info" />
 
-    <style name="Widget.Compat.NotificationActionText" parent=""/>
-    <style name="Widget.Compat.NotificationActionContainer" parent=""/>
+    <style name="Widget.Compat.NotificationActionText" parent="">
+        <item name="android:textAppearance">?android:attr/textAppearanceButton</item>
+        <item name="android:textColor">@color/androidx_core_secondary_text_default_material_light</item>
+        <item name="android:textSize">@dimen/notification_action_text_size</item>
+    </style>
+
+    <style name="Widget.Compat.NotificationActionContainer" parent="">
+        <item name="android:background">@drawable/notification_action_background</item>
+    </style>
 </resources>

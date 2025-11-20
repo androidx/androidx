@@ -26,10 +26,6 @@ import androidx.compose.runtime.AbstractApplier
 internal class SubspaceNodeApplier(private val owner: SubspaceOwner) :
     AbstractApplier<SubspaceLayoutNode>(owner.root) {
 
-    init {
-        owner.root.measurePolicy = SubspaceLayoutNode.RootMeasurePolicy
-    }
-
     override fun insertTopDown(index: Int, instance: SubspaceLayoutNode) {
         // Ignored. Insert is performed in [insertBottomUp] to build the tree bottom-up to avoid
         // duplicate notification when the child nodes enter the tree.
@@ -48,10 +44,10 @@ internal class SubspaceNodeApplier(private val owner: SubspaceOwner) :
     }
 
     override fun onClear() {
-        owner.root.removeAll()
+        root.removeAll()
     }
 
     override fun onEndChanges() {
-        owner.requestRelayout()
+        owner.onRecompositionComplete()
     }
 }

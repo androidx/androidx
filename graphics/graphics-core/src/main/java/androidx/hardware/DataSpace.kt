@@ -65,8 +65,8 @@ class DataSpace private constructor() {
                 DATASPACE_BT2020,
                 DATASPACE_BT709,
                 DATASPACE_DCI_P3,
-                DATASPACE_SRGB_LINEAR
-            ]
+                DATASPACE_SRGB_LINEAR,
+            ],
     )
     annotation class NamedDataSpace
 

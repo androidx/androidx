@@ -16,7 +16,6 @@
 
 package androidx.core.text;
 
-import android.annotation.SuppressLint;
 import android.icu.util.ULocale;
 import android.os.Build;
 import android.util.Log;
@@ -33,23 +32,10 @@ import java.util.Locale;
 public final class ICUCompat {
     private static final String TAG = "ICUCompat";
 
-    private static Method sGetScriptMethod;
     private static Method sAddLikelySubtagsMethod;
 
     static {
-        if (Build.VERSION.SDK_INT < 21) {
-            try {
-                final Class<?> clazz = Class.forName("libcore.icu.ICU");
-                sGetScriptMethod = clazz.getMethod("getScript", String.class);
-                sAddLikelySubtagsMethod = clazz.getMethod("addLikelySubtags", String.class);
-            } catch (Exception e) {
-                sGetScriptMethod = null;
-                sAddLikelySubtagsMethod = null;
-
-                // Nothing we can do here, we just log the exception
-                Log.w(TAG, e);
-            }
-        } else if (Build.VERSION.SDK_INT < 24) {
+        if (Build.VERSION.SDK_INT < 24) {
             try {
                 // This class should always exist on API-21 since it's CTS tested.
                 final Class<?> clazz = Class.forName("libcore.icu.ICU");
@@ -87,64 +73,21 @@ public final class ICUCompat {
         if (Build.VERSION.SDK_INT >= 24) {
             Object uLocale = Api24Impl.addLikelySubtags(Api24Impl.forLocale(locale));
             return Api24Impl.getScript(uLocale);
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        } else {
             try {
                 final Object[] args = new Object[] { locale };
+                Locale localeWithSubtags = (Locale) sAddLikelySubtagsMethod.invoke(null, args);
                 // ULocale.addLikelySubtags(ULocale) is @NonNull
                 //noinspection ConstantConditions
-                return Api21Impl.getScript((Locale) sAddLikelySubtagsMethod.invoke(null, args));
+                return localeWithSubtags.getScript();
             } catch (InvocationTargetException e) {
                 Log.w(TAG, e);
             } catch (IllegalAccessException e) {
                 Log.w(TAG, e);
             }
-            return Api21Impl.getScript(locale);
-        } else {
-            final String localeWithSubtags = addLikelySubtagsBelowApi21(locale);
-            if (localeWithSubtags != null) {
-                return getScriptBelowApi21(localeWithSubtags);
-            }
-
-            return null;
+            return locale.getScript();
         }
     }
-
-    @SuppressLint("BanUncheckedReflection") // DeprecatedForSdk(21)
-    private static String getScriptBelowApi21(String localeStr) {
-        try {
-            if (sGetScriptMethod != null) {
-                final Object[] args = new Object[] { localeStr };
-                return (String) sGetScriptMethod.invoke(null, args);
-            }
-        } catch (IllegalAccessException e) {
-            // Nothing we can do here, we just log the exception
-            Log.w(TAG, e);
-        } catch (InvocationTargetException e) {
-            // Nothing we can do here, we just log the exception
-            Log.w(TAG, e);
-        }
-        return null;
-    }
-
-    @SuppressLint("BanUncheckedReflection") // DeprecatedForSdk(21)
-    private static String addLikelySubtagsBelowApi21(Locale locale) {
-        final String localeStr = locale.toString();
-        try {
-            if (sAddLikelySubtagsMethod != null) {
-                final Object[] args = new Object[] { localeStr };
-                return (String) sAddLikelySubtagsMethod.invoke(null, args);
-            }
-        } catch (IllegalAccessException e) {
-            // Nothing we can do here, we just log the exception
-            Log.w(TAG, e);
-        } catch (InvocationTargetException e) {
-            // Nothing we can do here, we just log the exception
-            Log.w(TAG, e);
-        }
-
-        return localeStr;
-    }
-
     private ICUCompat() {
     }
 
@@ -164,17 +107,6 @@ public final class ICUCompat {
 
         static String getScript(Object uLocale) {
             return ((ULocale) uLocale).getScript();
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static String getScript(Locale locale) {
-            return locale.getScript();
         }
     }
 }

@@ -117,13 +117,13 @@ class InitializationTest(private val config: TestConfig) {
         val intent =
             Intent(
                     ApplicationProvider.getApplicationContext<Context>(),
-                    CameraXActivity::class.java
+                    CameraXActivity::class.java,
                 )
                 .apply {
                     putExtra(
                         CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION,
                         // Ensure default config provider is used for camera implementation
-                        CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION
+                        CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION,
                     )
                 }
         with(ActivityScenario.launch<CameraXActivity>(intent)) {

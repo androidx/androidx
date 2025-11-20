@@ -38,11 +38,8 @@ private const val DEFAULT_EXPOSURE_COMPENSATION = 0
  * [CameraControl.OperationCanceledException] if the camera is closed.
  */
 @CameraScope
-public class EvCompControl
-@Inject
-constructor(
-    private val compat: EvCompCompat,
-) : UseCaseCameraControl {
+public class EvCompControl @Inject constructor(private val compat: EvCompCompat) :
+    UseCaseCameraControl {
     private var evCompIndex = DEFAULT_EXPOSURE_COMPENSATION
         set(value) {
             field = value
@@ -50,12 +47,7 @@ constructor(
         }
 
     public var exposureState: EvCompValue =
-        EvCompValue(
-            compat.supported,
-            evCompIndex,
-            compat.range,
-            compat.step,
-        )
+        EvCompValue(compat.supported, evCompIndex, compat.range, compat.step)
 
     private var _requestControl: UseCaseCameraRequestControl? = null
     override var requestControl: UseCaseCameraRequestControl?

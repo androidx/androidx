@@ -77,14 +77,14 @@ fun ScaleEnterExitDemo() {
             exit =
                 scaleOut(transformOrigin = TransformOrigin(0f, 0f)) +
                     fadeOut() +
-                    shrinkOut(shrinkTowards = Alignment.TopStart)
+                    shrinkOut(shrinkTowards = Alignment.TopStart),
         ) {
             Box(Modifier.size(100.dp).background(Color.Red, shape = RoundedCornerShape(20.dp)))
         }
         AnimatedVisibility(
             visible = showYellow,
             enter = scaleIn(transformOrigin = TransformOrigin(0f, 0f)),
-            exit = scaleOut(transformOrigin = TransformOrigin(1f, 1f))
+            exit = scaleOut(transformOrigin = TransformOrigin(1f, 1f)),
         ) {
             Box(Modifier.size(100.dp).background(Color.Yellow, shape = RoundedCornerShape(20.dp)))
         }
@@ -97,7 +97,7 @@ fun ScaleEnterExitDemo() {
             // By Default, `scaleOut` uses the center as the pivot point. When used with an
             // ExitTransition that shrinks towards the center, the content will be shrinking both in
             // terms of scale and layout size towards the center.
-            exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically)
+            exit = scaleOut() + shrinkVertically(shrinkTowards = Alignment.CenterVertically),
         ) {
             Box(Modifier.size(100.dp).background(Color.Green, shape = RoundedCornerShape(20.dp)))
         }
@@ -106,7 +106,7 @@ fun ScaleEnterExitDemo() {
             enter =
                 scaleIn(initialScale = 1.2f) +
                     slideInHorizontally(initialOffsetX = { (-it * 1.2f).toInt() }),
-            exit = scaleOut(targetScale = 2f) + slideOutHorizontally(targetOffsetX = { -2 * it })
+            exit = scaleOut(targetScale = 2f) + slideOutHorizontally(targetOffsetX = { -2 * it }),
         ) {
             Box(Modifier.size(100.dp).background(Color.Blue, shape = RoundedCornerShape(20.dp)))
         }

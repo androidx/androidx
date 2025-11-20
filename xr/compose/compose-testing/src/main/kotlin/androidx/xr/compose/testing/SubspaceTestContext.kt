@@ -16,11 +16,13 @@
 
 package androidx.xr.compose.testing
 
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.util.fastForEach
 import androidx.xr.compose.platform.SceneManager
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*, *>) {
     /**
      * Collects all [SubspaceSemanticsNode]s from all compose hierarchies.
@@ -33,7 +35,7 @@ public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*,
     ): Iterable<SubspaceSemanticsInfo> {
         // Block and wait for compose state to settle before looking for root nodes.
         testRule.waitForIdle()
-        val roots = SceneManager.getAllRootSubspaceSemanticsNodes()
+        val roots = SceneManager.getAllRootSubspaceSemanticsNodes(context = testRule.activity)
         check(!atLeastOneRootRequired || roots.isNotEmpty()) {
             """No subspace compose hierarchies found in the app. Possible reasons include:
         (1) the Activity that calls setSubspaceContent did not launch;

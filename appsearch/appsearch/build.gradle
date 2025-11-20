@@ -29,10 +29,8 @@ plugins {
 }
 
 android {
-    compileSdk = 35
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    compileSdk = 36
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.appsearch"
 }
 
@@ -45,6 +43,7 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.9.0")
+    implementation(libs.guavaAndroid)
 
     annotationProcessor(project(":appsearch:appsearch-compiler"))
 
@@ -55,9 +54,7 @@ dependencies {
     androidTestImplementation(project(":appsearch:appsearch-play-services-storage"))
     androidTestImplementation(project(":appsearch:appsearch-test-util"))
     // Needed to check if PlayServicesAppSearch throws ApiException.
-    androidTestImplementation("com.google.android.gms:play-services-basement:18.1.0", {
-        exclude group: "androidx.core", module: "core"
-    })
+    androidTestImplementation("com.google.android.gms:play-services-basement:18.1.0")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)

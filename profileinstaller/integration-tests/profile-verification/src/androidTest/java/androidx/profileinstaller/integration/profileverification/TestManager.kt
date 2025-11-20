@@ -139,7 +139,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
                         apkName,
                         "${apkName}_$BASELINE_PROF",
                         "${apkName}_$BASELINE_PROFM",
-                        tmpProfileProfFile
+                        tmpProfileProfFile,
                     )
                 if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
                     throw IllegalStateException(
@@ -229,7 +229,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
             broadcast(
                 packageName = packageName,
                 action = "androidx.profileinstaller.action.INSTALL_PROFILE",
-                receiverClass = "androidx.profileinstaller.ProfileInstallReceiver"
+                receiverClass = "androidx.profileinstaller.ProfileInstallReceiver",
             )
         assertWithMessage("Profile install action broadcast failed with code.")
             .that(result)

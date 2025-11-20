@@ -15,6 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -31,12 +33,20 @@ public class HeartRateVariabilityRmssdRecord(
     override val metadata: Metadata,
 ) : InstantaneousRecord {
 
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        heartRateVariabilityMillis.requireInRange(
-            min = MIN_HRV_RMSSD,
-            max = MAX_HRV_RMSSD,
-            name = "heartRateVariabilityMillis"
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            heartRateVariabilityMillis.requireInRange(
+                min = MIN_HRV_RMSSD,
+                max = MAX_HRV_RMSSD,
+                name = "heartRateVariabilityMillis",
+            )
+        }
     }
 
     internal companion object {

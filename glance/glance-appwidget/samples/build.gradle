@@ -28,12 +28,11 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.core:core:1.5.0")
     implementation("androidx.work:work-runtime:2.8.1")
     implementation("androidx.work:work-runtime-ktx:2.8.1")

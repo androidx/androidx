@@ -20,8 +20,8 @@ import android.content.res.AssetFileDescriptor;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.FileInputStream;
@@ -44,7 +44,7 @@ public class Utils {
     /**
      * Utility method to write a byte array into a stream.
      */
-    public static void writeByteArrayToStream(@NonNull byte[] inputBytes,
+    public static void writeByteArrayToStream(byte @NonNull [] inputBytes,
             @NonNull OutputStream outputStream) {
         try {
             outputStream.write(inputBytes);
@@ -72,7 +72,7 @@ public class Utils {
      * Creates a pipe, writes the given bytes into one end and returns the other end.
      */
     @NonNull
-    public static AssetFileDescriptor writeBytesIntoPipeAsync(@NonNull byte[] inputBytes,
+    public static AssetFileDescriptor writeBytesIntoPipeAsync(byte @NonNull [] inputBytes,
             @NonNull ExecutorService executorService) throws IOException {
         ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
         ParcelFileDescriptor readSide = pipe[0];
@@ -87,7 +87,6 @@ public class Utils {
     /**
      * Checks if the given AssetFileDescriptor passes certain conditions.
      */
-
     public static void checkAssetFileDescriptor(@NonNull AssetFileDescriptor afd,
             boolean allowUnknownLength) {
         if (afd.getStartOffset() < 0) {
@@ -122,7 +121,7 @@ public class Utils {
      * this </a>
      * functionality added in API 33.
      */
-    public static int readNBytes(@NonNull InputStream inputStream, @NonNull byte[] b, int off,
+    public static int readNBytes(@NonNull InputStream inputStream, byte @NonNull [] b, int off,
             int len)
             throws IOException {
         int n = 0;
@@ -153,7 +152,7 @@ public class Utils {
      * The input must be valid (or truncated) UTF-8 encoded bytes.
      * Returns -1 if there is no starting byte.
      */
-    public static int getLastUTF8StartingByteIndex(@NonNull byte[] bytes) {
+    public static int getLastUTF8StartingByteIndex(byte @NonNull [] bytes) {
         for (int index = bytes.length - 1; index >= 0; index--) {
             if (!isUTF8ContinuationByte(bytes[index])) {
                 return index;

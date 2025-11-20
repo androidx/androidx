@@ -42,6 +42,7 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentRemoveTest {
 
-    @get:Rule val rule = createAndroidComposeRule<EmptyTestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<EmptyTestActivity>(StandardTestDispatcher())
 
     @Test
     fun testRemoval() {

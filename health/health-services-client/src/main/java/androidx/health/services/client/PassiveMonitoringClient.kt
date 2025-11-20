@@ -62,7 +62,7 @@ public interface PassiveMonitoringClient {
      */
     public fun setPassiveListenerServiceAsync(
         service: Class<out PassiveListenerService>,
-        config: PassiveListenerConfig
+        config: PassiveListenerConfig,
     ): ListenableFuture<Void>
 
     /**
@@ -95,7 +95,7 @@ public interface PassiveMonitoringClient {
      */
     public fun setPassiveListenerCallback(
         config: PassiveListenerConfig,
-        callback: PassiveListenerCallback
+        callback: PassiveListenerCallback,
     )
 
     /**
@@ -130,7 +130,7 @@ public interface PassiveMonitoringClient {
     public fun setPassiveListenerCallback(
         config: PassiveListenerConfig,
         executor: Executor,
-        callback: PassiveListenerCallback
+        callback: PassiveListenerCallback,
     )
 
     /**

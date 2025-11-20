@@ -3,11 +3,10 @@ set -e
 
 echo "Starting $0 at $(date)"
 
-cd "$(dirname $0)"
+BUILD_SCRIPT="impl/build.sh"
+HOST_TEST_TASKS="test allHostTests zipOwnersFiles createModuleInfo"
+EXTRA_PARAMS=""
 
-impl/build.sh test allHostTests zipOwnersFiles createModuleInfo \
-    -Pandroidx.ignoreTestFailures \
-    -Pandroidx.displayTestOutput=false \
-    "$@"
+"$(dirname "$0")/impl/host_test_common_test_runner.sh" "$BUILD_SCRIPT" "$HOST_TEST_TASKS" "$EXTRA_PARAMS" "$@"
 
 echo "Completing $0 at $(date)"

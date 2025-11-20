@@ -33,7 +33,7 @@ import android.os.Handler
 public inline fun Handler.postDelayed(
     delayInMillis: Long,
     token: Any? = null,
-    crossinline action: () -> Unit
+    crossinline action: () -> Unit,
 ): Runnable {
     val runnable = Runnable { action() }
     if (token == null) {
@@ -63,7 +63,7 @@ public inline fun Handler.postDelayed(
 public inline fun Handler.postAtTime(
     uptimeMillis: Long,
     token: Any? = null,
-    crossinline action: () -> Unit
+    crossinline action: () -> Unit,
 ): Runnable {
     val runnable = Runnable { action() }
     postAtTime(runnable, token, uptimeMillis)

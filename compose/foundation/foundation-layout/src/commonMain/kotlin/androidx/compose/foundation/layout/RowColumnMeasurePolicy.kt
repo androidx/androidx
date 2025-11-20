@@ -39,7 +39,7 @@ internal interface RowColumnMeasurePolicy {
         mainAxisLayoutSize: Int,
         childrenMainAxisSize: IntArray,
         mainAxisPositions: IntArray,
-        measureScope: MeasureScope
+        measureScope: MeasureScope,
     )
 
     fun placeHelper(
@@ -52,7 +52,7 @@ internal interface RowColumnMeasurePolicy {
         crossAxisOffset: IntArray?,
         currentLineIndex: Int,
         startIndex: Int,
-        endIndex: Int
+        endIndex: Int,
     ): MeasureResult
 
     fun createConstraints(
@@ -60,7 +60,7 @@ internal interface RowColumnMeasurePolicy {
         crossAxisMin: Int,
         mainAxisMax: Int,
         crossAxisMax: Int,
-        isPrioritizing: Boolean = false
+        isPrioritizing: Boolean = false,
     ): Constraints
 }
 
@@ -134,7 +134,7 @@ internal fun RowColumnMeasurePolicy.measure(
                                 } else {
                                     remaining.fastCoerceAtLeast(0)
                                 },
-                            crossAxisMax = crossAxisDesiredSize ?: crossAxisMax
+                            crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
                         )
                     )
             val placeableMainAxisSize = placeable.mainAxisSize()
@@ -203,7 +203,7 @@ internal fun RowColumnMeasurePolicy.measure(
                         crossAxisMin = crossAxisDesiredSize ?: 0,
                         mainAxisMax = childMainAxisSize,
                         crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
-                        isPrioritizing = true
+                        isPrioritizing = true,
                     )
                 val placeable = child.measure(childConstraints)
                 val placeableMainAxisSize = placeable.mainAxisSize()
@@ -232,7 +232,7 @@ internal fun RowColumnMeasurePolicy.measure(
                 beforeCrossAxisAlignmentLine =
                     max(
                         beforeCrossAxisAlignmentLine,
-                        if (it != AlignmentLine.Unspecified) alignmentLinePosition else 0
+                        if (it != AlignmentLine.Unspecified) alignmentLinePosition else 0,
                     )
                 afterCrossAxisAlignmentLine =
                     max(
@@ -242,7 +242,7 @@ internal fun RowColumnMeasurePolicy.measure(
                                 it
                             } else {
                                 placeableCrossAxisSize
-                            }
+                            },
                     )
             }
         }
@@ -254,14 +254,14 @@ internal fun RowColumnMeasurePolicy.measure(
         maxOf(
             crossAxisSpace,
             crossAxisMin,
-            beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine
+            beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine,
         )
     val mainAxisPositions = IntArray(subSize)
     populateMainAxisPositions(
         mainAxisLayoutSize,
         childrenMainAxisSize,
         mainAxisPositions,
-        measureScope
+        measureScope,
     )
 
     return placeHelper(
@@ -274,6 +274,6 @@ internal fun RowColumnMeasurePolicy.measure(
         crossAxisOffset,
         currentLineIndex,
         startIndex,
-        endIndex
+        endIndex,
     )
 }

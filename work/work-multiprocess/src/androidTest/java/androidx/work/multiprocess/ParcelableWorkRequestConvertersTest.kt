@@ -128,7 +128,7 @@ public class ParcelableWorkRequestConvertersTest {
         val parcelled: ParcelableWorkRequest =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelable),
-                ParcelableWorkRequest.CREATOR
+                ParcelableWorkRequest.CREATOR,
             )
         assertRequest(workRequest, parcelled.workRequest)
     }
@@ -138,7 +138,7 @@ public class ParcelableWorkRequestConvertersTest {
         val parcelled: ParcelableWorkRequests =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelable),
-                ParcelableWorkRequests.CREATOR
+                ParcelableWorkRequests.CREATOR,
             )
         assertRequests(workRequests, parcelled.requests)
     }

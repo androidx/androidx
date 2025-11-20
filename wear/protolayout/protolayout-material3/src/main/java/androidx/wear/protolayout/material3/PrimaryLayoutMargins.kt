@@ -111,7 +111,7 @@ public abstract class PrimaryLayoutMargins internal constructor() {
          */
         public fun customizedPrimaryLayoutMargin(
             @FloatRange(from = 0.0, to = 1.0) start: Float,
-            @FloatRange(from = 0.0, to = 1.0) end: Float
+            @FloatRange(from = 0.0, to = 1.0) end: Float,
         ): PrimaryLayoutMargins = CustomPrimaryLayoutMargins(start = start, end = end)
 
         /**
@@ -138,7 +138,7 @@ public abstract class PrimaryLayoutMargins internal constructor() {
         public fun customizedPrimaryLayoutMargin(
             @FloatRange(from = 0.0, to = 1.0) start: Float,
             @FloatRange(from = 0.0, to = 1.0) end: Float,
-            @FloatRange(from = 0.0, to = 1.0) bottom: Float
+            @FloatRange(from = 0.0, to = 1.0) bottom: Float,
         ): PrimaryLayoutMargins =
             CustomPrimaryLayoutMargins(start = start, end = end, bottom = bottom)
     }
@@ -185,7 +185,7 @@ internal class CustomPrimaryLayoutMargins
  */
 (
     @FloatRange(from = 0.0, to = 1.0) internal val start: Float,
-    @FloatRange(from = 0.0, to = 1.0) internal val end: Float
+    @FloatRange(from = 0.0, to = 1.0) internal val end: Float,
 ) : PrimaryLayoutMargins() {
     internal var bottom: Float = NaN
 
@@ -201,7 +201,7 @@ internal class CustomPrimaryLayoutMargins
     constructor(
         @FloatRange(from = 0.0, to = 1.0) start: Float,
         @FloatRange(from = 0.0, to = 1.0) end: Float,
-        @FloatRange(from = 0.0, to = 1.0) bottom: Float
+        @FloatRange(from = 0.0, to = 1.0) bottom: Float,
     ) : this(start = start, end = end) {
         this.bottom = bottom
     }

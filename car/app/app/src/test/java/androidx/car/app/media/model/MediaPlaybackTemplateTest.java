@@ -25,10 +25,12 @@ import androidx.car.app.model.Header;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** tests for {@link MediaPlaybackTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class MediaPlaybackTemplateTest {
 

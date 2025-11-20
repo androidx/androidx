@@ -97,7 +97,7 @@ fun View.captureToImage(): ImageBitmap {
         Bitmap.createBitmap(
             boundsInWindow.width(),
             boundsInWindow.height(),
-            Bitmap.Config.ARGB_8888
+            Bitmap.Config.ARGB_8888,
         )
 
     val latch = CountDownLatch(1)
@@ -131,7 +131,7 @@ private object PixelCopyHelper {
         srcRect: Rect?,
         dest: Bitmap,
         listener: OnPixelCopyFinishedListener,
-        listenerThread: Handler
+        listenerThread: Handler,
     ) {
         PixelCopy.request(source, srcRect, dest, listener, listenerThread)
     }

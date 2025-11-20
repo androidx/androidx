@@ -14,75 +14,134 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.savedstate.serialization
 
 import androidx.savedstate.SavedState
+import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.savedstate.write
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.serializer
 
 /**
- * Encode a serializable object to a [SavedState] with an explicit serializer, which can be a custom
- * or third-party one.
+ * Serializes the [value] of type [T] into an equivalent [SavedState] using [KSerializer] retrieved
+ * from the reified type parameter.
  *
- * @sample androidx.savedstate.encodeWithExplicitSerializer
- * @param serializer The serializer to use.
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.encode
  * @param value The serializable object to encode.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
  * @return The encoded [SavedState].
- * @throws SerializationException if [value] cannot be serialized.
+ * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
  */
-public fun <T : Any> encodeToSavedState(
-    serializer: SerializationStrategy<T>,
-    value: T
+@Deprecated(
+    message =
+        "Use the new 'encodeToSavedState' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
+public inline fun <reified T : Any> encodeToSavedState(
+    value: T,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
 ): SavedState =
-    savedState().apply {
-        SavedStateEncoder(this, SavedStateConfig.DEFAULT).encodeSerializableValue(serializer, value)
-    }
+    encodeToSavedState(configuration.serializersModule.serializer(), value, configuration)
 
 /**
- * Encode a serializable object to a [SavedState] with an explicit serializer, which can be a custom
- * or third-party one.
+ * Serializes the [value] of type [T] into an equivalent [SavedState] using [KSerializer] retrieved
+ * from the reified type parameter.
+ *
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.encode
+ * @param value The serializable object to encode.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @return The encoded [SavedState].
+ * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
+ */
+@JvmName("encodeToSavedStateNullable")
+public inline fun <reified T> encodeToSavedState(
+    value: T,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): SavedState =
+    encodeToSavedState(configuration.serializersModule.serializer(), value, configuration)
+
+/**
+ * Serializes and encodes the given [value] to [SavedState] using the given [serializer].
+ *
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
  *
  * @sample androidx.savedstate.encodeWithExplicitSerializerAndConfig
  * @param serializer The serializer to use.
  * @param value The serializable object to encode.
- * @param config The [SavedStateConfig] to use.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
  * @return The encoded [SavedState].
- * @throws SerializationException if [value] cannot be serialized.
+ * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
  */
+@Deprecated(
+    message =
+        "Use the new 'encodeToSavedState' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
+@JvmOverloads
 public fun <T : Any> encodeToSavedState(
     serializer: SerializationStrategy<T>,
     value: T,
-    config: SavedStateConfig,
-): SavedState =
-    savedState().apply {
-        SavedStateEncoder(this, config).encodeSerializableValue(serializer, value)
-    }
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): SavedState {
+    val result = savedState()
+    SavedStateEncoder(result, configuration).encodeSerializableValue(serializer, value)
+    return result
+}
 
 /**
- * Encode a serializable object to a [SavedState] with the default serializer.
+ * Serializes and encodes the given [value] to [SavedState] using the given [serializer].
  *
- * @sample androidx.savedstate.encode
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.encodeWithExplicitSerializerAndConfig
+ * @param serializer The serializer to use.
  * @param value The serializable object to encode.
- * @param config The [SavedStateConfig] to use.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
  * @return The encoded [SavedState].
- * @throws SerializationException if [value] cannot be serialized.
+ * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
  */
-public inline fun <reified T : Any> encodeToSavedState(
+@JvmOverloads
+@JvmName("encodeToSavedStateNullable")
+public fun <T> encodeToSavedState(
+    serializer: SerializationStrategy<T>,
     value: T,
-    config: SavedStateConfig = SavedStateConfig.DEFAULT,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
 ): SavedState {
-    return encodeToSavedState(
-        serializer = config.serializersModule.serializer<T>(),
-        config = config,
-        value = value
-    )
+    val result = savedState()
+    SavedStateEncoder(result, configuration).encodeSerializableValue(serializer, value)
+    return result
 }
 
 /**
@@ -94,21 +153,79 @@ public inline fun <reified T : Any> encodeToSavedState(
 @OptIn(ExperimentalSerializationApi::class)
 internal class SavedStateEncoder(
     internal val savedState: SavedState,
-    private val config: SavedStateConfig
+    private val configuration: SavedStateConfiguration,
 ) : AbstractEncoder() {
+
     internal var key: String = ""
         private set
 
-    override val serializersModule = config.serializersModule
+    override val serializersModule
+        get() = configuration.serializersModule
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
-        false
+        configuration.encodeDefaults
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        // We flatten single structured object at root to prevent encoding to a
+        // SavedState containing only one SavedState inside. For example, a
+        // `Pair(3, 5)` would become `{"first" = 3, "second" = 5}` instead of
+        // `{{"first" = 3, "second" = 5}}`, which is more consistent but less
+        // efficient.
+        return if (key == "") {
+            putClassDiscriminatorIfRequired(configuration, descriptor, savedState)
+            this
+        } else {
+            val childState = savedState()
+            savedState.write { putSavedState(key, childState) } // Link child to parent.
+            putClassDiscriminatorIfRequired(configuration, descriptor, childState)
+            SavedStateEncoder(childState, configuration)
+        }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun putClassDiscriminatorIfRequired(
+        configuration: SavedStateConfiguration,
+        descriptor: SerialDescriptor,
+        savedState: SavedState,
+    ) {
+        // POLYMORPHIC is handled by kotlinx.serialization.PolymorphicSerializer.
+        if (configuration.classDiscriminatorMode != ClassDiscriminatorMode.ALL_OBJECTS) {
+            return
+        }
+
+        if (savedState.read { contains(CLASS_DISCRIMINATOR_KEY) }) {
+            return
+        }
+
+        if (descriptor.kind == StructureKind.CLASS || descriptor.kind == StructureKind.OBJECT) {
+            savedState.write { putString(CLASS_DISCRIMINATOR_KEY, descriptor.serialName) }
+        }
+    }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         // The key will be property names for classes by default and can be modified with
         // `@SerialName`. The key for collections will be decimal integer Strings ("0",
         // "1", "2", ...).
         key = descriptor.getElementName(index)
+
+        // Before proceeding, check if this element's name conflicts with the
+        // key we use for the class discriminator.
+        if (configuration.classDiscriminatorMode == ClassDiscriminatorMode.ALL_OBJECTS) {
+            val hasClassDiscriminator = savedState.read { contains(CLASS_DISCRIMINATOR_KEY) }
+            val hasConflictingElementName = key == CLASS_DISCRIMINATOR_KEY
+
+            if (hasClassDiscriminator && hasConflictingElementName) {
+                // This is a problem. The object is polymorphic, and one of its
+                // property names is the same as our internal discriminator key.
+                val classDiscriminator = savedState.read { getString(CLASS_DISCRIMINATOR_KEY) }
+                throw IllegalArgumentException(
+                    "SavedStateEncoder for $classDiscriminator has property '$key' that " +
+                        "conflicts with the class discriminator. You can rename a property with " +
+                        "@SerialName annotation."
+                )
+            }
+        }
+
         return true
     }
 
@@ -156,72 +273,52 @@ internal class SavedStateEncoder(
         savedState.write { putNull(key) }
     }
 
-    private fun encodeIntList(value: List<Int>) {
-        savedState.write { putIntList(key, value) }
-    }
-
-    private fun encodeStringList(value: List<String>) {
-        savedState.write { putStringList(key, value) }
-    }
-
-    private fun encodeBooleanArray(value: BooleanArray) {
-        savedState.write { putBooleanArray(key, value) }
-    }
-
-    private fun encodeCharArray(value: CharArray) {
-        savedState.write { putCharArray(key, value) }
-    }
-
-    private fun encodeDoubleArray(value: DoubleArray) {
-        savedState.write { putDoubleArray(key, value) }
-    }
-
-    private fun encodeFloatArray(value: FloatArray) {
-        savedState.write { putFloatArray(key, value) }
-    }
-
-    private fun encodeIntArray(value: IntArray) {
-        savedState.write { putIntArray(key, value) }
-    }
-
-    private fun encodeLongArray(value: LongArray) {
-        savedState.write { putLongArray(key, value) }
-    }
-
-    private fun encodeStringArray(value: Array<String>) {
-        savedState.write { putStringArray(key, value) }
-    }
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        // We flatten single structured object at root to prevent encoding to a
-        // SavedState containing only one SavedState inside. For example, a
-        // `Pair(3, 5)` would become `{"first" = 3, "second" = 5}` instead of
-        // `{{"first" = 3, "second" = 5}}`, which is more consistent but less
-        // efficient.
-        return if (key == "") {
-            this
-        } else {
-            SavedStateEncoder(
-                savedState =
-                    savedState().also { child -> savedState.write { putSavedState(key, child) } },
-                config = config
-            )
-        }
-    }
-
     @Suppress("UNCHECKED_CAST")
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        // First, try any platform-specific types
+        val platformEncoded = encodeFormatSpecificTypesOnPlatform(serializer, value)
+        if (platformEncoded) {
+            // Platform encoder handled it, we're done.
+            return
+        }
+
+        // If platform encoding didn't handle it, try our known fast-path types.
         when (serializer.descriptor) {
-            intListDescriptor -> encodeIntList(value as List<Int>)
-            stringListDescriptor -> encodeStringList(value as List<String>)
-            booleanArrayDescriptor -> encodeBooleanArray(value as BooleanArray)
-            charArrayDescriptor -> encodeCharArray(value as CharArray)
-            doubleArrayDescriptor -> encodeDoubleArray(value as DoubleArray)
-            floatArrayDescriptor -> encodeFloatArray(value as FloatArray)
-            intArrayDescriptor -> encodeIntArray(value as IntArray)
-            longArrayDescriptor -> encodeLongArray(value as LongArray)
-            stringArrayDescriptor -> encodeStringArray(value as Array<String>)
-            else -> super.encodeSerializableValue(serializer, value)
+            intListDescriptor -> savedState.write { putIntList(key, value as List<Int>) }
+            stringListDescriptor -> savedState.write { putStringList(key, value as List<String>) }
+            booleanListDescriptor ->
+                savedState.write { putBooleanArray(key, (value as List<Boolean>).toBooleanArray()) }
+            longListDescriptor ->
+                savedState.write { putLongArray(key, (value as List<Long>).toLongArray()) }
+            floatListDescriptor ->
+                savedState.write { putFloatArray(key, (value as List<Float>).toFloatArray()) }
+            doubleListDescriptor ->
+                savedState.write { putDoubleArray(key, (value as List<Double>).toDoubleArray()) }
+            charListDescriptor ->
+                savedState.write { putCharArray(key, (value as List<Char>).toCharArray()) }
+            booleanArrayDescriptor ->
+                savedState.write { putBooleanArray(key, value as BooleanArray) }
+            charArrayDescriptor -> savedState.write { putCharArray(key, value as CharArray) }
+            doubleArrayDescriptor -> savedState.write { putDoubleArray(key, value as DoubleArray) }
+            floatArrayDescriptor -> savedState.write { putFloatArray(key, value as FloatArray) }
+            intArrayDescriptor -> savedState.write { putIntArray(key, value as IntArray) }
+            longArrayDescriptor -> savedState.write { putLongArray(key, value as LongArray) }
+            stringArrayDescriptor ->
+                savedState.write { putStringArray(key, value as Array<String>) }
+            else -> {
+                // This isn't a type we can specially handle.
+                // Fall back to the default serialization behavior.
+                super.encodeSerializableValue(serializer, value)
+            }
         }
     }
 }
+
+/**
+ * @return `true` if [value] was encoded with SavedState's special representation, `false`
+ *   otherwise.
+ */
+internal expect fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
+    strategy: SerializationStrategy<T>,
+    value: T,
+): Boolean

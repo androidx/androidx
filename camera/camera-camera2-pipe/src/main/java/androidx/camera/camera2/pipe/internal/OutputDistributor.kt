@@ -48,7 +48,7 @@ import kotlinx.atomicfu.atomic
  */
 internal class OutputDistributor<T>(
     private val maximumCachedOutputs: Int = 3,
-    private val outputFinalizer: Finalizer<T>
+    private val outputFinalizer: Finalizer<T>,
 ) : AutoCloseable {
 
     internal interface OutputListener<T> {
@@ -64,7 +64,7 @@ internal class OutputDistributor<T>(
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputResult: OutputResult<T>
+            outputResult: OutputResult<T>,
         )
     }
 
@@ -104,7 +104,7 @@ internal class OutputDistributor<T>(
         cameraFrameNumber: FrameNumber,
         cameraTimestamp: CameraTimestamp,
         outputNumber: Long,
-        outputListener: OutputListener<T>
+        outputListener: OutputListener<T>,
     ) {
         var missingOutputs: List<StartedOutput<T>>? = null
         var matchingOutput: OutputResult<T>? = null
@@ -182,7 +182,7 @@ internal class OutputDistributor<T>(
                     cameraTimestamp,
                     outputSequence,
                     outputNumber,
-                    outputListener
+                    outputListener,
                 )
             )
         }
@@ -205,7 +205,7 @@ internal class OutputDistributor<T>(
                 cameraTimestamp = cameraTimestamp,
                 outputSequence = outputSequence,
                 outputNumber = outputNumber,
-                outputResult
+                outputResult,
             )
         }
     }
@@ -287,7 +287,7 @@ internal class OutputDistributor<T>(
     private fun removeOutputsOlderThan(
         isOutOfOrder: Boolean,
         outputSequence: Long,
-        outputNumber: Long
+        outputNumber: Long,
     ): List<StartedOutput<T>> {
         // This filter is bi-modal: If [output] is outOfOrder, it will only remove *other* out of
         // order events that are older than the most recent event. Similarly, if it's normal and in
@@ -336,7 +336,7 @@ internal class OutputDistributor<T>(
         val cameraTimestamp: CameraTimestamp,
         val outputSequence: Long,
         val outputNumber: Long,
-        private val outputListener: OutputListener<T>
+        private val outputListener: OutputListener<T>,
     ) {
         private val complete = atomic(false)
 
@@ -353,7 +353,7 @@ internal class OutputDistributor<T>(
                 cameraTimestamp,
                 outputSequence,
                 outputNumber,
-                outputResult
+                outputResult,
             )
         }
     }

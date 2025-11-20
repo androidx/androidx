@@ -41,6 +41,19 @@ public interface InProgressStrokesFinishedListener {
      * [InProgressStrokesView] and the other [android.view.View] - either a gap where the stroke is
      * not drawn during a frame, or a double draw where the stroke is drawn twice and translucent
      * strokes appear more opaque than they should.
+     *
+     * Example:
+     * ```
+     * public fun onStrokesFinished(strokes: Map<InProgressStrokeId, Stroke>) {
+     *   view.addStrokes(strokes.values)
+     *   view.invalidate()
+     *   inProgressStrokesView.removeFinishedStrokes(strokes.keys)
+     * }
+     * ```
+     *
+     * @param strokes The finished strokes, with map iteration order in the z-order that strokes
+     *   were rendered in the [InProgressStrokesView], from back to front. This is the same order
+     *   that strokes were started with [startStroke].
      */
     public fun onStrokesFinished(strokes: Map<InProgressStrokeId, Stroke>) {}
 }

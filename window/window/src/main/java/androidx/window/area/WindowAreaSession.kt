@@ -24,8 +24,8 @@ import androidx.window.core.ExperimentalWindowApi
  * @see WindowAreaSessionCallback.onSessionStarted
  */
 @ExperimentalWindowApi
-interface WindowAreaSession {
+public interface WindowAreaSession {
 
     /** Closes the active session, no-op if the session is not currently active. */
-    fun close()
+    public fun close()
 }

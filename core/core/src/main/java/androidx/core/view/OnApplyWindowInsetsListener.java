@@ -37,6 +37,10 @@ public interface OnApplyWindowInsetsListener {
      * on a View, this listener method will be called instead of the view's own
      * {@code onApplyWindowInsets} method.
      *
+     * <p>Note: When running on devices with API Level 29 or before, this might not be called when
+     * the IME inset is changed if the soft input mode of the window is not
+     * {@link android.view.WindowManager.LayoutParams#SOFT_INPUT_ADJUST_RESIZE}.
+     *
      * @param v      The view applying window insets
      * @param insets The insets to apply
      * @return The insets supplied, minus any insets that were consumed

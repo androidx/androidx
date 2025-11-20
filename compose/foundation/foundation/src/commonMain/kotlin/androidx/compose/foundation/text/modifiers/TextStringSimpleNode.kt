@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.trace
 import kotlin.jvm.JvmName
 
 /**
@@ -75,7 +76,7 @@ internal class TextStringSimpleNode(
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
-    private var overrideColor: ColorProducer? = null
+    private var overrideColor: ColorProducer? = null,
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
@@ -98,7 +99,7 @@ internal class TextStringSimpleNode(
                         overflow,
                         softWrap,
                         maxLines,
-                        minLines
+                        minLines,
                     )
             }
             return _layoutCache!!
@@ -162,7 +163,7 @@ internal class TextStringSimpleNode(
         maxLines: Int,
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
-        overflow: TextOverflow
+        overflow: TextOverflow,
     ): Boolean {
         var changed: Boolean
 
@@ -208,7 +209,7 @@ internal class TextStringSimpleNode(
                 overflow = overflow,
                 softWrap = softWrap,
                 maxLines = maxLines,
-                minLines = minLines
+                minLines = minLines,
             )
         }
 
@@ -262,7 +263,7 @@ internal class TextStringSimpleNode(
                 overflow,
                 softWrap,
                 maxLines,
-                minLines
+                minLines,
             ) ?: return false
         } else {
             val newTextSubstitution = TextSubstitutionValue(text, updatedText)
@@ -274,7 +275,7 @@ internal class TextStringSimpleNode(
                     overflow,
                     softWrap,
                     maxLines,
-                    minLines
+                    minLines,
                 )
             substitutionLayoutCache.density = layoutCache.density
             newTextSubstitution.layoutCache = substitutionLayoutCache
@@ -348,64 +349,66 @@ internal class TextStringSimpleNode(
     /** Text layout happens here */
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
-        val layoutCache = getLayoutCacheForMeasure()
+        trace("TextStringSimpleNode::measure") {
+            val layoutCache = getLayoutCacheForMeasure()
 
-        val didChangeLayout = layoutCache.layoutWithConstraints(constraints, layoutDirection)
-        // ensure measure restarts when hasStaleResolvedFonts by reading in measure
-        layoutCache.observeFontChanges
-        val paragraph = layoutCache.paragraph!!
-        val layoutSize = layoutCache.layoutSize
+            val didChangeLayout = layoutCache.layoutWithConstraints(constraints, layoutDirection)
+            // ensure measure restarts when hasStaleResolvedFonts by reading in measure
+            layoutCache.observeFontChanges
+            val paragraph = layoutCache.paragraph!!
+            val layoutSize = layoutCache.layoutSize
 
-        if (didChangeLayout) {
-            invalidateLayer()
-            // Map<AlignmentLine, Int> required for use in public API `layout` below
-            @Suppress("PrimitiveInCollection") var cache = baselineCache
-            if (cache == null) {
-                cache = HashMap(2)
-                baselineCache = cache
+            if (didChangeLayout) {
+                invalidateLayer()
+                // Map<AlignmentLine, Int> required for use in public API `layout` below
+                @Suppress("PrimitiveInCollection") var cache = baselineCache
+                if (cache == null) {
+                    cache = HashMap(2)
+                    baselineCache = cache
+                }
+                cache[FirstBaseline] = paragraph.firstBaseline.fastRoundToInt()
+                cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
             }
-            cache[FirstBaseline] = paragraph.firstBaseline.fastRoundToInt()
-            cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
-        }
 
-        // then allow children to measure _inside_ our final box, with the above placeholders
-        val placeable =
-            measurable.measure(
-                fitPrioritizingWidth(
-                    minWidth = layoutSize.width,
-                    maxWidth = layoutSize.width,
-                    minHeight = layoutSize.height,
-                    maxHeight = layoutSize.height
+            // then allow children to measure _inside_ our final box, with the above placeholders
+            val placeable =
+                measurable.measure(
+                    fitPrioritizingWidth(
+                        minWidth = layoutSize.width,
+                        maxWidth = layoutSize.width,
+                        minHeight = layoutSize.height,
+                        maxHeight = layoutSize.height,
+                    )
                 )
-            )
 
-        return layout(layoutSize.width, layoutSize.height, baselineCache!!) {
-            placeable.place(0, 0)
+            return layout(layoutSize.width, layoutSize.height, baselineCache!!) {
+                placeable.place(0, 0)
+            }
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int {
         return getLayoutCacheForMeasure().minIntrinsicWidth(layoutDirection)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = getLayoutCacheForMeasure().intrinsicHeight(width, layoutDirection)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = getLayoutCacheForMeasure().maxIntrinsicWidth(layoutDirection)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = getLayoutCacheForMeasure().intrinsicHeight(width, layoutDirection)
 
     /** Optimized Text draw. */
@@ -418,7 +421,7 @@ internal class TextStringSimpleNode(
         val layoutCache = getLayoutCache()
         val localParagraph =
             requirePreconditionNotNull(layoutCache.paragraph) {
-                "no paragraph (layoutCache=$_layoutCache, textSubstitution=$textSubstitution)"
+                "Internal Error: ParagraphLayoutCache could not provide a Paragraph during the draw phase. Please report this bug on the official Issue Tracker with the following diagnostic information: (layoutCache=$_layoutCache, textSubstitution=$textSubstitution)"
             }
 
         drawIntoCanvas { canvas ->
@@ -442,7 +445,7 @@ internal class TextStringSimpleNode(
                         alpha = alpha,
                         shadow = shadow,
                         drawStyle = drawStyle,
-                        textDecoration = textDecoration
+                        textDecoration = textDecoration,
                     )
                 } else {
                     val overrideColorVal = overrideColor?.invoke() ?: Color.Unspecified
@@ -459,7 +462,7 @@ internal class TextStringSimpleNode(
                         color = color,
                         shadow = shadow,
                         drawStyle = drawStyle,
-                        textDecoration = textDecoration
+                        textDecoration = textDecoration,
                     )
                 }
             } finally {

@@ -26,7 +26,7 @@ import android.database.sqlite.SQLiteDatabase
  */
 public inline fun <T> SQLiteDatabase.transaction(
     exclusive: Boolean = true,
-    body: SQLiteDatabase.() -> T
+    body: SQLiteDatabase.() -> T,
 ): T {
     if (exclusive) {
         beginTransaction()

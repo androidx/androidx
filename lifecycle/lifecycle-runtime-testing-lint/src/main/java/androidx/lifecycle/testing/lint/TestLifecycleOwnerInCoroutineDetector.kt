@@ -69,7 +69,7 @@ class TestLifecycleOwnerInCoroutineDetector : Detector(), SourceCodeScanner {
                 node,
                 context.getNameLocation(node),
                 "Incorrect use of currentState property inside of Coroutine, please use " +
-                    "the suspending setCurrentState() function."
+                    "the suspending setCurrentState() function.",
             )
         }
     }
@@ -96,9 +96,9 @@ class TestLifecycleOwnerInCoroutineDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         TestLifecycleOwnerInCoroutineDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 }

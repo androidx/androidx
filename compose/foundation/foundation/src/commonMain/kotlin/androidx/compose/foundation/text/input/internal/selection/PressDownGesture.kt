@@ -25,7 +25,7 @@ import androidx.compose.ui.util.fastAny
 /** Detects pointer down and up events. This detector does not require events to be unconsumed. */
 internal suspend fun PointerInputScope.detectPressDownGesture(
     onDown: TapOnPosition,
-    onUp: (() -> Unit)? = null
+    onUp: (() -> Unit)? = null,
 ) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = false)

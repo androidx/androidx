@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2024 The Android Open Source Project
+<!-- 
+  Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,5 +17,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="mc2_snackbar_pane_title" msgid="2792228137354697160">"Makluman"</string>
+    <string name="mc2_snackbar_pane_title" msgid="8471891128988107974">"Makluman"</string>
 </resources>

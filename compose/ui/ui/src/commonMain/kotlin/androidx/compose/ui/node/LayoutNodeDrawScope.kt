@@ -93,7 +93,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
                     drawContext.canvas,
                     drawContext.size,
                     drawContext.graphicsLayer,
-                    block
+                    block,
                 )
             } finally {
                 this@LayoutNodeDrawScope.drawNode = previousDrawNode
@@ -114,7 +114,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         size: Size,
         coordinator: NodeCoordinator,
         drawNode: Modifier.Node,
-        layer: GraphicsLayer?
+        layer: GraphicsLayer?,
     ) {
         drawNode.dispatchForKind(Nodes.Draw) { drawDirect(canvas, size, coordinator, it, layer) }
     }
@@ -124,7 +124,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         size: Size,
         coordinator: NodeCoordinator,
         drawNode: DrawModifierNode,
-        layer: GraphicsLayer?
+        layer: GraphicsLayer?,
     ) {
         val previousDrawNode = this.drawNode
         this.drawNode = drawNode

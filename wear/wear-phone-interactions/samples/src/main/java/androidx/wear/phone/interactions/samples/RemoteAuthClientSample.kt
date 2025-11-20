@@ -24,7 +24,7 @@ import androidx.wear.phone.interactions.authentication.RemoteAuthClient
 suspend fun AuthAvailabilitySample(
     remoteAuthClient: RemoteAuthClient,
     oAuthRequest: OAuthRequest,
-    myAuthCallback: RemoteAuthClient.Callback
+    myAuthCallback: RemoteAuthClient.Callback,
 ) {
     remoteAuthClient.availabilityStatus.collect { status ->
         when (status) {
@@ -39,7 +39,7 @@ suspend fun AuthAvailabilitySample(
                 remoteAuthClient.sendAuthorizationRequest(
                     oAuthRequest,
                     Runnable::run,
-                    myAuthCallback
+                    myAuthCallback,
                 )
         }
     }

@@ -14,8 +14,7 @@ public class SdkActivityLauncherProxy(
     public val remote: ISdkActivityLauncher,
     public val launcherInfo: Bundle,
 ) : SdkActivityLauncher {
-    public override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean =
-            suspendCancellableCoroutine {
+    public override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean = suspendCancellableCoroutine {
         remote.launchSdkActivity(
             sdkActivityHandlerToken,
             object: ISdkActivityLauncherCallback.Stub() {

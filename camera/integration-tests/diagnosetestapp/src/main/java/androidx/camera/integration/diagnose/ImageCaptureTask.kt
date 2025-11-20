@@ -44,7 +44,7 @@ class ImageCaptureTask : DiagnosisTask("ImageCaptureTask") {
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
         dataStore: DataStore,
-        context: Context
+        context: Context,
     ) {
         // write file/section header
         dataStore.appendTitle(this.getTaskName())
@@ -64,7 +64,7 @@ class ImageCaptureTask : DiagnosisTask("ImageCaptureTask") {
     suspend fun captureImage(
         cameraController: LifecycleCameraController,
         dataStore: DataStore,
-        context: Context
+        context: Context,
     ): File? = suspendCancellableCoroutine { continuation ->
         Threads.checkMainThread()
 
@@ -90,7 +90,7 @@ class ImageCaptureTask : DiagnosisTask("ImageCaptureTask") {
                 override fun onError(exception: ImageCaptureException) {
                     continuation.resumeWithException(exception)
                 }
-            }
+            },
         )
     }
 }

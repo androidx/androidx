@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.provider
 
@@ -20,7 +21,6 @@ import android.app.sdksandbox.LoadSdkException
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
-import android.view.View
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
@@ -115,21 +115,19 @@ class SandboxedSdkProviderAdapterTest {
     }
 
     @Test
-    fun getView_shouldDelegateToCompatProviderAndReturnResult() {
+    // TODO(b/315321962) Migrate to Robolectric to remove usage of dexmakerMockito.
+    // maxSdkVersion due to b/430688215
+    @SdkSuppress(minSdkVersion = 34, maxSdkVersion = 34)
+    fun getView_shouldThrowException() {
         val adapter = createAdapterFor(TestGetViewSdkProvider::class)
         val windowContext = mock(Context::class.java)
         val params = Bundle()
         val width = 1
         val height = 2
 
-        val result = adapter.getView(windowContext, params, width, height)
-
-        val delegate = adapter.extractDelegate<TestGetViewSdkProvider>()
-        assertThat(result).isSameInstanceAs(delegate.mView)
-        assertThat(delegate.mLastWindowContext).isSameInstanceAs(windowContext)
-        assertThat(delegate.mLastParams).isSameInstanceAs(params)
-        assertThat(delegate.mLastWidth).isSameInstanceAs(width)
-        assertThat(delegate.mLastHeigh).isSameInstanceAs(height)
+        assertThrows(UnsupportedOperationException::class.java) {
+            adapter.getView(windowContext, params, width, height)
+        }
     }
 
     private fun createAdapterFor(
@@ -160,15 +158,6 @@ class SandboxedSdkProviderAdapterTest {
             mLastOnLoadSdkBundle = params
             return mResult
         }
-
-        override fun getView(
-            windowContext: Context,
-            params: Bundle,
-            width: Int,
-            height: Int
-        ): View {
-            throw RuntimeException("Not implemented")
-        }
     }
 
     class TestOnLoadThrowSdkProvider : SandboxedSdkProviderCompat() {
@@ -177,15 +166,6 @@ class SandboxedSdkProviderAdapterTest {
         @Throws(LoadSdkCompatException::class)
         override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
             throw mError
-        }
-
-        override fun getView(
-            windowContext: Context,
-            params: Bundle,
-            width: Int,
-            height: Int
-        ): View {
-            throw RuntimeException("Stub!")
         }
     }
 
@@ -199,41 +179,11 @@ class SandboxedSdkProviderAdapterTest {
         override fun beforeUnloadSdk() {
             mBeforeUnloadSdkCalled = true
         }
-
-        override fun getView(
-            windowContext: Context,
-            params: Bundle,
-            width: Int,
-            height: Int
-        ): View {
-            throw RuntimeException("Not implemented")
-        }
     }
 
     class TestGetViewSdkProvider : SandboxedSdkProviderCompat() {
-        val mView: View = mock(View::class.java)
-
-        var mLastWindowContext: Context? = null
-        var mLastParams: Bundle? = null
-        var mLastWidth = 0
-        var mLastHeigh = 0
-
         override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
             throw RuntimeException("Not implemented")
-        }
-
-        override fun getView(
-            windowContext: Context,
-            params: Bundle,
-            width: Int,
-            height: Int
-        ): View {
-            mLastWindowContext = windowContext
-            mLastParams = params
-            mLastWidth = width
-            mLastHeigh = height
-
-            return mView
         }
     }
 }

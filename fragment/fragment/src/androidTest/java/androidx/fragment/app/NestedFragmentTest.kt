@@ -69,7 +69,7 @@ class NestedFragmentTest {
             instrumentation.addMonitor(
                 IntentFilter(Intent.ACTION_CALL),
                 activityResult,
-                true /* block */
+                true, /* block */
             )
 
         // Verify that onActivityResult hasn't been called yet.
@@ -79,7 +79,7 @@ class NestedFragmentTest {
         activityRule.runOnUiThread {
             parentFragment.childFragment.startActivityForResult(
                 Intent(Intent.ACTION_CALL),
-                16777216 /* requestCode */
+                16777216, /* requestCode */
             )
             latch.countDown()
         }
@@ -105,7 +105,7 @@ class NestedFragmentTest {
             instrumentation.addMonitor(
                 IntentFilter(Intent.ACTION_CALL),
                 activityResult,
-                true /* block */
+                true, /* block */
             )
 
         // Verify that onActivityResult hasn't been called yet.
@@ -115,7 +115,7 @@ class NestedFragmentTest {
         activityRule.runOnUiThread {
             parentFragment.childFragment.startActivityForResult(
                 Intent(Intent.ACTION_CALL),
-                5 /* requestCode */
+                5, /* requestCode */
             )
             latch.countDown()
         }

@@ -56,7 +56,7 @@ val LazyListSnappingDemos =
         ComposableDemo("Single Item - List with Content padding") { DifferentContentPaddingDemo() },
         ComposableDemo("Multi Item - Decayed Snapping") { DecayedSnappingDemo() },
         ComposableDemo("Multi Item - View Port Based Offset") { ViewPortBasedSnappingDemo() },
-        DemoCategory("Snap Position", SnapPositionDemos)
+        DemoCategory("Snap Position", SnapPositionDemos),
     )
 
 /** Snapping happens to the next item and items have the same size */
@@ -74,7 +74,7 @@ private fun SnapPosition(snapPosition: SnapPosition) {
                     drawContent()
                     drawAnchor(CenterAnchor)
                 },
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(text = position.toString(), fontSize = 40.sp)
         }
@@ -127,7 +127,7 @@ private fun DifferentContentPaddingDemo() {
     SnappingDemoMainLayout(
         lazyListState = lazyListState,
         flingBehavior = flingBehavior,
-        contentPaddingValues = PaddingValues(start = 20.dp, end = 50.dp)
+        contentPaddingValues = PaddingValues(start = 20.dp, end = 50.dp),
     ) {
         DefaultSnapDemoItem(position = it)
     }
@@ -158,7 +158,7 @@ private fun ViewPortBasedSnappingDemo() {
 @Composable
 private fun rememberNextItemSnappingLayoutInfoProvider(
     state: LazyListState,
-    snapPosition: SnapPosition = SnapPosition.Center
+    snapPosition: SnapPosition = SnapPosition.Center,
 ): SnapLayoutInfoProvider {
     return remember(state, snapPosition) {
         val basedSnappingLayoutInfoProvider =
@@ -181,7 +181,7 @@ private fun rememberViewPortSnappingLayoutInfoProvider(
             {
                 val visibleItemsSum = state.layoutInfo.visibleItemsInfo.fastSumBy { it.size }
                 visibleItemsSum / state.layoutInfo.visibleItemsInfo.size.toFloat()
-            }
+            },
         ) {
             state.layoutInfo.viewportSize.width.toFloat()
         }

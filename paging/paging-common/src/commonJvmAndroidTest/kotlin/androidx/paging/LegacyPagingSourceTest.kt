@@ -45,7 +45,7 @@ class LegacyPagingSourceTest {
                 ),
             anchorPosition = 0,
             config = PagingConfig(pageSize = 1, prefetchDistance = 1),
-            leadingPlaceholderCount = 0
+            leadingPlaceholderCount = 0,
         )
 
     @Test
@@ -68,11 +68,7 @@ class LegacyPagingSourceTest {
                 override fun getKeyInternal(item: Int): Int = 0
             }
 
-        val pagingSource =
-            LegacyPagingSource(
-                fetchContext = testContext,
-                dataSource = dataSource,
-            )
+        val pagingSource = LegacyPagingSource(fetchContext = testContext, dataSource = dataSource)
 
         assertEquals(1, dataSource.isInvalidCalls)
         assertThat(pagingSource.invalid).isTrue()
@@ -86,7 +82,7 @@ class LegacyPagingSourceTest {
             object : ItemKeyedDataSource<Int, String>() {
                 override fun loadInitial(
                     params: LoadInitialParams<Int>,
-                    callback: LoadInitialCallback<String>
+                    callback: LoadInitialCallback<String>,
                 ) {
                     fail("loadInitial not expected")
                 }
@@ -126,21 +122,21 @@ class LegacyPagingSourceTest {
             object : PageKeyedDataSource<Int, String>() {
                 override fun loadInitial(
                     params: LoadInitialParams<Int>,
-                    callback: LoadInitialCallback<Int, String>
+                    callback: LoadInitialCallback<Int, String>,
                 ) {
                     fail("loadInitial not expected")
                 }
 
                 override fun loadBefore(
                     params: LoadParams<Int>,
-                    callback: LoadCallback<Int, String>
+                    callback: LoadCallback<Int, String>,
                 ) {
                     fail("loadBefore not expected")
                 }
 
                 override fun loadAfter(
                     params: LoadParams<Int>,
-                    callback: LoadCallback<Int, String>
+                    callback: LoadCallback<Int, String>,
                 ) {
                     fail("loadAfter not expected")
                 }
@@ -169,7 +165,7 @@ class LegacyPagingSourceTest {
         val pagingSource =
             LegacyPagingSource(
                 fetchContext = Dispatchers.Unconfined,
-                dataSource = createTestPositionalDataSource()
+                dataSource = createTestPositionalDataSource(),
             )
 
         // Check that jumpingSupported is enabled.
@@ -182,9 +178,9 @@ class LegacyPagingSourceTest {
                     pages = listOf(Page(data = listOf("fakeData"), prevKey = 4, nextKey = 5)),
                     anchorPosition = 0,
                     config = PagingConfig(pageSize = 1, prefetchDistance = 1),
-                    leadingPlaceholderCount = 0
+                    leadingPlaceholderCount = 0,
                 )
-            )
+            ),
         )
 
         assertEquals(
@@ -194,9 +190,9 @@ class LegacyPagingSourceTest {
                     pages = listOf(Page(data = listOf("fakeData"), prevKey = 4, nextKey = 5)),
                     anchorPosition = 2,
                     config = PagingConfig(pageSize = 1, prefetchDistance = 1),
-                    leadingPlaceholderCount = 0
+                    leadingPlaceholderCount = 0,
                 )
-            )
+            ),
         )
     }
 
@@ -205,7 +201,7 @@ class LegacyPagingSourceTest {
         val pagingSource =
             LegacyPagingSource(
                 fetchContext = Dispatchers.Unconfined,
-                dataSource = createTestPositionalDataSource()
+                dataSource = createTestPositionalDataSource(),
             )
         val dataSource = pagingSource.dataSource
 
@@ -230,7 +226,7 @@ class LegacyPagingSourceTest {
         val pagingSource =
             LegacyPagingSource(
                 fetchContext = Dispatchers.Unconfined,
-                dataSource = createTestPositionalDataSource()
+                dataSource = createTestPositionalDataSource(),
             )
         val dataSource = pagingSource.dataSource
 
@@ -283,7 +279,7 @@ class LegacyPagingSourceTest {
             Pager(
                 config = PagingConfig(10, enablePlaceholders = false),
                 pagingSourceFactory =
-                    dataSourceFactory.asPagingSourceFactory(executor.asCoroutineDispatcher())
+                    dataSourceFactory.asPagingSourceFactory(executor.asCoroutineDispatcher()),
             )
         // collect from pager. we take only 2 paging data generations and only take 1 PageEvent
         // from them
@@ -352,7 +348,7 @@ class LegacyPagingSourceTest {
         object : PositionalDataSource<String>() {
             override fun loadInitial(
                 params: LoadInitialParams,
-                callback: LoadInitialCallback<String>
+                callback: LoadInitialCallback<String>,
             ) {
                 if (!expectInitialLoad) {
                     fail("loadInitial not expected")
@@ -376,10 +372,7 @@ class LegacyPagingSourceTest {
 
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<String>) {
             recordMethodCall("loadInitial")
-            callback.onResult(
-                data = emptyList(),
-                position = 0,
-            )
+            callback.onResult(data = emptyList(), position = 0)
         }
 
         override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {

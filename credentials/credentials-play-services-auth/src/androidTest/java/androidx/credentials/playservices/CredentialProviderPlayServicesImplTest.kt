@@ -41,7 +41,7 @@ class CredentialProviderPlayServicesImplTest {
             Mockito.`when`(
                     mock.isGooglePlayServicesAvailable(
                         activity.baseContext,
-                        CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION
+                        CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION,
                     )
                 )
                 .thenReturn(ConnectionResult.SUCCESS)
@@ -65,7 +65,7 @@ class CredentialProviderPlayServicesImplTest {
                 Mockito.`when`(
                         mock.isGooglePlayServicesAvailable(
                             activity.baseContext,
-                            CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION
+                            CredentialProviderPlayServicesImpl.MIN_GMS_APK_VERSION,
                         )
                     )
                     .thenReturn(code)

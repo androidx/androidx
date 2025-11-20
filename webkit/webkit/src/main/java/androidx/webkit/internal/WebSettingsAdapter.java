@@ -18,13 +18,15 @@ package androidx.webkit.internal;
 
 import android.webkit.WebSettings;
 
+import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.UserAgentMetadata;
+import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.WebViewBackForwardCacheSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Set;
 
 /**
  * Adapter between WebSettingsCompat and
@@ -140,23 +142,6 @@ public class WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)}.
-     */
-    public @NonNull Set<String> getRequestedWithHeaderOriginAllowList() {
-        return mBoundaryInterface.getRequestedWithHeaderOriginAllowList();
-    }
-
-    /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderOriginAllowList(
-     * WebSettings, Set)}.
-     */
-    public void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList) {
-        mBoundaryInterface.setRequestedWithHeaderOriginAllowList(allowList);
-    }
-
-    /**
-     * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
      */
     public @NonNull UserAgentMetadata getUserAgentMetadata() {
@@ -167,7 +152,7 @@ public class WebSettingsAdapter {
     /**
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(
-     * WebSettings, UserAgentMetadata)}.
+     *WebSettings, UserAgentMetadata)}.
      */
     public void setUserAgentMetadata(@NonNull UserAgentMetadata uaMetadata) {
         mBoundaryInterface.setUserAgentMetadataFromMap(
@@ -257,5 +242,96 @@ public class WebSettingsAdapter {
      */
     public boolean getBackForwardCacheEnabled() {
         return mBoundaryInterface.getBackForwardCacheEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)}
+     */
+    public void setPaymentRequestEnabled(boolean enabled) {
+        mBoundaryInterface.setPaymentRequestEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getPaymentRequestEnabled(WebSettings)}
+     */
+    public boolean getPaymentRequestEnabled() {
+        return mBoundaryInterface.getPaymentRequestEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}
+     */
+    public void setHasEnrolledInstrumentEnabled(boolean enabled) {
+        mBoundaryInterface.setHasEnrolledInstrumentEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getHasEnrolledInstrumentEnabled(WebSettings)}
+     */
+    public boolean getHasEnrolledInstrumentEnabled() {
+        return mBoundaryInterface.getHasEnrolledInstrumentEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setCookiesIncludedInShouldInterceptRequest(WebSettings, boolean)}
+     */
+    public void setCookieAccessForShouldInterceptRequestEnabled(boolean enabled) {
+        mBoundaryInterface.setIncludeCookiesOnIntercept(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#areCookiesIncludedInShouldInterceptRequest(WebSettings)}
+     */
+    public boolean getCookieAccessForShouldInterceptRequestEnabled() {
+        return mBoundaryInterface.getIncludeCookiesOnIntercept();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)}
+     */
+    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {
+        mBoundaryInterface.setHyperlinkContextMenuItems(hyperlinkMenuItems);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public @NonNull BackForwardCacheSettings getBackForwardCacheSettings() {
+        WebViewBackForwardCacheSettingsBoundaryInterface boundaryInterface =
+                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                        WebViewBackForwardCacheSettingsBoundaryInterface.class,
+                        mBoundaryInterface.getBackForwardCacheSettings());
+
+        BackForwardCacheSettings settings =
+                (BackForwardCacheSettings) boundaryInterface.getOrCreatePeer(
+                        () -> new BackForwardCacheSettings.Builder().setMaxPagesInCache(
+                                boundaryInterface.getMaxPagesInCache()).setTimeoutSeconds(
+                                boundaryInterface.getTimeoutInSeconds()).build()
+                );
+
+        if (settings != null) return settings;
+        return new BackForwardCacheSettings.Builder().build();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheSettings(@NonNull BackForwardCacheSettings settings) {
+        WebViewBackForwardCacheSettingsBoundaryInterface boundaryInterface =
+                new BackForwardCacheSettingsImpl(settings);
+
+        mBoundaryInterface.setBackForwardCacheSettings(
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(boundaryInterface));
     }
 }

@@ -39,6 +39,7 @@ public class AssetLoaderListActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_asset_loader_list);
         setTitle(R.string.asset_loader_list_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         final Context activityContext = this;

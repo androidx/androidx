@@ -82,7 +82,7 @@ class MacrobenchmarkRule : TestRule {
         startupMode: StartupMode? = null,
         @IntRange(from = 1) iterations: Int,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
-        measureBlock: MacrobenchmarkScope.() -> Unit
+        measureBlock: MacrobenchmarkScope.() -> Unit,
     ) {
         macrobenchmarkWithStartupMode(
             uniqueName = currentDescription.toUniqueName(),
@@ -95,7 +95,7 @@ class MacrobenchmarkRule : TestRule {
             startupMode = startupMode,
             experimentalConfig = null,
             setupBlock = setupBlock,
-            measureBlock = measureBlock
+            measureBlock = measureBlock,
         )
     }
 
@@ -164,7 +164,7 @@ class MacrobenchmarkRule : TestRule {
             experimentalConfig = experimentalConfig,
             startupMode = startupMode,
             setupBlock = setupBlock,
-            measureBlock = measureBlock
+            measureBlock = measureBlock,
         )
     }
 
@@ -177,7 +177,7 @@ class MacrobenchmarkRule : TestRule {
                 "measureRepeated(packageName, metrics, iterations,experimentalConfig, " +
                     "compilationMode, startupMode, setupBlock, measureBlock)"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     /**
      * @param perfettoConfig Configuration for Perfetto trace capture during each iteration. Note
@@ -201,7 +201,7 @@ class MacrobenchmarkRule : TestRule {
             compilationMode,
             startupMode,
             setupBlock,
-            measureBlock
+            measureBlock,
         )
 
     override fun apply(base: Statement, description: Description): Statement =

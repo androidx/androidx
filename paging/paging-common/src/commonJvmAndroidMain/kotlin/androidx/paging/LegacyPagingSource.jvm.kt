@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchContext: CoroutineContext,
-    internal val dataSource: DataSource<Key, Value>
+    internal val dataSource: DataSource<Key, Value>,
 ) : PagingSource<Key, Value>(), CompatLegacyPagingSource {
     private var pageSize: Int = PAGE_SIZE_NOT_SET
 
@@ -108,7 +108,7 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
                     @Suppress("UNCHECKED_CAST")
                     if (data.isEmpty() && params is LoadParams.Append) null else nextKey as Key?,
                     itemsBefore,
-                    itemsAfter
+                    itemsAfter,
                 )
             }
         }

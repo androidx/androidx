@@ -60,26 +60,23 @@ class VecTest {
     }
 
     @Test
-    fun direction_returnsCorrectValue() {
-        assertThat(ImmutableVec(5f, 0f).computeDirection()).isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(ImmutableVec(0f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(90f))
-        assertThat(ImmutableVec(-5f, 0f).computeDirection()).isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(ImmutableVec(0f, -5f).computeDirection()).isEqualTo(Angle.degreesToRadians(-90f))
-        assertThat(ImmutableVec(5f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(45f))
-        assertThat(ImmutableVec(-5f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(135f))
-        assertThat(ImmutableVec(-5f, -5f).computeDirection())
-            .isEqualTo(Angle.degreesToRadians(-135f))
-        assertThat(ImmutableVec(5f, -5f).computeDirection()).isEqualTo(Angle.degreesToRadians(-45f))
+    fun computeDirectionDegrees_returnsCorrectValue() {
+        assertThat(ImmutableVec(5f, 0f).computeDirectionDegrees()).isEqualTo(0f)
+        assertThat(ImmutableVec(0f, 5f).computeDirectionDegrees()).isEqualTo(90f)
+        assertThat(ImmutableVec(-5f, 0f).computeDirectionDegrees()).isEqualTo(180f)
+        assertThat(ImmutableVec(0f, -5f).computeDirectionDegrees()).isEqualTo(-90f)
+        assertThat(ImmutableVec(5f, 5f).computeDirectionDegrees()).isEqualTo(45f)
+        assertThat(ImmutableVec(-5f, 5f).computeDirectionDegrees()).isEqualTo(135f)
+        assertThat(ImmutableVec(-5f, -5f).computeDirectionDegrees()).isEqualTo(-135f)
+        assertThat(ImmutableVec(5f, -5f).computeDirectionDegrees()).isEqualTo(-45f)
     }
 
     @Test
-    fun direction_whenVecContainsZero_returnsCorrectValue() {
-        assertThat(ImmutableVec(+0f, +0f).computeDirection()).isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(ImmutableVec(+0f, -0f).computeDirection()).isEqualTo(Angle.degreesToRadians(-0f))
-        assertThat(ImmutableVec(-0f, +0f).computeDirection())
-            .isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(ImmutableVec(-0f, -0f).computeDirection())
-            .isEqualTo(Angle.degreesToRadians(-180f))
+    fun computeDirectionDegrees_whenVecContainsZero_returnsCorrectValue() {
+        assertThat(ImmutableVec(+0f, +0f).computeDirectionDegrees()).isEqualTo(0f)
+        assertThat(ImmutableVec(+0f, -0f).computeDirectionDegrees()).isEqualTo(-0f)
+        assertThat(ImmutableVec(-0f, +0f).computeDirectionDegrees()).isEqualTo(180f)
+        assertThat(ImmutableVec(-0f, -0f).computeDirectionDegrees()).isEqualTo(-180f)
     }
 
     @Test
@@ -134,110 +131,233 @@ class VecTest {
 
     @Test
     fun absoluteAngleBetween_returnsCorrectValue() {
-        assertThat(Vec.absoluteAngleBetween(ImmutableVec(10f, 0f), ImmutableVec(40f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(Vec.absoluteAngleBetween(MutableVec(7f, 0f), MutableVec(0f, 12f)))
-            .isEqualTo(Angle.degreesToRadians(90f))
-        assertThat(Vec.absoluteAngleBetween(ImmutableVec(-5f, 0f), MutableVec(.1f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(Vec.absoluteAngleBetween(MutableVec(20f, 20f), ImmutableVec(0f, 10f)))
-            .isEqualTo(Angle.degreesToRadians(45f))
-        assertThat(Vec.absoluteAngleBetween(ImmutableVec(-2f, 2f), ImmutableVec(0f, -3f)))
-            .isEqualTo(Angle.degreesToRadians(135f))
+        assertThat(Vec.absoluteAngleBetweenInDegrees(ImmutableVec(10f, 0f), ImmutableVec(40f, 0f)))
+            .isEqualTo(0f)
+        assertThat(Vec.absoluteAngleBetweenInDegrees(MutableVec(7f, 0f), MutableVec(0f, 12f)))
+            .isEqualTo(90f)
+        assertThat(Vec.absoluteAngleBetweenInDegrees(ImmutableVec(-5f, 0f), MutableVec(.1f, 0f)))
+            .isEqualTo(180f)
+        assertThat(Vec.absoluteAngleBetweenInDegrees(MutableVec(20f, 20f), ImmutableVec(0f, 10f)))
+            .isEqualTo(45f)
+        assertThat(Vec.absoluteAngleBetweenInDegrees(ImmutableVec(-2f, 2f), ImmutableVec(0f, -3f)))
+            .isEqualTo(135f)
         assertThat(
-                Vec.absoluteAngleBetween(MutableVec(-1f, -sqrt(3.0f)), MutableVec(1f, -sqrt(3.0f)))
+                Vec.absoluteAngleBetweenInDegrees(
+                    MutableVec(-1f, -sqrt(3.0f)),
+                    MutableVec(1f, -sqrt(3.0f)),
+                )
             )
-            .isEqualTo(Angle.degreesToRadians(60f))
+            .isWithin(0.001f)
+            .of(60f)
     }
 
     @Test
     fun signedAngleBetween_returnsCorrectValue() {
-        assertThat(Vec.signedAngleBetween(MutableVec(2f, 0f), MutableVec(2f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(Vec.signedAngleBetween(ImmutableVec(20f, 0f), ImmutableVec(0f, .1f)))
-            .isEqualTo(Angle.degreesToRadians(90f))
-        assertThat(Vec.signedAngleBetween(MutableVec(0f, 10f), ImmutableVec(17f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(-90f))
-        assertThat(Vec.signedAngleBetween(ImmutableVec(-1f, 0f), MutableVec(.11f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(Vec.signedAngleBetween(MutableVec(12f, 12f), MutableVec(-3f, 3f)))
-            .isEqualTo(Angle.degreesToRadians(90f))
-        assertThat(Vec.signedAngleBetween(ImmutableVec(-1f, -1f), ImmutableVec(-987f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(-45f))
-        assertThat(Vec.signedAngleBetween(ImmutableVec(-62f, -62f), ImmutableVec(sqrt(3.0f), 1f)))
-            .isEqualTo(Angle.degreesToRadians(165f))
-        assertThat(Vec.signedAngleBetween(MutableVec(-11f, 11f), ImmutableVec(.01f, 0f)))
-            .isEqualTo(Angle.degreesToRadians(-135f))
+        assertThat(Vec.signedAngleBetweenInDegrees(MutableVec(2f, 0f), MutableVec(2f, 0f)))
+            .isEqualTo(0f)
+        assertThat(Vec.signedAngleBetweenInDegrees(ImmutableVec(20f, 0f), ImmutableVec(0f, .1f)))
+            .isEqualTo(90f)
+        assertThat(Vec.signedAngleBetweenInDegrees(MutableVec(0f, 10f), ImmutableVec(17f, 0f)))
+            .isEqualTo(-90f)
+        assertThat(Vec.signedAngleBetweenInDegrees(ImmutableVec(-1f, 0f), MutableVec(.11f, 0f)))
+            .isEqualTo(180f)
+        assertThat(Vec.signedAngleBetweenInDegrees(MutableVec(12f, 12f), MutableVec(-3f, 3f)))
+            .isEqualTo(90f)
+        assertThat(Vec.signedAngleBetweenInDegrees(ImmutableVec(-1f, -1f), ImmutableVec(-987f, 0f)))
+            .isEqualTo(-45f)
         assertThat(
-                Vec.signedAngleBetween(MutableVec(1f, -sqrt(3.0f)), MutableVec(-1f, -sqrt(3.0f)))
+                Vec.signedAngleBetweenInDegrees(
+                    ImmutableVec(-62f, -62f),
+                    ImmutableVec(sqrt(3.0f), 1f),
+                )
             )
-            .isEqualTo(Angle.degreesToRadians(-60f))
+            .isEqualTo(165f)
+        assertThat(Vec.signedAngleBetweenInDegrees(MutableVec(-11f, 11f), ImmutableVec(.01f, 0f)))
+            .isEqualTo(-135f)
+        assertThat(
+                Vec.signedAngleBetweenInDegrees(
+                    MutableVec(1f, -sqrt(3.0f)),
+                    MutableVec(-1f, -sqrt(3.0f)),
+                )
+            )
+            .isWithin(0.001f)
+            .of(-60f)
     }
 
     @Test
     fun isParallelTo_withEquivalentVecs_returnsTrue() {
-        assertThat(MutableVec(1f, 0f).isParallelTo(MutableVec(1f, 0f), .001f)).isTrue()
-        assertThat(MutableVec(0f, 100f).isParallelTo(MutableVec(0f, 100f), .001f)).isTrue()
-        assertThat(MutableVec(359.38f, -7.84f).isParallelTo(MutableVec(359.38f, -7.84f), .001f))
+        assertThat(
+                MutableVec(1f, 0f).isParallelTo(MutableVec(1f, 0f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(0f, 100f)
+                    .isParallelTo(MutableVec(0f, 100f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(359.38f, -7.84f)
+                    .isParallelTo(MutableVec(359.38f, -7.84f), Angle.radiansToDegrees(.001f))
+            )
             .isTrue()
     }
 
     @Test
     fun isParallelTo_whenVecsHaveSameDirection_returnsTrue() {
-        assertThat(MutableVec(10f, 0f).isParallelTo(MutableVec(99f, 0f), .001f)).isTrue()
-        assertThat(MutableVec(0f, 40f).isParallelTo(MutableVec(0f, 99f), .001f)).isTrue()
-        assertThat(MutableVec(3f, -6f).isParallelTo(MutableVec(32f, -64f), .001f)).isTrue()
-        assertThat(MutableVec(.0001f, .0009f).isParallelTo(MutableVec(.0005f, .0045f), .001f))
+        assertThat(
+                MutableVec(10f, 0f).isParallelTo(MutableVec(99f, 0f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(0f, 40f).isParallelTo(MutableVec(0f, 99f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(3f, -6f)
+                    .isParallelTo(MutableVec(32f, -64f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(.0001f, .0009f)
+                    .isParallelTo(MutableVec(.0005f, .0045f), Angle.radiansToDegrees(.001f))
+            )
             .isTrue()
     }
 
     @Test
     fun isParallelTo_whenVecsHaveOppositeDirections_returnsTrue() {
-        assertThat(MutableVec(8f, 0f).isParallelTo(MutableVec(-7f, 0f), .001f)).isTrue()
-        assertThat(MutableVec(0f, 30f).isParallelTo(MutableVec(0f, -.99f), .001f)).isTrue()
-        assertThat(MutableVec(.2f, .2f).isParallelTo(MutableVec(-99f, -99f), .001f)).isTrue()
-        assertThat(MutableVec(-32f, 64f).isParallelTo(MutableVec(5f, -10f), .001f)).isTrue()
+        assertThat(
+                MutableVec(8f, 0f).isParallelTo(MutableVec(-7f, 0f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(0f, 30f)
+                    .isParallelTo(MutableVec(0f, -.99f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(.2f, .2f)
+                    .isParallelTo(MutableVec(-99f, -99f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(-32f, 64f)
+                    .isParallelTo(MutableVec(5f, -10f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
     }
 
     @Test
     fun isParallelTo_whenVecsHaveDifferentDirections_returnsFalse() {
-        assertThat(MutableVec(5f, 5f).isParallelTo(MutableVec(1f, -1f), .001f)).isFalse()
-        assertThat(MutableVec(-3f, -10f).isParallelTo(MutableVec(-88f, 17.5f), .001f)).isFalse()
+        assertThat(
+                MutableVec(5f, 5f).isParallelTo(MutableVec(1f, -1f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(-3f, -10f)
+                    .isParallelTo(MutableVec(-88f, 17.5f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
 
         // These Vecs have different but close directions. These would pass with sufficiently high
         // tolerance, but fail with low tolerance.
-        assertThat(MutableVec(100f, 100f).isParallelTo(MutableVec(99f, 100f), .001f)).isFalse()
-        assertThat(MutableVec(100f, 100f).isParallelTo(MutableVec(100f, 99f), .001f)).isFalse()
-        assertThat(MutableVec(-100f, 100f).isParallelTo(MutableVec(-99f, 100f), .001f)).isFalse()
-        assertThat(MutableVec(100f, -100f).isParallelTo(MutableVec(100f, -99f), .001f)).isFalse()
+        assertThat(
+                MutableVec(100f, 100f)
+                    .isParallelTo(MutableVec(99f, 100f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(100f, 100f)
+                    .isParallelTo(MutableVec(100f, 99f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(-100f, 100f)
+                    .isParallelTo(MutableVec(-99f, 100f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(100f, -100f)
+                    .isParallelTo(MutableVec(100f, -99f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
     }
 
     @Test
     fun isPerpendicularTo_returnsCorrectValue() {
-        assertThat(MutableVec(1f, 0f).isPerpendicularTo(MutableVec(0f, 5f), .001f)).isTrue()
-        assertThat(MutableVec(5f, 0f).isPerpendicularTo(MutableVec(0f, -10f), .001f)).isTrue()
-        assertThat(MutableVec(0f, 100f).isPerpendicularTo(MutableVec(-.01f, 0f), .001f)).isTrue()
-        assertThat(MutableVec(77f, -77f).isPerpendicularTo(MutableVec(200f, 200f), .001f)).isTrue()
-        assertThat(MutableVec(-32f, 64f).isPerpendicularTo(MutableVec(86f, 43f), .001f)).isTrue()
         assertThat(
-                MutableVec(.0001f, -.0009f).isPerpendicularTo(MutableVec(-.0045f, -.0005f), .001f)
+                MutableVec(1f, 0f)
+                    .isPerpendicularTo(MutableVec(0f, 5f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(5f, 0f)
+                    .isPerpendicularTo(MutableVec(0f, -10f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(0f, 100f)
+                    .isPerpendicularTo(MutableVec(-.01f, 0f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(77f, -77f)
+                    .isPerpendicularTo(MutableVec(200f, 200f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(-32f, 64f)
+                    .isPerpendicularTo(MutableVec(86f, 43f), Angle.radiansToDegrees(.001f))
+            )
+            .isTrue()
+        assertThat(
+                MutableVec(.0001f, -.0009f)
+                    .isPerpendicularTo(MutableVec(-.0045f, -.0005f), Angle.radiansToDegrees(.001f))
             )
             .isTrue()
 
-        assertThat(MutableVec(1f, -2f).isPerpendicularTo(MutableVec(1f, -2f), .001f)).isFalse()
-        assertThat(MutableVec(1f, -2f).isPerpendicularTo(MutableVec(-1f, 2f), .001f)).isFalse()
-        assertThat(MutableVec(10f, 10f).isPerpendicularTo(MutableVec(0f, 10f), .001f)).isFalse()
-        assertThat(MutableVec(-30f, 25f).isPerpendicularTo(MutableVec(50f, 30f), .001f)).isFalse()
+        assertThat(
+                MutableVec(1f, -2f)
+                    .isPerpendicularTo(MutableVec(1f, -2f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(1f, -2f)
+                    .isPerpendicularTo(MutableVec(-1f, 2f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(10f, 10f)
+                    .isPerpendicularTo(MutableVec(0f, 10f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
+        assertThat(
+                MutableVec(-30f, 25f)
+                    .isPerpendicularTo(MutableVec(50f, 30f), Angle.radiansToDegrees(.001f))
+            )
+            .isFalse()
 
         // These Vecs are close but not quite perpendicular. These would pass with sufficiently high
         // tolerance, but fail with low tolerance.
-        assertThat(MutableVec(100f, 100f).isPerpendicularTo(MutableVec(-99f, 100f), .001f))
+        assertThat(
+                MutableVec(100f, 100f)
+                    .isPerpendicularTo(MutableVec(-99f, 100f), Angle.radiansToDegrees(.001f))
+            )
             .isFalse()
-        assertThat(MutableVec(100f, 100f).isPerpendicularTo(MutableVec(-100f, 99f), .001f))
+        assertThat(
+                MutableVec(100f, 100f)
+                    .isPerpendicularTo(MutableVec(-100f, 99f), Angle.radiansToDegrees(.001f))
+            )
             .isFalse()
-        assertThat(MutableVec(-100f, 100f).isPerpendicularTo(MutableVec(-99f, -100f), .001f))
+        assertThat(
+                MutableVec(-100f, 100f)
+                    .isPerpendicularTo(MutableVec(-99f, -100f), Angle.radiansToDegrees(.001f))
+            )
             .isFalse()
-        assertThat(MutableVec(100f, -100f).isPerpendicularTo(MutableVec(100f, 99f), .001f))
+        assertThat(
+                MutableVec(100f, -100f)
+                    .isPerpendicularTo(MutableVec(100f, 99f), Angle.radiansToDegrees(.001f))
+            )
             .isFalse()
     }
 

@@ -16,10 +16,17 @@
 
 package androidx.xr.scenecore
 
-import android.app.Activity
 import android.media.SoundPool
-import androidx.xr.scenecore.JxrPlatformAdapter.SoundPoolExtensionsWrapper
-import androidx.xr.scenecore.SpatializerConstants.Companion.AMBISONICS_ORDER_FIRST_ORDER
+import androidx.activity.ComponentActivity
+import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
+import androidx.xr.runtime.Session
+import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
+import androidx.xr.scenecore.runtime.Entity as RtEntity
+import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper as RtSoundPoolExtensionsWrapper
+import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
+import androidx.xr.scenecore.runtime.SpatializerConstants as RtSpatializerConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -37,31 +44,41 @@ import org.robolectric.RobolectricTestRunner
 
 /** Unit tests for the JXRCore SDK SpatialSoundPool Interface. */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SpatialSoundPoolTest {
 
-    private var mockRuntime: JxrPlatformAdapter = mock()
-    private var mockRtSoundPoolExtensions: SoundPoolExtensionsWrapper = mock()
+    private val fakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
+    private var mockSceneRuntime: SceneRuntime = mock()
 
-    private val mockContentlessEntity = mock<JxrPlatformAdapter.Entity>()
-    private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
+    private var mockRtSoundPoolExtensions: RtSoundPoolExtensionsWrapper = mock()
+
+    private val mockGroupEntity = mock<RtEntity>()
+    private val activity =
+        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    private val mockActivitySpace = mock<RtActivitySpace>()
 
     private lateinit var session: Session
 
     @Before
     fun setUp() {
-        mockRuntime.stub {
+        mockSceneRuntime.stub {
             on { spatialEnvironment } doReturn mock()
-            on { activitySpace } doReturn mock()
-            on { activitySpaceRootImpl } doReturn mock()
+            on { activitySpace } doReturn mockActivitySpace
             on { headActivityPose } doReturn mock()
             on { perceptionSpaceActivityPose } doReturn mock()
             on { mainPanelEntity } doReturn mock()
-            on { createEntity(any(), any(), any()) } doReturn mockContentlessEntity
+            on { createGroupEntity(any(), any(), any()) } doReturn mockGroupEntity
+            on { spatialCapabilities } doReturn RtSpatialCapabilities(0)
         }
 
         mockRtSoundPoolExtensions = mock()
-        whenever(mockRuntime.soundPoolExtensionsWrapper).thenReturn(mockRtSoundPoolExtensions)
-        session = Session.create(activity, mockRuntime)
+        whenever(mockSceneRuntime.soundPoolExtensionsWrapper).thenReturn(mockRtSoundPoolExtensions)
+        session =
+            Session(
+                activity,
+                runtimes =
+                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
+            )
     }
 
     @Test
@@ -69,13 +86,13 @@ class SpatialSoundPoolTest {
         val expectedStreamId = 1234
 
         val soundPool = SoundPool.Builder().build()
-        val entity = ContentlessEntity.create(session, "test")
-        val pointSourceAttributes = PointSourceAttributes(entity)
+        val entity = GroupEntity.create(session, "test")
+        val pointSourceAttributes = PointSourceParams(entity)
         whenever(
                 mockRtSoundPoolExtensions.play(
                     eq(soundPool),
                     any(),
-                    any<JxrPlatformAdapter.PointSourceAttributes>(),
+                    any<RtPointSourceParams>(),
                     any(),
                     any(),
                     any(),
@@ -99,9 +116,7 @@ class SpatialSoundPoolTest {
             .play(
                 eq(soundPool),
                 eq(TEST_SOUND_ID),
-                argWhere<JxrPlatformAdapter.PointSourceAttributes> {
-                    it.entity == mockContentlessEntity
-                },
+                argWhere<RtPointSourceParams> { it.entity == mockGroupEntity },
                 eq(TEST_VOLUME),
                 eq(TEST_PRIORITY),
                 eq(TEST_LOOP),
@@ -113,9 +128,9 @@ class SpatialSoundPoolTest {
     @Test
     fun playWithSoundField_callsRuntimeSoundPoolPlaySoundField() {
         val soundPool = SoundPool.Builder().build()
-        val soundFieldAttributes = SoundFieldAttributes(AMBISONICS_ORDER_FIRST_ORDER)
+        val soundFieldAttributes =
+            SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
-        // TODO(b/317112315): Update test when implementation is finished.
         assertThat(
                 SpatialSoundPool.play(
                     session,
@@ -133,11 +148,11 @@ class SpatialSoundPoolTest {
 
     @Test
     fun getSourceType_returnsRuntimeSoundPoolGetSourceType() {
-        val expected = SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
+        val expected = SpatializerConstants.SourceType.SOUND_FIELD
         val soundPool = SoundPool.Builder().build()
 
         whenever(mockRtSoundPoolExtensions.getSpatialSourceType(any(), any()))
-            .thenReturn(JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
+            .thenReturn(RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
 
         assertThat(SpatialSoundPool.getSpatialSourceType(session, soundPool, TEST_STREAM_ID))
             .isEqualTo(expected)

@@ -22,18 +22,18 @@
  * modifying its settings.
  */
 
+
 import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":sqlite:sqlite"))
-    api(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
@@ -44,7 +44,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2018"
     description = "Kotlin extensions for DB"
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 
 android {

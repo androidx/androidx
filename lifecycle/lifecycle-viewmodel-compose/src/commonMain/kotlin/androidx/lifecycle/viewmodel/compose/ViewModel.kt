@@ -26,6 +26,8 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
 /**
@@ -62,7 +64,7 @@ public inline fun <reified VM : ViewModel> viewModel(
             viewModelStoreOwner.defaultViewModelCreationExtras
         } else {
             CreationExtras.Empty
-        }
+        },
 ): VM = viewModel(VM::class, viewModelStoreOwner, key, factory, extras)
 
 /**
@@ -100,7 +102,7 @@ public fun <VM : ViewModel> viewModel(
             viewModelStoreOwner.defaultViewModelCreationExtras
         } else {
             CreationExtras.Empty
-        }
+        },
 ): VM = viewModelStoreOwner.get(modelClass, key, factory, extras)
 
 /**
@@ -127,7 +129,7 @@ public inline fun <reified VM : ViewModel> viewModel(
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
     key: String? = null,
-    noinline initializer: CreationExtras.() -> VM
+    noinline initializer: CreationExtras.() -> VM,
 ): VM =
     viewModel(
         VM::class,
@@ -138,7 +140,7 @@ public inline fun <reified VM : ViewModel> viewModel(
             viewModelStoreOwner.defaultViewModelCreationExtras
         } else {
             CreationExtras.Empty
-        }
+        },
     )
 
 internal fun <VM : ViewModel> ViewModelStoreOwner.get(
@@ -150,7 +152,7 @@ internal fun <VM : ViewModel> ViewModelStoreOwner.get(
             this.defaultViewModelCreationExtras
         } else {
             CreationExtras.Empty
-        }
+        },
 ): VM {
     val provider =
         if (factory != null) {
@@ -159,7 +161,7 @@ internal fun <VM : ViewModel> ViewModelStoreOwner.get(
             ViewModelProvider.create(
                 this.viewModelStore,
                 this.defaultViewModelProviderFactory,
-                extras
+                extras,
             )
         } else {
             ViewModelProvider.create(this)

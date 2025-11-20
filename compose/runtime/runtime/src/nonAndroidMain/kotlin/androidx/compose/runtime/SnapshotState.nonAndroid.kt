@@ -20,5 +20,5 @@ import androidx.compose.runtime.snapshots.SnapshotMutableState
 
 internal actual fun <T> createSnapshotMutableState(
     value: T,
-    policy: SnapshotMutationPolicy<T>
+    policy: SnapshotMutationPolicy<T>,
 ): SnapshotMutableState<T> = SnapshotMutableStateImpl(value, policy)

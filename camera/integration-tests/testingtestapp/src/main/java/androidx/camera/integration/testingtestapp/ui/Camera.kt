@@ -64,7 +64,7 @@ fun Camera(viewModel: CameraViewModel = viewModel()) {
         Camera(
             toggleCamera = { viewModel.toggleCamera() },
             takePhoto = { viewModel.takePhoto() },
-            frontCamera = !viewModel.isUsingBackLens.collectAsStateWithLifecycle().value
+            frontCamera = !viewModel.isUsingBackLens.collectAsStateWithLifecycle().value,
         ) {
             AndroidView(
                 factory = {
@@ -77,7 +77,7 @@ fun Camera(viewModel: CameraViewModel = viewModel()) {
                         scaleType = FIT_CENTER
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
@@ -89,25 +89,25 @@ fun Camera(
     toggleCamera: () -> Unit,
     takePhoto: () -> Unit,
     frontCamera: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         content()
         IconButton(
             modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
-            onClick = takePhoto
+            onClick = takePhoto,
         ) {
             Icon(
                 imageVector = Icons.Filled.AddCircle,
                 contentDescription = stringResource(R.string.take_photo),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(54.dp)
+                modifier = Modifier.size(54.dp),
             )
         }
         IconButton(
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-            onClick = toggleCamera
+            onClick = toggleCamera,
         ) {
             Icon(
                 imageVector =
@@ -115,7 +115,7 @@ fun Camera(
                     else Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.swap_cameras),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(54.dp)
+                modifier = Modifier.size(54.dp),
             )
         }
     }

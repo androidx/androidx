@@ -17,7 +17,9 @@
 package androidx.core.backported.fixes
 
 /** Status of a [KnownIssue] on a device. */
-internal enum class Status {
+public enum class Status {
+    // TODO: b/381267367 - add methods to convert to/from @BackportedFixStatus when available.
+
     /** The status of the known issue on this device is not known. */
     Unknown,
 

@@ -61,7 +61,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TextFieldAccessibilityBenchmark(
     private val accessibilityEnabled: Boolean,
-    private val invalidateSemanticsOnEachRun: Boolean
+    private val invalidateSemanticsOnEachRun: Boolean,
 ) {
     @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
@@ -76,16 +76,15 @@ class TextFieldAccessibilityBenchmark(
 
         measureRepeatedOnUiThread(
             content = {
-                TextField(
-                    modifier = Modifier.testTag("tag"),
-                    value = "abc",
-                    onValueChange = {},
-                )
+                TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
             },
             benchmark = {
+                runWithMeasurementDisabled {
+                    nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
+                }
                 val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
-            }
+            },
         )
     }
 
@@ -96,18 +95,17 @@ class TextFieldAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    TextField(
-                        modifier = Modifier.testTag("tag"),
-                        value = "abc",
-                        onValueChange = {},
-                    )
+                    TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
                     repeat(9) { TextField(value = "abc", onValueChange = {}) }
                 }
             },
             benchmark = {
+                runWithMeasurementDisabled {
+                    nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
+                }
                 val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
-            }
+            },
         )
     }
 
@@ -123,7 +121,7 @@ class TextFieldAccessibilityBenchmark(
             content = {
                 TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
             },
-            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
         )
     }
 
@@ -138,15 +136,11 @@ class TextFieldAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    TextField(
-                        modifier = Modifier.testTag("tag"),
-                        value = "abc",
-                        onValueChange = {},
-                    )
+                    TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
                     repeat(9) { TextField(value = "abc", onValueChange = {}) }
                 }
             },
-            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
         )
     }
 
@@ -328,7 +322,7 @@ class TextFieldAccessibilityBenchmark(
                                 TextField(
                                     value = "item $it",
                                     onValueChange = {},
-                                    modifier = Modifier.height(100.dp)
+                                    modifier = Modifier.height(100.dp),
                                 )
                             }
                         }
@@ -364,7 +358,7 @@ class TextFieldAccessibilityBenchmark(
 
     private fun measureRepeatedOnUiThread(
         content: @Composable () -> Unit,
-        @UiThread benchmark: BenchmarkRule.Scope.() -> Unit
+        @UiThread benchmark: BenchmarkRule.Scope.() -> Unit,
     ) {
         benchmarkRule.runBenchmarkFor(
             givenTestCase = {

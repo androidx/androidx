@@ -154,7 +154,7 @@ private constructor(val choreographer: Choreographer, private val handler: andro
                 AndroidUiDispatcher(
                     if (isMainThread()) Choreographer.getInstance()
                     else runBlocking(Dispatchers.Main) { Choreographer.getInstance() },
-                    HandlerCompat.createAsync(Looper.getMainLooper())
+                    HandlerCompat.createAsync(Looper.getMainLooper()),
                 )
 
             dispatcher + dispatcher.frameClock
@@ -167,7 +167,7 @@ private constructor(val choreographer: Choreographer, private val handler: andro
                             Choreographer.getInstance(),
                             HandlerCompat.createAsync(
                                 Looper.myLooper() ?: error("no Looper on this thread")
-                            )
+                            ),
                         )
                         .let { it + it.frameClock }
             }

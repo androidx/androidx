@@ -1,0 +1,44 @@
+// Signature format: 4.0
+package androidx.compose.material.ripple {
+
+  @androidx.compose.runtime.Immutable public final class RippleAlpha {
+    ctor public RippleAlpha(float draggedAlpha, float focusedAlpha, float hoveredAlpha, float pressedAlpha);
+    method public float getDraggedAlpha();
+    method public float getFocusedAlpha();
+    method public float getHoveredAlpha();
+    method public float getPressedAlpha();
+    property public float draggedAlpha;
+    property public float focusedAlpha;
+    property public float hoveredAlpha;
+    property public float pressedAlpha;
+  }
+
+  public final class RippleKt {
+    method public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource interactionSource, boolean bounded, float radius, androidx.compose.ui.graphics.ColorProducer color, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha> rippleAlpha);
+    method @BytecodeOnly public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode-TDGSqEk(androidx.compose.foundation.interaction.InteractionSource, boolean, float, androidx.compose.ui.graphics.ColorProducer, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha!>);
+    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.Indication rememberRipple(optional boolean bounded, optional float radius, optional long color);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.Indication rememberRipple-9IZ8Weo(boolean, float, long, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @Deprecated public interface RippleTheme {
+    method @Deprecated @androidx.compose.runtime.Composable public long defaultColor();
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public long defaultColor-WaAFU9c(androidx.compose.runtime.Composer?, int);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material.ripple.RippleAlpha rippleAlpha();
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material.ripple.RippleAlpha rippleAlpha(androidx.compose.runtime.Composer?, int);
+    field @Deprecated public static final androidx.compose.material.ripple.RippleTheme.Companion Companion;
+  }
+
+  @Deprecated public static final class RippleTheme.Companion {
+    method @Deprecated public androidx.compose.material.ripple.RippleAlpha defaultRippleAlpha(long contentColor, boolean lightTheme);
+    method @BytecodeOnly @Deprecated public androidx.compose.material.ripple.RippleAlpha defaultRippleAlpha-DxMtmZc(long, boolean);
+    method @Deprecated public long defaultRippleColor(long contentColor, boolean lightTheme);
+    method @BytecodeOnly @Deprecated public long defaultRippleColor-5vOe2sY(long, boolean);
+  }
+
+  public final class RippleThemeKt {
+    method @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ripple.RippleTheme> getLocalRippleTheme();
+    property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material.ripple.RippleTheme> LocalRippleTheme;
+  }
+
+}
+

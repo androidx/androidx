@@ -562,6 +562,81 @@ public abstract class AbstractSyntaxTreeSearchCtsTestBase {
     }
 
     @Test
+    public void testPropertyRestrictNode_toString_handlesMultipleTerms() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail fooBarFrom = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("foo bar")
+                .build();
+        AppSearchEmail fooBodyEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("foo bar")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(fooBarFrom, fooBodyEmail)
+                                .build()
+                )
+        );
+
+        // Query for the document.
+        TextNode fooBar = new TextNode("foo bar");
+        PropertyRestrictNode propertyRestrictNode = new PropertyRestrictNode(
+                new PropertyPath("body"), fooBar);
+
+        SearchResults searchResults = mDb1.search(propertyRestrictNode.toString(),
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setListFilterQueryLanguageEnabled(true)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooBodyEmail);
+    }
+
+    @Test
+    public void testPropertyRestrictNode_toString_handlesMultipleTerms_prefixed() throws Exception {
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        AppSearchEmail fooBarFrom = new AppSearchEmail.Builder("namespace", "id1")
+                .setFrom("foo bar")
+                .build();
+        AppSearchEmail fooBodyEmail = new AppSearchEmail.Builder("namespace", "id2")
+                .setBody("foo bar")
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder()
+                                .addGenericDocuments(fooBarFrom, fooBodyEmail)
+                                .build()
+                )
+        );
+
+        TextNode fooB = new TextNode("foo b");
+        PropertyRestrictNode propertyRestrictNode = new PropertyRestrictNode(
+                new PropertyPath("body"), fooB);
+
+        // Without prefix match, this will not return the document.
+        SearchResults emptySearchResults = mDb1.search(propertyRestrictNode.toString(),
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .setListFilterQueryLanguageEnabled(true)
+                        .build());
+        List<GenericDocument> emptyDocuments = convertSearchResultsToDocuments(emptySearchResults);
+        assertThat(emptyDocuments).isEmpty();
+
+        // With prefix match, this will return the document.
+        SearchResults searchResults = mDb1.search(propertyRestrictNode.toString(),
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .setListFilterQueryLanguageEnabled(true)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(fooBodyEmail);
+    }
+
+    @Test
     public void testGetSearchStringParameterNode_toString_retrievesSearchString() throws Exception {
         mDb1.setSchemaAsync(
                 new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build()).get();

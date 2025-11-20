@@ -52,7 +52,6 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -64,6 +63,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
@@ -71,6 +71,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.os.BundleCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
 
@@ -361,6 +362,20 @@ public class NotificationCompat {
      */
     @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
     public static final String EXTRA_BIG_TEXT = "android.bigText";
+
+    /**
+     * {@link #getExtras extras} key: very short text summarizing the most critical
+     * information contained in the notification.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_SHORT_CRITICAL_TEXT = "android.shortCriticalText";
+
+    /**
+     * {@link #getExtras extras} key: If provided, should contain a boolean indicating
+     * whether the notification is requesting promoted treatment.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing";
 
     /**
      * {@link #getExtras extras} key: this is the resource ID of the notification's main small icon,
@@ -712,6 +727,60 @@ public class NotificationCompat {
     public static final String EXTRA_AUDIO_CONTENTS_URI = "android.audioContents";
 
     /**
+     * {@link #extras} key: an arraylist of {@link android.app.Notification.ProgressStyle.Segment}
+     * bundles provided by a
+     * {@link android.app.Notification.ProgressStyle} notification as supplied to
+     * {@link ProgressStyle#setProgressSegments}
+     * or {@link ProgressStyle#addProgressSegment(ProgressStyle.Segment)}.
+     * This extra is a parcelable array list of bundles.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PROGRESS_SEGMENTS = "android.progressSegments";
+
+    /**
+     * {@link #extras} key: an arraylist of {@link ProgressStyle.Point}
+     * bundles provided by a
+     * {@link android.app.Notification.ProgressStyle} notification as supplied to
+     * {@link ProgressStyle#setProgressPoints}
+     * or {@link ProgressStyle#addProgressPoint(ProgressStyle.Point)}.
+     * This extra is a parcelable array list of bundles.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PROGRESS_POINTS = "android.progressPoints";
+
+    /**
+     * {@link #extras} key: whether the progress bar should be styled by its progress as
+     * supplied to {@link ProgressStyle#setStyledByProgress}.
+     * This extra is a boolean.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_STYLED_BY_PROGRESS = "android.styledByProgress";
+
+    /**
+     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * shown as progress bar progress tracker icon in {@link ProgressStyle}, supplied to
+     *{@link ProgressStyle#setProgressTrackerIcon(IconCompat)}.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PROGRESS_TRACKER_ICON = "android.progressTrackerIcon";
+
+    /**
+     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * shown at the beginning of the progress bar in {@link ProgressStyle}, supplied to
+     *{@link ProgressStyle#setProgressStartIcon(IconCompat)}.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PROGRESS_START_ICON = "android.progressStartIcon";
+
+    /**
+     * {@link #extras} key: this is an {@link IconCompat} of an image to be
+     * shown at the end of the progress bar in {@link ProgressStyle}, supplied to
+     *{@link ProgressStyle#setProgressEndIcon(IconCompat)}.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_PROGRESS_END_ICON = "android.progressEndIcon";
+
+    /**
      * Value of {@link Notification#color} equal to 0 (also known as
      * {@link android.graphics.Color#TRANSPARENT Color.TRANSPARENT}),
      * telling the system not to decorate this notification with any special color but instead use
@@ -1030,6 +1099,7 @@ public class NotificationCompat {
 
         CharSequence mContentTitle;
         CharSequence mContentText;
+        @Nullable String mShortCriticalText;
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
@@ -1118,6 +1188,7 @@ public class NotificationCompat {
                     .setFullScreenIntent(notification.fullScreenIntent,
                             NotificationCompat.getHighPriority(notification))
                     .setSound(notification.sound, notification.audioStreamType)
+                    .setSilent(NotificationCompat.isSilent(notification))
                     .setVibrate(notification.vibrate)
                     .setLights(notification.ledARGB, notification.ledOnMS, notification.ledOffMS)
                     .setDefaults(notification.defaults)
@@ -1138,12 +1209,10 @@ public class NotificationCompat {
             // TODO: Copy custom RemoteViews from the Notification.
 
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
-            if (Build.VERSION.SDK_INT >= 23) {
-                this.mSmallIcon = Api23Impl.getSmallIcon(notification);
-                Icon largeIcon = Api23Impl.getLargeIcon(notification);
-                if (largeIcon != null) {
-                    this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
-                }
+            this.mSmallIcon = notification.getSmallIcon();
+            Icon largeIcon = notification.getLargeIcon();
+            if (largeIcon != null) {
+                this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
             }
 
             // Add actions from the notification.
@@ -1153,13 +1222,11 @@ public class NotificationCompat {
                 }
             }
             // Add invisible actions from the notification.
-            if (Build.VERSION.SDK_INT >= 21) {
-                List<Action> invisibleActions =
-                        NotificationCompat.getInvisibleActions(notification);
-                if (!invisibleActions.isEmpty()) {
-                    for (Action invisibleAction : invisibleActions) {
-                        this.addInvisibleAction(invisibleAction);
-                    }
+            List<Action> invisibleActions =
+                    NotificationCompat.getInvisibleActions(notification);
+            if (!invisibleActions.isEmpty()) {
+                for (Action invisibleAction : invisibleActions) {
+                    this.addInvisibleAction(invisibleAction);
                 }
             }
 
@@ -1194,6 +1261,11 @@ public class NotificationCompat {
                     this.setColorized(extras.getBoolean(EXTRA_COLORIZED));
                 }
             }
+            if (Build.VERSION.SDK_INT >= 36) {
+                if (extras.containsKey(EXTRA_SHORT_CRITICAL_TEXT)) {
+                    this.setShortCriticalText(extras.getString(EXTRA_SHORT_CRITICAL_TEXT));
+                }
+            }
         }
 
         /** Remove all extras which have been parsed by the rest of the copy process */
@@ -1209,6 +1281,9 @@ public class NotificationCompat {
             newExtras.remove(EXTRA_TEXT);
             newExtras.remove(EXTRA_INFO_TEXT);
             newExtras.remove(EXTRA_SUB_TEXT);
+            if (Build.VERSION.SDK_INT >= 36) {
+                newExtras.remove(EXTRA_SHORT_CRITICAL_TEXT);
+            }
             newExtras.remove(EXTRA_CHANNEL_ID);
             newExtras.remove(EXTRA_CHANNEL_GROUP_ID);
             newExtras.remove(EXTRA_SHOW_WHEN);
@@ -1299,7 +1374,6 @@ public class NotificationCompat {
          *
          * @param icon The small Icon object to use
          */
-        @RequiresApi(23)
         public @NonNull Builder setSmallIcon(@NonNull IconCompat icon) {
             this.mSmallIcon = icon.toIcon(mContext);
             return this;
@@ -1490,6 +1564,32 @@ public class NotificationCompat {
         }
 
         /**
+         * Sets a very short string summarizing the most critical information contained in the
+         * notification. Suggested max length is 7 characters, and there is no guarantee how much or
+         * how little of this text will be shown.
+         */
+        @NonNull
+        public Builder setShortCriticalText(@Nullable String shortCriticalText) {
+            mShortCriticalText = shortCriticalText;
+            if (Build.VERSION.SDK_INT < 36) {
+                getExtras().putString(EXTRA_SHORT_CRITICAL_TEXT, shortCriticalText);
+            }
+            return this;
+        }
+
+        /**
+         * Set whether this notification is requesting to be a promoted ongoing notification.
+         *
+         * <p>This is the first requirement of {@link Notification#hasPromotableCharacteristics()}.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @NonNull
+        public Builder setRequestPromotedOngoing(boolean requestPromotedOngoing) {
+            getExtras().putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, requestPromotedOngoing);
+            return this;
+        }
+
+        /**
          * Set the progress this notification represents, which may be
          * represented as a {@link android.widget.ProgressBar}.
          */
@@ -1601,7 +1701,6 @@ public class NotificationCompat {
          * should be called on bitmaps before putting them in an {@code Icon} and passing them
          * into this function.
          */
-        @RequiresApi(23)
         public @NonNull Builder setLargeIcon(@Nullable Icon icon) {
             mLargeIcon = icon == null ? null : IconCompat.createFromIcon(icon);
             return this;
@@ -1625,13 +1724,10 @@ public class NotificationCompat {
         public @NonNull Builder setSound(@Nullable Uri sound) {
             mNotification.sound = sound;
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
-            if (Build.VERSION.SDK_INT >= 21) {
-                AudioAttributes.Builder builder = Api21Impl.createBuilder();
-                builder = Api21Impl.setContentType(builder,
-                        AudioAttributes.CONTENT_TYPE_SONIFICATION);
-                builder = Api21Impl.setUsage(builder, AudioAttributes.USAGE_NOTIFICATION);
-                mNotification.audioAttributes = Api21Impl.build(builder);
-            }
+            AudioAttributes.Builder builder = new AudioAttributes.Builder();
+            builder = builder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+            builder = builder.setUsage(AudioAttributes.USAGE_NOTIFICATION);
+            mNotification.audioAttributes = builder.build();
             return this;
         }
 
@@ -1655,13 +1751,10 @@ public class NotificationCompat {
         public @NonNull Builder setSound(@Nullable Uri sound, @StreamType int streamType) {
             mNotification.sound = sound;
             mNotification.audioStreamType = streamType;
-            if (Build.VERSION.SDK_INT >= 21) {
-                AudioAttributes.Builder builder = Api21Impl.createBuilder();
-                builder = Api21Impl.setContentType(builder,
-                        AudioAttributes.CONTENT_TYPE_SONIFICATION);
-                builder = Api21Impl.setLegacyStreamType(builder, streamType);
-                mNotification.audioAttributes = Api21Impl.build(builder);
-            }
+            AudioAttributes.Builder builder = new AudioAttributes.Builder();
+            builder = builder.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+            builder = builder.setLegacyStreamType(streamType);
+            mNotification.audioAttributes = builder.build();
             return this;
         }
 
@@ -2014,6 +2107,7 @@ public class NotificationCompat {
          *
          * @see Notification#extras
          */
+        @SuppressWarnings("GetterSetterNullability")
         public @NonNull Bundle getExtras() {
             if (mExtras == null) {
                 mExtras = new Bundle();
@@ -2082,7 +2176,6 @@ public class NotificationCompat {
          * @param title Text describing the action.
          * @param intent {@link android.app.PendingIntent} to be fired when the action is invoked.
          */
-        @RequiresApi(21)
         public @NonNull Builder addInvisibleAction(int icon, @Nullable CharSequence title,
                 @Nullable PendingIntent intent) {
             mInvisibleActions.add(new Action(icon, title, intent));
@@ -2097,7 +2190,6 @@ public class NotificationCompat {
          *
          * @param action The action to add.
          */
-        @RequiresApi(21)
         public @NonNull Builder addInvisibleAction(@Nullable Action action) {
             if (action != null) {
                 mInvisibleActions.add(action);
@@ -2250,10 +2342,6 @@ public class NotificationCompat {
          */
         @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
         public @Nullable RemoteViews createHeadsUpContentView() {
-            // Before Lollipop, there was no "heads up" notification view
-            if (Build.VERSION.SDK_INT < 21) {
-                return null;
-            }
             // If the user setCustomHeadsUpContentView(), return it if appropriate for the style.
             if (mHeadsUpContentView != null && useExistingRemoteView()) {
                 return mHeadsUpContentView;
@@ -2605,56 +2693,6 @@ public class NotificationCompat {
 
         /**
          * A class for wrapping calls to {@link Notification.Builder} methods which
-         * were added in API 21; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(21)
-        static class Api21Impl {
-            private Api21Impl() { }
-
-            static AudioAttributes.Builder createBuilder() {
-                return new AudioAttributes.Builder();
-            }
-
-            static AudioAttributes.Builder setContentType(AudioAttributes.Builder builder,
-                    int contentType) {
-                return builder.setContentType(contentType);
-            }
-
-            static AudioAttributes.Builder setUsage(AudioAttributes.Builder builder, int usage) {
-                return builder.setUsage(usage);
-            }
-
-            static AudioAttributes.Builder setLegacyStreamType(AudioAttributes.Builder builder,
-                    int streamType) {
-                return builder.setLegacyStreamType(streamType);
-            }
-
-            static AudioAttributes build(AudioAttributes.Builder builder) {
-                return builder.build();
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.Builder} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() { }
-
-            static Icon getSmallIcon(Notification notification) {
-                return notification.getSmallIcon();
-            }
-
-            static Icon getLargeIcon(Notification notification) {
-                return notification.getLargeIcon();
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.Builder} methods which
          * were added in API 24; these calls must be wrapped to avoid performance issues.
          * See the UnsafeNewApiCall lint rule for more details.
          */
@@ -2836,6 +2874,12 @@ public class NotificationCompat {
             if (platformTemplateClass.equals(Notification.InboxStyle.class.getName())) {
                 return new InboxStyle();
             }
+            if (Build.VERSION.SDK_INT >= 36) {
+                if (platformTemplateClass.equals(Notification.ProgressStyle.class.getName())) {
+                    return new ProgressStyle();
+                }
+            }
+
             if (Build.VERSION.SDK_INT >= 24) {
                 if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
                     return new MessagingStyle();
@@ -2863,6 +2907,8 @@ public class NotificationCompat {
                         return new MessagingStyle();
                     case CallStyle.TEMPLATE_CLASS_NAME:
                         return new CallStyle();
+                    case ProgressStyle.TEMPLATE_CLASS_NAME:
+                        return new ProgressStyle();
                 }
             }
             return null;
@@ -2890,6 +2936,9 @@ public class NotificationCompat {
                 return new InboxStyle();
             } else if (extras.containsKey(EXTRA_CALL_TYPE)) {
                 return new CallStyle();
+            } else if (extras.containsKey(EXTRA_PROGRESS_SEGMENTS)
+                    || extras.containsKey(EXTRA_PROGRESS_POINTS)) {
+                return new ProgressStyle();
             }
             // If individual extras do not help identify the style, use the framework style name.
             return constructCompatStyleByPlatformName(extras.getString(EXTRA_TEMPLATE));
@@ -2918,22 +2967,6 @@ public class NotificationCompat {
             boolean showLine3 = false;
             boolean showLine2 = false;
 
-            boolean minPriority = mBuilder.getPriority() < NotificationCompat.PRIORITY_LOW;
-            if (Build.VERSION.SDK_INT < 21) {
-                // lets color the backgrounds
-                if (minPriority) {
-                    contentView.setInt(R.id.notification_background,
-                            "setBackgroundResource", R.drawable.notification_bg_low);
-                    contentView.setInt(R.id.icon,
-                            "setBackgroundResource", R.drawable.notification_template_icon_low_bg);
-                } else {
-                    contentView.setInt(R.id.notification_background,
-                            "setBackgroundResource", R.drawable.notification_bg);
-                    contentView.setInt(R.id.icon,
-                            "setBackgroundResource", R.drawable.notification_template_icon_bg);
-                }
-            }
-
             if (mBuilder.mLargeIcon != null) {
                 // On versions before Jellybean, the large icon was shown by SystemUI, so we need
                 // to hide it here.
@@ -2945,37 +2978,27 @@ public class NotificationCompat {
                             R.dimen.notification_right_icon_size);
                     int iconSize = backgroundSize - res.getDimensionPixelSize(
                             R.dimen.notification_small_icon_background_padding) * 2;
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        Bitmap smallBit = createIconWithBackground(
-                                mBuilder.mNotification.icon,
-                                backgroundSize,
-                                iconSize,
-                                mBuilder.getColor());
-                        contentView.setImageViewBitmap(R.id.right_icon, smallBit);
-                    } else {
-                        contentView.setImageViewBitmap(R.id.right_icon, createColoredBitmap(
-                                mBuilder.mNotification.icon, Color.WHITE));
-                    }
-                    contentView.setViewVisibility(R.id.right_icon, View.VISIBLE);
-                }
-            } else if (showSmallIcon && mBuilder.mNotification.icon != 0) { // small icon at left
-                contentView.setViewVisibility(R.id.icon, View.VISIBLE);
-                if (Build.VERSION.SDK_INT >= 21) {
-                    int backgroundSize = res.getDimensionPixelSize(
-                            R.dimen.notification_large_icon_width)
-                            - res.getDimensionPixelSize(R.dimen.notification_big_circle_margin);
-                    int iconSize = res.getDimensionPixelSize(
-                            R.dimen.notification_small_icon_size_as_large);
                     Bitmap smallBit = createIconWithBackground(
                             mBuilder.mNotification.icon,
                             backgroundSize,
                             iconSize,
                             mBuilder.getColor());
-                    contentView.setImageViewBitmap(R.id.icon, smallBit);
-                } else {
-                    contentView.setImageViewBitmap(R.id.icon, createColoredBitmap(
-                            mBuilder.mNotification.icon, Color.WHITE));
+                    contentView.setImageViewBitmap(R.id.right_icon, smallBit);
+                    contentView.setViewVisibility(R.id.right_icon, View.VISIBLE);
                 }
+            } else if (showSmallIcon && mBuilder.mNotification.icon != 0) { // small icon at left
+                contentView.setViewVisibility(R.id.icon, View.VISIBLE);
+                int backgroundSize = res.getDimensionPixelSize(
+                        R.dimen.notification_large_icon_width)
+                        - res.getDimensionPixelSize(R.dimen.notification_big_circle_margin);
+                int iconSize = res.getDimensionPixelSize(
+                        R.dimen.notification_small_icon_size_as_large);
+                Bitmap smallBit = createIconWithBackground(
+                        mBuilder.mNotification.icon,
+                        backgroundSize,
+                        iconSize,
+                        mBuilder.getColor());
+                contentView.setImageViewBitmap(R.id.icon, smallBit);
             }
             if (mBuilder.mContentTitle != null) {
                 contentView.setTextViewText(R.id.title, mBuilder.mContentTitle);
@@ -2985,8 +3008,7 @@ public class NotificationCompat {
                 showLine3 = true;
             }
             // If there is a large icon we have a right side
-            boolean hasRightSide =
-                    !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
+            boolean hasRightSide = false;
             if (mBuilder.mContentInfo != null) {
                 contentView.setTextViewText(R.id.info, mBuilder.mContentInfo);
                 contentView.setViewVisibility(R.id.info, View.VISIBLE);
@@ -3120,11 +3142,9 @@ public class NotificationCompat {
             outerView.removeAllViews(R.id.notification_main_column);
             outerView.addView(R.id.notification_main_column, innerView.clone());
             outerView.setViewVisibility(R.id.notification_main_column, View.VISIBLE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // Adjust padding depending on font size.
-                int top = calculateTopPadding();
-                outerView.setViewPadding(R.id.notification_main_column_container, 0, top, 0, 0);
-            }
+            // Adjust padding depending on font size.
+            int top = calculateTopPadding();
+            outerView.setViewPadding(R.id.notification_main_column_container, 0, top, 0, 0);
         }
 
         private void hideNormalContent(RemoteViews outerView) {
@@ -3274,7 +3294,6 @@ public class NotificationCompat {
         /**
          * Override the large icon when the big notification is shown.
          */
-        @RequiresApi(23)
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Icon i) {
             mBigLargeIcon = i == null ? null : IconCompat.createFromIcon(i);
             mBigLargeIconSet = true;
@@ -3317,19 +3336,12 @@ public class NotificationCompat {
             if (mBigLargeIconSet) {
                 if (mBigLargeIcon == null) {
                     style.bigLargeIcon((Bitmap) null);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                } else {
                     Context context = null;
                     if (builder instanceof NotificationCompatBuilder) {
                         context = ((NotificationCompatBuilder) builder).getContext();
                     }
-                    Api23Impl.setBigLargeIcon(style, mBigLargeIcon.toIcon(context));
-                } else if (mBigLargeIcon.getType() == IconCompat.TYPE_BITMAP) {
-                    // Before M, only the Bitmap setter existed
-                    style.bigLargeIcon(mBigLargeIcon.getBitmap());
-                } else {
-                    // TODO(b/172282791): When we add #bigLargeIcon(Icon) we'll need to support
-                    // other icon types here by rendering them into a new Bitmap.
-                    style.bigLargeIcon((Bitmap) null);
+                    style.bigLargeIcon(mBigLargeIcon.toIcon(context));
                 }
             }
             if (mSummaryTextSet) {
@@ -3375,10 +3387,8 @@ public class NotificationCompat {
 
         private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
             if (bitmapOrIcon != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (bitmapOrIcon instanceof Icon) {
-                        return IconCompat.createFromIcon((Icon) bitmapOrIcon);
-                    }
+                if (bitmapOrIcon instanceof Icon) {
+                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
                 }
                 if (bitmapOrIcon instanceof Bitmap) {
                     return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
@@ -3397,25 +3407,6 @@ public class NotificationCompat {
             extras.remove(EXTRA_PICTURE);
             extras.remove(EXTRA_PICTURE_ICON);
             extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        private static class Api23Impl {
-            private Api23Impl() {
-            }
-
-            /**
-             * Calls {@link Notification.BigPictureStyle#bigLargeIcon(Icon)}
-             */
-            @RequiresApi(23)
-            static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
-                style.bigLargeIcon(icon);
-            }
         }
 
         /**
@@ -3557,13 +3548,6 @@ public class NotificationCompat {
         @Override
         public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
-            // Reminder: this method only needs to add fields which are not added by the platform
-            // builder (and only needs to work at all for API 19+).
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                // On KitKat, BixTextStyle populated EXTRA_TEXT instead of EXTRA_BIG_TEXT, so this
-                // needs to populate EXTRA_BIG_TEXT to fix style recovery on that platform version.
-                extras.putCharSequence(EXTRA_BIG_TEXT, mBigText);
-            }
         }
 
         /**
@@ -3988,13 +3972,12 @@ public class NotificationCompat {
         private CharSequence makeMessageLine(@NonNull Message message) {
             BidiFormatter bidi = BidiFormatter.getInstance();
             SpannableStringBuilder sb = new SpannableStringBuilder();
-            final boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-            int color = afterLollipop ? Color.BLACK : Color.WHITE;
+            int color = Color.BLACK;
             CharSequence replyName =
                     message.getPerson() == null ? "" : message.getPerson().getName();
             if (TextUtils.isEmpty(replyName)) {
                 replyName = mUser.getName();
-                color = afterLollipop && mBuilder.getColor() != NotificationCompat.COLOR_DEFAULT
+                color = mBuilder.getColor() != NotificationCompat.COLOR_DEFAULT
                         ? mBuilder.getColor()
                         : color;
             }
@@ -4641,7 +4624,6 @@ public class NotificationCompat {
          * Sets an optional icon to be displayed with {@link #setVerificationText(CharSequence)
          * text} as a verification status of the caller.
          */
-        @RequiresApi(23)
         public @NonNull CallStyle setVerificationIcon(@Nullable Icon verificationIcon) {
             mVerificationIcon = verificationIcon == null ? null :
                     IconCompat.createFromIcon(verificationIcon);
@@ -4715,7 +4697,7 @@ public class NotificationCompat {
             } else if (extras.containsKey(EXTRA_CALL_PERSON_COMPAT)) {
                 mPerson = Person.fromBundle(extras.getBundle(EXTRA_CALL_PERSON_COMPAT));
             }
-            if (Build.VERSION.SDK_INT >= 23 && extras.containsKey(EXTRA_VERIFICATION_ICON)) {
+            if (extras.containsKey(EXTRA_VERIFICATION_ICON)) {
                 mVerificationIcon = IconCompat.createFromIcon((Icon) extras.getParcelable(
                         EXTRA_VERIFICATION_ICON));
             } else if (extras.containsKey(EXTRA_VERIFICATION_ICON_COMPAT)) {
@@ -4753,13 +4735,7 @@ public class NotificationCompat {
                 }
             }
             if (mVerificationIcon != null) {
-                if (Build.VERSION.SDK_INT >= 23) {
-                    extras.putParcelable(EXTRA_VERIFICATION_ICON, Api23Impl.castToParcelable(
-                            mVerificationIcon.toIcon(mBuilder.mContext)));
-                } else {
-                    extras.putParcelable(EXTRA_VERIFICATION_ICON_COMPAT,
-                            mVerificationIcon.toBundle());
-                }
+                extras.putParcelable(EXTRA_VERIFICATION_ICON, mVerificationIcon.toIcon(mBuilder.mContext));
             }
             extras.putCharSequence(EXTRA_VERIFICATION_TEXT, mVerificationText);
             extras.putParcelable(EXTRA_ANSWER_INTENT, mAnswerIntent);
@@ -4847,25 +4823,22 @@ public class NotificationCompat {
                 // Adds person information to the notification.
                 if (mPerson != null) {
                     // Adds the caller icon, if available.
-                    if (Build.VERSION.SDK_INT >= 23 && mPerson.getIcon() != null) {
-                        Api23Impl.setLargeIcon(builder,
-                                mPerson.getIcon().toIcon(mBuilder.mContext));
+                    if (mPerson.getIcon() != null) {
+                        builder.setLargeIcon(mPerson.getIcon().toIcon(mBuilder.mContext));
                     }
 
                     // Adds the caller person as being relevant to this notification.
                     if (Build.VERSION.SDK_INT >= 28) {
                         Api28Impl.addPerson(builder, mPerson.toAndroidPerson());
-                    } else if (Build.VERSION.SDK_INT >= 21) {
-                        Api21Impl.addPerson(builder, mPerson.getUri());
+                    } else {
+                        builder.addPerson(mPerson.getUri());
                     }
                 }
 
                 // Sets the category of the notification to CATEGORY_CALL; if the notification
                 // has this set and is also from the default phone app, it will be ranked in the
                 // shade similarly to how CallStyle notifications are ranked in API 31+.
-                if (Build.VERSION.SDK_INT >= 21) {
-                    Api21Impl.setCategory(builder, NotificationCompat.CATEGORY_CALL);
-                }
+                builder.setCategory(NotificationCompat.CATEGORY_CALL);
             }
         }
 
@@ -4888,12 +4861,8 @@ public class NotificationCompat {
             return null;
         }
 
-        @RequiresApi(20)
         private @NonNull Action makeNegativeAction() {
-            int icon = R.drawable.ic_call_decline_low;
-            if (Build.VERSION.SDK_INT >= 21) {
-                icon = R.drawable.ic_call_decline;
-            }
+            int icon = R.drawable.ic_call_decline;
             if (mDeclineIntent == null) {
                 return makeAction(icon, R.string.call_notification_hang_up_action,
                         mDeclineButtonColor,
@@ -4907,14 +4876,9 @@ public class NotificationCompat {
             }
         }
 
-        @RequiresApi(20)
         private @Nullable Action makeAnswerAction() {
-            int videoIcon = R.drawable.ic_call_answer_video_low;
-            int icon = R.drawable.ic_call_answer_low;
-            if (Build.VERSION.SDK_INT >= 21) {
-                videoIcon = R.drawable.ic_call_answer_video;
-                icon = R.drawable.ic_call_answer;
-            }
+            int videoIcon = R.drawable.ic_call_answer_video;
+            int icon = R.drawable.ic_call_answer;
 
             return mAnswerIntent == null ? null : makeAction(
                     mIsVideo ? videoIcon : icon,
@@ -4924,7 +4888,6 @@ public class NotificationCompat {
                     mAnswerIntent);
         }
 
-        @RequiresApi(20)
         private @NonNull Action makeAction(int icon, int title, Integer colorInt,
                 int defaultColorRes, PendingIntent intent) {
             if (colorInt == null) {
@@ -4955,7 +4918,6 @@ public class NotificationCompat {
          *
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        @RequiresApi(20)
         public @NonNull ArrayList<Action> getActionsListWithSystemActions() {
             // Define the system actions we expect to see.
             final Action firstAction = makeNegativeAction();
@@ -4980,12 +4942,8 @@ public class NotificationCompat {
                         // Drops any old versions of system actions.
                     } else {
                         // Copies non-contextual actions; decrement the remaining action slots.
-                        // Only do this if there are at least two slots left; the lastAction
-                        // needs a reserved space.
-                        if (nonContextualActionSlotsRemaining > 1) {
-                            resultActions.add(action);
-                            --nonContextualActionSlotsRemaining;
-                        }
+                        resultActions.add(action);
+                        --nonContextualActionSlotsRemaining;
                     }
                     // If there's exactly one action slot left, fill it with the lastAction.
                     if (lastAction != null && nonContextualActionSlotsRemaining == 1) {
@@ -4999,101 +4957,6 @@ public class NotificationCompat {
                 resultActions.add(lastAction);
             }
             return resultActions;
-        }
-
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 20; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(20)
-        static class Api20Impl {
-            private Api20Impl() {
-            }
-
-            static Notification.Action build(Notification.Action.Builder builder) {
-                return builder.build();
-            }
-
-            static Notification.Action.Builder createActionBuilder(int icon,
-                    CharSequence title,
-                    android.app.PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-
-            }
-
-            static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
-                    android.os.Bundle extras) {
-                return builder.addExtras(extras);
-            }
-
-            static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
-                    android.app.RemoteInput remoteInput) {
-                return builder.addRemoteInput(remoteInput);
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 21; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(21)
-        static class Api21Impl {
-            private Api21Impl() {
-            }
-
-            static Notification.Builder addPerson(Notification.Builder builder, String uri) {
-                return builder.addPerson(uri);
-            }
-
-            static Notification.Builder setCategory(Notification.Builder builder, String category) {
-                return builder.setCategory(category);
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() {
-            }
-
-            static void setLargeIcon(Notification.Builder builder,
-                    Icon icon) {
-                builder.setLargeIcon(icon);
-            }
-
-            static Notification.Action.Builder createActionBuilder(
-                    Icon icon,
-                    CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-            }
-
-            static Parcelable castToParcelable(Icon icon) {
-                return icon;
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 24; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(24)
-        static class Api24Impl {
-            private Api24Impl() {
-            }
-
-            static Notification.Action.Builder setAllowGeneratedReplies(
-                    Notification.Action.Builder builder, boolean allowGeneratedReplies) {
-                return builder.setAllowGeneratedReplies(allowGeneratedReplies);
-            }
         }
 
         /**
@@ -5283,6 +5146,801 @@ public class NotificationCompat {
         protected void clearCompatExtraKeys(@NonNull Bundle extras) {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_TEXT_LINES);
+        }
+    }
+
+    /**
+     * Helper class for generating large-format notifications that display progress to the user
+     * with a highly customizable progress bar with segments, points, a custom tracker icon,
+     * and custom icons at the start and end of the progress bar.
+     * <br>
+     * If the platform does not provide large-format notifications, this method has no effect. The
+     * user will always see the normal notification view.
+     * <br>
+     * This class is a "rebuilder": It attaches to a Builder object and modifies its behavior,
+     * like so:
+     * <pre class="prettyprint">
+     * new NotificationCompat.Builder(context)
+     *   .setSmallIcon(R.drawable.ic_notification)
+     *   .setColor(Color.GREEN)
+     *   .setColorized(true)
+     *   .setContentTitle("Arrive 10:08 AM").
+     *   .setContentText("Dominique Ansel Bakery Soho")
+     *   .addAction(new NotificationCompat.Action("Exit navigation",...))
+     *   .setStyle(new NotificationCompat.ProgressStyle()
+     *       .setStyledByProgress(false)
+     *       .setProgress(456)
+     *       .setProgressTrackerIcon(IconCompat.createWithResource(R.drawable.ic_driving_tracker))
+     *       .addProgressSegment(new Segment(41).setColor(Color.BLACK))
+     *       .addProgressSegment(new Segment(552).setColor(Color.YELLOW))
+     *       .addProgressSegment(new Segment(253).setColor(Color.YELLOW))
+     *       .addProgressSegment(new Segment(94).setColor(Color.BLUE))
+     *       .addProgressPoint(new Point(60).setColor(Color.RED))
+     *       .addProgressPoint(new Point(560).setColor(Color.YELLOW))
+     *   )
+     * </pre>
+     * <p>
+     * NOTE: ProgressStyle Notifications are supported on Android 36 and above. If the SDK version
+     * is below 36, the ProgressStyle will fall back to the default notification style.
+     * </p>
+     */
+    public static class ProgressStyle extends Style {
+        private static final String KEY_ELEMENT_ID = "id";
+        private static final String KEY_ELEMENT_COLOR = "colorInt";
+        private static final String KEY_SEGMENT_LENGTH = "length";
+        private static final String KEY_POINT_POSITION = "position";
+
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$ProgressStyle";
+
+        private static final int DEFAULT_PROGRESS_MAX = 100;
+
+        private List<Segment> mProgressSegments = new ArrayList<>();
+        private List<Point> mProgressPoints = new ArrayList<>();
+
+        private int mProgress = 0;
+
+        private boolean mIndeterminate;
+
+        private boolean mIsStyledByProgress = true;
+
+        @Nullable
+        private IconCompat mTrackerIcon;
+        @Nullable
+        private IconCompat mStartIcon;
+        @Nullable
+        private IconCompat mEndIcon;
+
+        /**
+         * Gets the segments that define the background layer of the progress bar.
+         *
+         * If no segments are provided, the progress bar will be rendered with a single segment
+         * with length 100 and default color.
+         *
+         * @see #setProgressSegments
+         * @see #addProgressSegment
+         * @see Segment
+         */
+        public @NonNull List<Segment> getProgressSegments() {
+            return mProgressSegments;
+        }
+
+        /**
+         * Sets or replaces the segments of the progress bar.
+         *
+         * Segments allow for creating progress bars with multiple colors or sections
+         * to represent different stages or categories of progress.
+         * For example, Traffic conditions along a navigation journey.
+         * @see Segment
+         */
+        public @NonNull ProgressStyle setProgressSegments(@NonNull List<Segment> progressSegments) {
+            if (mProgressSegments == null) {
+                mProgressSegments = new ArrayList<>();
+            }
+            mProgressSegments.clear();
+            for (Segment segment : progressSegments) {
+                addProgressSegment(segment);
+            }
+            return this;
+        }
+
+        /**
+         * Appends a segment to the end of the progress bar.
+         *
+         * Segments allow for creating progress bars with multiple colors or sections
+         * to represent different stages or categories of progress.
+         * For example, Traffic conditions along a navigation journey.
+         * @see Segment
+         */
+        public @NonNull ProgressStyle addProgressSegment(@NonNull Segment segment) {
+            if (mProgressSegments == null) {
+                mProgressSegments = new ArrayList<>();
+            }
+            if (segment.getLength() > 0) {
+                mProgressSegments.add(segment);
+            }
+            return this;
+        }
+
+        /**
+         * Gets the points that are displayed on the progress bar.
+         *.
+         * @see #setProgressPoints
+         * @see #addProgressPoint
+         * @see Point
+         */
+        public @NonNull List<Point> getProgressPoints() {
+            return mProgressPoints;
+        }
+
+        /**
+         * Replaces all the progress points.
+         *
+         * Points within a progress bar are used to visualize distinct stages or milestones.
+         * For example, you might use points to mark stops in a multi-stop
+         * navigation journey, where each point represents a destination.
+         * @see Point
+         */
+        public @NonNull ProgressStyle setProgressPoints(@NonNull List<Point> points) {
+            if (mProgressPoints == null) {
+                mProgressPoints = new ArrayList<>();
+            }
+            mProgressPoints.clear();
+
+            for (Point point : points) {
+                addProgressPoint(point);
+            }
+            return this;
+        }
+
+        /**
+         * Adds another point.
+         *
+         * Points within a progress bar are used to visualize distinct stages or milestones.
+         *
+         * For example, you might use points to mark stops in a multi-stop
+         * navigation journey, where each point represents a destination.
+         *
+         * Points can be added in any order, as their
+         * position within the progress bar is determined by their individual
+         * {@link Point#getPosition()}.
+         * @see Point
+         */
+        public @NonNull ProgressStyle addProgressPoint(@NonNull Point point) {
+            if (mProgressPoints == null) {
+                mProgressPoints = new ArrayList<>();
+            }
+            if (point.getPosition() > 0) {
+                mProgressPoints.add(point);
+            }
+            return this;
+        }
+
+        /**
+         * Gets the progress value of the progress bar.
+         * @see #setProgress
+         */
+        @IntRange(from = 0)
+        public int getProgress() {
+            return mProgress;
+        }
+
+        /**
+         * Specifies the progress (in the same units as {@link Segment#getLength()})
+         * of the tracker along the length of the bar.
+         *
+         * The max progress value is the sum of all Segment lengths.
+         * The default value is 0.
+         */
+        public @NonNull ProgressStyle setProgress(@IntRange(from = 0) int progress) {
+            mProgress = progress;
+            return this;
+        }
+
+        /**
+         * Gets the sum of the lengths of all Segments in the style, which
+         * defines the maximum progress. Defaults to 100 when segments are omitted.
+         */
+        @IntRange(from = 0)
+        public int getProgressMax() {
+            final List<Segment> progressSegment = mProgressSegments;
+            if (progressSegment == null || progressSegment.isEmpty()) {
+                return DEFAULT_PROGRESS_MAX;
+            } else {
+                int progressMax = 0;
+                int validSegmentCount = 0;
+                for (int i = 0; i < progressSegment.size(); i++) {
+                    int segmentLength = progressSegment.get(i).getLength();
+                    if (segmentLength > 0) {
+                        try {
+                            progressMax = Math.addExact(progressMax, segmentLength);
+                            validSegmentCount++;
+                        } catch (ArithmeticException e) {
+                            return DEFAULT_PROGRESS_MAX;
+                        }
+                    }
+                }
+
+                if (validSegmentCount == 0) {
+                    return DEFAULT_PROGRESS_MAX;
+                }
+
+                return progressMax;
+            }
+
+        }
+
+        /**
+         * Get indeterminate value of the progress bar.
+         * @see #setProgressIndeterminate
+         */
+        public boolean isProgressIndeterminate() {
+            return mIndeterminate;
+        }
+
+        /**
+         * Used to indicate an initialization state without a known progress amount.
+         * When specified, the following fields are ignored:
+         * @see #setProgress
+         * @see #setProgressSegments
+         * @see #setProgressPoints
+         * @see #setProgressTrackerIcon
+         * @see #setStyledByProgress
+         *
+         * If the app provides exactly one Segment, that segment's color will be
+         * used to style the indeterminate bar.
+         */
+        public @NonNull ProgressStyle setProgressIndeterminate(boolean indeterminate) {
+            mIndeterminate = indeterminate;
+            return this;
+        }
+
+        /**
+         * Gets whether the progress bar's style is based on its progress.
+         * @see #setStyledByProgress
+         */
+        public boolean isStyledByProgress() {
+            return mIsStyledByProgress;
+        }
+
+        /**
+         * Indicates whether the segments and points will be styled differently
+         * based on whether they are behind or ahead of the current progress.
+         * When true, segments appearing ahead of the current progress will be given a
+         * slightly different appearance to indicate that it is part of the progress bar
+         * that is not "filled".
+         * When false, all segments will be given the filled appearance, and it will be
+         * the app's responsibility to use #setProgressTrackerIcon or segment colors
+         * to make the current progress clear to the user.
+         * the default value is true.
+         */
+        public @NonNull ProgressStyle setStyledByProgress(boolean enabled) {
+            mIsStyledByProgress = enabled;
+            return this;
+        }
+
+
+        /**
+         * Gets the progress tracker icon for the progress bar.
+         * @see #setProgressTrackerIcon
+         */
+        public @Nullable IconCompat getProgressTrackerIcon() {
+            return mTrackerIcon;
+        }
+
+        /**
+         * An optional icon that can appear as an overlay on the bar at the point of
+         * current progress.
+         * Aspect ratio may be anywhere from 2:1 to 1:2; content outside that
+         * aspect ratio range will be cropped.
+         * This icon will be mirrored in RTL.
+         */
+        public @NonNull ProgressStyle setProgressTrackerIcon(@Nullable IconCompat trackerIcon) {
+            mTrackerIcon = trackerIcon;
+            return this;
+        }
+
+        /**
+         * Gets the progress bar start icon.
+         * @see #setProgressStartIcon
+         */
+        public @Nullable IconCompat getProgressStartIcon() {
+            return mStartIcon;
+        }
+
+        /**
+         * An optional square icon that appears at the start of the progress bar.
+         * This icon will be cropped to its central square.
+         * This icon will NOT be mirrored in RTL layouts.
+         */
+        public @NonNull ProgressStyle setProgressStartIcon(@Nullable IconCompat startIcon) {
+            mStartIcon = startIcon;
+            return this;
+        }
+
+        /**
+         * Gets the progress bar end icon.
+         * @see #setProgressEndIcon
+         */
+        public @Nullable IconCompat getProgressEndIcon() {
+            return mEndIcon;
+        }
+
+        /**
+         * An optional square icon that appears at the end of the progress bar.
+         * This icon will be cropped to its central square.
+         * This icon will NOT be mirrored in RTL layouts.
+         */
+        public @NonNull ProgressStyle setProgressEndIcon(@Nullable IconCompat endIcon) {
+            mEndIcon = endIcon;
+            return this;
+        }
+
+        /**
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public boolean displayCustomViewInline() {
+            // This is a lie; True is returned for progress notifications to make sure
+            // that the custom view is not used instead of the template, but it will not
+            // actually be included.
+            return true;
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected @Nullable String getClassName() {
+            return TEMPLATE_CLASS_NAME;
+        }
+
+        /**
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            final Notification.Builder builder1 = builder.getBuilder();
+            if (Build.VERSION.SDK_INT >= 36) {
+                Context context = null;
+                if (builder instanceof NotificationCompatBuilder) {
+                    context = ((NotificationCompatBuilder) builder).getContext();
+                }
+
+                final Notification.ProgressStyle progressStyle = new Notification.ProgressStyle();
+                Api36Impl.setStyledByProgress(progressStyle, mIsStyledByProgress);
+                Api36Impl.setProgress(progressStyle, mProgress);
+                Api36Impl.setProgressIndeterminate(progressStyle, mIndeterminate);
+
+                Icon startIcon = null;
+                if (mStartIcon != null) {
+                    startIcon = mStartIcon.toIcon(context);
+                }
+                Api36Impl.setProgressStartIcon(progressStyle, startIcon);
+
+                Icon endIcon = null;
+                if (mEndIcon != null) {
+                    endIcon = mEndIcon.toIcon(context);
+                }
+                Api36Impl.setProgressEndIcon(progressStyle, endIcon);
+
+                Icon trackerIcon = null;
+                if (mTrackerIcon != null) {
+                    trackerIcon = mTrackerIcon.toIcon(context);
+                }
+                Api36Impl.setProgressTrackerIcon(progressStyle, trackerIcon);
+
+                Api36Impl.setProgressPoints(progressStyle, mProgressPoints);
+                Api36Impl.setProgressSegments(progressStyle, mProgressSegments);
+
+                builder1.setStyle(progressStyle);
+            } else {
+                final int progressMax = getProgressMax();
+                builder1.setProgress(
+                        progressMax,
+                        Math.min(mProgress, progressMax),
+                        mIndeterminate);
+            }
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        public void addCompatExtras(@NonNull Bundle extras) {
+            super.addCompatExtras(extras);
+
+            if (Build.VERSION.SDK_INT < 36) {
+                extras.putParcelableArrayList(EXTRA_PROGRESS_SEGMENTS,
+                        getProgressSegmentsAsBundleList(mProgressSegments));
+                extras.putParcelableArrayList(EXTRA_PROGRESS_POINTS,
+                        getProgressPointsAsBundleList(mProgressPoints));
+
+                extras.putInt(EXTRA_PROGRESS, mProgress);
+                extras.putBoolean(EXTRA_PROGRESS_INDETERMINATE, mIndeterminate);
+                extras.putInt(EXTRA_PROGRESS_MAX, getProgressMax());
+                extras.putBoolean(EXTRA_STYLED_BY_PROGRESS, mIsStyledByProgress);
+                Context context = null;
+                if (mBuilder != null) {
+                    context = mBuilder.mContext;
+                }
+
+                if (context == null) {
+                    return;
+                }
+
+                if (mTrackerIcon != null) {
+                    extras.putParcelable(EXTRA_PROGRESS_TRACKER_ICON, mTrackerIcon.toIcon(context));
+                } else {
+                    extras.remove(EXTRA_PROGRESS_TRACKER_ICON);
+                }
+
+                if (mStartIcon != null) {
+                    extras.putParcelable(EXTRA_PROGRESS_START_ICON, mStartIcon.toIcon(context));
+                } else {
+                    extras.remove(EXTRA_PROGRESS_START_ICON);
+                }
+
+                if (mEndIcon != null) {
+                    extras.putParcelable(EXTRA_PROGRESS_END_ICON, mEndIcon.toIcon(context));
+                } else {
+                    extras.remove(EXTRA_PROGRESS_END_ICON);
+                }
+            }
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected void restoreFromCompatExtras(@NonNull Bundle extras) {
+            super.restoreFromCompatExtras(extras);
+
+            mProgressSegments = getProgressSegmentsFromBundleList(
+                    BundleCompat.getParcelableArrayList(
+                            extras, EXTRA_PROGRESS_SEGMENTS, Bundle.class));
+            mProgress = extras.getInt(EXTRA_PROGRESS, 0);
+            mIndeterminate = extras.getBoolean(EXTRA_PROGRESS_INDETERMINATE, false);
+            mIsStyledByProgress = extras.getBoolean(EXTRA_STYLED_BY_PROGRESS, true);
+            mProgressPoints = getProgressPointsFromBundleList(
+                    BundleCompat.getParcelableArrayList(
+                            extras, EXTRA_PROGRESS_POINTS, Bundle.class));
+            mTrackerIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_TRACKER_ICON, Icon.class));
+            mStartIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_START_ICON, Icon.class));
+            mEndIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_END_ICON, Icon.class));
+        }
+
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        protected void clearCompatExtraKeys(@NonNull Bundle extras) {
+            super.clearCompatExtraKeys(extras);
+            extras.remove(EXTRA_PROGRESS_SEGMENTS);
+            extras.remove(EXTRA_PROGRESS);
+            extras.remove(EXTRA_STYLED_BY_PROGRESS);
+            extras.remove(EXTRA_PROGRESS_TRACKER_ICON);
+            extras.remove(EXTRA_PROGRESS_START_ICON);
+            extras.remove(EXTRA_PROGRESS_END_ICON);
+            extras.remove(EXTRA_PROGRESS_POINTS);
+            extras.remove(EXTRA_PROGRESS_INDETERMINATE);
+        }
+
+        private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
+            if (bitmapOrIcon != null) {
+                if (bitmapOrIcon instanceof Icon) {
+                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
+                }
+                if (bitmapOrIcon instanceof Bitmap) {
+                    return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
+                }
+            }
+            return null;
+        }
+
+        private static @NonNull List<Segment> getProgressSegmentsFromBundleList(
+                @Nullable List<Bundle> segmentBundleList) {
+            final ArrayList<Segment> segments = new ArrayList<>();
+            if (segmentBundleList != null && !segmentBundleList.isEmpty()) {
+                for (int i = 0; i < segmentBundleList.size(); i++) {
+                    final Bundle segmentBundle = segmentBundleList.get(i);
+                    final int length = segmentBundle.getInt(KEY_SEGMENT_LENGTH);
+                    if (length <= 0) {
+                        continue;
+                    }
+
+                    final int id = segmentBundle.getInt(KEY_ELEMENT_ID);
+                    final int color = segmentBundle.getInt(KEY_ELEMENT_COLOR,
+                            Notification.COLOR_DEFAULT);
+                    final Segment segment = new Segment(length)
+                            .setId(id).setColor(color);
+
+                    segments.add(segment);
+                }
+            }
+
+            return segments;
+        }
+
+        private static @NonNull ArrayList<Bundle> getProgressPointsAsBundleList(
+                @Nullable List<Point> progressPoints) {
+            final ArrayList<Bundle> points = new ArrayList<>();
+            if (progressPoints != null && !progressPoints.isEmpty()) {
+                for (int i = 0; i < progressPoints.size(); i++) {
+                    final Point point = progressPoints.get(i);
+                    if (point.getPosition() < 0) {
+                        continue;
+                    }
+
+                    final Bundle bundle = new Bundle();
+                    bundle.putInt(KEY_POINT_POSITION, point.getPosition());
+                    bundle.putInt(KEY_ELEMENT_ID, point.getId());
+                    bundle.putInt(KEY_ELEMENT_COLOR, point.getColor());
+
+                    points.add(bundle);
+                }
+            }
+
+            return points;
+        }
+
+        private static @NonNull List<Point> getProgressPointsFromBundleList(
+                @Nullable List<Bundle> pointBundleList) {
+            final ArrayList<Point> points = new ArrayList<>();
+
+            if (pointBundleList != null && !pointBundleList.isEmpty()) {
+                for (int i = 0; i < pointBundleList.size(); i++) {
+                    final Bundle pointBundle = pointBundleList.get(i);
+                    final int position = pointBundle.getInt(KEY_POINT_POSITION);
+                    if (position < 0) {
+                        continue;
+                    }
+                    final int id = pointBundle.getInt(KEY_ELEMENT_ID);
+                    final int color = pointBundle.getInt(KEY_ELEMENT_COLOR,
+                            Notification.COLOR_DEFAULT);
+                    final Point point = new Point(position).setId(id).setColor(color);
+                    points.add(point);
+                }
+            }
+
+            return points;
+        }
+
+        private static @NonNull ArrayList<Bundle> getProgressSegmentsAsBundleList(
+                @Nullable List<Segment> progressSegments) {
+            final ArrayList<Bundle> segments = new ArrayList<>();
+            if (progressSegments != null && !progressSegments.isEmpty()) {
+                for (int i = 0; i < progressSegments.size(); i++) {
+                    final Segment segment = progressSegments.get(i);
+                    if (segment.getLength() <= 0) {
+                        continue;
+                    }
+
+                    final Bundle bundle = new Bundle();
+                    bundle.putInt(KEY_SEGMENT_LENGTH, segment.getLength());
+                    bundle.putInt(KEY_ELEMENT_ID, segment.getId());
+                    bundle.putInt(KEY_ELEMENT_COLOR, segment.getColor());
+
+                    segments.add(bundle);
+                }
+            }
+
+            return segments;
+        }
+
+        /**
+         * A segment of the progress bar, which defines its length and color.
+         * Segments allow for creating progress bars with multiple colors or sections
+         * to represent different stages or categories of progress.
+         * For example, Traffic conditions along a navigation journey.
+         */
+        public static final class Segment {
+            private int mLength;
+            private int mId = 0;
+            @ColorInt
+            private int mColor = NotificationCompat.COLOR_DEFAULT;
+
+            /**
+             * Create a segment with a non-zero length.
+             * @param length
+             * See {@link #getLength}
+             */
+            public Segment(@IntRange(from = 1) int length) {
+                mLength = length;
+            }
+
+            /**
+             * The length of this Segment within the progress bar.
+             * This value has no units, it is just relative to the length of other segments,
+             * and the value provided to {@link ProgressStyle#setProgress}.
+             */
+            @IntRange(from = 1)
+            public int getLength() {
+                return mLength;
+            }
+
+            /**
+             * Gets the id of this Segment.
+             *
+             * @see #setId
+             */
+            public int getId() {
+                return mId;
+            }
+
+            /**
+             * Optional ID used to uniquely identify the element across updates.
+             * The default is 0.
+             */
+            public @NonNull Segment setId(int id) {
+                mId = id;
+                return this;
+            }
+
+            /**
+             * Returns the color of this Segment.
+             *
+             * @see #setColor
+             * @see #COLOR_DEFAULT for the default visual behavior when it is not set.
+             */
+            @ColorInt
+            public int getColor() {
+                return mColor;
+            }
+
+            /**
+             * Optional color of this Segment
+             */
+            public @NonNull Segment setColor(@ColorInt int color) {
+                mColor = color;
+                return this;
+            }
+        }
+
+        /**
+         * A point within the progress bar, defining its position and color.
+         * Points within a progress bar are used to visualize distinct stages or milestones.
+         * For example, you might use points to mark stops in a multi-stop
+         * navigation journey, where each point represents a destination.
+         */
+        public static final class Point {
+
+            private int mPosition;
+            private int mId = 0;
+            @ColorInt
+            private int mColor = NotificationCompat.COLOR_DEFAULT;
+
+            /**
+             * Create a point element.
+             * The position of this point on the progress bar
+             * relative to {@link ProgressStyle#getProgressMax}
+             * @param position
+             * See {@link #getPosition}
+             */
+            public Point(@IntRange(from = 1) int position) {
+                mPosition = position;
+            }
+
+            /**
+             * Gets the position of this Point.
+             * The position of this point on the progress bar
+             * relative to {@link ProgressStyle#getProgressMax}.
+             */
+            @IntRange(from = 1)
+            public int getPosition() {
+                return mPosition;
+            }
+
+
+            /**
+             * Optional ID used to uniquely identify the element across updates.
+             */
+            public int getId() {
+                return mId;
+            }
+
+            /**
+             * Optional ID used to uniquely identify the element across updates.
+             * The default is 0.
+             */
+            public @NonNull Point setId(int id) {
+                mId = id;
+                return this;
+            }
+
+            /**
+             * Returns the color of this Segment.
+             *
+             * @see #setColor
+             * @see #COLOR_DEFAULT for the default visual behavior when it is not set.
+             */
+            @ColorInt
+            public int getColor() {
+                return mColor;
+            }
+
+            /**
+             * Optional color of this Segment
+             */
+            public @NonNull Point setColor(@ColorInt int color) {
+                mColor = color;
+                return this;
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.ProgressStyle} methods which
+         * were added in API 36.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(36)
+        private static final class Api36Impl {
+            private Api36Impl() {
+            }
+
+            @RequiresApi(36)
+            static void setStyledByProgress(
+                    Notification.ProgressStyle progressStyle,
+                    boolean isStyledByProgress) {
+                progressStyle.setStyledByProgress(isStyledByProgress);
+            }
+
+            @RequiresApi(36)
+            static void setProgress(
+                    Notification.ProgressStyle progressStyle,
+                    int progress) {
+                progressStyle.setProgress(progress);
+            }
+
+            @RequiresApi(36)
+            static void setProgressIndeterminate(
+                    Notification.ProgressStyle progressStyle,
+                    boolean indeterminate
+            ) {
+                progressStyle.setProgressIndeterminate(indeterminate);
+
+            }
+
+            @RequiresApi(36)
+            static void setProgressStartIcon(
+                    Notification.ProgressStyle progressStyle,
+                    @Nullable Icon startIcon) {
+                progressStyle.setProgressStartIcon(startIcon);
+            }
+
+            @RequiresApi(36)
+            static void setProgressEndIcon(
+                    Notification.ProgressStyle progressStyle,
+                    @Nullable Icon endIcon) {
+                progressStyle.setProgressEndIcon(endIcon);
+            }
+
+            @RequiresApi(36)
+            static void setProgressTrackerIcon(
+                    Notification.ProgressStyle progressStyle,
+                    @Nullable Icon trackerIcon) {
+                progressStyle.setProgressTrackerIcon(trackerIcon);
+            }
+
+            @RequiresApi(36)
+            static void setProgressPoints(
+                    Notification.ProgressStyle progressStyle,
+                    @NonNull List<Point> progressPoints) {
+                for (Point point : progressPoints) {
+                    progressStyle.addProgressPoint(
+                            new Notification.ProgressStyle.Point(point.getPosition())
+                                    .setColor(point.getColor())
+                                    .setId(point.getId()));
+                }
+            }
+
+            @RequiresApi(36)
+            static void setProgressSegments(
+                    Notification.ProgressStyle progressStyle,
+                    @NonNull List<Segment> progressSegments) {
+                for (Segment segment : progressSegments) {
+                    progressStyle.addProgressSegment(
+                            new Notification.ProgressStyle.Segment(segment.getLength())
+                                    .setColor(segment.getColor())
+                                    .setId(segment.getId()));
+                }
+
+            }
         }
     }
 
@@ -5670,7 +6328,7 @@ public class NotificationCompat {
         /**
          * Title of the action.
          */
-        public CharSequence title;
+        public @Nullable CharSequence title;
         /**
          * Intent to send when the user invokes this action. May be null, in which case the action
          * may be rendered in a disabled presentation.
@@ -5854,21 +6512,19 @@ public class NotificationCompat {
             @RestrictTo(LIBRARY_GROUP_PREFIX)
             public static @NonNull Builder fromAndroidAction(Notification.@NonNull Action action) {
                 final Builder builder;
-                if (Build.VERSION.SDK_INT >= 23 && Api23Impl.getIcon(action) != null) {
+                if (action.getIcon() != null) {
                     IconCompat iconCompat = IconCompat.createFromIconOrNullIfZeroResId(
-                            Api23Impl.getIcon(action));
+                            action.getIcon());
                     builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
                             action.actionIntent);
                 } else {
                     builder = new NotificationCompat.Action.Builder(action.icon, action.title,
                             action.actionIntent);
                 }
-                if (Build.VERSION.SDK_INT >= 20) {
-                    android.app.RemoteInput[] remoteInputs = Api20Impl.getRemoteInputs(action);
-                    if (remoteInputs != null && remoteInputs.length != 0) {
-                        for (android.app.RemoteInput remoteInput : remoteInputs) {
-                            builder.addRemoteInput(RemoteInput.fromPlatform(remoteInput));
-                        }
+                android.app.RemoteInput[] remoteInputs = action.getRemoteInputs();
+                if (remoteInputs != null && remoteInputs.length != 0) {
+                    for (android.app.RemoteInput remoteInput : remoteInputs) {
+                        builder.addRemoteInput(RemoteInput.fromPlatform(remoteInput));
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 24) {
@@ -5883,9 +6539,7 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 31) {
                     builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
                 }
-                if (Build.VERSION.SDK_INT >= 20) {
-                    builder.addExtras(Api20Impl.getExtras(action));
-                }
+                builder.addExtras(action.getExtras());
                 return builder;
             }
 
@@ -6106,38 +6760,6 @@ public class NotificationCompat {
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
                         mShowsUserInterface, mIsContextual, mAuthenticationRequired);
-            }
-
-            /**
-             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
-             * were added in API 20; these calls must be wrapped to avoid performance issues.
-             * See the UnsafeNewApiCall lint rule for more details.
-             */
-            @RequiresApi(20)
-            static class Api20Impl {
-                private Api20Impl() { }
-
-                static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
-                    return action.getRemoteInputs();
-                }
-
-                static Bundle getExtras(Notification.Action action) {
-                    return action.getExtras();
-                }
-            }
-
-            /**
-             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
-             * were added in API 23; these calls must be wrapped to avoid performance issues.
-             * See the UnsafeNewApiCall lint rule for more details.
-             */
-            @RequiresApi(23)
-            static class Api23Impl {
-                private Api23Impl() { }
-
-                static Icon getIcon(Notification.Action action) {
-                    return action.getIcon();
-                }
             }
 
             /**
@@ -6708,12 +7330,8 @@ public class NotificationCompat {
                 if (parcelables != null) {
                     Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
-                        if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = Api20Impl.getActionCompatFromAction(parcelables, i);
-                        } else {
-                            actions[i] = NotificationCompatJellybean.getActionFromBundle(
-                                    (Bundle) parcelables.get(i));
-                        }
+                        actions[i] = getActionCompatFromAction(
+                                (Notification.Action) parcelables.get(i));
                     }
                     Collections.addAll(mActions, (Action[]) actions);
                 }
@@ -6757,12 +7375,8 @@ public class NotificationCompat {
             if (!mActions.isEmpty()) {
                 ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
                 for (Action action : mActions) {
-                    if (Build.VERSION.SDK_INT >= 20) {
-                        parcelables.add(
-                                WearableExtender.getActionFromActionCompat(action));
-                    } else {
-                        parcelables.add(NotificationCompatJellybean.getBundleForAction(action));
-                    }
+                    parcelables.add(
+                            WearableExtender.getActionFromActionCompat(action));
                 }
                 wearableBundle.putParcelableArrayList(KEY_ACTIONS, parcelables);
             }
@@ -6812,23 +7426,11 @@ public class NotificationCompat {
             return builder;
         }
 
-        @RequiresApi(20)
         private static Notification.Action getActionFromActionCompat(Action actionCompat) {
-            Notification.Action.Builder actionBuilder;
-            if (Build.VERSION.SDK_INT >= 23) {
-                IconCompat iconCompat = actionCompat.getIconCompat();
-                actionBuilder = Api23Impl.createBuilder(
-                        iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
-            } else {
-                IconCompat icon = actionCompat.getIconCompat();
-                int iconResId = 0;
-                if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
-                    iconResId = icon.getResId();
-                }
-                actionBuilder = Api20Impl.createBuilder(iconResId, actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
-            }
+            IconCompat iconCompat = actionCompat.getIconCompat();
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
+                    actionCompat.getActionIntent());
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
                 actionExtras = new Bundle(actionCompat.getExtras());
@@ -6845,15 +7447,15 @@ public class NotificationCompat {
                 Api31Impl.setAuthenticationRequired(actionBuilder,
                         actionCompat.isAuthenticationRequired());
             }
-            Api20Impl.addExtras(actionBuilder, actionExtras);
+            actionBuilder.addExtras(actionExtras);
             RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
             if (remoteInputCompats != null) {
                 android.app.RemoteInput[] remoteInputs = RemoteInput.fromCompat(remoteInputCompats);
                 for (android.app.RemoteInput remoteInput : remoteInputs) {
-                    Api20Impl.addRemoteInput(actionBuilder, remoteInput);
+                    actionBuilder.addRemoteInput(remoteInput);
                 }
             }
-            return Api20Impl.build(actionBuilder);
+            return actionBuilder.build();
         }
 
         @Override
@@ -7479,57 +8081,6 @@ public class NotificationCompat {
 
         /**
          * A class for wrapping calls to {@link Notification.WearableExtender} methods which
-         * were added in API 20; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(20)
-        static class Api20Impl {
-            private Api20Impl() { }
-
-            static Notification.Action.Builder createBuilder(int icon, CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-            }
-
-            static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
-                    Bundle extras) {
-                return builder.addExtras(extras);
-            }
-
-            static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
-                    android.app.RemoteInput remoteInput) {
-                return builder.addRemoteInput(remoteInput);
-            }
-
-            static Notification.Action build(Notification.Action.Builder builder) {
-                return builder.build();
-            }
-
-            public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
-                    int i) {
-                // Cast to Notification.Action (added in API 19) must happen in static inner class.
-                return NotificationCompat.getActionCompatFromAction(
-                        (Notification.Action) parcelables.get(i));
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() { }
-
-            static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
          * were added in API 24; these calls must be wrapped to avoid performance issues.
          * See the UnsafeNewApiCall lint rule for more details.
          */
@@ -7623,10 +8174,6 @@ public class NotificationCompat {
          */
         @SuppressWarnings("deprecation")
         public CarExtender(@NonNull Notification notification) {
-            if (Build.VERSION.SDK_INT < 21) {
-                return;
-            }
-
             Bundle carBundle = getExtras(notification) == null
                     ? null : getExtras(notification).getBundle(EXTRA_CAR_EXTENDER);
             if (carBundle != null) {
@@ -7638,7 +8185,6 @@ public class NotificationCompat {
             }
         }
 
-        @RequiresApi(21)
         @SuppressWarnings("deprecation")
         private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
             if (b == null) {
@@ -7678,14 +8224,14 @@ public class NotificationCompat {
             }
 
             RemoteInput remoteInputCompat = remoteInput != null
-                    ? new RemoteInput(Api20Impl.getResultKey(remoteInput),
-                    Api20Impl.getLabel(remoteInput),
-                    Api20Impl.getChoices(remoteInput),
-                    Api20Impl.getAllowFreeFormInput(remoteInput),
+                    ? new RemoteInput(remoteInput.getResultKey(),
+                    remoteInput.getLabel(),
+                    remoteInput.getChoices(),
+                    remoteInput.getAllowFreeFormInput(),
                     Build.VERSION.SDK_INT >= 29
                             ? Api29Impl.getEditChoicesBeforeSending(remoteInput)
                             : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
-                    Api20Impl.getExtras(remoteInput),
+                    remoteInput.getExtras(),
                     null /* allowedDataTypes */)
                     : null;
 
@@ -7693,7 +8239,6 @@ public class NotificationCompat {
                     onRead, participants, b.getLong(KEY_TIMESTAMP));
         }
 
-        @RequiresApi(21)
         private static Bundle getBundleForUnreadConversation(@NonNull UnreadConversation uc) {
             Bundle b = new Bundle();
             String author = null;
@@ -7710,15 +8255,15 @@ public class NotificationCompat {
             b.putParcelableArray(KEY_MESSAGES, messages);
             RemoteInput remoteInputCompat = uc.getRemoteInput();
             if (remoteInputCompat != null) {
-                android.app.RemoteInput.Builder builder = Api20Impl.createBuilder(
+                android.app.RemoteInput.Builder builder = new android.app.RemoteInput.Builder(
                         remoteInputCompat.getResultKey());
-                Api20Impl.setLabel(builder, remoteInputCompat.getLabel());
-                Api20Impl.setChoices(builder, remoteInputCompat.getChoices());
-                Api20Impl.setAllowFreeFormInput(builder, remoteInputCompat.getAllowFreeFormInput());
-                Api20Impl.addExtras(builder, remoteInputCompat.getExtras());
+                builder.setLabel(remoteInputCompat.getLabel());
+                builder.setChoices(remoteInputCompat.getChoices());
+                builder.setAllowFreeFormInput(remoteInputCompat.getAllowFreeFormInput());
+                builder.addExtras(remoteInputCompat.getExtras());
 
-                android.app.RemoteInput remoteInput = Api20Impl.build(builder);
-                b.putParcelable(KEY_REMOTE_INPUT, Api20Impl.castToParcelable(remoteInput));
+                android.app.RemoteInput remoteInput = builder.build();
+                b.putParcelable(KEY_REMOTE_INPUT, remoteInput);
             }
             b.putParcelable(KEY_ON_REPLY, uc.getReplyPendingIntent());
             b.putParcelable(KEY_ON_READ, uc.getReadPendingIntent());
@@ -7735,10 +8280,6 @@ public class NotificationCompat {
         @Override
         public NotificationCompat.@NonNull Builder extend(
                 NotificationCompat.@NonNull Builder builder) {
-            if (Build.VERSION.SDK_INT < 21) {
-                return builder;
-            }
-
             Bundle carExtensions = new Bundle();
 
             if (mLargeIcon != null) {
@@ -8010,70 +8551,6 @@ public class NotificationCompat {
 
         /**
          * A class for wrapping calls to {@link Notification.CarExtender} methods which
-         * were added in API 20; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(20)
-        static class Api20Impl {
-            private Api20Impl() {
-                // This class is not instantiable.
-            }
-
-            static android.app.RemoteInput.Builder createBuilder(String resultKey) {
-                return new android.app.RemoteInput.Builder(resultKey);
-            }
-
-            static android.app.RemoteInput build(android.app.RemoteInput.Builder builder) {
-                return builder.build();
-            }
-
-            static String getResultKey(android.app.RemoteInput remoteInput) {
-                return remoteInput.getResultKey();
-            }
-
-            static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
-                return remoteInput.getChoices();
-            }
-
-            static android.app.RemoteInput.Builder setChoices(
-                    android.app.RemoteInput.Builder builder, CharSequence[] choices) {
-                return builder.setChoices(choices);
-            }
-
-            static CharSequence getLabel(android.app.RemoteInput remoteInput) {
-                return remoteInput.getLabel();
-            }
-
-            static android.app.RemoteInput.Builder setLabel(android.app.RemoteInput.Builder builder,
-                    CharSequence label) {
-                return builder.setLabel(label);
-            }
-
-            static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
-                return remoteInput.getAllowFreeFormInput();
-            }
-
-            static android.app.RemoteInput.Builder setAllowFreeFormInput(
-                    android.app.RemoteInput.Builder builder, boolean allowFreeFormInput) {
-                return builder.setAllowFreeFormInput(allowFreeFormInput);
-            }
-
-            static Bundle getExtras(android.app.RemoteInput remoteInput) {
-                return remoteInput.getExtras();
-            }
-
-            static android.app.RemoteInput.Builder addExtras(
-                    android.app.RemoteInput.Builder builder, Bundle extras) {
-                return builder.addExtras(extras);
-            }
-
-            static Parcelable castToParcelable(android.app.RemoteInput remoteInput) {
-                return remoteInput;
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CarExtender} methods which
          * were added in API 29; these calls must be wrapped to avoid performance issues.
          * See the UnsafeNewApiCall lint rule for more details.
          */
@@ -8287,6 +8764,107 @@ public class NotificationCompat {
          */
         public boolean isSuppressShowOverApps() {
             return mSuppressShowOverApps;
+        }
+    }
+
+    /**
+     * Helper class to add projection-specific extensions to a notification.
+     * This class is used to specify metadata that is specific to notifications
+     * that may be displayed on a Projected device.
+     *
+     * <p>To create a notification with Projected extensions:
+     * <ol>
+     * <li>Create a {@link NotificationCompat.Builder} for the notification.
+     * <li>Create an {@code ProjectedExtender}.
+     * <li>Set projection-specific properties using the {@code set} methods on the
+     * {@code ProjectedExtender}.
+     * <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to
+     * the notification.
+     * </ol>
+     *
+     * <pre class="prettyprint">
+     * NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+     *     .setContentTitle("Example Title")
+     *     .setContentText("Example Text")
+     *     .setSmallIcon(R.drawable.ic_notification);
+     *
+     * ProjectedExtender projectedExtender = new ProjectedExtender()
+     *     .setContentIntent(projectedTapIntent);
+     *
+     * builder.extend(projectedExtender);
+     * notificationManager.notify(NOTIFICATION_ID, builder.build());
+     * </pre>
+     */
+    public static final class ProjectedExtender implements Extender {
+        static final String EXTRA_PROJECTED_EXTENDER = "android.projected.EXTENSIONS";
+        static final String KEY_CONTENT_INTENT = "content_intent";
+
+        private PendingIntent mContentIntent;
+
+        /**
+         * Create a {@link ProjectedExtender} with default options.
+         */
+        public ProjectedExtender() {
+        }
+
+        /**
+         * Creates an {@link ProjectedExtender} from the extensions in a
+         * {@link Notification}.
+         *
+         * @param notification the notification to extract extensions from.
+         */
+        public ProjectedExtender(@NonNull Notification notification) {
+            Bundle extras = getExtras(notification);
+            Bundle projectedBundle = extras == null
+                    ? null : extras.getBundle(EXTRA_PROJECTED_EXTENDER);
+            if (projectedBundle != null) {
+                mContentIntent = BundleCompat.getParcelable(projectedBundle, KEY_CONTENT_INTENT,
+                        PendingIntent.class);
+            }
+        }
+
+        /**
+         * Sets the {@link PendingIntent} to be opened on the Projected device when the
+         * notification is tapped on the that device. This is distinct from the notification's
+         * main {@link Notification#contentIntent}, which is typically fired when the notification
+         * is tapped on the host device (e.g., the phone).
+         *
+         * @param intent the {@link PendingIntent} to fire on tap
+         * @return this {@code ProjectedExtender} object for chaining
+         */
+        public @NonNull ProjectedExtender setContentIntent(@Nullable PendingIntent intent) {
+            mContentIntent = intent;
+            return this;
+        }
+
+        /**
+         * Returns the {@link PendingIntent} to be fired when the notification is
+         * tapped on the Projected device.
+         *
+         * @return the {@link PendingIntent} to fire on tap, or null if not set
+         */
+        @Nullable
+        public PendingIntent getContentIntent() {
+            return mContentIntent;
+        }
+
+        /**
+         * Applies the Project extensions to the notification builder. This method is
+         * called by the {@link NotificationCompat.Builder#extend} method and should not
+         * be called directly.
+         *
+         * @param builder the notification builder to extend
+         * @return the modified notification builder
+         */
+        @Override
+        public NotificationCompat.@NonNull Builder extend(
+                NotificationCompat.@NonNull Builder builder) {
+            Bundle projectedBundle = new Bundle();
+            if (mContentIntent != null) {
+                projectedBundle.putParcelable(KEY_CONTENT_INTENT, mContentIntent);
+            }
+            builder.getExtras().putBundle(EXTRA_PROJECTED_EXTENDER, projectedBundle);
+            return builder;
         }
     }
 
@@ -8925,19 +9503,7 @@ public class NotificationCompat {
      */
     @SuppressWarnings("deprecation")
     public static @Nullable Action getAction(@NonNull Notification notification, int actionIndex) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return getActionCompatFromAction(notification.actions[actionIndex]);
-        } else {
-            Notification.Action action = notification.actions[actionIndex];
-            Bundle actionExtras = null;
-            SparseArray<Bundle> actionExtrasMap = notification.extras.getSparseParcelableArray(
-                    NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
-            if (actionExtrasMap != null) {
-                actionExtras = actionExtrasMap.get(actionIndex);
-            }
-            return NotificationCompatJellybean.readAction(action.icon, action.title,
-                    action.actionIntent, actionExtras);
-        }
+        return getActionCompatFromAction(notification.actions[actionIndex]);
     }
 
     /**
@@ -8957,10 +9523,9 @@ public class NotificationCompat {
     }
 
     @SuppressWarnings("deprecation")
-    @RequiresApi(20)
     static @NonNull Action getActionCompatFromAction(Notification.@NonNull Action action) {
         final RemoteInput[] remoteInputs;
-        final android.app.RemoteInput[] srcArray = Api20Impl.getRemoteInputs(action);
+        final android.app.RemoteInput[] srcArray = action.getRemoteInputs();
         if (srcArray == null) {
             remoteInputs = null;
         } else {
@@ -8968,36 +9533,36 @@ public class NotificationCompat {
             for (int i = 0; i < srcArray.length; i++) {
                 android.app.RemoteInput src = srcArray[i];
                 remoteInputs[i] = new RemoteInput(
-                        Api20Impl.getResultKey(src),
-                        Api20Impl.getLabel(src),
-                        Api20Impl.getChoices(src),
-                        Api20Impl.getAllowFreeFormInput(src),
+                        src.getResultKey(),
+                        src.getLabel(),
+                        src.getChoices(),
+                        src.getAllowFreeFormInput(),
                         Build.VERSION.SDK_INT >= 29
                                 ? Api29Impl.getEditChoicesBeforeSending(src)
                                 : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
-                        Api20Impl.getExtras(src),
+                        src.getExtras(),
                         null);
             }
         }
 
         final boolean allowGeneratedReplies;
         if (Build.VERSION.SDK_INT >= 24) {
-            allowGeneratedReplies = Api20Impl.getExtras(action).getBoolean(
+            allowGeneratedReplies = action.getExtras().getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES)
                     || Api24Impl.getAllowGeneratedReplies(action);
         } else {
-            allowGeneratedReplies = Api20Impl.getExtras(action).getBoolean(
+            allowGeneratedReplies = action.getExtras().getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         }
 
         final boolean showsUserInterface =
-                Api20Impl.getExtras(action).getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
+                action.getExtras().getBoolean(Action.EXTRA_SHOWS_USER_INTERFACE, true);
 
         final @Action.SemanticAction int semanticAction;
         if (Build.VERSION.SDK_INT >= 28) {
             semanticAction = Api28Impl.getSemanticAction(action);
         } else {
-            semanticAction = Api20Impl.getExtras(action).getInt(
+            semanticAction = action.getExtras().getInt(
                     Action.EXTRA_SEMANTIC_ACTION, Action.SEMANTIC_ACTION_NONE);
         }
 
@@ -9007,28 +9572,20 @@ public class NotificationCompat {
         final boolean authRequired =
                 Build.VERSION.SDK_INT >= 31 ? Api31Impl.isAuthenticationRequired(action) : false;
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (Api23Impl.getIcon(action) == null && action.icon != 0) {
-                return new Action(action.icon, action.title, action.actionIntent,
-                        Api20Impl.getExtras(action), remoteInputs, null,
-                        allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
-                        authRequired);
-            }
-            IconCompat icon = Api23Impl.getIcon(action) == null
-                    ? null : IconCompat.createFromIconOrNullIfZeroResId(Api23Impl.getIcon(action));
-            return new Action(icon, action.title, action.actionIntent, Api20Impl.getExtras(action),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction,
-                    showsUserInterface, isContextual, authRequired);
-        } else {
+        if (action.getIcon() == null && action.icon != 0) {
             return new Action(action.icon, action.title, action.actionIntent,
-                    Api20Impl.getExtras(action),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction,
-                    showsUserInterface, isContextual, authRequired);
+                    action.getExtras(), remoteInputs, null,
+                    allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
+                    authRequired);
         }
+        IconCompat icon = action.getIcon() == null ? null
+                : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
+        return new Action(icon, action.title, action.actionIntent, action.getExtras(),
+                remoteInputs, null, allowGeneratedReplies, semanticAction,
+                showsUserInterface, isContextual, authRequired);
     }
 
     /** Returns the invisible actions contained within the given notification. */
-    @RequiresApi(21)
     public static @NonNull List<Action> getInvisibleActions(@NonNull Notification notification) {
         ArrayList<Action> result = new ArrayList<>();
         Bundle carExtenderBundle =
@@ -9095,16 +9652,27 @@ public class NotificationCompat {
     }
 
     /**
+     * Returns the very short text summarizing the most critical information contained in the
+     * notification, or null if this field was not set.
+     */
+    public static @Nullable String getShortCriticalText(@NonNull Notification notification) {
+        return notification.extras.getString(EXTRA_SHORT_CRITICAL_TEXT);
+    }
+
+    /**
+     * Returns whether this notification has requested to be a promoted ongoing notification.
+     */
+    public static boolean isRequestPromotedOngoing(@NonNull Notification notification) {
+        return notification.extras.getBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, false);
+    }
+
+    /**
      * Get the category of this notification in a backwards compatible
      * manner.
      * @param notification The notification to inspect.
      */
     public static @Nullable String getCategory(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return notification.category;
-        } else {
-            return null;
-        }
+        return notification.category;
     }
 
     /**
@@ -9114,11 +9682,7 @@ public class NotificationCompat {
      * If this hint is set, it is recommend that this notification not be bridged.
      */
     public static boolean getLocalOnly(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
-        } else {
-            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY);
-        }
+        return (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
     }
 
     /**
@@ -9126,11 +9690,7 @@ public class NotificationCompat {
      * with other notifications on devices which support such rendering.
      */
     public static @Nullable String getGroup(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return Api20Impl.getGroup(notification);
-        } else {
-            return notification.extras.getString(NotificationCompatExtras.EXTRA_GROUP_KEY);
-        }
+        return notification.getGroup();
     }
 
     /** Get the value provided to {@link Builder#setShowWhen(boolean)} */
@@ -9164,29 +9724,17 @@ public class NotificationCompat {
 
     /** Get the value provided to {@link Builder#setColor(int)} */
     public static int getColor(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return notification.color;
-        } else {
-            return COLOR_DEFAULT;
-        }
+        return notification.color;
     }
 
     /** Get the value provided to {@link Builder#setVisibility(int)} */
     public static @NotificationVisibility int getVisibility(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return notification.visibility;
-        } else {
-            return VISIBILITY_PRIVATE;
-        }
+        return notification.visibility;
     }
 
     /** Get the value provided to {@link Builder#setVisibility(int)} */
     public static @Nullable Notification getPublicVersion(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return notification.publicVersion;
-        } else {
-            return null;
-        }
+        return notification.publicVersion;
     }
 
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -9201,11 +9749,7 @@ public class NotificationCompat {
      * @return Whether this notification is a group summary.
      */
     public static boolean isGroupSummary(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return (notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
-        } else {
-            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
-        }
+        return (notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
     }
 
     /**
@@ -9221,11 +9765,7 @@ public class NotificationCompat {
      * @see String#compareTo(String)
      */
     public static @Nullable String getSortKey(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 20) {
-            return Api20Impl.getSortKey(notification);
-        } else {
-            return notification.extras.getString(NotificationCompatExtras.EXTRA_SORT_KEY);
-        }
+        return notification.getSortKey();
     }
 
     /**
@@ -9360,70 +9900,42 @@ public class NotificationCompat {
                 true /* filtered */);
     }
 
+    /**
+     * Returns whether the notification has any promotable characteristics.
+     *
+     * <p>This is a wrapper around {@link Notification#hasPromotableCharacteristics()}.
+     */
+    public static boolean hasPromotableCharacteristics(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.hasPromotableCharacteristics(notification);
+        } else {
+            return false;
+        }
+    }
+
+    static boolean isSilent(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            if (NotificationCompat.GROUP_KEY_SILENT.equals(notification.getGroup())) {
+                return true;
+            }
+
+            if (isGroupSummary(notification)) {
+                return getGroupAlertBehavior(notification) == GROUP_ALERT_CHILDREN;
+            } else {
+                return getGroupAlertBehavior(notification) == GROUP_ALERT_SUMMARY;
+            }
+        } else {
+            return ((notification.defaults & DEFAULT_SOUND) == 0
+                    && (notification.defaults & DEFAULT_VIBRATE) == 0
+                    && notification.vibrate == null
+                    && notification.sound == null);
+        }
+    }
+
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
     @SuppressWarnings("PrivateConstructorForUtilityClass")
     public NotificationCompat() {
-    }
-
-    /**
-     * A class for wrapping calls to {@link Notification} methods which
-     * were added in API 20; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(20)
-    static class Api20Impl {
-        private Api20Impl() { }
-
-        static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
-            return remoteInput.getAllowFreeFormInput();
-        }
-
-        static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
-            return remoteInput.getChoices();
-        }
-
-        static CharSequence getLabel(android.app.RemoteInput remoteInput) {
-            return remoteInput.getLabel();
-        }
-
-        static String getResultKey(android.app.RemoteInput remoteInput) {
-            return remoteInput.getResultKey();
-        }
-
-        static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
-            return action.getRemoteInputs();
-        }
-
-        static String getSortKey(Notification notification) {
-            return notification.getSortKey();
-        }
-
-        static String getGroup(Notification notification) {
-            return notification.getGroup();
-        }
-
-        static Bundle getExtras(Notification.Action action) {
-            return action.getExtras();
-        }
-
-        static Bundle getExtras(android.app.RemoteInput remoteInput) {
-            return remoteInput.getExtras();
-        }
-    }
-
-    /**
-     * A class for wrapping calls to {@link Notification} methods which
-     * were added in API 23; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() { }
-
-        static Icon getIcon(Notification.Action action) {
-            return action.getIcon();
-        }
     }
 
     /**
@@ -9530,6 +10042,21 @@ public class NotificationCompat {
 
         static boolean isAuthenticationRequired(Notification.Action action) {
             return action.isAuthenticationRequired();
+        }
+
+    }
+
+    /**
+     * A class for wrapping calls to {@link Notification} methods which
+     * were added in API 36; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(36)
+    static class Api36Impl {
+        private Api36Impl() { }
+
+        static boolean hasPromotableCharacteristics(@NonNull Notification notification) {
+            return notification.hasPromotableCharacteristics();
         }
 
     }

@@ -84,135 +84,135 @@ fun IconToggleButtonDemo() {
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 IconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.ExtraLargeButtonSize
+                    size = IconToggleButtonDefaults.ExtraLargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 IconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.LargeButtonSize
+                    size = IconToggleButtonDefaults.LargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 IconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.DefaultButtonSize
+                    size = IconToggleButtonDefaults.Size,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.SmallButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.SmallSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 IconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.SmallButtonSize
+                    size = IconToggleButtonDefaults.SmallSize,
                 )
             }
         }
         item { ListHeader { Text("Sizes Shape morphing") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.ExtraLargeButtonSize,
+                    size = IconToggleButtonDefaults.ExtraLargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.LargeButtonSize,
+                    size = IconToggleButtonDefaults.LargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.DefaultButtonSize,
+                    size = IconToggleButtonDefaults.Size,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.SmallButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.SmallSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 AnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.SmallButtonSize,
+                    size = IconToggleButtonDefaults.SmallSize,
                 )
             }
         }
         item { ListHeader { Text("Sizes Shape morphing variant") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.ExtraLargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.ExtraLargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.ExtraLargeButtonSize,
+                    size = IconToggleButtonDefaults.ExtraLargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.LargeButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.LargeSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.LargeButtonSize,
+                    size = IconToggleButtonDefaults.LargeSize,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.DefaultButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.Size.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.DefaultButtonSize,
+                    size = IconToggleButtonDefaults.Size,
                 )
             }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${IconToggleButtonDefaults.SmallButtonSize.value.toInt()}dp")
+                Text("${IconToggleButtonDefaults.SmallSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 VariantAnimatedIconToggleButtonsDemo(
                     enabled = true,
                     initialChecked = true,
-                    size = IconToggleButtonDefaults.SmallButtonSize,
+                    size = IconToggleButtonDefaults.SmallSize,
                 )
             }
         }
@@ -223,14 +223,14 @@ fun IconToggleButtonDemo() {
 private fun IconToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = IconToggleButtonDefaults.DefaultButtonSize
+    size: Dp = IconToggleButtonDefaults.Size,
 ) {
     var checked by remember { mutableStateOf(initialChecked) }
     IconToggleButton(
         checked = checked,
         enabled = enabled,
         modifier = Modifier.touchTargetAwareSize(size),
-        onCheckedChange = { checked = !checked }
+        onCheckedChange = { checked = !checked },
     ) {
         if (checked) {
             WifiOnIcon(Modifier.size(IconToggleButtonDefaults.iconSizeFor(size)))
@@ -244,7 +244,7 @@ private fun IconToggleButtonsDemo(
 private fun AnimatedIconToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = IconToggleButtonDefaults.DefaultButtonSize
+    size: Dp = IconToggleButtonDefaults.Size,
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
     IconToggleButton(
@@ -266,7 +266,7 @@ private fun AnimatedIconToggleButtonsDemo(
 private fun VariantAnimatedIconToggleButtonsDemo(
     enabled: Boolean,
     initialChecked: Boolean,
-    size: Dp = IconToggleButtonDefaults.DefaultButtonSize
+    size: Dp = IconToggleButtonDefaults.Size,
 ) {
     val checked = remember { mutableStateOf(initialChecked) }
     IconToggleButton(

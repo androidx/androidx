@@ -41,7 +41,7 @@ internal fun AggregateGroupByPeriodRequest.withFilteredMetrics(
         metrics.filter(predicate).toSet(),
         timeRangeFilter,
         timeRangeSlicer,
-        dataOriginFilter
+        dataOriginFilter,
     )
 
 internal fun AggregateGroupByDurationRequest.withFilteredMetrics(
@@ -51,7 +51,7 @@ internal fun AggregateGroupByDurationRequest.withFilteredMetrics(
         metrics.filter(predicate).toSet(),
         timeRangeFilter,
         timeRangeSlicer,
-        dataOriginFilter
+        dataOriginFilter,
     )
 
 // Only check against aggregate metrics added in sdk extension 10, to address b/326414908
@@ -81,5 +81,5 @@ internal val AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10: Set<AggregateMetric<*>> =
         SpeedRecord.SPEED_MIN,
         StepsCadenceRecord.RATE_AVG,
         StepsCadenceRecord.RATE_MAX,
-        StepsCadenceRecord.RATE_MIN
+        StepsCadenceRecord.RATE_MIN,
     )

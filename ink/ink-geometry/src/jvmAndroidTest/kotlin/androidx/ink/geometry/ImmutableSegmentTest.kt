@@ -80,9 +80,9 @@ class ImmutableSegmentTest {
     }
 
     @Test
-    fun asImmutable_withSameValues_returnsSelf() {
+    fun toImmutable_withSameValues_returnsSelf() {
         val segment = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 2f))
-        val output = segment.asImmutable()
+        val output = segment.toImmutable()
 
         assertThat(output).isSameInstanceAs(segment)
     }

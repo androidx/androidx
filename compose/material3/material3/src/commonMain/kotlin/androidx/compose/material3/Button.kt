@@ -31,8 +31,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -68,16 +66,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design button</a>.
+ * [Material Design button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post.
@@ -149,7 +146,7 @@ fun Button(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -165,21 +162,21 @@ fun Button(
         contentColor = contentColor,
         shadowElevation = shadowElevation,
         border = border,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ProvideContentColorTextStyle(
             contentColor = contentColor,
-            textStyle = MaterialTheme.typography.labelLarge
+            textStyle = MaterialTheme.typography.labelLarge,
         ) {
             Row(
                 Modifier.defaultMinSize(
                         minWidth = ButtonDefaults.MinWidth,
-                        minHeight = ButtonDefaults.MinHeight
+                        minHeight = ButtonDefaults.MinHeight,
                     )
                     .padding(contentPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                content = content
+                content = content,
             )
         }
     }
@@ -187,8 +184,7 @@ fun Button(
 
 // TODO add link to image of pressed button
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design button</a>.
+ * [Material Design button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post. It also morphs between the shapes provided in [shapes] depending on the state of the
@@ -245,9 +241,9 @@ fun Button(
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
     border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -259,7 +255,6 @@ fun Button(
     val containerColor = colors.containerColor(enabled)
     val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val layoutDirection = LocalLayoutDirection.current
     val buttonShape = shapeByInteraction(shapes, pressed, defaultAnimationSpec)
 
     Surface(
@@ -271,54 +266,28 @@ fun Button(
         contentColor = contentColor,
         shadowElevation = shadowElevation,
         border = border,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ProvideContentColorTextStyle(
             contentColor = contentColor,
-            textStyle = MaterialTheme.typography.labelLarge
+            textStyle = MaterialTheme.typography.labelLarge,
         ) {
             Row(
                 Modifier.defaultMinSize(
                         minWidth = ButtonDefaults.MinWidth,
-                        minHeight = ButtonDefaults.MinHeight
-                    )
-                    .then(
-                        when (buttonShape) {
-                            is ShapeWithHorizontalCenterOptically -> {
-                                Modifier.horizontalCenterOptically(
-                                    shape = buttonShape,
-                                    maxStartOffset =
-                                        contentPadding.calculateStartPadding(layoutDirection),
-                                    maxEndOffset =
-                                        contentPadding.calculateEndPadding(layoutDirection)
-                                )
-                            }
-                            is CornerBasedShape -> {
-                                Modifier.horizontalCenterOptically(
-                                    shape = buttonShape,
-                                    maxStartOffset =
-                                        contentPadding.calculateStartPadding(layoutDirection),
-                                    maxEndOffset =
-                                        contentPadding.calculateEndPadding(layoutDirection)
-                                )
-                            }
-                            else -> {
-                                Modifier
-                            }
-                        }
+                        minHeight = ButtonDefaults.MinHeight,
                     )
                     .padding(contentPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                content = content
+                content = content,
             )
         }
     }
 }
 
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design elevated button</a>.
+ * [Material Design elevated button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post.
@@ -374,7 +343,7 @@ fun ElevatedButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -386,13 +355,12 @@ fun ElevatedButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 // TODO add link to image of pressed elevated button
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design elevated button</a>.
+ * [Material Design elevated button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post. It also morphs between the shapes provided in [shapes] depending on the state of the
@@ -450,9 +418,9 @@ fun ElevatedButton(
     colors: ButtonColors = ButtonDefaults.elevatedButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.elevatedButtonElevation(),
     border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -464,12 +432,11 @@ fun ElevatedButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design filled tonal button</a>.
+ * [Material Design filled tonal button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post.
@@ -526,7 +493,7 @@ fun FilledTonalButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -538,13 +505,12 @@ fun FilledTonalButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 // TODO add link to image of pressed filled tonal button
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design filled tonal button</a>.
+ * [Material Design filled tonal button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post. It also morphs between the shapes provided in [shapes] depending on the state of the
@@ -603,9 +569,9 @@ fun FilledTonalButton(
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     elevation: ButtonElevation? = ButtonDefaults.filledTonalButtonElevation(),
     border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -617,12 +583,11 @@ fun FilledTonalButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design outlined button</a>.
+ * [Material Design outlined button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post.
@@ -678,7 +643,7 @@ fun OutlinedButton(
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -690,13 +655,12 @@ fun OutlinedButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 // TODO add link to image of pressed outlined button
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design outlined button</a>.
+ * [Material Design outlined button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post. It also morphs between the shapes provided in [shapes] depending on the state of the
@@ -754,9 +718,9 @@ fun OutlinedButton(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
-    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    contentPadding: PaddingValues = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -768,12 +732,11 @@ fun OutlinedButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design text button</a>.
+ * [Material Design text button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post.
@@ -830,7 +793,7 @@ fun TextButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -842,13 +805,12 @@ fun TextButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 // TODO add link to image of pressed text button
 /**
- * <a href="https://m3.material.io/components/buttons/overview" class="external"
- * target="_blank">Material Design text button</a>.
+ * [Material Design text button](https://m3.material.io/components/buttons/overview)
  *
  * Buttons help people initiate actions, from sending an email, to sharing a document, to liking a
  * post. It also morphs between the shapes provided in [shapes] depending on the state of the
@@ -909,7 +871,7 @@ fun TextButton(
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -921,7 +883,7 @@ fun TextButton(
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 
 // TODO(b/201341237): Use token values for 0 elevation?
@@ -948,8 +910,8 @@ object ButtonDefaults {
     private val ButtonLeadingSpace = BaselineButtonTokens.LeadingSpace
     private val ButtonTrailingSpace = BaselineButtonTokens.TrailingSpace
     private val ButtonWithIconStartpadding = 16.dp
-    private val SmallButtonStartPadding = ButtonSmallTokens.LeadingSpace
-    private val SmallButtonEndPadding = ButtonSmallTokens.TrailingSpace
+    private val SmallStartPadding = ButtonSmallTokens.LeadingSpace
+    private val SmallEndPadding = ButtonSmallTokens.TrailingSpace
     private val ButtonVerticalPadding = 8.dp
 
     /**
@@ -965,7 +927,7 @@ object ButtonDefaults {
             start = ButtonLeadingSpace,
             top = ButtonVerticalPadding,
             end = ButtonTrailingSpace,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /** The default content padding used by [Button] that contains an [Icon]. */
@@ -974,30 +936,42 @@ object ButtonDefaults {
             start = ButtonWithIconStartpadding,
             top = ButtonVerticalPadding,
             end = ButtonTrailingSpace,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /** The default content padding used for small [Button] */
+    @Deprecated("For binary compatibility", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3ExpressiveApi
     val SmallButtonContentPadding
         get() =
             PaddingValues(
-                start = SmallButtonStartPadding,
+                start = SmallStartPadding,
                 top = ButtonVerticalPadding,
-                end = SmallButtonEndPadding,
-                bottom = ButtonVerticalPadding
+                end = SmallEndPadding,
+                bottom = ButtonVerticalPadding,
+            )
+
+    /** The default content padding used for small [Button] */
+    @ExperimentalMaterial3ExpressiveApi
+    val SmallContentPadding
+        get() =
+            PaddingValues(
+                start = SmallStartPadding,
+                top = ButtonVerticalPadding,
+                end = SmallEndPadding,
+                bottom = ButtonVerticalPadding,
             )
 
     /** Default content padding for an extra small button. */
     @ExperimentalMaterial3ExpressiveApi
-    val XSmallContentPadding
+    val ExtraSmallContentPadding
         get() =
             PaddingValues(
                 // TODO update with the value from ButtonXSmallTokens.kt once it's been corrected
                 start = 12.dp,
                 end = 12.dp,
                 top = 6.dp,
-                bottom = 6.dp
+                bottom = 6.dp,
             )
 
     /** Default content padding for a medium button. */
@@ -1008,7 +982,7 @@ object ButtonDefaults {
                 start = ButtonMediumTokens.LeadingSpace,
                 end = ButtonMediumTokens.TrailingSpace,
                 top = 16.dp,
-                bottom = 16.dp
+                bottom = 16.dp,
             )
 
     /** Default content padding for a large button. */
@@ -1019,18 +993,18 @@ object ButtonDefaults {
                 start = ButtonLargeTokens.LeadingSpace,
                 end = ButtonLargeTokens.TrailingSpace,
                 top = 32.dp,
-                bottom = 32.dp
+                bottom = 32.dp,
             )
 
     /** Default content padding for an extra large button. */
     @ExperimentalMaterial3ExpressiveApi
-    val XLargeContentPadding
+    val ExtraLargeContentPadding
         get() =
             PaddingValues(
                 start = ButtonXLargeTokens.LeadingSpace,
                 end = ButtonXLargeTokens.TrailingSpace,
                 top = 48.dp,
-                bottom = 48.dp
+                bottom = 48.dp,
             )
 
     private val TextButtonHorizontalPadding = 12.dp
@@ -1045,7 +1019,7 @@ object ButtonDefaults {
             start = TextButtonHorizontalPadding,
             top = ContentPadding.calculateTopPadding(),
             end = TextButtonHorizontalPadding,
-            bottom = ContentPadding.calculateBottomPadding()
+            bottom = ContentPadding.calculateBottomPadding(),
         )
 
     private val TextButtonWithIconHorizontalEndPadding = 16.dp
@@ -1056,7 +1030,7 @@ object ButtonDefaults {
             start = TextButtonHorizontalPadding,
             top = ContentPadding.calculateTopPadding(),
             end = TextButtonWithIconHorizontalEndPadding,
-            bottom = ContentPadding.calculateBottomPadding()
+            bottom = ContentPadding.calculateBottomPadding(),
         )
 
     /**
@@ -1072,56 +1046,38 @@ object ButtonDefaults {
     val MinHeight = ButtonSmallTokens.ContainerHeight
 
     /** The default height for a extra small button container. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
-    val XSmallContainerHeight = ButtonXSmallTokens.ContainerHeight
+    val ExtraSmallContainerHeight = ButtonXSmallTokens.ContainerHeight
 
     /** The default height for a medium button container. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val MediumContainerHeight = ButtonMediumTokens.ContainerHeight
 
     /** The default height for a large button container. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeContainerHeight = ButtonLargeTokens.ContainerHeight
+    @ExperimentalMaterial3ExpressiveApi val LargeContainerHeight = ButtonLargeTokens.ContainerHeight
 
     /** The default height for a extra large button container. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
-    val XLargeContainerHeight = ButtonXLargeTokens.ContainerHeight
+    val ExtraLargeContainerHeight = ButtonXLargeTokens.ContainerHeight
 
     /** The default size of the icon when used inside a small button. */
     // TODO update with the correct value in BaselineButtonTokens when available
     val IconSize = 18.dp
 
     /** The default size of the icon used inside of a extra small button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val XSmallIconSize = ButtonXSmallTokens.IconSize
+    @ExperimentalMaterial3ExpressiveApi val ExtraSmallIconSize = ButtonXSmallTokens.IconSize
+
+    /** The expressive size of the icon used inside a small button. */
+    @ExperimentalMaterial3ExpressiveApi val SmallIconSize = ButtonSmallTokens.IconSize
 
     /** The default size of the icon used inside of a medium button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val MediumIconSize = ButtonMediumTokens.IconSize
+    @ExperimentalMaterial3ExpressiveApi val MediumIconSize = ButtonMediumTokens.IconSize
 
     /** The default size of the icon used inside of a large button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSize = ButtonLargeTokens.IconSize
+    @ExperimentalMaterial3ExpressiveApi val LargeIconSize = ButtonLargeTokens.IconSize
 
     /** The default size of the icon used inside of a extra large button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val XLargeIconSize = ButtonXLargeTokens.IconSize
+    @ExperimentalMaterial3ExpressiveApi val ExtraLargeIconSize = ButtonXLargeTokens.IconSize
 
     /**
      * The default size of the spacing between an icon and a text when they used inside a small
@@ -1133,44 +1089,49 @@ object ButtonDefaults {
      * The default spacing between an icon and a text when they used inside any extra small button.
      */
     // TODO use the value from ButtonXSmallTokens.kt once it's been corrected
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val XSmallIconSpacing = 4.dp
+    @ExperimentalMaterial3ExpressiveApi val ExtraSmallIconSpacing = 4.dp
 
     /** The default spacing between an icon and a text when they used inside any medium button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
+    @ExperimentalMaterial3ExpressiveApi val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
 
     /** The default spacing between an icon and a text when they used inside any large button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val LargeIconSpacing = ButtonLargeTokens.IconLabelSpace
+    @ExperimentalMaterial3ExpressiveApi val LargeIconSpacing = ButtonLargeTokens.IconLabelSpace
 
     /**
      * The default spacing between an icon and a text when they used inside any extra large button.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
-    val XLargeIconSpacing = ButtonXLargeTokens.IconLabelSpace
+    val ExtraLargeIconSpacing = ButtonXLargeTokens.IconLabelSpace
 
     /** Square shape for default buttons. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val squareShape: Shape
         @Composable get() = ButtonSmallTokens.ContainerShapeSquare.value
 
     /** Pressed shape for default buttons. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val pressedShape: Shape
         @Composable get() = ButtonSmallTokens.PressedContainerShape.value
+
+    /** Pressed shape for extra small buttons. */
+    @ExperimentalMaterial3ExpressiveApi
+    val extraSmallPressedShape: Shape
+        @Composable get() = ButtonXSmallTokens.PressedContainerShape.value
+
+    /** Pressed shape for medium buttons. */
+    @ExperimentalMaterial3ExpressiveApi
+    val mediumPressedShape: Shape
+        @Composable get() = ButtonMediumTokens.PressedContainerShape.value
+
+    /** Pressed shape for large buttons. */
+    @ExperimentalMaterial3ExpressiveApi
+    val largePressedShape: Shape
+        @Composable get() = ButtonLargeTokens.PressedContainerShape.value
+
+    /** Pressed shape for extra large buttons. */
+    @ExperimentalMaterial3ExpressiveApi
+    val extraLargePressedShape: Shape
+        @Composable get() = ButtonXLargeTokens.PressedContainerShape.value
 
     /** Default shape for a button. */
     val shape: Shape
@@ -1200,14 +1161,27 @@ object ButtonDefaults {
     @Composable
     fun shapes() = MaterialTheme.shapes.defaultButtonShapes
 
+    /**
+     * Creates a [ButtonShapes] that represents the default shape and pressedShape used in a
+     * [Button] and its variants.
+     *
+     * @param shape the unchecked shape for [ButtonShapes]
+     * @param pressedShape the unchecked shape for [ButtonShapes]
+     */
+    @Composable
+    @ExperimentalMaterial3ExpressiveApi
+    fun shapes(shape: Shape? = null, pressedShape: Shape? = null): ButtonShapes =
+        MaterialTheme.shapes.defaultButtonShapes.copy(shape = shape, pressedShape = pressedShape)
+
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal val Shapes.defaultButtonShapes: ButtonShapes
-        @Composable
         get() {
             return defaultButtonShapesCached
-                ?: ButtonShapes(shape = shape, pressedShape = pressedShape).also {
-                    defaultButtonShapesCached = it
-                }
+                ?: ButtonShapes(
+                        shape = fromToken(ButtonSmallTokens.ContainerShapeRound),
+                        pressedShape = fromToken(ButtonSmallTokens.PressedContainerShape),
+                    )
+                    .also { defaultButtonShapesCached = it }
         }
 
     /**
@@ -1236,7 +1210,7 @@ object ButtonDefaults {
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     internal val ColorScheme.defaultButtonColors: ButtonColors
@@ -1250,7 +1224,7 @@ object ButtonDefaults {
                                 .copy(alpha = FilledButtonTokens.DisabledContainerOpacity),
                         disabledContentColor =
                             fromToken(FilledButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = FilledButtonTokens.DisabledLabelTextOpacity)
+                                .copy(alpha = FilledButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultButtonColorsCached = it }
         }
@@ -1281,7 +1255,7 @@ object ButtonDefaults {
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     internal val ColorScheme.defaultElevatedButtonColors: ButtonColors
@@ -1295,7 +1269,7 @@ object ButtonDefaults {
                                 .copy(alpha = ElevatedButtonTokens.DisabledContainerOpacity),
                         disabledContentColor =
                             fromToken(ElevatedButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = ElevatedButtonTokens.DisabledLabelTextOpacity)
+                                .copy(alpha = ElevatedButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultElevatedButtonColorsCached = it }
         }
@@ -1328,7 +1302,7 @@ object ButtonDefaults {
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     internal val ColorScheme.defaultFilledTonalButtonColors: ButtonColors
@@ -1342,7 +1316,7 @@ object ButtonDefaults {
                                 .copy(alpha = FilledTonalButtonTokens.DisabledContainerOpacity),
                         disabledContentColor =
                             fromToken(FilledTonalButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity)
+                                .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultFilledTonalButtonColorsCached = it }
         }
@@ -1373,7 +1347,7 @@ object ButtonDefaults {
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     internal val ColorScheme.defaultOutlinedButtonColors: ButtonColors
@@ -1385,7 +1359,7 @@ object ButtonDefaults {
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
                             fromToken(OutlinedButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = OutlinedButtonTokens.DisabledLabelTextOpacity)
+                                .copy(alpha = OutlinedButtonTokens.DisabledLabelTextOpacity),
                     )
                     .also { defaultOutlinedButtonColorsCached = it }
         }
@@ -1416,7 +1390,7 @@ object ButtonDefaults {
             containerColor = containerColor,
             contentColor = contentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     internal val ColorScheme.defaultTextButtonColors: ButtonColors
@@ -1429,7 +1403,7 @@ object ButtonDefaults {
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
                             fromToken(TextButtonTokens.DisabledLabelColor)
-                                .copy(alpha = TextButtonTokens.DisabledLabelOpacity)
+                                .copy(alpha = TextButtonTokens.DisabledLabelOpacity),
                     )
                     .also { defaultTextButtonColorsCached = it }
         }
@@ -1478,14 +1452,14 @@ object ButtonDefaults {
         pressedElevation: Dp = ElevatedButtonTokens.PressedContainerElevation,
         focusedElevation: Dp = ElevatedButtonTokens.FocusedContainerElevation,
         hoveredElevation: Dp = ElevatedButtonTokens.HoveredContainerElevation,
-        disabledElevation: Dp = ElevatedButtonTokens.DisabledContainerElevation
+        disabledElevation: Dp = ElevatedButtonTokens.DisabledContainerElevation,
     ): ButtonElevation =
         ButtonElevation(
             defaultElevation = defaultElevation,
             pressedElevation = pressedElevation,
             focusedElevation = focusedElevation,
             hoveredElevation = hoveredElevation,
-            disabledElevation = disabledElevation
+            disabledElevation = disabledElevation,
         )
 
     /**
@@ -1508,14 +1482,14 @@ object ButtonDefaults {
         pressedElevation: Dp = FilledTonalButtonTokens.PressedContainerElevation,
         focusedElevation: Dp = FilledTonalButtonTokens.FocusContainerElevation,
         hoveredElevation: Dp = FilledTonalButtonTokens.HoverContainerElevation,
-        disabledElevation: Dp = 0.dp
+        disabledElevation: Dp = 0.dp,
     ): ButtonElevation =
         ButtonElevation(
             defaultElevation = defaultElevation,
             pressedElevation = pressedElevation,
             focusedElevation = focusedElevation,
             hoveredElevation = hoveredElevation,
-            disabledElevation = disabledElevation
+            disabledElevation = disabledElevation,
         )
 
     /** The default [BorderStroke] used by [OutlinedButton]. */
@@ -1525,7 +1499,7 @@ object ButtonDefaults {
             message =
                 "Please use the version that takes an `enabled` param to get the " +
                     "`BorderStroke` with the correct opacity",
-            replaceWith = ReplaceWith("outlinedButtonBorder(enabled)")
+            replaceWith = ReplaceWith("outlinedButtonBorder(enabled)"),
         )
         get() =
             BorderStroke(
@@ -1549,8 +1523,112 @@ object ButtonDefaults {
                     OutlinedButtonTokens.OutlineColor.value.copy(
                         alpha = OutlinedButtonTokens.DisabledContainerOpacity
                     )
-                }
+                },
         )
+
+    /**
+     * Recommended [ButtonShapes] for a provided button height.
+     *
+     * @param buttonHeight The height of the button
+     */
+    @Composable
+    @ExperimentalMaterial3ExpressiveApi
+    fun shapesFor(buttonHeight: Dp): ButtonShapes {
+        val xSmallHeight = ExtraSmallContainerHeight
+        val smallHeight = MinHeight
+        val mediumHeight = MediumContainerHeight
+        val largeHeight = LargeContainerHeight
+        val xLargeHeight = ExtraLargeContainerHeight
+        return when {
+            buttonHeight <= (xSmallHeight + smallHeight) / 2 ->
+                shapes(shape = shape, pressedShape = extraSmallPressedShape)
+            buttonHeight <= (smallHeight + mediumHeight) / 2 -> shapes()
+            buttonHeight <= (mediumHeight + largeHeight) / 2 ->
+                shapes(shape = shape, pressedShape = mediumPressedShape)
+            buttonHeight <= (largeHeight + xLargeHeight) / 2 ->
+                shapes(shape = shape, pressedShape = largePressedShape)
+            else -> shapes(shape = shape, pressedShape = extraLargePressedShape)
+        }
+    }
+
+    /**
+     * Recommended [PaddingValues] for a provided button height.
+     *
+     * @param buttonHeight The height of the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun contentPaddingFor(buttonHeight: Dp): PaddingValues {
+        val smallHeight = MinHeight
+        val mediumHeight = MediumContainerHeight
+        val largeHeight = LargeContainerHeight
+        val xLargeHeight = ExtraLargeContainerHeight
+        return when {
+            buttonHeight < smallHeight -> ExtraSmallContentPadding
+            buttonHeight < mediumHeight -> SmallContentPadding
+            buttonHeight < largeHeight -> MediumContentPadding
+            buttonHeight < xLargeHeight -> LargeContentPadding
+            else -> ExtraLargeContentPadding
+        }
+    }
+
+    /**
+     * Recommended Icon size for a provided button height.
+     *
+     * @param buttonHeight The height of the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun iconSizeFor(buttonHeight: Dp): Dp {
+        val smallHeight = MinHeight
+        val mediumHeight = MediumContainerHeight
+        val largeHeight = LargeContainerHeight
+        val xLargeHeight = ExtraLargeContainerHeight
+        return when {
+            buttonHeight < smallHeight -> ExtraSmallIconSize
+            buttonHeight < mediumHeight -> SmallIconSize
+            buttonHeight < largeHeight -> MediumIconSize
+            buttonHeight < xLargeHeight -> LargeIconSize
+            else -> ExtraLargeIconSize
+        }
+    }
+
+    /**
+     * Recommended spacing after an [Icon] for a provided button height.
+     *
+     * @param buttonHeight The height of the button
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    fun iconSpacingFor(buttonHeight: Dp): Dp {
+        val smallHeight = MinHeight
+        val mediumHeight = MediumContainerHeight
+        val largeHeight = LargeContainerHeight
+        val xLargeHeight = ExtraLargeContainerHeight
+        return when {
+            buttonHeight < smallHeight -> ExtraSmallIconSpacing
+            buttonHeight < mediumHeight -> IconSpacing
+            buttonHeight < largeHeight -> MediumIconSpacing
+            buttonHeight < xLargeHeight -> LargeIconSpacing
+            else -> ExtraLargeIconSpacing
+        }
+    }
+
+    /**
+     * Recommended [TextStyle] for a [Text] provided a button height.
+     *
+     * @param buttonHeight The height of the button
+     */
+    @Composable
+    @ExperimentalMaterial3ExpressiveApi
+    fun textStyleFor(buttonHeight: Dp): TextStyle {
+        val mediumHeight = MediumContainerHeight
+        val largeHeight = LargeContainerHeight
+        val xLargeHeight = ExtraLargeContainerHeight
+        return when {
+            buttonHeight < mediumHeight -> MaterialTheme.typography.labelLarge
+            buttonHeight < largeHeight -> MaterialTheme.typography.titleMedium
+            buttonHeight < xLargeHeight -> MaterialTheme.typography.headlineSmall
+            else -> MaterialTheme.typography.headlineLarge
+        }
+    }
 }
 
 /**
@@ -1580,7 +1658,7 @@ internal constructor(
     @Composable
     internal fun shadowElevation(
         enabled: Boolean,
-        interactionSource: InteractionSource
+        interactionSource: InteractionSource,
     ): State<Dp> {
         return animateElevation(enabled = enabled, interactionSource = interactionSource)
     }
@@ -1588,7 +1666,7 @@ internal constructor(
     @Composable
     private fun animateElevation(
         enabled: Boolean,
-        interactionSource: InteractionSource
+        interactionSource: InteractionSource,
     ): State<Dp> {
         val interactions = remember { mutableStateListOf<Interaction>() }
         LaunchedEffect(interactionSource) {
@@ -1651,7 +1729,7 @@ internal constructor(
                     animatable.animateElevation(
                         from = lastInteraction,
                         to = interaction,
-                        target = target
+                        target = target,
                     )
                 }
             }
@@ -1711,7 +1789,7 @@ constructor(
         containerColor: Color = this.containerColor,
         contentColor: Color = this.contentColor,
         disabledContainerColor: Color = this.disabledContainerColor,
-        disabledContentColor: Color = this.disabledContentColor
+        disabledContentColor: Color = this.disabledContentColor,
     ) =
         ButtonColors(
             containerColor.takeOrElse { this.containerColor },
@@ -1770,13 +1848,10 @@ constructor(
 @Immutable
 class ButtonShapes(val shape: Shape, val pressedShape: Shape) {
     /** Returns a copy of this ButtonShapes, optionally overriding some of the values. */
-    fun copy(
-        shape: Shape? = this.shape,
-        pressedShape: Shape? = this.pressedShape,
-    ) =
+    fun copy(shape: Shape? = this.shape, pressedShape: Shape? = this.pressedShape) =
         ButtonShapes(
             shape = shape.takeOrElse { this.shape },
-            pressedShape = pressedShape.takeOrElse { this.pressedShape }
+            pressedShape = pressedShape.takeOrElse { this.pressedShape },
         )
 
     internal fun Shape?.takeOrElse(block: () -> Shape): Shape = this ?: block()
@@ -1808,7 +1883,7 @@ internal val ButtonShapes.hasRoundedCornerShapes: Boolean
 private fun shapeByInteraction(
     shapes: ButtonShapes,
     pressed: Boolean,
-    animationSpec: FiniteAnimationSpec<Float>
+    animationSpec: FiniteAnimationSpec<Float>,
 ): Shape {
     val shape =
         if (pressed) {
@@ -1818,12 +1893,7 @@ private fun shapeByInteraction(
         }
 
     if (shapes.hasRoundedCornerShapes)
-        return key(shapes) {
-            rememberAnimatedShape(
-                shape as RoundedCornerShape,
-                animationSpec,
-            )
-        }
+        return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
 
     return shape
 }

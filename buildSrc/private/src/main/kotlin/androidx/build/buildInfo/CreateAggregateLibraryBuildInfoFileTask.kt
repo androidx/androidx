@@ -16,6 +16,7 @@
 
 package androidx.build.buildInfo
 
+import androidx.build.AGGREGATE_BUILD_INFO_FILE_NAME
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
 import androidx.build.getDistributionDirectory
 import androidx.build.jetpad.LibraryBuildInfoFile
@@ -23,6 +24,7 @@ import com.google.gson.Gson
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -41,13 +43,7 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
     /** List of each build_info.txt file for each project. */
     @get:Input abstract val libraryBuildInfoFiles: ListProperty<File>
 
-    @OutputFile
-    val outputFile =
-        File(project.getDistributionDirectory(), getAndroidxAggregateBuildInfoFilename())
-
-    private fun getAndroidxAggregateBuildInfoFilename(): String {
-        return "androidx_aggregate_build_info.txt"
-    }
+    @get:OutputFile abstract val outputFileProvider: RegularFileProperty
 
     private data class AllLibraryBuildInfoFiles(val artifacts: ArrayList<LibraryBuildInfoFile>)
 
@@ -81,6 +77,7 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
         val output = StringBuilder()
         output.append("{ \"artifacts\": [\n")
         val artifactList = mutableListOf<String>()
+        val outputFile = outputFileProvider.get().asFile
         for (infoFile in libraryBuildInfoFiles.get()) {
             if (
                 (infoFile.isFile and (infoFile.name != outputFile.name)) and
@@ -106,10 +103,13 @@ abstract class CreateAggregateLibraryBuildInfoFileTask : DefaultTask() {
 }
 
 fun Project.addTaskToAggregateBuildInfoFileTask(task: Provider<CreateLibraryBuildInfoFileTask>) {
-    rootProject.tasks.named(CREATE_AGGREGATE_BUILD_INFO_FILES_TASK).configure {
+    rootProject.tasks.named(CREATE_AGGREGATE_BUILD_INFO_FILES_TASK).configure { it ->
         val aggregateLibraryBuildInfoFileTask = it as CreateAggregateLibraryBuildInfoFileTask
         aggregateLibraryBuildInfoFileTask.libraryBuildInfoFiles.add(
             task.flatMap { task -> task.outputFile.asFile }
+        )
+        aggregateLibraryBuildInfoFileTask.outputFileProvider.set(
+            project.getDistributionDirectory().file(AGGREGATE_BUILD_INFO_FILE_NAME)
         )
     }
 }

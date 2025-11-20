@@ -53,5 +53,5 @@ internal fun Modifier.bringIntoViewIfChildrenAreFocused(): Modifier =
                         }
                     }
                 )
-        }
+        },
     )

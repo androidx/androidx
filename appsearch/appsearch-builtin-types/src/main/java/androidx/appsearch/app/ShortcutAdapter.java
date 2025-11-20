@@ -37,7 +37,6 @@ import org.jspecify.annotations.Nullable;
 /**
  * Util methods for Document <-> shortcut conversion.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @ExperimentalAppSearchApi
 public class ShortcutAdapter {
 

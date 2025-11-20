@@ -16,11 +16,16 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.room.compiler.processing.compat.XConverters.toJavac;
+
+import androidx.room.compiler.processing.XArrayType;
+import androidx.room.compiler.processing.XProcessingEnv;
+import androidx.room.compiler.processing.XType;
+
 import com.squareup.javapoet.CodeBlock;
 
 import org.jspecify.annotations.NonNull;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -40,11 +45,11 @@ final class CodegenUtils {
      * For example, given component type is {@code byte[]} returns {@code new byte[size][]}.
      */
     static CodeBlock createNewArrayExpr(
-            @NonNull TypeMirror componentType,
+            @NonNull XType componentType,
             @NonNull CodeBlock size,
-            @NonNull ProcessingEnvironment env) {
-        ArrayType arrayType = env.getTypeUtils().getArrayType(componentType);
-        TypeMirror innerMostType = arrayType.getComponentType();
+            @NonNull XProcessingEnv env) {
+        XArrayType arrayType = env.getArrayType(componentType);
+        TypeMirror innerMostType = toJavac(arrayType.getComponentType());
         int dims = 1;
         while (innerMostType.getKind() == TypeKind.ARRAY) {
             innerMostType = ((ArrayType) innerMostType).getComponentType();

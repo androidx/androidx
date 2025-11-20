@@ -25,20 +25,12 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
-import android.window.BackEvent
-import android.window.OnBackAnimationCallback
-import android.window.OnBackInvokedCallback
-import android.window.OnBackInvokedDispatcher
+import androidx.activity.BackEventCompat
 import androidx.activity.ComponentDialog
-import androidx.activity.addCallback
-import androidx.annotation.RequiresApi
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.shouldApplySecureFlag
 import androidx.compose.runtime.Composable
@@ -57,7 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -66,7 +58,6 @@ import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
@@ -91,47 +82,92 @@ import kotlinx.coroutines.launch
  *   sheet's window.
  * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing the
  *   back button. If true, pressing the back button will call onDismissRequest.
- * @param isAppearanceLightStatusBars If true, changes the foreground color of the status bars to
- *   light so that the items on the bar can be read clearly. If false, reverts to the default
- *   appearance.
- * @param isAppearanceLightNavigationBars If true, changes the foreground color of the navigation
- *   bars to light so that the items on the bar can be read clearly. If false, reverts to the
- *   default appearance.
  */
 @Immutable
 @ExperimentalMaterial3Api
-actual class ModalBottomSheetProperties(
-    val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-    actual val shouldDismissOnBackPress: Boolean = true,
-    actual val isAppearanceLightStatusBars: Boolean = true,
-    actual val isAppearanceLightNavigationBars: Boolean = true,
-) {
-    actual constructor(
-        shouldDismissOnBackPress: Boolean,
+actual class ModalBottomSheetProperties {
+    val securePolicy: SecureFlagPolicy
+    actual val shouldDismissOnBackPress: Boolean
+    @get:JvmName("shouldDismissOnClickOutside") actual val shouldDismissOnClickOutside: Boolean
+    internal val isAppearanceLightStatusBars: Boolean?
+    internal val isAppearanceLightNavigationBars: Boolean?
+
+    /**
+     * Properties used to customize the behavior of a [ModalBottomSheet].
+     *
+     * This constructor provides default behavior for [ModalBottomSheet]. See other constructors for
+     * customization options.
+     */
+    constructor() {
+        this.securePolicy = SecureFlagPolicy.Inherit
+        this.shouldDismissOnBackPress = true
+        this.shouldDismissOnClickOutside = true
+        this.isAppearanceLightStatusBars = null
+        this.isAppearanceLightNavigationBars = null
+    }
+
+    actual constructor(shouldDismissOnBackPress: Boolean, shouldDismissOnClickOutside: Boolean) {
+        this.securePolicy = SecureFlagPolicy.Inherit
+        this.shouldDismissOnBackPress = shouldDismissOnBackPress
+        this.shouldDismissOnClickOutside = shouldDismissOnClickOutside
+        this.isAppearanceLightNavigationBars = null
+        this.isAppearanceLightStatusBars = null
+    }
+
+    /**
+     * Properties used to customize the behavior of a [ModalBottomSheet].
+     *
+     * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
+     *   sheet's window.
+     * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing
+     *   the back button. If true, pressing the back button will call onDismissRequest.
+     * @param shouldDismissOnClickOutside Whether the modal bottom sheet can be dismissed by
+     *   clicking on the scrim.
+     */
+    constructor(
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        shouldDismissOnBackPress: Boolean = true,
+        shouldDismissOnClickOutside: Boolean = true,
+    ) {
+        this.securePolicy = securePolicy
+        this.shouldDismissOnBackPress = shouldDismissOnBackPress
+        this.shouldDismissOnClickOutside = shouldDismissOnClickOutside
+        this.isAppearanceLightNavigationBars = null
+        this.isAppearanceLightStatusBars = null
+    }
+
+    /**
+     * Properties used to customize the behavior of a [ModalBottomSheet].
+     *
+     * Use this constructor to customize the behavior of status and navigation bars on the
+     * [ModalBottomSheet] window.
+     *
+     * @param isAppearanceLightStatusBars If true, changes the foreground color of the status bars
+     *   to light so that the items on the bar can be read clearly. If false, reverts to the default
+     *   appearance.
+     * @param isAppearanceLightNavigationBars If true, changes the foreground color of the
+     *   navigation bars to light so that the items on the bar can be read clearly. If false,
+     *   reverts to the default appearance.
+     * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
+     *   sheet's window.
+     * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing
+     *   the back button. If true, pressing the back button will call onDismissRequest.
+     * @param shouldDismissOnClickOutside Whether the modal bottom sheet can be dismissed by
+     *   clicking on the scrim.
+     */
+    constructor(
         isAppearanceLightStatusBars: Boolean,
         isAppearanceLightNavigationBars: Boolean,
-    ) : this(
-        securePolicy = SecureFlagPolicy.Inherit,
-        shouldDismissOnBackPress = shouldDismissOnBackPress,
-        isAppearanceLightStatusBars = isAppearanceLightStatusBars,
-        isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
-    )
-
-    @Deprecated(
-        message = "'isFocusable' param is no longer used. Use constructor without this parameter.",
-        level = DeprecationLevel.WARNING,
-        replaceWith =
-            ReplaceWith("ModalBottomSheetProperties(securePolicy, shouldDismissOnBackPress)")
-    )
-    @Suppress("UNUSED_PARAMETER")
-    constructor(
-        securePolicy: SecureFlagPolicy,
-        isFocusable: Boolean,
-        shouldDismissOnBackPress: Boolean,
-    ) : this(
-        securePolicy = securePolicy,
-        shouldDismissOnBackPress = shouldDismissOnBackPress,
-    )
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        shouldDismissOnBackPress: Boolean = true,
+        shouldDismissOnClickOutside: Boolean = true,
+    ) {
+        this.shouldDismissOnBackPress = shouldDismissOnBackPress
+        this.shouldDismissOnClickOutside = shouldDismissOnClickOutside
+        this.securePolicy = securePolicy
+        this.isAppearanceLightStatusBars = isAppearanceLightStatusBars
+        this.isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -139,15 +175,17 @@ actual class ModalBottomSheetProperties(
         if (securePolicy != other.securePolicy) return false
         if (isAppearanceLightStatusBars != other.isAppearanceLightStatusBars) return false
         if (isAppearanceLightNavigationBars != other.isAppearanceLightNavigationBars) return false
-
+        if (shouldDismissOnClickOutside != other.shouldDismissOnClickOutside) return false
+        if (shouldDismissOnBackPress != other.shouldDismissOnBackPress) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = securePolicy.hashCode()
         result = 31 * result + shouldDismissOnBackPress.hashCode()
-        result = 31 * result + isAppearanceLightStatusBars.hashCode()
-        result = 31 * result + isAppearanceLightNavigationBars.hashCode()
+        result = 31 * result + (isAppearanceLightStatusBars?.hashCode() ?: 0)
+        result = 31 * result + (isAppearanceLightNavigationBars?.hashCode() ?: 0)
+        result = 31 * result + shouldDismissOnClickOutside.hashCode()
         return result
     }
 }
@@ -175,108 +213,19 @@ actual object ModalBottomSheetDefaults {
     @Deprecated(
         level = DeprecationLevel.WARNING,
         message = "'isFocusable' param is no longer used. Use value without this parameter.",
-        replaceWith = ReplaceWith("properties")
+        replaceWith = ReplaceWith("properties"),
     )
     @Suppress("UNUSED_PARAMETER")
     fun properties(
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
         isFocusable: Boolean = true,
-        shouldDismissOnBackPress: Boolean = true
-    ) = ModalBottomSheetProperties(securePolicy, shouldDismissOnBackPress)
-}
-
-/**
- * <a href="https://m3.material.io/components/bottom-sheets/overview" class="external"
- * target="_blank">Material Design modal bottom sheet</a>.
- *
- * Modal bottom sheets are used as an alternative to inline menus or simple dialogs on mobile,
- * especially when offering a long list of action items, or when items require longer descriptions
- * and icons. Like dialogs, modal bottom sheets appear in front of app content, disabling all other
- * app functionality when they appear, and remaining on screen until confirmed, dismissed, or a
- * required action has been taken.
- *
- * ![Bottom sheet
- * image](https://developer.android.com/images/reference/androidx/compose/material3/bottom_sheet.png)
- *
- * A simple example of a modal bottom sheet looks like this:
- *
- * @sample androidx.compose.material3.samples.ModalBottomSheetSample
- * @param onDismissRequest Executes when the user clicks outside of the bottom sheet, after sheet
- *   animates to [Hidden].
- * @param modifier Optional [Modifier] for the bottom sheet.
- * @param sheetState The state of the bottom sheet.
- * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take. Pass in
- *   [Dp.Unspecified] for a sheet that spans the entire screen width.
- * @param shape The shape of the bottom sheet.
- * @param containerColor The color used for the background of this bottom sheet
- * @param contentColor The preferred color for content inside this bottom sheet. Defaults to either
- *   the matching content color for [containerColor], or to the current [LocalContentColor] if
- *   [containerColor] is not a color from the theme.
- * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
- *   overlay is applied on top of the container. A higher tonal elevation value will result in a
- *   darker color in light theme and lighter color in dark theme. See also: [Surface].
- * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
- * @param dragHandle Optional visual marker to swipe the bottom sheet.
- * @param windowInsets window insets to be passed to the bottom sheet content via [PaddingValues]
- *   params.
- * @param properties [ModalBottomSheetProperties] for further customization of this modal bottom
- *   sheet's window behavior.
- * @param content The content to be displayed inside the bottom sheet.
- */
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated(
-    level = DeprecationLevel.HIDDEN,
-    message = "Use constructor with contentWindowInsets parameter.",
-    replaceWith =
-        ReplaceWith(
-            "ModalBottomSheet(" +
-                "onDismissRequest," +
-                "modifier," +
-                "sheetState," +
-                "sheetMaxWidth," +
-                "shape," +
-                "containerColor," +
-                "contentColor," +
-                "tonalElevation," +
-                "scrimColor," +
-                "dragHandle," +
-                "{ windowInsets }," +
-                "properties," +
-                "content," +
-                ")"
+        shouldDismissOnBackPress: Boolean = true,
+    ) =
+        ModalBottomSheetProperties(
+            securePolicy = securePolicy,
+            shouldDismissOnBackPress = shouldDismissOnBackPress,
         )
-)
-fun ModalBottomSheet(
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
-    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
-    shape: Shape = BottomSheetDefaults.ExpandedShape,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = 0.dp,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
-    content: @Composable ColumnScope.() -> Unit,
-) =
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        sheetState = sheetState,
-        sheetMaxWidth = sheetMaxWidth,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
-        dragHandle = dragHandle,
-        contentWindowInsets = { windowInsets },
-        properties = properties,
-        content = content,
-    )
+}
 
 // Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
 // Added predictiveBackProgress param to pass into BottomSheetDialogWrapper.
@@ -284,9 +233,10 @@ fun ModalBottomSheet(
 @Composable
 internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
+    contentColor: Color,
     properties: ModalBottomSheetProperties,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
@@ -300,6 +250,7 @@ internal actual fun ModalBottomSheetDialog(
             ModalBottomSheetDialogWrapper(
                     onDismissRequest,
                     properties,
+                    contentColor,
                     view,
                     layoutDirection,
                     density,
@@ -309,11 +260,7 @@ internal actual fun ModalBottomSheetDialog(
                 )
                 .apply {
                     setContent(composition) {
-                        Box(
-                            Modifier.semantics { dialog() },
-                        ) {
-                            currentContent()
-                        }
+                        Box(Modifier.semantics { dialog() }) { currentContent() }
                     }
                 }
         }
@@ -331,7 +278,8 @@ internal actual fun ModalBottomSheetDialog(
         dialog.updateParameters(
             onDismissRequest = onDismissRequest,
             properties = properties,
-            layoutDirection = layoutDirection
+            contentColor = contentColor,
+            layoutDirection = layoutDirection,
         )
     }
 }
@@ -339,18 +287,10 @@ internal actual fun ModalBottomSheetDialog(
 // Fork of androidx.compose.ui.window.DialogLayout
 // Additional parameters required for current predictive back implementation.
 @Suppress("ViewConstructor")
-private class ModalBottomSheetDialogLayout(
-    context: Context,
-    override val window: Window,
-    val shouldDismissOnBackPress: Boolean,
-    private val onDismissRequest: () -> Unit,
-    private val predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    private val scope: CoroutineScope,
-) : AbstractComposeView(context), DialogWindowProvider {
+private class ModalBottomSheetDialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context), DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
-
-    private var backCallback: Any? = null
 
     override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
         private set
@@ -368,98 +308,6 @@ private class ModalBottomSheetDialogLayout(
     override fun Content() {
         content()
     }
-
-    // Existing predictive back behavior below.
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-        maybeRegisterBackCallback()
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-
-        maybeUnregisterBackCallback()
-    }
-
-    private fun maybeRegisterBackCallback() {
-        if (!shouldDismissOnBackPress || Build.VERSION.SDK_INT < 33) {
-            return
-        }
-        if (backCallback == null) {
-            backCallback =
-                if (Build.VERSION.SDK_INT >= 34) {
-                    Api34Impl.createBackCallback(onDismissRequest, predictiveBackProgress, scope)
-                } else {
-                    Api33Impl.createBackCallback(onDismissRequest)
-                }
-        }
-        Api33Impl.maybeRegisterBackCallback(this, backCallback)
-    }
-
-    private fun maybeUnregisterBackCallback() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            Api33Impl.maybeUnregisterBackCallback(this, backCallback)
-        }
-        backCallback = null
-    }
-
-    @RequiresApi(34)
-    private object Api34Impl {
-        @JvmStatic
-        fun createBackCallback(
-            onDismissRequest: () -> Unit,
-            predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-            scope: CoroutineScope
-        ) =
-            object : OnBackAnimationCallback {
-                override fun onBackStarted(backEvent: BackEvent) {
-                    scope.launch {
-                        predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
-                    }
-                }
-
-                override fun onBackProgressed(backEvent: BackEvent) {
-                    scope.launch {
-                        predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
-                    }
-                }
-
-                override fun onBackInvoked() {
-                    onDismissRequest()
-                }
-
-                override fun onBackCancelled() {
-                    scope.launch { predictiveBackProgress.animateTo(0f) }
-                }
-            }
-    }
-
-    @RequiresApi(33)
-    private object Api33Impl {
-        @JvmStatic
-        fun createBackCallback(onDismissRequest: () -> Unit) =
-            OnBackInvokedCallback(onDismissRequest)
-
-        @JvmStatic
-        fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
-            if (backCallback is OnBackInvokedCallback) {
-                view
-                    .findOnBackInvokedDispatcher()
-                    ?.registerOnBackInvokedCallback(
-                        OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                        backCallback
-                    )
-            }
-        }
-
-        @JvmStatic
-        fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
-            if (backCallback is OnBackInvokedCallback) {
-                view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
-            }
-        }
-    }
 }
 
 // Fork of androidx.compose.ui.window.DialogWrapper.
@@ -469,6 +317,7 @@ private class ModalBottomSheetDialogLayout(
 private class ModalBottomSheetDialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: ModalBottomSheetProperties,
+    private var contentColor: Color,
     private val composeView: View,
     layoutDirection: LayoutDirection,
     density: Density,
@@ -479,7 +328,7 @@ private class ModalBottomSheetDialogWrapper(
     ComponentDialog(
         ContextThemeWrapper(
             composeView.context,
-            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme
+            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme,
         )
     ),
     ViewRootForInspector {
@@ -499,42 +348,29 @@ private class ModalBottomSheetDialogWrapper(
         window.setBackgroundDrawableResource(android.R.color.transparent)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         dialogLayout =
-            ModalBottomSheetDialogLayout(
-                    context,
-                    window,
-                    properties.shouldDismissOnBackPress,
-                    onDismissRequest,
-                    predictiveBackProgress,
-                    scope,
-                )
-                .apply {
-                    // Set unique id for AbstractComposeView. This allows state restoration for the
-                    // state
-                    // defined inside the Dialog via rememberSaveable()
-                    setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
-                    // Enable children to draw their shadow by not clipping them
-                    clipChildren = false
-                    // Allocate space for elevation
-                    with(density) { elevation = maxSupportedElevation.toPx() }
-                    // Simple outline to force window manager to allocate space for shadow.
-                    // Note that the outline affects clickable area for the dismiss listener. In
-                    // case of
-                    // shapes like circle the area for dismiss might be to small (rectangular
-                    // outline
-                    // consuming clicks outside of the circle).
-                    outlineProvider =
-                        object : ViewOutlineProvider() {
-                            override fun getOutline(view: View, result: Outline) {
-                                result.setRect(0, 0, view.width, view.height)
-                                // We set alpha to 0 to hide the view's shadow and let the
-                                // composable to draw
-                                // its own shadow. This still enables us to get the extra space
-                                // needed in the
-                                // surface.
-                                result.alpha = 0f
-                            }
+            ModalBottomSheetDialogLayout(context, window).apply {
+                // Set unique id for AbstractComposeView. This allows state restoration for the
+                // state defined inside the Dialog via rememberSaveable()
+                setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
+                // Enable children to draw their shadow by not clipping them
+                clipChildren = false
+                // Allocate space for elevation
+                with(density) { elevation = maxSupportedElevation.toPx() }
+                // Simple outline to force window manager to allocate space for shadow.
+                // Note that the outline affects clickable area for the dismiss listener. In
+                // case of shapes like circle the area for dismiss might be to small
+                // (rectangular outline consuming clicks outside of the circle).
+                outlineProvider =
+                    object : ViewOutlineProvider() {
+                        override fun getOutline(view: View, result: Outline) {
+                            result.setRect(0, 0, view.width, view.height)
+                            // We set alpha to 0 to hide the view's shadow and let the
+                            // composable to draw its own shadow. This still enables us to get
+                            // the extra space needed in the surface.
+                            result.alpha = 0f
                         }
-                }
+                    }
+            }
         // Clipping logic removed because we are spanning edge to edge.
 
         setContentView(dialogLayout)
@@ -545,22 +381,32 @@ private class ModalBottomSheetDialogWrapper(
         )
 
         // Initial setup
-        updateParameters(onDismissRequest, properties, layoutDirection)
+        updateParameters(onDismissRequest, properties, contentColor, layoutDirection)
 
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = properties.isAppearanceLightStatusBars
-            isAppearanceLightNavigationBars = properties.isAppearanceLightNavigationBars
+            // Theme system bars based on content color. Light system bars provide dark icons
+            // and vice-versa. This maintains visible system bars for the bottom sheet window.
+            isAppearanceLightStatusBars =
+                properties.isAppearanceLightStatusBars ?: contentColor.isDark()
+            isAppearanceLightNavigationBars =
+                properties.isAppearanceLightNavigationBars ?: contentColor.isDark()
         }
         // Due to how the onDismissRequest callback works
         // (it enforces a just-in-time decision on whether to update the state to hide the dialog)
-        // we need to unconditionally add a callback here that is always enabled,
-        // meaning we'll never get a system UI controlled predictive back animation
-        // for these dialogs
-        onBackPressedDispatcher.addCallback(this) {
-            if (properties.shouldDismissOnBackPress) {
-                onDismissRequest()
-            }
-        }
+        // we need to provide a custom onBackPressedCallback to provide predictive back animations
+        // for this component while handling onDismissRequest.
+        onBackPressedDispatcher.addCallback(
+            owner = this,
+            onBackPressedCallback =
+                PredictiveBackOnBackPressedCallback(
+                    isEnabled = properties.shouldDismissOnBackPress,
+                    scope = scope,
+                    predictiveBackProgress = predictiveBackProgress,
+                    onDismissRequest = {
+                        this.onDismissRequest()
+                    }, // Ensure lambda captures current onDismissRequest
+                ),
+        )
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
@@ -584,17 +430,19 @@ private class ModalBottomSheetDialogWrapper(
             } else {
                 WindowManager.LayoutParams.FLAG_SECURE.inv()
             },
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
     }
 
     fun updateParameters(
         onDismissRequest: () -> Unit,
         properties: ModalBottomSheetProperties,
-        layoutDirection: LayoutDirection
+        contentColor: Color,
+        layoutDirection: LayoutDirection,
     ) {
         this.onDismissRequest = onDismissRequest
         this.properties = properties
+        this.contentColor = contentColor
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
 
@@ -608,7 +456,7 @@ private class ModalBottomSheetDialogWrapper(
                 WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
             } else {
                 @Suppress("DEPRECATION") WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            },
+            }
         )
     }
 
@@ -629,6 +477,37 @@ private class ModalBottomSheetDialogWrapper(
         // Prevents the dialog from dismissing itself
         return
     }
+
+    private class PredictiveBackOnBackPressedCallback(
+        isEnabled: Boolean,
+        val scope: CoroutineScope,
+        val predictiveBackProgress: Animatable<Float, AnimationVector1D>,
+        var onDismissRequest: () -> Unit,
+    ) : OnBackPressedCallback(isEnabled) {
+
+        override fun handleOnBackStarted(backEvent: BackEventCompat) {
+            scope.launch {
+                predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
+            }
+        }
+
+        override fun handleOnBackProgressed(backEvent: BackEventCompat) {
+            scope.launch {
+                // Use snapTo for immediate feedback during the gesture
+                predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
+            }
+        }
+
+        override fun handleOnBackPressed() {
+            // Back gesture completed successfully, invoke dismiss
+            onDismissRequest()
+        }
+
+        override fun handleOnBackCancelled() {
+            // Back gesture cancelled, animate back to 0
+            scope.launch { predictiveBackProgress.animateTo(0f) }
+        }
+    }
 }
 
 internal fun View.isFlagSecureEnabled(): Boolean {
@@ -637,4 +516,9 @@ internal fun View.isFlagSecureEnabled(): Boolean {
         return (windowParams.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
     }
     return false
+}
+
+/** Determines if a color should be considered light or dark. */
+internal fun Color.isDark(): Boolean {
+    return this != Color.Transparent && luminance() <= 0.5
 }

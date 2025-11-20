@@ -171,7 +171,6 @@ public class ShortcutInfoCompat {
 
     /**
      */
-    @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     private PersistableBundle buildLegacyExtrasBundle() {
         if (mExtras == null) {
@@ -934,33 +933,31 @@ public class ShortcutInfoCompat {
                 }
                 mInfo.mCategories.addAll(mCapabilityBindings);
             }
-            if (Build.VERSION.SDK_INT >= 21) {
-                if (mCapabilityBindingParams != null) {
-                    if (mInfo.mExtras == null) {
-                        mInfo.mExtras = new PersistableBundle();
-                    }
-                    for (String capability : mCapabilityBindingParams.keySet()) {
-                        final Map<String, List<String>> params =
-                                mCapabilityBindingParams.get(capability);
-                        final Set<String> paramNames = params.keySet();
-                        // Persist the mapping of <Capability1> -> [<Param1>, <Param2> ... ]
-                        mInfo.mExtras.putStringArray(
-                                capability, paramNames.toArray(new String[0]));
-                        // Persist the capability param in respect to capability
-                        // i.e. <Capability1/Param1> -> [<Value1>, <Value2> ... ]
-                        for (String paramName : params.keySet()) {
-                            final List<String> value = params.get(paramName);
-                            mInfo.mExtras.putStringArray(capability + "/" + paramName,
-                                    value == null ? new String[0] : value.toArray(new String[0]));
-                        }
+            if (mCapabilityBindingParams != null) {
+                if (mInfo.mExtras == null) {
+                    mInfo.mExtras = new PersistableBundle();
+                }
+                for (String capability : mCapabilityBindingParams.keySet()) {
+                    final Map<String, List<String>> params =
+                            mCapabilityBindingParams.get(capability);
+                    final Set<String> paramNames = params.keySet();
+                    // Persist the mapping of <Capability1> -> [<Param1>, <Param2> ... ]
+                    mInfo.mExtras.putStringArray(
+                            capability, paramNames.toArray(new String[0]));
+                    // Persist the capability param in respect to capability
+                    // i.e. <Capability1/Param1> -> [<Value1>, <Value2> ... ]
+                    for (String paramName : params.keySet()) {
+                        final List<String> value = params.get(paramName);
+                        mInfo.mExtras.putStringArray(capability + "/" + paramName,
+                                value == null ? new String[0] : value.toArray(new String[0]));
                     }
                 }
-                if (mSliceUri != null) {
-                    if (mInfo.mExtras == null) {
-                        mInfo.mExtras = new PersistableBundle();
-                    }
-                    mInfo.mExtras.putString(EXTRA_SLICE_URI, UriCompat.toSafeString(mSliceUri));
+            }
+            if (mSliceUri != null) {
+                if (mInfo.mExtras == null) {
+                    mInfo.mExtras = new PersistableBundle();
                 }
+                mInfo.mExtras.putString(EXTRA_SLICE_URI, UriCompat.toSafeString(mSliceUri));
             }
             return mInfo;
         }

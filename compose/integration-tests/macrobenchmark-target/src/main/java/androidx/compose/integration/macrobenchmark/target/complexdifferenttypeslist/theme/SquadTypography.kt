@@ -46,91 +46,91 @@ data class SquadTypography(
                 fontSize = 20.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s19: TextStyle =
             TextStyle(
                 fontSize = 19.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s18: TextStyle =
             TextStyle(
                 fontSize = 18.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s17: TextStyle =
             TextStyle(
                 fontSize = 17.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s16: TextStyle =
             TextStyle(
                 fontSize = 16.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s15: TextStyle =
             TextStyle(
                 fontSize = 15.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s14: TextStyle =
             TextStyle(
                 fontSize = 14.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s13: TextStyle =
             TextStyle(
                 fontSize = 13.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s12: TextStyle =
             TextStyle(
                 fontSize = 12.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s11: TextStyle =
             TextStyle(
                 fontSize = 11.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s10: TextStyle =
             TextStyle(
                 fontSize = 10.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s9: TextStyle =
             TextStyle(
                 fontSize = 9.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s8: TextStyle =
             TextStyle(
                 fontSize = 8.sp,
                 fontFamily = regularFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
     )
 
@@ -140,91 +140,91 @@ data class SquadTypography(
                 fontSize = 20.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s19: TextStyle =
             TextStyle(
                 fontSize = 19.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s18: TextStyle =
             TextStyle(
                 fontSize = 18.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s17: TextStyle =
             TextStyle(
                 fontSize = 17.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s16: TextStyle =
             TextStyle(
                 fontSize = 16.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s15: TextStyle =
             TextStyle(
                 fontSize = 15.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s14: TextStyle =
             TextStyle(
                 fontSize = 14.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s13: TextStyle =
             TextStyle(
                 fontSize = 13.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s12: TextStyle =
             TextStyle(
                 fontSize = 12.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s11: TextStyle =
             TextStyle(
                 fontSize = 11.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s10: TextStyle =
             TextStyle(
                 fontSize = 10.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s9: TextStyle =
             TextStyle(
                 fontSize = 9.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s8: TextStyle =
             TextStyle(
                 fontSize = 8.sp,
                 fontFamily = mediumFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
     )
 
@@ -234,91 +234,91 @@ data class SquadTypography(
                 fontSize = 20.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s19: TextStyle =
             TextStyle(
                 fontSize = 19.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s18: TextStyle =
             TextStyle(
                 fontSize = 18.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s17: TextStyle =
             TextStyle(
                 fontSize = 17.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s16: TextStyle =
             TextStyle(
                 fontSize = 16.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s15: TextStyle =
             TextStyle(
                 fontSize = 15.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s14: TextStyle =
             TextStyle(
                 fontSize = 14.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s13: TextStyle =
             TextStyle(
                 fontSize = 13.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s12: TextStyle =
             TextStyle(
                 fontSize = 12.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s11: TextStyle =
             TextStyle(
                 fontSize = 11.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s10: TextStyle =
             TextStyle(
                 fontSize = 10.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s9: TextStyle =
             TextStyle(
                 fontSize = 9.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
         val s8: TextStyle =
             TextStyle(
                 fontSize = 8.sp,
                 fontFamily = mediumItalicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             ),
     )
 
@@ -328,91 +328,91 @@ data class SquadTypography(
                 fontSize = 20.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s19: TextStyle =
             TextStyle(
                 fontSize = 19.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s18: TextStyle =
             TextStyle(
                 fontSize = 18.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s17: TextStyle =
             TextStyle(
                 fontSize = 17.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s16: TextStyle =
             TextStyle(
                 fontSize = 16.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s15: TextStyle =
             TextStyle(
                 fontSize = 15.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s14: TextStyle =
             TextStyle(
                 fontSize = 14.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s13: TextStyle =
             TextStyle(
                 fontSize = 13.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s12: TextStyle =
             TextStyle(
                 fontSize = 12.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s11: TextStyle =
             TextStyle(
                 fontSize = 11.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s10: TextStyle =
             TextStyle(
                 fontSize = 10.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s9: TextStyle =
             TextStyle(
                 fontSize = 9.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
         val s8: TextStyle =
             TextStyle(
                 fontSize = 8.sp,
                 fontFamily = italicFont,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
             ),
     )
 
@@ -422,91 +422,91 @@ data class SquadTypography(
                 fontSize = 20.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s19: TextStyle =
             TextStyle(
                 fontSize = 19.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s18: TextStyle =
             TextStyle(
                 fontSize = 18.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s17: TextStyle =
             TextStyle(
                 fontSize = 17.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s16: TextStyle =
             TextStyle(
                 fontSize = 16.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s15: TextStyle =
             TextStyle(
                 fontSize = 15.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s14: TextStyle =
             TextStyle(
                 fontSize = 14.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s13: TextStyle =
             TextStyle(
                 fontSize = 13.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s12: TextStyle =
             TextStyle(
                 fontSize = 12.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s11: TextStyle =
             TextStyle(
                 fontSize = 11.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s10: TextStyle =
             TextStyle(
                 fontSize = 10.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s9: TextStyle =
             TextStyle(
                 fontSize = 9.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
         val s8: TextStyle =
             TextStyle(
                 fontSize = 8.sp,
                 fontFamily = boldFont,
                 fontStyle = FontStyle.Normal,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             ),
     )
 }

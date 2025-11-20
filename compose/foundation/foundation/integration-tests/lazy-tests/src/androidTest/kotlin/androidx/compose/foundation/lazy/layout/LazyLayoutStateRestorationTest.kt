@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LazyLayoutStateRestorationTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun visibleItemsStateRestored() {
@@ -259,7 +260,7 @@ class LazyLayoutStateRestorationTest {
         itemCount: () -> Int,
         itemIsVisible: (Int) -> Boolean = { true },
         indexToKey: (Int) -> Any = { getDefaultLazyLayoutKey(it) },
-        content: @Composable (Int) -> Unit
+        content: @Composable (Int) -> Unit,
     ) {
         val provider =
             remember(itemCount, indexToKey, content as Any) {
@@ -278,7 +279,7 @@ class LazyLayoutStateRestorationTest {
             val placeables = mutableListOf<Placeable>()
             repeat(itemCount()) { index ->
                 if (itemIsVisible(index)) {
-                    placeables.addAll(measure(index, constraints))
+                    placeables.addAll(compose(index).map { it.measure(constraints) })
                 }
             }
             layout(constraints.maxWidth, constraints.maxHeight) {

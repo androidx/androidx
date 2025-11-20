@@ -39,6 +39,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -52,9 +53,11 @@ import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.NodeGroup
+import androidx.compose.ui.tooling.data.SourceContext
 import androidx.compose.ui.tooling.data.SourceLocation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.asTree
+import androidx.compose.ui.tooling.data.makeTree
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntRect
@@ -90,7 +93,7 @@ internal data class ViewInfo(
     val location: SourceLocation?,
     val children: List<ViewInfo>,
     val layoutInfo: Any?,
-    val name: String?
+    val name: String?,
 ) {
     fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
 
@@ -175,8 +178,6 @@ internal class ComposeViewAdapter : FrameLayout {
     /** Callback invoked when onDraw has been called. */
     private var onDraw = {}
 
-    internal var stitchTrees = true
-
     private val debugBoundsPaint =
         Paint().apply {
             pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -193,7 +194,7 @@ internal class ComposeViewAdapter : FrameLayout {
     constructor(
         context: Context,
         attrs: AttributeSet,
-        defStyleAttr: Int
+        defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr) {
         init(attrs)
     }
@@ -231,15 +232,40 @@ internal class ComposeViewAdapter : FrameLayout {
             location,
             childrenViewInfo,
             layoutInfo,
-            name
+            name,
+        )
+    }
+
+    /** This function is called recursively from [TreeBuilder.mapTree] in Post-Order (LRN). */
+    private fun toViewInfoFactory(
+        group: CompositionGroup,
+        context: SourceContext,
+        children: List<ViewInfo>,
+        childrenToStitch: List<ViewInfo>?,
+    ): ViewInfo {
+        var allChildren = children
+        if (childrenToStitch != null) {
+            allChildren = children + childrenToStitch!!
+        }
+        return ViewInfo(
+            context.location?.sourceFile ?: "",
+            context.location?.lineNumber ?: -1,
+            context.bounds,
+            context.location,
+            allChildren,
+            group.node as? LayoutInfo,
+            context.name,
         )
     }
 
     /** Processes the recorded slot table and re-generates the [viewInfos] attribute. */
     private fun processViewInfos() {
-        val newViewInfos = slotTableRecord.store.map { it.asTree().toViewInfo() }.toList()
-
-        viewInfos = if (stitchTrees) stitchTrees(newViewInfos) else newViewInfos
+        viewInfos =
+            slotTableRecord.store.makeTree(
+                prepareResult = {},
+                createNode = ::toViewInfoFactory,
+                createResult = { _, out, _ -> out },
+            )
 
         if (debugViewInfos) {
             val debugString = viewInfos.toDebugString()
@@ -326,7 +352,7 @@ internal class ComposeViewAdapter : FrameLayout {
                 DESIGN_INFO_METHOD,
                 Integer.TYPE,
                 Integer.TYPE,
-                String::class.java
+                String::class.java,
             )
         } catch (e: NoSuchMethodException) {
             null
@@ -364,7 +390,7 @@ internal class ComposeViewAdapter : FrameLayout {
                                 it.bounds.left,
                                 it.bounds.top,
                                 it.bounds.right,
-                                it.bounds.bottom
+                                it.bounds.bottom,
                             )
                         drawRect(pxBounds, debugBoundsPaint)
                     }
@@ -426,7 +452,7 @@ internal class ComposeViewAdapter : FrameLayout {
         lookForDesignInfoProviders: Boolean = false,
         designInfoProvidersArgument: String? = null,
         onCommit: () -> Unit = {},
-        onDraw: () -> Unit = {}
+        onDraw: () -> Unit = {},
     ) {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
@@ -454,8 +480,8 @@ internal class ComposeViewAdapter : FrameLayout {
                                 composer,
                                 *getPreviewProviderParameters(
                                     parameterProvider,
-                                    parameterProviderIndex
-                                )
+                                    parameterProviderIndex,
+                                ),
                             )
                         } catch (t: Throwable) {
                             // If there is an exception, store it for later but do not catch it so
@@ -553,10 +579,10 @@ internal class ComposeViewAdapter : FrameLayout {
                 attrs.getAttributeBooleanValue(
                     TOOLS_NS_URI,
                     "findDesignInfoProviders",
-                    lookForDesignInfoProviders
+                    lookForDesignInfoProviders,
                 ),
             designInfoProvidersArgument =
-                attrs.getAttributeValue(TOOLS_NS_URI, "designInfoProvidersArgument")
+                attrs.getAttributeValue(TOOLS_NS_URI, "designInfoProvidersArgument"),
         )
     }
 
@@ -601,7 +627,7 @@ internal class ComposeViewAdapter : FrameLayout {
                         requestCode: Int,
                         contract: ActivityResultContract<I, O>,
                         input: I,
-                        options: ActivityOptionsCompat?
+                        options: ActivityOptionsCompat?,
                     ) {
                         throw IllegalStateException("Calling launch() is not supported in Preview")
                     }

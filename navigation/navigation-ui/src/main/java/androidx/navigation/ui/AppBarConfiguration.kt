@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation.ui
 
 import android.view.Menu
@@ -54,7 +57,7 @@ private constructor(
      *
      * @return a [OnNavigateUpListener] for providing custom up navigation logic, if one was set.
      */
-    public val fallbackOnNavigateUpListener: OnNavigateUpListener?
+    public val fallbackOnNavigateUpListener: OnNavigateUpListener?,
 ) {
     /**
      * Interface for providing custom 'up' behavior beyond what is provided by
@@ -225,7 +228,7 @@ private constructor(
             return AppBarConfiguration(
                 topLevelDestinations,
                 openableLayout,
-                fallbackOnNavigateUpListener
+                fallbackOnNavigateUpListener,
             )
         }
     }
@@ -248,7 +251,7 @@ private constructor(
 public inline fun AppBarConfiguration(
     navGraph: NavGraph,
     drawerLayout: Openable? = null,
-    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false },
 ): AppBarConfiguration =
     AppBarConfiguration.Builder(navGraph)
         .setOpenableLayout(drawerLayout)
@@ -273,7 +276,7 @@ public inline fun AppBarConfiguration(
 public inline fun AppBarConfiguration(
     topLevelMenu: Menu,
     drawerLayout: Openable? = null,
-    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false },
 ): AppBarConfiguration =
     AppBarConfiguration.Builder(topLevelMenu)
         .setOpenableLayout(drawerLayout)
@@ -297,7 +300,7 @@ public inline fun AppBarConfiguration(
 public inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
     drawerLayout: Openable? = null,
-    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false },
 ): AppBarConfiguration =
     AppBarConfiguration.Builder(topLevelDestinationIds)
         .setOpenableLayout(drawerLayout)

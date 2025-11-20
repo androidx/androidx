@@ -16,16 +16,20 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -77,10 +81,10 @@ public final class GetSchemaResponseToPlatformConverter {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.V_BASE) {
             // Convert publicly visible schemas
             Map<String, PackageIdentifier> publiclyVisibleSchemas =
-                    ApiHelperForV.getPubliclyVisibleSchemas(platformResponse);
+                    ApiHelperForSdkExtensionVBase.getPubliclyVisibleSchemas(platformResponse);
             if (!publiclyVisibleSchemas.isEmpty()) {
                 for (Map.Entry<String, PackageIdentifier> entry :
                         publiclyVisibleSchemas.entrySet()) {
@@ -90,7 +94,7 @@ public final class GetSchemaResponseToPlatformConverter {
 
             // Convert schemas visible to configs
             Map<String, Set<SchemaVisibilityConfig>> schemasVisibleToConfigs =
-                    ApiHelperForV.getSchemasVisibleToConfigs(platformResponse);
+                    ApiHelperForSdkExtensionVBase.getSchemasVisibleToConfigs(platformResponse);
             if (!schemasVisibleToConfigs.isEmpty()) {
                 for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
                         schemasVisibleToConfigs.entrySet()) {
@@ -158,9 +162,13 @@ public final class GetSchemaResponseToPlatformConverter {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private static class ApiHelperForV {
-        private ApiHelperForV() {}
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.V_BASE)
+    @RequiresApi(Build.VERSION_CODES.S)
+    private static class ApiHelperForSdkExtensionVBase {
+        private ApiHelperForSdkExtensionVBase() {
+            // This class is not instantiable.
+        }
 
         @DoNotInline
         static @NonNull Map<String, PackageIdentifier> getPubliclyVisibleSchemas(

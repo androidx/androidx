@@ -32,7 +32,6 @@ import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +45,6 @@ import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
 public final class CameraXTest {
 
     private static final String CAMERA_ID_0 = "0";
@@ -132,10 +130,10 @@ public final class CameraXTest {
     public void init_withDifferentCameraXConfig() throws ExecutionException, InterruptedException {
         CameraFactory cameraFactory0 = createFakeCameraFactory();
         CameraFactory.Provider cameraFactoryProvider0 =
-                (ignored0, ignored1, ignored2, ignored3) -> cameraFactory0;
+                (ignored0, ignored1, ignored2, ignored3, ignored4, ignored5) -> cameraFactory0;
         CameraFactory cameraFactory1 = createFakeCameraFactory();
         CameraFactory.Provider cameraFactoryProvider1 =
-                (ignored0, ignored1, ignored2, ignored3) -> cameraFactory1;
+                (ignored0, ignored1, ignored2, ignored3, ignored4, ignored5) -> cameraFactory1;
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
         CameraX cameraX0 = new CameraX(mContext, () -> mConfigBuilder.build());

@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimatedProperty#getLabel():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimatedProperty.getLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimatedProperty#getValue():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimatedProperty.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimation#getAnimationObject():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimation.getAnimationObject() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimation#getLabel():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimation.getLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimation#getStates():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimation.getStates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.ComposeAnimation#getType():
+    Source breaking change: method androidx.compose.animation.tooling.ComposeAnimation.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.TransitionInfo#getEndTimeMillis():
+    Source breaking change: method androidx.compose.animation.tooling.TransitionInfo.getEndTimeMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.TransitionInfo#getLabel():
+    Source breaking change: method androidx.compose.animation.tooling.TransitionInfo.getLabel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.TransitionInfo#getSpecType():
+    Source breaking change: method androidx.compose.animation.tooling.TransitionInfo.getSpecType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.TransitionInfo#getStartTimeMillis():
+    Source breaking change: method androidx.compose.animation.tooling.TransitionInfo.getStartTimeMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.tooling.TransitionInfo#getValues():
+    Source breaking change: method androidx.compose.animation.tooling.TransitionInfo.getValues() can no longer be resolved from Kotlin source

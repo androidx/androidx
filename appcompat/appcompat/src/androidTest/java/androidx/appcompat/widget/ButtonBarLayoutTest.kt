@@ -45,7 +45,7 @@ class ButtonBarLayoutTest {
                 assertEquals(
                     "Layout must be vertical",
                     LinearLayout.VERTICAL,
-                    buttonBar.orientation
+                    buttonBar.orientation,
                 )
                 assertEquals("Height should be 30px", 30, buttonBar.height)
             }
@@ -67,7 +67,7 @@ class ButtonBarLayoutTest {
                 assertEquals(
                     "Layout must be horizontal",
                     LinearLayout.HORIZONTAL,
-                    buttonBar.orientation
+                    buttonBar.orientation,
                 )
                 assertEquals("Height should be 10px", 10, buttonBar.height)
             }

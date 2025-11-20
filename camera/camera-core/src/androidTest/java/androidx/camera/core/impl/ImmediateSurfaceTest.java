@@ -27,7 +27,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -43,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
 public final class ImmediateSurfaceTest {
     private Surface mMockSurface = Mockito.mock(Surface.class);
     private ImmediateSurface mImmediateSurface;

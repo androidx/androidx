@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.collection
 
 import kotlin.DeprecationLevel.HIDDEN
 
 /** Returns the number of key/value pairs in the collection. */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val <T> SparseArrayCompat<T>.size: Int
     get() = size()
 

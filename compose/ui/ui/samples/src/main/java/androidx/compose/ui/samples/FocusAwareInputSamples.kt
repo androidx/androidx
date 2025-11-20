@@ -179,14 +179,10 @@ fun RotaryEventSample() {
                     true
                 }
                 .focusRequester(focusRequester)
-                .focusable(),
+                .focusable()
     ) {
         repeat(100) {
-            Text(
-                text = "item $it",
-                modifier = Modifier.align(CenterHorizontally),
-                color = White,
-            )
+            Text(text = "item $it", modifier = Modifier.align(CenterHorizontally), color = White)
         }
     }
 
@@ -222,17 +218,14 @@ fun PreRotaryEventSample() {
         ) {
             Row(
                 modifier = Modifier.align(CenterHorizontally),
-                verticalAlignment = CenterVertically
+                verticalAlignment = CenterVertically,
             ) {
                 Text(
                     modifier = Modifier.width(70.dp),
                     text = if (interceptScroll) "Row" else "Column",
-                    style = TextStyle(color = White)
+                    style = TextStyle(color = White),
                 )
-                Switch(
-                    checked = interceptScroll,
-                    onCheckedChange = { interceptScroll = it },
-                )
+                Switch(checked = interceptScroll, onCheckedChange = { interceptScroll = it })
             }
             Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rowScrollState)) {
                 repeat(100) {
@@ -254,7 +247,7 @@ fun PreRotaryEventSample() {
                             true
                         }
                         .focusRequester(focusRequester)
-                        .focusable(),
+                        .focusable()
             ) {
                 repeat(100) {
                     Text(

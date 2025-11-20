@@ -20,9 +20,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation(libs.constraintLayout)
 
-    implementation(project(":room:room-paging"))
-    implementation(project(":room:room-runtime"))
-    annotationProcessor(project(":room:room-compiler"))
+    implementation("androidx.room:room-paging:2.7.2")
+    implementation("androidx.room:room-runtime:2.7.2")
+    annotationProcessor("androidx.room:room-compiler:2.7.2")
 }
 
 android {

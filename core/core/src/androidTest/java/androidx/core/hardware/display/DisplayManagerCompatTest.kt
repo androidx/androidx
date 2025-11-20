@@ -76,7 +76,7 @@ class DisplayManagerCompatTest {
             assertTrue(
                 "Expected display to be in built in displays Display: $display " +
                     "builtInDisplays $builtInDisplays",
-                builtInDisplays.contains(display)
+                builtInDisplays.contains(display),
             )
         }
     }
@@ -94,7 +94,7 @@ class DisplayManagerCompatTest {
             assertTrue(
                 "Expected display to be in built in displays Display: $display " +
                     "builtInDisplays $builtInDisplays",
-                builtInDisplays.contains(display)
+                builtInDisplays.contains(display),
             )
         }
     }

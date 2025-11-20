@@ -27,10 +27,14 @@ fun JavaCodeFile.toJavaFileObject() = this.wrapped.toJavaFileObject()
 fun JavaSourcesSubject.parsesAs(fullClassName: String, folder: String = "expected") =
     this.parsesAs(loadSourceFileObject(fullClassName, folder))
 
-fun loadSourceString(fullClassName: String, folder: String, fileExtension: String): String {
+fun loadSourceFile(fullClassName: String, folder: String, fileExtension: String): File {
     val folderPath = "src/test/test-data/${if (folder.isEmpty()) "" else "$folder/"}"
     val split = fullClassName.split(".")
-    return File("$folderPath/${split.last()}.$fileExtension").readText(Charset.defaultCharset())
+    return File("$folderPath/${split.last()}.$fileExtension")
+}
+
+fun loadSourceString(fullClassName: String, folder: String, fileExtension: String): String {
+    return loadSourceFile(fullClassName, folder, fileExtension).readText(Charset.defaultCharset())
 }
 
 fun loadSourceFileObject(fullClassName: String, folder: String) =

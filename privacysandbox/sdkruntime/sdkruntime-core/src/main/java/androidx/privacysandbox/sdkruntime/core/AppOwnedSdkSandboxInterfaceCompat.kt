@@ -19,6 +19,7 @@ package androidx.privacysandbox.sdkruntime.core
 import android.app.sdksandbox.AppOwnedSdkSandboxInterface
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
@@ -36,10 +37,11 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  * to cast the binder object from [getInterface] to the prearranged interface before initiating the
  * communication.
  */
-class AppOwnedSdkSandboxInterfaceCompat(
+@Deprecated("This library is no longer supported.")
+public class AppOwnedSdkSandboxInterfaceCompat(
     private val name: String,
     private val version: Long,
-    private val binder: IBinder
+    private val binder: IBinder,
 ) {
 
     /**
@@ -47,9 +49,10 @@ class AppOwnedSdkSandboxInterfaceCompat(
      *
      * @param appOwnedSdkInterface source platform object.
      */
+    @RequiresApi(34)
     @RequiresExtension(extension = AD_SERVICES, version = 8)
     @RestrictTo(LIBRARY_GROUP)
-    constructor(
+    public constructor(
         appOwnedSdkInterface: AppOwnedSdkSandboxInterface
     ) : this(
         name = appOwnedSdkInterface.getName(),
@@ -62,7 +65,7 @@ class AppOwnedSdkSandboxInterfaceCompat(
      *
      * App can register only one interface of given name.
      */
-    fun getName(): String = name
+    public fun getName(): String = name
 
     /**
      * Returns the version used to register the [AppOwnedSdkSandboxInterfaceCompat].
@@ -70,7 +73,7 @@ class AppOwnedSdkSandboxInterfaceCompat(
      * A version may be chosen by an app, and used to communicate any updates the app makes to this
      * implementation.
      */
-    fun getVersion(): Long = version
+    public fun getVersion(): Long = version
 
     /**
      * Returns binder object associated with [AppOwnedSdkSandboxInterfaceCompat].
@@ -81,14 +84,16 @@ class AppOwnedSdkSandboxInterfaceCompat(
      * The SDK in the sandbox will have to cast the binder object received from this method to the
      * agreed upon interface before using it.
      */
-    fun getInterface(): IBinder = binder
+    public fun getInterface(): IBinder = binder
 
     /**
      * Create [AppOwnedSdkSandboxInterface] from compat object.
      *
      * @return Platform AppOwnedSdkSandboxInterface
      */
+    @RequiresApi(34)
     @RequiresExtension(extension = AD_SERVICES, version = 8)
     @RestrictTo(LIBRARY_GROUP)
-    fun toAppOwnedSdkSandboxInterface() = AppOwnedSdkSandboxInterface(name, version, binder)
+    public fun toAppOwnedSdkSandboxInterface(): AppOwnedSdkSandboxInterface =
+        AppOwnedSdkSandboxInterface(name, version, binder)
 }

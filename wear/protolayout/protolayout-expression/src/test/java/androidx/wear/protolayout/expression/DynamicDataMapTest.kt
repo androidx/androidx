@@ -95,7 +95,7 @@ class DynamicDataMapTest {
                 FLOAT_KEY mapTo FLOAT_VALUE,
                 INSTANT_KEY mapTo INSTANT_VALUE,
                 INT_KEY mapTo INT_VALUE,
-                STRING_KEY mapTo STRING_VALUE
+                STRING_KEY mapTo STRING_VALUE,
             )
 
         assertThat(map[BOOL_KEY]).isEqualTo(BOOL_VALUE)
@@ -117,7 +117,7 @@ class DynamicDataMapTest {
                 FLOAT_KEY mapTo FLOAT_VALUE,
                 INSTANT_KEY mapTo INSTANT_VALUE,
                 INT_KEY mapTo INT_VALUE,
-                STRING_KEY mapTo STRING_VALUE
+                STRING_KEY mapTo STRING_VALUE,
             )
 
         assertThat(map[BOOL_KEY]).isEqualTo(BOOL_VALUE)

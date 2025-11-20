@@ -26,7 +26,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.media.MediaMetadataCompat;
@@ -36,7 +35,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -88,7 +86,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStateStopped() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -104,7 +101,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStatePaused() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -121,7 +117,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStatePlaying() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -138,7 +133,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStateBuffering() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -154,7 +148,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStateError() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -170,7 +163,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStateFastForwarding() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -187,7 +179,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testStateRewinding() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -203,7 +194,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testOnMetadataChanged() {
         synchronized (mWaitLock) {
             mPlayerAdapterCallback.reset();
@@ -220,7 +210,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testPlay() throws InterruptedException {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -237,7 +226,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testPause() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -254,7 +242,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testSeekTo() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -273,7 +260,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testNext() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -290,7 +276,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testPrevious() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -308,7 +293,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testRepeatModeRepeatModeNone() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -327,7 +311,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testRepeatModeRepeatModeOne() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -346,7 +329,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testRepeatModeRepeatModeAll() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -365,7 +347,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testShuffleModeShuffleModeNone() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -384,7 +365,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testShuffleModeShuffleModeAll() throws InterruptedException {
         synchronized (mWaitLock) {
             mCallback.reset();
@@ -402,7 +382,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testIsPlayingWithNullPlaybackState() {
         boolean defualtIsPlayingStatus = false;
         assertEquals(mMediaControllerAdapter.isPlaying(), defualtIsPlayingStatus);
@@ -416,7 +395,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testIsPlayingWithPlayingState() {
         long positionForTest = 0L;
         boolean playingStatus = true;
@@ -432,7 +410,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testIsPlayingWithNotPlayingState() {
         long positionForTest = 0L;
         boolean notPlayingStatus = false;
@@ -447,7 +424,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetCurrentPositionWithNullPlaybackState() {
         long defaultPosition = 0L;
         assertEquals(mMediaControllerAdapter.getCurrentPosition(), defaultPosition);
@@ -461,7 +437,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetCurrentPositionWithPlayingState() {
 
         long positionForTest = 445L;
@@ -477,7 +452,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetCurrentPositionWithNotPlayingState() {
 
         long positionForTest = 445L;
@@ -492,7 +466,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetBufferedPositionWithNullPlaybackState() {
         // TODO: considering chaning default buffered position to -1
         long defaultBufferedPosition = 0L;
@@ -507,7 +480,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetBufferedPositionWithPlayingState() {
         long positionForTest = 445L;
         createPlaybackStatePlayingWithBufferedPosition(positionForTest, positionForTest);
@@ -522,7 +494,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetBufferedPositionWithNotPlayingState() {
         long positionForTest = 445L;
         createPlaybackStateNotPlayingWithBufferedPosition(positionForTest, positionForTest);
@@ -534,7 +505,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaTitleWithValidMetaData() {
         int widthForTest = 1;
         int heightForTest = 1;
@@ -554,7 +524,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaTitleWithNullMetaData() {
         String defaultMediaTitle = "";
         assertEquals(mMediaControllerAdapter.getMediaTitle(), defaultMediaTitle);
@@ -565,7 +534,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaSubTitleWithValidMetaData() {
         int widthForTest = 1;
         int heightForTest = 1;
@@ -585,7 +553,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaSubTitleWithNullMetaData() {
         String defaultMediaSubTitle = "";
         assertEquals(mMediaControllerAdapter.getMediaSubtitle(), defaultMediaSubTitle);
@@ -596,7 +563,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaArtWithValidMetaData() {
         int widthForTest = 1;
         int heightForTest = 1;
@@ -623,7 +589,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetMediaArtWithNullMetaData() {
         Bitmap defaultMediaArt = null;
         assertEquals(mMediaControllerAdapter.getMediaArt(mContext), defaultMediaArt);
@@ -634,7 +599,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetDurationWithValidMetaData() {
         int widthForTest = 1;
         int heightForTest = 1;
@@ -654,7 +618,6 @@ public class MediaControllerAdapterTest {
      */
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetDurationWithNullMetaData() {
         Long defaultDuration = 0L;
         assertEquals((Long) mMediaControllerAdapter.getDuration(), defaultDuration);

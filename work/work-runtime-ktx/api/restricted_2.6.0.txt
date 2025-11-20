@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.work {
+
+  public abstract class CoroutineWorker extends androidx.work.ListenableWorker {
+    ctor public CoroutineWorker(android.content.Context appContext, androidx.work.WorkerParameters params);
+    method public abstract suspend Object? doWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>);
+    method @Deprecated public kotlinx.coroutines.CoroutineDispatcher getCoroutineContext();
+    method public final void onStopped();
+    method public final suspend Object? setForeground(androidx.work.ForegroundInfo foregroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? setProgress(androidx.work.Data data, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+    property @Deprecated public kotlinx.coroutines.CoroutineDispatcher coroutineContext;
+  }
+
+  public final class DataKt {
+    method @KotlinOnly public static inline <reified T> boolean hasKeyWithValueOfType(androidx.work.Data, String key);
+    method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
+  }
+
+  public final class OneTimeWorkRequestKt {
+    method @KotlinOnly public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder OneTimeWorkRequestBuilder();
+    method public static inline androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
+  }
+
+  public final class OperationKt {
+    method public static suspend inline Object? await(androidx.work.Operation, kotlin.coroutines.Continuation<? super androidx.work.Operation.State.SUCCESS>);
+  }
+
+  public final class PeriodicWorkRequestKt {
+    method @KotlinOnly @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(java.time.Duration repeatInterval);
+    method @KotlinOnly @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(java.time.Duration repeatInterval, java.time.Duration flexTimeInterval);
+    method @KotlinOnly public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    method @KotlinOnly public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
+  }
+
+}
+

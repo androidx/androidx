@@ -61,4 +61,7 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
                 api.getOnlyService().stubDelegateNameSpec(),
             )
         }
+
+    // Deprecated in sdkruntime library
+    override fun generateGetViewFunction(): FunSpec? = null
 }

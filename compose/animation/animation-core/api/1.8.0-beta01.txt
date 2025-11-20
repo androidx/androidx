@@ -374,7 +374,7 @@ package androidx.compose.animation.core {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimatableApi {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. " + "It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTransitionApi {

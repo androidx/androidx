@@ -20,7 +20,6 @@ import android.Manifest
 import android.os.Build
 import android.telecom.Call
 import android.telecom.DisconnectCause
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
  * ([CallExtensionScopeImpl.EXTRA_VOIP_API_VERSION]).
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     companion object {
@@ -97,7 +95,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_V2() {
-        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
@@ -110,7 +107,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_V2() {
-        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
@@ -169,7 +165,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                             // Always send disconnect signal if possible.
                             assertEquals(
                                 CallControlResult.Success(),
-                                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                                disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                             )
                         }
                     }
@@ -185,7 +181,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
         // Assert the specifics of the extensions are correct. Note, resolveCallExtensionsType also
         // internally assures the details are set properly
         val callDetails = call.details!!
-        if (Utils.hasPlatformV2Apis()) {
+        if (!Utils.shouldUseBackwardsCompatImplementation()) {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
             }

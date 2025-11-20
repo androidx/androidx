@@ -39,6 +39,4 @@ androidx {
     inceptionYear = "2015"
     description = "AndroidX Leanback Preference"
     failOnDeprecationWarnings = false
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

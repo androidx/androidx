@@ -35,14 +35,14 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
     ImageSources {
     override fun createImageSource(
         cameraStream: CameraStream,
-        imageSourceConfig: ImageSourceConfig
+        imageSourceConfig: ImageSourceConfig,
     ): ImageSource {
         return create(
             cameraStream,
             imageSourceConfig.capacity,
             imageSourceConfig.usageFlags,
             imageSourceConfig.defaultDataSpace,
-            imageSourceConfig.defaultHardwareBufferFormat
+            imageSourceConfig.defaultHardwareBufferFormat,
         )
     }
 
@@ -51,7 +51,7 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
         capacity: Int,
         usageFlags: Long?,
         defaultDataSpace: Int?,
-        defaultHardwareBufferFormat: Int?
+        defaultHardwareBufferFormat: Int?,
     ): ImageSource {
         require(cameraStream.outputs.isNotEmpty()) { "$cameraStream must have outputs." }
         require(capacity > 0) { "Capacity ($capacity) must be > 0" }
@@ -86,19 +86,24 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
                     defaultHardwareBufferFormat,
                     cameraStream.id,
                     output.id,
-                    handler
+                    handler,
                 )
             return ImageReaderImageSource.create(imageReader)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (usageFlags != null) {
-                Log.warn {
-                    "Ignoring usageFlags ($usageFlags) " +
-                        "for $cameraStream. MultiResolutionImageReader does not support " +
-                        "setting usage flags."
+            val usage =
+                if (usageFlags != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                    usageFlags
+                } else {
+                    Log.warn {
+                        "Ignoring usageFlags ($usageFlags) " +
+                            "for $cameraStream. MultiResolutionImageReader does not support " +
+                            "setting usage flags."
+                    }
+                    null
                 }
-            }
+
             if (defaultDataSpace != null) {
                 Log.warn {
                     "Ignoring DataSpace ($defaultDataSpace) " +
@@ -114,7 +119,12 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
                 }
             }
             val imageReader =
-                AndroidMultiResolutionImageReader.create(cameraStream, capacity, executorProvider())
+                AndroidMultiResolutionImageReader.create(
+                    cameraStream,
+                    capacity,
+                    executorProvider(),
+                    usage,
+                )
             return ImageReaderImageSource.create(imageReader)
         }
 
@@ -198,7 +208,7 @@ public class ImageReaderImageSource(
             streamId,
             outputId,
             image.timestamp,
-            TrackedOutputImage(image, streamId, outputId)
+            TrackedOutputImage(image, streamId, outputId),
         )
     }
 
@@ -234,7 +244,7 @@ public class ImageReaderImageSource(
     private inner class TrackedOutputImage(
         private val image: ImageWrapper,
         override val streamId: StreamId,
-        override val outputId: OutputId
+        override val outputId: OutputId,
     ) : ImageWrapper by image, OutputImage {
         private val closed = atomic(false)
 
@@ -256,6 +266,6 @@ public class ImageReaderImageSource(
     private enum class State {
         ACTIVE,
         CLOSING,
-        CLOSED
+        CLOSED,
     }
 }

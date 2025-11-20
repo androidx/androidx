@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"Саусақ ізі аутентификациясының диалогтік терезесі"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Саусақ ізін оқу сканерін түртіңіз."</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Танылмады"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Саусақ ізі жабдығы қолжетімді емес."</string>
@@ -30,6 +31,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ешқандай PIN коды, өрнек немесе құпия сөз орнатылмаған."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Бұл құрылғы PIN кодын, өрнекті не құпия сөзді қолдамайды."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Саусақ ізі белгішесі"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Контент көрінісіндегі қосымша опциялар түймесі басылды."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Саусақ ізін пайдалану"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Бетті анықтау функциясын пайдалану"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Биометриканы пайдалану"</string>

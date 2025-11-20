@@ -59,13 +59,13 @@ class PositionIndicatorActivity : ComponentActivity() {
                         state = pIState,
                         indicatorHeight = 50.dp,
                         indicatorWidth = 4.dp,
-                        paddingHorizontal = 5.dp
+                        paddingHorizontal = 5.dp,
                     )
-                }
+                },
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Box(
                         modifier =
@@ -132,7 +132,7 @@ class PositionIndicatorActivity : ComponentActivity() {
     private class CustomState(
         private val fraction: State<Float>,
         private val sizeFraction: State<Float>,
-        private val visibility: State<PositionIndicatorVisibility>
+        private val visibility: State<PositionIndicatorVisibility>,
     ) : PositionIndicatorState {
         override val positionFraction: Float
             get() = fraction.value

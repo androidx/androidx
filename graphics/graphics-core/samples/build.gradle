@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":graphics:graphics-core"))
@@ -42,5 +40,4 @@ androidx {
     inceptionYear = "2023"
     description = "Contains samples of APIs included in the graphics-core Androidx library"
     mavenVersion = LibraryVersions.GRAPHICS_CORE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

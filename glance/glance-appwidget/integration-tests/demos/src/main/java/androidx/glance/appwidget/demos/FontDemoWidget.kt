@@ -66,20 +66,20 @@ class FontDemoWidget : GlanceAppWidget() {
                 titleBar = {
                     TitleBar(
                         startIcon = ImageProvider(R.drawable.ic_demo_app),
-                        title = "Font Demo Widget"
+                        title = "Font Demo Widget",
                     )
                 },
-                backgroundColor = GlanceTheme.colors.widgetBackground
+                backgroundColor = GlanceTheme.colors.widgetBackground,
             ) {
                 Column(modifier = GlanceModifier.fillMaxSize().padding(bottom = 16.dp)) {
                     Text(
                         "Font: " + font.family,
-                        style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif)
+                        style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif),
                     )
                     Spacer(GlanceModifier.size(15.dp))
                     Text(
                         "The quick brown fox jumps over the lazy dog.",
-                        style = TextStyle(fontSize = 18.sp, fontFamily = font)
+                        style = TextStyle(fontSize = 18.sp, fontFamily = font),
                     )
                     Spacer(GlanceModifier.defaultWeight())
                     Button(
@@ -93,7 +93,7 @@ class FontDemoWidget : GlanceAppWidget() {
                                     FontFamily.Monospace -> FontFamily.Serif
                                     else -> FontFamily.SansSerif
                                 }
-                        }
+                        },
                     )
                 }
             }

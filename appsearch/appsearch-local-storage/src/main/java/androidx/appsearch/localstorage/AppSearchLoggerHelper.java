@@ -19,7 +19,9 @@ package androidx.appsearch.localstorage;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
+import androidx.appsearch.localstorage.stats.PersistToDiskStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
@@ -29,6 +31,7 @@ import com.google.android.icing.proto.DeleteByQueryStatsProto;
 import com.google.android.icing.proto.DeleteStatsProto;
 import com.google.android.icing.proto.InitializeStatsProto;
 import com.google.android.icing.proto.OptimizeStatsProto;
+import com.google.android.icing.proto.PersistToDiskStatsProto;
 import com.google.android.icing.proto.PutDocumentStatsProto;
 import com.google.android.icing.proto.QueryStatsProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
@@ -71,7 +74,9 @@ public final class AppSearchLoggerHelper {
                 .setNativeQualifiedIdJoinIndexLatencyMillis(
                         fromNativeStats.getQualifiedIdJoinIndexLatencyMs())
                 .setNativeLiteIndexSortLatencyMillis(
-                        fromNativeStats.getLiteIndexSortLatencyMs());
+                        fromNativeStats.getLiteIndexSortLatencyMs())
+                .setMetadataTermIndexLatencyMillis(fromNativeStats.getMetadataTermIndexLatencyMs())
+                .setEmbeddingIndexLatencyMillis(fromNativeStats.getEmbeddingIndexLatencyMs());
     }
 
     /**
@@ -86,68 +91,115 @@ public final class AppSearchLoggerHelper {
         Preconditions.checkNotNull(toStatsBuilder);
         toStatsBuilder
                 .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
-                .setDocumentStoreRecoveryCause(
+                .setNativeDocumentStoreRecoveryCause(
                         fromNativeStats.getDocumentStoreRecoveryCause().getNumber())
-                .setIndexRestorationCause(
+                .setNativeIndexRestorationCause(
                         fromNativeStats.getIndexRestorationCause().getNumber())
-                .setSchemaStoreRecoveryCause(
+                .setNativeSchemaStoreRecoveryCause(
                         fromNativeStats.getSchemaStoreRecoveryCause().getNumber())
-                .setDocumentStoreRecoveryLatencyMillis(
+                .setNativeDocumentStoreRecoveryLatencyMillis(
                         fromNativeStats.getDocumentStoreRecoveryLatencyMs())
-                .setIndexRestorationLatencyMillis(
+                .setNativeIndexRestorationLatencyMillis(
                         fromNativeStats.getIndexRestorationLatencyMs())
-                .setSchemaStoreRecoveryLatencyMillis(
+                .setNativeSchemaStoreRecoveryLatencyMillis(
                         fromNativeStats.getSchemaStoreRecoveryLatencyMs())
-                .setDocumentStoreDataStatus(
+                .setNativeDocumentStoreDataStatus(
                         fromNativeStats.getDocumentStoreDataStatus().getNumber())
-                .setDocumentCount(fromNativeStats.getNumDocuments())
-                .setSchemaTypeCount(fromNativeStats.getNumSchemaTypes());
+                .setNativeDocumentCount(fromNativeStats.getNumDocuments())
+                .setNativeSchemaTypeCount(fromNativeStats.getNumSchemaTypes())
+                .setNativeNumPreviousInitFailures(fromNativeStats.getNumPreviousInitFailures())
+                .setNativeIntegerIndexRestorationCause(
+                        fromNativeStats.getIntegerIndexRestorationCause().getNumber())
+                .setNativeQualifiedIdJoinIndexRestorationCause(
+                        fromNativeStats.getQualifiedIdJoinIndexRestorationCause().getNumber())
+                .setNativeEmbeddingIndexRestorationCause(
+                        fromNativeStats.getEmbeddingIndexRestorationCause().getNumber())
+                .setNativeInitializeIcuDataStatusCode(
+                        fromNativeStats.getInitializeIcuDataStatus().getCode().getNumber())
+                .setNativeNumFailedReindexedDocuments(
+                        fromNativeStats.getNumFailedReindexedDocuments());
     }
 
     /**
      * Copies native Query stats to builder.
      *
      * @param fromNativeStats Stats copied from.
-     * @param toStatsBuilder Stats copied to.
+     * @param toStatsBuilder  Stats copied to.
      */
     static void copyNativeStats(@NonNull QueryStatsProto fromNativeStats,
-            SearchStats.@NonNull Builder toStatsBuilder) {
+            QueryStats.@NonNull Builder toStatsBuilder) {
         Preconditions.checkNotNull(fromNativeStats);
         Preconditions.checkNotNull(toStatsBuilder);
         toStatsBuilder
-                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
-                .setTermCount(fromNativeStats.getNumTerms())
-                .setQueryLength(fromNativeStats.getQueryLength())
-                .setFilteredNamespaceCount(fromNativeStats.getNumNamespacesFiltered())
-                .setFilteredSchemaTypeCount(fromNativeStats.getNumSchemaTypesFiltered())
+                .setIsFirstPage(fromNativeStats.getIsFirstPage())
                 .setRequestedPageSize(fromNativeStats.getRequestedPageSize())
                 .setCurrentPageReturnedResultCount(
                         fromNativeStats.getNumResultsReturnedCurrentPage())
-                .setIsFirstPage(fromNativeStats.getIsFirstPage())
-                .setParseQueryLatencyMillis(fromNativeStats.getParseQueryLatencyMs())
-                .setRankingStrategy(fromNativeStats.getRankingStrategy().getNumber())
-                .setScoredDocumentCount(fromNativeStats.getNumDocumentsScored())
-                .setScoringLatencyMillis(fromNativeStats.getScoringLatencyMs())
+                .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
                 .setRankingLatencyMillis(fromNativeStats.getRankingLatencyMs())
-                .setResultWithSnippetsCount(fromNativeStats.getNumResultsWithSnippets())
                 .setDocumentRetrievingLatencyMillis(
                         fromNativeStats.getDocumentRetrievalLatencyMs())
+                .setResultWithSnippetsCount(fromNativeStats.getNumResultsWithSnippets())
                 .setNativeLockAcquisitionLatencyMillis(
                         fromNativeStats.getLockAcquisitionLatencyMs())
                 .setJavaToNativeJniLatencyMillis(
                         fromNativeStats.getJavaToNativeJniLatencyMs())
                 .setNativeToJavaJniLatencyMillis(
                         fromNativeStats.getNativeToJavaJniLatencyMs())
+                .setNativeJoinLatencyMillis(fromNativeStats.getJoinLatencyMs())
                 .setNativeNumJoinedResultsCurrentPage(
                         fromNativeStats.getNumJoinedResultsReturnedCurrentPage())
-                .setNativeJoinLatencyMillis(fromNativeStats.getJoinLatencyMs());
+                .setParentSearchStats(copyNativeStats(fromNativeStats.getParentSearchStats()))
+                .setChildSearchStats(copyNativeStats(fromNativeStats.getChildSearchStats()))
+                .setLiteIndexHitBufferByteSize(fromNativeStats.getLiteIndexHitBufferByteSize())
+                .setLiteIndexHitBufferUnsortedByteSize(
+                        fromNativeStats.getLiteIndexHitBufferUnsortedByteSize())
+                .setPageTokenType(fromNativeStats.getPageTokenType().getNumber())
+                .setNumResultStatsEvicted(fromNativeStats.getNumResultStatesEvicted());
+    }
+
+    /**
+     * Copies native Search stats to {@link SearchStats}.
+     *
+     * @param fromNativeStats Stats copied from.
+     */
+    static @NonNull SearchStats copyNativeStats(
+            QueryStatsProto.@NonNull SearchStats fromNativeStats) {
+        Preconditions.checkNotNull(fromNativeStats);
+        return new SearchStats.Builder()
+                .setNativeQueryLength(fromNativeStats.getQueryLength())
+                .setNativeTermCount(fromNativeStats.getNumTerms())
+                .setNativeFilteredNamespaceCount(fromNativeStats.getNumNamespacesFiltered())
+                .setNativeFilteredSchemaTypeCount(fromNativeStats.getNumSchemaTypesFiltered())
+                .setNativeRankingStrategy(fromNativeStats.getRankingStrategy().getNumber())
+                .setNativeScoredDocumentCount(fromNativeStats.getNumDocumentsScored())
+                .setNativeParseQueryLatencyMillis(fromNativeStats.getParseQueryLatencyMs())
+                .setNativeScoringLatencyMillis(fromNativeStats.getScoringLatencyMs())
+                .setNativeIsNumericQuery(fromNativeStats.getIsNumericQuery())
+                .setNativeNumFetchedHitsLiteIndex(fromNativeStats.getNumFetchedHitsLiteIndex())
+                .setNativeNumFetchedHitsMainIndex(fromNativeStats.getNumFetchedHitsMainIndex())
+                .setNativeNumFetchedHitsIntegerIndex(
+                        fromNativeStats.getNumFetchedHitsIntegerIndex())
+                .setNativeQueryProcessorLexerExtractTokenLatencyMillis(
+                        fromNativeStats.getQueryProcessorLexerExtractTokenLatencyMs())
+                .setNativeQueryProcessorParserConsumeQueryLatencyMillis(
+                        fromNativeStats.getQueryProcessorParserConsumeQueryLatencyMs())
+                .setNativeQueryProcessorQueryVisitorLatencyMillis(
+                        fromNativeStats.getQueryProcessorQueryVisitorLatencyMs())
+                .setNativeNumUnquantizedEmbeddingsScored(
+                        fromNativeStats.getNumUnquantizedEmbeddingsScored())
+                .setNativeNumQuantizedEmbeddingsScored(
+                        fromNativeStats.getNumQuantizedEmbeddingsScored())
+                .setNativeNumEmbeddingShardsRead(fromNativeStats.getNumEmbeddingShardsRead())
+                .setNativeNumEmbeddingBytesRead(fromNativeStats.getNumEmbeddingBytesRead())
+                .build();
     }
 
     /**
      * Copies native Delete stats to builder.
      *
      * @param fromNativeStats Stats copied from.
-     * @param toStatsBuilder Stats copied to.
+     * @param toStatsBuilder  Stats copied to.
      */
     static void copyNativeStats(@NonNull DeleteStatsProto fromNativeStats,
             RemoveStats.@NonNull Builder toStatsBuilder) {
@@ -163,7 +215,7 @@ public final class AppSearchLoggerHelper {
      * Copies native DeleteByQuery stats to builder.
      *
      * @param fromNativeStats Stats copied from.
-     * @param toStatsBuilder Stats copied to.
+     * @param toStatsBuilder  Stats copied to.
      */
     static void copyNativeStats(@NonNull DeleteByQueryStatsProto fromNativeStats,
             RemoveStats.@NonNull Builder toStatsBuilder) {
@@ -173,14 +225,20 @@ public final class AppSearchLoggerHelper {
         toStatsBuilder
                 .setNativeLatencyMillis(fromNativeStats.getLatencyMs())
                 .setDeleteType(RemoveStats.QUERY)
-                .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted());
+                .setDeletedDocumentCount(fromNativeStats.getNumDocumentsDeleted())
+                .setQueryLength(fromNativeStats.getQueryLength())
+                .setNumTerms(fromNativeStats.getNumTerms())
+                .setNumNamespacesFiltered(fromNativeStats.getNumNamespacesFiltered())
+                .setNumSchemaTypesFiltered(fromNativeStats.getNumSchemaTypesFiltered())
+                .setParseQueryLatencyMillis(fromNativeStats.getParseQueryLatencyMs())
+                .setDocumentRemovalLatencyMillis(fromNativeStats.getDocumentRemovalLatencyMs());
     }
 
     /**
      * Copies native {@link OptimizeStatsProto} to builder.
      *
      * @param fromNativeStats Stats copied from.
-     * @param toStatsBuilder Stats copied to.
+     * @param toStatsBuilder  Stats copied to.
      */
     static void copyNativeStats(@NonNull OptimizeStatsProto fromNativeStats,
             OptimizeStats.@NonNull Builder toStatsBuilder) {
@@ -196,10 +254,13 @@ public final class AppSearchLoggerHelper {
                 .setExpiredDocumentCount(fromNativeStats.getNumExpiredDocuments())
                 .setStorageSizeBeforeBytes(fromNativeStats.getStorageSizeBefore())
                 .setStorageSizeAfterBytes(fromNativeStats.getStorageSizeAfter())
-                .setTimeSinceLastOptimizeMillis(fromNativeStats.getTimeSinceLastOptimizeMs());
+                .setTimeSinceLastOptimizeMillis(fromNativeStats.getTimeSinceLastOptimizeMs())
+                .setIndexRestorationMode(fromNativeStats.getIndexRestorationMode().getNumber())
+                .setNumOriginalNamespaces(fromNativeStats.getNumOriginalNamespaces())
+                .setNumDeletedNamespaces(fromNativeStats.getNumDeletedNamespaces());
     }
 
-    /*
+    /**
      * Copy SetSchema result stats to builder.
      *
      * @param fromProto Stats copied from.
@@ -215,7 +276,66 @@ public final class AppSearchLoggerHelper {
                 .setCompatibleTypeChangeCount(fromProto.getFullyCompatibleChangedSchemaTypesCount())
                 .setIndexIncompatibleTypeChangeCount(
                         fromProto.getIndexIncompatibleChangedSchemaTypesCount())
+                .setJoinIndexIncompatibleTypeChangeCount(
+                        fromProto.getJoinIncompatibleChangedSchemaTypesCount())
+                .setScorablePropertyIncompatibleTypeChangeCount(
+                        fromProto.getScorablePropertyIncompatibleChangedSchemaTypesCount())
                 .setBackwardsIncompatibleTypeChangeCount(
-                        fromProto.getIncompatibleSchemaTypesCount());
+                        fromProto.getIncompatibleSchemaTypesCount())
+                .setDeletedDocumentCount(fromProto.getDeletedDocumentCount())
+                .setIsTermIndexRestored(fromProto.getHasTermIndexRestored())
+                .setIsIntegerIndexRestored(fromProto.getHasIntegerIndexRestored())
+                .setIsEmbeddingIndexRestored(fromProto.getHasEmbeddingIndexRestored())
+                .setIsQualifiedIdJoinIndexRestored(fromProto.getHasQualifiedIdJoinIndexRestored())
+                .setNativeSchemaStoreSetSchemaLatencyMillis(
+                        fromProto.getSetSchemaStats().getSchemaStoreSetSchemaLatencyMs())
+                .setNativeDocumentStoreUpdateSchemaLatencyMillis(
+                        fromProto.getSetSchemaStats().getDocumentStoreUpdateSchemaLatencyMs())
+                .setNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis(
+                        fromProto
+                                .getSetSchemaStats()
+                                .getDocumentStoreOptimizedUpdateSchemaLatencyMs())
+                .setNativeIndexRestorationLatencyMillis(
+                        fromProto.getSetSchemaStats().getIndexRestorationLatencyMs())
+                .setNativeScorablePropertyCacheRegenerationLatencyMillis(
+                        fromProto
+                                .getSetSchemaStats()
+                                .getScorablePropertyCacheRegenerationLatencyMs())
+                .addGetVmLatencyMillis(fromProto.getGetVmLatencyMs());
+    }
+
+    /*
+     * Copy PersistToDiskStatsProto to builder.
+     *
+     * @param fromProto Stats copied from.
+     * @param toStatsBuilder Stats copied to.
+     */
+    static void copyNativeStats(@NonNull PersistToDiskStatsProto fromProto,
+            PersistToDiskStats.@NonNull Builder toStatsBuilder) {
+        Preconditions.checkNotNull(fromProto);
+        Preconditions.checkNotNull(toStatsBuilder);
+        toStatsBuilder
+                .setPersistType(fromProto.getPersistType())
+                .setNativeLatencyMillis(fromProto.getLatencyMs())
+                .setNativeBlobStorePersistLatencyMillis(fromProto.getBlobStorePersistLatencyMs())
+                .setNativeDocumentStoreTotalPersistLatencyMillis(
+                        fromProto.getDocumentStoreTotalPersistLatencyMs())
+                .setNativeDocumentStoreComponentsPersistLatencyMillis(
+                        fromProto.getDocumentStoreComponentsPersistLatencyMs())
+                .setNativeDocumentStoreChecksumUpdateLatencyMillis(
+                        fromProto.getDocumentStoreChecksumUpdateLatencyMs())
+                .setNativeDocumentLogChecksumUpdateLatencyMillis(
+                        fromProto.getDocumentLogChecksumUpdateLatencyMs())
+                .setNativeDocumentLogDataSyncLatencyMillis(
+                        fromProto.getDocumentLogDataSyncLatencyMs())
+                .setNativeSchemaStorePersistLatencyMillis(
+                        fromProto.getSchemaStorePersistLatencyMs())
+                .setNativeIndexPersistLatencyMillis(fromProto.getIndexPersistLatencyMs())
+                .setNativeIntegerIndexPersistLatencyMillis(
+                        fromProto.getIntegerIndexPersistLatencyMs())
+                .setNativeQualifiedIdJoinIndexPersistLatencyMillis(
+                        fromProto.getQualifiedIdJoinIndexPersistLatencyMs())
+                .setNativeEmbeddingIndexPersistLatencyMillis(
+                        fromProto.getEmbeddingIndexPersistLatencyMs());
     }
 }

@@ -41,7 +41,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.impl.fakes.FakeImageInfo;
 import androidx.camera.testing.impl.fakes.FakeImageProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -62,7 +61,6 @@ import java.util.concurrent.Executor;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
 public class ImageAnalysisAbstractAnalyzerTest {
     private static final int WIDTH = 8;
     private static final int HEIGHT = 4;
@@ -199,40 +197,6 @@ public class ImageAnalysisAbstractAnalyzerTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 22, minSdkVersion = 21)
-    @Test
-    public void analysisRunWhenRotateYUVMaxSdk22() throws ExecutionException, InterruptedException {
-        // Arrange.
-        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
-        mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(mRotatedYUVImageReaderProxy);
-        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(true);
-        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(mSensorToBufferMatrix);
-        mImageAnalysisAbstractAnalyzer.setRelativeRotation(/*rotation=*/90);
-
-        Matrix original = new Matrix(mSensorToBufferMatrix);
-
-        // Act.
-        ListenableFuture<Void> result =
-                mImageAnalysisAbstractAnalyzer.analyzeImage(mImageProxy);
-        result.get();
-
-        // Assert.
-        ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
-                ArgumentCaptor.forClass(ImageProxy.class);
-        verify(mAnalyzer).analyze(imageProxyArgumentCaptor.capture());
-
-        assertThat(imageProxyArgumentCaptor.getValue().getImageInfo()
-                .getSensorToBufferTransformMatrix()).isEqualTo(original);
-
-        assertThat(mImageAnalysisAbstractAnalyzer.getRGBConverterBuffer()).isNull();
-        assertThat(mImageAnalysisAbstractAnalyzer.getYRotatedBuffer()).isNotNull();
-        assertThat(mImageAnalysisAbstractAnalyzer.getURotatedBuffer()).isNotNull();
-        assertThat(mImageAnalysisAbstractAnalyzer.getVRotatedBuffer()).isNotNull();
-        assertThat(mImageAnalysisAbstractAnalyzer.getNV21YDelegatedBuffer()).isNull();
-        assertThat(mImageAnalysisAbstractAnalyzer.getNV21UVDelegatedBuffer()).isNull();
-    }
-
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void analysisRunWhenRotateYUVMinSdk23() throws ExecutionException, InterruptedException {
         analysisRunWhenRotate(OUTPUT_IMAGE_FORMAT_YUV_420_888, mRotatedYUVImageReaderProxy);
@@ -307,7 +271,6 @@ public class ImageAnalysisAbstractAnalyzerTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void analysisRunWhenSetTargetRotationMultipleTimes_YUV_420_888()
             throws ExecutionException, InterruptedException {

@@ -28,8 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 
 /**
- * <a href="https://material.io/design/color/the-color-system.html" class="external"
- * target="_blank">Material Design color system</a>.
+ * [Material Design color system](https://material.io/design/color/the-color-system.html)
  *
  * The Material Design color system can help you create a color theme that reflects your brand or
  * style.
@@ -80,7 +79,7 @@ class Colors(
     onBackground: Color,
     onSurface: Color,
     onError: Color,
-    isLight: Boolean
+    isLight: Boolean,
 ) {
     var primary by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
@@ -135,7 +134,7 @@ class Colors(
         onBackground: Color = this.onBackground,
         onSurface: Color = this.onSurface,
         onError: Color = this.onError,
-        isLight: Boolean = this.isLight
+        isLight: Boolean = this.isLight,
     ): Colors =
         Colors(
             primary,
@@ -150,7 +149,7 @@ class Colors(
             onBackground,
             onSurface,
             onError,
-            isLight
+            isLight,
         )
 
     override fun toString(): String {
@@ -191,7 +190,7 @@ fun lightColors(
     onSecondary: Color = Color.Black,
     onBackground: Color = Color.Black,
     onSurface: Color = Color.Black,
-    onError: Color = Color.White
+    onError: Color = Color.White,
 ): Colors =
     Colors(
         primary,
@@ -206,7 +205,7 @@ fun lightColors(
         onBackground,
         onSurface,
         onError,
-        true
+        true,
     )
 
 /**
@@ -231,7 +230,7 @@ fun darkColors(
     onSecondary: Color = Color.Black,
     onBackground: Color = Color.White,
     onSurface: Color = Color.White,
-    onError: Color = Color.Black
+    onError: Color = Color.Black,
 ): Colors =
     Colors(
         primary,
@@ -246,7 +245,7 @@ fun darkColors(
         onBackground,
         onSurface,
         onError,
-        false
+        false,
     )
 
 /**

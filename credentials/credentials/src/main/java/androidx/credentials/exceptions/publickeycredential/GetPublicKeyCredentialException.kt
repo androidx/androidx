@@ -34,7 +34,7 @@ open class GetPublicKeyCredentialException
 @JvmOverloads
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val type: String,
-    errorMessage: CharSequence? = null
+    errorMessage: CharSequence? = null,
 ) : GetCredentialException(type, errorMessage) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }

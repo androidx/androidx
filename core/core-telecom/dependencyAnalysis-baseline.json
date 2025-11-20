@@ -1,0 +1,53 @@
+{
+  "projectPath": ":core:core-telecom",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.8.1"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test.espresso:espresso-core",
+        "resolvedVersion": "3.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:listenablefuture",
+        "resolvedVersion": "1.0"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.truth:truth",
+        "resolvedVersion": "1.0.1"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

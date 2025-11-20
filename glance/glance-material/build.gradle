@@ -10,12 +10,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:1.1.1")
     api(project(":glance:glance"))
@@ -28,10 +27,9 @@ android {
 
 androidx {
     name = "Glance Material"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "Glance Material 2 integration library." +
             " This library provides interop APIs with Material 2."
-    legacyDisableKotlinStrictApiMode = true
 }
 

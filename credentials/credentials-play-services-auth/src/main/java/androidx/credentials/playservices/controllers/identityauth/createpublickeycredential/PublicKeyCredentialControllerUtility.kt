@@ -130,7 +130,7 @@ internal class PublicKeyCredentialControllerUtility {
         @JvmStatic
         fun convert(
             request: CreatePublicKeyCredentialRequest,
-            context: Context
+            context: Context,
         ): PublicKeyCredentialCreationOptions {
             if (isDeviceGMSVersionOlderThan(context, AUTH_MIN_VERSION_JSON_CREATE)) {
                 return PublicKeyCredentialCreationOptions(request.requestJson)
@@ -180,7 +180,7 @@ internal class PublicKeyCredentialControllerUtility {
             clientDataJSON: ByteArray,
             attestationObject: ByteArray,
             transportArray: Array<out String>,
-            json: JSONObject
+            json: JSONObject,
         ) {
             val responseJson = JSONObject()
             responseJson.put(JSON_KEY_CLIENT_DATA, b64Encode(clientDataJSON))
@@ -197,7 +197,7 @@ internal class PublicKeyCredentialControllerUtility {
                 is AuthenticatorErrorResponse -> {
                     throw beginSignInPublicKeyCredentialResponseContainsError(
                         authenticatorResponse.errorCode,
-                        authenticatorResponse.errorMessage
+                        authenticatorResponse.errorMessage,
                     )
                 }
                 is AuthenticatorAssertionResponse -> {
@@ -214,7 +214,7 @@ internal class PublicKeyCredentialControllerUtility {
                     Log.e(
                         TAG,
                         "AuthenticatorResponse expected assertion response but " +
-                            "got: ${authenticatorResponse.javaClass.name}"
+                            "got: ${authenticatorResponse.javaClass.name}",
                     )
                 }
             }
@@ -290,7 +290,7 @@ internal class PublicKeyCredentialControllerUtility {
                     exception =
                         CreatePublicKeyCredentialDomException(
                             UnknownError(),
-                            "unknown fido gms exception - $msg"
+                            "unknown fido gms exception - $msg",
                         )
                 } else {
                     // This fix is quite fragile because it relies on that the fido module
@@ -324,7 +324,7 @@ internal class PublicKeyCredentialControllerUtility {
                 exception =
                     GetPublicKeyCredentialDomException(
                         UnknownError(),
-                        "unknown fido gms exception - $msg"
+                        "unknown fido gms exception - $msg",
                     )
             } else {
                 // This fix is quite fragile because it relies on that the fido module
@@ -347,7 +347,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseOptionalExtensions(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             if (json.has(JSON_KEY_EXTENSTIONS)) {
                 val extensions = json.getJSONObject(JSON_KEY_EXTENSTIONS)
@@ -375,7 +375,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseOptionalAuthenticatorSelection(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             if (json.has(JSON_KEY_AUTH_SELECTION)) {
                 val authenticatorSelection = json.getJSONObject(JSON_KEY_AUTH_SELECTION)
@@ -403,7 +403,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseOptionalTimeout(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             if (json.has(JSON_KEY_TIMEOUT)) {
                 val timeout = json.getLong(JSON_KEY_TIMEOUT).toDouble() / 1000
@@ -413,7 +413,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseOptionalWithRequiredDefaultsAttestationAndExcludeCredentials(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             val excludeCredentialsList: MutableList<PublicKeyCredentialDescriptor> = ArrayList()
             if (json.has(JSON_KEY_EXCLUDE_CREDENTIALS)) {
@@ -446,7 +446,7 @@ internal class PublicKeyCredentialControllerUtility {
                             } catch (e: Transport.UnsupportedTransportException) {
                                 throw CreatePublicKeyCredentialDomException(
                                     EncodingError(),
-                                    e.message
+                                    e.message,
                                 )
                             }
                         }
@@ -469,7 +469,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseRequiredRpAndParams(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             val rp = json.getJSONObject(JSON_KEY_RP)
             val rpId = rp.getString(JSON_KEY_ID)
@@ -512,7 +512,7 @@ internal class PublicKeyCredentialControllerUtility {
 
         internal fun parseRequiredChallengeAndUser(
             json: JSONObject,
-            builder: PublicKeyCredentialCreationOptions.Builder
+            builder: PublicKeyCredentialCreationOptions.Builder,
         ) {
             val challenge = getChallenge(json)
             builder.setChallenge(challenge)
@@ -592,7 +592,7 @@ internal class PublicKeyCredentialControllerUtility {
                 ErrorCode.NOT_ALLOWED_ERR to NotAllowedError(),
                 ErrorCode.NOT_SUPPORTED_ERR to NotSupportedError(),
                 ErrorCode.SECURITY_ERR to SecurityError(),
-                ErrorCode.TIMEOUT_ERR to TimeoutError()
+                ErrorCode.TIMEOUT_ERR to TimeoutError(),
             )
     }
 

@@ -112,7 +112,8 @@ class IntervalTree<T> {
                 return interval
             }
         }
-        @Suppress("UNCHECKED_CAST") return EmptyInterval as Interval<T>
+        @Suppress("UNCHECKED_CAST")
+        return EmptyInterval as Interval<T>
     }
 
     /**
@@ -121,7 +122,7 @@ class IntervalTree<T> {
      */
     fun findOverlaps(
         interval: ClosedFloatingPointRange<Float>,
-        results: MutableList<Interval<T>> = mutableListOf()
+        results: MutableList<Interval<T>> = mutableListOf(),
     ) = findOverlaps(interval.start, interval.endInclusive, results)
 
     /**
@@ -132,7 +133,7 @@ class IntervalTree<T> {
     fun findOverlaps(
         start: Float,
         end: Float = start,
-        results: MutableList<Interval<T>> = mutableListOf()
+        results: MutableList<Interval<T>> = mutableListOf(),
     ): MutableList<Interval<T>> {
         forEach(start, end) { interval -> results.add(interval) }
         return results
@@ -141,7 +142,7 @@ class IntervalTree<T> {
     /** Executes [block] for each interval that overlaps the specified [interval]. */
     internal inline fun forEach(
         interval: ClosedFloatingPointRange<Float>,
-        block: (Interval<T>) -> Unit
+        block: (Interval<T>) -> Unit,
     ) = forEach(interval.start, interval.endInclusive, block)
 
     /**

@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 fun OverscrollDemo() {
     Column(
         Modifier.verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OverscrollSample()
         Spacer(Modifier.height(50.dp))

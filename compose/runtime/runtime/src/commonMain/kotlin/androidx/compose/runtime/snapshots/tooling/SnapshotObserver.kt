@@ -39,7 +39,7 @@ import androidx.compose.runtime.snapshots.sync
  */
 @ExperimentalComposeRuntimeApi
 @Suppress("CallbackName")
-interface SnapshotObserver {
+public interface SnapshotObserver {
     /**
      * Called before a snapshot is created allowing reads and writes to the snapshot to be observed.
      *
@@ -50,7 +50,7 @@ interface SnapshotObserver {
      * @param readonly whether the snapshot being created will be read-only.
      * @return optional read and write observers that will be added to the snapshot created.
      */
-    fun onCreating(parent: Snapshot?, readonly: Boolean): SnapshotInstanceObservers? = null
+    public fun onPreCreate(parent: Snapshot?, readonly: Boolean): SnapshotInstanceObservers? = null
 
     /**
      * Called after snapshot is created.
@@ -64,10 +64,14 @@ interface SnapshotObserver {
      * @param parent the parent snapshot for the new snapshot if it is a nested snapshot or null if
      *   it is a root snapshot.
      * @param observers the read and write observers that were installed by the value returned by
-     *   [onCreated]. This allows correlating which snapshot observers returned by [onCreating] to
+     *   [onCreated]. This allows correlating which snapshot observers returned by [onPreCreate] to
      *   the [snapshot] that was created.
      */
-    fun onCreated(snapshot: Snapshot, parent: Snapshot?, observers: SnapshotInstanceObservers?) {}
+    public fun onCreated(
+        snapshot: Snapshot,
+        parent: Snapshot?,
+        observers: SnapshotInstanceObservers?,
+    ) {}
 
     /**
      * Called while a snapshot is being disposed.
@@ -76,7 +80,7 @@ interface SnapshotObserver {
      *
      * @param snapshot information about the snapshot that was created.
      */
-    fun onDisposing(snapshot: Snapshot) {}
+    public fun onPreDispose(snapshot: Snapshot) {}
 
     /**
      * Called after a snapshot is applied.
@@ -92,22 +96,22 @@ interface SnapshotObserver {
      * @param snapshot the snapshot that was applied.
      * @param changed the set of objects that were modified during the snapshot.
      */
-    fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
+    public fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
 }
 
 /**
- * The return result of [SnapshotObserver.onCreating] allowing the reads and writes performed in the
- * newly created snapshot to be observed
+ * The return result of [SnapshotObserver.onPreCreate] allowing the reads and writes performed in
+ * the newly created snapshot to be observed
  */
 @ExperimentalComposeRuntimeApi
-class SnapshotInstanceObservers(
+public class SnapshotInstanceObservers(
     /**
      * Called whenever a state is read in the snapshot. This is called before the read observer
      * passed to [Snapshot.takeSnapshot] or [Snapshot.takeMutableSnapshot].
      *
      * This method is called in the same thread that reads snapshot state.
      */
-    val readObserver: ((Any) -> Unit)? = null,
+    public val readObserver: ((Any) -> Unit)? = null,
 
     /**
      * Called just before a state object is written to the first time in the snapshot or a nested
@@ -121,7 +125,7 @@ class SnapshotInstanceObservers(
      *
      * This method is called in the same thread that writes to the snapshot state.
      */
-    val writeObserver: ((Any) -> Unit)? = null,
+    public val writeObserver: ((Any) -> Unit)? = null,
 )
 
 /**
@@ -139,7 +143,7 @@ class SnapshotInstanceObservers(
  * @return [ObserverHandle] an instance to unregister the [snapshotObserver].
  */
 @ExperimentalComposeRuntimeApi
-fun Snapshot.Companion.observeSnapshots(snapshotObserver: SnapshotObserver): ObserverHandle {
+public fun Snapshot.Companion.observeSnapshots(snapshotObserver: SnapshotObserver): ObserverHandle {
     sync { observers = (observers ?: persistentListOf()).add(snapshotObserver) }
     return ObserverHandle {
         sync {
@@ -157,7 +161,7 @@ internal inline fun <R : Snapshot> creatingSnapshot(
     noinline readObserver: ((Any) -> Unit)?,
     noinline writeObserver: ((Any) -> Unit)?,
     readonly: Boolean,
-    crossinline block: (readObserver: ((Any) -> Unit)?, writeObserver: ((Any) -> Unit)?) -> R
+    crossinline block: (readObserver: ((Any) -> Unit)?, writeObserver: ((Any) -> Unit)?) -> R,
 ): R {
     var observerMap: Map<SnapshotObserver, SnapshotInstanceObservers>? = null
     val observers = observers
@@ -186,7 +190,7 @@ internal fun PersistentList<SnapshotObserver>.mergeObservers(
     var currentWriteObserver = writeObserver
     var observerMap: MutableMap<SnapshotObserver, SnapshotInstanceObservers>? = null
     fastForEach { observer ->
-        val instance = observer.onCreating(parent, readonly)
+        val instance = observer.onPreCreate(parent, readonly)
         if (instance != null) {
             currentReadObserver = mergeObservers(instance.readObserver, currentReadObserver)
             currentWriteObserver = mergeObservers(instance.writeObserver, currentWriteObserver)
@@ -214,7 +218,7 @@ private fun mergeObservers(a: ((Any) -> Unit)?, b: ((Any) -> Unit)?): ((Any) -> 
 internal fun PersistentList<SnapshotObserver>.dispatchCreatedObservers(
     parent: Snapshot?,
     result: Snapshot,
-    observerMap: Map<SnapshotObserver, SnapshotInstanceObservers>?
+    observerMap: Map<SnapshotObserver, SnapshotInstanceObservers>?,
 ) {
     fastForEach { observer ->
         val instance = observerMap?.get(observer)
@@ -223,8 +227,8 @@ internal fun PersistentList<SnapshotObserver>.dispatchCreatedObservers(
 }
 
 @OptIn(ExperimentalComposeRuntimeApi::class)
-internal fun dispatchObserverOnDispose(snapshot: Snapshot) {
-    observers?.fastForEach { observer -> observer.onDisposing(snapshot) }
+internal fun dispatchObserverOnPreDispose(snapshot: Snapshot) {
+    observers?.fastForEach { observer -> observer.onPreDispose(snapshot) }
 }
 
 @OptIn(ExperimentalComposeRuntimeApi::class)

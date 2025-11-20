@@ -54,7 +54,7 @@ internal fun UiDevice.scrollDown() {
         displayHeight - displayHeight / 10,
         displayWidth / 2,
         displayHeight / 10,
-        10
+        10,
     )
 }
 

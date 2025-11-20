@@ -47,6 +47,6 @@ internal interface FontFamilyTypefaceAdapter {
         typefaceRequest: TypefaceRequest,
         platformFontLoader: PlatformFontLoader,
         onAsyncCompletion: ((TypefaceResult.Immutable) -> Unit),
-        createDefaultTypeface: (TypefaceRequest) -> Any
+        createDefaultTypeface: (TypefaceRequest) -> Any,
     ): TypefaceResult?
 }

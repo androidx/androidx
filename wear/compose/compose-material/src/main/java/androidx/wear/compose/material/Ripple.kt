@@ -69,7 +69,7 @@ import androidx.compose.ui.unit.Dp
 public fun ripple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
-    color: Color = Color.Unspecified
+    color: Color = Color.Unspecified,
 ): IndicationNodeFactory {
     return if (radius == Dp.Unspecified && color == Color.Unspecified) {
         if (bounded) return DefaultBoundedRipple else DefaultUnboundedRipple
@@ -116,7 +116,7 @@ public fun ripple(
 public fun ripple(
     color: ColorProducer,
     bounded: Boolean = true,
-    radius: Dp = Dp.Unspecified
+    radius: Dp = Dp.Unspecified,
 ): IndicationNodeFactory {
     return RippleNodeFactory(bounded, radius, color)
 }
@@ -130,9 +130,7 @@ private object RippleDefaults {
      * @param contentColor the color of content (text or iconography) in the component that contains
      *   the ripple.
      */
-    fun rippleColor(
-        contentColor: Color,
-    ): Color {
+    fun rippleColor(contentColor: Color): Color {
         val contentLuminance = contentColor.luminance()
         // If we are on a colored surface (typically indicated by low luminance content), the
         // ripple color should be white.
@@ -151,12 +149,12 @@ private constructor(
     private val bounded: Boolean,
     private val radius: Dp,
     private val colorProducer: ColorProducer?,
-    private val color: Color
+    private val color: Color,
 ) : IndicationNodeFactory {
     constructor(
         bounded: Boolean,
         radius: Dp,
-        colorProducer: ColorProducer
+        colorProducer: ColorProducer,
     ) : this(bounded, radius, colorProducer, Color.Unspecified)
 
     constructor(bounded: Boolean, radius: Dp, color: Color) : this(bounded, radius, null, color)
@@ -206,7 +204,7 @@ private class DelegatingThemeAwareRippleNode(
                         RippleDefaults.rippleColor(currentValueOf(LocalContentColor))
                     }
                 },
-                CalculateRippleAlpha
+                CalculateRippleAlpha,
             )
         )
     }
@@ -225,5 +223,5 @@ private val RippleAlpha =
         pressedAlpha = 0.10f,
         focusedAlpha = 0.12f,
         draggedAlpha = 0.08f,
-        hoveredAlpha = 0.04f
+        hoveredAlpha = 0.04f,
     )

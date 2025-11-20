@@ -130,10 +130,10 @@ public fun SegmentedCircularProgressIndicator(
                         async {
                             animatedProgress.animateTo(
                                 newProgress,
-                                actualOverflowProgressAnimationSpec
+                                actualOverflowProgressAnimationSpec,
                             )
                         },
-                        async { animatedOverflowColor.animateTo(0f, colorAnimationSpec) }
+                        async { animatedOverflowColor.animateTo(0f, colorAnimationSpec) },
                     )
                 }
             } else {
@@ -176,7 +176,7 @@ public fun SegmentedCircularProgressIndicator(
                                     brush =
                                         colors.overflowTrackBrush(
                                             enabled,
-                                            animatedOverflowColor.value
+                                            animatedOverflowColor.value,
                                         ),
                                     strokeWidth = strokePx,
                                 )
@@ -216,7 +216,7 @@ public fun SegmentedCircularProgressIndicator(
                                 gapSweep = gapSweep,
                                 brush = colors.indicatorBrush(enabled),
                                 strokeWidth = strokePx,
-                                strokePadding = AntiAliasingStrokePadding
+                                strokePadding = AntiAliasingStrokePadding,
                             )
                         }
                     }
@@ -330,7 +330,7 @@ public fun SegmentedCircularProgressIndicator(
                                 gapSweep = gapSweep,
                                 brush = colors.indicatorBrush(enabled),
                                 strokeWidth = strokePx,
-                                strokePadding = AntiAliasingStrokePadding
+                                strokePadding = AntiAliasingStrokePadding,
                             )
                         }
                     }

@@ -44,7 +44,7 @@ internal actual typealias NativePointerKeyboardModifiers = Int
     CLASSIFICATION_AMBIGUOUS_GESTURE,
     CLASSIFICATION_DEEP_PRESS,
     CLASSIFICATION_TWO_FINGER_SWIPE,
-    CLASSIFICATION_PINCH
+    CLASSIFICATION_PINCH,
 )
 @Retention(AnnotationRetention.SOURCE) // Only for compile-time checks
 internal annotation class MotionEventClassification
@@ -54,9 +54,33 @@ actual class PointerEvent
 internal actual constructor(
     /** The changes. */
     actual val changes: List<PointerInputChange>,
-    internal val internalPointerEvent: InternalPointerEvent?
+    internal val internalPointerEvent: InternalPointerEvent?,
 ) {
-    internal val motionEvent: MotionEvent?
+    /**
+     * The underlying Android [MotionEvent] that triggered this [PointerEvent].
+     *
+     * This property provides access to the raw [MotionEvent] for retrieving platform-specific
+     * information not yet exposed by the Compose [PointerEvent] API (e.g., stylus tilt angle).
+     *
+     * **Important Considerations:**
+     * 1. **Read-Only:** The returned [MotionEvent] is strictly read-only. Modifying it will lead to
+     *    unpredictable behavior.
+     * 2. **Transient:** Do not store a reference to this [MotionEvent]. The Android framework may
+     *    recycle it, rendering its state undefined and causing errors if accessed later. Access the
+     *    data only within the scope where the [PointerEvent] is received.
+     * 3. **Metadata Only:** This [MotionEvent] should *not* be used for primary input handling
+     *    logic (e.g., determining pointer position or button presses). Rely on the properties of
+     *    [PointerEvent] and [PointerInputChange] for this purpose. The [MotionEvent] is intended
+     *    solely for accessing supplemental metadata.
+     * 4. **Nullability:** This property will be `null` in two cases:
+     *     * The [PointerEvent] was fabricated within Compose (i.e., not directly from a system
+     *       input event).
+     *     * The [PointerEvent] has already been dispatched within the Compose input system. (See
+     *       [androidx.compose.ui.samples.PointerEventMotionEventSample] for details).
+     *
+     * @sample androidx.compose.ui.samples.PointerEventMotionEventSample
+     */
+    val motionEvent: MotionEvent?
         get() = internalPointerEvent?.motionEvent
 
     /**
@@ -64,13 +88,12 @@ internal actual constructor(
      * [`MotionEvent`'s classification](https://developer.android.com/reference/android/view/MotionEvent#getClassification()).
      */
     @get:MotionEventClassification
-    val classification: Int
-        get() =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                motionEvent?.classification ?: CLASSIFICATION_NONE
-            } else {
-                CLASSIFICATION_NONE // Return NONE for versions lower than Android Q
-            }
+    val classification: Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            motionEvent?.classification ?: CLASSIFICATION_NONE
+        } else {
+            CLASSIFICATION_NONE // Return NONE for versions lower than Android Q
+        }
 
     /** @param changes The changes. */
     actual constructor(changes: List<PointerInputChange>) : this(changes, null)
@@ -132,7 +155,7 @@ internal actual constructor(
                             change.pressed,
                             change.pressure,
                             change.type,
-                            this.internalPointerEvent?.activeHoverEvent(change.id) == true
+                            this.internalPointerEvent?.activeHoverEvent(change.id) == true,
                         )
                 }
 

@@ -1,0 +1,36 @@
+// Signature format: 4.0
+package androidx.core.splashscreen {
+
+  public final class SplashScreen {
+    method public static androidx.core.splashscreen.SplashScreen installSplashScreen(android.app.Activity);
+    method public void setKeepOnScreenCondition(androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition condition);
+    method public void setOnExitAnimationListener(androidx.core.splashscreen.SplashScreen.OnExitAnimationListener listener);
+    field public static final androidx.core.splashscreen.SplashScreen.Companion Companion;
+  }
+
+  public static final class SplashScreen.Companion {
+    method public androidx.core.splashscreen.SplashScreen installSplashScreen(android.app.Activity);
+  }
+
+  public static fun interface SplashScreen.KeepOnScreenCondition {
+    method @MainThread public boolean shouldKeepOnScreen();
+  }
+
+  public static fun interface SplashScreen.OnExitAnimationListener {
+    method @MainThread public void onSplashScreenExit(androidx.core.splashscreen.SplashScreenViewProvider splashScreenViewProvider);
+  }
+
+  public final class SplashScreenViewProvider {
+    method public long getIconAnimationDurationMillis();
+    method public long getIconAnimationStartMillis();
+    method public android.view.View getIconView();
+    method public android.view.View getView();
+    method public void remove();
+    property public long iconAnimationDurationMillis;
+    property public long iconAnimationStartMillis;
+    property public android.view.View iconView;
+    property public android.view.View view;
+  }
+
+}
+

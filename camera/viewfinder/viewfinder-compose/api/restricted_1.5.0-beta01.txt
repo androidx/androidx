@@ -1,0 +1,40 @@
+// Signature format: 4.0
+package androidx.camera.viewfinder.compose {
+
+  public interface CoordinateTransformer {
+    method public float[] getTransformMatrix();
+    method @BytecodeOnly public float[] getTransformMatrix-sQKQjiQ();
+    method public default long transform(long);
+    method @BytecodeOnly public default long transform-MK-Hz9U(long);
+    property public abstract float[] transformMatrix;
+  }
+
+  public final class CoordinateTransformerKt {
+    method public static androidx.camera.viewfinder.compose.MutableCoordinateTransformer MutableCoordinateTransformer(optional float[] matrix);
+    method @BytecodeOnly public static androidx.camera.viewfinder.compose.MutableCoordinateTransformer MutableCoordinateTransformer-58bKbWc(float[]);
+  }
+
+  public final class IdentityCoordinateTransformer implements androidx.camera.viewfinder.compose.CoordinateTransformer {
+    method public float[] getTransformMatrix();
+    method @BytecodeOnly public float[] getTransformMatrix-sQKQjiQ();
+    property public float[] transformMatrix;
+    field public static final androidx.camera.viewfinder.compose.IdentityCoordinateTransformer INSTANCE;
+  }
+
+  public interface MutableCoordinateTransformer extends androidx.camera.viewfinder.compose.CoordinateTransformer {
+    method public void setTransformMatrix(float[]);
+    method @BytecodeOnly public void setTransformMatrix-58bKbWc(float[]);
+    property public abstract float[] transformMatrix;
+  }
+
+  public interface ViewfinderInitScope {
+    method public void onSurfaceSession(kotlin.jvm.functions.Function2<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+  }
+
+  public final class ViewfinderKt {
+    method @androidx.compose.runtime.Composable public static void Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest surfaceRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.camera.viewfinder.core.TransformationInfo transformationInfo, optional androidx.camera.viewfinder.compose.MutableCoordinateTransformer? coordinateTransformer, optional androidx.compose.ui.Alignment alignment, optional androidx.compose.ui.layout.ContentScale contentScale, kotlin.jvm.functions.Function1<? super androidx.camera.viewfinder.compose.ViewfinderInitScope,kotlin.Unit> onInit);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Viewfinder(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, androidx.compose.ui.Modifier?, androidx.camera.viewfinder.core.TransformationInfo?, androidx.camera.viewfinder.compose.MutableCoordinateTransformer?, androidx.compose.ui.Alignment?, androidx.compose.ui.layout.ContentScale?, kotlin.jvm.functions.Function1<? super androidx.camera.viewfinder.compose.ViewfinderInitScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

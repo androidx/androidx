@@ -1,10 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.gridlayout.widget {
 
   public class GridLayout extends android.view.ViewGroup {
-    ctor public GridLayout(android.content.Context!, android.util.AttributeSet!, int);
-    ctor public GridLayout(android.content.Context!, android.util.AttributeSet!);
     ctor public GridLayout(android.content.Context!);
+    ctor public GridLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public GridLayout(android.content.Context!, android.util.AttributeSet!, int);
     method protected androidx.gridlayout.widget.GridLayout.LayoutParams! generateDefaultLayoutParams();
     method public androidx.gridlayout.widget.GridLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method protected androidx.gridlayout.widget.GridLayout.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
@@ -24,14 +24,14 @@ package androidx.gridlayout.widget {
     method public void setRowCount(int);
     method public void setRowOrderPreserved(boolean);
     method public void setUseDefaultMargins(boolean);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, androidx.gridlayout.widget.GridLayout.Alignment!, float);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, androidx.gridlayout.widget.GridLayout.Alignment!, float);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, float);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, float);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, androidx.gridlayout.widget.GridLayout.Alignment!);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, androidx.gridlayout.widget.GridLayout.Alignment!);
-    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int);
     method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, androidx.gridlayout.widget.GridLayout.Alignment!);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, androidx.gridlayout.widget.GridLayout.Alignment!, float);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, float);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, androidx.gridlayout.widget.GridLayout.Alignment!);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, androidx.gridlayout.widget.GridLayout.Alignment!, float);
+    method public static androidx.gridlayout.widget.GridLayout.Spec! spec(int, int, float);
     field public static final int ALIGN_BOUNDS = 0; // 0x0
     field public static final int ALIGN_MARGINS = 1; // 0x1
     field public static final androidx.gridlayout.widget.GridLayout.Alignment! BASELINE;
@@ -52,12 +52,12 @@ package androidx.gridlayout.widget {
   }
 
   public static class GridLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
-    ctor public GridLayout.LayoutParams(androidx.gridlayout.widget.GridLayout.Spec!, androidx.gridlayout.widget.GridLayout.Spec!);
     ctor public GridLayout.LayoutParams();
+    ctor public GridLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
     ctor public GridLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public GridLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public GridLayout.LayoutParams(androidx.gridlayout.widget.GridLayout.LayoutParams!);
-    ctor public GridLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor public GridLayout.LayoutParams(androidx.gridlayout.widget.GridLayout.Spec!, androidx.gridlayout.widget.GridLayout.Spec!);
     method public void setGravity(int);
     field public androidx.gridlayout.widget.GridLayout.Spec! columnSpec;
     field public androidx.gridlayout.widget.GridLayout.Spec! rowSpec;

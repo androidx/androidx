@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.camera.core.CameraProvider#getAvailableCameraInfos():
+    Source breaking change: method androidx.camera.core.CameraProvider.getAvailableCameraInfos() can no longer be resolved from Kotlin source

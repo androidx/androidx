@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,androidx.recyclerview.widget.ListUpdateCallback,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,androidx.recyclerview.widget.ListUpdateCallback,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.PagingDataAdapter#PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.PagingDataAdapter#PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher)
+
+
+RemovedFromKotlin: androidx.paging.AsyncPagedListDiffer#getCurrentList():
+    Source breaking change: method androidx.paging.AsyncPagedListDiffer.getCurrentList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.AsyncPagedListDiffer#getItemCount():
+    Source breaking change: method androidx.paging.AsyncPagedListDiffer.getItemCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.AsyncPagingDataDiffer#getItemCount():
+    Source breaking change: method androidx.paging.AsyncPagingDataDiffer.getItemCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.AsyncPagingDataDiffer#getLoadStateFlow():
+    Source breaking change: method androidx.paging.AsyncPagingDataDiffer.getLoadStateFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.AsyncPagingDataDiffer#getOnPagesUpdatedFlow():
+    Source breaking change: method androidx.paging.AsyncPagingDataDiffer.getOnPagesUpdatedFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStateAdapter#getLoadState():
+    Source breaking change: method androidx.paging.LoadStateAdapter.getLoadState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.LoadStateAdapter#setLoadState(androidx.paging.LoadState):
+    Source breaking change: method androidx.paging.LoadStateAdapter.setLoadState(androidx.paging.LoadState) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedListAdapter#getCurrentList():
+    Source breaking change: method androidx.paging.PagedListAdapter.getCurrentList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataAdapter#getLoadStateFlow():
+    Source breaking change: method androidx.paging.PagingDataAdapter.getLoadStateFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingDataAdapter#getOnPagesUpdatedFlow():
+    Source breaking change: method androidx.paging.PagingDataAdapter.getOnPagesUpdatedFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagingLiveData#getLiveData(androidx.paging.Pager<Key,Value>):
+    Source breaking change: method androidx.paging.PagingLiveData.getLiveData(androidx.paging.Pager<Key,Value>) can no longer be resolved from Kotlin source

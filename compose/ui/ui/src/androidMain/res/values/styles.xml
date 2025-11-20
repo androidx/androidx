@@ -22,10 +22,6 @@
     <!-- Style for decorFitsSystemWindows = false -->
     <style name="FloatingDialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
-        <item name="android:dialogTheme">@style/FloatingDialogTheme</item>
         <item name="android:backgroundDimEnabled">true</item>
-    </style>
-    <style name="FloatingDialogTheme">
-        <item name="android:windowIsFloating">false</item>
     </style>
 </resources>

@@ -70,7 +70,7 @@ object OnCreateView : InflateViewLocation()
 @RunWith(Parameterized::class)
 class DialogFragmentInflatedChildTest(
     private val inflatedView: InflatedViewLayout,
-    private val inflateLocation: InflateViewLocation
+    private val inflateLocation: InflateViewLocation,
 ) {
 
     companion object {
@@ -94,7 +94,7 @@ class DialogFragmentInflatedChildTest(
                 TestInflatedChildDialogFragment.newInstance(
                     false,
                     inflatedView.getLayoutId(),
-                    inflateLocation is OnCreateDialog
+                    inflateLocation is OnCreateDialog,
                 )
 
             withActivity {
@@ -123,7 +123,7 @@ class DialogFragmentInflatedChildTest(
                 TestInflatedChildDialogFragment.newInstance(
                     true,
                     inflatedView.getLayoutId(),
-                    inflateLocation is OnCreateDialog
+                    inflateLocation is OnCreateDialog,
                 )
 
             withActivity {
@@ -179,7 +179,7 @@ class TestInflatedChildDialogFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) = if (!onCreateDialog) inflater.inflate(layoutId, container, false) else null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

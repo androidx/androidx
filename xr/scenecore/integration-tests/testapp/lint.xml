@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- SceneCore testapp specific lint rules: -->
+
+    <!-- Developers need to call our code from Kotlin code, so nullness is important.-->
+    <issue id="PrimitiveInCollection" severity="ignore" >
+        <!-- The consolidated test app has Activities which use ComposeUi, and those which don't.
+             ComposeUi introduces this check to promote the androidx.collections library, but not
+             all SceneCore APIs accept containers from this library. (And the library doesn't
+             provide a means to convert to the default Kotlin/Java collections)
+             TODO: b/450348630 - remove this LintIgnore
+         -->
+    </issue>
+
+</lint>

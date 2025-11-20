@@ -92,7 +92,7 @@ class LineRenderer {
         mvpMatrix: FloatArray,
         lines: FloatArray,
         color: Int = Color.RED,
-        lineWidth: Float = 10f
+        lineWidth: Float = 10f,
     ) {
         GLES20.glUseProgram(mGlProgram)
         GLES20.glLineWidth(lineWidth)
@@ -124,7 +124,7 @@ class LineRenderer {
                 GLES20.GL_FLOAT,
                 false,
                 VertexStride,
-                buffer
+                buffer,
             )
             GLES20.glDrawArrays(GLES20.GL_LINES, 0, VertexCount)
         }

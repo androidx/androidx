@@ -39,4 +39,5 @@
     <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"အလယ်အလတ် အသားအရောင်"</string>
     <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"အနည်းငယ်ညိုသည့် အသားအရောင်"</string>
     <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"ညိုသည့် အသားအရောင်"</string>
+    <string name="emoji_content_desc" msgid="655318124835479020">"<xliff:g id="EMOJI">%1$s</xliff:g> အီမိုဂျီ"</string>
 </resources>

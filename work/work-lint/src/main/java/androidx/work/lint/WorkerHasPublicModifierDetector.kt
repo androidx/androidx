@@ -54,8 +54,8 @@ class WorkerHasPublicModifierDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         WorkerHasPublicModifierDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 
@@ -89,7 +89,7 @@ class WorkerHasPublicModifierDetector : Detector(), SourceCodeScanner {
                 context.report(
                     issue = ISSUE,
                     location = location,
-                    message = "${declaration.qualifiedName} needs to be public"
+                    message = "${declaration.qualifiedName} needs to be public",
                 )
             }
         }

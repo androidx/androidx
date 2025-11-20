@@ -1,0 +1,36 @@
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("com.android.experimental.built-in-kotlin")
+    id("androidx.benchmark")
+}
+
+dependencies {
+
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":compose:benchmark-utils"))
+    androidTestImplementation(project(":activity:activity-compose"))
+
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:foundation:foundation-layout"))
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
+}
+
+android {
+    compileSdk = 36
+    namespace = "androidx.activity.compose.benchmark"
+
+    // DO NOT CHECK IN! Enable experimental benchmarking with R8 - for local runs only
+    // buildTypes.release.androidTest.enableMinification = true
+}
+
+androidx {
+    type = SoftwareType.BENCHMARK
+}

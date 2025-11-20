@@ -32,7 +32,7 @@ import kotlin.math.roundToLong
 internal class PagerScrollPosition(
     currentPage: Int = 0,
     currentPageOffsetFraction: Float = 0.0f,
-    val state: PagerState
+    val state: PagerState,
 ) {
     var currentPage by mutableIntStateOf(currentPage)
         private set
@@ -49,7 +49,7 @@ internal class PagerScrollPosition(
         LazyLayoutNearestRangeState(
             currentPage,
             NearestItemsSlidingWindowSize,
-            NearestItemsExtraItemCount
+            NearestItemsExtraItemCount,
         )
 
     /** Updates the current scroll position based on the results of the last measurement. */

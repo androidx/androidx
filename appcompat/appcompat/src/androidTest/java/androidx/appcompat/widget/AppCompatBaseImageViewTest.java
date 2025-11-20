@@ -469,7 +469,8 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
         final @IdRes int viewId = R.id.view_without_level;
         final Resources res = mActivity.getResources();
         final ImageView imageView = mContainer.findViewById(viewId);
-        final Drawable drawable = res.getDrawable(R.drawable.test_level_drawable);
+        final Drawable drawable = res.getDrawable(
+                androidx.appcompat.R.drawable.test_level_drawable);
         drawable.setLevel(5);
         imageView.setImageDrawable(drawable);
         assertEquals(5, imageView.getDrawable().getLevel());
@@ -482,7 +483,8 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
         final Resources res = mActivity.getResources();
         final ImageView imageView = mContainer.findViewById(viewId);
         imageView.setImageLevel(5);
-        final Drawable drawable = res.getDrawable(R.drawable.test_level_drawable);
+        final Drawable drawable = res.getDrawable(
+                androidx.appcompat.R.drawable.test_level_drawable);
         drawable.setLevel(1);
         imageView.setImageDrawable(drawable);
         assertEquals(5, imageView.getDrawable().getLevel());

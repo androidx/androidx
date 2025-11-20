@@ -51,14 +51,14 @@ class ComposableDestinationInComposeScopeDetector : Detector(), SourceCodeScanne
                     ComposableDestinationInComposeScope,
                     node,
                     context.getNameLocation(node),
-                    "Using composable inside of a compose scope"
+                    "Using composable inside of a compose scope",
                 )
             } else {
                 context.report(
                     ComposableNavGraphInComposeScope,
                     node,
                     context.getNameLocation(node),
-                    "Using navigation inside of a compose scope"
+                    "Using navigation inside of a compose scope",
                 )
             }
         }
@@ -77,8 +77,8 @@ class ComposableDestinationInComposeScopeDetector : Detector(), SourceCodeScanne
                 Severity.ERROR,
                 Implementation(
                     ComposableDestinationInComposeScopeDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
         val ComposableNavGraphInComposeScope =
             Issue.create(
@@ -91,8 +91,8 @@ class ComposableDestinationInComposeScopeDetector : Detector(), SourceCodeScanne
                 Severity.ERROR,
                 Implementation(
                     ComposableDestinationInComposeScopeDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

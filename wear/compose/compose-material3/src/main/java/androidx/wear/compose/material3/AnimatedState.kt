@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 internal fun rememberAnimatedStateOf(
     progress: () -> Float,
-    animationSpec: AnimationSpec<Float>
+    animationSpec: AnimationSpec<Float>,
 ): Animatable<Float, AnimationVector1D> {
     val animatable = remember { Animatable(progress()) }
     LaunchedEffect(Unit) {

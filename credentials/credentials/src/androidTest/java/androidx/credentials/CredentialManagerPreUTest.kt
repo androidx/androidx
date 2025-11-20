@@ -63,7 +63,7 @@ class CredentialManagerPreUTest {
             assertThrows<CreateCredentialProviderConfigurationException> {
                 credentialManager.createCredential(
                     Activity(),
-                    CreatePasswordRequest("test-user-id", "test-password")
+                    CreatePasswordRequest("test-user-id", "test-password"),
                 )
             }
         }
@@ -123,7 +123,7 @@ class CredentialManagerPreUTest {
                         loadedResult.set(e)
                         latch.countDown()
                     }
-                }
+                },
             )
         }
 
@@ -156,7 +156,7 @@ class CredentialManagerPreUTest {
                 }
 
                 override fun onResult(result: Void?) {}
-            }
+            },
         )
 
         latch.await(100L, TimeUnit.MILLISECONDS)

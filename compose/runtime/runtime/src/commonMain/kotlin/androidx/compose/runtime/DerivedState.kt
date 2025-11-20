@@ -85,7 +85,7 @@ private inline fun <T> withCalculationNestedLevel(block: (IntRef) -> T): T {
 
 private class DerivedSnapshotState<T>(
     private val calculation: () -> T,
-    override val policy: SnapshotMutationPolicy<T>?
+    override val policy: SnapshotMutationPolicy<T>?,
 ) : StateObjectImpl(), DerivedState<T> {
     private var first: ResultRecord<T> = ResultRecord(currentSnapshot().snapshotId)
 
@@ -179,7 +179,7 @@ private class DerivedSnapshotState<T>(
         readable: ResultRecord<T>,
         snapshot: Snapshot,
         forceDependencyReads: Boolean,
-        calculation: () -> T
+        calculation: () -> T,
     ): ResultRecord<T> {
         if (readable.isValid(this, snapshot)) {
             // If the dependency is not recalculated, emulate nested state reads
@@ -215,12 +215,12 @@ private class DerivedSnapshotState<T>(
                                 newDependencies[it] =
                                     min(
                                         readNestedLevel - nestedCalculationLevel,
-                                        newDependencies.getOrDefault(it, Int.MAX_VALUE)
+                                        newDependencies.getOrDefault(it, Int.MAX_VALUE),
                                     )
                             }
                         },
                         null,
-                        calculation
+                        calculation,
                     )
 
                 calculationLevelRef.element = nestedCalculationLevel
@@ -332,9 +332,8 @@ private class DerivedSnapshotState<T>(
  * @param calculation the calculation to create the value this state object represents.
  */
 @StateFactoryMarker
-fun <T> derivedStateOf(
-    calculation: () -> T,
-): State<T> = DerivedSnapshotState(calculation, null)
+public fun <T> derivedStateOf(calculation: () -> T): State<T> =
+    DerivedSnapshotState(calculation, null)
 
 /**
  * Creates a [State] object whose [State.value] is the result of [calculation]. The result of
@@ -349,10 +348,8 @@ fun <T> derivedStateOf(
  * @param calculation the calculation to create the value this state object represents.
  */
 @StateFactoryMarker
-fun <T> derivedStateOf(
-    policy: SnapshotMutationPolicy<T>,
-    calculation: () -> T,
-): State<T> = DerivedSnapshotState(calculation, policy)
+public fun <T> derivedStateOf(policy: SnapshotMutationPolicy<T>, calculation: () -> T): State<T> =
+    DerivedSnapshotState(calculation, policy)
 
 /** Observe the recalculations performed by derived states. */
 internal interface DerivedStateObserver {
@@ -388,7 +385,7 @@ private inline fun <R> notifyObservers(derivedState: DerivedState<*>, block: () 
  */
 internal inline fun <R> observeDerivedStateRecalculations(
     observer: DerivedStateObserver,
-    block: () -> R
+    block: () -> R,
 ) {
     val observers = derivedStateObservers()
     try {

@@ -66,7 +66,7 @@ class Material3DemoCategory(title: String, demos: List<Demo>) : DemoCategory(tit
 /** Parameters which are used by [Demo] screens. */
 class DemoParameters(
     val navigateBack: () -> Unit,
-    val swipeToDismissBoxState: SwipeToDismissBoxState
+    val swipeToDismissBoxState: SwipeToDismissBoxState,
 )
 
 /**
@@ -85,6 +85,6 @@ fun Centralize(modifier: Modifier = Modifier, content: @Composable ColumnScope.(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        content = content
+        content = content,
     )
 }

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.wear.activity {
 
   public class ConfirmationActivity extends android.app.Activity {
@@ -74,16 +74,9 @@ package androidx.wear.ambient {
     method public void setAmbientOffloadEnabled(boolean);
   }
 
-
-}
-
-package androidx.wear.internal.widget {
-
-
 }
 
 package androidx.wear.internal.widget.drawer {
-
 
   public static interface MultiPagePresenter.Ui {
     method public void initialize(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
@@ -92,8 +85,6 @@ package androidx.wear.internal.widget.drawer {
     method public void setNavigationPagerAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
     method public void setNavigationPagerSelectedItem(int, boolean);
   }
-
-
 
   public static interface SinglePagePresenter.Ui {
     method public void closeDrawerDelayed(long);
@@ -105,8 +96,6 @@ package androidx.wear.internal.widget.drawer {
     method public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
     method public void setText(CharSequence!, boolean);
   }
-
-
 
 }
 
@@ -137,13 +126,13 @@ package androidx.wear.widget {
 
   public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
     ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
-    ctor public BoxInsetLayout.LayoutParams(int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int, @androidx.wear.widget.BoxInsetLayout.LayoutParams.BoxedEdges int);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(androidx.wear.widget.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, @androidx.wear.widget.BoxInsetLayout.LayoutParams.BoxedEdges int);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -152,8 +141,6 @@ package androidx.wear.widget {
     field public static final int BOX_TOP = 2; // 0x2
     field @androidx.wear.widget.BoxInsetLayout.LayoutParams.BoxedEdges public int boxedEdges;
   }
-
-
 
   public class CircularProgressLayout extends android.widget.FrameLayout {
     ctor public CircularProgressLayout(android.content.Context!);
@@ -202,7 +189,7 @@ package androidx.wear.widget {
     method public void onAnimationFinished();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.wear.widget.ConfirmationOverlay.SUCCESS_ANIMATION, androidx.wear.widget.ConfirmationOverlay.FAILURE_ANIMATION, androidx.wear.widget.ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION}) public static @interface ConfirmationOverlay.OverlayType {
+  @IntDef({androidx.wear.widget.ConfirmationOverlay.SUCCESS_ANIMATION, androidx.wear.widget.ConfirmationOverlay.FAILURE_ANIMATION, androidx.wear.widget.ConfirmationOverlay.OPEN_ON_PHONE_ANIMATION}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ConfirmationOverlay.OverlayType {
   }
 
   public class CurvingLayoutCallback extends androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback {
@@ -227,7 +214,6 @@ package androidx.wear.widget {
     method public void setRadius(int);
   }
 
-
   @UiThread public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
     ctor public SwipeDismissFrameLayout(android.content.Context!);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!);
@@ -250,8 +236,8 @@ package androidx.wear.widget {
   }
 
   public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     ctor public WearableLinearLayoutManager(android.content.Context!);
+    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     method public androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback? getLayoutCallback();
     method public void setLayoutCallback(androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback?);
   }
@@ -279,7 +265,6 @@ package androidx.wear.widget {
 }
 
 package androidx.wear.widget.drawer {
-
 
   public class WearableActionDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
     ctor public WearableActionDrawerView(android.content.Context!);
@@ -346,7 +331,6 @@ package androidx.wear.widget.drawer {
     field public static final int STATE_SETTLING = 2; // 0x2
   }
 
-
   public class WearableNavigationDrawerView extends androidx.wear.widget.drawer.WearableDrawerView {
     ctor public WearableNavigationDrawerView(android.content.Context!);
     ctor public WearableNavigationDrawerView(android.content.Context!, android.util.AttributeSet!);
@@ -360,7 +344,6 @@ package androidx.wear.widget.drawer {
     field public static final int MULTI_PAGE = 1; // 0x1
     field public static final int SINGLE_PAGE = 0; // 0x0
   }
-
 
   public static interface WearableNavigationDrawerView.OnItemSelectedListener {
     method public void onItemSelected(int);

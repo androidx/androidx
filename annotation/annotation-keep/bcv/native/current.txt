@@ -1,0 +1,65 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.annotation:annotation-keep>
+open annotation class androidx.annotation.keep/UnconditionallyKeep : kotlin/Annotation { // androidx.annotation.keep/UnconditionallyKeep|null[0]
+    constructor <init>(kotlin/Boolean = ...) // androidx.annotation.keep/UnconditionallyKeep.<init>|<init>(kotlin.Boolean){}[0]
+
+    final val shouldPreserveName // androidx.annotation.keep/UnconditionallyKeep.shouldPreserveName|{}shouldPreserveName[0]
+        final fun <get-shouldPreserveName>(): kotlin/Boolean // androidx.annotation.keep/UnconditionallyKeep.shouldPreserveName.<get-shouldPreserveName>|<get-shouldPreserveName>(){}[0]
+}
+
+open annotation class androidx.annotation.keep/UsesReflectionToAccessField : kotlin/Annotation { // androidx.annotation.keep/UsesReflectionToAccessField|null[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/String = ..., kotlin/String, kotlin.reflect/KClass<*> = ..., kotlin/String = ...) // androidx.annotation.keep/UsesReflectionToAccessField.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String;kotlin.reflect.KClass<*>;kotlin.String){}[0]
+
+    final val classConstant // androidx.annotation.keep/UsesReflectionToAccessField.classConstant|{}classConstant[0]
+        final fun <get-classConstant>(): kotlin.reflect/KClass<*> // androidx.annotation.keep/UsesReflectionToAccessField.classConstant.<get-classConstant>|<get-classConstant>(){}[0]
+    final val className // androidx.annotation.keep/UsesReflectionToAccessField.className|{}className[0]
+        final fun <get-className>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessField.className.<get-className>|<get-className>(){}[0]
+    final val fieldName // androidx.annotation.keep/UsesReflectionToAccessField.fieldName|{}fieldName[0]
+        final fun <get-fieldName>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessField.fieldName.<get-fieldName>|<get-fieldName>(){}[0]
+    final val fieldType // androidx.annotation.keep/UsesReflectionToAccessField.fieldType|{}fieldType[0]
+        final fun <get-fieldType>(): kotlin.reflect/KClass<*> // androidx.annotation.keep/UsesReflectionToAccessField.fieldType.<get-fieldType>|<get-fieldType>(){}[0]
+    final val fieldTypeName // androidx.annotation.keep/UsesReflectionToAccessField.fieldTypeName|{}fieldTypeName[0]
+        final fun <get-fieldTypeName>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessField.fieldTypeName.<get-fieldTypeName>|<get-fieldTypeName>(){}[0]
+}
+
+open annotation class androidx.annotation.keep/UsesReflectionToAccessMethod : kotlin/Annotation { // androidx.annotation.keep/UsesReflectionToAccessMethod|null[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/String = ..., kotlin/String, kotlin/Array<kotlin.reflect/KClass<*>> = ..., kotlin/Array<kotlin/String> = ..., kotlin.reflect/KClass<*> = ..., kotlin/String = ...) // androidx.annotation.keep/UsesReflectionToAccessMethod.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.String;kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Array<kotlin.String>;kotlin.reflect.KClass<*>;kotlin.String){}[0]
+
+    final val classConstant // androidx.annotation.keep/UsesReflectionToAccessMethod.classConstant|{}classConstant[0]
+        final fun <get-classConstant>(): kotlin.reflect/KClass<*> // androidx.annotation.keep/UsesReflectionToAccessMethod.classConstant.<get-classConstant>|<get-classConstant>(){}[0]
+    final val className // androidx.annotation.keep/UsesReflectionToAccessMethod.className|{}className[0]
+        final fun <get-className>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessMethod.className.<get-className>|<get-className>(){}[0]
+    final val methodName // androidx.annotation.keep/UsesReflectionToAccessMethod.methodName|{}methodName[0]
+        final fun <get-methodName>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessMethod.methodName.<get-methodName>|<get-methodName>(){}[0]
+    final val parameterTypeNames // androidx.annotation.keep/UsesReflectionToAccessMethod.parameterTypeNames|{}parameterTypeNames[0]
+        final fun <get-parameterTypeNames>(): kotlin/Array<kotlin/String> // androidx.annotation.keep/UsesReflectionToAccessMethod.parameterTypeNames.<get-parameterTypeNames>|<get-parameterTypeNames>(){}[0]
+    final val parameterTypes // androidx.annotation.keep/UsesReflectionToAccessMethod.parameterTypes|{}parameterTypes[0]
+        final fun <get-parameterTypes>(): kotlin/Array<kotlin.reflect/KClass<*>> // androidx.annotation.keep/UsesReflectionToAccessMethod.parameterTypes.<get-parameterTypes>|<get-parameterTypes>(){}[0]
+    final val returnType // androidx.annotation.keep/UsesReflectionToAccessMethod.returnType|{}returnType[0]
+        final fun <get-returnType>(): kotlin.reflect/KClass<*> // androidx.annotation.keep/UsesReflectionToAccessMethod.returnType.<get-returnType>|<get-returnType>(){}[0]
+    final val returnTypeName // androidx.annotation.keep/UsesReflectionToAccessMethod.returnTypeName|{}returnTypeName[0]
+        final fun <get-returnTypeName>(): kotlin/String // androidx.annotation.keep/UsesReflectionToAccessMethod.returnTypeName.<get-returnTypeName>|<get-returnTypeName>(){}[0]
+}
+
+open annotation class androidx.annotation.keep/UsesReflectionToConstruct : kotlin/Annotation { // androidx.annotation.keep/UsesReflectionToConstruct|null[0]
+    constructor <init>(kotlin.reflect/KClass<*> = ..., kotlin/String = ..., kotlin/Array<kotlin.reflect/KClass<*>> = ..., kotlin/Array<kotlin/String> = ...) // androidx.annotation.keep/UsesReflectionToConstruct.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.String;kotlin.Array<kotlin.reflect.KClass<*>>;kotlin.Array<kotlin.String>){}[0]
+
+    final val classConstant // androidx.annotation.keep/UsesReflectionToConstruct.classConstant|{}classConstant[0]
+        final fun <get-classConstant>(): kotlin.reflect/KClass<*> // androidx.annotation.keep/UsesReflectionToConstruct.classConstant.<get-classConstant>|<get-classConstant>(){}[0]
+    final val className // androidx.annotation.keep/UsesReflectionToConstruct.className|{}className[0]
+        final fun <get-className>(): kotlin/String // androidx.annotation.keep/UsesReflectionToConstruct.className.<get-className>|<get-className>(){}[0]
+    final val parameterTypeNames // androidx.annotation.keep/UsesReflectionToConstruct.parameterTypeNames|{}parameterTypeNames[0]
+        final fun <get-parameterTypeNames>(): kotlin/Array<kotlin/String> // androidx.annotation.keep/UsesReflectionToConstruct.parameterTypeNames.<get-parameterTypeNames>|<get-parameterTypeNames>(){}[0]
+    final val parameterTypes // androidx.annotation.keep/UsesReflectionToConstruct.parameterTypes|{}parameterTypes[0]
+        final fun <get-parameterTypes>(): kotlin/Array<kotlin.reflect/KClass<*>> // androidx.annotation.keep/UsesReflectionToConstruct.parameterTypes.<get-parameterTypes>|<get-parameterTypes>(){}[0]
+}
+
+final class androidx.annotation.keep/Unspecified { // androidx.annotation.keep/Unspecified|null[0]
+    constructor <init>() // androidx.annotation.keep/Unspecified.<init>|<init>(){}[0]
+}

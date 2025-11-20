@@ -18,10 +18,10 @@ package androidx.javascriptengine;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -31,6 +31,7 @@ import androidx.test.filters.MediumTest;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -54,7 +55,11 @@ public class WebViewJavaScriptSandboxTest {
     // larger in future. However, we don't want it too large as that will make the tests slower and
     // require more memory. Although this is a long, it must not be greater than Integer.MAX_VALUE
     // and should be much smaller (for the purposes of testing).
-    private static final long REASONABLE_HEAP_SIZE = 100 * 1024 * 1024;
+    //
+    // We should not make it too high as well since the way we simulate OOM might result in other v8
+    // internal limits being hit causing NearHeapLimitCallback to not be triggered
+    // (See b/401528686).
+    private static final long REASONABLE_HEAP_SIZE = 50 * 1024 * 1024;
 
     private static ParcelFileDescriptor writeToTestFile(String fileContent) throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
@@ -810,6 +815,7 @@ public class WebViewJavaScriptSandboxTest {
     @Test
     @MediumTest
     public void testHeapSizeAdjustment() throws Throwable {
+        Assume.assumeTrue("Disabled on SDK <= 26: b/414343436", Build.VERSION.SDK_INT > 26);
         final String code = "\"PASS\"";
         final String expected = "PASS";
         final long[] heapSizes = {
@@ -1273,7 +1279,7 @@ public class WebViewJavaScriptSandboxTest {
 
             @Override
             public void onConsoleMessage(
-                    @NonNull JavaScriptConsoleCallback.ConsoleMessage message) {
+                    JavaScriptConsoleCallback.@NonNull ConsoleMessage message) {
                 synchronized (mLock) {
                     mMessages.append(message).append("\n");
                 }

@@ -105,7 +105,7 @@ class SquadMapper {
                         isFirstInTable = true,
                         isLastInTable = true,
                         colorDefinition = TableRowColorUiModel(),
-                        isClickable = false
+                        isClickable = false,
                     )
                 ),
         )
@@ -124,9 +124,9 @@ class SquadMapper {
                         isLastInTable = index == 9,
                         colorDefinition =
                             TableRowColorUiModel(hasDarkerBackground = index % 2 != 0),
-                        isClickable = true
+                        isClickable = true,
                     )
-                }
+                },
         )
 
     private val midfieldersSection =
@@ -143,9 +143,9 @@ class SquadMapper {
                         isLastInTable = index == 9,
                         colorDefinition =
                             TableRowColorUiModel(hasDarkerBackground = index % 2 != 0),
-                        isClickable = true
+                        isClickable = true,
                     )
-                }
+                },
         )
 
     private val defendersSection =
@@ -162,9 +162,9 @@ class SquadMapper {
                         isLastInTable = index == 9,
                         colorDefinition =
                             TableRowColorUiModel(hasDarkerBackground = index % 2 != 0),
-                        isClickable = true
+                        isClickable = true,
                     )
-                }
+                },
         )
 
     private val goalkeepersSection =
@@ -181,8 +181,8 @@ class SquadMapper {
                         isLastInTable = index == 9,
                         colorDefinition =
                             TableRowColorUiModel(hasDarkerBackground = index % 2 != 0),
-                        isClickable = true
+                        isClickable = true,
                     )
-                }
+                },
         )
 }

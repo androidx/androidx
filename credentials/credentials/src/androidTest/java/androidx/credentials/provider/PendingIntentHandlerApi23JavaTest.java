@@ -74,7 +74,7 @@ import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 23, maxSdkVersion = 33)
+@SdkSuppress(maxSdkVersion = 33)
 @SuppressWarnings("deprecation")
 public class PendingIntentHandlerApi23JavaTest {
 

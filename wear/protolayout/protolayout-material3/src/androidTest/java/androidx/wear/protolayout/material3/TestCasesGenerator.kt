@@ -45,6 +45,7 @@ import androidx.wear.protolayout.material3.TextButtonStyle.Companion.extraLargeT
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.largeTextButtonStyle
 import androidx.wear.protolayout.material3.TextButtonStyle.Companion.smallTextButtonStyle
 import androidx.wear.protolayout.modifiers.LayoutModifier
+import androidx.wear.protolayout.modifiers.background
 import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.clip
 import androidx.wear.protolayout.modifiers.contentDescription
@@ -90,14 +91,14 @@ object TestCasesGenerator {
                 // renderer version 1.302 has no asymmetrical corner support, so edgebutton will use
                 // its fallback style
                 deviceParameters.copy(VersionInfo.Builder().setMajor(1).setMinor(302).build()),
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayoutWithOverrideIcon(
                     mainSlot = {
                         text(
                             text = "Overflow main text and fallback edge button".layoutString,
                             color = colorScheme.secondary,
-                            maxLines = 3
+                            maxLines = 3,
                         )
                     },
                     bottomSlot = {
@@ -106,18 +107,18 @@ object TestCasesGenerator {
                             labelContent = { text("Action".layoutString) },
                             modifier =
                                 LayoutModifier.contentDescription(CONTENT_DESCRIPTION_PLACEHOLDER),
-                            colors = filledButtonColors()
+                            colors = filledButtonColors(),
                         )
                     },
                     titleSlot = { text("Title".layoutString) },
-                    overrideIcon = true
+                    overrideIcon = true,
                 )
             }
         testCases["primarylayout_graphcard_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -127,34 +128,26 @@ object TestCasesGenerator {
                                 LayoutModifier.contentDescription("Graphic Data Card with CPI"),
                             height = expand(),
                             horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_START,
-                            title = {
-                                text(
-                                    "1234".layoutString,
-                                )
-                            },
-                            content = {
-                                text(
-                                    "steps".layoutString,
-                                )
-                            },
+                            title = { text("1234".layoutString) },
+                            content = { text("steps".layoutString) },
                             graphic = {
                                 constructGraphic(
                                     mainContent = {
                                         circularProgressIndicator(staticProgress = 0.5F)
                                     },
-                                    iconContent = { icon(ICON_ID) }
+                                    iconContent = { icon(ICON_ID) },
                                 )
-                            }
+                            },
                         )
                     },
-                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN,
                 )
             }
         testCases["primarylayout_graphcard_filledVariant_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -166,16 +159,8 @@ object TestCasesGenerator {
                                 ),
                             height = expand(),
                             horizontalAlignment = LayoutElementBuilders.HORIZONTAL_ALIGN_START,
-                            title = {
-                                text(
-                                    "1234".layoutString,
-                                )
-                            },
-                            content = {
-                                text(
-                                    "steps".layoutString,
-                                )
-                            },
+                            title = { text("1234".layoutString) },
+                            content = { text("steps".layoutString) },
                             graphic = {
                                 constructGraphic(
                                     mainContent = {
@@ -184,20 +169,20 @@ object TestCasesGenerator {
                                             staticProgress = 0.5F,
                                         )
                                     },
-                                    iconContent = { icon(ICON_ID) }
+                                    iconContent = { icon(ICON_ID) },
                                 )
                             },
                             colors = filledVariantCardColors(),
                         )
                     },
-                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN,
                 )
             }
         testCases["primarylayout_graphcard_avatarbutton_fallback_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters.copy(VersionInfo.Builder().setMajor(1).setMinor(100).build()),
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -212,12 +197,8 @@ object TestCasesGenerator {
                                     height = expand(),
                                     horizontalAlignment =
                                         LayoutElementBuilders.HORIZONTAL_ALIGN_START,
-                                    title = {
-                                        text(
-                                            "1234".layoutString,
-                                        )
-                                    },
-                                    graphic = { circularProgressIndicator(staticProgress = 0.5F) }
+                                    title = { text("1234".layoutString) },
+                                    graphic = { circularProgressIndicator(staticProgress = 0.5F) },
                                 )
                             )
                             .addContent(DEFAULT_SPACER_BETWEEN_BUTTON_GROUPS)
@@ -226,19 +207,19 @@ object TestCasesGenerator {
                                     onClick = clickable,
                                     labelContent = { text("Primary label".layoutString) },
                                     avatarContent = { avatarImage(IMAGE_ID) },
-                                    height = expand()
+                                    height = expand(),
                                 )
                             )
                             .build()
                     },
-                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN,
                 )
             }
         testCases["primarylayout_edgebuttonfilledvariant_iconoverride_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayoutWithOverrideIcon(
                     mainSlot = {
@@ -252,7 +233,7 @@ object TestCasesGenerator {
                                     secondaryIcon = { icon(ICON_ID) },
                                     shape = shapes.none,
                                     width = expand(),
-                                    height = expand()
+                                    height = expand(),
                                 )
                             }
                             buttonGroupItem {
@@ -266,9 +247,9 @@ object TestCasesGenerator {
                                         CardColors(
                                             backgroundColor = colorScheme.onSecondary,
                                             titleColor = colorScheme.secondary,
-                                            contentColor = colorScheme.secondaryDim
+                                            contentColor = colorScheme.secondaryDim,
                                         ),
-                                    shape = shapes.full
+                                    shape = shapes.full,
                                 )
                             }
                         }
@@ -280,17 +261,17 @@ object TestCasesGenerator {
                             labelContent = { text("Action that overflows".layoutString) },
                             modifier =
                                 LayoutModifier.contentDescription(CONTENT_DESCRIPTION_PLACEHOLDER),
-                            colors = filledVariantButtonColors()
+                            colors = filledVariantButtonColors(),
                         )
                     },
-                    overrideIcon = true
+                    overrideIcon = true,
                 )
             }
         testCases["primarylayout_edgebuttonfilledtonal_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -301,11 +282,11 @@ object TestCasesGenerator {
                             height = expand(),
                             backgroundContent = {
                                 backgroundImage(protoLayoutResourceId = IMAGE_ID)
-                            }
+                            },
                         ) {
                             text(
                                 "Card with image background".layoutString,
-                                color = colorScheme.onBackground
+                                color = colorScheme.onBackground,
                             )
                         }
                     },
@@ -315,19 +296,19 @@ object TestCasesGenerator {
                             iconContent = { icon(ICON_ID) },
                             modifier =
                                 LayoutModifier.contentDescription(CONTENT_DESCRIPTION_PLACEHOLDER),
-                            colors = filledTonalButtonColors()
+                            colors = filledTonalButtonColors(),
                         )
                     },
                     titleSlot = {
                         text("Title that overflows".layoutString, color = colorScheme.error)
-                    }
+                    },
                 )
             }
         testCases["primarylayout_titlecard_bottomslot_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -343,18 +324,18 @@ object TestCasesGenerator {
                             },
                             time = { text("Now".layoutString) },
                             content = { text("Default title card".layoutString) },
-                            colors = filledVariantCardColors()
+                            colors = filledVariantCardColors(),
                         )
                     },
                     bottomSlot = { text("Bottom Slot that overflows".layoutString) },
-                    titleSlot = { text("TitleCard".layoutString, color = colorScheme.secondaryDim) }
+                    titleSlot = { text("TitleCard".layoutString, color = colorScheme.secondaryDim) },
                 )
             }
         testCases["primarylayout_bottomslot_withlabel_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -368,23 +349,23 @@ object TestCasesGenerator {
                                 CardColors(
                                     backgroundColor = colorScheme.errorContainer,
                                     titleColor = colorScheme.onErrorContainer,
-                                    contentColor = colorScheme.onError
+                                    contentColor = colorScheme.onError,
                                 ),
-                            height = expand()
+                            height = expand(),
                         )
                     },
                     bottomSlot = { text("Bottom Slot".layoutString) },
                     labelForBottomSlot = { text("Label in bottom slot overflows".layoutString) },
                     titleSlot = {
                         text("Title".layoutString, color = colorScheme.secondaryContainer)
-                    }
+                    },
                 )
             }
         testCases["primarylayout_nobottomslot_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -400,20 +381,20 @@ object TestCasesGenerator {
                             time = { text("Now".layoutString) },
                             content = { text("Default app card".layoutString) },
                             label = { text("Label in card".layoutString) },
-                            avatar = { avatarImage(IMAGE_ID) }
+                            avatar = { avatarImage(IMAGE_ID) },
                         )
                     },
                     labelForBottomSlot = { text("Ignored Label in bottom slot".layoutString) },
                     titleSlot = {
                         text("Title".layoutString, color = colorScheme.secondaryContainer)
-                    }
+                    },
                 )
             }
         testCases["primarylayout_largeappcard_nobottomslot_golden$goldenSuffix"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -431,20 +412,20 @@ object TestCasesGenerator {
                             label = { text("Label in card".layoutString) },
                             avatar = { avatarImage(IMAGE_ID) },
                             colors = filledVariantCardColors(),
-                            style = largeAppCardStyle()
+                            style = largeAppCardStyle(),
                         )
                     },
                     labelForBottomSlot = { text("Ignored Label in bottom slot".layoutString) },
                     titleSlot = {
                         text("Title".layoutString, color = colorScheme.secondaryContainer)
-                    }
+                    },
                 )
             }
         testCases["primarylayout_nobottomslotnotitle_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -454,12 +435,10 @@ object TestCasesGenerator {
                             .addContent(
                                 button(
                                     onClick = clickable,
-                                    labelContent = { text("Primary label".layoutString) },
-                                    secondaryLabelContent = {
-                                        text("Secondary label".layoutString)
-                                    },
+                                    labelContent = { text("Primary".layoutString) },
+                                    secondaryLabelContent = { text("Secondary".layoutString) },
                                     iconContent = { icon(ICON_ID) },
-                                    width = expand()
+                                    width = expand(),
                                 )
                             )
                             .addContent(
@@ -474,20 +453,33 @@ object TestCasesGenerator {
                                         imageButton(
                                             onClick = clickable,
                                             backgroundContent = { backgroundImage(IMAGE_ID) },
-                                            modifier = LayoutModifier.clip(shapes.extraSmall)
+                                            modifier = LayoutModifier.clip(shapes.extraSmall),
+                                        )
+                                    }
+                                    buttonGroupItem {
+                                        imageButton(
+                                            onClick = clickable,
+                                            backgroundContent = { icon(ICON_ID) },
+                                            modifier =
+                                                LayoutModifier.background(
+                                                        colorScheme.onSecondaryContainer
+                                                    )
+                                                    .clip(shapes.extraLarge),
+                                            width = expand(),
+                                            height = expand(),
                                         )
                                     }
                                 }
                             )
                             .build()
-                    },
+                    }
                 )
             }
         testCases["primarylayout_nobottomslotnotitle_avatarbuttons_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -517,18 +509,18 @@ object TestCasesGenerator {
                                     avatarContent = { avatarImage(IMAGE_ID) },
                                     height = expand(),
                                     style = largeAvatarButtonStyle(),
-                                    horizontalAlignment = HORIZONTAL_ALIGN_END
+                                    horizontalAlignment = HORIZONTAL_ALIGN_END,
                                 )
                             )
                             .build()
-                    },
+                    }
                 )
             }
         testCases["primarylayout_oneslotbuttons_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = {
@@ -540,7 +532,7 @@ object TestCasesGenerator {
                                     buttonGroupItem {
                                         iconButton(
                                             onClick = clickable,
-                                            iconContent = { icon(ICON_ID) }
+                                            iconContent = { icon(ICON_ID) },
                                         )
                                     }
                                     buttonGroupItem {
@@ -551,7 +543,7 @@ object TestCasesGenerator {
                                             colors = filledTonalButtonColors(),
                                             width = expand(),
                                             height = expand(),
-                                            shape = shapes.large
+                                            shape = shapes.large,
                                         )
                                     }
                                     buttonGroupItem {
@@ -571,7 +563,7 @@ object TestCasesGenerator {
                                             onClick = clickable,
                                             labelContent = { text("1".layoutString) },
                                             width = expand(),
-                                            shape = shapes.small
+                                            shape = shapes.small,
                                         )
                                     }
                                     buttonGroupItem {
@@ -580,7 +572,7 @@ object TestCasesGenerator {
                                             labelContent = { text("2".layoutString) },
                                             style = largeTextButtonStyle(),
                                             colors = filledTonalButtonColors(),
-                                            height = expand()
+                                            height = expand(),
                                         )
                                     }
                                     buttonGroupItem {
@@ -590,24 +582,24 @@ object TestCasesGenerator {
                                             style = extraLargeTextButtonStyle(),
                                             colors = filledVariantButtonColors(),
                                             width = expand(),
-                                            height = expand()
+                                            height = expand(),
                                         )
                                     }
                                 }
                             )
                             .build()
-                    },
+                    }
                 )
             }
         testCases["primarylayout_circularprogressindicators_golden$NORMAL_SCALE_SUFFIX"] =
             materialScope(
                 ApplicationProvider.getApplicationContext(),
                 deviceParameters,
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = { progressIndicatorGroup() },
-                    margins = MIN_PRIMARY_LAYOUT_MARGIN
+                    margins = MIN_PRIMARY_LAYOUT_MARGIN,
                 )
             }
 
@@ -617,7 +609,7 @@ object TestCasesGenerator {
                 // renderer with version 1.302 has no DashedArcLine or asymmetrical corners support
                 deviceConfiguration =
                     deviceParameters.copy(VersionInfo.Builder().setMajor(1).setMinor(302).build()),
-                allowDynamicTheme = false
+                allowDynamicTheme = false,
             ) {
                 primaryLayout(
                     mainSlot = { progressIndicatorGroup() },
@@ -628,9 +620,9 @@ object TestCasesGenerator {
                             iconContent = { icon(ICON_ID) },
                             modifier =
                                 LayoutModifier.contentDescription(CONTENT_DESCRIPTION_PLACEHOLDER),
-                            colors = filledTonalButtonColors()
+                            colors = filledTonalButtonColors(),
                         )
-                    }
+                    },
                 )
             }
 
@@ -647,7 +639,7 @@ object TestCasesGenerator {
                     { obj: Map.Entry<String, LayoutElementBuilders.LayoutElement> -> obj.key },
                     { entry: Map.Entry<String, LayoutElementBuilders.LayoutElement> ->
                         LayoutElementBuilders.Layout.fromLayoutElement(entry.value)
-                    }
+                    },
                 )
             )
     }
@@ -664,7 +656,7 @@ object TestCasesGenerator {
                     buttonGroupItem {
                         circularProgressIndicator(
                             staticProgress = 0.75F,
-                            colors = filledVariantProgressIndicatorColors()
+                            colors = filledVariantProgressIndicatorColors(),
                         )
                     }
                     buttonGroupItem {
@@ -672,7 +664,7 @@ object TestCasesGenerator {
                             staticProgress = 1.5F,
                             startAngleDegrees = 200F,
                             endAngleDegrees = 520F,
-                            colors = filledVariantProgressIndicatorColors()
+                            colors = filledVariantProgressIndicatorColors(),
                         )
                     }
                 }
@@ -683,14 +675,14 @@ object TestCasesGenerator {
                     buttonGroupItem {
                         segmentedCircularProgressIndicator(
                             segmentCount = 1,
-                            colors = filledTonalProgressIndicatorColors()
+                            colors = filledTonalProgressIndicatorColors(),
                         )
                     }
                     buttonGroupItem {
                         segmentedCircularProgressIndicator(
                             segmentCount = 5,
                             staticProgress = 0.75F,
-                            colors = filledVariantProgressIndicatorColors()
+                            colors = filledVariantProgressIndicatorColors(),
                         )
                     }
                     buttonGroupItem {
@@ -699,7 +691,7 @@ object TestCasesGenerator {
                             staticProgress = 1.5F,
                             startAngleDegrees = 200F,
                             endAngleDegrees = 520F,
-                            colors = filledVariantProgressIndicatorColors()
+                            colors = filledVariantProgressIndicatorColors(),
                         )
                     }
                 }

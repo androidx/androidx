@@ -18,7 +18,6 @@ package androidx.credentials;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.filters.SdkSuppress;
 
 import kotlin.Unit;
@@ -30,7 +29,7 @@ import java.util.Collections;
 @SdkSuppress(minSdkVersion = 35, codeName = "VanillaIceCream")
 public class PendingGetCredentialRequestJavaTest {
     @Test
-    @RequiresApi(35)
+    @SdkSuppress(minSdkVersion = 35)
     public void constructor_setAndGetRequestThroughViewTag() {
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .setCredentialOptions(Collections.singletonList(new GetPasswordOption()))

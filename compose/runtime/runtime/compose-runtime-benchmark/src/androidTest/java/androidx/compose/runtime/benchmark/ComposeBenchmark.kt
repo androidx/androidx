@@ -195,7 +195,7 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
                 17,
                 18,
                 19,
-                20
+                20,
             )
 
         measureRecompose {

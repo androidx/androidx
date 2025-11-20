@@ -39,7 +39,6 @@ internal object HapticAttributesConverter {
     internal fun flagsFromVibrationAttributes(attrs: VibrationAttributes): Int =
         Api30Impl.fromVibrationAttributesFlags(attrs)
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @HapticAttributes.Usage
     internal fun usageFromAudioAttributes(attrs: AudioAttributes): Int =
         if (Build.VERSION.SDK_INT >= 26) {
@@ -62,7 +61,6 @@ internal object HapticAttributesConverter {
             )
         }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     internal fun toAudioAttributes(attrs: HapticAttributes): AudioAttributes =
         if (Build.VERSION.SDK_INT >= 33) {
             Api21Impl.createAudioAttributes(
@@ -76,14 +74,12 @@ internal object HapticAttributesConverter {
             )
         }
 
-    internal fun toAttributes(attrs: HapticAttributes): AttributesWrapper? =
+    internal fun toAttributes(attrs: HapticAttributes): AttributesWrapper =
         if (Build.VERSION.SDK_INT >= 33) {
             // Vibrator only accepts VibrationAttributes from Android T+.
             VibrationAttributesWrapper(toVibrationAttributes(attrs))
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            AudioAttributesWrapper(toAudioAttributes(attrs))
         } else {
-            null
+            AudioAttributesWrapper(toAudioAttributes(attrs))
         }
 
     /** Version-specific static inner class. */
@@ -128,7 +124,7 @@ internal object HapticAttributesConverter {
         @JvmStatic
         fun createVibrationAttributes(
             vibrationUsage: Int,
-            vibrationFlags: Int
+            vibrationFlags: Int,
         ): VibrationAttributes {
             return VibrationAttributes.Builder()
                 .setUsage(vibrationUsage)
@@ -169,7 +165,6 @@ internal object HapticAttributesConverter {
     }
 
     /** Version-specific static inner class. */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private object Api21Impl {
 
         @JvmStatic
@@ -200,10 +195,7 @@ internal object HapticAttributesConverter {
         @JvmStatic @HapticAttributes.Flag fun fromAudioAttributesFlags(): Int = 0
 
         @JvmStatic
-        fun createAudioAttributes(
-            usage: Int,
-            contentType: Int,
-        ): AudioAttributes =
+        fun createAudioAttributes(usage: Int, contentType: Int): AudioAttributes =
             AudioAttributes.Builder().setUsage(usage).setContentType(contentType).build()
 
         @JvmStatic

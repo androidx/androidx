@@ -18,9 +18,14 @@ package com.example.androidx.webkit;
 
 import android.app.Activity;
 import android.content.pm.PackageInfo;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.webkit.WebViewCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -62,6 +67,21 @@ public final class WebkitHelpers {
         errorMessage.setText(messageResourceId);
         activity.setContentView(errorMessage);
         return errorMessage;
+    }
+
+    /**
+     * Enable edge to edge rendering and handle insets.
+     * <p>
+     * Must be called after {@link Activity#setContentView(View)}
+     */
+    static void enableEdgeToEdge(AppCompatActivity activity) {
+        ViewCompat.setOnApplyWindowInsetsListener(activity.findViewById(android.R.id.content),
+                (v, insets) -> {
+                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(systemBars.left, systemBars.top, systemBars.right,
+                            systemBars.bottom);
+                    return insets;
+                });
     }
 
     // Do not instantiate this class.

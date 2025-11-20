@@ -30,5 +30,5 @@ constructor(
     /** @return The [DynamicInstallMonitor] used. */
     public val installMonitor: DynamicInstallMonitor? = null,
     /** @return [Navigator.Extras] associated with these [DynamicExtras]. */
-    public val destinationExtras: Navigator.Extras? = null
+    public val destinationExtras: Navigator.Extras? = null,
 ) : Navigator.Extras

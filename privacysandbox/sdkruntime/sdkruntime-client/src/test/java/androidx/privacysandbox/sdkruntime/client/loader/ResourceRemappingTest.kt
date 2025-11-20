@@ -45,13 +45,13 @@ class ResourceRemappingTest {
                    public class RPackage {
                         public static int packageId = 0;
                    }
-                """
+                """,
                 )
             )
 
         ResourceRemapping.apply(
             classLoader,
-            ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 0x2A)
+            ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 0x2A),
         )
 
         val rPackageClass = classLoader.loadClass("RPackage")
@@ -70,7 +70,7 @@ class ResourceRemappingTest {
                     """
                    public class AnotherClass {
                    }
-                """
+                """,
                 )
             )
 
@@ -85,7 +85,7 @@ class ResourceRemappingTest {
                 """
                 public class AnotherClass {
                 }
-                """
+                """,
             )
 
         val config = ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 42)
@@ -101,7 +101,7 @@ class ResourceRemappingTest {
                 """
                    public class RPackage {
                    }
-                """
+                """,
             )
 
         val config = ResourceRemappingConfig(rPackageClassName = "RPackage", packageId = 42)
@@ -112,26 +112,22 @@ class ResourceRemappingTest {
     private fun assertThrows(
         expectedThrowable: KClass<out Exception>,
         source: Source,
-        config: ResourceRemappingConfig
+        config: ResourceRemappingConfig,
     ) {
         val classLoader = compileAndLoad(source)
         assertThrows(expectedThrowable.java) { ResourceRemapping.apply(classLoader, config) }
     }
 
+    @Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
     private fun compileAndLoad(source: Source): ClassLoader {
         val compilationResult =
-            compile(
-                temporaryFolder.root,
-                TestCompilationArguments(
-                    sources = listOf(source),
-                )
-            )
+            compile(temporaryFolder.root, TestCompilationArguments(sources = listOf(source)))
 
         assertThat(compilationResult.success).isTrue()
 
         return URLClassLoader.newInstance(
             compilationResult.outputClasspath.map { it.toURI().toURL() }.toTypedArray(),
-            /* parent = */ null
+            /* parent = */ null,
         )
     }
 }

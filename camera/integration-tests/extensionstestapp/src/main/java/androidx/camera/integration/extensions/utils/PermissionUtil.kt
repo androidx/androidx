@@ -57,7 +57,7 @@ object PermissionUtil {
         ActivityCompat.requestPermissions(
             activity,
             getRequiredPermissions(activity),
-            PERMISSIONS_REQUEST_CODE
+            PERMISSIONS_REQUEST_CODE,
         )
     }
 
@@ -81,7 +81,7 @@ object PermissionUtil {
             info =
                 activity.packageManager.getPackageInfo(
                     activity.packageName,
-                    PackageManager.GET_PERMISSIONS
+                    PackageManager.GET_PERMISSIONS,
                 )
         } catch (exception: PackageManager.NameNotFoundException) {
             Log.e(TAG, "Failed to obtain all required permissions.", exception)

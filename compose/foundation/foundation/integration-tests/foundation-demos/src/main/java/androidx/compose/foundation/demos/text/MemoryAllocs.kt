@@ -104,7 +104,7 @@ fun Preamble(sourceCode: String) {
         modifier = Modifier.fillMaxWidth().background(Color(220, 230, 240)),
         fontFamily = FontFamily.Monospace,
         color = Color(41, 17, 27),
-        fontSize = 10.sp
+        fontSize = 10.sp,
     )
     Divider(Modifier.fillMaxWidth().padding(vertical = 8.dp))
     Text("\uD83D\uDC47 running here \uD83D\uDC47")

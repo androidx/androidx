@@ -51,7 +51,7 @@ object CameraSelectorUtil {
         context: Context,
         extensionsManager: ExtensionsManager,
         currentCameraId: String,
-        @ExtensionMode.Mode extensionsMode: Int
+        @ExtensionMode.Mode extensionsMode: Int,
     ): String? {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
@@ -59,7 +59,7 @@ object CameraSelectorUtil {
                 cameraManager.cameraIdList.filter {
                     extensionsManager.isExtensionAvailable(
                         createCameraSelectorById(it),
-                        extensionsMode
+                        extensionsMode,
                     )
                 }
 

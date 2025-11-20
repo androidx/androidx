@@ -18,17 +18,11 @@ package androidx.kruth
 
 /** A Subject for [Boolean] arrays. */
 class PrimitiveBooleanArraySubject
-internal constructor(
-    actual: BooleanArray?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<BooleanArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
+internal constructor(actual: BooleanArray?, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<BooleanArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
-        HelperArraySubject(
-            actual = actual,
-            size = BooleanArray::size,
-            metadata = metadata,
-        )
+        HelperArraySubject(actual = actual, size = BooleanArray::size, metadata = metadata)
 
     /** Fails if the array is not empty (i.e. `array.size > 0`). */
     fun isEmpty() {

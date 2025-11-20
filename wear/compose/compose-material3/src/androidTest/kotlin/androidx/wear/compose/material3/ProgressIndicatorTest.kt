@@ -40,12 +40,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class CircularProgressIndicatorTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -66,7 +67,7 @@ class CircularProgressIndicatorTest {
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = { progress.value }
+                progress = { progress.value },
             )
         }
 
@@ -87,7 +88,7 @@ class CircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -110,7 +111,7 @@ class CircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -135,7 +136,7 @@ class CircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -154,32 +155,6 @@ class CircularProgressIndicatorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun set_small_progress_value() {
-        setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = { 0.02f },
-                colors =
-                    ProgressIndicatorDefaults.colors(
-                        indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
-                    ),
-            )
-        }
-        rule.waitForIdle()
-        // Small progress values like 2% should be rounded up to at least the stroke width.
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 0.2f..0.5f)
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 15f..18f)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
     fun set_small_stroke_width() {
         setContentWithTheme {
             CircularProgressIndicator(
@@ -189,7 +164,7 @@ class CircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -215,7 +190,7 @@ class CircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -266,12 +241,12 @@ class CircularProgressIndicatorTest {
 
 class DrawCircularProgressIndicatorTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(progress = 0.5f, modifier = Modifier.testTag(TEST_TAG))
+            DrawCircularProgressIndicator(progress = 0.5f, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -282,12 +257,12 @@ class DrawCircularProgressIndicatorTest {
         val progress = mutableStateOf(0f)
 
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier =
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -302,13 +277,13 @@ class DrawCircularProgressIndicatorTest {
     @Test
     fun contains_progress_color() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 1f,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -325,13 +300,13 @@ class DrawCircularProgressIndicatorTest {
     @Test
     fun contains_progress_incomplete_color() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 0f,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -348,7 +323,7 @@ class DrawCircularProgressIndicatorTest {
     @Test
     fun change_start_end_angle() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 0.5f,
                 startAngle = 0f,
@@ -356,7 +331,7 @@ class DrawCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -375,42 +350,16 @@ class DrawCircularProgressIndicatorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun set_small_progress_value() {
-        setContentWithTheme {
-            CircularProgressIndicatorStatic(
-                modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                progress = 0.02f,
-                colors =
-                    ProgressIndicatorDefaults.colors(
-                        indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
-                    ),
-            )
-        }
-        rule.waitForIdle()
-        // Small progress values like 2% should be rounded up to at least the stroke width.
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 0.2f..0.5f)
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 15f..18f)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
     fun set_small_stroke_width() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 0.5f,
                 strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -429,14 +378,14 @@ class DrawCircularProgressIndicatorTest {
     @Test
     fun set_large_stroke_width() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 0.5f,
                 strokeWidth = CircularProgressIndicatorDefaults.largeStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -456,7 +405,7 @@ class DrawCircularProgressIndicatorTest {
     @Test
     fun progress_disabled_contains_disabled_colors() {
         setContentWithTheme {
-            CircularProgressIndicatorStatic(
+            DrawCircularProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
                 progress = 0.5f,
                 enabled = false,
@@ -486,7 +435,7 @@ class DrawCircularProgressIndicatorTest {
 }
 
 @Composable
-internal fun CircularProgressIndicatorStatic(
+internal fun DrawCircularProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
     allowProgressOverflow: Boolean = false,
@@ -495,7 +444,7 @@ internal fun CircularProgressIndicatorStatic(
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
     strokeWidth: Dp = CircularProgressIndicatorDefaults.largeStrokeWidth,
     gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Spacer(
         modifier.fillMaxSize().focusable().drawWithCache {
@@ -508,7 +457,7 @@ internal fun CircularProgressIndicatorStatic(
                     strokeWidth = strokeWidth,
                     colors = colors,
                     gapSize = gapSize,
-                    enabled = enabled
+                    enabled = enabled,
                 )
             }
         }

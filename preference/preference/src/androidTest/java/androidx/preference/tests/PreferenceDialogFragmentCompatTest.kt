@@ -47,7 +47,7 @@ class PreferenceDialogFragmentCompatTest(private val xmlLayoutId: Int) {
         fun data(): Array<Int> {
             return arrayOf(
                 R.xml.test_fragment_container_dialog_preference,
-                R.xml.test_fragment_tag_dialog_preference
+                R.xml.test_fragment_tag_dialog_preference,
             )
         }
     }
@@ -121,7 +121,7 @@ class DialogFragment(val key: String) : PreferenceDialogFragmentCompat() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.simple_layout, container, false)
     }

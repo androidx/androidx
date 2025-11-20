@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.ui.core
 
@@ -26,7 +27,8 @@ import java.util.concurrent.Executor
 /**
  * An Adapter that provides content from a SandboxedSdk to be displayed as part of a host app's UI.
  */
-interface SandboxedUiAdapter {
+@Deprecated("This library is no longer supported.")
+public interface SandboxedUiAdapter {
 
     /**
      * Open a new session for displaying content with an initial size of
@@ -35,25 +37,25 @@ interface SandboxedUiAdapter {
      * [clientExecutor]. [isZOrderOnTop] tracks if the content surface will be placed on top of its
      * window
      */
-    fun openSession(
+    public fun openSession(
         context: Context,
-        sessionConstants: SessionConstants,
+        sessionData: SessionData,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
         clientExecutor: Executor,
-        client: SessionClient
+        client: SessionClient,
     )
 
     /** A single session with the provider of remote content. */
-    interface Session : AutoCloseable {
+    public interface Session : AutoCloseable {
 
         /**
          * Return the [View] that presents content for this session. The same view will be returned
          * for the life of the session object. Accessing [view] after [close] may throw an
          * [IllegalStateException].
          */
-        val view: View
+        public val view: View
 
         /**
          * The set of options that will be used to determine what information is calculated and sent
@@ -63,22 +65,22 @@ interface SandboxedUiAdapter {
          * [SessionObserverFactory] will indicate that information should be calculated for this
          * session.
          */
-        val signalOptions: Set<String>
+        public val signalOptions: Set<String>
 
         /**
          * Notify the provider that the size of the host presentation area has changed to a size of
          * [width] x [height] pixels.
          */
-        fun notifyResized(width: Int, height: Int)
+        public fun notifyResized(width: Int, height: Int)
 
         /**
          * Notify the provider that there's a change in the intended z order of the session UI and
          * it is now set to [isZOrderOnTop].
          */
-        fun notifyZOrderChanged(isZOrderOnTop: Boolean)
+        public fun notifyZOrderChanged(isZOrderOnTop: Boolean)
 
         /** Notify the session that the host configuration has changed to [configuration]. */
-        fun notifyConfigurationChanged(configuration: Configuration)
+        public fun notifyConfigurationChanged(configuration: Configuration)
 
         /**
          * Notify the session when the presentation state of its UI container has changed.
@@ -91,7 +93,21 @@ interface SandboxedUiAdapter {
          * UI providers should add [SessionObserverFactory]s to observe UI changes rather than using
          * this method directly.
          */
-        fun notifyUiChanged(uiContainerInfo: Bundle)
+        public fun notifyUiChanged(uiContainerInfo: Bundle)
+
+        /**
+         * Notifies that the session has been rendered inside the container hosting this session.
+         *
+         * [supportedSignalOptions] specifies the signal options which are supported by the host
+         * container.
+         *
+         * UI providers should add [SessionObserverFactory]s to receive this value rather than using
+         * this method directly. This API is used to notify the [SessionObserver]s associated with
+         * this session about the supported signal options for this session.
+         *
+         * @see [SandboxedUiAdapterSignalOptions]
+         */
+        public fun notifySessionRendered(supportedSignalOptions: Set<String>)
 
         /**
          * Close this session, indicating that the remote provider of content should dispose of
@@ -102,25 +118,25 @@ interface SandboxedUiAdapter {
     }
 
     /** The client of a single session that will receive callback events from an active session. */
-    interface SessionClient {
+    public interface SessionClient {
         /**
          * Called to report that the session was opened successfully, delivering the [Session]
          * handle that should be used to notify the session of UI events.
          */
-        fun onSessionOpened(session: Session)
+        public fun onSessionOpened(session: Session)
 
         /**
          * Called to report a terminal error in the session. No further events will be reported to
          * this [SessionClient] and any further or currently pending calls to the [Session] that may
          * have been in flight may be ignored.
          */
-        fun onSessionError(throwable: Throwable)
+        public fun onSessionError(throwable: Throwable)
 
         /**
          * Called when the provider of content would like the UI to be presented at [width] and
          * [height]. The library tries to get as close a fit as possible whilst staying within the
          * container's constraints.
          */
-        fun onResizeRequested(width: Int, height: Int)
+        public fun onResizeRequested(width: Int, height: Int)
     }
 }

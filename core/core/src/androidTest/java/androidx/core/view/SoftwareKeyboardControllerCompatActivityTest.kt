@@ -41,7 +41,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 23)
+@SdkSuppress(minSdkVersion = 24) // b/454393222
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class SoftwareKeyboardControllerCompatActivityTest {
@@ -208,7 +208,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         // TODO: remove this if b/159103848 is resolved
         Assume.assumeFalse(
             "Unable to test: Cuttlefish devices default to the virtual keyboard being disabled.",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true)
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
     }
 

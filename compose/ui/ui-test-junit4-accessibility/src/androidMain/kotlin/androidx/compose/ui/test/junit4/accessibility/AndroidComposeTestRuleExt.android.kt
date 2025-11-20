@@ -51,9 +51,8 @@ public fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule<R, A>
         // TODO(b/332778271): Remove this warning when said bug is fixed
         Log.w(
             "AndroidComposeTestRule",
-            "Accessibility checks are currently not supported by Robolectric"
+            "Accessibility checks are currently not supported by Robolectric",
         )
-        return
     }
     setComposeAccessibilityValidator(
         object : ComposeAccessibilityValidator {

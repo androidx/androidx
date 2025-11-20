@@ -44,21 +44,21 @@ class AggregateGroupByPeriodRequestTest {
             metrics = METRICS,
             timeRangeFilter =
                 TimeRangeFilter.before(LocalDateTime.ofInstant(ONE_HOUR_AGO, ZoneOffset.UTC)),
-            timeRangeSlicer = PERIOD_SLICER
+            timeRangeSlicer = PERIOD_SLICER,
         )
         AggregateGroupByPeriodRequest(
             metrics = METRICS,
             timeRangeFilter =
                 TimeRangeFilter.between(
                     LocalDateTime.ofInstant(ONE_HOUR_AGO, ZoneOffset.UTC),
-                    LocalDateTime.ofInstant(NOW, ZoneOffset.UTC)
+                    LocalDateTime.ofInstant(NOW, ZoneOffset.UTC),
                 ),
-            timeRangeSlicer = PERIOD_SLICER
+            timeRangeSlicer = PERIOD_SLICER,
         )
         AggregateGroupByPeriodRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.after(LocalDateTime.ofInstant(NOW, ZoneOffset.UTC)),
-            timeRangeSlicer = PERIOD_SLICER
+            timeRangeSlicer = PERIOD_SLICER,
         )
     }
 
@@ -68,21 +68,21 @@ class AggregateGroupByPeriodRequestTest {
             AggregateGroupByPeriodRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.before(ONE_HOUR_AGO),
-                timeRangeSlicer = PERIOD_SLICER
+                timeRangeSlicer = PERIOD_SLICER,
             )
         }
         assertFailsWith<IllegalArgumentException> {
             AggregateGroupByPeriodRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.between(ONE_HOUR_AGO, NOW),
-                timeRangeSlicer = PERIOD_SLICER
+                timeRangeSlicer = PERIOD_SLICER,
             )
         }
         assertFailsWith<IllegalArgumentException> {
             AggregateGroupByPeriodRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.after(NOW),
-                timeRangeSlicer = PERIOD_SLICER
+                timeRangeSlicer = PERIOD_SLICER,
             )
         }
     }

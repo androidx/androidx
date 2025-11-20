@@ -34,6 +34,7 @@ public class MultiProcessEnabledActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_is_multi_process_enabled);
         setTitle(R.string.multi_process_enabled_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)) {

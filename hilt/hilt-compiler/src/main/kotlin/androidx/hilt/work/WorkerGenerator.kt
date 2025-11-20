@@ -57,7 +57,7 @@ import javax.lang.model.element.Modifier
  */
 internal class WorkerGenerator(
     private val processingEnv: XProcessingEnv,
-    private val injectedWorker: WorkerElement
+    private val injectedWorker: WorkerElement,
 ) {
     fun generate() {
         val assistedFactoryTypeSpec =
@@ -87,7 +87,7 @@ internal class WorkerGenerator(
                         .addMember(
                             "topLevelClass",
                             "$T.class",
-                            injectedWorker.className.topLevelClassName()
+                            injectedWorker.className.topLevelClassName(),
                         )
                         .build()
                 )
@@ -105,7 +105,7 @@ internal class WorkerGenerator(
                         .returns(
                             ParameterizedTypeName.get(
                                 ClassNames.WORKER_ASSISTED_FACTORY,
-                                WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)
+                                WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER),
                             )
                         )
                         .addParameter(injectedWorker.factoryClassName, "factory")

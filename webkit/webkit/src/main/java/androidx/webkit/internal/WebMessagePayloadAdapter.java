@@ -34,13 +34,13 @@ public class WebMessagePayloadAdapter implements WebMessagePayloadBoundaryInterf
     private final byte @Nullable [] mArrayBuffer;
 
     public WebMessagePayloadAdapter(final @Nullable String data) {
-        mType = WebMessageCompat.TYPE_STRING;
+        mType = WebMessagePayloadType.TYPE_STRING;
         mString = data;
         mArrayBuffer = null;
     }
 
     public WebMessagePayloadAdapter(final byte @NonNull [] arrayBuffer) {
-        mType = WebMessageCompat.TYPE_ARRAY_BUFFER;
+        mType = WebMessagePayloadType.TYPE_ARRAY_BUFFER;
         mString = null;
         mArrayBuffer = arrayBuffer;
     }

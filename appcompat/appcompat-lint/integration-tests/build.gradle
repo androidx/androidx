@@ -8,14 +8,13 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     implementation(project(":appcompat:appcompat"))
-    implementation(project(":core:core"))
-    api(libs.kotlinStdlib)
+    implementation("androidx.core:core:1.15.0")
 }
 
 android {

@@ -40,7 +40,7 @@ class MarkdownTest {
         test_file_link(
             label = "abc \\[tag\\] (1)",
             path = "/d/e \\(1\\)/f [2]",
-            expected = expected
+            expected = expected,
         )
     }
 

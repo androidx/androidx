@@ -50,6 +50,9 @@ class AndroidViewConfiguration(private val viewConfiguration: android.view.ViewC
     override val maximumFlingVelocity: Float
         get() = viewConfiguration.scaledMaximumFlingVelocity.toFloat()
 
+    override val minimumFlingVelocity: Float
+        get() = viewConfiguration.scaledMinimumFlingVelocity.toFloat()
+
     override val handwritingGestureLineMargin: Float
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

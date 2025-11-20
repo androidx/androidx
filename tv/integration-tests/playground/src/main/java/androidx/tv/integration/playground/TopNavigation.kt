@@ -68,7 +68,7 @@ internal fun TopNavigation(
     PillIndicatorTabRow(
         tabs = tabs,
         selectedTabIndex = selectedTabIndex,
-        updateSelectedTab = { selectedTabIndex = it }
+        updateSelectedTab = { selectedTabIndex = it },
     )
 
     // Underlined indicator
@@ -92,7 +92,7 @@ internal fun TopNavigation(
 fun PillIndicatorTabRow(
     tabs: List<String>,
     selectedTabIndex: Int,
-    updateSelectedTab: (Int) -> Unit
+    updateSelectedTab: (Int) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -102,12 +102,12 @@ fun PillIndicatorTabRow(
                 Tab(
                     selected = index == selectedTabIndex,
                     onFocus = { updateSelectedTab(index) },
-                    modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(focusRequester))
+                    modifier = Modifier.ifElse(index == 0, Modifier.focusRequester(focusRequester)),
                 ) {
                     Text(
                         text = tab,
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -121,7 +121,7 @@ fun PillIndicatorTabRow(
 fun UnderlinedIndicatorTabRow(
     tabs: List<String>,
     selectedTabIndex: Int,
-    updateSelectedTab: (Int) -> Unit
+    updateSelectedTab: (Int) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
 

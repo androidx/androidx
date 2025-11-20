@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.wear.compose.foundation.rememberRevealState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
@@ -36,6 +35,7 @@ import androidx.wear.compose.material.SwipeToRevealDefaults
 import androidx.wear.compose.material.SwipeToRevealPrimaryAction
 import androidx.wear.compose.material.SwipeToRevealSecondaryAction
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.rememberRevealState
 
 @OptIn(ExperimentalWearMaterialApi::class)
 class SwipeToRevealActivity : ComponentActivity() {
@@ -56,7 +56,7 @@ class SwipeToRevealActivity : ComponentActivity() {
                             revealState = revealState,
                             icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
                             label = { Text("Delete") },
-                            onClick = {}
+                            onClick = {},
                         )
                     },
                     secondaryAction = {
@@ -64,14 +64,14 @@ class SwipeToRevealActivity : ComponentActivity() {
                             Icon(SwipeToRevealDefaults.MoreOptions, "More Options")
                         }
                     },
-                    onFullSwipe = {}
+                    onFullSwipe = {},
                 ) {
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {},
                         colors = ChipDefaults.primaryChipColors(),
                         border = ChipDefaults.outlinedChipBorder(),
-                        label = { Text("SwipeToReveal Chip", maxLines = 3) }
+                        label = { Text("SwipeToReveal Chip", maxLines = 3) },
                     )
                 }
             }

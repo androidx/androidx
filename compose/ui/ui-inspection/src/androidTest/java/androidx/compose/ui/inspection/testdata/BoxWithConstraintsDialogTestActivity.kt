@@ -34,7 +34,7 @@ class BoxWithConstraintsDialogTestActivity : ComponentActivity() {
                 BoxWithConstraints {
                     AlertDialog(
                         onDismissRequest = {},
-                        confirmButton = { Button({}) { Text("Confirm Button") } }
+                        confirmButton = { Button({}) { Text("Confirm Button") } },
                     )
                 }
             }

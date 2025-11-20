@@ -300,7 +300,7 @@ internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRender
             renderEffect = internalRenderEffect,
             blendMode = blendMode,
             colorFilter = colorFilter,
-            compositingStrategy = internalCompositingStrategy
+            compositingStrategy = internalCompositingStrategy,
         )
 
     override fun discardDisplayList() {

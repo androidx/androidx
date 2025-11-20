@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.wear.activity {
 
   public class ConfirmationActivity extends android.app.Activity {
@@ -104,13 +104,13 @@ package androidx.wear.widget {
 
   public static class BoxInsetLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams {
     ctor public BoxInsetLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
-    ctor public BoxInsetLayout.LayoutParams(int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int);
-    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(androidx.wear.widget.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int);
+    ctor public BoxInsetLayout.LayoutParams(int, int, int, int);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -152,8 +152,8 @@ package androidx.wear.widget {
     ctor public ConfirmationOverlay();
     method public androidx.wear.widget.ConfirmationOverlay setDuration(int);
     method @Deprecated public androidx.wear.widget.ConfirmationOverlay setFinishedAnimationListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
-    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setMessage(String);
     method public androidx.wear.widget.ConfirmationOverlay setMessage(CharSequence);
+    method @Deprecated public androidx.wear.widget.ConfirmationOverlay setMessage(String);
     method public androidx.wear.widget.ConfirmationOverlay setOnAnimationFinishedListener(androidx.wear.widget.ConfirmationOverlay.OnAnimationFinishedListener?);
     method public androidx.wear.widget.ConfirmationOverlay setType(@androidx.wear.widget.ConfirmationOverlay.OverlayType int);
     method @MainThread public void showAbove(android.view.View);
@@ -215,8 +215,8 @@ package androidx.wear.widget {
   }
 
   public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     ctor public WearableLinearLayoutManager(android.content.Context!);
+    ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     method public androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback? getLayoutCallback();
     method public void setLayoutCallback(androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback?);
   }

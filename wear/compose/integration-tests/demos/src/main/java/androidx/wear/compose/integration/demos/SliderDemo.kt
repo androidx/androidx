@@ -54,7 +54,7 @@ fun InlineSliderDemo() {
         verticalArrangement =
             Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
         modifier = Modifier.fillMaxSize(),
-        autoCentering = AutoCenteringParams(itemIndex = 0)
+        autoCentering = AutoCenteringParams(itemIndex = 0),
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
@@ -63,7 +63,7 @@ fun InlineSliderDemo() {
                 enabled = enabled,
                 valueRange = 1f..100f,
                 steps = 98,
-                onValueChange = { valueWithoutSegments = it }
+                onValueChange = { valueWithoutSegments = it },
             )
         }
         item { Text("With segments, value = $valueWithSegments") }
@@ -74,7 +74,7 @@ fun InlineSliderDemo() {
                 onValueChange = { valueWithSegments = it },
                 valueRange = 1f..10f,
                 steps = 8,
-                segmented = true
+                segmented = true,
             )
         }
         item {
@@ -92,9 +92,9 @@ fun InlineSliderDemo() {
                 toggleControl = {
                     Icon(
                         imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
-                        contentDescription = if (enabled) "On" else "Off"
+                        contentDescription = if (enabled) "On" else "Off",
                     )
-                }
+                },
             )
         }
     }
@@ -110,7 +110,7 @@ fun InlineSliderWithIntegersDemo() {
         verticalArrangement =
             Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
         modifier = Modifier.fillMaxSize(),
-        autoCentering = AutoCenteringParams(itemIndex = 0)
+        autoCentering = AutoCenteringParams(itemIndex = 0),
     ) {
         item { Text("No segments, value = $valueWithoutSegments") }
         item {
@@ -118,7 +118,7 @@ fun InlineSliderWithIntegersDemo() {
                 value = valueWithoutSegments,
                 valueProgression = IntProgression.fromClosedRange(0, 15, 3),
                 segmented = false,
-                onValueChange = { valueWithoutSegments = it }
+                onValueChange = { valueWithoutSegments = it },
             )
         }
         item { Text("With segments, value = $valueWithSegments") }
@@ -127,7 +127,7 @@ fun InlineSliderWithIntegersDemo() {
                 value = valueWithSegments,
                 onValueChange = { valueWithSegments = it },
                 valueProgression = IntProgression.fromClosedRange(110, 220, 5),
-                segmented = true
+                segmented = true,
             )
         }
     }
@@ -150,11 +150,8 @@ fun InlineSliderCustomColorsDemo() {
             valueRange = 3f..6f,
             steps = 5,
             segmented = false,
-            colors =
-                InlineSliderDefaults.colors(
-                    selectedBarColor = AlternatePrimaryColor1,
-                ),
-            modifier = Modifier.padding(horizontal = 10.dp)
+            colors = InlineSliderDefaults.colors(selectedBarColor = AlternatePrimaryColor1),
+            modifier = Modifier.padding(horizontal = 10.dp),
         )
     }
 }
@@ -169,7 +166,7 @@ fun InlineSliderSegmented() {
         verticalArrangement =
             Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
         modifier = Modifier.fillMaxSize(),
-        autoCentering = AutoCenteringParams(itemIndex = 0)
+        autoCentering = AutoCenteringParams(itemIndex = 0),
     ) {
         item { Text("Num of segments ${numberOfSegments.toInt()}") }
 
@@ -178,7 +175,7 @@ fun InlineSliderSegmented() {
                 value = numberOfSegments,
                 valueRange = 0f..30f,
                 onValueChange = { numberOfSegments = it },
-                steps = 29
+                steps = 29,
             )
         }
 
@@ -190,7 +187,7 @@ fun InlineSliderSegmented() {
                 onValueChange = { progress = it },
                 valueRange = 1f..20f,
                 segmented = numberOfSegments <= 8,
-                steps = numberOfSegments.toInt()
+                steps = numberOfSegments.toInt(),
             )
         }
     }
@@ -219,7 +216,7 @@ fun DefaultInlineSlider(
         modifier = modifier,
         enabled = enabled,
         colors = colors,
-        steps = steps
+        steps = steps,
     )
 }
 

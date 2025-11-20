@@ -17,23 +17,15 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    compileSdk = 35
-
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.camera.integration.antelope"
         versionCode 35
         versionName "1.35"
-    }
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
     }
     buildTypes {
         release {
@@ -59,19 +51,15 @@ dependencies {
     implementation(project(":concurrent:concurrent-futures-ktx"))
     implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation(libs.constraintLayout)
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
 
     // Testing framework
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -83,4 +71,16 @@ dependencies {
 
     // Statistics library
     implementation(libs.guavaAndroid)
+
+    // Transitive dependencies
+    implementation 'androidx.activity:activity:1.5.1'
+    implementation 'androidx.lifecycle:lifecycle-common:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.4'
+    implementation libs.androidx.annotation
+    implementation libs.androidx.core
+    implementation libs.kotlinCoroutinesCore
+    androidTestImplementation libs.hamcrestCore
+    androidTestImplementation libs.testMonitor
 }

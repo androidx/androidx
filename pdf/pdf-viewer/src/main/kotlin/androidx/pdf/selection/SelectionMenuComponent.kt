@@ -1,0 +1,109 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.pdf.selection
+
+import android.graphics.drawable.Drawable
+import androidx.pdf.view.PdfView
+
+/**
+ * Defines unique keys for the default selection menu items.
+ *
+ * These keys are used to identify standard actions like Copy and Select All within the selection
+ * context menu.
+ */
+public object PdfSelectionMenuKeys {
+    /** Key for the context menu "Copy" item. */
+    @JvmField public val CopyKey: Any = Any()
+
+    /** Key for the context menu "Copy link" item. */
+    @JvmField public val CopyLinkKey: Any = Any()
+
+    /** Key for the context menu "Jump" item. */
+    @JvmField public val GoToKey: Any = Any()
+
+    /** Key for the context menu "Select all" item. */
+    @JvmField public val SelectAllKey: Any = Any()
+
+    /** Key for all "smart actions" added by classifier in context menu. */
+    @JvmField public val SmartActionKey: Any = Any()
+}
+
+/**
+ * An abstract base class for any component that can be displayed within a context menu.
+ *
+ * @param key A unique identifier for this component within its context menu.
+ */
+public abstract class ContextMenuComponent internal constructor(public val key: Any)
+
+/**
+ * Represents a clickable item with a label in a selection menu.
+ *
+ * @param key A unique identifier for this component.
+ * @param label The text to display for this menu item.
+ * @param contentDescription An optional accessibility description for screen readers.
+ * @param onClick A lambda function invoked when the item is clicked, providing access to the
+ *   [SelectionMenuSession].
+ */
+public class SelectionMenuComponent(
+    key: Any,
+    public val label: String,
+    public val contentDescription: String?,
+    public val onClick: SelectionMenuSession.() -> Unit,
+) : ContextMenuComponent(key)
+
+/**
+ * Represents a default selection menu item, designed for the standard selection menu components
+ * that might need access to the [PdfView] instance when clicked, such as "Copy" or "Select All".
+ *
+ * @param key A unique identifier for this component.
+ * @property label The text to display for this menu item.
+ * @property contentDescription An optional accessibility description for screen readers.
+ * @property onClick A lambda function invoked when the item is clicked, providing access to the
+ *   [SelectionMenuSession] and the [PdfView].
+ */
+internal class DefaultSelectionMenuComponent(
+    key: Any,
+    public val label: String,
+    public val contentDescription: String? = null,
+    public val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
+) : ContextMenuComponent(key)
+
+/**
+ * Represents a smart selection menu item, which can include a leading icon in addition to a label
+ * and action.
+ *
+ * @param key A unique identifier for this component.
+ * @property label The text to display for this menu item.
+ * @property contentDescription An optional accessibility description for screen readers.
+ * @property leadingIcon An optional drawable to display as an icon before the label.
+ * @property onClick A lambda function invoked when the item is clicked, providing access to the
+ *   [SelectionMenuSession].
+ */
+internal class SmartSelectionMenuComponent(
+    key: Any,
+    public val label: String,
+    public val contentDescription: String? = null,
+    public val leadingIcon: Drawable? = null,
+    public val onClick: SelectionMenuSession.(pdfView: PdfView) -> Unit,
+) : ContextMenuComponent(key)
+
+/** Represents an active session of an open selection menu. */
+@Suppress("NotCloseable")
+public interface SelectionMenuSession {
+    /** Closes the currently open text context menu. */
+    public fun close()
+}

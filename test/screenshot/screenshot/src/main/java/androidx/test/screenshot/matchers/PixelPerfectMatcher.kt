@@ -26,7 +26,7 @@ class PixelPerfectMatcher : BitmapMatcher {
         expected: IntArray,
         given: IntArray,
         width: Int,
-        height: Int
+        height: Int,
     ): MatchResult {
         check(expected.size == given.size)
 

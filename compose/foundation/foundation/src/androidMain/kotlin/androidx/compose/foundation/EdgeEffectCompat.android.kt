@@ -74,7 +74,7 @@ internal object EdgeEffectCompat {
     fun EdgeEffect.absorbToRelaxIfNeeded(
         velocity: Float,
         edgeEffectLength: Float,
-        density: Density
+        density: Density,
     ): Float {
         val flingDistance = flingDistance(density, velocity)
         val actualDistance = distanceCompat * edgeEffectLength

@@ -19,6 +19,7 @@ package androidx.wear.protolayout;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 
 import androidx.annotation.RestrictTo;
@@ -623,8 +624,8 @@ public final class ActionBuilders {
             /** Adds an entry into the extras to be included in the intent. */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addKeyToExtraMapping(@NonNull String key,
-                    @NonNull AndroidExtra extra) {
+            public @NonNull Builder addKeyToExtraMapping(
+                    @NonNull String key, @NonNull AndroidExtra extra) {
                 mImpl.putKeyToExtra(key, extra.toAndroidExtraProto());
                 mFingerprint.recordPropertyUpdate(
                         key.hashCode(), checkNotNull(extra.getFingerprint()).aggregateValueAsInt());
@@ -811,6 +812,75 @@ public final class ActionBuilders {
         }
     }
 
+    /**
+     * An action used to perform the operation associated with a {@link PendingIntent}, such as
+     * launching an activity. The {@link PendingIntent} could be retrieved with the ID of the
+     * clickable to which this action is attached.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    static final class PendingIntentAction implements Action {
+        private final ActionProto.PendingIntentAction mImpl;
+        private final @Nullable Fingerprint mFingerprint;
+
+        PendingIntentAction(
+                ActionProto.PendingIntentAction impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @Nullable Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public static @NonNull PendingIntentAction fromProto(
+                ActionProto.@NonNull PendingIntentAction proto, @Nullable Fingerprint fingerprint) {
+            return new PendingIntentAction(proto, fingerprint);
+        }
+
+        static @NonNull PendingIntentAction fromProto(
+                ActionProto.@NonNull PendingIntentAction proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        ActionProto.@NonNull PendingIntentAction toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ActionProto.@NonNull Action toActionProto() {
+            return ActionProto.Action.newBuilder().setPendingIntentAction(mImpl).build();
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return "PendingIntentAction";
+        }
+
+        /** Builder for {@link PendingIntentAction}. */
+        @SuppressWarnings("HiddenSuperclass")
+        public static final class Builder implements Action.Builder {
+            private final ActionProto.PendingIntentAction.Builder mImpl =
+                    ActionProto.PendingIntentAction.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1136890824);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            public Builder() {}
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            public @NonNull PendingIntentAction build() {
+                return new PendingIntentAction(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
     /** Interface defining an action that can be used by a layout element. */
     @RequiresSchemaVersion(major = 1, minor = 0)
     public interface Action {
@@ -840,6 +910,9 @@ public final class ActionBuilders {
         }
         if (proto.hasLoadAction()) {
             return LoadAction.fromProto(proto.getLoadAction(), fingerprint);
+        }
+        if (proto.hasPendingIntentAction()) {
+            return PendingIntentAction.fromProto(proto.getPendingIntentAction(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of Action");
     }

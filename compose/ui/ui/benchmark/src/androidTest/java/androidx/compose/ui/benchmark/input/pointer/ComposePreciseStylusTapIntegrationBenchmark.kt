@@ -132,7 +132,7 @@ class ComposePreciseStylusTapIntegrationBenchmark {
                     7,
                     0x0, // Edge Flags value of 0.
                     0x5002, // Source of the event value of 20482
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             val stylusMoveMotionEvent =
@@ -159,7 +159,7 @@ class ComposePreciseStylusTapIntegrationBenchmark {
                     7,
                     0x0, // Edge Flags value of 0.
                     0x5002, // Source of the event value of 20482
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             val stylusUpMotionEvent =
@@ -186,7 +186,7 @@ class ComposePreciseStylusTapIntegrationBenchmark {
                     7,
                     0x0, // Edge Flags value of 0.
                     0x5002, // Source of the event value of 20482
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             benchmarkRule.measureRepeatedOnUiThread {
@@ -240,7 +240,7 @@ class ComposePreciseStylusTapIntegrationBenchmark {
                             }
                         }
                         .fillMaxWidth()
-                        .requiredHeight(itemHeightDp)
+                        .requiredHeight(itemHeightDp),
             )
         }
     }

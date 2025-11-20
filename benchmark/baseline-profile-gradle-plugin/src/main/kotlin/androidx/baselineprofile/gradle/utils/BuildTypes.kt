@@ -22,7 +22,6 @@ import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.BuildType
 import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet
 import com.android.build.gradle.internal.api.DefaultAndroidSourceFile
-import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
@@ -33,15 +32,10 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     crossinline filterBlock: (T) -> (Boolean),
     crossinline newConfigureBlock: (base: T, ext: T) -> (Unit),
     crossinline overrideConfigureBlock: (base: T, ext: T) -> (Unit),
-    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
+    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf(),
 ) {
     extensionBuildTypes
-        .filter { buildType ->
-            if (buildType !is T) {
-                throw GradleException("Build type `${buildType.name}` is not of type ${T::class}")
-            }
-            filterBlock(buildType)
-        }
+        .filter { buildType -> filterBlock(buildType) }
         .forEach { buildType ->
             val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
@@ -74,7 +68,7 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
 internal inline fun <reified T : BuildType> copySigningConfigIfNotSpecified(
     baseBuildType: T,
     extBuildType: T,
-    debugSigningConfig: ApkSigningConfig?
+    debugSigningConfig: ApkSigningConfig?,
 ) {
     // If the build type is for applications, the signing config has not been defined yet,
     // we copy the signing config of the original build type, or the debug one if the original
@@ -106,7 +100,7 @@ internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
 
 internal fun copyBuildTypeSources(
     extensionSourceSets: NamedDomainObjectContainer<out AndroidSourceSet>,
-    fromToMapping: Map<String, String>
+    fromToMapping: Map<String, String>,
 ) {
     extensionSourceSets
         .filter { it.name in fromToMapping.keys }

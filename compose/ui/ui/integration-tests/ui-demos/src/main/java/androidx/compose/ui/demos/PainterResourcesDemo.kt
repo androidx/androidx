@@ -35,8 +35,8 @@ internal class PainterResourcesDemoActivity : ComponentActivity() {
             composeView,
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            ),
         )
 
         composeView.setContent { PainterResourcesDemo() }

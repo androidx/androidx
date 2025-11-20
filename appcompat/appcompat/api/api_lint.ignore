@@ -52,49 +52,49 @@ GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getSplitTrack():
 
 
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportActionModeFinished(androidx.appcompat.view.ActionMode) parameter #0:
-    Invalid nullability on parameter `mode` in method `onSupportActionModeFinished`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type androidx.appcompat.view.ActionMode in parameter `mode` in method `onSupportActionModeFinished`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:
-    Invalid nullability on parameter `mode` in method `onSupportActionModeStarted`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type androidx.appcompat.view.ActionMode in parameter `mode` in method `onSupportActionModeStarted`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
-    Invalid nullability on parameter `callback` in method `onWindowStartingSupportActionMode`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type androidx.appcompat.view.ActionMode.Callback in parameter `callback` in method `onWindowStartingSupportActionMode`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatAutoCompleteTextView#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatButton#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatButton#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatCheckBox#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatCheckedTextView#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.inputmethod.InputConnection in method `onCreateInputConnection` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.inputmethod.EditorInfo in parameter `outAttrs` in method `onCreateInputConnection`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatCheckedTextView#setTextAppearance(android.content.Context, int) parameter #0:
-    Invalid nullability on parameter `context` in method `setTextAppearance`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `setTextAppearance`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatEditText#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatEditText#getText():
-    Invalid nullability on method `getText` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.text.Editable in method `getText` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Invalid nullability on method `onCreateInputConnection` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.inputmethod.InputConnection in method `onCreateInputConnection` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Invalid nullability on parameter `outAttrs` in method `onCreateInputConnection`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.inputmethod.EditorInfo in parameter `outAttrs` in method `onCreateInputConnection`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatRadioButton#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatTextView#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatTextView#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.AppCompatToggleButton#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.ListPopupWindow#getListView():
-    Invalid nullability on method `getListView` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.widget.ListView in method `getListView` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#getCustomSelectionActionModeCallback():
-    Invalid nullability on method `getCustomSelectionActionModeCallback` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type android.view.ActionMode.Callback in method `getCustomSelectionActionModeCallback` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.widget.SwitchCompat#setFilters(android.text.InputFilter[]) parameter #0:
-    Invalid nullability on parameter `filters` in method `setFilters`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.text.InputFilter[] in parameter `filters` in method `setFilters`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:

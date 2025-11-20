@@ -1,3 +1,9 @@
 // Baseline format: 1.0
 AsyncSuffixFuture: androidx.paging.ListenableFuturePagingSource#loadFuture(androidx.paging.PagingSource.LoadParams<Key>):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
+TypeParameterName: androidx.paging.ListenableFuturePagingSource:
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.ListenableFutureRemoteMediator:
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

@@ -109,7 +109,7 @@ public abstract class PagingDataPresenter<T : Any>(
      * [PagingDataEvent.Prepend] or [PagingDataEvent.Append].
      */
     public abstract suspend fun presentPagingDataEvent(
-        event: PagingDataEvent<T>,
+        event: PagingDataEvent<T>
     ): @JvmSuppressWildcards Unit
 
     public suspend fun collectFrom(pagingData: PagingData<T>): @JvmSuppressWildcards Unit {
@@ -136,19 +136,16 @@ public abstract class PagingDataPresenter<T : Any>(
                             presentNewList(
                                 pages =
                                     listOf(
-                                        TransformablePage(
-                                            originalPageOffset = 0,
-                                            data = event.data,
-                                        )
+                                        TransformablePage(originalPageOffset = 0, data = event.data)
                                     ),
-                                placeholdersBefore = 0,
-                                placeholdersAfter = 0,
+                                placeholdersBefore = event.placeholdersBefore,
+                                placeholdersAfter = event.placeholdersAfter,
                                 dispatchLoadStates =
                                     event.sourceLoadStates != null ||
                                         event.mediatorLoadStates != null,
                                 sourceLoadStates = event.sourceLoadStates,
                                 mediatorLoadStates = event.mediatorLoadStates,
-                                newHintReceiver = pagingData.hintReceiver
+                                newHintReceiver = pagingData.hintReceiver,
                             )
                         }
                         event is Insert && (event.loadType == REFRESH) -> {
@@ -159,7 +156,7 @@ public abstract class PagingDataPresenter<T : Any>(
                                 dispatchLoadStates = true,
                                 sourceLoadStates = event.sourceLoadStates,
                                 mediatorLoadStates = event.mediatorLoadStates,
-                                newHintReceiver = pagingData.hintReceiver
+                                newHintReceiver = pagingData.hintReceiver,
                             )
                         }
                         event is Insert -> {
@@ -231,7 +228,7 @@ public abstract class PagingDataPresenter<T : Any>(
                             combinedLoadStatesCollection.set(
                                 type = event.loadType,
                                 remote = false,
-                                state = LoadState.NotLoading.Incomplete
+                                state = LoadState.NotLoading.Incomplete,
                             )
 
                             // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
@@ -350,11 +347,7 @@ public abstract class PagingDataPresenter<T : Any>(
         combinedLoadStatesCollection.stateFlow
 
     private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> =
-        MutableSharedFlow(
-            replay = 0,
-            extraBufferCapacity = 64,
-            onBufferOverflow = DROP_OLDEST,
-        )
+        MutableSharedFlow(replay = 0, extraBufferCapacity = 64, onBufferOverflow = DROP_OLDEST)
 
     /**
      * A hot [Flow] that emits after the pages presented to the UI are updated, even if the actual
@@ -503,15 +496,15 @@ public abstract class PagingDataPresenter<T : Any>(
 
     // Holds on to retry/refresh requests to deliver them when the real UiReceiver is attached.
     private class InitialUiReceiver : UiReceiver {
-        var retry = false
-        var refresh = false
+        var shouldRetry = false
+        var shouldRefresh = false
 
         override fun retry() {
-            retry = true
+            shouldRetry = true
         }
 
         override fun refresh() {
-            refresh = true
+            shouldRefresh = true
         }
     }
 
@@ -519,10 +512,10 @@ public abstract class PagingDataPresenter<T : Any>(
         val oldReceiver = this.uiReceiver
         this.uiReceiver = receiver
         if (oldReceiver is InitialUiReceiver) {
-            if (oldReceiver.retry) {
+            if (oldReceiver.shouldRetry) {
                 receiver.retry()
             }
-            if (oldReceiver.refresh) {
+            if (oldReceiver.shouldRefresh) {
                 receiver.refresh()
             }
         }
@@ -540,5 +533,5 @@ public abstract class PagingDataPresenter<T : Any>(
 public enum class DiffingChangePayload {
     ITEM_TO_PLACEHOLDER,
     PLACEHOLDER_TO_ITEM,
-    PLACEHOLDER_POSITION_CHANGE
+    PLACEHOLDER_POSITION_CHANGE,
 }

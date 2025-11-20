@@ -73,7 +73,7 @@ interface PathEffect {
             shape: Path,
             advance: Float,
             phase: Float,
-            style: StampedPathEffectStyle
+            style: StampedPathEffectStyle,
         ): PathEffect = actualStampedPathEffect(shape, advance, phase, style)
     }
 }
@@ -88,7 +88,7 @@ internal expect fun actualStampedPathEffect(
     shape: Path,
     advance: Float,
     phase: Float,
-    style: StampedPathEffectStyle
+    style: StampedPathEffectStyle,
 ): PathEffect
 
 /**

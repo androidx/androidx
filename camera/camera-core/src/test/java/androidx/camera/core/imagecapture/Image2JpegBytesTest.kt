@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat.JPEG
 import android.graphics.ImageFormat.JPEG_R
-import android.os.Build
 import android.util.Size
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.CROP_RECT
@@ -44,7 +43,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [Image2JpegBytes] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class Image2JpegBytesTest {
 
     private val operation = Image2JpegBytes(DeviceQuirks.getAll())
@@ -62,7 +61,7 @@ class Image2JpegBytesTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.
@@ -97,7 +96,7 @@ class Image2JpegBytesTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

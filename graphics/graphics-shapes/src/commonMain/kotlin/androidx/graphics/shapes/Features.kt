@@ -193,7 +193,7 @@ abstract class Feature(val cubics: List<Cubic>) {
                         add(cubics[i].transformed(f))
                     }
                 },
-                convex
+                convex,
             )
         }
 

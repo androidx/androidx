@@ -41,7 +41,7 @@ public class LoadingView : LinearLayout {
     public constructor(
         context: Context,
         attrs: AttributeSet?,
-        defStyleAttr: Int = 0
+        defStyleAttr: Int = 0,
     ) : super(context, attrs, defStyleAttr) {
 
         // Inflate the layout

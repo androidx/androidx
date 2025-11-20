@@ -22,9 +22,9 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
 
@@ -59,7 +59,7 @@ public class CamcorderProfileResolutionQuirk(
             )
 
         val result: List<Size> = sizes?.asList() ?: emptyList()
-        Log.debug { "supportedResolutions = $result" }
+        Camera2Logger.debug { "supportedResolutions = $result" }
         result
     }
 

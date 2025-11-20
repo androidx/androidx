@@ -413,8 +413,7 @@ public class ListRowPresenterTest {
                     .mOverlayColor;
             result.mShadowOverlayContainerOverlayZ = ViewCompat.getZ(view);
             result.mShadowOverlayContainerOpticalBounds = view.getWidth() > 100;
-            result.mShadowOverlayContainerClipToOutline = Build.VERSION.SDK_INT >= 21
-                    ? view.getClipToOutline() : false;
+            result.mShadowOverlayContainerClipToOutline = view.getClipToOutline();
         } else {
             result.mShadowOverlayContainer = false;
         }
@@ -424,7 +423,7 @@ public class ListRowPresenterTest {
                 : Color.TRANSPARENT;
         result.mViewZ = ViewCompat.getZ(view);
         result.mViewOpticalBounds = view.getWidth() > 100;
-        result.mViewClipToOutline = Build.VERSION.SDK_INT >= 21 ? view.getClipToOutline() : false;
+        result.mViewClipToOutline = view.getClipToOutline();
         return result;
     }
 

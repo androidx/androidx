@@ -84,12 +84,12 @@ fun CallingApp(isSupported: Boolean) {
                     navController.launchAudioRouteDialog()
                 }
             },
-            onMoveToSettings = { navController.moveToSettingsDestination() }
+            onMoveToSettings = { navController.moveToSettingsDestination() },
         )
         audioRouteDialog(
             ongoingCallsViewModel,
             onDismissDialog = { navController.popBackStack() },
-            onChangeAudioRoute = { ongoingCallsViewModel.onChangeAudioRoute(it) }
+            onChangeAudioRoute = { ongoingCallsViewModel.onChangeAudioRoute(it) },
         )
         settingsDestination()
     }

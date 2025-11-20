@@ -89,7 +89,7 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         glExecutor.execute {
             glRenderer.init(
                 DynamicRange.SDR,
-                mapOf(InputFormat.DEFAULT to TONE_MAPPING_SHADER_PROVIDER)
+                mapOf(InputFormat.DEFAULT to TONE_MAPPING_SHADER_PROVIDER),
             )
         }
     }
@@ -104,7 +104,7 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         val surfaceTexture = SurfaceTexture(glRenderer.textureName)
         surfaceTexture.setDefaultBufferSize(
             surfaceRequest.resolution.width,
-            surfaceRequest.resolution.height
+            surfaceRequest.resolution.height,
         )
         val surface = Surface(surfaceTexture)
         surfaceRequest.provideSurface(surface, glExecutor) {

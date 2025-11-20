@@ -26,7 +26,7 @@ package androidx.sqlite.db
 public class SimpleSQLiteQuery(
     private val query: String,
     @Suppress("ArrayReturn") // Due to legacy API
-    private val bindArgs: Array<out Any?>?
+    private val bindArgs: Array<out Any?>?,
 ) : SupportSQLiteQuery {
 
     /**
@@ -62,7 +62,7 @@ public class SimpleSQLiteQuery(
         public fun bind(
             statement: SupportSQLiteProgram,
             @Suppress("ArrayReturn") // Due to legacy API
-            bindArgs: Array<out Any?>?
+            bindArgs: Array<out Any?>?,
         ) {
             if (bindArgs == null) {
                 return

@@ -93,7 +93,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 XywCH144m4yR/276dI3jM0dxEWsE+f8AxedExzLRkyWqHq3Bk8e7eczk8R4e
                 5/EE7+cxi7k1MBPzyK2hy8S0iT4TkyY+MPGhibyJj0z0m3hqYtDEHRN+k2zx
                 ulwiu0vUnjn6z/8FFIb9PeENAAA=
-                """
+                """,
         )
 
     // common_typos_disable
@@ -189,7 +189,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 qiI7PmXvyQ3K3wlw7FH0c9LFPsWl+QEsIKBcxWLOWPEJnbZLc7d3Pl3/pfVz
                 7f68X2gtWsZK4V0hxMkvvJNfcEc/joe5chePKDepV6W3r3bhxLgXYy3GOjYI
                 4n6MGja7YBpb2O6irBFo7Gj4GmEOljUqGot/AARrj8f7AgAA
-                """
+                """,
         )
     // common_typos_enabled
 
@@ -222,7 +222,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 hnX/sF7o5H82CE5a/6U195lzvOQnVWHwGybYaM5H2gydNJv2eVPkm2o7k1pM
                 +INQojfm11KmmmmRSuUaZ9h5SFCbwIELmOrl1WwqazxC1dQbY+wbRaELK0YQ
                 YytGEdumxU6MXYRdEIUSyl34CnsK+woHa3QUXIVDBe8bGvQ5CNoBAAA=
-                """
+                """,
         )
 
     override fun getDetector(): Detector = NonLambdaOffsetModifierDetector()
@@ -260,7 +260,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 Stubs.Modifier,
                 Stubs.Dp,
                 Stubs.IntOffset,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expectClean()
@@ -310,7 +310,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 Stubs.IntOffset,
                 Stubs.SnapshotState,
                 Stubs.Remember,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expectClean()
@@ -365,7 +365,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 Stubs.IntOffset,
                 Stubs.Animatable,
                 Stubs.Remember,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expectClean()
@@ -409,7 +409,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 DensityStub,
                 Stubs.Dp,
                 Stubs.IntOffset,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expectClean()
@@ -444,7 +444,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expectClean()
@@ -483,7 +483,7 @@ class NonLambdaOffsetModifierDetectorTest : LintDetectorTest() {
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -531,7 +531,7 @@ src/test/test.kt:18: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -579,7 +579,7 @@ src/test/test.kt:19: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -632,7 +632,7 @@ src/test/test.kt:19: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -685,7 +685,7 @@ src/test/test.kt:24: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -734,7 +734,7 @@ src/test/test.kt:17: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -781,7 +781,7 @@ src/test/SecondaryClass.kt:19: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -827,7 +827,7 @@ src/test/test.kt:18: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -880,7 +880,7 @@ src/test/test.kt:17: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -934,7 +934,7 @@ src/test/test.kt:20: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -982,7 +982,7 @@ src/test/test.kt:20: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1030,7 +1030,7 @@ src/test/test.kt:19: $WarningMessage
                 Stubs.Remember,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1075,7 +1075,7 @@ src/test/test.kt:16: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1129,7 +1129,7 @@ src/test/test.kt:15: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1183,7 +1183,7 @@ src/test/test.kt:24: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1231,7 +1231,7 @@ src/test/test.kt:18: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1281,7 +1281,7 @@ src/test/test.kt:18: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1327,7 +1327,7 @@ src/test/SecondaryClass.kt:20: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1380,7 +1380,7 @@ src/test/test.kt:16: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1433,7 +1433,7 @@ src/test/test.kt:19: $WarningMessage
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.Animatable,
-                OffsetStub
+                OffsetStub,
             )
             .run()
             .expect(
@@ -1470,7 +1470,7 @@ src/test/test.kt:19: $WarningMessage
 
         """
                 ),
-                AnotherOffsetDefinitionStub.bytecode
+                AnotherOffsetDefinitionStub.bytecode,
             )
             .run()
             .expectClean()
@@ -1495,7 +1495,7 @@ src/test/test.kt:19: $WarningMessage
 
         """
                 ),
-                AnotherOffsetDefinitionStub.kotlin
+                AnotherOffsetDefinitionStub.kotlin,
             )
             .run()
             .expectClean()

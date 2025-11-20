@@ -22,30 +22,18 @@ configurations {
     }
 }
 
-tasks.withType(Test).configureEach {
-    it.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
-
 dependencies {
-    implementation(findGradleKotlinDsl())
-    implementation("com.android.tools.build:gradle-api:8.0.0")
-    implementation(libs.kotlinStdlib)
+    implementation("com.android.tools.build:gradle-api:8.8.0-alpha06")
     compileOnly(libs.androidGradlePlugin)
     compileOnly(libs.kspGradlePlugin)
 
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
 
-    testPlugin("com.android.tools.build:gradle:8.0.0")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
+    testPlugin("com.android.tools.build:gradle:8.8.0-alpha06")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-12006047")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-12006047:linux")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-120060479:osx")
     testPlugin("com.google.devtools.ksp:symbol-processing-api:1.9.22-1.0.17")
     testPlugin(libs.kotlinGradlePlugin)
     testPlugin(libs.kspGradlePlugin)

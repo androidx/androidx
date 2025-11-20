@@ -1,8 +1,9 @@
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -11,9 +12,6 @@ android {
 
     defaultConfig {
         minSdk = 25
-    }
-
-    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
 }
@@ -30,8 +28,13 @@ dependencies {
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-material3-samples"))
+    implementation(project(":wear:compose:compose-material3-integration-tests"))
+    implementation(project(":wear:compose:compose-navigation"))
     implementation("androidx.compose.material:material-icons-core:1.6.0")
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
+}
+
+androidx {
 }

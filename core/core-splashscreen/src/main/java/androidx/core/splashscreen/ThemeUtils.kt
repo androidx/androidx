@@ -41,7 +41,7 @@ internal object ThemeUtils {
         fun applyThemesSystemBarAppearance(
             theme: Resources.Theme,
             decor: View,
-            tv: TypedValue = TypedValue()
+            tv: TypedValue = TypedValue(),
         ) {
             var appearance = 0
             val mask =

@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.StateProto.State getCurrentState();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters deviceConfiguration_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return deviceConfiguration_ == null ? androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.getDefaultInstance() : deviceConfiguration_;"
+        errorLine2="                                                                                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          deviceConfiguration_ != androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.getDefaultInstance()) {"
+        errorLine2="                                                                                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.newBuilder(deviceConfiguration_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                                                 ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.StateProto.State currentState_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.StateProto.State getCurrentState() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return currentState_ == null ? androidx.wear.protolayout.proto.StateProto.State.getDefaultInstance() : currentState_;"
+        errorLine2="                                                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setCurrentState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeCurrentState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          currentState_ != androidx.wear.protolayout.proto.StateProto.State.getDefaultInstance()) {"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.StateProto.State.newBuilder(currentState_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.StateProto.State getCurrentState() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setCurrentState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.StateProto.State.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeCurrentState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters deviceConfiguration_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return deviceConfiguration_ == null ? androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.getDefaultInstance() : deviceConfiguration_;"
+        errorLine2="                                                                                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          deviceConfiguration_ != androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.getDefaultInstance()) {"
+        errorLine2="                                                                                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.newBuilder(deviceConfiguration_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                                                 ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters getDeviceConfiguration() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="DeviceParameters can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeDeviceConfiguration(androidx.wear.protolayout.proto.DeviceParametersProto.DeviceParameters value) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/RequestProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.TimelineProto.Timeline getTileTimeline();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.StateProto.State getState();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    androidx.wear.protolayout.proto.ResourceProto.Resources getResources();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.TimelineProto.Timeline tileTimeline_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.TimelineProto.Timeline getTileTimeline() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return tileTimeline_ == null ? androidx.wear.protolayout.proto.TimelineProto.Timeline.getDefaultInstance() : tileTimeline_;"
+        errorLine2="                                                                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setTileTimeline(androidx.wear.protolayout.proto.TimelineProto.Timeline value) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeTileTimeline(androidx.wear.protolayout.proto.TimelineProto.Timeline value) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          tileTimeline_ != androidx.wear.protolayout.proto.TimelineProto.Timeline.getDefaultInstance()) {"
+        errorLine2="                                                                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.TimelineProto.Timeline.newBuilder(tileTimeline_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.StateProto.State state_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.StateProto.State getState() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return state_ == null ? androidx.wear.protolayout.proto.StateProto.State.getDefaultInstance() : state_;"
+        errorLine2="                                                                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          state_ != androidx.wear.protolayout.proto.StateProto.State.getDefaultInstance()) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.StateProto.State.newBuilder(state_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private androidx.wear.protolayout.proto.ResourceProto.Resources resources_;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    public androidx.wear.protolayout.proto.ResourceProto.Resources getResources() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      return resources_ == null ? androidx.wear.protolayout.proto.ResourceProto.Resources.getDefaultInstance() : resources_;"
+        errorLine2="                                                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void setResources(androidx.wear.protolayout.proto.ResourceProto.Resources value) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="    private void mergeResources(androidx.wear.protolayout.proto.ResourceProto.Resources value) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources.getDefaultInstance can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          resources_ != androidx.wear.protolayout.proto.ResourceProto.Resources.getDefaultInstance()) {"
+        errorLine2="                                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources.newBuilder can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.ResourceProto.Resources.newBuilder(resources_).mergeFrom(value).buildPartial();"
+        errorLine2="                                                                  ~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.TimelineProto.Timeline getTileTimeline() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setTileTimeline(androidx.wear.protolayout.proto.TimelineProto.Timeline value) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.TimelineProto.Timeline.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Timeline can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeTileTimeline(androidx.wear.protolayout.proto.TimelineProto.Timeline value) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.StateProto.State getState() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.StateProto.State.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="State can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeState(androidx.wear.protolayout.proto.StateProto.State value) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public androidx.wear.protolayout.proto.ResourceProto.Resources getResources() {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder setResources(androidx.wear.protolayout.proto.ResourceProto.Resources value) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Builder can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="          androidx.wear.protolayout.proto.ResourceProto.Resources.Builder builderForValue) {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="      public Builder mergeResources(androidx.wear.protolayout.proto.ResourceProto.Resources value) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:wear:tiles:tiles-proto*main*MAIN*sourceProvider*0*javaDir*1}/androidx/wear/tiles/proto/TileProto.java"/>
+    </issue>
+
+</issues>

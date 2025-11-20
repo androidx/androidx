@@ -41,12 +41,12 @@ fun NavGraph(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                     val componentId = component.id
                     val route = "$ComponentRoute/$componentId"
                     navController.navigate(route)
-                }
+                },
             )
         }
         composable(
             route = "$ComponentRoute/" + "{$ComponentIdArgName}",
-            arguments = listOf(navArgument(ComponentIdArgName) { type = NavType.IntType })
+            arguments = listOf(navArgument(ComponentIdArgName) { type = NavType.IntType }),
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -60,7 +60,7 @@ fun NavGraph(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                     val route = "$ExampleRoute/$componentId/$exampleIndex"
                     navController.navigate(route)
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
             )
         }
         composable(
@@ -68,8 +68,8 @@ fun NavGraph(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             arguments =
                 listOf(
                     navArgument(ComponentIdArgName) { type = NavType.IntType },
-                    navArgument(ExampleIndexArgName) { type = NavType.IntType }
-                )
+                    navArgument(ExampleIndexArgName) { type = NavType.IntType },
+                ),
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -81,7 +81,7 @@ fun NavGraph(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                 example = example,
                 theme = theme,
                 onThemeChange = onThemeChange,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
             )
         }
     }

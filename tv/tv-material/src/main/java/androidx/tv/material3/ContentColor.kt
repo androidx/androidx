@@ -30,5 +30,4 @@ import androidx.compose.ui.graphics.Color
  *
  * Defaults to [Color.Black] if no color has been explicitly set.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val LocalContentColor = compositionLocalOf { Color.Black }

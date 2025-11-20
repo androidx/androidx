@@ -22,4 +22,4 @@ package androidx.compose.runtime
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.EXPRESSION)
-annotation class DontMemoize
+public annotation class DontMemoize

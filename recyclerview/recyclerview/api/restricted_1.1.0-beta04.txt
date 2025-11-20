@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.recyclerview.widget {
 
   public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
@@ -21,8 +21,8 @@ package androidx.recyclerview.widget {
   }
 
   public class AsyncListDiffer<T> {
-    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
     method public java.util.List<T!> getCurrentList();
     method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
@@ -99,8 +99,8 @@ package androidx.recyclerview.widget {
   public static class DiffUtil.DiffResult {
     method public int convertNewPositionToOld(@IntRange(from=0) int);
     method public int convertOldPositionToNew(@IntRange(from=0) int);
-    method public void dispatchUpdatesTo(androidx.recyclerview.widget.RecyclerView.Adapter);
     method public void dispatchUpdatesTo(androidx.recyclerview.widget.ListUpdateCallback);
+    method public void dispatchUpdatesTo(androidx.recyclerview.widget.RecyclerView.Adapter);
     field public static final int NO_POSITION = -1; // 0xffffffff
   }
 
@@ -140,10 +140,10 @@ package androidx.recyclerview.widget {
 
   public static class GridLayoutManager.LayoutParams extends androidx.recyclerview.widget.RecyclerView.LayoutParams {
     ctor public GridLayoutManager.LayoutParams(android.content.Context!, android.util.AttributeSet!);
-    ctor public GridLayoutManager.LayoutParams(int, int);
-    ctor public GridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public GridLayoutManager.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public GridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public GridLayoutManager.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
+    ctor public GridLayoutManager.LayoutParams(int, int);
     method public int getSpanIndex();
     method public int getSpanSize();
     field public static final int INVALID_SPAN_ID = -1; // 0xffffffff
@@ -235,8 +235,8 @@ package androidx.recyclerview.widget {
 
   public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
     ctor public LinearLayoutManager(android.content.Context!);
-    ctor public LinearLayoutManager(android.content.Context!, @androidx.recyclerview.widget.RecyclerView.Orientation int, boolean);
     ctor public LinearLayoutManager(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public LinearLayoutManager(android.content.Context!, @androidx.recyclerview.widget.RecyclerView.Orientation int, boolean);
     method protected void calculateExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State, int[]);
     method public android.graphics.PointF! computeScrollVectorForPosition(int);
     method public int findFirstCompletelyVisibleItemPosition();
@@ -306,8 +306,8 @@ package androidx.recyclerview.widget {
   }
 
   public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public java.util.List<T!> getCurrentList();
     method protected T! getItem(int);
     method public int getItemCount();
@@ -362,8 +362,8 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView(android.content.Context);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet?);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet?, int);
-    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
     method public void addOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void addOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
@@ -581,12 +581,12 @@ package androidx.recyclerview.widget {
 
   public abstract static class RecyclerView.ItemDecoration {
     ctor public RecyclerView.ItemDecoration();
-    method @Deprecated public void getItemOffsets(android.graphics.Rect, int, androidx.recyclerview.widget.RecyclerView);
     method public void getItemOffsets(android.graphics.Rect, android.view.View, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
-    method public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
+    method @Deprecated public void getItemOffsets(android.graphics.Rect, int, androidx.recyclerview.widget.RecyclerView);
     method @Deprecated public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView);
-    method public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
+    method public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
     method @Deprecated public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView);
+    method public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.State);
   }
 
   public abstract static class RecyclerView.LayoutManager {
@@ -597,9 +597,9 @@ package androidx.recyclerview.widget {
     method public void addView(android.view.View!, int);
     method public void assertInLayoutOrScroll(String!);
     method public void assertNotInLayoutOrScroll(String!);
-    method public void attachView(android.view.View, int, androidx.recyclerview.widget.RecyclerView.LayoutParams!);
-    method public void attachView(android.view.View, int);
     method public void attachView(android.view.View);
+    method public void attachView(android.view.View, int);
+    method public void attachView(android.view.View, int, androidx.recyclerview.widget.RecyclerView.LayoutParams!);
     method public void calculateItemDecorationsForChild(android.view.View, android.graphics.Rect);
     method public boolean canScrollHorizontally();
     method public boolean canScrollVertically();
@@ -622,8 +622,8 @@ package androidx.recyclerview.widget {
     method public android.view.View? findContainingItemView(android.view.View);
     method public android.view.View? findViewByPosition(int);
     method public abstract androidx.recyclerview.widget.RecyclerView.LayoutParams! generateDefaultLayoutParams();
-    method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateLayoutParams(android.content.Context!, android.util.AttributeSet!);
+    method public androidx.recyclerview.widget.RecyclerView.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public int getBaseline();
     method public int getBottomDecorationHeight(android.view.View);
     method public android.view.View? getChildAt(int);
@@ -748,10 +748,10 @@ package androidx.recyclerview.widget {
 
   public static class RecyclerView.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public RecyclerView.LayoutParams(android.content.Context!, android.util.AttributeSet!);
-    ctor public RecyclerView.LayoutParams(int, int);
-    ctor public RecyclerView.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public RecyclerView.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public RecyclerView.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public RecyclerView.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
+    ctor public RecyclerView.LayoutParams(int, int);
     method public int getViewAdapterPosition();
     method public int getViewLayoutPosition();
     method @Deprecated public int getViewPosition();
@@ -949,9 +949,9 @@ package androidx.recyclerview.widget {
     ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>);
     ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>, int);
     method public int add(T!);
-    method public void addAll(T![], boolean);
-    method public void addAll(T!...);
     method public void addAll(java.util.Collection<T!>);
+    method public void addAll(T!...);
+    method public void addAll(T![], boolean);
     method public void beginBatchedUpdates();
     method public void clear();
     method public void endBatchedUpdates();
@@ -960,9 +960,9 @@ package androidx.recyclerview.widget {
     method public void recalculatePositionOfItemAt(int);
     method public boolean remove(T!);
     method public T! removeItemAt(int);
-    method public void replaceAll(T![], boolean);
-    method public void replaceAll(T!...);
     method public void replaceAll(java.util.Collection<T!>);
+    method public void replaceAll(T!...);
+    method public void replaceAll(T![], boolean);
     method public int size();
     method public void updateItemAt(int, T!);
     field public static final int INVALID_POSITION = -1; // 0xffffffff
@@ -1026,10 +1026,10 @@ package androidx.recyclerview.widget {
 
   public static class StaggeredGridLayoutManager.LayoutParams extends androidx.recyclerview.widget.RecyclerView.LayoutParams {
     ctor public StaggeredGridLayoutManager.LayoutParams(android.content.Context!, android.util.AttributeSet!);
-    ctor public StaggeredGridLayoutManager.LayoutParams(int, int);
-    ctor public StaggeredGridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public StaggeredGridLayoutManager.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public StaggeredGridLayoutManager.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public StaggeredGridLayoutManager.LayoutParams(androidx.recyclerview.widget.RecyclerView.LayoutParams!);
+    ctor public StaggeredGridLayoutManager.LayoutParams(int, int);
     method public final int getSpanIndex();
     method public boolean isFullSpan();
     method public void setFullSpan(boolean);

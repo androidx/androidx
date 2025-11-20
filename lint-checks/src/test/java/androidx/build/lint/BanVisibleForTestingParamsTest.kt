@@ -32,10 +32,7 @@ class BanVisibleForTestingParamsTest :
 
     @Test
     fun `Detection of @VisibleForTesting usage in Java sources`() {
-        val input =
-            arrayOf(
-                javaSample("androidx.VisibleForTestingUsageJava"),
-            )
+        val input = arrayOf(javaSample("androidx.VisibleForTestingUsageJava"))
 
         val expected =
             """
@@ -79,10 +76,7 @@ Fix for src/androidx/VisibleForTestingUsageJava.java line 32: Remove non-default
 
     @Test
     fun `Detection of @VisibleForTesting usage in Kotlin sources`() {
-        val input =
-            arrayOf(
-                ktSample("androidx.VisibleForTestingUsageKotlin"),
-            )
+        val input = arrayOf(ktSample("androidx.VisibleForTestingUsageKotlin"))
 
         val expected =
             """

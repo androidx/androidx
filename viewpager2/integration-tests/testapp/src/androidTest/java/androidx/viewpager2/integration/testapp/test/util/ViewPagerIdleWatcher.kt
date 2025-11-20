@@ -36,7 +36,7 @@ import androidx.viewpager2.widget.ViewPager2
 class ViewPagerIdleWatcher(private val viewPager: ViewPager2) : ViewPager2.OnPageChangeCallback() {
     private var state = ViewPager2.SCROLL_STATE_IDLE
     private var waitingForIdle = false
-    private val lock = Object()
+    private val lock = Any()
     private val counter = CountingIdlingResource("Idle when $viewPager is not scrolling")
 
     init {

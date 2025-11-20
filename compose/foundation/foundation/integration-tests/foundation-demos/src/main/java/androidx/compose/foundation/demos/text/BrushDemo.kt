@@ -104,8 +104,8 @@ fun BrushDemo() {
         style =
             TextStyle(
                 brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror),
-                fontSize = 30.sp
-            )
+                fontSize = 30.sp,
+            ),
     )
 }
 
@@ -117,7 +117,7 @@ fun BrushGraphicalEmoji() {
             TextStyle(
                 brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror)
             ),
-        fontSize = 30.sp
+        fontSize = 30.sp,
     )
 }
 
@@ -131,8 +131,8 @@ fun SingleLineSpanBrush() {
             animationSpec =
                 infiniteRepeatable(
                     animation = tween(durationMillis = 2000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
+                    repeatMode = RepeatMode.Reverse,
+                ),
         )
     Text(
         buildAnnotatedString {
@@ -143,7 +143,7 @@ fun SingleLineSpanBrush() {
                         Brush.linearGradient(
                             colors = RainbowColors,
                             start = Offset(start, 0f),
-                            tileMode = TileMode.Mirror
+                            tileMode = TileMode.Mirror,
                         )
                 )
             ) {
@@ -191,10 +191,10 @@ fun MultiParagraphBrush() {
                     Brush.radialGradient(
                         *RainbowStops.zip(RainbowColors).toTypedArray(),
                         radius = 600f,
-                        tileMode = TileMode.Mirror
+                        tileMode = TileMode.Mirror,
                     )
             ),
-        fontSize = 30.sp
+        fontSize = 30.sp,
     )
 }
 
@@ -208,8 +208,8 @@ fun AnimatedBrush() {
             animationSpec =
                 infiniteRepeatable(
                     animation = tween(durationMillis = 1000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
+                    repeatMode = RepeatMode.Reverse,
+                ),
         )
     val brush = remember {
         // postpone the state read to shader creation time which happens during draw.
@@ -219,7 +219,7 @@ fun AnimatedBrush() {
                 radius = radius,
                 colors = RainbowColors,
                 colorStops = RainbowStops,
-                tileMode = TileMode.Mirror
+                tileMode = TileMode.Mirror,
             )
         }
     }
@@ -233,9 +233,9 @@ fun ShadowAndBrush() {
         style =
             TextStyle(
                 shadow = Shadow(offset = Offset(8f, 8f), blurRadius = 4f, color = Color.Black),
-                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror)
+                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror),
             ),
-        fontSize = 42.sp
+        fontSize = 42.sp,
     )
 }
 
@@ -249,8 +249,8 @@ fun TextFieldBrush() {
         textStyle =
             TextStyle(
                 brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror),
-                fontSize = 30.sp
-            )
+                fontSize = 30.sp,
+            ),
     )
 }
 
@@ -262,7 +262,7 @@ internal val RainbowColors =
         Color(0xfffba949),
         Color(0xfffae442),
         Color(0xff8bd448),
-        Color(0xff2aa8f2)
+        Color(0xff2aa8f2),
     )
 
 @Suppress("PrimitiveInCollection")

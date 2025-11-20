@@ -21,11 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHash
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LambdaAction(
-    val key: String,
-    val block: () -> Unit,
-) : Action {
-    override fun toString() = "LambdaAction($key, ${block.hashCode()})"
+public class LambdaAction(public val key: String, public val block: () -> Unit) : Action {
+    override fun toString(): String = "LambdaAction($key, ${block.hashCode()})"
 }
 
 /**
@@ -33,17 +30,18 @@ class LambdaAction(
  *
  * @param key A stable and unique key that identifies this action. This key is saved in the
  *   PendingIntent for the UI element, and used to trigger this action when the element is clicked.
- *   If not provided we use [androidx.compose.runtime.currentCompositeKeyHash] as the key. Since
- *   that key is based on the location within the composition, it will be identical for lambdas
- *   generated in a loop (if not using [androidx.compose.runtime.key]). To avoid this, prefer
- *   setting explicit keys for your lambdas.
+ *   If not provided we use [currentCompositeKeyHash] as the key. Since that key is based on the
+ *   location within the composition, it will be identical for lambdas generated in a loop (if not
+ *   using [androidx.compose.runtime.key]). To avoid this, prefer setting explicit keys for your
+ *   lambdas.
  * @param block the function to be run when this action is triggered.
  */
 @Composable
-fun action(
-    key: String? = null,
-    block: () -> Unit,
-): Action {
-    val finalKey = if (!key.isNullOrEmpty()) key else currentCompositeKeyHash.toString()
+public fun action(key: String? = null, block: () -> Unit): Action {
+    // TODO: After upgrading Compose Runtime, replace the usage of currentCompositeKeyHash with
+    //  `currentCompositeKeyHashCode.toString(16)`
+    val finalKey =
+        if (!key.isNullOrEmpty()) key
+        else @Suppress("Deprecation") currentCompositeKeyHash.toString()
     return LambdaAction(finalKey, block)
 }

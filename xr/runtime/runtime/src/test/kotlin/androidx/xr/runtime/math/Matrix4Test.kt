@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ class Matrix4Test {
                     21f,
                     22f,
                     23f,
-                    24f
+                    24f,
                 )
             )
 
@@ -173,7 +173,7 @@ class Matrix4Test {
                     21f,
                     22f,
                     23f,
-                    24f
+                    24f,
                 )
             )
 
@@ -281,6 +281,7 @@ class Matrix4Test {
 
     @Test
     fun scale_returnsScaleVector1() {
+        // no rotation and identity scale
         val underTest =
             Matrix4(floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f))
         val underTestScale = underTest.scale
@@ -290,15 +291,19 @@ class Matrix4Test {
 
     @Test
     fun scale_returnsScaleVector2() {
+        // no rotation and (5, -4, 3) scale
         val underTest =
             Matrix4(floatArrayOf(5f, 0f, 0f, 0f, 0f, -4f, 0f, 0f, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1f))
         val underTestScale = underTest.scale
 
-        assertThat(underTestScale).isEqualTo(Vector3(5f, -4f, 3f))
+        // 180 degree rotation around the y axis to compensate for the
+        // sign change of the x and z scale components
+        assertThat(underTestScale).isEqualTo(Vector3(-5f, -4f, -3f))
     }
 
     @Test
     fun scale_returnsScaleVector3() {
+        // no rotation and (1, 2, 4) scale
         val underTest =
             Matrix4(floatArrayOf(1f, 0f, 0f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 4f, 0f, 0f, 0f, 0f, 1f))
         val underTestScale = underTest.scale
@@ -362,13 +367,63 @@ class Matrix4Test {
 
         val underTestScale = underTest.scale
 
-        assertThat(underTestScale.x).isWithin(1e-3f).of(1.0f)
-        assertThat(underTestScale.y).isWithin(1e-3f).of(1.0f)
+        assertThat(underTestScale.x).isWithin(1e-3f).of(-1.0f)
+        assertThat(underTestScale.y).isWithin(1e-3f).of(-1.0f)
         assertThat(underTestScale.z).isWithin(1e-3f).of(-1.002f)
     }
 
     @Test
+    fun scale_returnsScaleVector6() {
+        // 90 degree rotation around the z axis with (-1, -2, 3) scale
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1f))
+        val underTestScale = underTest.scale
+
+        // -90 degree rotation around the z axis to compensate for the sign
+        // change of the x and y scale components
+        assertThat(underTestScale).isEqualTo(Vector3(1f, 2f, 3f))
+    }
+
+    @Test
+    fun scale_returnsScaleVector7() {
+        // 90 degree rotation around the z axis with (-1, 2, -3) scale
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1f))
+        val underTestScale = underTest.scale
+
+        // 90 degree rotation around the z axis and 180 around the y one to
+        // compensate for the sign change of the x and z scale components
+        // (Tait-Bryan intrinsic angles in ZYX order)
+        assertThat(underTestScale).isEqualTo(Vector3(1f, 2f, 3f))
+    }
+
+    @Test
+    fun scale_returnsScaleVector8() {
+        // 90 degree rotation around the z axis with (1, -2, -3) scale
+        val underTest =
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1f))
+        val underTestScale = underTest.scale
+
+        // 90 degree rotation around the z axis and 180 around the x one to
+        // compensate for the sign change of the y and z scale components
+        // (Tait-Bryan intrinsic angles in ZYX order)
+        assertThat(underTestScale).isEqualTo(Vector3(1f, 2f, 3f))
+    }
+
+    @Test
+    fun scale_returnsScaleVector9() {
+        // 90 degree rotation around the z axis with (-1, -2, -3) scale
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1f))
+        val underTestScale = underTest.scale
+
+        // 90 degree rotation around the z axis - no change
+        assertThat(underTestScale).isEqualTo(Vector3(-1f, -2f, -3f))
+    }
+
+    @Test
     fun rotation_returnsRotationQuaternion1() {
+        // 90 degree rotation around the z axis
         val underTest =
             Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f))
         val underTestRotation = underTest.rotation
@@ -381,30 +436,117 @@ class Matrix4Test {
 
     @Test
     fun rotation_returnsRotationQuaternion2() {
+        // 90 degree rotation around the z axis with uniform scale of 2 and (1, 0, 0) translation
         val underTest =
-            Matrix4(floatArrayOf(5f, 1f, 3f, 0f, -1f, 6f, 0f, 0f, 0f, 0f, 1f, 3f, 1f, 0f, 0f, 1f))
+            Matrix4(floatArrayOf(0f, 2f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 2f, 0f, 1f, 0f, 0f, 1f))
         val underTestRotation = underTest.rotation
 
+        // the returned rotation does not include the scale
         assertThat(underTestRotation.x).isWithin(1e-5f).of(0f)
-        assertThat(underTestRotation.y).isWithin(1e-5f).of(-0.22237f)
-        assertThat(underTestRotation.z).isWithin(1e-5f).of(0.14825f)
-        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.96362f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.70711f)
     }
 
     @Test
     fun rotation_returnsRotationQuaternion3() {
+        // 90 degree rotation around the z axis with (1, 2, 3) scale and (1, 2, 3) translation
         val underTest =
-            Matrix4(floatArrayOf(5f, 1f, 3f, 2f, -1f, 6f, 4f, 0f, 2f, 0f, 1f, 3f, 1f, 2f, 3f, 4f))
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 1f, 2f, 3f, 1f))
         val underTestRotation = underTest.rotation
 
-        assertThat(underTestRotation.x).isWithin(1e-5f).of(0.29019f)
-        assertThat(underTestRotation.y).isWithin(1e-5f).of(-0.07254f)
-        assertThat(underTestRotation.z).isWithin(1e-5f).of(0.14509f)
-        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.94312f)
+        // the returned rotation does not include the scale
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.70711f)
+    }
+
+    @Test
+    fun rotation_returnsRotationQuaternion4() {
+        // 90 degree rotation around the z axis with (1, -2, 3) scale and (1, 2, 3) translation
+        val underTest =
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 1f, 2f, 3f, 1f))
+        val underTestRotation = underTest.rotation
+
+        // the returned rotation does not include the scale
+        // the x and z scale component signs have been changed, so the rotation
+        // now consists of a 90 degree rotation around the z axis and 180
+        // around the y one (Tait-Bryan intrinsic angles in ZYX order)
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(-0.70711f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0f)
+    }
+
+    @Test
+    fun rotation_returnsRotationQuaternion5() {
+        // 90 degree rotation around the z axis with (-1, -2, 3) scale and (1, 2, 3) translation
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 1f, 2f, 3f, 1f))
+        val underTestRotation = underTest.rotation
+
+        // the returned rotation does not include the scale
+        // the x and y scale component signs have been changed, so the rotation
+        // now consists of a -90 degree rotation around the z axis
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(-0.70711f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.70711f)
+    }
+
+    @Test
+    fun rotation_returnsRotationQuaternion6() {
+        // 90 degree rotation around the z axis with (-1, 2, -3) scale and (1, 2, 3) translation
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 1f, 2f, 3f, 1f))
+        val underTestRotation = underTest.rotation
+
+        // the returned rotation does not include the scale
+        // the x and z scale component signs have been changed, so the rotation
+        // now consists of a 90 degree rotation around the z axis and 180
+        // around the y one (Tait-Bryan intrinsic angles in ZYX order)
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(-0.70711f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0f)
+    }
+
+    @Test
+    fun rotation_returnsRotationQuaternion7() {
+        // 90 degree rotation around the z axis with (1, -2, -3) scale and (1, 2, 3) translation
+        val underTest =
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 1f, 2f, 3f, 1f))
+        val underTestRotation = underTest.rotation
+
+        // the returned rotation does not include the scale
+        // the y and z scale component signs have been changed, so the rotation
+        // now consists of a 90 degree rotation around the z axis and 180
+        // around the x one (Tait-Bryan intrinsic angles in ZYX order)
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0f)
+    }
+
+    @Test
+    fun rotation_returnsRotationQuaternion8() {
+        // 90 degree rotation around the z axis with (-1, -2, -3) scale and (1, 2, 3) translation
+        val underTest =
+            Matrix4(floatArrayOf(0f, -1f, 0f, 0f, 2f, 0f, 0f, 0f, 0f, 0f, -3f, 0f, 1f, 2f, 3f, 1f))
+        val underTestRotation = underTest.rotation
+
+        // the returned rotation does not include the scale
+        // 90 degree rotation around the z axis - no change
+        assertThat(underTestRotation.x).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestRotation.z).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestRotation.w).isWithin(1e-5f).of(0.70711f)
     }
 
     @Test
     fun pose_returnsTranslationRotationPose1() {
+        // 90 degree rotation around the z axis
         val underTest =
             Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f))
         val underTestPose = underTest.pose
@@ -420,32 +562,36 @@ class Matrix4Test {
 
     @Test
     fun pose_returnsTranslationRotationPose2() {
+        // 90 degree rotation around the z axis with uniform scale of 2 and (1, 0, 0) translation
         val underTest =
-            Matrix4(floatArrayOf(5f, 1f, 3f, 0f, -1f, 6f, 0f, 0f, 0f, 0f, 1f, 3f, 1f, 0f, 0f, 1f))
+            Matrix4(floatArrayOf(0f, 2f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 2f, 0f, 1f, 0f, 0f, 1f))
         val underTestPose = underTest.pose
 
         assertThat(underTestPose.translation.x).isWithin(1e-5f).of(1f)
         assertThat(underTestPose.translation.y).isWithin(1e-5f).of(0f)
         assertThat(underTestPose.translation.z).isWithin(1e-5f).of(0f)
+        // the returned rotation does not include the scale
         assertThat(underTestPose.rotation.x).isWithin(1e-5f).of(0f)
-        assertThat(underTestPose.rotation.y).isWithin(1e-5f).of(-0.22237f)
-        assertThat(underTestPose.rotation.z).isWithin(1e-5f).of(0.14825f)
-        assertThat(underTestPose.rotation.w).isWithin(1e-5f).of(0.96362f)
+        assertThat(underTestPose.rotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestPose.rotation.z).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestPose.rotation.w).isWithin(1e-5f).of(0.70711f)
     }
 
     @Test
     fun pose_returnsTranslationRotationPose3() {
+        // 90 degree rotation around the z axis with (1, 2, 3) scale and (1, 2, 3) translation
         val underTest =
-            Matrix4(floatArrayOf(5f, 1f, 3f, 2f, -1f, 6f, 4f, 0f, 2f, 0f, 1f, 3f, 1f, 2f, 3f, 4f))
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -2f, 0f, 0f, 0f, 0f, 0f, 3f, 0f, 1f, 2f, 3f, 1f))
         val underTestPose = underTest.pose
 
         assertThat(underTestPose.translation.x).isWithin(1e-5f).of(1f)
         assertThat(underTestPose.translation.y).isWithin(1e-5f).of(2f)
         assertThat(underTestPose.translation.z).isWithin(1e-5f).of(3f)
-        assertThat(underTestPose.rotation.x).isWithin(1e-5f).of(0.29019f)
-        assertThat(underTestPose.rotation.y).isWithin(1e-5f).of(-0.07255f)
-        assertThat(underTestPose.rotation.z).isWithin(1e-5f).of(0.14509f)
-        assertThat(underTestPose.rotation.w).isWithin(1e-5f).of(0.94312f)
+        // the returned rotation does not include the scale
+        assertThat(underTestPose.rotation.x).isWithin(1e-5f).of(0f)
+        assertThat(underTestPose.rotation.y).isWithin(1e-5f).of(0f)
+        assertThat(underTestPose.rotation.z).isWithin(1e-5f).of(0.70711f)
+        assertThat(underTestPose.rotation.w).isWithin(1e-5f).of(0.70711f)
     }
 
     @Test
@@ -508,7 +654,7 @@ class Matrix4Test {
                         4f,
                         8f,
                         12f,
-                        16f
+                        16f,
                     )
                 )
             )
@@ -788,7 +934,7 @@ class Matrix4Test {
                         13f,
                         14f,
                         15f,
-                        16f
+                        16f,
                     )
                 )
                 .data
@@ -797,5 +943,64 @@ class Matrix4Test {
             .isEqualTo(
                 floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f)
             )
+    }
+
+    @Test
+    fun unscaled_returnsUnscaledMatrix() {
+        // Column major, right handed 4x4 Transformation Matrix with
+        // translation of (4, 8, 12) and rotation 90 (@) around Z axis, and scale of 3.3.
+        // --     cos(@),   sin(@), 0,  0
+        // --    -sin(@),  cos(@), 0,  0
+        // --     0,        0,      1,  0
+        // --      tx,       ty,     tz, 1
+        val underTest =
+            Matrix4(
+                floatArrayOf(0f, 3.3f, 0f, 0f, -3.3f, 0f, 0f, 0f, 0f, 0f, 3.3f, 0f, 4f, 8f, 12f, 1f)
+            )
+        val expected =
+            Matrix4(floatArrayOf(0f, 1f, 0f, 0f, -1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 4f, 8f, 12f, 1f))
+
+        val underTestUnscaled = underTest.unscaled()
+
+        assertMatrix(underTestUnscaled, expected)
+    }
+
+    @Test
+    fun unscaled_withNonUniformScale_returnsUnscaledMatrix() {
+        val underTest =
+            Matrix4.fromTrs(Vector3(1f, 2f, 3f), Quaternion(1f, 2f, 3f, 4f), Vector3(2f, 3f, 4f))
+
+        val underTestUnscaled = underTest.unscaled()
+
+        assertMatrix(
+            underTestUnscaled,
+            Matrix4.fromTrs(Vector3(1f, 2f, 3f), Quaternion(1f, 2f, 3f, 4f), Vector3(1f, 1f, 1f)),
+        )
+    }
+
+    @Test
+    fun unscaled_withNegativeScale_returnsUnscaledMatrix() {
+        val translation = Vector3(1f, 2f, 3f)
+        val rotation = Quaternion.fromEulerAngles(45.0f, 90.0f, -90.0f)
+        val scale = Vector3(-2f, -3f, -4f)
+        val underTest = Matrix4.fromTrs(translation, rotation, scale)
+        // TODO: b/367780918 - Update when negative scales are correctly handled.
+        val expected = Matrix4.fromTrs(translation, rotation, -Vector3.One)
+
+        val underTestUnscaled = underTest.unscaled()
+
+        assertMatrix(underTestUnscaled, expected)
+    }
+
+    @Test
+    fun unscaled_withIdentityTranslationAndRotation_returnsUnscaledMatrix() {
+        val underTest = Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(2f, 3f, 4f))
+
+        val underTestUnscaled = underTest.unscaled()
+
+        assertMatrix(
+            underTestUnscaled,
+            Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(1f, 1f, 1f)),
+        )
     }
 }

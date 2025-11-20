@@ -16,8 +16,9 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 

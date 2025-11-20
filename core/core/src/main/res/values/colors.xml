@@ -17,7 +17,7 @@
 <resources>
     <drawable name="notification_template_icon_bg">#3333B5E5</drawable>
     <drawable name="notification_template_icon_low_bg">#0cffffff</drawable>
-    <color name="notification_action_color_filter">#ffffffff</color>
+    <color name="notification_action_color_filter">@color/androidx_core_secondary_text_default_material_light</color>
     <color name="notification_icon_bg_color">#ff9e9e9e</color>
 
     <!-- The color of the Decline and Hang Up actions on a CallStyle notification -->

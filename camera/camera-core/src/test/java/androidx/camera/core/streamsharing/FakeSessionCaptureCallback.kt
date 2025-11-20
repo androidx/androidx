@@ -37,7 +37,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
     override fun onCaptureCompleted(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        result: android.hardware.camera2.TotalCaptureResult
+        result: android.hardware.camera2.TotalCaptureResult,
     ) {
         super.onCaptureCompleted(session, request, result)
         onCaptureCompletedCalled = true
@@ -46,7 +46,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
     override fun onCaptureProgressed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        partialResult: CaptureResult
+        partialResult: CaptureResult,
     ) {
         super.onCaptureProgressed(session, request, partialResult)
         onCaptureProgressedCalled = true
@@ -55,7 +55,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
     override fun onCaptureFailed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        failure: CaptureFailure
+        failure: CaptureFailure,
     ) {
         super.onCaptureFailed(session, request, failure)
         onCaptureFailedCalled = true
@@ -64,7 +64,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
     override fun onCaptureSequenceCompleted(
         session: CameraCaptureSession,
         sequenceId: Int,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
         onCaptureSequenceCompletedCalled = true
@@ -79,7 +79,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
         session: CameraCaptureSession,
         request: CaptureRequest,
         target: Surface,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         super.onCaptureBufferLost(session, request, target, frameNumber)
         onCaptureBufferLostCalled = true
@@ -89,7 +89,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
         session: CameraCaptureSession,
         request: CaptureRequest,
         timestamp: Long,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         super.onCaptureStarted(session, request, timestamp, frameNumber)
         onCaptureStartedCalled = true
@@ -99,7 +99,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
         session: CameraCaptureSession,
         request: CaptureRequest,
         timestamp: Long,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         super.onReadoutStarted(session, request, timestamp, frameNumber)
         onReadoutStartedCalled = true

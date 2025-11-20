@@ -18,7 +18,6 @@ package androidx.compose.animation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.BoundsTransform
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastForEach
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_animateOnContentChange() {
@@ -75,7 +73,7 @@ private fun AnimateBounds_animateOnContentChange() {
     LookaheadScope {
         Box(
             modifier = Modifier.fillMaxSize().clickable { toggle = !toggle },
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = if (toggle) textShort else textLong,
@@ -89,7 +87,6 @@ private fun AnimateBounds_animateOnContentChange() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_withLayoutModifier() {
@@ -125,7 +122,7 @@ private fun AnimateBounds_withLayoutModifier() {
                                 Modifier.padding(
                                     horizontal = if (toggleAnimation) 10.dp else 50.dp
                                 ),
-                            boundsTransform = boundsTransform
+                            boundsTransform = boundsTransform,
                         )
                         .background(Color.Red, RoundedCornerShape(12.dp))
                         .height(50.dp)
@@ -140,7 +137,7 @@ private fun AnimateBounds_withLayoutModifier() {
                 Box(
                     Modifier.animateBounds(
                             lookaheadScope = this@LookaheadScope,
-                            boundsTransform = boundsTransform
+                            boundsTransform = boundsTransform,
                         )
                         // The content is able to animate the change in padding, but since the
                         // parent Layout sees no difference, the change in position is immediate.
@@ -163,7 +160,7 @@ private fun AnimateBounds_withLayoutModifier() {
                         .padding(horizontal = if (toggleAnimation) 10.dp else 50.dp)
                         .animateBounds(
                             lookaheadScope = this@LookaheadScope,
-                            boundsTransform = boundsTransform
+                            boundsTransform = boundsTransform,
                         )
                         .background(Color.Red, RoundedCornerShape(12.dp))
                         .height(50.dp)
@@ -176,10 +173,7 @@ private fun AnimateBounds_withLayoutModifier() {
     }
 }
 
-@OptIn(
-    ExperimentalLayoutApi::class,
-    ExperimentalSharedTransitionApi::class,
-)
+@OptIn(ExperimentalLayoutApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_inFlowRowSample() {
@@ -204,7 +198,7 @@ private fun AnimateBounds_inFlowRowSample() {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 // We use the maxItems parameter to change the layout of the FlowRow at different
                 // states
-                maxItemsInEachRow = itemRowCount
+                maxItemsInEachRow = itemRowCount,
             ) {
                 colors.fastForEach {
                     Box(
@@ -221,7 +215,6 @@ private fun AnimateBounds_inFlowRowSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_usingKeyframes() {
@@ -258,7 +251,7 @@ private fun AnimateBounds_usingKeyframes() {
                                                     // to keep the Layout aligned at the keyframe)
                                                     x = -(size.width - targetBounds.width) * 0.5f,
                                                     // Emphasize the path with a vertical offset
-                                                    y = size.height * 0.5f
+                                                    y = size.height * 0.5f,
                                                 )
                                             )
 
@@ -266,19 +259,18 @@ private fun AnimateBounds_usingKeyframes() {
                                     // target are implicit.
                                     Rect(position, size).atFraction(0.5f).using(LinearEasing)
                                 }
-                            }
+                            },
                         )
                         .background(Color.LightGray, RoundedCornerShape(50))
                         .padding(10.dp)
                         // Text is laid out with the animated fixed Constraints, relax constraints
                         // back to wrap content to be able to center Align vertically.
-                        .wrapContentSize(Alignment.Center)
+                        .wrapContentSize(Alignment.Center),
             )
         }
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 private fun AnimateBounds_withMovableContent() {
@@ -297,9 +289,9 @@ private fun AnimateBounds_withMovableContent() {
                             spring(
                                 dampingRatio = Spring.DampingRatioLowBouncy,
                                 stiffness = Spring.StiffnessVeryLow,
-                                visibilityThreshold = Rect.VisibilityThreshold
+                                visibilityThreshold = Rect.VisibilityThreshold,
                             )
-                        }
+                        },
                     )
                     // Our movableContent can always fill its container in this example.
                     .fillMaxSize()
@@ -333,7 +325,7 @@ private fun AnimateBounds_withMovableContent() {
 
                             Offset(
                                     x = (space.width - size.width) * horizontal,
-                                    y = (space.height - size.height) * vertical
+                                    y = (space.height - size.height) * vertical,
                                 )
                                 .round()
                         }

@@ -137,7 +137,7 @@ public fun <S> AnimatedContent(
     contentAlignment: Alignment = Alignment.TopStart,
     label: String = "AnimatedContent",
     contentKey: (targetState: S) -> Any? = { it },
-    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
 ) {
     val transition = updateTransition(targetState = targetState, label = label)
     transition.AnimatedContent(
@@ -145,7 +145,7 @@ public fun <S> AnimatedContent(
         transitionSpec,
         contentAlignment,
         contentKey,
-        content = content
+        content = content,
     )
 }
 
@@ -187,7 +187,7 @@ public class ContentTransform(
     public val targetContentEnter: EnterTransition,
     public val initialContentExit: ExitTransition,
     targetContentZIndex: Float = 0f,
-    sizeTransform: SizeTransform? = SizeTransform()
+    sizeTransform: SizeTransform? = SizeTransform(),
 ) {
     /**
      * This describes the zIndex of the new target content as it enters the container. It defaults
@@ -220,9 +220,9 @@ public fun SizeTransform(
         { _, _ ->
             spring(
                 stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntSize.VisibilityThreshold
+                visibilityThreshold = IntSize.VisibilityThreshold,
             )
-        }
+        },
 ): SizeTransform = SizeTransformImpl(clip, sizeAnimationSpec)
 
 /**
@@ -243,7 +243,7 @@ public interface SizeTransform {
      */
     public fun createAnimationSpec(
         initialSize: IntSize,
-        targetSize: IntSize
+        targetSize: IntSize,
     ): FiniteAnimationSpec<IntSize>
 }
 
@@ -251,11 +251,11 @@ public interface SizeTransform {
 private class SizeTransformImpl(
     override val clip: Boolean = true,
     val sizeAnimationSpec:
-        (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize>
+        (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize>,
 ) : SizeTransform {
     override fun createAnimationSpec(
         initialSize: IntSize,
-        targetSize: IntSize
+        targetSize: IntSize,
     ): FiniteAnimationSpec<IntSize> = sizeAnimationSpec(initialSize, targetSize)
 }
 
@@ -271,7 +271,7 @@ public infix fun EnterTransition.togetherWith(exit: ExitTransition): ContentTran
 @ExperimentalAnimationApi
 @Deprecated(
     "Infix fun EnterTransition.with(ExitTransition) has been renamed to" + " togetherWith",
-    ReplaceWith("togetherWith(exit)")
+    ReplaceWith("togetherWith(exit)"),
 )
 public infix fun EnterTransition.with(exit: ExitTransition): ContentTransform =
     ContentTransform(this, exit)
@@ -342,7 +342,7 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
         towards: SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset> =
             spring(visibilityThreshold = IntOffset.VisibilityThreshold),
-        initialOffset: (offsetForFullSlide: Int) -> Int = { it }
+        initialOffset: (offsetForFullSlide: Int) -> Int = { it },
     ): EnterTransition
 
     /**
@@ -369,7 +369,7 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
         towards: SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset> =
             spring(visibilityThreshold = IntOffset.VisibilityThreshold),
-        targetOffset: (offsetForFullSlide: Int) -> Int = { it }
+        targetOffset: (offsetForFullSlide: Int) -> Int = { it },
     ): ExitTransition
 
     /**
@@ -385,6 +385,7 @@ public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
      */
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     public val ExitTransition.Companion.KeepUntilTransitionsFinished: ExitTransition
         get() = KeepUntilTransitionsFinished
 
@@ -396,7 +397,7 @@ internal class AnimatedContentTransitionScopeImpl<S>
 internal constructor(
     internal val transition: Transition<S>,
     override var contentAlignment: Alignment,
-    internal var layoutDirection: LayoutDirection
+    internal var layoutDirection: LayoutDirection,
 ) : AnimatedContentTransitionScope<S> {
     /** Initial state of a Transition Segment. This is the state that transition starts from. */
     override val initialState: S
@@ -441,7 +442,7 @@ internal constructor(
     override fun slideIntoContainer(
         towards: AnimatedContentTransitionScope.SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset>,
-        initialOffset: (offsetForFullSlide: Int) -> Int
+        initialOffset: (offsetForFullSlide: Int) -> Int,
     ): EnterTransition =
         when {
             towards.isLeft ->
@@ -511,7 +512,7 @@ internal constructor(
     override fun slideOutOfContainer(
         towards: AnimatedContentTransitionScope.SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset>,
-        targetOffset: (offsetForFullSlide: Int) -> Int
+        targetOffset: (offsetForFullSlide: Int) -> Int,
     ): ExitTransition {
         return when {
             // Note: targetSize could be 0 for empty composables
@@ -599,7 +600,7 @@ internal constructor(
     private class SizeModifierElement<S>(
         val sizeAnimation: Transition<S>.DeferredAnimation<IntSize, AnimationVector2D>?,
         val sizeTransform: State<SizeTransform?>,
-        val scope: AnimatedContentTransitionScopeImpl<S>
+        val scope: AnimatedContentTransitionScopeImpl<S>,
     ) : ModifierNodeElement<SizeModifierNode<S>>() {
         override fun create(): SizeModifierNode<S> {
             return SizeModifierNode(sizeAnimation, sizeTransform, scope)
@@ -649,7 +650,7 @@ internal constructor(
 
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
             val measuredSize: IntSize
@@ -691,7 +692,7 @@ internal constructor(
                     scope.contentAlignment.align(
                         IntSize(placeable.width, placeable.height),
                         measuredSize,
-                        LayoutDirection.Ltr
+                        LayoutDirection.Ltr,
                     )
                 placeable.place(offset)
             }
@@ -769,7 +770,7 @@ public fun <S> Transition<S>.AnimatedContent(
     },
     contentAlignment: Alignment = Alignment.TopStart,
     contentKey: (targetState: S) -> Any? = { it },
-    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
+    content: @Composable() AnimatedContentScope.(targetState: S) -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val rootScope =
@@ -848,7 +849,7 @@ public fun <S> Transition<S>.AnimatedContent(
                         currentState == EnterExitState.PostExit &&
                             targetState == EnterExitState.PostExit &&
                             !exit.data.hold
-                    }
+                    },
                 ) {
                     // TODO: Should Transition.AnimatedVisibility have an end listener?
                     DisposableEffect(this) {
@@ -871,7 +872,7 @@ public fun <S> Transition<S>.AnimatedContent(
         content = {
             currentlyVisible.fastForEach { key(contentKey(it)) { contentMap[it]?.invoke() } }
         },
-        measurePolicy = remember { AnimatedContentMeasurePolicy(rootScope) }
+        measurePolicy = remember { AnimatedContentMeasurePolicy(rootScope) },
     )
 }
 
@@ -879,7 +880,7 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
     MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         var targetSize = IntSize.Zero
@@ -927,7 +928,7 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
                         rootScope.contentAlignment.align(
                             IntSize(it.width, it.height),
                             IntSize(maxWidth, maxHeight),
-                            LayoutDirection.Ltr
+                            LayoutDirection.Ltr,
                         )
                     it.place(offset.x, offset.y)
                 }
@@ -937,21 +938,21 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) = measurables.fastMaxOfOrNull { it.minIntrinsicWidth(height) } ?: 0
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) = measurables.fastMaxOfOrNull { it.minIntrinsicHeight(width) } ?: 0
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) = measurables.fastMaxOfOrNull { it.maxIntrinsicWidth(height) } ?: 0
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) = measurables.fastMaxOfOrNull { it.maxIntrinsicHeight(width) } ?: 0
 }

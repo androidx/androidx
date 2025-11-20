@@ -21,13 +21,10 @@ import java.util.Objects
 
 /** Represent the result from the getTopics API. */
 @OptIn(ExperimentalFeatures.Ext11OptIn::class)
-class GetTopicsResponse
+public class GetTopicsResponse
 @ExperimentalFeatures.Ext11OptIn
-constructor(
-    val topics: List<Topic>,
-    val encryptedTopics: List<EncryptedTopic>,
-) {
-    constructor(topics: List<Topic>) : this(topics, listOf())
+constructor(public val topics: List<Topic>, public val encryptedTopics: List<EncryptedTopic>) {
+    public constructor(topics: List<Topic>) : this(topics, listOf())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

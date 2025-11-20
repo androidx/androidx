@@ -1,6 +1,6 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.service.AppFunction
 
 class IncorrectFirstParameter {
     @AppFunction

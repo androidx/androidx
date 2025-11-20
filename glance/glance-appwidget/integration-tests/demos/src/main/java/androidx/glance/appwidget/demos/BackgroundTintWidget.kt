@@ -80,7 +80,7 @@ class BackgroundTintWidget : GlanceAppWidget() {
                 alpha = alpha,
                 alphaToggleAction = {
                     GlobalScope.launch { withContext(Dispatchers.IO) { repo.changeToNextAlpha() } }
-                }
+                },
             )
         }
     }
@@ -128,7 +128,7 @@ class BackgroundTintWidget : GlanceAppWidget() {
                                 GlanceModifier.background(
                                     ImageProvider(R.drawable.shape_btn_demo),
                                     colorFilter = ColorFilter.tint(GlanceTheme.colors.primary),
-                                    alpha = alpha
+                                    alpha = alpha,
                                 ),
                         )
                     }
@@ -140,7 +140,7 @@ class BackgroundTintWidget : GlanceAppWidget() {
                                 GlanceModifier.background(
                                     ImageProvider(R.drawable.ic_android),
                                     colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan)),
-                                    alpha = alpha
+                                    alpha = alpha,
                                 ),
                         )
                     }
@@ -170,9 +170,9 @@ class BackgroundTintWidget : GlanceAppWidget() {
                     contentColor = GlanceTheme.colors.secondary,
                     contentDescription = "toggle alpha",
                     onClick = alphaToggleAction,
-                    key = "${LocalSize.current.width} ${LocalSize.current.height}"
+                    key = "${LocalSize.current.width} ${LocalSize.current.height}",
                 )
-            }
+            },
         )
     }
 

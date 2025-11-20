@@ -34,10 +34,14 @@ import androidx.core.telecom.util.ExperimentalAppActions
 public interface ParticipantExtension {
     /**
      * Update all of the remote surfaces that the [Participant]s of this call have changed.
+     * Participants are displayed on the remote screen according to their order within the
+     * participants list, starting with the first element. Duplicate participants are removed. If
+     * the same participant is added to the list more than once, **only the first occurrence of that
+     * participant** will be retained in the list; subsequent duplicates are dropped.
      *
      * @param newParticipants The new set of [Participant]s associated with this call.
      */
-    public suspend fun updateParticipants(newParticipants: Set<Participant>)
+    public suspend fun updateParticipants(newParticipants: List<Participant>)
 
     /**
      * Update all of the remote surfaces that the active participant associated with this call has
@@ -66,7 +70,7 @@ public interface ParticipantExtension {
      */
     public fun addRaiseHandSupport(
         initialRaisedHands: List<Participant> = emptyList(),
-        onHandRaisedChanged: suspend (Boolean) -> Unit
+        onHandRaisedChanged: suspend (Boolean) -> Unit,
     ): RaiseHandState
 
     /**

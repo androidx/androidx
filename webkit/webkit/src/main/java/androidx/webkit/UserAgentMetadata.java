@@ -16,14 +16,24 @@
 
 package androidx.webkit;
 
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StringDef;
+import androidx.webkit.internal.ApiFeature;
+import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Holds user-agent metadata information and uses to generate user-agent client
@@ -39,6 +49,78 @@ public final class UserAgentMetadata {
      */
     public static final int BITNESS_DEFAULT = 0;
 
+    /**
+     * Form factor option: {@code Desktop}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_DESKTOP = "Desktop";
+
+    /**
+     * Form factor option: {@code Automotive}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_AUTOMOTIVE = "Automotive";
+
+    /**
+     * Form factor option: {@code Mobile}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_MOBILE = "Mobile";
+
+    /**
+     * Form factor option: {@code Tablet}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_TABLET = "Tablet";
+
+    /**
+     * Form factor option: {@code XR}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_XR = "XR";
+
+    /**
+     * Form factor option: {@code EInk}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_EINK = "EInk";
+
+    /**
+     * Form factor option: {@code Watch}, to be used with {@link Builder#setFormFactors}
+     * and {@link Builder#getFormFactors}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String FORM_FACTOR_WATCH = "Watch";
+
+    /**
+     * Values for the Sec-CH-UA-Form-Factors header.
+     * https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @StringDef({
+        FORM_FACTOR_DESKTOP,
+        FORM_FACTOR_AUTOMOTIVE,
+        FORM_FACTOR_MOBILE,
+        FORM_FACTOR_TABLET,
+        FORM_FACTOR_XR,
+        FORM_FACTOR_EINK,
+        FORM_FACTOR_WATCH
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FormFactors {};
+
+    private static final Set<String> VALID_FORM_FACTORS =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                FORM_FACTOR_DESKTOP, FORM_FACTOR_AUTOMOTIVE, FORM_FACTOR_MOBILE,
+                FORM_FACTOR_TABLET, FORM_FACTOR_XR, FORM_FACTOR_EINK, FORM_FACTOR_WATCH
+            )));
+
     private final List<BrandVersion> mBrandVersionList;
 
     private final String mFullVersion;
@@ -49,6 +131,7 @@ public final class UserAgentMetadata {
     private boolean mMobile = true;
     private int mBitness = BITNESS_DEFAULT;
     private boolean mWow64 = false;
+    private final @FormFactors List<String> mFormFactors;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     private UserAgentMetadata(@NonNull List<BrandVersion> brandVersionList,
@@ -56,7 +139,8 @@ public final class UserAgentMetadata {
             @Nullable String platformVersion, @Nullable String architecture,
             @Nullable String model,
             boolean mobile,
-            int bitness, boolean wow64) {
+            int bitness, boolean wow64,
+            @NonNull @FormFactors List<String> formFactors) {
         mBrandVersionList = brandVersionList;
         mFullVersion = fullVersion;
         mPlatform = platform;
@@ -66,6 +150,7 @@ public final class UserAgentMetadata {
         mMobile = mobile;
         mBitness = bitness;
         mWow64 = wow64;
+        mFormFactors = formFactors;
     }
 
     /**
@@ -169,6 +254,27 @@ public final class UserAgentMetadata {
     }
 
     /**
+     * Returns the value for the {@code sec-ch-ua-form-factors} client hint.
+     * Value should be one or more of {@link #FORM_FACTOR_DESKTOP},
+     * {@link #FORM_FACTOR_AUTOMOTIVE}, {@link #FORM_FACTOR_MOBILE},
+     * {@link #FORM_FACTOR_TABLET}, {@link #FORM_FACTOR_XR},
+     * {@link #FORM_FACTOR_EINK}, {@link #FORM_FACTOR_WATCH}. See the
+     * <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors">spec</a>
+     * for more details.
+     * <p>
+     * @see Builder#setFormFactors
+     *
+     * @return A list of strings to indicate the form factors of the user-agent.
+     *
+     */
+    @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull @FormFactors List<String> getFormFactors() {
+        return mFormFactors;
+    }
+
+    /**
      * Two UserAgentMetadata objects are equal only if all the metadata values are equal.
      */
     @Override
@@ -181,13 +287,14 @@ public final class UserAgentMetadata {
                 && Objects.equals(mFullVersion, that.mFullVersion)
                 && Objects.equals(mPlatform, that.mPlatform) && Objects.equals(
                 mPlatformVersion, that.mPlatformVersion) && Objects.equals(mArchitecture,
-                that.mArchitecture) && Objects.equals(mModel, that.mModel);
+                that.mArchitecture) && Objects.equals(mModel, that.mModel)
+                && Objects.equals(mFormFactors, that.mFormFactors);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mBrandVersionList, mFullVersion, mPlatform, mPlatformVersion,
-                mArchitecture, mModel, mMobile, mBitness, mWow64);
+                mArchitecture, mModel, mMobile, mBitness, mWow64, mFormFactors);
     }
 
     /**
@@ -391,6 +498,7 @@ public final class UserAgentMetadata {
         private boolean mMobile = true;
         private int mBitness = BITNESS_DEFAULT;
         private boolean mWow64 = false;
+        private List<String> mFormFactors = new ArrayList<>();
 
         /**
          * Create an empty UserAgentMetadata Builder.
@@ -411,6 +519,7 @@ public final class UserAgentMetadata {
             mMobile = uaMetadata.isMobile();
             mBitness = uaMetadata.getBitness();
             mWow64 = uaMetadata.isWow64();
+            mFormFactors = uaMetadata.getFormFactors();
         }
 
         /**
@@ -420,7 +529,8 @@ public final class UserAgentMetadata {
          */
         public @NonNull UserAgentMetadata build() {
             return new UserAgentMetadata(mBrandVersionList, mFullVersion, mPlatform,
-                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64);
+                    mPlatformVersion, mArchitecture, mModel, mMobile, mBitness, mWow64,
+                    mFormFactors);
         }
 
         /**
@@ -440,7 +550,7 @@ public final class UserAgentMetadata {
 
         /**
          * Sets the user-agent metadata full version. The full version should not be blank, even
-         * though the <a href="https://wicg.github.io/ua-client-hints">spec<a/> about brand full
+         * though the <a href="https://wicg.github.io/ua-client-hints">spec</a> about brand full
          * version could be empty. A blank full version could cause inconsistent brands when
          * generating brand version related user-agent client hints. It also provides a bad
          * experience for developers when processing the brand full version. If null is provided,
@@ -556,6 +666,44 @@ public final class UserAgentMetadata {
          */
         public @NonNull Builder setWow64(boolean wow64) {
             mWow64 = wow64;
+            return this;
+        }
+
+        /**
+         * Sets the user-agent metadata form factors. The default value is an empty list
+         * which means the system default user-agent metadata form factor will be used to
+         * generate the user-agent client hints.
+         *
+         * Form factor value should be one or more of {@link #FORM_FACTOR_DESKTOP},
+         * {@link #FORM_FACTOR_AUTOMOTIVE}, {@link #FORM_FACTOR_MOBILE},
+         * {@link #FORM_FACTOR_TABLET}, {@link #FORM_FACTOR_XR},
+         * {@link #FORM_FACTOR_EINK}, {@link #FORM_FACTOR_WATCH}. See the
+         * <a href="https://wicg.github.io/ua-client-hints/#sec-ch-ua-form-factors">spec</a>
+         * for more details.
+         *
+         * @param formFactors The form factors is used to generate user-agent client hint
+         *                    {@code sec-ch-ua-form-factors}.
+         * @throws IllegalArgumentException if the list contains an invalid form factor string.
+         * @throws UnsupportedOperationException if this feature is not supported by the current
+         *         WebView.
+         *
+         */
+        @RequiresFeature(name = WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS,
+                enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public @NonNull Builder setFormFactors(@NonNull @FormFactors List<String> formFactors) {
+            ApiFeature.NoFramework feature =
+                    WebViewFeatureInternal.USER_AGENT_METADATA_FORM_FACTORS;
+            if (!feature.isSupportedByWebView()) {
+                throw WebViewFeatureInternal.getUnsupportedOperationException();
+            }
+
+            for (String factor : formFactors) {
+                if (!VALID_FORM_FACTORS.contains(factor)) {
+                    throw new IllegalArgumentException("Invalid form factor: " + factor);
+                }
+            }
+            mFormFactors = formFactors;
             return this;
         }
     }

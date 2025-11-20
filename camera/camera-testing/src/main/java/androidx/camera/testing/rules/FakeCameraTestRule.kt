@@ -63,7 +63,7 @@ public class FakeCameraTestRule
 constructor(
     private val context: Context,
     private val timeoutMillis: Long = 5_000L,
-    cameraXConfig: CameraXConfig? = null // TODO - Ensure this is from FakeAppConfig.
+    cameraXConfig: CameraXConfig? = null, // TODO - Ensure this is from FakeAppConfig.
 ) : TestRule {
     private val config = cameraXConfig ?: FakeAppConfig.create()
 
@@ -98,7 +98,7 @@ constructor(
                     this.cameraProvider = ProcessCameraProvider.getInstance(context).get()
                     latch.countDown()
                 },
-                CameraXExecutors.directExecutor()
+                CameraXExecutors.directExecutor(),
             )
 
         assertWithMessage("ProcessCameraProvider.getInstance timed out!")
@@ -116,7 +116,7 @@ constructor(
         cameraProvider.bindToLifecycle(
             fakeLifecycleOwner,
             Builder().requireLensFacing(lensFacing).build(),
-            *useCases.toTypedArray()
+            *useCases.toTypedArray(),
         )
     }
 

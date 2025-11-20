@@ -19,7 +19,6 @@
 package androidx.credentials.playservices.controllers.identityauth.getsigninintent
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
 import androidx.credentials.exceptions.GetCredentialUnsupportedException
@@ -27,6 +26,7 @@ import androidx.credentials.playservices.TestCredentialsActivity
 import androidx.credentials.playservices.controllers.identityauth.getsigninintent.CredentialProviderGetSignInIntentController.Companion.getInstance
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(api = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class CredentialProviderGetSignInIntentControllerTest {
 
     @Test
@@ -67,7 +67,7 @@ class CredentialProviderGetSignInIntentControllerTest {
                         GetCredentialRequest(
                             listOf(
                                 GetPasswordOption(),
-                                GetSignInWithGoogleOption.Builder(serverClientId).build()
+                                GetSignInWithGoogleOption.Builder(serverClientId).build(),
                             )
                         )
                     )

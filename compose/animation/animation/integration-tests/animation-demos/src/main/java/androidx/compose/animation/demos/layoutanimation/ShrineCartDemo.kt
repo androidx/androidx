@@ -71,7 +71,7 @@ fun ShrineCartDemo() {
                             tween(durationMillis = 433, delayMillis = 67)
                         else -> tween(durationMillis = 150)
                     }
-                }
+                },
             ) {
                 if (it == CartState.Expanded) 0.dp else 24.dp
             }
@@ -101,7 +101,7 @@ fun ShrineCartDemo() {
                                         durationMillis = 500
                                         IntSize(
                                             initialSize.width,
-                                            (initialSize.height + targetSize.height) / 2
+                                            (initialSize.height + targetSize.height) / 2,
                                         ) at 150
                                     }
                                 }
@@ -139,7 +139,7 @@ fun CollapsedCart() {
     Row(
         Modifier.padding(start = 24.dp, top = 12.dp, bottom = 12.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
             Icon(
@@ -158,7 +158,7 @@ fun CollapsedCart() {
 
 enum class CartState {
     Expanded,
-    Collapsed
+    Collapsed,
 }
 
 @Composable

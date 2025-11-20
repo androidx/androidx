@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
-import android.os.Build
 import androidx.camera.camera2.pipe.compat.CorrectedFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata
@@ -28,7 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class CorrectedFrameMetadataTest {
     @Test
     fun canOverrideFrameMetadata() {
@@ -37,9 +36,9 @@ internal class CorrectedFrameMetadataTest {
                 mapOf(
                     CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
                     CaptureResult.CONTROL_AF_MODE to
-                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                 ),
-                mapOf(FakeMetadata.TEST_KEY to 42)
+                mapOf(FakeMetadata.TEST_KEY to 42),
             )
 
         val fixed =
@@ -47,8 +46,8 @@ internal class CorrectedFrameMetadataTest {
                 metadata,
                 mapOf(
                     CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
-                    CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY
-                )
+                    CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY,
+                ),
             )
 
         assertThat(fixed[CaptureResult.CONTROL_AE_MODE])

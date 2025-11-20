@@ -38,10 +38,7 @@ open class BasicAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Single
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId,
-    ) {
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             Column(GlanceModifier.fillMaxSize()) {
                 val size = LocalSize.current

@@ -43,7 +43,7 @@ class BenchmarkRuleLegacyTest {
         val min = benchmarkRule.getState().getMinTimeNanos()
         Assert.assertTrue(
             "minimum $min should be less than 1ms",
-            min < TimeUnit.MILLISECONDS.toNanos(1)
+            min < TimeUnit.MILLISECONDS.toNanos(1),
         )
     }
 

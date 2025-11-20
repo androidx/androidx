@@ -23,81 +23,102 @@ import kotlin.math.atan2
 
 /**
  * Mutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
- * [width], [height], [rotation], and [shearFactor].
- *
- * @constructor Create the [MutableParallelogram] from an existing [MutableVec] instance and
- *   primitive [Float] parameters. Note that this instances will become the internal state of this
- *   [MutableParallelogram], so modifications made to it directly or through setters on this
- *   [MutableParallelogram] will modify the input [MutableVec] instances too. This is to allow
- *   performance-critical code to avoid any unnecessary allocations. This can be tricky to manage,
- *   especially in multithreaded code, so when calling code is unable to guarantee ownership of the
- *   nested mutable data at a particular time, it may be safest to construct this with a copy of the
- *   data to give this [MutableSegment] exclusive ownership of that copy.
+ * [width], [height], [rotation], and [skew].
  */
+@UsedByNative
 public class MutableParallelogram
 private constructor(
     override var center: MutableVec,
-    width: Float,
+    @FloatRange(from = 0.0) width: Float,
     override var height: Float,
-    @AngleRadiansFloat rotation: Float,
-    override var shearFactor: Float,
+    @FloatRange(from = 0.0, to = 360.0, toInclusive = false)
+    @AngleDegreesFloat
+    rotationDegrees: Float,
+    override var skew: Float,
 ) : Parallelogram() {
 
-    @AngleRadiansFloat private var _rotation: Float = Angle.normalized(rotation)
+    init {
+        check(width >= 0) { "Width must be non-negative." }
+        check(rotationDegrees >= 0 && rotationDegrees < Angle.FULL_TURN_DEGREES) {
+            "Rotation must be in the range [0, 360)."
+        }
+    }
 
-    override var rotation: Float
-        @AngleRadiansFloat get() = _rotation
-        set(@AngleRadiansFloat value) {
-            _rotation = Angle.normalized(value)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toImmutable(): ImmutableParallelogram =
+        ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+            center.toImmutable(),
+            width,
+            height,
+            rotationDegrees,
+            skew,
+        )
+
+    @get:FloatRange(from = 0.0, to = 360.0, toInclusive = false)
+    @get:AngleDegreesFloat
+    override var rotationDegrees: Float = rotationDegrees
+        set(@FloatRange(from = 0.0, to = 360.0, toInclusive = false) @AngleDegreesFloat value) {
+            field = Angle.normalizedDegrees(value)
         }
 
-    private var _width: Float = width
-    override var width: Float
-        @FloatRange(from = 0.0) get() = _width
+    @get:FloatRange(from = 0.0)
+    override var width: Float = width
         set(@FloatRange(from = 0.0) value) {
             // A [Parallelogram] may *not* have a negative width. If an operation is performed on
-            // [Parallelogram] resulting
-            // in a negative width, it will be normalized.
-            normalizeAndRun(value, height, rotation) { w: Float, h: Float, r: Float ->
-                _width = w
+            // [Parallelogram] resulting in a negative width, it will be normalized.
+            if (value >= 0) {
+                field = value
+                return
+            }
+            normalizeAndRun(value, height, rotationDegrees) { w: Float, h: Float, rDegrees: Float ->
+                field = w
                 height = h
-                rotation = r
-                this@MutableParallelogram
+                rotationDegrees = rDegrees
             }
         }
 
-    public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO, 0f)
+    /**
+     * Constructs an empty [MutableParallelogram] with a center at the origin, a zero width, a zero
+     * height, zero rotation, and zero skew. This is intended for subsequent population with one of
+     * the `populateFrom` methods.
+     */
+    public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO_DEGREES, 0f)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @UsedByNative
-    public fun setCenterDimensionsRotationAndShear(
+    public fun setCenterDimensionsRotationInDegreesAndSkew(
         centerX: Float,
         centerY: Float,
         width: Float,
         height: Float,
-        @AngleRadiansFloat rotation: Float,
-        shearFactor: Float,
-    ): Unit = run {
-        normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+        @AngleDegreesFloat rotationDegrees: Float,
+        skew: Float,
+    ): MutableParallelogram = run {
+        normalizeAndRun(width, height, rotationDegrees) { w: Float, h: Float, degrees: Float ->
             this.width = w
             this.height = h
-            this.rotation = r
-            this.shearFactor = shearFactor
+            this.rotationDegrees = degrees
+            this.skew = skew
             this.center.x = centerX
             this.center.y = centerY
             this
         }
     }
 
-    /** Fills this [MutableParallelogram] with the same values contained in [input]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    /**
+     * Fills this [MutableParallelogram] with the same values contained in [input].
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
+     */
     public fun populateFrom(input: Parallelogram): MutableParallelogram {
         center.x = input.center.x
         center.y = input.center.y
         width = input.width
         height = input.height
-        rotation = input.rotation
-        shearFactor = input.shearFactor
+        rotationDegrees = input.rotationDegrees
+        skew = input.skew
         return this
     }
 
@@ -109,81 +130,97 @@ private constructor(
 
     override fun toString(): String = "Mutable${string(this)}"
 
-    public companion object {
+    /**
+     * Populates a [MutableParallelogram] to have a given [center], [width] and [height]. The
+     * resulting [Parallelogram] has zero [rotation] and [skew]. If the [width] is less than zero,
+     * the [Parallelogram] will be normalized.
+     *
+     * See the corresponding fields on [Parallelogram] for details about these parameters.
+     *
+     * @return `this`
+     */
+    public fun populateFromCenterAndDimensions(
+        center: MutableVec,
+        @FloatRange(from = 0.0) width: Float,
+        height: Float,
+    ): MutableParallelogram =
+        populateFromCenterDimensionsAndRotationInDegrees(center, width, height, Angle.ZERO_DEGREES)
 
-        /**
-         * Constructs a [MutableParallelogram] with a given [center], [width] and [height]. The
-         * resulting [Parallelogram] has zero [rotation] and [shearFactor]. If the [width] is less
-         * than zero, the [Parallelogram] will be normalized.
-         */
-        @JvmStatic
-        public fun fromCenterAndDimensions(
-            center: MutableVec,
-            @FloatRange(from = 0.0) width: Float,
-            height: Float,
-        ): MutableParallelogram =
-            normalizeAndRun(width, height, rotation = Angle.ZERO) { w: Float, h: Float, r: Float ->
-                MutableParallelogram(center, w, h, r, shearFactor = 0f)
-            }
+    /**
+     * Populates the [MutableParallelogram] to have a given [center], [width], [height] and
+     * [rotationDegrees], with zero [skew]. If the [width] is less than zero or if the
+     * [rotationDegrees] is not in the range [0, 360), it will be normalized.
+     *
+     * See the corresponding fields on [Parallelogram] for details about these parameters.
+     *
+     * @return `this`
+     */
+    public fun populateFromCenterDimensionsAndRotationInDegrees(
+        center: MutableVec,
+        @FloatRange(from = 0.0) width: Float,
+        height: Float,
+        @FloatRange(from = 0.0, to = 360.0, toInclusive = false)
+        @AngleDegreesFloat
+        rotationDegrees: Float,
+    ): MutableParallelogram =
+        populateFromCenterDimensionsRotationInDegreesAndSkew(
+            center,
+            width,
+            height,
+            rotationDegrees,
+            skew = 0f,
+        )
 
-        /**
-         * Constructs a [MutableParallelogram] with a given [center], [width], [height] and
-         * [rotation]. The resulting [Parallelogram] has zero [shearFactor]. If the [width] is less
-         * than zero or if the [rotation] is not in the range [0, 2π), the [Parallelogram] will be
-         * normalized.
-         */
-        @JvmStatic
-        public fun fromCenterDimensionsAndRotation(
-            center: MutableVec,
-            @FloatRange(from = 0.0) width: Float,
-            height: Float,
-            @AngleRadiansFloat rotation: Float,
-        ): MutableParallelogram =
-            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
-                MutableParallelogram(center, w, h, r, shearFactor = 0f)
-            }
+    /**
+     * Populates the [MutableParallelogram] to have a given [center], [width], [height],
+     * [rotationDegrees] and [skew]. If the [width] is less than zero or if [rotationDegrees] is not
+     * within the range [0, 360.0), it will be normalized.
+     *
+     * See the corresponding fields on [Parallelogram] for details about these parameters.
+     *
+     * @return `this`
+     */
+    public fun populateFromCenterDimensionsRotationInDegreesAndSkew(
+        center: MutableVec,
+        @FloatRange(from = 0.0) width: Float,
+        height: Float,
+        @FloatRange(from = 0.0, to = 360.0, toInclusive = false)
+        @AngleDegreesFloat
+        rotationDegrees: Float,
+        skew: Float,
+    ): MutableParallelogram =
+        normalizeAndRun(width, height, rotationDegrees) { w: Float, h: Float, degrees: Float ->
+            setCenterDimensionsRotationInDegreesAndSkew(center.x, center.y, w, h, degrees, skew)
+        }
 
-        /**
-         * Constructs a [MutableParallelogram] with a given [center], [width], [height], [rotation]
-         * and [shearFactor]. If the [width] is less than zero or if the [rotation] is not in the
-         * range [0, 2π), the [Parallelogram] will be normalized.
-         */
-        @JvmStatic
-        public fun fromCenterDimensionsRotationAndShear(
-            center: MutableVec,
-            @FloatRange(from = 0.0) width: Float,
-            height: Float,
-            @AngleRadiansFloat rotation: Float,
-            shearFactor: Float,
-        ): MutableParallelogram =
-            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
-                MutableParallelogram(center, w, h, r, shearFactor)
-            }
+    /**
+     * Populates the [MutableParallelogram] to be aligned with the [segment] with its bounds
+     * [padding] units away from the segment and [skew] of zero.
+     *
+     * @return `this`
+     */
+    public fun populateFromSegmentAndPadding(
+        segment: Segment,
+        padding: Float,
+    ): MutableParallelogram =
+        normalizeAndRun(
+            width = segment.computeLength() + 2 * padding,
+            height = 2 * padding,
+            rotationDegrees =
+                Angle.radiansToDegrees(
+                    atan2((segment.start.y - segment.end.y), (segment.start.x - segment.end.x))
+                ),
+        ) { w: Float, h: Float, rDegrees: Float ->
+            setCenterDimensionsRotationInDegreesAndSkew(
+                segment.end.x / 2f + segment.start.x / 2f,
+                segment.end.y / 2f + segment.start.y / 2f,
+                width = w,
+                height = h,
+                rotationDegrees = rDegrees,
+                skew = 0f,
+            )
+        }
 
-        /**
-         * Constructs a [MutableParallelogram] that is aligned with the [segment] and whose bounds
-         * are [padding] units away from the segment and whose [shear] is zero.
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-        @JvmStatic
-        public fun fromSegmentAndPadding(segment: Segment, padding: Float): MutableParallelogram =
-            normalizeAndRun(
-                width = segment.computeLength() + 2 * padding,
-                height = 2 * padding,
-                rotation =
-                    atan2((segment.start.y - segment.end.y), (segment.start.x - segment.end.x)),
-            ) { w: Float, h: Float, r: Float ->
-                MutableParallelogram(
-                    center =
-                        MutableVec(
-                            segment.end.x / 2f + segment.start.x / 2f,
-                            segment.end.y / 2f + segment.start.y / 2f,
-                        ),
-                    width = w,
-                    height = h,
-                    rotation = r,
-                    shearFactor = 0f,
-                )
-            }
-    }
+    // Declared as a target for extension functions.
+    public companion object
 }

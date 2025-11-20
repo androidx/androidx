@@ -14,7 +14,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk = 28
+        minSdk = 29
     }
     namespace = "androidx.heifwriter"
 }

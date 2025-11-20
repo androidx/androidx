@@ -65,7 +65,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        timestamp: CameraTimestamp
+        timestamp: CameraTimestamp,
     ): Unit =
         check(_onStartedFlow.tryEmit(OnStarted(requestMetadata, frameNumber, timestamp))) {
             "Failed to emit onStarted event! The size of the replay buffer" +
@@ -75,7 +75,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureResult: FrameMetadata
+        captureResult: FrameMetadata,
     ): Unit =
         check(
             _onPartialCaptureResultFlow.tryEmit(
@@ -89,7 +89,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        totalCaptureResult: FrameInfo
+        totalCaptureResult: FrameInfo,
     ): Unit =
         check(
             _onTotalCaptureResultFlow.tryEmit(
@@ -103,7 +103,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        result: FrameInfo
+        result: FrameInfo,
     ): Unit =
         check(_onCompleteFlow.tryEmit(OnComplete(requestMetadata, frameNumber, result))) {
             "Failed to emit onComplete event! The size of the replay buffer" +
@@ -119,7 +119,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId
+        stream: StreamId,
     ): Unit =
         check(_onBufferLostFlow.tryEmit(OnBufferLost(requestMetadata, frameNumber, stream))) {
             "Failed to emit OnBufferLost event! The size of the replay buffer" +
@@ -129,7 +129,7 @@ public class FakeRequestListener(private val replayBuffer: Int = 10) : Request.L
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        requestFailure: RequestFailure
+        requestFailure: RequestFailure,
     ): Unit =
         check(_onFailedFlow.tryEmit(OnFailed(requestMetadata, frameNumber, requestFailure))) {
             "Failed to emit OnFailed event! The size of the replay buffer" +
@@ -142,25 +142,25 @@ public sealed class RequestListenerEvent
 public class OnStarted(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val timestamp: CameraTimestamp
+    public val timestamp: CameraTimestamp,
 ) : RequestListenerEvent()
 
 public class OnPartialCaptureResult(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val frameMetadata: FrameMetadata
+    public val frameMetadata: FrameMetadata,
 ) : RequestListenerEvent()
 
 public class OnTotalCaptureResult(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val frameInfo: FrameInfo
+    public val frameInfo: FrameInfo,
 ) : RequestListenerEvent()
 
 public class OnComplete(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val frameInfo: FrameInfo
+    public val frameInfo: FrameInfo,
 ) : RequestListenerEvent()
 
 public class OnAborted(public val request: Request) : RequestListenerEvent()
@@ -168,11 +168,11 @@ public class OnAborted(public val request: Request) : RequestListenerEvent()
 public class OnBufferLost(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val streamId: StreamId
+    public val streamId: StreamId,
 ) : RequestListenerEvent()
 
 public class OnFailed(
     public val requestMetadata: RequestMetadata,
     public val frameNumber: FrameNumber,
-    public val requestFailure: RequestFailure
+    public val requestFailure: RequestFailure,
 ) : RequestListenerEvent()

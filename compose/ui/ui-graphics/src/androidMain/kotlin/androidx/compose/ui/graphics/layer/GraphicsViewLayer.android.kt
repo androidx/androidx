@@ -56,7 +56,7 @@ import java.lang.reflect.Method
 internal class ViewLayer(
     val ownerView: View,
     val canvasHolder: CanvasHolder = CanvasHolder(),
-    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
+    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope(),
 ) : View(ownerView.context) {
 
     var isInvalidated = false
@@ -94,7 +94,7 @@ internal class ViewLayer(
         density: Density,
         layoutDirection: LayoutDirection,
         parentLayer: GraphicsLayer?,
-        drawBlock: DrawScope.() -> Unit
+        drawBlock: DrawScope.() -> Unit,
     ) {
         this.density = density
         this.layoutDirection = layoutDirection
@@ -126,7 +126,7 @@ internal class ViewLayer(
                 this,
                 Size(width.toFloat(), height.toFloat()),
                 parentLayer,
-                drawBlock
+                drawBlock,
             )
         }
         isInvalidated = false
@@ -155,7 +155,7 @@ internal class GraphicsViewLayer(
     private val layerContainer: DrawChildContainer,
     override val ownerId: Long,
     val canvasHolder: CanvasHolder = CanvasHolder(),
-    canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
+    canvasDrawScope: CanvasDrawScope = CanvasDrawScope(),
 ) : GraphicsLayerImpl {
 
     private val viewLayer = ViewLayer(layerContainer, canvasHolder, canvasDrawScope)
@@ -314,7 +314,7 @@ internal class GraphicsViewLayer(
                 field = value
                 ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
                     viewLayer,
-                    value.toArgb()
+                    value.toArgb(),
                 )
             }
         }
@@ -418,7 +418,7 @@ internal class GraphicsViewLayer(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         if (viewLayer.parent == null) {
             layerContainer.addView(viewLayer)
@@ -443,7 +443,7 @@ internal class GraphicsViewLayer(
                             this,
                             size.toSize(),
                             layer,
-                            block
+                            block,
                         )
                     }
                 } finally {

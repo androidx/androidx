@@ -101,7 +101,7 @@ class PoolingContainerTest {
                 secondLevelParent2,
                 secondLevelView,
                 thirdLevelView1,
-                thirdLevelView2
+                thirdLevelView2,
             )
             .forEach { assertThat(it.isWithinPoolingContainer).isTrue() }
 

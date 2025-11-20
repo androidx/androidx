@@ -31,7 +31,7 @@ public annotation class ExperimentalBenchmarkConfigApi
 @ExperimentalBenchmarkConfigApi
 public class ExperimentalConfig(
     val perfettoConfig: PerfettoConfig? = null,
-    val startupInsightsConfig: StartupInsightsConfig? = null
+    val startupInsightsConfig: StartupInsightsConfig? = null,
 )
 
 /** Configuration for startup insights. */

@@ -9,7 +9,8 @@ package androidx.test.ext.junitgtest {
   }
 
   @java.lang.annotation.Inherited @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface TargetLibrary {
-    method public abstract String libraryName();
+    ctor @KotlinOnly public TargetLibrary(String libraryName);
+    method @InaccessibleFromKotlin public abstract String libraryName();
     property public abstract String libraryName;
   }
 

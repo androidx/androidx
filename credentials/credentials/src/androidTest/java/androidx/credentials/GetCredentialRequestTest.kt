@@ -118,7 +118,7 @@ class GetCredentialRequestTest {
                 options,
                 /*origin=*/ null,
                 /*preferIdentityDocUi=*/ false,
-                expectedComponentName
+                expectedComponentName,
             )
 
         assertThat(request.credentialOptions[0].isAutoSelectAllowed).isFalse()
@@ -137,7 +137,7 @@ class GetCredentialRequestTest {
                 origin = null,
                 preferIdentityDocUi = false,
                 preferUiBrandingComponentName = null,
-                expectedPreferImmediatelyAvailableCredentials
+                expectedPreferImmediatelyAvailableCredentials,
             )
 
         assertThat(request.credentialOptions[0].isAutoSelectAllowed).isFalse()
@@ -265,7 +265,7 @@ class GetCredentialRequestTest {
                 expectedOrigin,
                 expectedPreferIdentityDocUi,
                 expectedComponentName,
-                expectedPreferImmediatelyAvailableCredentials
+                expectedPreferImmediatelyAvailableCredentials,
             )
 
         val convertedRequest =
@@ -293,7 +293,7 @@ class GetCredentialRequestTest {
                 expectedOrigin,
                 expectedPreferIdentityDocUi,
                 expectedComponentName,
-                expectedPreferImmediatelyAvailableCredentials
+                expectedPreferImmediatelyAvailableCredentials,
             )
 
         val convertedRequest =
@@ -305,7 +305,7 @@ class GetCredentialRequestTest {
                             android.credentials.CredentialOption.Builder(
                                     it.type,
                                     it.requestData,
-                                    it.candidateQueryData
+                                    it.candidateQueryData,
                                 )
                                 .setAllowedProviders(it.allowedProviders)
                                 .setIsSystemProviderRequired(it.isSystemProviderRequired)

@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -44,7 +43,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34)
 class CredentialManagerTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -95,7 +93,7 @@ class CredentialManagerTest {
                         assertThrows<NoCredentialException> {
                             credentialManager.getCredential(
                                 this@withActivity,
-                                prepareGetCredentialResponse.pendingGetCredentialHandle!!
+                                prepareGetCredentialResponse.pendingGetCredentialHandle!!,
                             )
                         }
                     }
@@ -126,7 +124,7 @@ class CredentialManagerTest {
                         loadedResult.set(e)
                         latch.countDown()
                     }
-                }
+                },
             )
         }
 
@@ -158,7 +156,7 @@ class CredentialManagerTest {
                 }
 
                 override fun onResult(result: Void?) {}
-            }
+            },
         )
 
         latch.await(100L, TimeUnit.MILLISECONDS)

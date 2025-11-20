@@ -50,7 +50,7 @@ internal actual fun formatWithSkeleton(
     utcTimeMillis: Long,
     skeleton: String,
     locale: CalendarLocale,
-    cache: MutableMap<String, Any>
+    cache: MutableMap<String, Any>,
 ): String {
     // Use ICU to format the time on API 24+.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

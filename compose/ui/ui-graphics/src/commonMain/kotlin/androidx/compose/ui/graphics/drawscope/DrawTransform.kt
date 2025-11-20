@@ -110,7 +110,7 @@ interface DrawTransform {
         top: Float = 0.0f,
         right: Float = size.width,
         bottom: Float = size.height,
-        clipOp: ClipOp = ClipOp.Intersect
+        clipOp: ClipOp = ClipOp.Intersect,
     )
 
     /**

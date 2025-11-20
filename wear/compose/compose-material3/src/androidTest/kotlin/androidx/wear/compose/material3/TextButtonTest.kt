@@ -53,16 +53,18 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.TextButtonDefaults.DefaultButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.LargeButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.SmallButtonSize
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class TextButtonTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -76,13 +78,7 @@ class TextButtonTest {
     @Test
     fun contains_text() {
         val text = "Test"
-        rule.setContentWithTheme {
-            TextButton(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { TextButton(onClick = {}) { Text("Test") } }
 
         rule.onNodeWithText(text).assertExists()
     }
@@ -90,13 +86,7 @@ class TextButtonTest {
     @Test
     fun matches_has_text_for_button() {
         val text = "Test"
-        rule.setContentWithTheme {
-            TextButton(
-                onClick = {},
-            ) {
-                Text("Test")
-            }
-        }
+        rule.setContentWithTheme { TextButton(onClick = {}) { Text("Test") } }
 
         rule.onNode(hasText(text)).assertExists()
     }
@@ -153,7 +143,7 @@ class TextButtonTest {
             TextButton(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -173,7 +163,7 @@ class TextButtonTest {
                 onClick = { /* Do nothing */ },
                 onLongClick = { longClicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -195,7 +185,7 @@ class TextButtonTest {
                     onClick = { /* Do nothing */ },
                     onLongClick = {},
                     enabled = true,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -216,7 +206,7 @@ class TextButtonTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 onClick = {},
                 onLongClick = {},
-                onLongClickLabel = testLabel
+                onLongClickLabel = testLabel,
             ) {
                 Text("Button")
             }
@@ -233,7 +223,7 @@ class TextButtonTest {
             TextButton(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -253,7 +243,7 @@ class TextButtonTest {
                 onClick = { /* Do nothing */ },
                 onLongClick = { longClicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("Test")
             }
@@ -282,7 +272,7 @@ class TextButtonTest {
         rule.setContentWithTheme {
             TextButton(
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole },
             ) {
                 Text("Test")
             }
@@ -300,11 +290,7 @@ class TextButtonTest {
 
         rule.setContentWithTheme {
             expectedTextStyle = MaterialTheme.typography.labelMedium
-            TextButton(
-                onClick = {},
-            ) {
-                actualTextStyle = LocalTextStyle.current
-            }
+            TextButton(onClick = {}) { actualTextStyle = LocalTextStyle.current }
         }
 
         assertEquals(expectedTextStyle, actualTextStyle)
@@ -337,12 +323,12 @@ class TextButtonTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun default_shape_is_circular() {
         rule.isShape(
             expectedShape = CircleShape,
-            colors = { TextButtonDefaults.textButtonColors() }
+            colors = { TextButtonDefaults.textButtonColors() },
         ) { modifier ->
             TextButton(onClick = {}, modifier = modifier) {
                 // omit content to allow us to validate the shape by pixel checking.
@@ -350,7 +336,7 @@ class TextButtonTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun allows_custom_shape_override() {
         val shape = CutCornerShape(4.dp)
@@ -360,25 +346,25 @@ class TextButtonTest {
             TextButton(
                 onClick = {},
                 modifier = modifier,
-                shapes = TextButtonDefaults.shapes(shape)
+                shapes = TextButtonDefaults.shapes(shape),
             ) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.textButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_text_button_colors() {
         rule.verifyTextButtonColors(
@@ -387,22 +373,22 @@ class TextButtonTest {
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_filled_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.primary },
-            expectedContentColor = { MaterialTheme.colorScheme.onPrimary }
+            expectedContentColor = { MaterialTheme.colorScheme.onPrimary },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_filled_text_button_colors() {
         rule.verifyTextButtonColors(
@@ -413,22 +399,22 @@ class TextButtonTest {
             },
             expectedContentColor = {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_filled_variant_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledVariantTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.primaryContainer },
-            expectedContentColor = { MaterialTheme.colorScheme.onPrimaryContainer }
+            expectedContentColor = { MaterialTheme.colorScheme.onPrimaryContainer },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_filled_variant_text_button_colors() {
         rule.verifyTextButtonColors(
@@ -439,22 +425,22 @@ class TextButtonTest {
             },
             expectedContentColor = {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_filled_tonal_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledTonalTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_filled_tonal_text_button_colors() {
         rule.verifyTextButtonColors(
@@ -465,22 +451,22 @@ class TextButtonTest {
             },
             expectedContentColor = {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_outlined_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.outlinedTextButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_outlined_text_button_colors() {
         rule.verifyTextButtonColors(
@@ -489,11 +475,11 @@ class TextButtonTest {
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_enabled_outlined_text_button_correct_border_colors() {
         val status = Status.Enabled
@@ -505,13 +491,13 @@ class TextButtonTest {
                     modifier = modifier,
                     enabled = status.enabled(),
                     colors = TextButtonDefaults.outlinedTextButtonColors(),
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = status.enabled())
+                    border = ButtonDefaults.outlinedButtonBorder(enabled = status.enabled()),
                 ) {}
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_disabled_outlined_text_button_correct_border_colors() {
         val status = Status.Disabled
@@ -525,13 +511,13 @@ class TextButtonTest {
                     modifier = modifier,
                     enabled = status.enabled(),
                     colors = TextButtonDefaults.outlinedTextButtonColors(),
-                    border = ButtonDefaults.outlinedButtonBorder(enabled = status.enabled())
+                    border = ButtonDefaults.outlinedButtonBorder(enabled = status.enabled()),
                 ) {}
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun overrides_outlined_text_button_border_color() {
         val status = Status.Enabled
@@ -546,14 +532,14 @@ class TextButtonTest {
                         ButtonDefaults.outlinedButtonBorder(
                             enabled = status.enabled(),
                             borderColor = Color.Green,
-                            disabledBorderColor = Color.Red
-                        )
+                            disabledBorderColor = Color.Red,
+                        ),
                 ) {}
-            }
+            },
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun animates_corners_to_75_percent_on_click() {
         val baseShape = RoundedCornerShape(20.dp)
@@ -564,13 +550,13 @@ class TextButtonTest {
             pressedShape,
             0.75f,
             8,
-            color = { TextButtonDefaults.filledTextButtonColors().containerColor }
+            color = { TextButtonDefaults.filledTextButtonColors().containerColor },
         ) { modifier ->
             TextButton(
                 onClick = {},
                 shapes = TextButtonShapes(baseShape, pressedShape),
                 modifier = modifier,
-                colors = TextButtonDefaults.filledTextButtonColors()
+                colors = TextButtonDefaults.filledTextButtonColors(),
             ) {}
         }
     }
@@ -598,7 +584,7 @@ class TextButtonTest {
                     actualContentColor = LocalContentColor.current
                 }
                 return@verifyColors actualContentColor
-            }
+            },
         )
     }
 }
@@ -607,7 +593,7 @@ class TextButtonTest {
 private fun ComposeContentTestRule.isShape(
     expectedShape: Shape,
     colors: @Composable () -> TextButtonColors,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (Modifier) -> Unit,
 ) {
     var background = Color.Transparent
     var buttonColor = Color.Transparent

@@ -1,0 +1,36 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigationevent:navigationevent-compose>
+final class <#A: androidx.navigationevent/NavigationEventInfo> androidx.navigationevent.compose/NavigationEventState { // androidx.navigationevent.compose/NavigationEventState|null[0]
+    final var backInfo // androidx.navigationevent.compose/NavigationEventState.backInfo|{}backInfo[0]
+        final fun <get-backInfo>(): kotlin.collections/List<#A> // androidx.navigationevent.compose/NavigationEventState.backInfo.<get-backInfo>|<get-backInfo>(){}[0]
+    final var currentInfo // androidx.navigationevent.compose/NavigationEventState.currentInfo|{}currentInfo[0]
+        final fun <get-currentInfo>(): #A // androidx.navigationevent.compose/NavigationEventState.currentInfo.<get-currentInfo>|<get-currentInfo>(){}[0]
+    final var forwardInfo // androidx.navigationevent.compose/NavigationEventState.forwardInfo|{}forwardInfo[0]
+        final fun <get-forwardInfo>(): kotlin.collections/List<#A> // androidx.navigationevent.compose/NavigationEventState.forwardInfo.<get-forwardInfo>|<get-forwardInfo>(){}[0]
+    final var transitionState // androidx.navigationevent.compose/NavigationEventState.transitionState|{}transitionState[0]
+        final fun <get-transitionState>(): androidx.navigationevent/NavigationEventTransitionState // androidx.navigationevent.compose/NavigationEventState.transitionState.<get-transitionState>|<get-transitionState>(){}[0]
+}
+
+final object androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner { // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner|null[0]
+    final val current // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.current|{}current[0]
+        final fun <get-current>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigationevent/NavigationEventDispatcherOwner? // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.current.<get-current>|<get-current>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    final fun provides(androidx.navigationevent/NavigationEventDispatcherOwner): androidx.compose.runtime/ProvidedValue<androidx.navigationevent/NavigationEventDispatcherOwner?> // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.provides|provides(androidx.navigationevent.NavigationEventDispatcherOwner){}[0]
+}
+
+final val androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop // androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop|#static{}androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop[0]
+final val androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop // androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop|#static{}androidx_navigationevent_compose_NavigationEventState$stableprop[0]
+
+final fun <#A: androidx.navigationevent/NavigationEventInfo> androidx.navigationevent.compose/rememberNavigationEventState(#A, kotlin.collections/List<#A>?, kotlin.collections/List<#A>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.navigationevent.compose/NavigationEventState<#A> // androidx.navigationevent.compose/rememberNavigationEventState|rememberNavigationEventState(0:0;kotlin.collections.List<0:0>?;kotlin.collections.List<0:0>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<androidx.navigationevent.NavigationEventInfo>}[0]
+final fun androidx.navigationevent.compose/NavigationBackHandler(androidx.navigationevent.compose/NavigationEventState<out androidx.navigationevent/NavigationEventInfo>, kotlin/Boolean, kotlin/Function0<kotlin/Unit>?, kotlin/Function0<kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationBackHandler|NavigationBackHandler(androidx.navigationevent.compose.NavigationEventState<out|androidx.navigationevent.NavigationEventInfo>;kotlin.Boolean;kotlin.Function0<kotlin.Unit>?;kotlin.Function0<kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.navigationevent.compose/NavigationEventHandler(androidx.navigationevent.compose/NavigationEventState<out androidx.navigationevent/NavigationEventInfo>, kotlin/Boolean, kotlin/Function0<kotlin/Unit>?, kotlin/Function0<kotlin/Unit>?, kotlin/Boolean, kotlin/Function0<kotlin/Unit>?, kotlin/Function0<kotlin/Unit>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationEventHandler|NavigationEventHandler(androidx.navigationevent.compose.NavigationEventState<out|androidx.navigationevent.NavigationEventInfo>;kotlin.Boolean;kotlin.Function0<kotlin.Unit>?;kotlin.Function0<kotlin.Unit>?;kotlin.Boolean;kotlin.Function0<kotlin.Unit>?;kotlin.Function0<kotlin.Unit>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.navigationevent.compose/NavigationForwardHandler(androidx.navigationevent.compose/NavigationEventState<out androidx.navigationevent/NavigationEventInfo>, kotlin/Boolean, kotlin/Function0<kotlin/Unit>?, kotlin/Function0<kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationForwardHandler|NavigationForwardHandler(androidx.navigationevent.compose.NavigationEventState<out|androidx.navigationevent.NavigationEventInfo>;kotlin.Boolean;kotlin.Function0<kotlin.Unit>?;kotlin.Function0<kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter(): kotlin/Int // androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter|androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter(){}[0]
+final fun androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop_getter(): kotlin/Int // androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop_getter|androidx_navigationevent_compose_NavigationEventState$stableprop_getter(){}[0]
+final fun androidx.navigationevent.compose/rememberNavigationEventDispatcherOwner(kotlin/Boolean, androidx.navigationevent/NavigationEventDispatcherOwner?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.navigationevent/NavigationEventDispatcherOwner // androidx.navigationevent.compose/rememberNavigationEventDispatcherOwner|rememberNavigationEventDispatcherOwner(kotlin.Boolean;androidx.navigationevent.NavigationEventDispatcherOwner?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]

@@ -421,9 +421,9 @@ final class <#A: kotlin/Any?> androidx.collection/MutableScatterSet : androidx.c
     final fun retainAll(androidx.collection/OrderedScatterSet<#A>): kotlin/Boolean // androidx.collection/MutableScatterSet.retainAll|retainAll(androidx.collection.OrderedScatterSet<1:0>){}[0]
     final fun retainAll(androidx.collection/ScatterSet<#A>): kotlin/Boolean // androidx.collection/MutableScatterSet.retainAll|retainAll(androidx.collection.ScatterSet<1:0>){}[0]
     final fun retainAll(kotlin.collections/Collection<#A>): kotlin/Boolean // androidx.collection/MutableScatterSet.retainAll|retainAll(kotlin.collections.Collection<1:0>){}[0]
-    final fun retainAll(kotlin/Function1<#A, kotlin/Boolean>): kotlin/Boolean // androidx.collection/MutableScatterSet.retainAll|retainAll(kotlin.Function1<1:0,kotlin.Boolean>){}[0]
     final fun trim(): kotlin/Int // androidx.collection/MutableScatterSet.trim|trim(){}[0]
     final inline fun removeIf(kotlin/Function1<#A, kotlin/Boolean>) // androidx.collection/MutableScatterSet.removeIf|removeIf(kotlin.Function1<1:0,kotlin.Boolean>){}[0]
+    final inline fun retainAll(kotlin/Function1<#A, kotlin/Boolean>): kotlin/Boolean // androidx.collection/MutableScatterSet.retainAll|retainAll(kotlin.Function1<1:0,kotlin.Boolean>){}[0]
 }
 
 final class androidx.collection/CircularIntArray { // androidx.collection/CircularIntArray|null[0]
@@ -2117,6 +2117,8 @@ final val androidx.collection/size // androidx.collection/size|@androidx.collect
 final val androidx.collection/size // androidx.collection/size|@androidx.collection.SparseArrayCompat<0:0>{0§<kotlin.Any?>}size[0]
     final inline fun <#A1: kotlin/Any?> (androidx.collection/SparseArrayCompat<#A1>).<get-size>(): kotlin/Int // androidx.collection/size.<get-size>|<get-size>@androidx.collection.SparseArrayCompat<0:0>(){0§<kotlin.Any?>}[0]
 
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/MutableScatterMap(androidx.collection/ScatterMap<#A, #B>): androidx.collection/MutableScatterMap<#A, #B> // androidx.collection/MutableScatterMap|MutableScatterMap(androidx.collection.ScatterMap<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/MutableScatterMap(kotlin.collections/Map<#A, #B>): androidx.collection/MutableScatterMap<#A, #B> // androidx.collection/MutableScatterMap|MutableScatterMap(kotlin.collections.Map<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/emptyScatterMap(): androidx.collection/ScatterMap<#A, #B> // androidx.collection/emptyScatterMap|emptyScatterMap(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/mutableScatterMapOf(): androidx.collection/MutableScatterMap<#A, #B> // androidx.collection/mutableScatterMapOf|mutableScatterMapOf(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/mutableScatterMapOf(kotlin/Array<out kotlin/Pair<#A, #B>>...): androidx.collection/MutableScatterMap<#A, #B> // androidx.collection/mutableScatterMapOf|mutableScatterMapOf(kotlin.Array<out|kotlin.Pair<0:0,0:1>>...){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
@@ -2128,6 +2130,8 @@ final fun <#A: kotlin/Any?> (androidx.collection/SparseArrayCompat<#A>).androidx
 final fun <#A: kotlin/Any?> (androidx.collection/SparseArrayCompat<#A>).androidx.collection/plus(androidx.collection/SparseArrayCompat<#A>): androidx.collection/SparseArrayCompat<#A> // androidx.collection/plus|plus@androidx.collection.SparseArrayCompat<0:0>(androidx.collection.SparseArrayCompat<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (androidx.collection/SparseArrayCompat<#A>).androidx.collection/remove(kotlin/Int, #A): kotlin/Boolean // androidx.collection/remove|remove@androidx.collection.SparseArrayCompat<0:0>(kotlin.Int;0:0){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (androidx.collection/SparseArrayCompat<#A>).androidx.collection/valueIterator(): kotlin.collections/Iterator<#A> // androidx.collection/valueIterator|valueIterator@androidx.collection.SparseArrayCompat<0:0>(){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.collection/MutableScatterSet(androidx.collection/ScatterSet<#A>): androidx.collection/MutableScatterSet<#A> // androidx.collection/MutableScatterSet|MutableScatterSet(androidx.collection.ScatterSet<0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.collection/MutableScatterSet(kotlin.collections/Set<#A>): androidx.collection/MutableScatterSet<#A> // androidx.collection/MutableScatterSet|MutableScatterSet(kotlin.collections.Set<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.collection/arraySetOf(kotlin/Array<out #A>...): androidx.collection/ArraySet<#A> // androidx.collection/arraySetOf|arraySetOf(kotlin.Array<out|0:0>...){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.collection/emptyFloatObjectMap(): androidx.collection/FloatObjectMap<#A> // androidx.collection/emptyFloatObjectMap|emptyFloatObjectMap(){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.collection/emptyIntObjectMap(): androidx.collection/IntObjectMap<#A> // androidx.collection/emptyIntObjectMap|emptyIntObjectMap(){0§<kotlin.Any?>}[0]

@@ -93,7 +93,7 @@ public class ParcelableWorkQueryTest {
         val parcelled: ParcelableWorkQuery =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelable),
-                ParcelableWorkQuery.CREATOR
+                ParcelableWorkQuery.CREATOR,
             )
         equal(workQuery, parcelled.workQuery)
     }

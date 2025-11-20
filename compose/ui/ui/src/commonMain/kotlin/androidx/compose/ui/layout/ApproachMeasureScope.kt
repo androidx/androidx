@@ -94,7 +94,7 @@ internal class ApproachMeasureScopeImpl(
         height: Int,
         alignmentLines: Map<AlignmentLine, Int>,
         rulers: (RulerScope.() -> Unit)?,
-        placementBlock: Placeable.PlacementScope.() -> Unit
+        placementBlock: Placeable.PlacementScope.() -> Unit,
     ): MeasureResult {
         checkMeasuredSize(width, height)
         return object : MeasureResult {

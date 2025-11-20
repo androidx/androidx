@@ -29,6 +29,7 @@ import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScree
 import androidx.wear.compose.material3.macrobenchmark.common.R
 import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
 import androidx.wear.compose.material3.samples.ButtonSample
+import androidx.wear.compose.material3.samples.ButtonWithImageSample
 import androidx.wear.compose.material3.samples.ChildButtonSample
 import androidx.wear.compose.material3.samples.CompactButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
@@ -48,13 +49,14 @@ val ButtonScreen =
                     FilledVariantButtonSample()
                     OutlinedButtonSample()
                     ChildButtonSample()
+                    ButtonWithImageSample()
                     CompactButtonSample()
                     FilledTonalCompactButtonSample()
                     OutlinedCompactButtonSample()
                     IconButtonWithImageSample(
                         painterResource(R.drawable.backgroundimage),
                         enabled = true,
-                        shapes = IconButtonDefaults.animatedShapes()
+                        shapes = IconButtonDefaults.animatedShapes(),
                     )
                 }
             }

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.appcompat.app {
 
   public abstract class ActionBar {
@@ -45,24 +45,24 @@ package androidx.appcompat.app {
     method public void setElevation(float);
     method public void setHideOffset(int);
     method public void setHideOnContentScrollEnabled(boolean);
-    method public void setHomeActionContentDescription(CharSequence?);
     method public void setHomeActionContentDescription(@StringRes int);
+    method public void setHomeActionContentDescription(CharSequence?);
     method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable?);
     method public void setHomeAsUpIndicator(@DrawableRes int);
     method public void setHomeButtonEnabled(boolean);
-    method public abstract void setIcon(@DrawableRes int);
     method public abstract void setIcon(android.graphics.drawable.Drawable!);
+    method public abstract void setIcon(@DrawableRes int);
     method @Deprecated public abstract void setListNavigationCallbacks(android.widget.SpinnerAdapter!, androidx.appcompat.app.ActionBar.OnNavigationListener!);
-    method public abstract void setLogo(@DrawableRes int);
     method public abstract void setLogo(android.graphics.drawable.Drawable!);
+    method public abstract void setLogo(@DrawableRes int);
     method @Deprecated public abstract void setNavigationMode(int);
     method @Deprecated public abstract void setSelectedNavigationItem(int);
     method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable!);
     method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable!);
-    method public abstract void setSubtitle(CharSequence!);
     method public abstract void setSubtitle(int);
-    method public abstract void setTitle(CharSequence!);
+    method public abstract void setSubtitle(CharSequence!);
     method public abstract void setTitle(@StringRes int);
+    method public abstract void setTitle(CharSequence!);
     method public abstract void show();
     field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
     field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
@@ -76,11 +76,11 @@ package androidx.appcompat.app {
 
   public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public ActionBar.LayoutParams(android.content.Context, android.util.AttributeSet!);
+    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public ActionBar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
+    ctor public ActionBar.LayoutParams(int);
     ctor public ActionBar.LayoutParams(int, int);
     ctor public ActionBar.LayoutParams(int, int, int);
-    ctor public ActionBar.LayoutParams(int);
-    ctor public ActionBar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
-    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams!);
     field public int gravity;
   }
 
@@ -109,8 +109,8 @@ package androidx.appcompat.app {
     method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setIcon(@DrawableRes int);
     method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setTabListener(androidx.appcompat.app.ActionBar.TabListener!);
     method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setTag(Object!);
-    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setText(CharSequence!);
     method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setText(int);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setText(CharSequence!);
     field @Deprecated public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
@@ -121,8 +121,8 @@ package androidx.appcompat.app {
   }
 
   public class ActionBarDrawerToggle implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
-    ctor public ActionBarDrawerToggle(android.app.Activity!, androidx.drawerlayout.widget.DrawerLayout!, @StringRes int, @StringRes int);
     ctor public ActionBarDrawerToggle(android.app.Activity!, androidx.drawerlayout.widget.DrawerLayout!, androidx.appcompat.widget.Toolbar!, @StringRes int, @StringRes int);
+    ctor public ActionBarDrawerToggle(android.app.Activity!, androidx.drawerlayout.widget.DrawerLayout!, @StringRes int, @StringRes int);
     method public androidx.appcompat.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
     method public android.view.View.OnClickListener! getToolbarNavigationClickListener();
     method public boolean isDrawerIndicatorEnabled();
@@ -156,16 +156,16 @@ package androidx.appcompat.app {
 
   public class AlertDialog extends androidx.appcompat.app.AppCompatDialog implements android.content.DialogInterface {
     ctor protected AlertDialog(android.content.Context);
-    ctor protected AlertDialog(android.content.Context, @StyleRes int);
     ctor protected AlertDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener?);
+    ctor protected AlertDialog(android.content.Context, @StyleRes int);
     method public android.widget.Button! getButton(int);
     method public android.widget.ListView! getListView();
-    method public void setButton(int, CharSequence!, android.os.Message!);
     method public void setButton(int, CharSequence!, android.content.DialogInterface.OnClickListener!);
     method public void setButton(int, CharSequence!, android.graphics.drawable.Drawable!, android.content.DialogInterface.OnClickListener!);
+    method public void setButton(int, CharSequence!, android.os.Message!);
     method public void setCustomTitle(android.view.View!);
-    method public void setIcon(int);
     method public void setIcon(android.graphics.drawable.Drawable!);
+    method public void setIcon(int);
     method public void setIconAttribute(int);
     method public void setMessage(CharSequence!);
     method public void setView(android.view.View!);
@@ -181,17 +181,17 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setCancelable(boolean);
     method public androidx.appcompat.app.AlertDialog.Builder! setCursor(android.database.Cursor!, android.content.DialogInterface.OnClickListener!, String!);
     method public androidx.appcompat.app.AlertDialog.Builder! setCustomTitle(android.view.View?);
-    method public androidx.appcompat.app.AlertDialog.Builder! setIcon(@DrawableRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setIcon(android.graphics.drawable.Drawable?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setIcon(@DrawableRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setIconAttribute(@AttrRes int);
     method @Deprecated public androidx.appcompat.app.AlertDialog.Builder! setInverseBackgroundForced(boolean);
     method public androidx.appcompat.app.AlertDialog.Builder! setItems(@ArrayRes int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence![]!, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setMessage(CharSequence?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(android.database.Cursor!, String!, String!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(@ArrayRes int, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence![]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(android.database.Cursor!, String!, String!, android.content.DialogInterface.OnMultiChoiceClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButtonIcon(android.graphics.drawable.Drawable!);
@@ -205,14 +205,14 @@ package androidx.appcompat.app {
     method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButtonIcon(android.graphics.drawable.Drawable!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(@ArrayRes int, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.database.Cursor!, int, String!, android.content.DialogInterface.OnClickListener!);
-    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence![]!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.widget.ListAdapter!, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(@ArrayRes int, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence![]!, int, android.content.DialogInterface.OnClickListener!);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(@StringRes int);
     method public androidx.appcompat.app.AlertDialog.Builder! setTitle(CharSequence?);
-    method public androidx.appcompat.app.AlertDialog.Builder! setView(int);
     method public androidx.appcompat.app.AlertDialog.Builder! setView(android.view.View!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setView(int);
     method public androidx.appcompat.app.AlertDialog! show();
   }
 
@@ -256,8 +256,8 @@ package androidx.appcompat.app {
     method public void attachBaseContext(android.content.Context!);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Activity, androidx.appcompat.app.AppCompatCallback?);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.app.Dialog, androidx.appcompat.app.AppCompatCallback?);
-    method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.view.Window, androidx.appcompat.app.AppCompatCallback?);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.app.Activity, androidx.appcompat.app.AppCompatCallback?);
+    method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.view.Window, androidx.appcompat.app.AppCompatCallback?);
     method public abstract android.view.View! createView(android.view.View?, String!, android.content.Context, android.util.AttributeSet);
     method public abstract <T extends android.view.View> T! findViewById(@IdRes int);
     method public static int getDefaultNightMode();
@@ -281,8 +281,8 @@ package androidx.appcompat.app {
     method public abstract boolean requestWindowFeature(int);
     method public static void setCompatVectorFromResourcesEnabled(boolean);
     method public abstract void setContentView(android.view.View!);
-    method public abstract void setContentView(@LayoutRes int);
     method public abstract void setContentView(android.view.View!, android.view.ViewGroup.LayoutParams!);
+    method public abstract void setContentView(@LayoutRes int);
     method public static void setDefaultNightMode(int);
     method public abstract void setHandleNativeActionModesEnabled(boolean);
     method public abstract void setLocalNightMode(int);
@@ -304,8 +304,8 @@ package androidx.appcompat.app {
 
   public class AppCompatDialog extends android.app.Dialog implements androidx.appcompat.app.AppCompatCallback {
     ctor public AppCompatDialog(android.content.Context!);
-    ctor public AppCompatDialog(android.content.Context!, int);
     ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
+    ctor public AppCompatDialog(android.content.Context!, int);
     method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
     method public androidx.appcompat.app.ActionBar! getSupportActionBar();
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
@@ -390,11 +390,11 @@ package androidx.appcompat.view {
     method public abstract void invalidate();
     method public boolean isTitleOptional();
     method public abstract void setCustomView(android.view.View!);
-    method public abstract void setSubtitle(CharSequence!);
     method public abstract void setSubtitle(int);
+    method public abstract void setSubtitle(CharSequence!);
     method public void setTag(Object!);
-    method public abstract void setTitle(CharSequence!);
     method public abstract void setTitle(int);
+    method public abstract void setTitle(CharSequence!);
     method public void setTitleOptionalHint(boolean);
   }
 
@@ -412,8 +412,8 @@ package androidx.appcompat.view {
 
   public class ContextThemeWrapper extends android.content.ContextWrapper {
     ctor public ContextThemeWrapper();
-    ctor public ContextThemeWrapper(android.content.Context!, @StyleRes int);
     ctor public ContextThemeWrapper(android.content.Context!, android.content.res.Resources.Theme!);
+    ctor public ContextThemeWrapper(android.content.Context!, @StyleRes int);
     method public void applyOverrideConfiguration(android.content.res.Configuration!);
     method public int getThemeResId();
     method protected void onApplyThemeResource(android.content.res.Resources.Theme!, int, boolean);
@@ -583,11 +583,11 @@ package androidx.appcompat.widget {
 
   public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
     ctor public AppCompatSpinner(android.content.Context!);
-    ctor public AppCompatSpinner(android.content.Context!, int);
     ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int);
     ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int, int);
     ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int, int, android.content.res.Resources.Theme!);
+    ctor public AppCompatSpinner(android.content.Context!, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
@@ -660,11 +660,11 @@ package androidx.appcompat.widget {
 
   public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public LinearLayoutCompat.LayoutParams(android.content.Context!, android.util.AttributeSet!);
-    ctor public LinearLayoutCompat.LayoutParams(int, int);
-    ctor public LinearLayoutCompat.LayoutParams(int, int, float);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public LinearLayoutCompat.LayoutParams(androidx.appcompat.widget.LinearLayoutCompat.LayoutParams!);
+    ctor public LinearLayoutCompat.LayoutParams(int, int);
+    ctor public LinearLayoutCompat.LayoutParams(int, int, float);
     field public int gravity;
     field public float weight;
   }
@@ -841,8 +841,8 @@ package androidx.appcompat.widget {
     method public void setSwitchMinWidth(int);
     method public void setSwitchPadding(int);
     method public void setSwitchTextAppearance(android.content.Context!, int);
-    method public void setSwitchTypeface(android.graphics.Typeface!, int);
     method public void setSwitchTypeface(android.graphics.Typeface!);
+    method public void setSwitchTypeface(android.graphics.Typeface!, int);
     method public void setTextOff(CharSequence!);
     method public void setTextOn(CharSequence!);
     method public void setThumbDrawable(android.graphics.drawable.Drawable!);
@@ -908,20 +908,20 @@ package androidx.appcompat.widget {
     method public boolean isOverflowMenuShowing();
     method public void setCollapseContentDescription(@StringRes int);
     method public void setCollapseContentDescription(CharSequence?);
-    method public void setCollapseIcon(@DrawableRes int);
     method public void setCollapseIcon(android.graphics.drawable.Drawable?);
+    method public void setCollapseIcon(@DrawableRes int);
     method public void setContentInsetEndWithActions(int);
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
-    method public void setLogo(@DrawableRes int);
     method public void setLogo(android.graphics.drawable.Drawable!);
+    method public void setLogo(@DrawableRes int);
     method public void setLogoDescription(@StringRes int);
     method public void setLogoDescription(CharSequence!);
     method public void setNavigationContentDescription(@StringRes int);
     method public void setNavigationContentDescription(CharSequence?);
-    method public void setNavigationIcon(@DrawableRes int);
     method public void setNavigationIcon(android.graphics.drawable.Drawable?);
+    method public void setNavigationIcon(@DrawableRes int);
     method public void setNavigationOnClickListener(android.view.View.OnClickListener!);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.Toolbar.OnMenuItemClickListener!);
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
@@ -929,8 +929,8 @@ package androidx.appcompat.widget {
     method public void setSubtitle(@StringRes int);
     method public void setSubtitle(CharSequence!);
     method public void setSubtitleTextAppearance(android.content.Context!, @StyleRes int);
-    method public void setSubtitleTextColor(@ColorInt int);
     method public void setSubtitleTextColor(android.content.res.ColorStateList);
+    method public void setSubtitleTextColor(@ColorInt int);
     method public void setTitle(@StringRes int);
     method public void setTitle(CharSequence!);
     method public void setTitleMargin(int, int, int, int);
@@ -939,20 +939,20 @@ package androidx.appcompat.widget {
     method public void setTitleMarginStart(int);
     method public void setTitleMarginTop(int);
     method public void setTitleTextAppearance(android.content.Context!, @StyleRes int);
-    method public void setTitleTextColor(@ColorInt int);
     method public void setTitleTextColor(android.content.res.ColorStateList);
+    method public void setTitleTextColor(@ColorInt int);
     method public boolean showOverflowMenu();
   }
 
   public static class Toolbar.LayoutParams extends androidx.appcompat.app.ActionBar.LayoutParams {
     ctor public Toolbar.LayoutParams(android.content.Context, android.util.AttributeSet!);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor public Toolbar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
+    ctor public Toolbar.LayoutParams(androidx.appcompat.widget.Toolbar.LayoutParams!);
+    ctor public Toolbar.LayoutParams(int);
     ctor public Toolbar.LayoutParams(int, int);
     ctor public Toolbar.LayoutParams(int, int, int);
-    ctor public Toolbar.LayoutParams(int);
-    ctor public Toolbar.LayoutParams(androidx.appcompat.widget.Toolbar.LayoutParams!);
-    ctor public Toolbar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
-    ctor public Toolbar.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
-    ctor public Toolbar.LayoutParams(android.view.ViewGroup.LayoutParams!);
   }
 
   public static interface Toolbar.OnMenuItemClickListener {

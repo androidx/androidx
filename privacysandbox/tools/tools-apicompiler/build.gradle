@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
@@ -38,14 +37,14 @@ def buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).getBuild
 def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
 dependencies {
-    api(libs.kotlinStdlib)
+    api(project(":privacysandbox:tools:tools"))
+    api(project(":privacysandbox:tools:tools-core"))
     implementation(libs.kspApi)
-    implementation(libs.kotlinPoet)
-    implementation(project(":privacysandbox:tools:tools"))
-    implementation(project(":privacysandbox:tools:tools-core"))
+    implementation("com.squareup:kotlinpoet:2.0.0")
 
     testImplementation(project(":privacysandbox:tools:tools-testing"))
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     testImplementationAarAsJar(project(":privacysandbox:activity:activity-core"))
     testImplementationAarAsJar(project(":privacysandbox:activity:activity-provider"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
@@ -82,5 +81,4 @@ androidx {
     type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2022"
     description = "Compiler for Privacy Sandbox API annotations."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

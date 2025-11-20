@@ -24,7 +24,7 @@ import org.gradle.api.artifacts.component.ModuleComponentSelector
  * artifact dependency with the local tip of tree version of the library.
  */
 internal fun Project.configureMaxDepVersions(extension: AndroidXExtension) {
-    if (!usingMaxDepVersions()) return
+    if (!usingMaxDepVersions().get()) return
     val projectModules = extension.mavenCoordinatesToProjectPathMap
     configurations.configureEach { configuration ->
         configuration.resolutionStrategy.dependencySubstitution.apply {
@@ -32,11 +32,7 @@ internal fun Project.configureMaxDepVersions(extension: AndroidXExtension) {
                 val requested = dep.requested
                 if (requested is ModuleComponentSelector) {
                     val module = requested.group + ":" + requested.module
-                    if (
-                        // todo(b/331800231): remove compiler exception.
-                        requested.group != "androidx.compose.compiler" &&
-                            projectModules.containsKey(module)
-                    ) {
+                    if (projectModules.containsKey(module)) {
                         dep.useTarget(project(projectModules[module]!!))
                     }
                 }

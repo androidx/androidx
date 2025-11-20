@@ -47,6 +47,7 @@ public class CustomInterstitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_interstitial);
         setTitle(R.string.custom_interstitial_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_HIT)

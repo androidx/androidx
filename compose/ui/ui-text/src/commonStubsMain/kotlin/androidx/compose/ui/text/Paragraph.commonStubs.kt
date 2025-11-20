@@ -81,7 +81,7 @@ actual sealed interface Paragraph {
     actual fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
-        inclusionStrategy: TextInclusionStrategy
+        inclusionStrategy: TextInclusionStrategy,
     ): TextRange
 
     actual fun getBoundingBox(offset: Int): Rect
@@ -89,7 +89,7 @@ actual sealed interface Paragraph {
     actual fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
-        @IntRange(from = 0) arrayStart: Int
+        @IntRange(from = 0) arrayStart: Int,
     )
 
     actual fun getWordBoundary(offset: Int): TextRange
@@ -102,7 +102,7 @@ actual sealed interface Paragraph {
         shadow: Shadow?,
         textDecoration: TextDecoration?,
         drawStyle: DrawStyle?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     )
 
     actual fun paint(
@@ -112,6 +112,6 @@ actual sealed interface Paragraph {
         shadow: Shadow?,
         textDecoration: TextDecoration?,
         drawStyle: DrawStyle?,
-        blendMode: BlendMode
+        blendMode: BlendMode,
     )
 }

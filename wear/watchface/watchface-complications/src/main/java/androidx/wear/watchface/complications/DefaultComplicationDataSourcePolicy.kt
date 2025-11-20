@@ -65,7 +65,7 @@ public class DefaultComplicationDataSourcePolicy {
         @DataSourceId systemDataSourceFallback: Int,
         primaryDataSourceDefaultType: ComplicationType,
         secondaryDataSourceDefaultType: ComplicationType,
-        systemDataSourceFallbackDefaultType: ComplicationType
+        systemDataSourceFallbackDefaultType: ComplicationType,
     ) {
         if (dataSources.isNotEmpty()) {
             this.primaryDataSource = dataSources[0]
@@ -100,7 +100,7 @@ public class DefaultComplicationDataSourcePolicy {
     /** Uses [systemProvider] as the default complication data source. */
     @Deprecated(
         "Use a constructor that sets the DefaultTypes",
-        ReplaceWith("DefaultComplicationDataSourcePolicy(Int, ComplicationType)")
+        ReplaceWith("DefaultComplicationDataSourcePolicy(Int, ComplicationType)"),
     )
     public constructor(@DataSourceId systemProvider: Int) {
         primaryDataSource = null
@@ -119,7 +119,7 @@ public class DefaultComplicationDataSourcePolicy {
      */
     public constructor(
         @DataSourceId systemDataSource: Int,
-        systemDataSourceDefaultType: ComplicationType
+        systemDataSourceDefaultType: ComplicationType,
     ) {
         primaryDataSource = null
         primaryDataSourceDefaultType = null
@@ -138,7 +138,7 @@ public class DefaultComplicationDataSourcePolicy {
         ReplaceWith(
             "DefaultComplicationDataSourcePolicy(ComponentName, ComplicationType, Int," +
                 " ComplicationType)"
-        )
+        ),
     )
     public constructor(dataSource: ComponentName, @DataSourceId systemDataSourceFallback: Int) {
         primaryDataSource = dataSource
@@ -166,7 +166,7 @@ public class DefaultComplicationDataSourcePolicy {
         primaryDataSource: ComponentName,
         primaryDataSourceDefaultType: ComplicationType,
         @DataSourceId systemDataSourceFallback: Int,
-        systemDataSourceFallbackDefaultType: ComplicationType
+        systemDataSourceFallbackDefaultType: ComplicationType,
     ) {
         this.primaryDataSource = primaryDataSource
         this.primaryDataSourceDefaultType = primaryDataSourceDefaultType
@@ -186,12 +186,12 @@ public class DefaultComplicationDataSourcePolicy {
         ReplaceWith(
             "DefaultComplicationDataSourcePolicy(ComponentName, ComplicationType, ComponentName, " +
                 "ComplicationType, Int, ComplicationType)"
-        )
+        ),
     )
     public constructor(
         primaryDataSource: ComponentName,
         secondaryDataSource: ComponentName,
-        @DataSourceId systemDataSourceFallback: Int
+        @DataSourceId systemDataSourceFallback: Int,
     ) {
         this.primaryDataSource = primaryDataSource
         this.secondaryDataSource = secondaryDataSource
@@ -225,7 +225,7 @@ public class DefaultComplicationDataSourcePolicy {
         secondaryDataSource: ComponentName,
         secondaryDataSourceDefaultType: ComplicationType,
         @DataSourceId systemDataSourceFallback: Int,
-        systemDataSourceFallbackDefaultType: ComplicationType
+        systemDataSourceFallbackDefaultType: ComplicationType,
     ) {
         this.primaryDataSource = primaryDataSource
         this.primaryDataSourceDefaultType = primaryDataSourceDefaultType
@@ -254,7 +254,7 @@ public class DefaultComplicationDataSourcePolicy {
         wireFormat.mFallbackSystemDataSource,
         ComplicationType.fromWireType(wireFormat.mPrimaryDataSourceDefaultType),
         ComplicationType.fromWireType(wireFormat.mSecondaryDataSourceDefaultType),
-        ComplicationType.fromWireType(wireFormat.mDefaultType)
+        ComplicationType.fromWireType(wireFormat.mDefaultType),
     ) {}
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -269,7 +269,7 @@ public class DefaultComplicationDataSourcePolicy {
             primaryDataSourceDefaultType?.toWireComplicationType()
                 ?: systemDataSourceFallbackDefaultType,
             secondaryDataSourceDefaultType?.toWireComplicationType()
-                ?: systemDataSourceFallbackDefaultType
+                ?: systemDataSourceFallbackDefaultType,
         )
     }
 
@@ -326,7 +326,7 @@ public class DefaultComplicationDataSourcePolicy {
                         parser.getAttributeIntValue(
                             NAMESPACE_APP,
                             "primaryDataSourceDefaultType",
-                            0
+                            0,
                         )
                     )
                 } else {
@@ -343,7 +343,7 @@ public class DefaultComplicationDataSourcePolicy {
                         parser.getAttributeIntValue(
                             NAMESPACE_APP,
                             "secondaryDataSourceDefaultType",
-                            0
+                            0,
                         )
                     )
                 } else {
@@ -363,7 +363,7 @@ public class DefaultComplicationDataSourcePolicy {
                     parser.getAttributeIntValue(
                         NAMESPACE_APP,
                         "systemDataSourceFallbackDefaultType",
-                        0
+                        0,
                     )
                 )
             return when {
@@ -385,7 +385,7 @@ public class DefaultComplicationDataSourcePolicy {
                         secondaryDataSource,
                         secondaryDataSourceDefaultType,
                         systemDataSourceFallback,
-                        systemDataSourceFallbackDefaultType
+                        systemDataSourceFallbackDefaultType,
                     )
                 }
                 primaryDataSource != null -> {
@@ -397,13 +397,13 @@ public class DefaultComplicationDataSourcePolicy {
                         primaryDataSource,
                         primaryDataSourceDefaultType,
                         systemDataSourceFallback,
-                        systemDataSourceFallbackDefaultType
+                        systemDataSourceFallbackDefaultType,
                     )
                 }
                 else -> {
                     DefaultComplicationDataSourcePolicy(
                         systemDataSourceFallback,
-                        systemDataSourceFallbackDefaultType
+                        systemDataSourceFallbackDefaultType,
                     )
                 }
             }

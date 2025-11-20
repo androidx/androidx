@@ -30,7 +30,7 @@ internal constructor(
     internal val focusedContainerColor: Color,
     internal val focusedContentColor: Color,
     internal val pressedContainerColor: Color,
-    internal val pressedContentColor: Color
+    internal val pressedContentColor: Color,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -76,7 +76,7 @@ class CardShape
 internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
-    internal val pressedShape: Shape
+    internal val pressedShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -113,7 +113,7 @@ class CardScale
 internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
-    @FloatRange(from = 0.0) internal val pressedScale: Float
+    @FloatRange(from = 0.0) internal val pressedScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -152,7 +152,7 @@ class CardBorder
 internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
-    internal val pressedBorder: Border
+    internal val pressedBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -187,7 +187,7 @@ class CardGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
-    internal val pressedGlow: Glow
+    internal val pressedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

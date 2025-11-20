@@ -71,7 +71,7 @@ private val names =
         "Matthew",
         "Charlotte",
         "Benjamin",
-        "Sofia"
+        "Sofia",
     )
 
 private val surnames =
@@ -85,7 +85,7 @@ private val surnames =
         "Miller",
         "Davis",
         "Rodriguez",
-        "Martinez"
+        "Martinez",
     )
 
 private val cities =
@@ -112,7 +112,7 @@ private val cities =
         "Mexico City",
         "Lima",
         "London",
-        "New York City"
+        "New York City",
     )
 
 internal fun randomFirstName(): String = names.random()

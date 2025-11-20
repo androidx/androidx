@@ -16,19 +16,16 @@
 
 package androidx.appsearch.localstorage.stats;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.BaseStats;
 import androidx.collection.ArraySet;
-import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -45,128 +42,7 @@ import java.util.Set;
  * <!--@exportToFramework:hide-->
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CallStats {
-    /** Call types. */
-    @IntDef(value = {
-            CALL_TYPE_UNKNOWN,
-            CALL_TYPE_INITIALIZE,
-            CALL_TYPE_SET_SCHEMA,
-            CALL_TYPE_PUT_DOCUMENTS,
-            CALL_TYPE_GET_DOCUMENTS,
-            CALL_TYPE_REMOVE_DOCUMENTS_BY_ID,
-            CALL_TYPE_PUT_DOCUMENT,
-            CALL_TYPE_GET_DOCUMENT,
-            CALL_TYPE_REMOVE_DOCUMENT_BY_ID,
-            CALL_TYPE_SEARCH,
-            CALL_TYPE_OPTIMIZE,
-            CALL_TYPE_FLUSH,
-            CALL_TYPE_GLOBAL_SEARCH,
-            CALL_TYPE_REMOVE_DOCUMENTS_BY_SEARCH,
-            CALL_TYPE_REMOVE_DOCUMENT_BY_SEARCH,
-            CALL_TYPE_GLOBAL_GET_DOCUMENT_BY_ID,
-            CALL_TYPE_SCHEMA_MIGRATION,
-            CALL_TYPE_GLOBAL_GET_SCHEMA,
-            CALL_TYPE_GET_SCHEMA,
-            CALL_TYPE_GET_NAMESPACES,
-            CALL_TYPE_GET_NEXT_PAGE,
-            CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN,
-            CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE,
-            CALL_TYPE_PUT_DOCUMENTS_FROM_FILE,
-            CALL_TYPE_SEARCH_SUGGESTION,
-            CALL_TYPE_REPORT_SYSTEM_USAGE,
-            CALL_TYPE_REPORT_USAGE,
-            CALL_TYPE_GET_STORAGE_INFO,
-            CALL_TYPE_REGISTER_OBSERVER_CALLBACK,
-            CALL_TYPE_UNREGISTER_OBSERVER_CALLBACK,
-            CALL_TYPE_GLOBAL_GET_NEXT_PAGE,
-            CALL_TYPE_EXECUTE_APP_FUNCTION,
-            CALL_TYPE_OPEN_WRITE_BLOB,
-            CALL_TYPE_COMMIT_BLOB,
-            CALL_TYPE_OPEN_READ_BLOB,
-            CALL_TYPE_GLOBAL_OPEN_READ_BLOB,
-            CALL_TYPE_REMOVE_BLOB,
-            CALL_TYPE_SET_BLOB_VISIBILITY
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CallType {
-    }
-
-    public static final int CALL_TYPE_UNKNOWN = 0;
-    public static final int CALL_TYPE_INITIALIZE = 1;
-    public static final int CALL_TYPE_SET_SCHEMA = 2;
-    public static final int CALL_TYPE_PUT_DOCUMENTS = 3;
-    public static final int CALL_TYPE_GET_DOCUMENTS = 4;
-    public static final int CALL_TYPE_REMOVE_DOCUMENTS_BY_ID = 5;
-    public static final int CALL_TYPE_PUT_DOCUMENT = 6;
-    public static final int CALL_TYPE_GET_DOCUMENT = 7;
-    public static final int CALL_TYPE_REMOVE_DOCUMENT_BY_ID = 8;
-    public static final int CALL_TYPE_SEARCH = 9;
-    public static final int CALL_TYPE_OPTIMIZE = 10;
-    public static final int CALL_TYPE_FLUSH = 11;
-    public static final int CALL_TYPE_GLOBAL_SEARCH = 12;
-    public static final int CALL_TYPE_REMOVE_DOCUMENTS_BY_SEARCH = 13;
-    public static final int CALL_TYPE_REMOVE_DOCUMENT_BY_SEARCH = 14;
-    public static final int CALL_TYPE_GLOBAL_GET_DOCUMENT_BY_ID = 15;
-    public static final int CALL_TYPE_SCHEMA_MIGRATION = 16;
-    public static final int CALL_TYPE_GLOBAL_GET_SCHEMA = 17;
-    public static final int CALL_TYPE_GET_SCHEMA = 18;
-    public static final int CALL_TYPE_GET_NAMESPACES = 19;
-    public static final int CALL_TYPE_GET_NEXT_PAGE = 20;
-    public static final int CALL_TYPE_INVALIDATE_NEXT_PAGE_TOKEN = 21;
-    public static final int CALL_TYPE_WRITE_SEARCH_RESULTS_TO_FILE = 22;
-    public static final int CALL_TYPE_PUT_DOCUMENTS_FROM_FILE = 23;
-    public static final int CALL_TYPE_SEARCH_SUGGESTION = 24;
-    public static final int CALL_TYPE_REPORT_SYSTEM_USAGE = 25;
-    public static final int CALL_TYPE_REPORT_USAGE = 26;
-    public static final int CALL_TYPE_GET_STORAGE_INFO = 27;
-    public static final int CALL_TYPE_REGISTER_OBSERVER_CALLBACK = 28;
-    public static final int CALL_TYPE_UNREGISTER_OBSERVER_CALLBACK = 29;
-    public static final int CALL_TYPE_GLOBAL_GET_NEXT_PAGE = 30;
-    public static final int CALL_TYPE_EXECUTE_APP_FUNCTION = 31;
-    public static final int CALL_TYPE_OPEN_WRITE_BLOB = 32;
-    public static final int CALL_TYPE_COMMIT_BLOB = 33;
-    public static final int CALL_TYPE_OPEN_READ_BLOB = 34;
-    public static final int CALL_TYPE_GLOBAL_OPEN_READ_BLOB = 35;
-    public static final int CALL_TYPE_REMOVE_BLOB = 36;
-    public static final int CALL_TYPE_SET_BLOB_VISIBILITY = 37;
-
-    // These strings are for the subset of call types that correspond to an AppSearchManager API
-    private static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
-    private static final String CALL_TYPE_STRING_SET_SCHEMA = "localSetSchema";
-    private static final String CALL_TYPE_STRING_PUT_DOCUMENTS = "localPutDocuments";
-    private static final String CALL_TYPE_STRING_GET_DOCUMENTS = "localGetDocuments";
-    private static final String CALL_TYPE_STRING_REMOVE_DOCUMENTS_BY_ID = "localRemoveByDocumentId";
-    private static final String CALL_TYPE_STRING_SEARCH = "localSearch";
-    private static final String CALL_TYPE_STRING_FLUSH = "flush";
-    private static final String CALL_TYPE_STRING_GLOBAL_SEARCH = "globalSearch";
-    private static final String CALL_TYPE_STRING_REMOVE_DOCUMENTS_BY_SEARCH = "localRemoveBySearch";
-    private static final String CALL_TYPE_STRING_GLOBAL_GET_DOCUMENT_BY_ID = "globalGetDocuments";
-    private static final String CALL_TYPE_STRING_GLOBAL_GET_SCHEMA = "globalGetSchema";
-    private static final String CALL_TYPE_STRING_GET_SCHEMA = "localGetSchema";
-    private static final String CALL_TYPE_STRING_GET_NAMESPACES = "localGetNamespaces";
-    private static final String CALL_TYPE_STRING_GET_NEXT_PAGE = "localGetNextPage";
-    private static final String CALL_TYPE_STRING_INVALIDATE_NEXT_PAGE_TOKEN =
-            "invalidateNextPageToken";
-    private static final String CALL_TYPE_STRING_WRITE_SEARCH_RESULTS_TO_FILE =
-            "localWriteSearchResultsToFile";
-    private static final String CALL_TYPE_STRING_PUT_DOCUMENTS_FROM_FILE =
-            "localPutDocumentsFromFile";
-    private static final String CALL_TYPE_STRING_SEARCH_SUGGESTION = "localSearchSuggestion";
-    private static final String CALL_TYPE_STRING_REPORT_SYSTEM_USAGE = "globalReportUsage";
-    private static final String CALL_TYPE_STRING_REPORT_USAGE = "localReportUsage";
-    private static final String CALL_TYPE_STRING_GET_STORAGE_INFO = "localGetStorageInfo";
-    private static final String CALL_TYPE_STRING_REGISTER_OBSERVER_CALLBACK =
-            "globalRegisterObserverCallback";
-    private static final String CALL_TYPE_STRING_UNREGISTER_OBSERVER_CALLBACK =
-            "globalUnregisterObserverCallback";
-    private static final String CALL_TYPE_STRING_GLOBAL_GET_NEXT_PAGE = "globalGetNextPage";
-    private static final String CALL_TYPE_STRING_EXECUTE_APP_FUNCTION = "executeAppFunction";
-    private static final String CALL_TYPE_STRING_OPEN_WRITE_BLOB = "openWriteBlob";
-    private static final String CALL_TYPE_STRING_COMMIT_BLOB = "commitBlob";
-    private static final String CALL_TYPE_STRING_OPEN_READ_BLOB = "openReadBlob";
-    private static final String CALL_TYPE_STRING_GLOBAL_OPEN_READ_BLOB = "globalOpenReadBlob";
-    private static final String CALL_TYPE_STRING_REMOVE_BLOB = "removeBlob";
-    private static final String CALL_TYPE_STRING_SET_BLOB_VISIBILITY = "setBlobVisibility";
+public class CallStats extends BaseStats {
 
     private final @Nullable String mPackageName;
     private final @Nullable String mDatabase;
@@ -183,9 +59,20 @@ public class CallStats {
     private final int mEstimatedBinderLatencyMillis;
     private final int mNumOperationsSucceeded;
     private final int mNumOperationsFailed;
+    private final long mCallReceivedTimestampMillis;
+    private final int mGetUserInstanceLatencyMillis;
+    private final int mPvmBinderLatencyMillis;
+    // The request payload object size in byte.
+    private final long mRequestPayloadSize;
+    // The response payload object size in byte.
+    private final long mResponsePayloadSize;
+    @CallType
+    int mLastCallTypeHoldExecutor;
+    int mExecutorAcquisitionLatencyMillis;
+    int mOnExecutorLatencyMillis;
 
     CallStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mPackageName = builder.mPackageName;
         mDatabase = builder.mDatabase;
         mStatusCode = builder.mStatusCode;
@@ -194,6 +81,14 @@ public class CallStats {
         mEstimatedBinderLatencyMillis = builder.mEstimatedBinderLatencyMillis;
         mNumOperationsSucceeded = builder.mNumOperationsSucceeded;
         mNumOperationsFailed = builder.mNumOperationsFailed;
+        mCallReceivedTimestampMillis = builder.mCallReceivedTimestampMillis;
+        mLastCallTypeHoldExecutor = builder.mLastCallTypeHoldExecutor;
+        mExecutorAcquisitionLatencyMillis = builder.mExecutorAcquisitionLatencyMillis;
+        mOnExecutorLatencyMillis = builder.mOnExecutorLatencyMillis;
+        mGetUserInstanceLatencyMillis = builder.mGetUserInstanceLatencyMillis;
+        mPvmBinderLatencyMillis = builder.mPvmBinderLatencyMillis;
+        mRequestPayloadSize = builder.mRequestPayloadSize;
+        mResponsePayloadSize = builder.mResponsePayloadSize;
     }
 
     /** Returns calling package name. */
@@ -263,8 +158,90 @@ public class CallStats {
         return mNumOperationsFailed;
     }
 
+    /** Returns the wall-clock timestamp in milliseconds when the API call was received. */
+    public long getCallReceivedTimestampMillis() {
+        return mCallReceivedTimestampMillis;
+    }
+
+    /** Gets the last call type that hold the executor */
+    public int getLastCallTypeHoldExecutor() {
+        return mLastCallTypeHoldExecutor;
+    }
+
+    /** Gets total latency for creating or waiting the user executor. */
+    public int getExecutorAcquisitionLatencyMillis() {
+        return mExecutorAcquisitionLatencyMillis;
+    }
+
+    /** Gets total latency while the task is running on the user executor. */
+    public int getOnExecutorLatencyMillis() {
+        return mOnExecutorLatencyMillis;
+    }
+
+    /** Gets the latency that AppSearch service get the user instance. */
+    public int getGetUserInstanceLatencyMillis() {
+        return mGetUserInstanceLatencyMillis;
+    }
+
+    /** Gets the latency that AppSearch pass request to Pvm via binder. */
+    public int getPvmBinderLatencyMillis() {
+        return mPvmBinderLatencyMillis;
+    }
+
+    /** Gets the payload size of the given request object. */
+    public long getRequestPayloadSize() {
+        return mRequestPayloadSize;
+    }
+
+    /** Gets the payload size of the returned response object. */
+    public long getResponsePayloadSize() {
+        return mResponsePayloadSize;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "CallStats {\n"
+                        + "  packageName=%s,\n"
+                        + "  database=%s,\n"
+                        + "  statusCode=%d,\n"
+                        + "  totalLatencyMillis=%d,\n"
+                        + "  callType=%d,\n"
+                        + "  estimatedBinderLatencyMillis=%d,\n"
+                        + "  numOperationsSucceeded=%d,\n"
+                        + "  numOperationsFailed=%d,\n"
+                        + "  callReceivedTimestampMillis=%d,\n"
+                        + "  lastCallTypeHoldExecutor=%d,\n"
+                        + "  executorAcquisitionLatencyMillis=%d,\n"
+                        + "  onExecutorLatencyMillis=%d,\n"
+                        + "  getUserInstanceLatencyMillis=%d,\n"
+                        + "  pvmBinderLatencyMillis=%d,\n"
+                        + "  requestPayloadSize=%d,\n"
+                        + "  responsePayloadSize=%d,\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mPackageName,
+                mDatabase,
+                mStatusCode,
+                mTotalLatencyMillis,
+                mCallType,
+                mEstimatedBinderLatencyMillis,
+                mNumOperationsSucceeded,
+                mNumOperationsFailed,
+                mCallReceivedTimestampMillis,
+                mLastCallTypeHoldExecutor,
+                mExecutorAcquisitionLatencyMillis,
+                mOnExecutorLatencyMillis,
+                mGetUserInstanceLatencyMillis,
+                mPvmBinderLatencyMillis,
+                mRequestPayloadSize,
+                mResponsePayloadSize);
+    }
+
     /** Builder for {@link CallStats}. */
-    public static class Builder {
+    public static class Builder extends BaseStats.Builder<CallStats.Builder> {
         @Nullable String mPackageName;
         @Nullable String mDatabase;
         @AppSearchResult.ResultCode
@@ -275,6 +252,15 @@ public class CallStats {
         int mEstimatedBinderLatencyMillis;
         int mNumOperationsSucceeded;
         int mNumOperationsFailed;
+        long mCallReceivedTimestampMillis;
+        @CallType
+        int mLastCallTypeHoldExecutor;
+        int mExecutorAcquisitionLatencyMillis;
+        int mOnExecutorLatencyMillis;
+        int mGetUserInstanceLatencyMillis;
+        int mPvmBinderLatencyMillis;
+        long mRequestPayloadSize;
+        long mResponsePayloadSize;
 
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue
@@ -357,7 +343,65 @@ public class CallStats {
             return this;
         }
 
+        /** Sets the wall-clock timestamp in milliseconds when the API call was received. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setCallReceivedTimestampMillis(long callReceivedTimestampMillis) {
+            mCallReceivedTimestampMillis = callReceivedTimestampMillis;
+            return this;
+        }
+
+        /** Sets total latency for creating or waiting the user executor. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setLastCallTypeHoldExecutor(@CallType int callType) {
+            mLastCallTypeHoldExecutor = callType;
+            return this;
+        }
+
+        /** Sets the last call type that hold the executor */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setExecutorAcquisitionLatencyMillis(
+                int executorAcquisitionLatencyMillis) {
+            mExecutorAcquisitionLatencyMillis = executorAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /** Sets total latency while the task is running on the user executor. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setOnExecutorLatencyMillis(int onExecutorLatencyMillis) {
+            mOnExecutorLatencyMillis = onExecutorLatencyMillis;
+            return this;
+        }
+
+        /** Sets the latency that AppSearch service get the user instance. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setGetUserInstanceLatency(int getUserInstanceLatencyMillis) {
+            mGetUserInstanceLatencyMillis = getUserInstanceLatencyMillis;
+            return this;
+        }
+
+        /** Sets the latency that AppSearch pass request to Pvm via binder. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setPvmBinderLatency(int pvmBinderLatencyMillis) {
+            mPvmBinderLatencyMillis = pvmBinderLatencyMillis;
+            return this;
+        }
+
+        /** Sets the payload size of the given request object. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setRequestPayloadSize(int requestPayloadSize) {
+            mRequestPayloadSize = requestPayloadSize;
+            return this;
+        }
+
+        /** Sets the payload size of the returned response object. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setResponsePayloadSize(int responsePayloadSize) {
+            mResponsePayloadSize = responsePayloadSize;
+            return this;
+        }
+
         /** Creates {@link CallStats} object from {@link Builder} instance. */
+        @Override
         public @NonNull CallStats build() {
             return new CallStats(/* builder= */ this);
         }
@@ -365,7 +409,7 @@ public class CallStats {
 
     /**
      * Returns the {@link CallStats.CallType} represented by the given AppSearchManager API name. If
-     * an unknown name is provided, {@link CallStats.CallType#CALL_TYPE_UNKNOWN} is returned.
+     * an unknown name is provided, {@link BaseStats#CALL_TYPE_UNKNOWN} is returned.
      */
     @CallType
     public static int getApiCallTypeFromName(@NonNull String name) {
@@ -432,6 +476,24 @@ public class CallStats {
                 return CALL_TYPE_REMOVE_BLOB;
             case CALL_TYPE_STRING_SET_BLOB_VISIBILITY:
                 return CALL_TYPE_SET_BLOB_VISIBILITY;
+            case INTERNAL_CALL_TYPE_STRING_APP_OPEN_EVENT_INDEXER:
+                return INTERNAL_CALL_TYPE_APP_OPEN_EVENT_INDEXER;
+            case INTERNAL_CALL_TYPE_STRING_ISOLATED_STORAGE_DATA_MIGRATION:
+                return INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION;
+            case INTERNAL_CALL_TYPE_STRING_PRUNE_PACKAGE_DATA:
+                return INTERNAL_CALL_TYPE_PRUNE_PACKAGE_DATA;
+            case INTERNAL_CALL_TYPE_STRING_CLOSE:
+                return INTERNAL_CALL_TYPE_CLOSE;
+            case INTERNAL_CALL_TYPE_STRING_PERSIST_TO_DISK_JOB:
+                return INTERNAL_CALL_TYPE_PERSIST_TO_DISK_JOB;
+            case INTERNAL_CALL_TYPE_STRING_ON_USER_UNLOCKING:
+                return INTERNAL_CALL_TYPE_ON_USER_UNLOCKING;
+            case INTERNAL_CALL_TYPE_STRING_HANDLE_PACKAGE_REMOVED:
+                return INTERNAL_CALL_TYPE_HANDLE_PACKAGE_REMOVED;
+            case INTERNAL_CALL_TYPE_STRING_SCHEDULED_FLUSH:
+                return INTERNAL_CALL_TYPE_SCHEDULED_FLUSH;
+            case INTERNAL_CALL_TYPE_STRING_MANUALLY_SCHEDULE_FLUSH:
+                return CALL_TYPE_MANUALLY_SCHEDULE_FLUSH;
             default:
                 return CALL_TYPE_UNKNOWN;
         }
@@ -473,6 +535,11 @@ public class CallStats {
                 CALL_TYPE_OPEN_READ_BLOB,
                 CALL_TYPE_GLOBAL_OPEN_READ_BLOB,
                 CALL_TYPE_REMOVE_BLOB,
-                CALL_TYPE_SET_BLOB_VISIBILITY));
+                CALL_TYPE_SET_BLOB_VISIBILITY,
+                INTERNAL_CALL_TYPE_APP_OPEN_EVENT_INDEXER,
+                INTERNAL_CALL_TYPE_ISOLATED_STORAGE_DATA_MIGRATION,
+                INTERNAL_CALL_TYPE_PRUNE_PACKAGE_DATA,
+                INTERNAL_CALL_TYPE_CLOSE,
+                INTERNAL_CALL_TYPE_PERSIST_TO_DISK_JOB));
     }
 }

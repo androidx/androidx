@@ -63,7 +63,7 @@ class ProfilingTest {
             ApplicationProvider.getApplicationContext(),
             JavaHeapDumpRequestBuilder().setBufferSizeKb(1000).build(),
             Executors.newSingleThreadExecutor(),
-            listener
+            listener,
         )
 
         waitForSignal(listener.mAcceptedSignal)
@@ -86,7 +86,7 @@ class ProfilingTest {
                 .setSamplingIntervalBytes(100)
                 .build(),
             Executors.newSingleThreadExecutor(),
-            listener
+            listener,
         )
 
         waitForSignal(listener.mAcceptedSignal)
@@ -108,7 +108,7 @@ class ProfilingTest {
                 .setSamplingFrequencyHz(100)
                 .build(),
             Executors.newSingleThreadExecutor(),
-            listener
+            listener,
         )
 
         waitForSignal(listener.mAcceptedSignal)
@@ -130,7 +130,7 @@ class ProfilingTest {
                 .setBufferFillPolicy(BufferFillPolicy.DISCARD)
                 .build(),
             Executors.newSingleThreadExecutor(),
-            listener
+            listener,
         )
 
         waitForSignal(listener.mAcceptedSignal)
@@ -157,7 +157,7 @@ class ProfilingTest {
                 .setCancellationSignal(cancellationSignal)
                 .build(),
             Executors.newSingleThreadExecutor(),
-            listener
+            listener,
         )
 
         // Schedule cancellation to occur after some short wait
@@ -182,12 +182,12 @@ class ProfilingTest {
         registerForAllProfilingResults(
             ApplicationProvider.getApplicationContext(),
             Executors.newSingleThreadExecutor(),
-            listener1
+            listener1,
         )
         registerForAllProfilingResults(
             ApplicationProvider.getApplicationContext(),
             Executors.newSingleThreadExecutor(),
-            listener2
+            listener2,
         )
 
         requestProfiling(
@@ -199,7 +199,7 @@ class ProfilingTest {
                 .setSamplingIntervalBytes(100)
                 .build(),
             null,
-            null
+            null,
         )
 
         waitForSignal(listener1.mAcceptedSignal)
@@ -238,7 +238,7 @@ class ProfilingTest {
                 .setSamplingIntervalBytes(100)
                 .build(),
             null,
-            null
+            null,
         )
 
         waitForSignal(acceptedSignal)
@@ -254,7 +254,7 @@ class ProfilingTest {
                 .setSamplingFrequencyHz(100)
                 .build(),
             null,
-            null
+            null,
         )
 
         waitForSignal(acceptedSignal)
@@ -276,12 +276,12 @@ class ProfilingTest {
         registerForAllProfilingResults(
             ApplicationProvider.getApplicationContext(),
             Executors.newSingleThreadExecutor(),
-            listener1
+            listener1,
         )
         registerForAllProfilingResults(
             ApplicationProvider.getApplicationContext(),
             Executors.newSingleThreadExecutor(),
-            listener2
+            listener2,
         )
 
         requestProfiling(
@@ -292,7 +292,7 @@ class ProfilingTest {
                 .setSamplingIntervalBytes(4096L)
                 .build(),
             null,
-            null
+            null,
         )
 
         unregisterForAllProfilingResults(ApplicationProvider.getApplicationContext(), listener2)
@@ -346,7 +346,7 @@ class ProfilingTest {
                 .setSamplingIntervalBytes(100)
                 .build(),
             null,
-            null
+            null,
         )
 
         // Schedule cancellation to occur after some short wait

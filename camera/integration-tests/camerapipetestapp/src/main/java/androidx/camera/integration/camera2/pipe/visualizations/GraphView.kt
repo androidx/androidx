@@ -31,7 +31,7 @@ abstract class GraphView(
     context: Context,
     private val beginTimeNanos: Long,
     private val graphDataHolder: GraphDataHolder,
-    private val paints: Paints
+    private val paints: Paints,
 ) : View(context) {
 
     inner class LayoutState(
@@ -44,7 +44,7 @@ abstract class GraphView(
         var latencyGraphHeight: Float,
 
         /** Defines y value of midpoint of latency portion of graph view */
-        var latencyBaseline: Float
+        var latencyBaseline: Float,
     )
 
     lateinit var layoutState: LayoutState
@@ -66,7 +66,7 @@ abstract class GraphView(
                 widthFloat = (right - left).toFloat(),
                 dataGraphHeight = height * 3 / 4f,
                 latencyGraphHeight = height / 4f,
-                latencyBaseline = height * 7 / 8f
+                latencyBaseline = height * 7 / 8f,
             )
     }
 
@@ -110,14 +110,14 @@ abstract class GraphView(
         latency1: Float,
         x2: Float,
         latency2: Float,
-        paint: Paint
+        paint: Paint,
     ) =
         canvas.drawLine(
             x1,
             layoutState.latencyBaseline - latency1 * 150,
             x2,
             layoutState.latencyBaseline - latency2 * 150,
-            paint
+            paint,
         )
 
     /** Draws all the data points within the time window */
@@ -163,7 +163,7 @@ abstract class GraphView(
                     lastLatency,
                     currentX,
                     currentLatency,
-                    paints.latencyDataPaint
+                    paints.latencyDataPaint,
                 )
 
             lastLatency = latencyMap[point]
@@ -184,7 +184,7 @@ abstract class GraphView(
                         0f,
                         missingFrameX,
                         layoutState.dataGraphHeight,
-                        paints.missingDataPaint
+                        paints.missingDataPaint,
                     )
                 }
             }

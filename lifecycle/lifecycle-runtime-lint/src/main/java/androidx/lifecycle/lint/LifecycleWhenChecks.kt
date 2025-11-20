@@ -34,8 +34,6 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiWildcardType
 import com.intellij.psi.util.PsiTypesUtil
 import java.util.ArrayDeque
-import org.jetbrains.kotlin.asJava.elements.KtLightModifierList
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UDeclaration
@@ -55,7 +53,7 @@ import org.jetbrains.uast.visitor.UastVisitor
 private val CONTINUATION_NAMES =
     setOf(
         "kotlin.coroutines.Continuation<? super kotlin.Unit>",
-        "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>"
+        "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>",
     )
 
 internal fun errorMessage(whenMethodName: String) =
@@ -102,19 +100,19 @@ class LifecycleWhenChecks : Detector(), SourceCodeScanner {
                 severity = Severity.ERROR,
                 implementation =
                     Implementation(LifecycleWhenChecks::class.java, Scope.JAVA_FILE_SCOPE),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 }
 
 internal class LifecycleWhenVisitor(
     private val context: JavaContext,
-    private val whenMethodName: String
+    private val whenMethodName: String,
 ) : AbstractUastVisitor() {
     enum class SearchState {
         DONT_SEARCH,
         SEARCH,
-        FOUND
+        FOUND,
     }
 
     data class State(val checkUIAccess: Boolean, val suspendCallSearch: SearchState)
@@ -167,7 +165,7 @@ internal class LifecycleWhenVisitor(
     override fun visitCallExpression(node: UCallExpression): Boolean {
         val psiMethod = node.resolve() ?: return super.visitCallExpression(node)
 
-        if (psiMethod.isSuspend()) {
+        if (context.evaluator.isSuspend(psiMethod)) {
             updateSuspendCallSearch(FOUND)
             // go inside and check it doesn't access
             recursiveHelper.visitIfNeeded(psiMethod, this)
@@ -249,11 +247,6 @@ private fun ULambdaExpression.isSuspendLambda(): Boolean {
     } else {
         false
     }
-}
-
-private fun PsiMethod.isSuspend(): Boolean {
-    val modifiers = modifierList as? KtLightModifierList<*>
-    return modifiers?.kotlinOrigin?.hasModifier(KtTokens.SUSPEND_KEYWORD) ?: false
 }
 
 fun checkUiAccess(context: JavaContext, node: UCallExpression, whenMethodName: String) {

@@ -69,10 +69,9 @@ import androidx.glance.text.TextStyle
 
 class ActionAppWidget : GlanceAppWidget() {
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId,
-    ) = provideContent { Content() }
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
 
     override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
         Content()
@@ -88,13 +87,13 @@ private fun Content() {
                 .appWidgetBackground()
                 .cornerRadius(R.dimen.corner_radius),
         verticalAlignment = Alignment.Vertical.CenterVertically,
-        horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+        horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
     ) {
         val pages = listOf("Activities", "Services", "Broadcasts")
         var currentPage by remember { mutableStateOf(pages.first()) }
         Row(
             modifier = GlanceModifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             for (page in pages) {
                 SelectableActionItem(
@@ -131,7 +130,7 @@ private fun SelectableActionItem(label: String, active: Boolean, onClick: () -> 
                 fontWeight = FontWeight.Normal,
                 textDecoration = TextDecoration.None,
                 color =
-                    ColorProvider(Color.Black.copy(alpha = 0.3f), Color.White.copy(alpha = 0.3f))
+                    ColorProvider(Color.Black.copy(alpha = 0.3f), Color.White.copy(alpha = 0.3f)),
             )
         }
     Text(text = label, style = style, modifier = GlanceModifier.padding(8.dp).clickable(onClick))
@@ -141,32 +140,29 @@ private fun SelectableActionItem(label: String, active: Boolean, onClick: () -> 
 private fun ColumnScope.StartActivityActions() {
     Button(
         text = "Intent",
-        onClick = actionStartActivity(Intent(LocalContext.current, ActionDemoActivity::class.java))
+        onClick = actionStartActivity(Intent(LocalContext.current, ActionDemoActivity::class.java)),
     )
-    Button(
-        text = "Target class",
-        onClick = actionStartActivity<ActionDemoActivity>(),
-    )
+    Button(text = "Target class", onClick = actionStartActivity<ActionDemoActivity>())
     Button(
         text = "Target class with params",
         onClick =
             actionStartActivity<ActionDemoActivity>(
                 actionParametersOf(StartMessageKey to "Start activity by target class")
-            )
+            ),
     )
     Button(
         text = "Component name",
         onClick =
-            actionStartActivity(ComponentName(LocalContext.current, ActionDemoActivity::class.java))
+            actionStartActivity(ComponentName(LocalContext.current, ActionDemoActivity::class.java)),
     )
     Button(
         text = "Component name with params",
         onClick =
             actionStartActivity(
                 ComponentName(LocalContext.current, ActionDemoActivity::class.java),
-                actionParametersOf(StartMessageKey to "Start activity by component name")
+                actionParametersOf(StartMessageKey to "Start activity by component name"),
             ),
-        withSpace = false
+        withSpace = false,
     )
 }
 
@@ -174,18 +170,18 @@ private fun ColumnScope.StartActivityActions() {
 private fun ColumnScope.StartServiceActions() {
     Button(
         text = "Intent",
-        onClick = actionStartService(Intent(LocalContext.current, ActionDemoService::class.java))
+        onClick = actionStartService(Intent(LocalContext.current, ActionDemoService::class.java)),
     )
     Button(text = "Target class", onClick = actionStartService<ActionDemoService>())
     Button(
         text = "In foreground",
-        onClick = actionStartService<ActionDemoService>(isForegroundService = true)
+        onClick = actionStartService<ActionDemoService>(isForegroundService = true),
     )
     Button(
         text = "Component name",
         onClick =
             actionStartService(ComponentName(LocalContext.current, ActionDemoService::class.java)),
-        withSpace = false
+        withSpace = false,
     )
 }
 
@@ -194,7 +190,7 @@ private fun ColumnScope.SendBroadcastActions() {
     Button(
         text = "Intent",
         onClick =
-            actionSendBroadcast(Intent(LocalContext.current, ActionAppWidgetReceiver::class.java))
+            actionSendBroadcast(Intent(LocalContext.current, ActionAppWidgetReceiver::class.java)),
     )
     Button(text = "Action", onClick = actionSendBroadcast(AppWidgetManager.ACTION_APPWIDGET_UPDATE))
     Button(text = "Target class", onClick = actionSendBroadcast<ActionAppWidgetReceiver>())
@@ -204,7 +200,7 @@ private fun ColumnScope.SendBroadcastActions() {
             actionSendBroadcast(
                 ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
             ),
-        withSpace = false
+        withSpace = false,
     )
 }
 
@@ -226,7 +222,7 @@ class ActionDemoActivity : ComponentActivity() {
         setContent {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
+                contentAlignment = androidx.compose.ui.Alignment.Center,
             ) {
                 val message = intent.getStringExtra(StartMessageKey.name) ?: "Not found"
                 androidx.compose.material.Text(message)

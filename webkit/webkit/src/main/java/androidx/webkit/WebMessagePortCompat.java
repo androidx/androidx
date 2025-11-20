@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.webkit.WebMessagePort;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 
@@ -165,7 +164,6 @@ public abstract class WebMessagePortCompat {
      * Internal getter returning the private {@link WebMessagePort} implementing this class. This is
      * only available on devices with an Android versions supporting WebMessagePorts.
      */
-    @RequiresApi(23)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract @NonNull WebMessagePort getFrameworkPort();
 

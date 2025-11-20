@@ -16,71 +16,87 @@
 
 package androidx.core.backported.fixes
 
-/** List of all known issue reportable by [BackportedFixManager] */
-internal class KnownIssue
-private constructor(
+import androidx.annotation.IntRange
+
+/**
+ * A known issue is a public issue from the [Google Issue Tracker](https://issuetracker.google.com)
+ * which has a fix that might be backported to released devices, instead of only in the next Android
+ * release.
+ *
+ * Some known issues are specific to certain form factors or even particular devices, not merely a
+ * function of the OS version or the security patch level.
+ *
+ * [BackportedFixManager.isFixed] will report if the issue is fixed on a device.
+ *
+ * [KnownIssues] contains constants for all known issues at the time the library was built.
+ *
+ * @property id The public id of this issue in the
+ *   [Google Issue Tracker](https://issuetracker.google.com)
+ */
+public class KnownIssue
+internal constructor(
 
     /**
      * The public id of this issue in the [Google Issue Tracker](https://issuetracker.google.com)
+     *
+     * Details of the issue can be found at the Google issue tracker using this id.
+     *
+     * Ids `1` to `1023` are reserved so an 'id' never overlaps with an internal `alias`.
      */
-    val id: Long,
+    @IntRange(from = 1024) public val id: Long,
+
     /**
      * The alias for this issue, if one exists.
      *
-     * Known issues can have at most one alias.
+     * The alias is used by the on device data store for known issues.
      *
-     * The value 0 indicates there is no alias for this issue. Non-zero alias values are unique
-     * across all known issues.
+     * A non null alias is unique across all known issues.
      */
-    val alias: Int
+    @IntRange(from = 1, to = 1023) internal val alias: Int?,
+
+    /**
+     * Set of manually tested build fingerprints of where the known issues is fixed.
+     *
+     * If a device has a fingerprint in this set then [BackportedFixManager.getStatus] will always
+     * return [Status.Fixed].
+     *
+     * **NOTE** This should only be used when a proper test for a KnownIssue is delayed and there is
+     * small number of build that have been manually tested to verify that the issue is fixed on
+     * those builds.
+     *
+     * Defaults to an empty set.
+     */
+    internal val manuallyTestedFingerprints: Set<String> = emptySet(),
+
+    /**
+     * A function that returns true if the issue applies to a device.
+     *
+     * Override if the issue should only apply to specific brands, models or other static
+     * properties.
+     *
+     * When the precondition is false. [BackportedFixManager.getStatus] will return
+     * [Status.NotApplicable].
+     *
+     * Defaults to true for all devices.
+     */
+    internal val precondition: () -> Boolean = { true },
 ) {
-    // TODO b/381266031 - Make public
     // TODO b/381267367 - Add link to public list issues
 
     /**
      * The url to the [Google Issue Tracker](https://issuetracker.google.com) for this known issue.
      */
-    internal val url = "https://issuetracker.google.com/issues/$id"
+    public val url: String = "https://issuetracker.google.com/issues/$id"
 
-    override fun equals(other: Any?) = other is KnownIssue && id == other.id
+    override fun equals(other: Any?): Boolean = other is KnownIssue && id == other.id
 
-    override fun hashCode() = id.hashCode()
+    override fun hashCode(): Int = id.hashCode()
 
     override fun toString(): String {
-        return if (alias == 0) {
+        return if (alias == null) {
             "$id without alias"
         } else {
             "$id with alias $alias"
-        }
-    }
-
-    companion object {
-        // keep-sorted start newline_separated=yes sticky_prefixes=/*
-        /** Sample known issue that is always fixed on a device. */
-        @JvmField val KI_350037023 = KnownIssue(350037023L, 1)
-
-        /** Sample known issue that is never fixed on a device. */
-        @JvmField val KI_350037348 = KnownIssue(350037348L, 3)
-
-        /** Sample known issue that is only applies to robolectric devices */
-        @JvmField val KI_372917199 = KnownIssue(372917199L, 2)
-
-        // keep-sorted end
-
-        private val values by lazy {
-            listOf(
-                // keep-sorted start
-                KI_350037023,
-                KI_350037348,
-                KI_372917199,
-                // keep-sorted end
-            )
-        }
-
-        /** List of all known issues */
-        @JvmStatic
-        internal fun values(): List<KnownIssue> {
-            return values
         }
     }
 }

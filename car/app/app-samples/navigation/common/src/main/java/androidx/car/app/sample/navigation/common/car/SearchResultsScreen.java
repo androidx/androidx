@@ -20,8 +20,6 @@ import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
 
 import android.text.SpannableString;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
@@ -39,6 +37,9 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.navigation.common.model.DemoScripts;
 import androidx.car.app.sample.navigation.common.model.PlaceInfo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 

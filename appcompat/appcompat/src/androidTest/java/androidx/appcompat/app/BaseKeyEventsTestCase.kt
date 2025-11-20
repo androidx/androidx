@@ -85,7 +85,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
 
                         override fun onActionItemClicked(
                             mode: ActionMode,
-                            item: MenuItem
+                            item: MenuItem,
                         ): Boolean {
                             return false
                         }
@@ -231,14 +231,14 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
             assertEquals(
                 "onKeyDown event matches",
                 KeyEvent.KEYCODE_DEL.toLong(),
-                downEvent.keyCode.toLong()
+                downEvent.keyCode.toLong(),
             )
             val upEvent = scenario.withActivity { invokedKeyUpEvent }
             assertNotNull("onKeyUp called", upEvent)
             assertEquals(
                 "onKeyUp event matches",
                 KeyEvent.KEYCODE_DEL.toLong(),
-                upEvent.keyCode.toLong()
+                upEvent.keyCode.toLong(),
             )
         }
     }
@@ -256,7 +256,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
             assertEquals(
                 "onKeyDown event matches",
                 KeyEvent.KEYCODE_MENU.toLong(),
-                downEvent.keyCode.toLong()
+                downEvent.keyCode.toLong(),
             )
 
             val upEvent = scenario.withActivity { invokedKeyUpEvent }
@@ -264,7 +264,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
             assertEquals(
                 "onKeyDown event matches",
                 KeyEvent.KEYCODE_MENU.toLong(),
-                upEvent.keyCode.toLong()
+                upEvent.keyCode.toLong(),
             )
         }
     }
@@ -288,7 +288,7 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
             scenario.withActivity {
                 MenuItemCompat.setContentDescription(
                     alphaItem,
-                    getString(R.string.alpha_menu_description)
+                    getString(R.string.alpha_menu_description),
                 )
                 MenuItemCompat.setTooltipText(alphaItem, getString(R.string.alpha_menu_tooltip))
             }

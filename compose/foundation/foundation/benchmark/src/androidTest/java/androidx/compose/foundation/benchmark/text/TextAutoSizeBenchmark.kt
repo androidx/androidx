@@ -57,7 +57,7 @@ class TextAutoSizeBenchmark(private val textLength: Int, private val autoSize: T
                 // Text Length
                 arrayOf(32, 512),
                 // AutoSize
-                arrayOf(TextAutoSize.StepBased())
+                arrayOf(TextAutoSize.StepBased()),
             )
     }
 
@@ -124,7 +124,7 @@ class TextAutoSizeBenchmark(private val textLength: Int, private val autoSize: T
 private class AutoSizeTextInColumnTestCase(
     private val texts: List<AnnotatedString>,
     private val width: Dp,
-    private val autoSize: TextAutoSize
+    private val autoSize: TextAutoSize,
 ) : LayeredComposeTestCase() {
 
     @Composable

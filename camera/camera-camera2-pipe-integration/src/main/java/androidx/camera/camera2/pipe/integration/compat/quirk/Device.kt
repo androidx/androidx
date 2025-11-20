@@ -33,6 +33,8 @@ public object Device {
 
     public fun isMotorolaDevice(): Boolean = isDeviceFrom("Motorola")
 
+    public fun isNokiaDevice(): Boolean = isDeviceFrom("Nokia")
+
     public fun isOnePlusDevice(): Boolean = isDeviceFrom("OnePlus")
 
     public fun isOppoDevice(): Boolean = isDeviceFrom("Oppo")
@@ -45,15 +47,30 @@ public object Device {
 
     public fun isSamsungDevice(): Boolean = isDeviceFrom("Samsung")
 
+    public fun isSonyDevice(): Boolean = isDeviceFrom("Sony")
+
     public fun isTecnoDevice(): Boolean = isDeviceFrom("Tecno") || isDeviceFrom("Tecno-mobile")
 
     public fun isXiaomiDevice(): Boolean = isDeviceFrom("Xiaomi")
 
     public fun isVivoDevice(): Boolean = isDeviceFrom("Vivo")
 
+    public fun isPocoDevice(): Boolean = isDeviceFrom("Poco")
+
     private fun isDeviceFrom(vendor: String) =
         Build.MANUFACTURER.equalsCaseInsensitive(vendor) ||
             Build.BRAND.equalsCaseInsensitive(vendor)
 
     private fun String.equalsCaseInsensitive(other: String?) = equals(other, ignoreCase = true)
+
+    /**
+     * There is no clear way to determine whether a device is UniSoc or not. Check the possible
+     * properties to turn the results.
+     */
+    public fun isUniSocChipsetDevice(): Boolean {
+        return (Build.VERSION.SDK_INT >= 31 &&
+            "Spreadtrum".equals(Build.SOC_MANUFACTURER, ignoreCase = true)) ||
+            Build.HARDWARE.lowercase().startsWith("ums") ||
+            (isItelDevice() && Build.HARDWARE.lowercase().startsWith("sp"))
+    }
 }

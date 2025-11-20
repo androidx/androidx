@@ -34,7 +34,7 @@ class ExerciseRouteTest {
                     longitude = -34.5,
                     horizontalAccuracy = Length.meters(0.4),
                     verticalAccuracy = Length.meters(1.3),
-                    altitude = Length.meters(23.4)
+                    altitude = Length.meters(23.4),
                 )
             )
             .isEqualTo(
@@ -44,7 +44,7 @@ class ExerciseRouteTest {
                     longitude = -34.5,
                     horizontalAccuracy = Length.meters(0.4),
                     verticalAccuracy = Length.meters(1.3),
-                    altitude = Length.meters(23.4)
+                    altitude = Length.meters(23.4),
                 )
             )
     }
@@ -58,7 +58,7 @@ class ExerciseRouteTest {
                 longitude = -34.5,
                 horizontalAccuracy = Length.meters(0.4),
                 verticalAccuracy = Length.meters(1.3),
-                altitude = Length.meters(23.4)
+                altitude = Length.meters(23.4),
             )
         }
         assertFailsWith<IllegalArgumentException> {
@@ -68,7 +68,7 @@ class ExerciseRouteTest {
                 longitude = 189.5,
                 horizontalAccuracy = Length.meters(0.4),
                 verticalAccuracy = Length.meters(1.3),
-                altitude = Length.meters(23.4)
+                altitude = Length.meters(23.4),
             )
         }
     }
@@ -87,7 +87,7 @@ class ExerciseRouteTest {
                 longitude = -34.5,
                 horizontalAccuracy = Length.meters(0.4),
                 verticalAccuracy = Length.meters(1.3),
-                altitude = Length.meters(23.4)
+                altitude = Length.meters(23.4),
             )
         val location2 =
             ExerciseRoute.Location(
@@ -127,7 +127,7 @@ class ExerciseRouteTest {
                                 longitude = -34.8,
                                 horizontalAccuracy = 2.0.meters,
                                 verticalAccuracy = 3.0.meters,
-                                altitude = 120.0.meters
+                                altitude = 120.0.meters,
                             )
                         )
                     )

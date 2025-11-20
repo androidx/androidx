@@ -63,7 +63,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = StaggeredGridCells.Fixed(3),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
 
@@ -94,7 +94,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = StaggeredGridCells.Fixed(3),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
 
@@ -115,7 +115,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
                         Orientation.Vertical -> topCenter
                         Orientation.Horizontal -> centerLeft
                     },
-                endVelocity = 5_000F
+                endVelocity = 5_000F,
             )
         }
 
@@ -153,7 +153,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
                     cells = StaggeredGridCells.FixedSize(itemSize),
                     modifier = Modifier.width(listSize).height(listSize),
                     state = state,
-                    reverseLayout = true
+                    reverseLayout = true,
                 ) {
                     items(list, key = { it }) { Item(remember { "$it" }) }
                 }
@@ -164,7 +164,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
                         // This scrolls to the start of the first item.
                         state.requestScrollToItem(
                             index = 1,
-                            scrollOffset = with(rule.density) { -listSize.roundToPx() }
+                            scrollOffset = with(rule.density) { -listSize.roundToPx() },
                         )
                     }
                 }
@@ -207,7 +207,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
                 LazyStaggeredGrid(
                     modifier = Modifier.size(itemSize * 2.5f),
                     cells = StaggeredGridCells.Fixed(3),
-                    state = state
+                    state = state,
                 ) {
                     items(list, key = { it }) { Item(remember { "$it" }) }
                 }
@@ -250,7 +250,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
                 LazyStaggeredGrid(
                     cells = StaggeredGridCells.Fixed(3),
                     modifier = Modifier.size(itemSize * 2.5f),
-                    state = state
+                    state = state,
                 ) {
                     items(list, key = { it }) { Item(remember { "$it" }) }
                 }
@@ -289,7 +289,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = StaggeredGridCells.FixedSize(itemSize),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -318,7 +318,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = StaggeredGridCells.Fixed(3),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -356,7 +356,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize),
                 cells = StaggeredGridCells.FixedSize(itemSize),
-                state = state
+                state = state,
             ) {
                 items(15, key = { it }) { Item(remember { "$it" }) }
             }
@@ -395,7 +395,7 @@ class LazyStaggeredGridRequestScrollTest(private val orientation: Orientation) :
             LazyStaggeredGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = StaggeredGridCells.Fixed(3),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
 

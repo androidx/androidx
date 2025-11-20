@@ -16,9 +16,19 @@
 
 package androidx.xr.arcore
 
+import android.content.ContentResolver
+import android.provider.Settings.System
+import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.Hand as RuntimeHand
+import androidx.xr.arcore.runtime.HandJointType as RuntimeHandJoint
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.internal.Hand as RuntimeHand
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import java.nio.ByteBuffer
+import java.nio.FloatBuffer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,29 +37,54 @@ import kotlinx.coroutines.flow.asStateFlow
 public class Hand internal constructor(internal val runtimeHand: RuntimeHand) : Updatable {
     /** * Companion object holding info to the left and right hands. */
     public companion object {
+
+        internal const val PRIMARY_HAND_SETTING_NAME = "primary_hand"
+
         /**
-         * Returns the Hand object that corresponds to the user's left hand when available, or null
-         * when the platform does not support the feature.
+         * Returns the Hand object that corresponds to the user's left hand when available.
          *
          * @param session the currently active [Session].
+         * @throws [IllegalStateException] if [Session.config] is set to
+         *   [Config.HandTrackingMode.DISABLED].
          */
         @JvmStatic
         public fun left(session: Session): Hand? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
+            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            check(config.handTracking != Config.HandTrackingMode.DISABLED) {
+                "Config.HandTrackingMode is set to DISABLED."
+            }
             return perceptionStateExtender.xrResourcesManager.leftHand
         }
 
         /**
-         * Returns the Hand object that corresponds to the user's right hand when available, or null
-         * when the platform does not support the feature.
+         * Returns the Hand object that corresponds to the user's right hand when available.
          *
          * @param session the currently active [Session].
+         * @throws [IllegalStateException] if [Session.config] is set to
+         *   [Config.HandTrackingMode.DISABLED].
          */
         @JvmStatic
         public fun right(session: Session): Hand? {
             val perceptionStateExtender = getPerceptionStateExtender(session)
+            val config = perceptionStateExtender.xrResourcesManager.lifecycleManager.config
+            check(config.handTracking != Config.HandTrackingMode.DISABLED) {
+                "Config.HandTrackingMode is set to DISABLED."
+            }
             return perceptionStateExtender.xrResourcesManager.rightHand
         }
+
+        /**
+         * Returns the handedness of the user's primary hand.
+         *
+         * @param resolver the [ContentResolver] to use to retrieve the setting.
+         * @return the [HandSide] of the user's primary hand. If the setting is not configured,
+         *   returns [HandSide.UNKNOWN].
+         */
+        @JvmStatic
+        public fun getPrimaryHandSide(resolver: ContentResolver): HandSide =
+            HandSide.values()[
+                    System.getInt(resolver, PRIMARY_HAND_SETTING_NAME, HandSide.UNKNOWN.ordinal)]
 
         private fun getPerceptionStateExtender(session: Session): PerceptionStateExtender {
             val perceptionStateExtender: PerceptionStateExtender? =
@@ -59,35 +94,132 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) : 
         }
     }
 
+    /** The handedness of the user's hand. */
+    public enum class HandSide {
+        LEFT,
+        RIGHT,
+        /** The handedness is not available if it is not explicitly set. */
+        UNKNOWN,
+    }
+
     /**
      * The representation of the current state of [Hand].
      *
-     * @property isActive whether the hand is currently being tracked.
-     * @property handJoints the current pose of each joint in the hand.
+     * @param trackingState the current [TrackingState] of the hand.
+     * @param handJointsBuffer the [FloatBuffer] containing the current state of the hand. It
+     *   contains an array of 182 floats (26 joints * 7 values per joint) which represent the poses
+     *   of all hand joints. Each hand joint pose consists of 7 float values that represent rotation
+     *   (x, y, z, w) and translation (x, y, z) as defined in [Quaternion] and [Vector3]
+     *   respectively.. The order of the joints within the array follows the order in which the
+     *   joints are defined in [HandJointType].
      */
-    public class State(
-        public val isActive: Boolean,
-        public val handJoints: Map<HandJointType, Pose>,
+    public class State
+    internal constructor(
+        public val trackingState: TrackingState,
+        public val handJointsBuffer: FloatBuffer,
     ) {
+
+        private class JointsMap(
+            val trackingState: TrackingState,
+            val handJointsBuffer: FloatBuffer,
+        ) : Map<HandJointType, Pose> {
+            override val entries: Set<Map.Entry<HandJointType, Pose>>
+                get() =
+                    (if (trackingState == TrackingState.TRACKING) {
+                        convertRuntimeHandJointToHandJoint(
+                                RuntimeHand.parseHandJoint(trackingState, handJointsBuffer)
+                            )
+                            .entries
+                            .toSet()
+                    } else {
+                        emptySet()
+                    })
+
+            override val keys: Set<HandJointType>
+                get() =
+                    if (trackingState == TrackingState.TRACKING) HandJointType.values().toSet()
+                    else emptySet()
+
+            override val size: Int
+                get() = keys.size
+
+            override val values: Collection<Pose>
+                get() = entries.map { it.value }
+
+            override fun containsKey(key: HandJointType): Boolean {
+                return keys.contains(key)
+            }
+
+            override fun containsValue(value: Pose): Boolean {
+                return values.contains(value)
+            }
+
+            override fun get(key: HandJointType): Pose? =
+                if (trackingState == TrackingState.TRACKING) locateHandJointFromBuffer(key)
+                else null
+
+            override fun isEmpty(): Boolean {
+                return trackingState != TrackingState.TRACKING
+            }
+
+            private fun locateHandJointFromBuffer(handJointType: HandJointType): Pose {
+                val buffer = handJointsBuffer.duplicate()
+                val floatOffset = handJointType.ordinal * FLOATS_PER_POSE
+                buffer.position(floatOffset)
+                val qx = buffer.get()
+                val qy = buffer.get()
+                val qz = buffer.get()
+                val qw = buffer.get()
+                val px = buffer.get()
+                val py = buffer.get()
+                val pz = buffer.get()
+                return Pose(Vector3(px, py, pz), Quaternion(qx, qy, qz, qw))
+            }
+
+            private fun convertRuntimeHandJointToHandJoint(
+                handJointTypeMap: Map<RuntimeHandJoint, Pose>
+            ): Map<HandJointType, Pose> {
+                return handJointTypeMap.mapKeys { entry ->
+                    val runtimeKey: RuntimeHandJoint = entry.key
+                    HandJointType.valueOf(runtimeKey.name)
+                }
+            }
+        }
+
+        /**
+         * Returns the current pose of each joint in the hand.
+         *
+         * @return a map of [HandJointType] to [Pose] representing the current pose of each joint in
+         *   the hand.
+         */
+        public val handJoints: Map<HandJointType, Pose> = JointsMap(trackingState, handJointsBuffer)
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
-            return isActive == other.isActive && handJoints == other.handJoints
+            return trackingState == other.trackingState &&
+                handJointsBuffer == other.handJointsBuffer
         }
 
         override fun hashCode(): Int {
-            var result = isActive.hashCode()
-            result = 31 * result + handJoints.hashCode()
+            var result = trackingState.hashCode()
+            result = 31 * result + handJointsBuffer.hashCode()
             return result
+        }
+
+        private companion object {
+            private const val FLOATS_PER_POSE = 7
         }
     }
 
-    private val _state = MutableStateFlow<State>(State(isActive = false, handJoints = emptyMap()))
+    private val _state =
+        MutableStateFlow<State>(State(TrackingState.PAUSED, ByteBuffer.allocate(0).asFloatBuffer()))
     /** The current [State] of this hand. */
     public val state: StateFlow<State> = _state.asStateFlow()
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
-        _state.emit(State(isActive = runtimeHand.isActive, handJoints = runtimeHand.handJoints))
+        _state.emit(State(runtimeHand.trackingState, runtimeHand.handJointsBuffer))
     }
 
     override fun equals(other: Any?): Boolean {

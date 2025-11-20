@@ -23,7 +23,6 @@ import android.os.StatFs
 import android.provider.MediaStore
 import androidx.camera.core.Logger
 import java.io.File
-import java.io.FileNotFoundException
 import java.text.DecimalFormat
 import kotlin.math.floor
 import kotlin.math.pow
@@ -31,6 +30,7 @@ import kotlin.math.pow
 /** A utility class for storage-related operations. */
 public object StorageUtil {
     private const val TAG = "StorageUtil"
+    public const val NO_SPACE_LEFT_MESSAGE: String = "No space left on device"
 
     /**
      * Gets the available bytes for a given [File].
@@ -123,9 +123,21 @@ public object StorageUtil {
         return result.trim().toString()
     }
 
-    /** Checks if the given exception indicates a storage full condition. */
+    /**
+     * Checks if a given throwable, or any of its causes, indicates a storage full condition.
+     *
+     * See b/43859084 for more detail.
+     */
     @JvmStatic
-    public fun isStorageFullException(e: Exception): Boolean {
-        return e is FileNotFoundException && e.message?.contains("No space left on device") == true
+    public fun isStorageFullException(throwable: Throwable?): Boolean {
+        if (throwable == null) {
+            return false
+        }
+
+        if (throwable.message?.contains(NO_SPACE_LEFT_MESSAGE) == true) {
+            return true
+        }
+
+        return isStorageFullException(throwable.cause)
     }
 }

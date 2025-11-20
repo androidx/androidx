@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.util
 
+import android.os.Build
 import android.os.Trace
 
 /**
@@ -28,5 +29,17 @@ actual inline fun <T> trace(sectionName: String, block: () -> T): T {
         return block()
     } finally {
         Trace.endSection()
+    }
+}
+
+/**
+ * Marks a trace counter using [Trace.setCounter].
+ *
+ * @param tag The counter name that will be used to display the counter values in the trace.
+ * @param value The counter value at a given point in time.
+ */
+actual fun traceValue(tag: String, value: Long) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        Trace.setCounter(tag, value)
     }
 }

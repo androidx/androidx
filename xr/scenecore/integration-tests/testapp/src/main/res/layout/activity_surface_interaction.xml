@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".surfaceinteraction.SurfaceEntityInteractionActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/surface_interaction_topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/google_blue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="@color/white"
+        app:title="@string/cuj_surface_entity_interaction_test"
+        app:titleCentered="true" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/surface_interaction_cardRow0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/surface_interaction_topAppBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <Button
+                android:id="@+id/button_deselect_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/test_button"
+                android:text="Destroy Surface"
+                android:textFontWeight="400"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <Button
+                    android:id="@+id/button_select_quad_video"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/test_button"
+                    android:enabled="true"
+                    android:text="Play Quad Surface Video"
+                    android:textFontWeight="400"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/button_select_360_video"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/test_button"
+                    android:enabled="true"
+                    android:text="Play 360 Surface Video"
+                    android:textFontWeight="400"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/button_select_180_video"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/test_button"
+                    android:enabled="true"
+                    android:text="Play 180 Surface Video"
+                    android:textFontWeight="400"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/surface_interaction_cardRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/surface_interaction_cardRow0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <Switch
+                android:id="@+id/switch_interactable_attached"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:switchMinWidth="60dp"
+                android:text="InteractableComponent Attached:"
+                android:textFontWeight="400"
+                android:textSize="20sp" />
+
+            <Switch
+                android:id="@+id/switch_single_click_enabled"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:switchMinWidth="60dp"
+                android:text="Click to Pause/Resume Enabled:"
+                android:textFontWeight="400"
+                android:textSize="20sp" />
+
+            <Switch
+                android:id="@+id/switch_double_click_enabled"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:switchMinWidth="60dp"
+                android:text="Double-Click to Restart Enabled:"
+                android:textFontWeight="400"
+                android:textSize="20sp" />
+
+            <Switch
+                android:id="@+id/switch_drag_enabled"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:switchMinWidth="60dp"
+                android:text="Drag to Rotate Enabled:"
+                android:textFontWeight="400"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/surface_interaction_cardRow2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/surface_interaction_cardRow1">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <TextView
+                android:id="@+id/textView_pointer_log"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="TextView"
+                android:textFontWeight="400"
+                android:textSize="20sp" />
+        </FrameLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

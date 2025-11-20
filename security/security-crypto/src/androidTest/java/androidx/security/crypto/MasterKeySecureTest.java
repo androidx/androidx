@@ -21,12 +21,10 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Assert;
 import org.junit.Assume;
@@ -44,7 +42,6 @@ import java.security.KeyStore;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @SuppressWarnings("deprecation")
 public class MasterKeySecureTest {
     private static final String PREFS_FILE = "test_shared_prefs";
@@ -89,7 +86,6 @@ public class MasterKeySecureTest {
         keyStore.deleteEntry("_androidx_security_master_key_");
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testCreateKeyWithAuthenicationRequired() throws GeneralSecurityException,
             IOException {

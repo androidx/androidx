@@ -30,7 +30,6 @@ plugins {
 
 dependencies {
     api(project(":concurrent:concurrent-futures"))
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.junit)

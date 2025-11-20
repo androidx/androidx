@@ -72,7 +72,7 @@ class BeginGetCredentialResponseTest {
         val response =
             BeginGetCredentialResponse(
                 emptyList(),
-                listOf(constructActionEntry(expectedTitle, expectedSubtitle))
+                listOf(constructActionEntry(expectedTitle, expectedSubtitle)),
             )
         val actualSize = response.actions.size
         val actualTitle = response.actions[0].title.toString()
@@ -92,7 +92,7 @@ class BeginGetCredentialResponseTest {
             BeginGetCredentialResponse(
                 emptyList(),
                 emptyList(),
-                listOf(constructAuthenticationActionEntry(expectedTitle))
+                listOf(constructAuthenticationActionEntry(expectedTitle)),
             )
         val actualSize = response.authenticationActions.size
         val actualTitle = response.authenticationActions[0].title.toString()

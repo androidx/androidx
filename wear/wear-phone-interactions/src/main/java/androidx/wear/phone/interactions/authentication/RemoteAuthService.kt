@@ -83,7 +83,7 @@ public abstract class RemoteAuthService : Service() {
         @JvmStatic
         public fun sendResponseToCallback(
             response: OAuthResponse,
-            packageNameAndRequestId: Pair<String, Int>
+            packageNameAndRequestId: Pair<String, Int>,
         ) {
             try {
                 callbacksByPackageNameAndRequestID[packageNameAndRequestId]?.onResult(
@@ -116,7 +116,7 @@ public abstract class RemoteAuthService : Service() {
      */
     protected fun onBind(
         @Suppress("UNUSED_PARAMETER") intent: Intent,
-        remoteAuthRequestHandler: RemoteAuthRequestHandler
+        remoteAuthRequestHandler: RemoteAuthRequestHandler,
     ): IBinder = RemoteAuthServiceBinder(this, remoteAuthRequestHandler)
 
     /** Implementation of [Service.onUnbind] */
@@ -140,7 +140,7 @@ public abstract class RemoteAuthService : Service() {
 
     internal inner class RemoteAuthServiceBinder(
         private val context: Context,
-        private val remoteAuthRequestHandler: RemoteAuthRequestHandler
+        private val remoteAuthRequestHandler: RemoteAuthRequestHandler,
     ) : IAuthenticationRequestService.Stub() {
 
         override fun getApiVersion(): Int = IAuthenticationRequestService.API_VERSION
@@ -149,7 +149,7 @@ public abstract class RemoteAuthService : Service() {
         @Suppress("DEPRECATION")
         override fun openUrl(
             request: Bundle,
-            authenticationRequestCallback: IAuthenticationRequestCallback
+            authenticationRequestCallback: IAuthenticationRequestCallback,
         ) {
             val packageName = request.getString(RemoteAuthClient.KEY_PACKAGE_NAME)
             if (remoteAuthRequestHandler.isAuthSupported()) {
@@ -164,7 +164,7 @@ public abstract class RemoteAuthService : Service() {
                 val requestUrl: Uri? = request.getParcelable(RemoteAuthClient.KEY_REQUEST_URL)
                 remoteAuthRequestHandler.sendAuthRequest(
                     OAuthRequest(packageName, requestUrl!!),
-                    packageNameAndRequestId
+                    packageNameAndRequestId,
                 )
             } else {
                 authenticationRequestCallback.onResult(

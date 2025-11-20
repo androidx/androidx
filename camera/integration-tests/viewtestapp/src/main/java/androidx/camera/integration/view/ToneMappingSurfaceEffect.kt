@@ -23,14 +23,14 @@ import androidx.camera.core.CameraEffect
 @SuppressLint("RestrictedApiAndroidX")
 internal class ToneMappingSurfaceEffect(
     targets: Int = PREVIEW or VIDEO_CAPTURE,
-    private val processor: ToneMappingSurfaceProcessor = ToneMappingSurfaceProcessor()
+    private val processor: ToneMappingSurfaceProcessor = ToneMappingSurfaceProcessor(),
 ) :
     CameraEffect(
         targets,
         TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
         processor.getGlExecutor(),
         processor,
-        {}
+        {},
     ) {
 
     fun release() {

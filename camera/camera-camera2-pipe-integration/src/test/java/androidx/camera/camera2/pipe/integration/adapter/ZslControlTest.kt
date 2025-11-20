@@ -64,7 +64,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
 
@@ -90,7 +90,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = true,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
 
@@ -108,7 +108,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = true,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = false
+                    isJpegValidOutputFormat = false,
                 )
             )
 
@@ -126,7 +126,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = false
+                    isJpegValidOutputFormat = false,
                 )
             )
 
@@ -144,7 +144,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
         zslControlImpl.setZslDisabledByUserCaseConfig(true)
@@ -163,7 +163,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
         zslControlImpl.setZslDisabledByFlashMode(true)
@@ -190,7 +190,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
 
@@ -214,7 +214,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
 
@@ -235,7 +235,7 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 )
             )
 
@@ -257,7 +257,7 @@ class ZslControlImplTest {
         hasCapabilities: Boolean,
         isYuvReprocessingSupported: Boolean,
         isPrivateReprocessingSupported: Boolean,
-        isJpegValidOutputFormat: Boolean
+        isJpegValidOutputFormat: Boolean,
     ): CameraProperties {
         val characteristicsMap = mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
         val capabilities = arrayListOf<Int>()
@@ -313,10 +313,7 @@ class ZslControlImplTest {
         }
         val cameraMetadata = FakeCameraMetadata(characteristics = characteristicsMap)
 
-        return FakeCameraProperties(
-            cameraMetadata,
-            CameraId("0"),
-        )
+        return FakeCameraProperties(cameraMetadata, CameraId("0"))
     }
 
     companion object {

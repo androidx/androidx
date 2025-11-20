@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="TestActivityTheme" parent="@android:style/Theme.Holo">
+    <style name="TestActivityTheme" parent="@android:style/Theme.Material">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
     <style name="TextMediumStyle" parent="@android:style/TextAppearance.Medium">
@@ -40,12 +40,12 @@
     </style>
 
     <style name="LightSystemBarsTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <style name="DarkSystemBarsTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
     </style>
 </resources>

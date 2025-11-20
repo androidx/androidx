@@ -1,7 +1,43 @@
 // Baseline format: 1.0
-InvalidNullConversion: androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue#fromByteArray(byte[]):
-    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue.fromByteArray(byte[])
-InvalidNullConversion: androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue#fromByteArray(byte[], int, int):
-    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue.fromByteArray(byte[],int,int)
-InvalidNullConversion: androidx.wear.protolayout.expression.PlatformDataValues#getAll():
-    Attempted to remove nullability from java.lang.Object (was NONNULL) in method androidx.wear.protolayout.expression.PlatformDataValues.getAll()
+RemovedFromBytecode: androidx.wear.protolayout.expression.DynamicDataMap#contains(androidx.wear.protolayout.expression.DynamicDataKey<T>):
+    Binary breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.contains(androidx.wear.protolayout.expression.DynamicDataKey<T>) has been removed from bytecode
+
+
+RemovedFromJava: androidx.wear.protolayout.expression.DynamicDataMap#contains(androidx.wear.protolayout.expression.DynamicDataKey<T>):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.contains(androidx.wear.protolayout.expression.DynamicDataKey<T>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataKey#getKey():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataKey.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataKey#getNamespace():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataKey.getNamespace() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataMap#getEntries():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.getEntries() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataMap#getKeys():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.getKeys() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataMap#getSize():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.getSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataMap#getValues():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataMap.getValues() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPair#getKey():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPair.getKey() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPair#getValue():
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPair.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool>, boolean):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool>,boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor>, android.graphics.Color):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor>,android.graphics.Color) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration>, java.time.Duration):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration>,java.time.Duration) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat>, float):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat>,float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant>, java.time.Instant):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant>,java.time.Instant) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32>, int):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32>,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.DynamicDataPairUtil#dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString>, String):
+    Source breaking change: method androidx.wear.protolayout.expression.DynamicDataPairUtil.dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString>,String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.util.DynamicDateFormat#getTimeZone():
+    Source breaking change: method androidx.wear.protolayout.expression.util.DynamicDateFormat.getTimeZone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.expression.util.DynamicDateFormat#setTimeZone(java.time.ZoneId):
+    Source breaking change: method androidx.wear.protolayout.expression.util.DynamicDateFormat.setTimeZone(java.time.ZoneId) can no longer be resolved from Kotlin source

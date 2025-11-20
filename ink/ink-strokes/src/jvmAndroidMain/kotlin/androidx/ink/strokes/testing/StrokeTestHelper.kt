@@ -38,13 +38,13 @@ public fun buildStrokeInputBatchFromPoints(
     val builder = MutableStrokeInputBatch()
     var time = startTime
     for (i in points.indices step 2) {
-        builder.addOrThrow(
+        builder.add(
             StrokeInput().apply {
                 update(
                     x = points[i],
                     y = points[i + 1],
                     elapsedTimeMillis = time++,
-                    toolType = toolType
+                    toolType = toolType,
                 )
             }
         )

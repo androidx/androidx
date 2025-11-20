@@ -35,7 +35,7 @@ internal class LineHeightSpan(val lineHeight: Float) : android.text.style.LineHe
         end: Int,
         spanstartVertical: Int,
         lineHeight: Int,
-        fontMetricsInt: FontMetricsInt
+        fontMetricsInt: FontMetricsInt,
     ) {
         // In StaticLayout, line height is computed with descent - ascent
         val currentHeight = fontMetricsInt.lineHeight()

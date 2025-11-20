@@ -29,13 +29,17 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.graphics.text.PositionedGlyphs;
+import android.graphics.text.TextRunShaper;
 import android.os.Build;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
@@ -50,6 +54,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -71,21 +76,17 @@ public class ResourcesCompatTest {
                 ResourcesCompat.getColor(mResources, R.color.text_color, null),
                 0xFFFF8090);
 
-        if (SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getColor() in pre-v23 is undefined.
-            final Resources.Theme yellowTheme = mResources.newTheme();
-            yellowTheme.applyStyle(R.style.YellowTheme, true);
-            assertEquals("Themed yellow color load", 0xFFF0B000,
-                    ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
-                            yellowTheme));
+        final Resources.Theme yellowTheme = mResources.newTheme();
+        yellowTheme.applyStyle(R.style.YellowTheme, true);
+        assertEquals("Themed yellow color load", 0xFFF0B000,
+                ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
+                        yellowTheme));
 
-            final Resources.Theme lilacTheme = mResources.newTheme();
-            lilacTheme.applyStyle(R.style.LilacTheme, true);
-            assertEquals("Themed lilac color load", 0xFFF080F0,
-                    ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
-                            lilacTheme));
-        }
+        final Resources.Theme lilacTheme = mResources.newTheme();
+        lilacTheme.applyStyle(R.style.LilacTheme, true);
+        assertEquals("Themed lilac color load", 0xFFF080F0,
+                ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
+                        lilacTheme));
     }
 
     @Test
@@ -140,24 +141,20 @@ public class ResourcesCompatTest {
         TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
                 unthemedDrawable, mResources.getColor(R.color.test_red));
 
-        if (SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getDrawable() in pre-v23 is undefined.
-            final Resources.Theme yellowTheme = mResources.newTheme();
-            yellowTheme.applyStyle(R.style.YellowTheme, true);
-            final Drawable themedYellowDrawable =
-                    ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable,
-                            yellowTheme);
-            TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
-                    themedYellowDrawable, 0xFFF0B000);
+        final Resources.Theme yellowTheme = mResources.newTheme();
+        yellowTheme.applyStyle(R.style.YellowTheme, true);
+        final Drawable themedYellowDrawable =
+                ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable,
+                        yellowTheme);
+        TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
+                themedYellowDrawable, 0xFFF0B000);
 
-            final Resources.Theme lilacTheme = mResources.newTheme();
-            lilacTheme.applyStyle(R.style.LilacTheme, true);
-            final Drawable themedLilacDrawable =
-                    ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable, lilacTheme);
-            TestUtils.assertAllPixelsOfColor("Themed lilac drawable load",
-                    themedLilacDrawable, 0xFFF080F0);
-        }
+        final Resources.Theme lilacTheme = mResources.newTheme();
+        lilacTheme.applyStyle(R.style.LilacTheme, true);
+        final Drawable themedLilacDrawable =
+                ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable, lilacTheme);
+        TestUtils.assertAllPixelsOfColor("Themed lilac drawable load",
+                themedLilacDrawable, 0xFFF080F0);
     }
 
     @Test
@@ -220,12 +217,6 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetDrawableForDensityThemed() throws Throwable {
-        if (SDK_INT < 21) {
-            // The following tests are only expected to pass on v21+ devices. The result of
-            // calling theme-aware getDrawableForDensity() in pre-v21 is undefined.
-            return;
-        }
-
         // Density- and theme-aware drawable loading for now only works partially. This test
         // checks only for theming of a tinted bitmap XML drawable, but not correct scaling.
 
@@ -539,5 +530,51 @@ public class ResourcesCompatTest {
         ColorStateList csl3 = ResourcesCompat.getColorStateList(
                 mResources, R.color.color_state_list, theme);
         assertNotEquals(csl, csl3);
+    }
+
+    @RequiresApi(31)
+    private File getDrawingFont(String text, Typeface typeface) {
+        Paint paint = new Paint();
+        paint.setTypeface(typeface);
+        paint.setTextSize(10f);
+
+        PositionedGlyphs glyphs = TextRunShaper.shapeTextRun(
+                text, 0, text.length(), 0, text.length(), 0f, 0f, false, paint);
+        if (glyphs.glyphCount() < 1) {
+            return null;
+        } else {
+            return glyphs.getFont(0).getFile();
+        }
+    }
+
+    @Test
+    public void testGetSystemFontFamilyWithFallback() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback);
+        assertNotNull(typeface);  // synchronously fetched
+        // font/res/system_fallback.xml specify "serif" in the first fallback.
+        assertEquals(typeface, Typeface.create("serif", Typeface.NORMAL));
+    }
+
+    @Test
+    public void testGetSystemFontFamilyWithFallback_equivalentLegacy() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback);
+        Typeface legacy_typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback_legacy);
+        assertEquals(typeface, legacy_typeface);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void testGetSystemFontFamilyWithFallback_monospace() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback_multiple);
+        assertNotNull(typeface);  // synchronously fetched
+
+        // font/res/system_fallback_multiple.xml fallbacks from serif to monospace.
+        // serif -> monospace fallback Typeface is different from serif and monospace Typeface.
+        assertNotEquals(typeface, Typeface.create("serif", Typeface.NORMAL));
+        assertNotEquals(typeface, Typeface.create("monospace", Typeface.NORMAL));
+
+        // Verify serif is the top font.
+        File topFont = getDrawingFont(" ", typeface);
+        assertEquals(topFont, getDrawingFont(" ", Typeface.create("serif", Typeface.NORMAL)));
     }
 }

@@ -80,7 +80,7 @@ open class StrictViewFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         checkGetActivity()
         checkState("onCreateView", State.CREATED)

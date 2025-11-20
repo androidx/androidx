@@ -44,11 +44,11 @@ object OpenOnPhoneDialogBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = SHOW_OPEN_ON_PHONE_DIALOG }
+                    modifier = Modifier.semantics { contentDescription = SHOW_OPEN_ON_PHONE_DIALOG },
                 ) {
                     Text("Open")
                 }
@@ -59,7 +59,7 @@ object OpenOnPhoneDialogBenchmark : MacrobenchmarkScreen {
                 visible = showDialog.value,
                 onDismissRequest = { showDialog.value = false },
                 durationMillis = 2000,
-                curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) }
+                curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) },
             )
         }
 

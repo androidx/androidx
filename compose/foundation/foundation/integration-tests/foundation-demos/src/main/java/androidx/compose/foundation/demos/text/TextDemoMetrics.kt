@@ -54,7 +54,7 @@ internal fun TextWithMetrics(
     maxLines: Int,
     overflow: TextOverflow,
     softWrap: Boolean = true,
-    colors: TextMetricColors? = null
+    colors: TextMetricColors? = null,
 ) {
     val textLayout = remember { mutableStateOf<TextLayoutResult?>(null) }
     Text(
@@ -64,7 +64,7 @@ internal fun TextWithMetrics(
         maxLines = maxLines,
         overflow = overflow,
         onTextLayout = { textLayout.value = it },
-        softWrap = softWrap
+        softWrap = softWrap,
     )
 }
 
@@ -75,7 +75,7 @@ internal fun TextFieldWithMetrics(
     style: TextStyle,
     maxLines: Int,
     softWrap: Boolean = true,
-    colors: TextMetricColors? = null
+    colors: TextMetricColors? = null,
 ) {
     var textLayout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -86,7 +86,7 @@ internal fun TextFieldWithMetrics(
         textStyle = style,
         singleLine = !softWrap,
         maxLines = maxLines,
-        onTextLayout = { textLayout = it }
+        onTextLayout = { textLayout = it },
     )
 }
 
@@ -99,7 +99,7 @@ internal class TextMetricColors(
     val descent: Color = YellowYellow,
     val baseline: Color = RedRed,
     val border: Color = Silver,
-    val leftRight: Color = CherryTomato
+    val leftRight: Color = CherryTomato,
 ) {
     companion object {
         private val WinterDoldrums = Color(0xfff5f2eb)
@@ -118,7 +118,7 @@ internal class TextMetricColors(
 
 internal fun Modifier.drawTextMetrics(
     textLayoutResult: TextLayoutResult?,
-    colors: TextMetricColors?
+    colors: TextMetricColors?,
 ) = composed {
     val thickness = with(LocalDensity.current) { 1.dp.toPx() }
     val textSize = with(LocalDensity.current) { 12.sp.toPx() }
@@ -133,13 +133,13 @@ private class TextMetricHelper(
     val thickness: Float,
     val labelSize: Float,
     val colors: TextMetricColors = TextMetricColors.Default,
-    drawScope: DrawScope
+    drawScope: DrawScope,
 ) : DrawScope by drawScope {
 
     private enum class Alignment {
         Left,
         Right,
-        Center
+        Center,
     }
 
     private val pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))
@@ -176,14 +176,14 @@ private class TextMetricHelper(
         y: Float,
         text: String = "",
         alignment: Alignment = Left,
-        textOffset: Float = 0f
+        textOffset: Float = 0f,
     ) {
         drawLine(
             color = color,
             start = Offset(startX - overflow, y),
             end = Offset(endX + overflow, y),
             strokeWidth = thickness,
-            pathEffect = pathEffect
+            pathEffect = pathEffect,
         )
         val x =
             when (alignment) {
@@ -203,7 +203,7 @@ private class TextMetricHelper(
             start = Offset(x, startY - overflow),
             end = Offset(x, endY + overflow),
             strokeWidth = thickness,
-            pathEffect = pathEffect
+            pathEffect = pathEffect,
         )
     }
 

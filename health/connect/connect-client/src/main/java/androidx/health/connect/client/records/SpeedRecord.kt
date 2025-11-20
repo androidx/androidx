@@ -125,10 +125,7 @@ public class SpeedRecord(
      * @param speed Speed in [Velocity] unit. Valid range: 0-1000000 meters/sec.
      * @see SpeedRecord
      */
-    public class Sample(
-        val time: Instant,
-        val speed: Velocity,
-    ) {
+    public class Sample(val time: Instant, val speed: Velocity) {
 
         init {
             speed.requireNotLess(other = speed.zero(), name = "speed")

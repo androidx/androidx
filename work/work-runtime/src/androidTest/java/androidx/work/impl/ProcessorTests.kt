@@ -71,7 +71,7 @@ class ProcessorTests : DatabaseTest() {
             val channel =
                 NotificationChannelCompat.Builder(
                         "test",
-                        NotificationManagerCompat.IMPORTANCE_DEFAULT
+                        NotificationManagerCompat.IMPORTANCE_DEFAULT,
                     )
                     .setName("hello")
                     .build()

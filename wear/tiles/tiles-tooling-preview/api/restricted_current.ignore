@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.Preview#device():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.Preview.device() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.Preview#fontScale():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.Preview.fontScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.Preview#group():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.Preview.group() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.Preview#locale():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.Preview.locale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.Preview#name():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.Preview.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.TilePreviewData#getOnTileRequest():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.TilePreviewData.getOnTileRequest() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.TilePreviewData#getOnTileResourceRequest():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.TilePreviewData.getOnTileResourceRequest() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.tiles.tooling.preview.TilePreviewData#getPlatformDataValues():
+    Source breaking change: method androidx.wear.tiles.tooling.preview.TilePreviewData.getPlatformDataValues() can no longer be resolved from Kotlin source

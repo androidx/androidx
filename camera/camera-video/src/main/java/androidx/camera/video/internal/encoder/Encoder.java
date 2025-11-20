@@ -103,10 +103,8 @@ public interface Encoder {
      * <p>Once the encoder is released, it cannot be used anymore. Any other method call after
      * the encoder is released will get {@link IllegalStateException}.
      *
-     * <p>If this encoder takes {@link SurfaceInput}, this method will release all the
-     * {@link Surface}s updated via {@link SurfaceInput#setOnSurfaceUpdateListener}. So this
-     * method should only be called when the frame producer is finished with the surface which
-     * may be the current surface or one of the obsolete surfaces.
+     * <p>If this encoder takes {@link SurfaceInput}, this method will release the {@link Surface}.
+     * So this method should only be called when the frame producer is finished with the surface.
      */
     void release();
 
@@ -139,30 +137,14 @@ public interface Encoder {
     /**
      * A SurfaceInput provides a {@link Surface} as the interface to receive video raw data.
      *
-     * <p>SurfaceInput is only available for video encoder. It has to set
-     * {@link #setOnSurfaceUpdateListener} to obtain the {@link Surface} update. A new surface
-     * instance may be updated after there is already an updated surface. For Encoder, it is safe
-     * and recommended to release the old surface by the surface receiver via
-     * {@link Surface#release()} since the old surface is no longer used by Encoder. For the
-     * latest surface, the receiver should rely on {@link Encoder#release()} to release it. After
-     * {@link Encoder#release()} is called, all updated surfaces will be released.
+     * <p>SurfaceInput is only available for video encoder. For the returned surface, the
+     * receiver should rely on {@link Encoder#release()} to release it.
      */
     interface SurfaceInput extends EncoderInput {
 
-        void setOnSurfaceUpdateListener(@NonNull Executor executor,
-                @NonNull OnSurfaceUpdateListener listener);
-
-        /**
-         * An interface for receiving the update event of the input {@link Surface} of the encoder.
-         */
-        interface OnSurfaceUpdateListener {
-            /**
-             * Notifies the surface is updated.
-             *
-             * @param surface the updated surface
-             */
-            void onSurfaceUpdate(@NonNull Surface surface);
-        }
+        /** Returns the surface. */
+        @NonNull
+        Surface getSurface();
     }
 
     /**

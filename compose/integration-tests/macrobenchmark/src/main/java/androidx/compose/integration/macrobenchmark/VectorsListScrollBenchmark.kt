@@ -19,13 +19,13 @@ package androidx.compose.integration.macrobenchmark
 import android.content.Intent
 import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import androidx.testutils.defaultComposeScrollingMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,14 +46,14 @@ class VectorsListScrollBenchmark {
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = defaultComposeScrollingMetrics(),
             compilationMode = CompilationMode.Full(),
             iterations = 5,
             setupBlock = {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.

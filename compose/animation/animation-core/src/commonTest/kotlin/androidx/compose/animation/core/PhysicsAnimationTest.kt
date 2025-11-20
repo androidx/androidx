@@ -107,7 +107,7 @@ class PhysicsAnimationTest {
                 initialValue = startValue,
                 targetValue = endValue,
                 initialVelocity = startVelocity,
-                typeConverter = Float.VectorConverter
+                typeConverter = Float.VectorConverter,
             )
 
         assertEquals(
@@ -116,9 +116,9 @@ class PhysicsAnimationTest {
                 dampingRatio = 1.0,
                 initialVelocity = startVelocity.toDouble(),
                 initialDisplacement = startValue.toDouble(),
-                delta = delta
+                delta = delta,
             ) /* = 811 ms*/,
-            criticalWrapper.durationMillis
+            criticalWrapper.durationMillis,
         )
     }
 
@@ -138,7 +138,7 @@ class PhysicsAnimationTest {
                 initialValue = startValue,
                 targetValue = endValue,
                 initialVelocity = startVelocity,
-                typeConverter = Float.VectorConverter
+                typeConverter = Float.VectorConverter,
             )
 
         assertEquals(
@@ -147,9 +147,9 @@ class PhysicsAnimationTest {
                 dampingRatio = 5.0,
                 initialVelocity = startVelocity.toDouble(),
                 initialDisplacement = startValue.toDouble(),
-                delta = delta
+                delta = delta,
             ) /* = 4830 ms*/,
-            overWrapper.durationMillis
+            overWrapper.durationMillis,
         )
     }
 
@@ -169,7 +169,7 @@ class PhysicsAnimationTest {
                 initialValue = startValue,
                 targetValue = endValue,
                 initialVelocity = startVelocity,
-                typeConverter = Float.VectorConverter
+                typeConverter = Float.VectorConverter,
             )
 
         assertEquals(
@@ -178,9 +178,9 @@ class PhysicsAnimationTest {
                 dampingRatio = 0.5,
                 initialVelocity = startVelocity.toDouble(),
                 initialDisplacement = startValue.toDouble(),
-                delta = delta
+                delta = delta,
             ) /* = 1206 ms*/,
-            underWrapper.durationMillis
+            underWrapper.durationMillis,
         )
     }
 
@@ -199,7 +199,7 @@ class PhysicsAnimationTest {
         val converter =
             TwoWayConverter<ClassToAnimate, AnimationVector3D>(
                 convertToVector = { it -> AnimationVector(it.one, it.two, it.three) },
-                convertFromVector = { it -> ClassToAnimate(it.v1, it.v2, it.v3) }
+                convertFromVector = { it -> ClassToAnimate(it.v1, it.v2, it.v3) },
             )
         val springVectorAnimation =
             VectorizedSpringSpec(
@@ -211,7 +211,7 @@ class PhysicsAnimationTest {
             springVectorAnimation.getDurationMillis(
                 AnimationVector(100f, 100f, 100f),
                 AnimationVector(0f, 0f, 0f),
-                AnimationVector(0f, 0f, 0f)
+                AnimationVector(0f, 0f, 0f),
             )
         val floatAnimationDuration = floatAnimation.getDurationMillis(100f, 0f, 0f)
 
@@ -227,7 +227,7 @@ class PhysicsAnimationTest {
         val converter =
             TwoWayConverter<ClassToAnimate, AnimationVector3D>(
                 convertToVector = { it -> AnimationVector(it.one, it.two, it.three) },
-                convertFromVector = { it -> ClassToAnimate(it.v1, it.v2, it.v3) }
+                convertFromVector = { it -> ClassToAnimate(it.v1, it.v2, it.v3) },
             )
         val springVectorAnimation =
             VectorizedSpringSpec(
@@ -241,7 +241,7 @@ class PhysicsAnimationTest {
             springVectorAnimation.getDurationMillis(
                 AnimationVector(100f, 100f, 100f),
                 AnimationVector(0f, 0f, 0f),
-                AnimationVector(0f, 0f, 0f)
+                AnimationVector(0f, 0f, 0f),
             )
 
         for (time in 0L until duration) {
@@ -250,28 +250,28 @@ class PhysicsAnimationTest {
                     time,
                     AnimationVector(100f, 100f, 100f),
                     AnimationVector(0f, 0f, 0f),
-                    AnimationVector(0f, 0f, 0f)
+                    AnimationVector(0f, 0f, 0f),
                 )
             val float1 =
                 floatAnimation1.getValueFromMillis(
                     time,
                     AnimationVector(100f),
                     AnimationVector(0f),
-                    AnimationVector(0f)
+                    AnimationVector(0f),
                 )
             val float2 =
                 floatAnimation2.getValueFromMillis(
                     time,
                     AnimationVector(100f),
                     AnimationVector(0f),
-                    AnimationVector(0f)
+                    AnimationVector(0f),
                 )
             val float3 =
                 floatAnimation3.getValueFromMillis(
                     time,
                     AnimationVector(100f),
                     AnimationVector(0f),
-                    AnimationVector(0f)
+                    AnimationVector(0f),
                 )
             assertEquals(float1.value, springVector.v1, epsilon)
             assertEquals(float2.value, springVector.v2, epsilon)
@@ -289,7 +289,7 @@ class PhysicsAnimationTest {
             VectorizedSpringSpec(
                 dampingRatio = 0f,
                 stiffness = Spring.StiffnessMedium,
-                visibilityThreshold = AnimationVector1D(1f)
+                visibilityThreshold = AnimationVector1D(1f),
             )
 
         val infiniteSpringDurationNanos =
@@ -312,7 +312,7 @@ class PhysicsAnimationTest {
             VectorizedSpringSpec(
                     dampingRatio = 0.001f,
                     stiffness = Spring.StiffnessMedium,
-                    visibilityThreshold = AnimationVector1D(1f)
+                    visibilityThreshold = AnimationVector1D(1f),
                 )
                 .getDurationNanos(initial, target, velocity)
 
@@ -323,14 +323,14 @@ class PhysicsAnimationTest {
     private fun VectorizedAnimationSpec<AnimationVector1D>.toAnimation(
         startValue: Float,
         startVelocity: Float,
-        endValue: Float
+        endValue: Float,
     ): Animation<Float, AnimationVector1D> {
         return TargetBasedAnimation(
             animationSpec = this,
             initialValue = startValue,
             targetValue = endValue,
             initialVelocityVector = AnimationVector(startVelocity),
-            typeConverter = Float.VectorConverter
+            typeConverter = Float.VectorConverter,
         )
     }
 

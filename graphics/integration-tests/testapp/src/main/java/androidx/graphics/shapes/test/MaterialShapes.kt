@@ -60,7 +60,7 @@ class MaterialShapes {
                     radialToCartesian(innerRadius, 90f.toRadians()).x,
                     radialToCartesian(innerRadius, 90f.toRadians()).y,
                     radialToCartesian(1f, 150f.toRadians()).x,
-                    radialToCartesian(1f, 150f.toRadians()).y
+                    radialToCartesian(1f, 150f.toRadians()).y,
                 )
             return RoundedPolygon(points, rounding)
         }
@@ -75,8 +75,8 @@ class MaterialShapes {
                         CornerRounding(),
                         CornerRounding(),
                         CornerRounding(),
-                        CornerRounding(roundnessRatio, smooth)
-                    )
+                        CornerRounding(roundnessRatio, smooth),
+                    ),
             )
         }
 
@@ -86,18 +86,8 @@ class MaterialShapes {
             val sx = innerRadius.coerceAtLeast(0.1f)
             val sy = roundness.coerceAtLeast(0.1f)
             return RoundedPolygon(
-                vertices =
-                    floatArrayOf(
-                        -sx,
-                        -sy,
-                        sx,
-                        -sy,
-                        sx,
-                        sy,
-                        -sx,
-                        sy,
-                    ),
-                CornerRounding(roundness, smooth)
+                vertices = floatArrayOf(-sx, -sy, sx, -sy, sx, sy, -sx, sy),
+                CornerRounding(roundness, smooth),
             )
         }
 
@@ -111,8 +101,8 @@ class MaterialShapes {
                         CornerRounding(roundnessRatio, smooth),
                         CornerRounding(),
                         CornerRounding(),
-                        CornerRounding()
-                    )
+                        CornerRounding(),
+                    ),
             )
         }
 
@@ -121,7 +111,7 @@ class MaterialShapes {
             return RoundedPolygon.star(
                 12,
                 innerRadius = .928f,
-                rounding = CornerRounding(radius = .928f)
+                rounding = CornerRounding(radius = .928f),
             )
         }
 
@@ -131,14 +121,14 @@ class MaterialShapes {
             rounding: Float = .32f,
             innerRadius: Float = .352f,
             innerRounding: CornerRounding? = null,
-            scale: Float = 1f
+            scale: Float = 1f,
         ): RoundedPolygon {
             val poly =
                 RoundedPolygon.star(
                     4,
                     innerRadius = innerRadius,
                     rounding = CornerRounding(rounding * scale),
-                    innerRounding = innerRounding
+                    innerRounding = innerRounding,
                 )
             return poly
         }

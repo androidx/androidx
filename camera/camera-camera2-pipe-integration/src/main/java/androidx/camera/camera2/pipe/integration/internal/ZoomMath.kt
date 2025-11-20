@@ -36,7 +36,7 @@ public object ZoomMath {
     public fun getLinearZoomFromZoomRatio(
         zoomRatio: Float,
         minZoomRatio: Float,
-        maxZoomRatio: Float
+        maxZoomRatio: Float,
     ): Float {
         // if zoom is not supported i.e. minZoomRatio = maxZoomRatio, return 0
         if (areFloatsEqual(minZoomRatio, maxZoomRatio)) {
@@ -74,7 +74,7 @@ public object ZoomMath {
     public fun getZoomRatioFromLinearZoom(
         linearZoom: Float,
         minZoomRatio: Float,
-        maxZoomRatio: Float
+        maxZoomRatio: Float,
     ): Float {
         if (areFloatsEqual(linearZoom, 1.0f)) {
             return maxZoomRatio

@@ -18,10 +18,14 @@ MissingJvmstatic: androidx.navigation.ActivityNavigatorExtrasKt#ActivityNavigato
 
 
 NullableCollection: androidx.navigation.NavController#saveState():
-    Return type of method androidx.navigation.NavController.saveState() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.navigation.NavController.saveState() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavController.OnDestinationChangedListener#onDestinationChanged(androidx.navigation.NavController, androidx.navigation.NavDestination, android.os.Bundle) parameter #2:
-    Type of parameter arguments in androidx.navigation.NavController.OnDestinationChangedListener.onDestinationChanged(androidx.navigation.NavController controller, androidx.navigation.NavDestination destination, android.os.Bundle arguments) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter arguments in androidx.navigation.NavController.OnDestinationChangedListener.onDestinationChanged(androidx.navigation.NavController controller, androidx.navigation.NavDestination destination, android.os.Bundle arguments) uses a nullable collection (`android.os.Bundle`); must be non-null
 
 
 TopLevelBuilder: androidx.navigation.NavDeepLinkBuilder:
     Builder should be defined as inner class: androidx.navigation.NavDeepLinkBuilder
+
+
+TypeParameterName: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Invalid type parameter name "Args". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

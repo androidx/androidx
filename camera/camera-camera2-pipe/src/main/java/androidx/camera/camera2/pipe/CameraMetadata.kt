@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe
 
+import Camera2StreamConfigurationMap
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
@@ -25,7 +26,13 @@ import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FUL
 import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.compat.Api33Compat
+import androidx.camera.camera2.pipe.compat.Api34Compat
+import androidx.camera.camera2.pipe.compat.Api35Compat
+import androidx.camera.camera2.pipe.compat.Camera2ColorSpaceProfiles
+import androidx.camera.camera2.pipe.compat.Camera2MultiResolutionStreamConfigurationMap
 
 /**
  * [CameraMetadata] is a compatibility wrapper around [CameraCharacteristics].
@@ -49,6 +56,7 @@ public interface CameraMetadata : Metadata, UnsafeWrapper {
     public val requestKeys: Set<CaptureRequest.Key<*>>
     public val resultKeys: Set<CaptureResult.Key<*>>
     public val sessionKeys: Set<CaptureRequest.Key<*>>
+    public val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
 
     public val physicalCameraIds: Set<CameraId>
     public val physicalRequestKeys: Set<CaptureRequest.Key<*>>
@@ -63,6 +71,44 @@ public interface CameraMetadata : Metadata, UnsafeWrapper {
     public fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata
 
     public companion object {
+
+        /**
+         * Replacement for [CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] in conjunction
+         * with the [CameraMetadata.streamConfigurationMap] extension function.
+         *
+         * Associated android key name is `android.scalar.streamConfigurationMap`
+         */
+        @JvmStatic
+        public val CAMERA_STREAM_CONFIGURATION_MAP: Metadata.Key<CameraStreamConfigurationMap> =
+            Metadata.Key.create("androidx.camera.camera2.pipe.scalar.streamConfigurationMap")
+
+        /**
+         * Replacement for [CameraCharacteristics.SCALER_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP]
+         * in conjunction with the [CameraMetadata.multiResolutionStreamConfigurationMap] extension
+         * function.
+         *
+         * Associated android key name is
+         * `androidx.camera.camera2.pipe.scalar.multiResolutionStreamConfigurationMap`
+         */
+        @JvmStatic
+        public val CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP:
+            Metadata.Key<CameraMultiResolutionStreamConfigurationMap> =
+            Metadata.Key.create(
+                "androidx.camera.camera2.pipe.scalar.multiResolutionStreamConfigurationMap"
+            )
+
+        /**
+         * Replacement for [CameraCharacteristics.REQUEST_AVAILABLE_COLOR_SPACE_PROFILES] in
+         * conjunction with the [CameraMetadata.availableColorSpaceProfiles] extension function.
+         *
+         * Associated android key name is `android.request.availableColorSpaceProfilesMap`
+         */
+        @JvmStatic
+        public val CAMERA_AVAILABLE_COLOR_SPACE_PROFILES: Metadata.Key<CameraColorSpaceProfiles> =
+            Metadata.Key.create(
+                "androidx.camera.camera2.pipe.request.availableColorSpaceProfilesMap"
+            )
+
         /**
          * Extension properties for querying the available capabilities of a camera device across
          * all API levels.
@@ -84,71 +130,146 @@ public interface CameraMetadata : Metadata, UnsafeWrapper {
         public const val CAPABILITIES_SECURE_IMAGE_DATA: Int = 13
         public const val CAPABILITIES_SYSTEM_CAMERA: Int = 14
         public const val CAPABILITIES_OFFLINE_REPROCESSING: Int = 15
+        public const val CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR: Int = 16
+        public const val CAPABILITIES_REMOSAIC_REPROCESSING: Int = 17
+        public const val CAPABILITIES_DYNAMIC_RANGE_TEN_BIT: Int = 18
+        public const val CAPABILITIES_STREAM_USE_CASE: Int = 19
+        public const val CAPABILITIES_COLOR_SPACE_PROFILES: Int = 20
 
         public val CameraMetadata.availableCapabilities: IntArray
+            @JvmStatic
             get() = this[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES] ?: EMPTY_INT_ARRAY
 
+        public val CameraMetadata.availableVideoStabilizationModes: IntArray
+            @JvmStatic
+            get() =
+                this[CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+                    ?: EMPTY_INT_ARRAY
+
         public val CameraMetadata.isHardwareLevelExternal: Boolean
+            @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
 
         public val CameraMetadata.isHardwareLevelLegacy: Boolean
+            @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 
         public val CameraMetadata.isHardwareLevelLimited: Boolean
+            @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
         public val CameraMetadata.isHardwareLevelFull: Boolean
+            @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 
         public val CameraMetadata.isHardwareLevel3: Boolean
+            @JvmStatic
             get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_3
 
         public val CameraMetadata.supportsManualSensor: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_MANUAL_SENSOR)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_MANUAL_SENSOR)
 
         public val CameraMetadata.supportsManualPostProcessing: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_MANUAL_POST_PROCESSING)
 
         public val CameraMetadata.supportsRaw: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_RAW)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_RAW)
 
         public val CameraMetadata.supportsPrivateReprocessing: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_PRIVATE_REPROCESSING)
 
         public val CameraMetadata.supportsSensorSettings: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_READ_SENSOR_SETTINGS)
 
         public val CameraMetadata.supportsBurstCapture: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_BURST_CAPTURE)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_BURST_CAPTURE)
 
         public val CameraMetadata.supportsYuvReprocessing: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_YUV_REPROCESSING)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_YUV_REPROCESSING)
 
         public val CameraMetadata.supportsDepthOutput: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_DEPTH_OUTPUT)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_DEPTH_OUTPUT)
 
         public val CameraMetadata.supportsHighSpeedVideo: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO)
 
         public val CameraMetadata.supportsMotionTracking: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_MOTION_TRACKING)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_MOTION_TRACKING)
 
         public val CameraMetadata.supportsLogicalMultiCamera: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_LOGICAL_MULTI_CAMERA)
 
         public val CameraMetadata.supportsMonochrome: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_MONOCHROME)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_MONOCHROME)
 
         public val CameraMetadata.supportsSecureImageData: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_SECURE_IMAGE_DATA)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_SECURE_IMAGE_DATA)
 
         public val CameraMetadata.supportsSystemCamera: Boolean
-            get() = this.availableCapabilities.contains(CAPABILITIES_SYSTEM_CAMERA)
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_SYSTEM_CAMERA)
 
         public val CameraMetadata.supportsOfflineReprocessing: Boolean
+            @JvmStatic
             get() = this.availableCapabilities.contains(CAPABILITIES_OFFLINE_REPROCESSING)
 
+        public val CameraMetadata.supportsUltraHighResolutionSensor: Boolean
+            @JvmStatic
+            get() = this.availableCapabilities.contains(CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR)
+
+        public val CameraMetadata.supportsRemosaicProcessing: Boolean
+            @JvmStatic
+            get() = this.availableCapabilities.contains(CAPABILITIES_REMOSAIC_REPROCESSING)
+
+        public val CameraMetadata.supportsDynamicRangeTenBit: Boolean
+            @JvmStatic
+            get() = this.availableCapabilities.contains(CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)
+
+        public val CameraMetadata.supportsStreamUseCase: Boolean
+            @JvmStatic get() = this.availableCapabilities.contains(CAPABILITIES_STREAM_USE_CASE)
+
+        public val CameraMetadata.supportsColorSpaceProfiles: Boolean
+            @JvmStatic
+            get() = this.availableCapabilities.contains(CAPABILITIES_COLOR_SPACE_PROFILES)
+
+        public val CameraMetadata.availableColorSpaceProfiles: CameraColorSpaceProfiles?
+            @JvmStatic
+            get() =
+                this[CAMERA_AVAILABLE_COLOR_SPACE_PROFILES]
+                    ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        this[CameraCharacteristics.REQUEST_AVAILABLE_COLOR_SPACE_PROFILES]?.let {
+                            Camera2ColorSpaceProfiles(it)
+                        }
+                    } else {
+                        UnsupportedCameraColorSpaceProfiles
+                    }
+
+        public val CameraMetadata.streamConfigurationMap: CameraStreamConfigurationMap?
+            @JvmStatic
+            get() =
+                this[CAMERA_STREAM_CONFIGURATION_MAP]
+                    ?: this[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let {
+                        Camera2StreamConfigurationMap(it)
+                    }
+
+        public val CameraMetadata.multiResolutionStreamConfigurationMap:
+            CameraMultiResolutionStreamConfigurationMap?
+            @JvmStatic
+            get() =
+                this[CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP]
+                    ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        this[CameraCharacteristics.SCALER_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP]
+                            ?.let { Camera2MultiResolutionStreamConfigurationMap(it) }
+                    } else {
+                        null
+                    }
+
         public val CameraMetadata.supportsAutoFocusTrigger: Boolean
+            @JvmStatic
             get() {
                 val minFocusDistance = this[CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE]
                 if (minFocusDistance != null) {
@@ -160,6 +281,79 @@ public interface CameraMetadata : Metadata, UnsafeWrapper {
                     availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_MACRO) ||
                     availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) ||
                     availableAfModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+            }
+
+        /**
+         * Returns `true` if overriding zoom settings is supported on the device, otherwise `false`.
+         */
+        public val CameraMetadata.supportsZoomOverride: Boolean
+            @JvmStatic
+            get() =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                    Api34Compat.isZoomOverrideSupported(this)
+
+        /**
+         * Returns `true` if configuring torch strength is supported on the device, otherwise
+         * `false`.
+         */
+        public val CameraMetadata.supportsTorchStrength: Boolean
+            @JvmStatic
+            get() =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                    Api35Compat.isTorchStrengthSupported(this)
+
+        /**
+         * Returns the maximum torch strength level supported by the device.
+         *
+         * The torch strength is applied only when [CaptureRequest.CONTROL_AE_MODE] is set to
+         * [CaptureRequest.CONTROL_AE_MODE_ON] and [CaptureRequest.FLASH_MODE] is set to
+         * [CaptureRequest.FLASH_MODE_TORCH].
+         *
+         * Framework returns `1` when configuring torch strength is not supported on the device.
+         * This method also returns `1` when the API level doesn't met to align the behavior.
+         */
+        public val CameraMetadata.maxTorchStrengthLevel: Int
+            @JvmStatic
+            get() =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
+                    Api35Compat.getMaxTorchStrengthLevel(this)
+                else 1
+
+        /**
+         * Returns the default torch strength level.
+         *
+         * The torch strength is applied only when [CaptureRequest.CONTROL_AE_MODE] is set to
+         * [CaptureRequest.CONTROL_AE_MODE_ON] and [CaptureRequest.FLASH_MODE] is set to
+         * [CaptureRequest.FLASH_MODE_TORCH].
+         *
+         * Framework returns `1` when configuring torch strength is not supported on the device.
+         * This method also returns `1` when the API level doesn't met to align the behavior.
+         */
+        public val CameraMetadata.defaultTorchStrengthLevel: Int
+            @JvmStatic
+            get() =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
+                    Api35Compat.getDefaultTorchStrengthLevel(this)
+                else 1
+
+        public val CameraMetadata.supportsLowLightBoost: Boolean
+            @JvmStatic
+            get() {
+                val availableAeModes =
+                    this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] ?: return false
+                return availableAeModes.contains(
+                    AeMode.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                )
+            }
+
+        public val CameraMetadata.supportsPreviewStabilization: Boolean
+            @JvmStatic
+            get() {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Api33Compat.supportsPreviewStabilization(this)
+                } else {
+                    false
+                }
             }
     }
 }

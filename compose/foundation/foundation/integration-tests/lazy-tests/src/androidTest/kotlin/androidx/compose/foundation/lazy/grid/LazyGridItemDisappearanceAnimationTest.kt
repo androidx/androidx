@@ -52,6 +52,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +61,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class LazyGridItemDisappearanceAnimationTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
     // of the animation.
@@ -150,7 +151,7 @@ class LazyGridItemDisappearanceAnimationTest {
             LazyGrid(
                 containerSize = itemSizeDp * 3,
                 reverseLayout = true,
-                contentPadding = PaddingValues(bottom = itemSizeDp)
+                contentPadding = PaddingValues(bottom = itemSizeDp),
             ) {
                 items(list, key = { it.toArgb() }) { Item(it) }
             }
@@ -235,7 +236,7 @@ class LazyGridItemDisappearanceAnimationTest {
                     Color.Blue,
                     Color.Green,
                     Color.Yellow,
-                    Color.DarkGray
+                    Color.DarkGray,
                 )
             )
         rule.setContent {
@@ -255,7 +256,7 @@ class LazyGridItemDisappearanceAnimationTest {
                     Color.Red,
                     Color.DarkGray,
                     Color.Black,
-                    Color.Blue
+                    Color.Blue,
                 )
         }
 
@@ -438,7 +439,7 @@ class LazyGridItemDisappearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        expectedColorProvider: (x: Int, y: Int) -> Color?
+        expectedColorProvider: (x: Int, y: Int) -> Color?,
     ) {
         rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
             IntSize(crossAxisSize, mainAxisSize)
@@ -471,7 +472,7 @@ class LazyGridItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        content: LazyGridScope.() -> Unit
+        content: LazyGridScope.() -> Unit,
     ) {
         state = rememberLazyGridState(startIndex)
 
@@ -497,7 +498,7 @@ class LazyGridItemDisappearanceAnimationTest {
                     .testTag(ContainerTag),
             contentPadding = contentPadding,
             reverseLayout = reverseLayout,
-            content = content
+            content = content,
         )
     }
 
@@ -508,13 +509,13 @@ class LazyGridItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         disappearanceSpec: FiniteAnimationSpec<Float>? = AnimSpec,
         appearanceSpec: FiniteAnimationSpec<Float>? = null,
-        placementSpec: FiniteAnimationSpec<IntOffset>? = null
+        placementSpec: FiniteAnimationSpec<IntOffset>? = null,
     ) {
         Box(
             Modifier.animateItem(
                     fadeInSpec = appearanceSpec,
                     placementSpec = placementSpec,
-                    fadeOutSpec = disappearanceSpec
+                    fadeOutSpec = disappearanceSpec,
                 )
                 .background(color)
                 .requiredHeight(size)

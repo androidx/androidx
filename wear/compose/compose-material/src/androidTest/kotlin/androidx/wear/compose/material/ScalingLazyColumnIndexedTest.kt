@@ -31,13 +31,14 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 @Suppress("DEPRECATION")
 class ScalingLazyColumnIndexedTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun scalingLazyColumnShowsIndexedItems() {
@@ -58,8 +59,8 @@ class ScalingLazyColumnIndexedTest {
                     ScalingLazyColumnDefaults.scalingParams(
                         edgeScale = 1.0f,
                         // Create some extra composables to check that extraPadding works.
-                        viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() }
-                    )
+                        viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() },
+                    ),
             ) {
                 itemsIndexed(items) { index, item ->
                     Spacer(Modifier.height(itemHeight).width(itemWidth).testTag("$index-$item"))
@@ -93,7 +94,7 @@ class ScalingLazyColumnIndexedTest {
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.height(200.dp),
                 autoCentering = null,
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText("${index}x$item", Modifier.requiredHeight(100.dp))
@@ -123,7 +124,7 @@ class ScalingLazyColumnIndexedTest {
                 autoCentering = AutoCenteringParams(itemIndex = 0),
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
                 // No scaling as we are doing maths with expected item sizes
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText("${index}x$item", Modifier.requiredHeight(itemHeight))

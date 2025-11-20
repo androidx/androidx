@@ -293,6 +293,7 @@ public class GridReference extends HelperReference {
      * Get the row weights
      * @return the row weights
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getRowWeights() {
         return mRowWeights;
     }
@@ -309,6 +310,7 @@ public class GridReference extends HelperReference {
      * Get the column weights
      * @return the column weights
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getColumnWeights() {
         return mColumnWeights;
     }
@@ -325,6 +327,7 @@ public class GridReference extends HelperReference {
      * Get the spans
      * @return the spans
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getSpans() {
         return mSpans;
     }
@@ -341,6 +344,7 @@ public class GridReference extends HelperReference {
      * Get the skips
      * @return the skips
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @Nullable String getSkips() {
         return mSkips;
     }
@@ -357,6 +361,7 @@ public class GridReference extends HelperReference {
      * Get the helper widget (Grid)
      * @return the helper widget (Grid)
      */
+    @SuppressWarnings("GetterSetterNullability")
     @Override
     public @NonNull HelperWidget getHelperWidget() {
         if (mGrid == null) {

@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkResourceGenerator
 
@@ -40,8 +39,7 @@ configurations {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle:7.3.0")
-    implementation(libs.kotlinStdlib)
+    compileOnly("com.android.tools.build:gradle-api:8.4.2")
     implementation(project(":navigation:navigation-safe-args-generator"))
     implementation(gradleApi())
     implementation(libs.gson)
@@ -50,23 +48,15 @@ dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
-    testPlugin("com.android.tools.build:gradle:8.1.0")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:linux")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:osx")
+    testPlugin("com.android.tools.build:gradle:8.4.2")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:linux")
+    testPlugin("com.android.tools.build:aapt2:8.4.2-11315950:osx")
     testPlugin(libs.kotlinGradlePlugin)
 }
 
 tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
     it.pluginClasspath.from(configurations.testPlugin)
-}
-
-tasks.withType(Test).configureEach { test ->
-    test.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 
 gradlePlugin {
@@ -87,5 +77,4 @@ androidx {
     type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Gradle Plugin"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

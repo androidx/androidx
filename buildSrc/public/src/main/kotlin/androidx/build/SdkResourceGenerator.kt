@@ -72,6 +72,15 @@ abstract class SdkResourceGenerator : DefaultTask() {
             project.getPrebuiltsRoot().toRelativeString(project.projectDir)
         }
 
+    @get:Input
+    @get:Optional
+    val gradlePrebuiltsRelativePath: String? =
+        if (ProjectLayoutType.isPlayground(project)) {
+            null
+        } else {
+            project.getGradlePrebuiltsPath().toRelativeString(project.projectDir)
+        }
+
     private val projectDir: File = project.projectDir
 
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
@@ -102,6 +111,9 @@ abstract class SdkResourceGenerator : DefaultTask() {
             if (prebuiltsRelativePath != null) {
                 writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
             }
+            if (gradlePrebuiltsRelativePath != null) {
+                writer.write("gradlePrebuiltsRelativePath=$gradlePrebuiltsRelativePath\n")
+            }
         }
     }
 
@@ -121,7 +133,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             project: Project,
             kspVersion: String = project.getVersionByName("ksp"),
             agpVersion: String = project.getVersionByName("androidGradlePlugin"),
-            kgpVersion: String = project.getVersionByName("kotlin")
+            kgpVersion: String = project.getVersionByName("kotlin"),
         ): TaskProvider<SdkResourceGenerator> {
             val generatedDirectory = project.layout.buildDirectory.dir("generated/resources")
             return project.tasks.register(TASK_NAME, SdkResourceGenerator::class.java) {
@@ -145,12 +157,12 @@ abstract class SdkResourceGenerator : DefaultTask() {
                 // Copy repositories used for the library project so that it can replicate the same
                 // maven structure in test.
                 it.repositoryUrls =
-                    project.repositories.filterIsInstance<MavenArtifactRepository>().map {
-                        if (it.url.scheme == "file") {
+                    project.repositories.filterIsInstance<MavenArtifactRepository>().map { repo ->
+                        if (repo.url.scheme == "file") {
                             // Make file paths relative to projectDir
-                            File(it.url.path).toRelativeString(project.projectDir)
+                            File(repo.url.path).toRelativeString(project.projectDir)
                         } else {
-                            it.url.toString()
+                            repo.url.toString()
                         }
                     }
             }

@@ -27,6 +27,7 @@ import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.ILocalSilenceActions
 import androidx.core.telecom.extensions.ILocalSilenceStateListener
+import androidx.core.telecom.extensions.IMeetingSummaryStateListener
 import androidx.core.telecom.extensions.IParticipantActions
 import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.core.telecom.extensions.Participant
@@ -104,7 +105,7 @@ internal class ParticipantActionsRemote(binder: IParticipantActions) :
  */
 @ExperimentalAppActions
 internal class ParticipantStateListenerRemote(private val binder: IParticipantStateListener) {
-    fun updateParticipants(participants: Set<Participant>) {
+    fun updateParticipants(participants: List<Participant>) {
         binder.updateParticipants(
             participants.map(Participant::toParticipantParcelable).toTypedArray()
         )
@@ -137,10 +138,46 @@ internal class CallIconStateListenerRemote(val binder: ICallIconStateListener) {
 @ExperimentalAppActions
 internal class CallIconStateListener(
     private val callIconUriUpdater: (Uri) -> Unit,
-    private val finishSync: (Unit) -> Unit
+    private val finishSync: (Unit) -> Unit,
 ) : ICallIconStateListener.Stub() {
     override fun updateCallIconUri(uri: Uri) {
         callIconUriUpdater.invoke(uri)
+    }
+
+    override fun finishSync() {
+        finishSync.invoke(Unit)
+    }
+}
+
+@ExperimentalAppActions
+internal class MeetingSummaryStateListenerRemote(val binder: IMeetingSummaryStateListener) {
+
+    fun updateCurrentSpeaker(speakerName: String) {
+        binder.updateCurrentSpeaker(speakerName)
+    }
+
+    fun updateParticipantCount(participantCount: Int) {
+        binder.updateParticipantCount(participantCount)
+    }
+
+    fun finishSync() {
+        binder.finishSync()
+    }
+}
+
+@ExperimentalAppActions
+internal class MeetingSummaryStateListener(
+    private val updateCurrentSpeaker: (String) -> Unit,
+    private val updateParticipantCount: (Int) -> Unit,
+    private val finishSync: (Unit) -> Unit,
+) : IMeetingSummaryStateListener.Stub() {
+
+    override fun updateCurrentSpeaker(speakerName: String) {
+        updateCurrentSpeaker.invoke(speakerName)
+    }
+
+    override fun updateParticipantCount(participantCount: Int) {
+        updateParticipantCount.invoke(participantCount)
     }
 
     override fun finishSync() {
@@ -171,7 +208,7 @@ internal class LocalCallSilenceCallbackRepository(coroutineScope: CoroutineScope
         object : ILocalSilenceActions.Stub() {
             override fun setIsLocallySilenced(
                 isLocallySilenced: Boolean,
-                cb: IActionsResultCallback?
+                cb: IActionsResultCallback?,
             ) {
                 cb?.let {
                     coroutineScope.launch {
@@ -179,7 +216,7 @@ internal class LocalCallSilenceCallbackRepository(coroutineScope: CoroutineScope
                             ActionsResultCallbackRemote(cb)
                                 .onFailure(
                                     CallException.ERROR_UNKNOWN,
-                                    "localCallSilenceCallback is NULL"
+                                    "localCallSilenceCallback is NULL",
                                 )
                         } else {
                             localCallSilenceCallback?.invoke(isLocallySilenced)
@@ -194,7 +231,7 @@ internal class LocalCallSilenceCallbackRepository(coroutineScope: CoroutineScope
 @ExperimentalAppActions
 internal class LocalCallSilenceStateListener(
     private val updateLocalCallSilence: (Boolean) -> Unit,
-    private val finishSync: (LocalCallSilenceActionsRemote?) -> Unit
+    private val finishSync: (LocalCallSilenceActionsRemote?) -> Unit,
 ) : ILocalSilenceStateListener.Stub() {
     override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
         updateLocalCallSilence.invoke(isLocallySilenced)
@@ -230,7 +267,7 @@ internal class ParticipantStateListener(
     private val updateParticipants: (Set<Participant>) -> Unit,
     private val updateActiveParticipantId: (String?) -> Unit,
     private val updateRaisedHandIds: (List<String>) -> Unit,
-    private val finishSync: (ParticipantActionsRemote?) -> Unit
+    private val finishSync: (ParticipantActionsRemote?) -> Unit,
 ) : IParticipantStateListener.Stub() {
     override fun updateParticipants(participants: Array<out ParticipantParcelable>?) {
         updateParticipants.invoke(
@@ -280,18 +317,21 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
         ((CoroutineScope, Set<Int>, String, CallIconStateListenerRemote) -> Unit)? =
         null
 
+    var onMeetingSummaryExtension: ((CoroutineScope, MeetingSummaryStateListenerRemote) -> Unit)? =
+        null
+
     val listener =
         object : ICapabilityExchangeListener.Stub() {
             override fun onCreateParticipantExtension(
                 version: Int,
                 actions: IntArray?,
-                l: IParticipantStateListener?
+                l: IParticipantStateListener?,
             ) {
                 l?.let {
                     onCreateParticipantExtension?.invoke(
                         connectionScope,
                         actions?.toSet() ?: emptySet(),
-                        ParticipantStateListenerRemote(l)
+                        ParticipantStateListenerRemote(l),
                     )
                 }
             }
@@ -299,14 +339,14 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
             override fun onCreateLocalCallSilenceExtension(
                 version: Int,
                 actions: IntArray?,
-                l: ILocalSilenceStateListener?
+                l: ILocalSilenceStateListener?,
             ) {
                 l?.let {
                     // called by the LocalSilenceExtensionImpl (VoIP side)
                     onCreateLocalCallSilenceExtension?.invoke(
                         connectionScope,
                         actions?.toSet() ?: emptySet(),
-                        LocalCallSilenceStateListenerRemote(l)
+                        LocalCallSilenceStateListenerRemote(l),
                     )
                 }
             }
@@ -315,14 +355,26 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
                 version: Int,
                 actions: IntArray?,
                 remoteName: String,
-                l: ICallIconStateListener?
+                l: ICallIconStateListener?,
             ) {
                 l?.let {
                     onCreateCallIconExtension?.invoke(
                         connectionScope,
                         actions?.toSet() ?: emptySet(),
                         remoteName,
-                        CallIconStateListenerRemote(l)
+                        CallIconStateListenerRemote(l),
+                    )
+                }
+            }
+
+            override fun onCreateMeetingSummaryExtension(
+                version: Int,
+                l: IMeetingSummaryStateListener?,
+            ) {
+                l?.let {
+                    onMeetingSummaryExtension?.invoke(
+                        connectionScope,
+                        MeetingSummaryStateListenerRemote(l),
                     )
                 }
             }
@@ -331,7 +383,7 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
                 version: Int,
                 actions: IntArray?,
                 l: ICallDetailsListener?,
-                packageName: String?
+                packageName: String?,
             ) {
                 TODO("Not yet implemented")
             }

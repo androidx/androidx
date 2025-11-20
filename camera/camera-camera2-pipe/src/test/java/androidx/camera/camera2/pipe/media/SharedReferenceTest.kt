@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.media
 
-import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +30,7 @@ import org.robolectric.annotation.Config
 
 /** Tests for [SharedReference] */
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class SharedReferenceTest {
     private val finalizer: Finalizer<AutoCloseable> = mock()
     private val closeableObject: AutoCloseable = mock()

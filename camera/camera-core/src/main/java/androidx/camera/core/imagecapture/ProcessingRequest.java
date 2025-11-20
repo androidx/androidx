@@ -23,9 +23,11 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureStage;
 
@@ -41,6 +43,7 @@ import java.util.List;
  * A post-processing request and its callback.
  */
 class ProcessingRequest {
+    private static final String TAG = "ProcessingRequest";
     private final int mRequestId;
     @NonNull TakePictureRequest mTakePictureRequest;
     private final ImageCapture.@Nullable OutputFileOptions mOutputFileOptions;
@@ -57,6 +60,7 @@ class ProcessingRequest {
     static final int PROGRESS_NOT_RECEIVED = -1;
     private int mLastCaptureProcessProgressed = PROGRESS_NOT_RECEIVED;
 
+    @VisibleForTesting
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
@@ -64,6 +68,7 @@ class ProcessingRequest {
             @NonNull ListenableFuture<Void> captureFuture) {
         this(captureBundle, takePictureRequest, callback, captureFuture, 0);
     }
+
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,
@@ -85,6 +90,9 @@ class ProcessingRequest {
             mStageIds.add(captureStage.getId());
         }
         mCaptureFuture = captureFuture;
+
+        Logger.d(TAG, "ProcessingRequest: mRequestId = " + mRequestId + ", mTagBundleKey = "
+                + mTagBundleKey);
     }
 
     @NonNull String getTagBundleKey() {
@@ -136,6 +144,7 @@ class ProcessingRequest {
      */
     @MainThread
     void onCaptureStarted() {
+        Logger.d(TAG, "onCaptureStarted: request ID = " + mRequestId);
         mCallback.onCaptureStarted();
     }
 
@@ -152,6 +161,7 @@ class ProcessingRequest {
      */
     @MainThread
     void onImageCaptured() {
+        Logger.i(TAG, "onImageCaptured: request ID = " + mRequestId);
         // If process progress has ever been sent, ensure progress 100 is sent before image sent.
         if (mLastCaptureProcessProgressed != PROGRESS_NOT_RECEIVED) {
             onCaptureProcessProgressed(100);
@@ -165,10 +175,12 @@ class ProcessingRequest {
      */
     @MainThread
     void onFinalResult(ImageCapture.@NonNull OutputFileResults outputFileResults) {
+        Logger.i(TAG, "onFinalResult(OutputFileResults): request ID = " + mRequestId);
         mCallback.onFinalResult(outputFileResults);
     }
 
     void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
+        Logger.i(TAG, "onPostviewBitmapAvailable: request ID = " + mRequestId);
         mCallback.onPostviewBitmapAvailable(bitmap);
     }
 
@@ -177,6 +189,7 @@ class ProcessingRequest {
      */
     @MainThread
     void onFinalResult(@NonNull ImageProxy imageProxy) {
+        Logger.i(TAG, "onFinalResult(ImageProxy): request ID = " + mRequestId);
         mCallback.onFinalResult(imageProxy);
     }
 
@@ -185,6 +198,7 @@ class ProcessingRequest {
      */
     @MainThread
     void onProcessFailure(@NonNull ImageCaptureException imageCaptureException) {
+        Logger.w(TAG, "onProcessFailure: request ID = " + mRequestId, imageCaptureException);
         mCallback.onProcessFailure(imageCaptureException);
     }
 
@@ -193,6 +207,7 @@ class ProcessingRequest {
      */
     @MainThread
     void onCaptureFailure(@NonNull ImageCaptureException imageCaptureException) {
+        Logger.w(TAG, "onCaptureFailure: request ID = " + mRequestId, imageCaptureException);
         mCallback.onCaptureFailure(imageCaptureException);
     }
 

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.coordinatorlayout.widget {
 
   public class CoordinatorLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingParent2 {
@@ -78,10 +78,10 @@ package androidx.coordinatorlayout.widget {
   }
 
   public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
-    ctor public CoordinatorLayout.LayoutParams(int, int);
-    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams!);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(int, int);
     method @IdRes public int getAnchorId();
     method public androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior? getBehavior();
     method public void setAnchorId(@IdRes int);
@@ -98,8 +98,6 @@ package androidx.coordinatorlayout.widget {
     ctor public CoordinatorLayout.SavedState(android.os.Parcelable!);
     field public static final android.os.Parcelable.Creator<androidx.coordinatorlayout.widget.CoordinatorLayout.SavedState!>! CREATOR;
   }
-
-
 
 }
 

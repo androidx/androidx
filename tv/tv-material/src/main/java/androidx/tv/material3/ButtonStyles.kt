@@ -30,7 +30,7 @@ internal constructor(
     internal val focusedShape: Shape,
     internal val pressedShape: Shape,
     internal val disabledShape: Shape,
-    internal val focusedDisabledShape: Shape
+    internal val focusedDisabledShape: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -164,7 +164,7 @@ internal constructor(
     @FloatRange(from = 0.0) internal val focusedScale: Float,
     @FloatRange(from = 0.0) internal val pressedScale: Float,
     @FloatRange(from = 0.0) internal val disabledScale: Float,
-    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float
+    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -204,7 +204,7 @@ internal constructor(
                 focusedScale = 1f,
                 pressedScale = 1f,
                 disabledScale = 1f,
-                focusedDisabledScale = 1f
+                focusedDisabledScale = 1f,
             )
     }
 }
@@ -217,7 +217,7 @@ internal constructor(
     internal val focusedBorder: Border,
     internal val pressedBorder: Border,
     internal val disabledBorder: Border,
-    internal val focusedDisabledBorder: Border
+    internal val focusedDisabledBorder: Border,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -257,7 +257,7 @@ class ButtonGlow
 internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
-    internal val pressedGlow: Glow
+    internal val pressedGlow: Glow,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -293,7 +293,7 @@ internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape =
         focusedShape = focusedShape,
         pressedShape = pressedShape,
         disabledShape = disabledShape,
-        focusedDisabledShape = focusedDisabledShape
+        focusedDisabledShape = focusedDisabledShape,
     )
 
 internal fun ButtonColors.toClickableSurfaceColors(): ClickableSurfaceColors =
@@ -305,7 +305,7 @@ internal fun ButtonColors.toClickableSurfaceColors(): ClickableSurfaceColors =
         pressedContainerColor = pressedContainerColor,
         pressedContentColor = pressedContentColor,
         disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor
+        disabledContentColor = disabledContentColor,
     )
 
 internal fun WideButtonContentColor.toClickableSurfaceColors(): ClickableSurfaceColors =
@@ -317,7 +317,7 @@ internal fun WideButtonContentColor.toClickableSurfaceColors(): ClickableSurface
         pressedContainerColor = WideButtonContainerColor,
         pressedContentColor = pressedContentColor,
         disabledContainerColor = WideButtonContainerColor,
-        disabledContentColor = disabledContentColor
+        disabledContentColor = disabledContentColor,
     )
 
 internal fun ButtonScale.toClickableSurfaceScale() =
@@ -326,7 +326,7 @@ internal fun ButtonScale.toClickableSurfaceScale() =
         focusedScale = focusedScale,
         pressedScale = pressedScale,
         disabledScale = disabledScale,
-        focusedDisabledScale = focusedDisabledScale
+        focusedDisabledScale = focusedDisabledScale,
     )
 
 internal fun ButtonBorder.toClickableSurfaceBorder() =
@@ -335,7 +335,7 @@ internal fun ButtonBorder.toClickableSurfaceBorder() =
         focusedBorder = focusedBorder,
         pressedBorder = pressedBorder,
         disabledBorder = disabledBorder,
-        focusedDisabledBorder = focusedDisabledBorder
+        focusedDisabledBorder = focusedDisabledBorder,
     )
 
 internal fun ButtonGlow.toClickableSurfaceGlow() =

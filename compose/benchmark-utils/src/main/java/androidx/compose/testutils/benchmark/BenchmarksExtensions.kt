@@ -178,7 +178,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkRecompose(
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
     caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true,
-    assertOneRecomposition: Boolean = true
+    assertOneRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -212,7 +212,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasure(
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
     caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true,
-    assertOneRecomposition: Boolean = true
+    assertOneRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -248,7 +248,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkLayout(
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
     caseFactory: () -> T,
     toggleCausesRecompose: Boolean = true,
-    assertOneRecomposition: Boolean = true
+    assertOneRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -335,7 +335,7 @@ T : ToggleableTestCase {
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
     caseFactory: () -> T,
     assertOneRecomposition: Boolean = true,
-    requireRecomposition: Boolean = true
+    requireRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -371,7 +371,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkCompose(
     caseFactory: () -> T,
     assertOneRecomposition: Boolean = true,
-    requireRecomposition: Boolean = true
+    requireRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -407,7 +407,7 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkCompose(
  */
 fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
     caseFactory: () -> T,
-    assertOneRecomposition: Boolean = true
+    assertOneRecomposition: Boolean = true,
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFramesUntilNoChangesPending() }
@@ -469,7 +469,7 @@ private fun ComposeExecutionControl.doFramesUntilIdle() {
  */
 class SubcomposeLayoutReuseTestCase(
     private val reusableSlots: Int = 0,
-    private val content: @Composable () -> Unit
+    private val content: @Composable () -> Unit,
 ) : ComposeTestCase {
     private var active by mutableStateOf(true)
 
@@ -479,7 +479,7 @@ class SubcomposeLayoutReuseTestCase(
             constraints ->
             val measurables =
                 if (active) {
-                    subcompose(Unit) { content() }
+                    subcompose(Unit, content)
                 } else {
                     null
                 }

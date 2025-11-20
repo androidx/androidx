@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 public class BiometricPromptDataJavaTest {
 
     private static final BiometricPrompt.CryptoObject TEST_CRYPTO_OBJECT = BiometricTestUtils
-            .INSTANCE.createCryptoObject$credentials_releaseAndroidTest();
+            .INSTANCE.createCryptoObject$credentials();
 
     private static final long DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID = 0L;
 
@@ -163,7 +163,7 @@ public class BiometricPromptDataJavaTest {
     @Test
     public void fromBundle_validAllowedAuthenticatorAboveApi35_success() {
         long expectedOpId = BiometricTestUtils.INSTANCE
-                .getTestCryptoObjectOpId$credentials_releaseAndroidTest(TEST_CRYPTO_OBJECT);
+                .getTestCryptoObjectOpId$credentials(TEST_CRYPTO_OBJECT);
         Bundle inputBundle = new Bundle();
         inputBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, TEST_ALLOWED_AUTHENTICATOR);
         inputBundle.putLong(BUNDLE_HINT_CRYPTO_OP_ID, expectedOpId);
@@ -224,7 +224,7 @@ public class BiometricPromptDataJavaTest {
         BiometricPromptData testBiometricPromptData = new BiometricPromptData(TEST_CRYPTO_OBJECT,
                 TEST_ALLOWED_AUTHENTICATOR);
         long expectedOpId = BiometricTestUtils.INSTANCE
-                .getTestCryptoObjectOpId$credentials_releaseAndroidTest(TEST_CRYPTO_OBJECT);
+                .getTestCryptoObjectOpId$credentials(TEST_CRYPTO_OBJECT);
 
         Bundle actualBundle = BiometricPromptData.toBundle(
                 testBiometricPromptData);

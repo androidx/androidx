@@ -100,6 +100,11 @@
     <string name="mute_audio_audio_is_muted">Audio is muted.</string>
     <string name="mute_audio_audio_is_unmuted">Audio is unmuted.</string>
 
+    <!-- PaymentRequest -->
+    <string name="payment_request_activity_title">PaymentRequest</string>
+    <string name="payment_request_toggle_label">PaymentRequest enabled:</string>
+    <string name="has_enrolled_instrument_toggle_label">hasEnrolledInstrument enabled:</string>
+
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
     <string name="proxy_override_requests_served">Requests served: %d</string>
@@ -112,18 +117,14 @@
     <string name="process_global_config_activity_title">Process Global Config</string>
     <string name="data_directory_suffix_activity_title">Data Directory Suffix</string>
     <string name="directory_base_path_activity_title">Directory Base Path</string>
-
-    <!-- Requested With Header -->
-    <string name="requested_with_activity_title">X-Requested-With header allow-list</string>
-    <string name="requested_with_header_mode">Allow-list</string>
-    <string name="requested_with_no_allow_list">Empty</string>
-    <string name="requested_with_use_allow_list">Containing the web server</string>
+    <string name="ui_thread_startup_mode_activity_title">UI Thread Startup Mode</string>
 
     <!-- User Agent Metadata -->
     <string name="user_agent_metadata_activity_title">Override User-Agent Metadata</string>
     <string name="user_agent_metadata_override_mode">User-Agent Metadata</string>
     <string name="user_agent_metadata_without_override">Without Overrides</string>
     <string name="user_agent_metadata_with_override">With Overrides</string>
+    <string name="user_agent_metadata_with_override_form_factors">With Overrides Form Factors</string>
 
     <!-- Async StartUp Metadata -->
     <string name="async_startup_activity_title">Async StartUp</string>
@@ -137,5 +138,14 @@
     <string name="web_storage_load_page_button">Reload page</string>
     <string name="web_storage_delete_data_button">Delete page data</string>
     <string name="web_storage_delete_complete">Data deletion complete</string>
+
+    <!-- Custom Header -->
+    <string name="custom_header_activity_title">Custom Request Headers</string>
+    <string name="custom_header_name_label">Header Name</string>
+    <string name="custom_header_value_label">Header Value</string>
+    <string name="custom_header_add_button_label">Add custom header</string>
+    <string name="custom_header_clear_button_label">Clear custom headers</string>
+    <string name="custom_header_load_button_label">Load and show headers</string>
+    <string name="custom_header_missing_input_warning">Please enter both header name and value</string>
 
 </resources>

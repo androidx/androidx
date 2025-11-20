@@ -22,5 +22,5 @@ internal actual fun String.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 ): Unit = implementedInJetBrainsFork()

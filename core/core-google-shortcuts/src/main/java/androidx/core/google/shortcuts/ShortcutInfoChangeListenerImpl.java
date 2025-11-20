@@ -21,10 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.core.google.shortcuts.utils.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.PersistableBundle;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
@@ -165,21 +163,19 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         }
 
         // Add capability binding
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (shortcut.getCategories() != null) {
-                List<CapabilityBuilder> capabilityList = new ArrayList<>();
-                for (String capability : shortcut.getCategories()) {
-                    if (!ShortcutUtils.isAppActionCapability(capability)) {
-                        continue;
-                    }
-
-                    capabilityList.add(Api21Impl.buildCapability(capability, shortcut.getExtras()));
+        if (shortcut.getCategories() != null) {
+            List<CapabilityBuilder> capabilityList = new ArrayList<>();
+            for (String capability : shortcut.getCategories()) {
+                if (!ShortcutUtils.isAppActionCapability(capability)) {
+                    continue;
                 }
 
-                if (!capabilityList.isEmpty()) {
-                    shortcutBuilder
-                            .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
-                }
+                capabilityList.add(Api21Impl.buildCapability(capability, shortcut.getExtras()));
+            }
+
+            if (!capabilityList.isEmpty()) {
+                shortcutBuilder
+                        .setCapability(capabilityList.toArray(new CapabilityBuilder[0]));
             }
         }
 
@@ -197,7 +193,6 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         return shortcutBuilder;
     }
 
-    @RequiresApi(21)
     private static class Api21Impl {
         static @NonNull CapabilityBuilder buildCapability(@NonNull String capability,
                 @Nullable PersistableBundle shortcutInfoExtras) {

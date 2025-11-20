@@ -34,7 +34,6 @@ import androidx.camera.testing.impl.TestImageUtil.createBitmap
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.io.FileOutputStream
@@ -44,7 +43,6 @@ import org.junit.runner.RunWith
 /** Instrumented tests for [JpegBytes2Disk]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class JpegBytes2DiskDeviceTest {
 
     private val operation = JpegBytes2Disk()
@@ -62,14 +60,14 @@ class JpegBytes2DiskDeviceTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 ROTATION_DEGREES,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         // Act: save to a OutputStream.
         FileOutputStream(TEMP_FILE).use {
             val input =
                 JpegBytes2Disk.In.of(
                     inputPacket,
-                    ImageCapture.OutputFileOptions.Builder(it).build()
+                    ImageCapture.OutputFileOptions.Builder(it).build(),
                 )
             operation.apply(input)
         }
@@ -97,7 +95,7 @@ class JpegBytes2DiskDeviceTest {
     private fun saveFileAndGetPath(
         exif: Exif = ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)),
         metadata: ImageCapture.Metadata = ImageCapture.Metadata(),
-        rotation: Int = ROTATION_DEGREES
+        rotation: Int = ROTATION_DEGREES,
     ): String {
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val inputPacket =
@@ -109,7 +107,7 @@ class JpegBytes2DiskDeviceTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 rotation,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val options =
             ImageCapture.OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()

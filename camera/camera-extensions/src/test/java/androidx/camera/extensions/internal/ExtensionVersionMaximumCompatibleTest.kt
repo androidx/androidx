@@ -16,7 +16,6 @@
 
 package androidx.camera.extensions.internal
 
-import android.os.Build
 import androidx.camera.extensions.internal.util.ExtensionsTestUtil.resetSingleton
 import androidx.camera.extensions.internal.util.ExtensionsTestUtil.setTestApiVersion
 import com.google.common.truth.Truth.assertThat
@@ -31,8 +30,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(
-    minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+    sdk = [Config.ALL_SDKS],
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal"),
 )
 class ExtensionVersionMaximumCompatibleTest(private val config: TestConfig) {
 
@@ -58,7 +57,7 @@ class ExtensionVersionMaximumCompatibleTest(private val config: TestConfig) {
     data class TestConfig(
         val targetVersion: String,
         val maximumCompatibleVersion: String,
-        val expectedResult: Boolean
+        val expectedResult: Boolean,
     )
 
     companion object {

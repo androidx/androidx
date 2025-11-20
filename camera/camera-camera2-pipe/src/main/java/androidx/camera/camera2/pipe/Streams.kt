@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
+import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -74,13 +75,17 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
     public class Config
     internal constructor(
         public val outputs: List<OutputStream.Config>,
-        public val imageSourceConfig: ImageSourceConfig? = null
+        public val imageSourceConfig: ImageSourceConfig? = null,
     ) {
         init {
             val firstOutput = outputs.first()
             check(outputs.all { it.format == firstOutput.format }) {
                 "All outputs must have the same format!"
             }
+        }
+
+        override fun toString(): String {
+            return "CameraStream.Config(outputs=$outputs, imageSourceConfig=$imageSourceConfig)"
         }
 
         public companion object {
@@ -111,7 +116,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                         streamUseHint,
                         sensorPixelModes,
                     ),
-                    imageSourceConfig
+                    imageSourceConfig,
                 )
 
             /**
@@ -120,7 +125,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
              */
             public fun create(
                 output: OutputStream.Config,
-                imageSourceConfig: ImageSourceConfig? = null
+                imageSourceConfig: ImageSourceConfig? = null,
             ): Config = Config(listOf(output), imageSourceConfig)
 
             /**
@@ -130,7 +135,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
              */
             public fun create(
                 outputs: List<OutputStream.Config>,
-                imageSourceConfig: ImageSourceConfig? = null
+                imageSourceConfig: ImageSourceConfig? = null,
             ): Config = Config(outputs, imageSourceConfig)
         }
     }
@@ -185,6 +190,7 @@ public interface OutputStream {
         public val streamUseHint: StreamUseHint?,
         public val sensorPixelModes: List<SensorPixelMode>,
     ) {
+
         public companion object {
             public fun create(
                 size: Size,
@@ -198,10 +204,8 @@ public interface OutputStream {
                 streamUseHint: StreamUseHint? = null,
                 sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config =
-                if (
-                    outputType == OutputType.SURFACE_TEXTURE ||
-                        outputType == OutputType.SURFACE_VIEW
-                ) {
+                // TODO: b/430431303 - Move this lazy/non-lazy selection logic to backend
+                if (outputType.isLazilyConfigurable()) {
                     LazyOutputConfig(
                         size,
                         format,
@@ -228,6 +232,16 @@ public interface OutputStream {
                         sensorPixelModes,
                     )
                 }
+
+            private fun OutputType.isLazilyConfigurable(): Boolean {
+                return when (this) {
+                    OutputType.SURFACE_TEXTURE,
+                    OutputType.SURFACE_VIEW -> true
+                    OutputType.MEDIA_CODEC,
+                    OutputType.MEDIA_RECORDER -> Build.VERSION.SDK_INT >= 35
+                    else -> false
+                }
+            }
 
             /** Create a stream configuration from an externally created [OutputConfiguration] */
             @RequiresApi(33)
@@ -337,6 +351,10 @@ public interface OutputStream {
                 streamUseHint,
                 sensorPixelModes,
             )
+
+        override fun toString(): String {
+            return "Config(size=$size, format=$format, camera=$camera, mirrorMode=$mirrorMode, timestampBase=$timestampBase, dynamicRangeProfile=$dynamicRangeProfile, streamUseCase=$streamUseCase, streamUseHint=$streamUseHint, sensorPixelModes=$sensorPixelModes)"
+        }
     }
 
     public class OutputType private constructor() {
@@ -344,6 +362,9 @@ public interface OutputStream {
             public val SURFACE: OutputType = OutputType()
             public val SURFACE_VIEW: OutputType = OutputType()
             public val SURFACE_TEXTURE: OutputType = OutputType()
+            internal val SURFACE_DEFERRED_FOR_QUERY_ONLY: OutputType = OutputType()
+            public val MEDIA_CODEC: OutputType = OutputType()
+            public val MEDIA_RECORDER: OutputType = OutputType()
         }
     }
 
@@ -482,7 +503,7 @@ public class ImageSourceConfig(
     public val capacity: Int,
     public val usageFlags: Long? = null,
     public val defaultDataSpace: Int? = null,
-    public val defaultHardwareBufferFormat: Int? = null
+    public val defaultHardwareBufferFormat: Int? = null,
 )
 
 /** This identifies a single output. */
@@ -502,7 +523,7 @@ public interface InputStream {
     public class Config(
         public val stream: CameraStream.Config,
         public val maxImages: Int,
-        public var streamFormat: StreamFormat
+        public var streamFormat: StreamFormat,
     )
 }
 

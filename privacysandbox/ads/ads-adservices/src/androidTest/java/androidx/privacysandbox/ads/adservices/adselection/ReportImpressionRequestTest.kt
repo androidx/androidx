@@ -45,7 +45,7 @@ class ReportImpressionRequestTest {
             adSelectionSignals,
             sellerSignals,
             perBuyerSignals,
-            trustedScoringSignalsUri
+            trustedScoringSignalsUri,
         )
 
     @Test
@@ -68,7 +68,7 @@ class ReportImpressionRequestTest {
                 adSelectionSignals,
                 sellerSignals,
                 perBuyerSignals,
-                trustedScoringSignalsUri
+                trustedScoringSignalsUri,
             )
         var reportImpressionRequest2 = ReportImpressionRequest(adSelectionId, adSelectionConfig2)
         Truth.assertThat(reportImpressionRequest == reportImpressionRequest2).isTrue()

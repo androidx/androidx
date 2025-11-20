@@ -31,7 +31,7 @@ internal class LifecycleRegistryProxyFactory
 private constructor(
     private val lifecycleRegistryConstructor: Constructor<out Any>,
     private val lifecycleEventInstances: Map<String, Any>,
-    private val handleLifecycleEventMethod: Method
+    private val handleLifecycleEventMethod: Method,
 ) {
     fun setupLifecycleProxy(activityHolderProxy: Any, sourceLifecycle: Lifecycle): Any {
         val registry = lifecycleRegistryConstructor.newInstance(activityHolderProxy)
@@ -55,13 +55,13 @@ private constructor(
                 Class.forName(
                     "androidx.lifecycle.LifecycleOwner",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val lifecycleRegistryClass =
                 Class.forName(
                     "androidx.lifecycle.LifecycleRegistry",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val lifecycleRegistryConstructor =
                 lifecycleRegistryClass.getConstructor(/* parameter1 */ lifecycleOwnerClass)
@@ -70,8 +70,9 @@ private constructor(
                 Class.forName(
                     "androidx.lifecycle.Lifecycle\$Event",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
+            @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
             val lifecycleEventInstances =
                 lifecycleEventEnum.enumConstants
                     .filterIsInstance(Enum::class.java)
@@ -80,13 +81,13 @@ private constructor(
             val handleLifecycleEventMethod =
                 lifecycleRegistryClass.getMethod(
                     "handleLifecycleEvent",
-                    /* parameter1 */ lifecycleEventEnum
+                    /* parameter1 */ lifecycleEventEnum,
                 )
 
             return LifecycleRegistryProxyFactory(
                 lifecycleRegistryConstructor,
                 lifecycleEventInstances,
-                handleLifecycleEventMethod
+                handleLifecycleEventMethod,
             )
         }
     }

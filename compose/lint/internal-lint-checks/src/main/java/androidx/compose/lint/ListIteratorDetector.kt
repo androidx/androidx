@@ -65,7 +65,7 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
                         ISSUE,
                         node,
                         location,
-                        "Creating an unnecessary Iterator to iterate through a List"
+                        "Creating an unnecessary Iterator to iterate through a List",
                     )
                 }
             }
@@ -97,7 +97,7 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
                             ISSUE,
                             node,
                             context.getNameLocation(node),
-                            "Creating an unnecessary Iterator to iterate through a List"
+                            "Creating an unnecessary Iterator to iterate through a List",
                         )
                     }
                 }
@@ -116,7 +116,7 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
                     ISSUE,
                     node,
                     context.getNameLocation(node),
-                    "Creating an unnecessary Iterator to iterate through a List"
+                    "Creating an unnecessary Iterator to iterate through a List",
                 )
             }
         }
@@ -135,7 +135,7 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
                 Category.PERFORMANCE,
                 5,
                 Severity.ERROR,
-                Implementation(ListIteratorDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(ListIteratorDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

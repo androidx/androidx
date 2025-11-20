@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.work {
 
   public abstract class CoroutineWorker extends androidx.work.ListenableWorker {
@@ -27,10 +27,10 @@ package androidx.work {
   }
 
   public final class PeriodicWorkRequestKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
     method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval);
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
     method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval, java.time.Duration flexTimeInterval);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
   }
 
 }

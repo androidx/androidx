@@ -75,13 +75,13 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.camera.view.impl.ZoomGestureDetector;
 import androidx.camera.view.internal.ScreenFlashUiInfo;
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
+import androidx.camera.viewfinder.core.ZoomGestureDetector;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -192,6 +192,7 @@ public final class PreviewView extends FrameLayout {
 
         @Override
         @AnyThread
+        @SuppressWarnings("WrongThread") // View.getContext()
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
             if (!Threads.isMainThread()) {
                 // Post on main thread to ensure thread safety.
@@ -205,7 +206,7 @@ public final class PreviewView extends FrameLayout {
             // PreviewViewMeteringPointFactory will convert the coordinates from previewView (x,y)
             // to sensor coordinates and then to normalized coordinates. Thus sensor rect is needed.
             mPreviewViewMeteringPointFactory.setSensorRect(
-                    camera.getCameraControlInternal().getSensorRect());
+                    camera.getCameraInfoInternal().getSensorRect());
             surfaceRequest.setTransformationInfoListener(
                     getMainExecutor(getContext()),
                     transformationInfo -> {
@@ -342,7 +343,12 @@ public final class PreviewView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        startListeningToDisplayChange();
+        // registerDisplayListener call might throw an IncompatibleClassChangeError and cause that
+        // the PreviewView can't be rendered in Android Studio's layout preview window. Therefore,
+        // do not invoke the startListeningToDisplayChange when in edit mode. (b/429098676)
+        if (!isInEditMode()) {
+            startListeningToDisplayChange();
+        }
         addOnLayoutChangeListener(mOnLayoutChangeListener);
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
@@ -360,7 +366,9 @@ public final class PreviewView extends FrameLayout {
         if (mCameraController != null) {
             mCameraController.clearPreviewSurface();
         }
-        stopListeningToDisplayChange();
+        if (!isInEditMode()) {
+            stopListeningToDisplayChange();
+        }
     }
 
     @Override
@@ -581,11 +589,12 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     public @Nullable ViewPort getViewPort() {
         checkMainThread();
-        if (getDisplay() == null) {
+        Display defaultDisplay = getDefaultDisplay();
+        if (defaultDisplay == null) {
             // Returns null if the layout is not ready.
             return null;
         }
-        return getViewPort(getDisplay().getRotation());
+        return getViewPort(defaultDisplay.getRotation());
     }
 
     /**
@@ -715,7 +724,7 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     void updateDisplayRotationIfNeeded() {
         if (mUseDisplayRotation) {
-            Display display = getDisplay();
+            Display display = getDefaultDisplay();
             if (display != null && mCameraInfoInternal != null) {
                 mPreviewTransform.overrideWithDisplayRotation(
                         mCameraInfoInternal.getSensorRotationDegrees(
@@ -1072,7 +1081,8 @@ public final class PreviewView extends FrameLayout {
                 ScreenFlashUiInfo.ProviderType.PREVIEW_VIEW, control));
     }
 
-    private void startListeningToDisplayChange() {
+    @VisibleForTesting
+    void startListeningToDisplayChange() {
         DisplayManager displayManager = getDisplayManager();
         if (displayManager == null) {
             return;
@@ -1081,7 +1091,8 @@ public final class PreviewView extends FrameLayout {
                 new Handler(Looper.getMainLooper()));
     }
 
-    private void stopListeningToDisplayChange() {
+    @VisibleForTesting
+    void stopListeningToDisplayChange() {
         DisplayManager displayManager = getDisplayManager();
         if (displayManager == null) {
             return;
@@ -1094,8 +1105,10 @@ public final class PreviewView extends FrameLayout {
         if (context == null) {
             return null;
         }
-        return (DisplayManager) context.getApplicationContext()
-                .getSystemService(Context.DISPLAY_SERVICE);
+        // Use context instead of context.getApplication because the DisplayManager created
+        // from context.getApplication() will not contain the default display when external display
+        // is connected.
+        return (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     }
 
     /**
@@ -1173,6 +1186,24 @@ public final class PreviewView extends FrameLayout {
     }
 
     /**
+     * Gets the default display that will normally have the camera attached.
+     * To avoid the orientation issue when apps run in connected external display,
+     * use the rotation of the default display if possible.
+     *
+     * It will return null when getDisplay() returns null to indicate the layout is not ready.
+     */
+    @Nullable
+    Display getDefaultDisplay() {
+        if (getDisplay() == null) {
+            // Let it return null to indicate layout is not ready.
+            return null;
+        }
+        DisplayManager displayManager = getDisplayManager();
+        Display display = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        return display != null ? display : getDisplay();
+    }
+
+    /**
      * Listener for display rotation changes.
      *
      * <p> When the device is rotated 180° from side to side, the activity is not
@@ -1193,7 +1224,7 @@ public final class PreviewView extends FrameLayout {
 
         @Override
         public void onDisplayChanged(int displayId) {
-            Display display = getDisplay();
+            Display display = getDefaultDisplay();
             if (display != null && display.getDisplayId() == displayId) {
                 redrawPreview();
             }

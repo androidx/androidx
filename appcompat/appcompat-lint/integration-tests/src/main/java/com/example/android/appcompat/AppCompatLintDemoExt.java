@@ -16,7 +16,6 @@
 
 package com.example.android.appcompat;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toolbar;
 
@@ -27,10 +26,6 @@ public class AppCompatLintDemoExt extends AppCompatLintDemo {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            // The following call should be flagged since we're extending AppCompatActivity
-            setActionBar(new Toolbar(this));
-        }
+        setActionBar(new Toolbar(this));
     }
 }

@@ -49,9 +49,9 @@ class ResultGroupByPeriodAggregatorTest {
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(
                     Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
-                    Instant.ofEpochMilli(1000).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                    Instant.ofEpochMilli(1000).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
                 ),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -65,9 +65,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("some.package")
+                        dataOrigin = DataOrigin("some.package"),
                     ),
-                transFat = 5.grams
+                transFat = 5.grams,
             )
         )
 
@@ -80,7 +80,7 @@ class ResultGroupByPeriodAggregatorTest {
                             .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
                     endTime =
                         Instant.ofEpochMilli(1000)
-                            .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                            .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
                 )
             )
     }
@@ -94,7 +94,7 @@ class ResultGroupByPeriodAggregatorTest {
         val aggregator =
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(filterStartTime, filterEndTime),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -108,9 +108,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("some.package")
+                        dataOrigin = DataOrigin("some.package"),
                     ),
-                transFat = 10.grams
+                transFat = 10.grams,
             )
         )
 
@@ -123,13 +123,13 @@ class ResultGroupByPeriodAggregatorTest {
                 AggregationResultGroupedByPeriod(
                     bucketResult,
                     startTime = filterStartTime,
-                    endTime = filterStartTime.plusDays(1)
+                    endTime = filterStartTime.plusDays(1),
                 ),
                 AggregationResultGroupedByPeriod(
                     bucketResult,
                     startTime = filterStartTime.plusDays(1),
-                    filterEndTime
-                )
+                    filterEndTime,
+                ),
             )
     }
 
@@ -142,9 +142,9 @@ class ResultGroupByPeriodAggregatorTest {
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(
                     filterStartTime.toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
-                    filterEndTime.toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                    filterEndTime.toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
                 ),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -159,9 +159,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("out.package")
+                        dataOrigin = DataOrigin("out.package"),
                     ),
-                transFat = 10.grams
+                transFat = 10.grams,
             )
         )
 
@@ -175,9 +175,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("bucket_1.package")
+                        dataOrigin = DataOrigin("bucket_1.package"),
                     ),
-                transFat = 10.grams
+                transFat = 10.grams,
             )
         )
 
@@ -191,9 +191,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("bucket_2.package")
+                        dataOrigin = DataOrigin("bucket_2.package"),
                     ),
-                transFat = 100.grams
+                transFat = 100.grams,
             )
         )
 
@@ -207,9 +207,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("buckets_1_2.package")
+                        dataOrigin = DataOrigin("buckets_1_2.package"),
                     ),
-                transFat = 1.kilograms
+                transFat = 1.kilograms,
             )
         )
 
@@ -223,9 +223,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("bucket_4.package")
+                        dataOrigin = DataOrigin("bucket_4.package"),
                     ),
-                transFat = 10.kilograms
+                transFat = 10.kilograms,
             )
         )
 
@@ -240,7 +240,7 @@ class ResultGroupByPeriodAggregatorTest {
                     endTime =
                         filterStartTime
                             .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
-                            .plusDays(2)
+                            .plusDays(2),
                 ),
                 AggregationResultGroupedByPeriod(
                     aggregationResult(600.grams, "bucket_2.package", "buckets_1_2.package"),
@@ -251,7 +251,7 @@ class ResultGroupByPeriodAggregatorTest {
                     endTime =
                         filterStartTime
                             .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
-                            .plusDays(3)
+                            .plusDays(3),
                 ),
                 AggregationResultGroupedByPeriod(
                     aggregationResult(2.5.kilograms, "bucket_4.package"),
@@ -262,7 +262,7 @@ class ResultGroupByPeriodAggregatorTest {
                     endTime =
                         filterStartTime
                             .toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
-                            .plusDays(5)
+                            .plusDays(5),
                 ),
             )
     }
@@ -275,7 +275,7 @@ class ResultGroupByPeriodAggregatorTest {
         val aggregator =
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(filterStartTime, filterEndTime),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -294,9 +294,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("first.package")
+                        dataOrigin = DataOrigin("first.package"),
                     ),
-                transFat = 10.grams
+                transFat = 10.grams,
             )
         )
 
@@ -317,9 +317,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("first_second.package")
+                        dataOrigin = DataOrigin("first_second.package"),
                     ),
-                transFat = 100.grams
+                transFat = 100.grams,
             )
         )
 
@@ -328,13 +328,13 @@ class ResultGroupByPeriodAggregatorTest {
                 AggregationResultGroupedByPeriod(
                     aggregationResult(60.grams, "first.package", "first_second.package"),
                     startTime = filterStartTime,
-                    endTime = filterStartTime.plusDays(1)
+                    endTime = filterStartTime.plusDays(1),
                 ),
                 AggregationResultGroupedByPeriod(
                     aggregationResult(50.grams, "first_second.package"),
                     startTime = filterStartTime.plusDays(1),
-                    endTime = filterEndTime
-                )
+                    endTime = filterEndTime,
+                ),
             )
     }
 
@@ -346,7 +346,7 @@ class ResultGroupByPeriodAggregatorTest {
         val aggregator =
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(filterStartTime, filterEndTime),
-                bucketPeriod = Period.ofMonths(1)
+                bucketPeriod = Period.ofMonths(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -361,9 +361,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("january_out.package")
+                        dataOrigin = DataOrigin("january_out.package"),
                     ),
-                transFat = 100.kilograms
+                transFat = 100.kilograms,
             )
         )
 
@@ -377,9 +377,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("january.package")
+                        dataOrigin = DataOrigin("january.package"),
                     ),
-                transFat = 10.grams
+                transFat = 10.grams,
             )
         )
 
@@ -393,9 +393,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("february.package")
+                        dataOrigin = DataOrigin("february.package"),
                     ),
-                transFat = 100.grams
+                transFat = 100.grams,
             )
         )
 
@@ -409,9 +409,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("march.package")
+                        dataOrigin = DataOrigin("march.package"),
                     ),
-                transFat = 1.kilograms
+                transFat = 1.kilograms,
             )
         )
 
@@ -425,9 +425,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("march_half.package")
+                        dataOrigin = DataOrigin("march_half.package"),
                     ),
-                transFat = 10.kilograms
+                transFat = 10.kilograms,
             )
         )
 
@@ -436,17 +436,17 @@ class ResultGroupByPeriodAggregatorTest {
                 AggregationResultGroupedByPeriod(
                     aggregationResult(10.grams, "january.package"),
                     filterStartTime,
-                    endTime = LocalDateTime.parse("2024-02-27T00:00:00")
+                    endTime = LocalDateTime.parse("2024-02-27T00:00:00"),
                 ),
                 AggregationResultGroupedByPeriod(
                     aggregationResult(100.grams, "february.package"),
                     startTime = LocalDateTime.parse("2024-02-27T00:00:00"),
-                    endTime = LocalDateTime.parse("2024-03-27T00:00:00")
+                    endTime = LocalDateTime.parse("2024-03-27T00:00:00"),
                 ),
                 AggregationResultGroupedByPeriod(
                     aggregationResult(6.kilograms, "march.package", "march_half.package"),
                     startTime = LocalDateTime.parse("2024-03-27T00:00:00"),
-                    filterEndTime
+                    filterEndTime,
                 ),
             )
     }
@@ -460,7 +460,7 @@ class ResultGroupByPeriodAggregatorTest {
                         Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
                     )
                 ),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -474,9 +474,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("some.package")
+                        dataOrigin = DataOrigin("some.package"),
                     ),
-                transFat = 5.grams
+                transFat = 5.grams,
             )
         )
 
@@ -492,7 +492,7 @@ class ResultGroupByPeriodAggregatorTest {
                         Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
                     )
                 ),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -506,7 +506,7 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("some.package")
+                        dataOrigin = DataOrigin("some.package"),
                     ),
             )
         )
@@ -520,9 +520,9 @@ class ResultGroupByPeriodAggregatorTest {
             ResultGroupedByPeriodAggregator(
                 LocalTimeRange(
                     Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
-                    Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                    Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
                 ),
-                bucketPeriod = Period.ofDays(1)
+                bucketPeriod = Period.ofDays(1),
             ) {
                 TransFatTotalAggregationProcessor(it)
             }
@@ -536,9 +536,9 @@ class ResultGroupByPeriodAggregatorTest {
                 metadata =
                     Metadata(
                         recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        dataOrigin = DataOrigin("some.package")
+                        dataOrigin = DataOrigin("some.package"),
                     ),
-                transFat = 5.grams
+                transFat = 5.grams,
             )
         )
 
@@ -551,7 +551,7 @@ class ResultGroupByPeriodAggregatorTest {
                 longValues = emptyMap(),
                 doubleValues =
                     mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to transFatTotalMass.inGrams),
-                dataOrigins = packageNames.map { DataOrigin(it) }.toSet()
+                dataOrigins = packageNames.map { DataOrigin(it) }.toSet(),
             )
     }
 }

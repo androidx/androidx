@@ -76,7 +76,7 @@ internal fun SizeBox(size: DpSize, sizeMode: SizeMode, content: @Composable () -
                 this.set(size) { this.size = it }
                 this.set(sizeMode) { this.sizeMode = it }
             },
-            content = content
+            content = content,
         )
     }
 }

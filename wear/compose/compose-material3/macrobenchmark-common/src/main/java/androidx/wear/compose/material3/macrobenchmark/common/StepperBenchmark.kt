@@ -32,15 +32,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
-import androidx.wear.compose.material3.LevelIndicator
 import androidx.wear.compose.material3.Stepper
+import androidx.wear.compose.material3.StepperLevelIndicator
 import androidx.wear.compose.material3.Text
 
 object StepperBenchmark : MacrobenchmarkScreen {
     override val content: @Composable (BoxScope.() -> Unit)
         get() = {
             var value by remember { mutableFloatStateOf(2f) }
-            val valueRange = 0f..4f
+            val valueRange = remember { 0f..4f }
             Box(modifier = Modifier.fillMaxSize()) {
                 Stepper(
                     value = value,
@@ -50,22 +50,22 @@ object StepperBenchmark : MacrobenchmarkScreen {
                     decreaseIcon = {
                         Text(
                             text = "-",
-                            modifier = Modifier.semantics { contentDescription = DECREASE_BUTTON }
+                            modifier = Modifier.semantics { contentDescription = DECREASE_BUTTON },
                         )
                     },
                     increaseIcon = {
                         Text(
                             text = "+",
-                            modifier = Modifier.semantics { contentDescription = INCREASE_BUTTON }
+                            modifier = Modifier.semantics { contentDescription = INCREASE_BUTTON },
                         )
                     },
                 ) {
                     Text(String.format("Value: %.1f".format(value)))
                 }
-                LevelIndicator(
+                StepperLevelIndicator(
                     value = { value },
                     valueRange = valueRange,
-                    modifier = Modifier.align(Alignment.CenterStart)
+                    modifier = Modifier.align(Alignment.CenterStart),
                 )
             }
         }

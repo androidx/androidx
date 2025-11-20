@@ -177,7 +177,7 @@ class FeatureSerializer private constructor() {
                         cubic.points.joinToString(
                             separator = separatorString,
                             limit = 6,
-                            truncated = ""
+                            truncated = "",
                         ) {
                             it.toString().removeTrailingZeroes()
                         }

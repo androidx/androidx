@@ -27,7 +27,7 @@ import androidx.compose.ui.util.lerp
 class Shadow(
     @Stable val color: Color = Color(0xFF000000),
     @Stable val offset: Offset = Offset.Zero,
-    @Stable val blurRadius: Float = 0.0f
+    @Stable val blurRadius: Float = 0.0f,
 ) {
     companion object {
         /** Constant for no shadow. */
@@ -59,7 +59,7 @@ class Shadow(
     fun copy(
         color: Color = this.color,
         offset: Offset = this.offset,
-        blurRadius: Float = this.blurRadius
+        blurRadius: Float = this.blurRadius,
     ): Shadow {
         return Shadow(color = color, offset = offset, blurRadius = blurRadius)
     }
@@ -71,6 +71,6 @@ fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
         lerp(start.color, stop.color, fraction),
         lerp(start.offset, stop.offset, fraction),
-        lerp(start.blurRadius, stop.blurRadius, fraction)
+        lerp(start.blurRadius, stop.blurRadius, fraction),
     )
 }

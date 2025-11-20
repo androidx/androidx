@@ -22,11 +22,9 @@ import android.graphics.BlendMode;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Pair;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -35,11 +33,6 @@ import org.jspecify.annotations.Nullable;
  * Helper for accessing features in {@link Paint}.
  */
 public final class PaintCompat {
-    // U+DFFFD which is very end of unassigned plane.
-    private static final String TOFU_STRING = "\uDB3F\uDFFD";
-    private static final String EM_STRING = "m";
-
-    private static final ThreadLocal<Pair<Rect, Rect>> sRectThreadLocal = new ThreadLocal<>();
 
     /**
      * Determine whether the typeface set on the paint has a glyph supporting the
@@ -50,66 +43,7 @@ public final class PaintCompat {
      * @return true if the typeface set on the given paint has a glyph for the string
      */
     public static boolean hasGlyph(@NonNull Paint paint, @NonNull String string) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.hasGlyph(paint, string);
-        }
-        final int length = string.length();
-
-        if (length == 1 && Character.isWhitespace(string.charAt(0))) {
-            // measureText + getTextBounds skips whitespace so we need to special case it here
-            return true;
-        }
-
-        final float missingGlyphWidth = paint.measureText(TOFU_STRING);
-        final float emGlyphWidth = paint.measureText(EM_STRING);
-
-        final float width = paint.measureText(string);
-
-        if (width == 0f) {
-            // If the string width is 0, it can't be rendered
-            return false;
-        }
-
-        if (string.codePointCount(0, string.length()) > 1) {
-            // Heuristic to detect fallback glyphs for ligatures like flags and ZWJ sequences
-            // Return false if string is rendered too widely
-            if (width > 2 * emGlyphWidth) {
-                return false;
-            }
-
-            // Heuristic to detect fallback glyphs for ligatures like flags and ZWJ sequences (2).
-            // If width is greater than or equal to the sum of width of each code point, it is very
-            // likely that the system is using fallback fonts to draw {@code string} in two or more
-            // glyphs instead of a single ligature glyph. (hasGlyph returns false in this case.)
-            // False detections are possible (the ligature glyph may happen to have the same width
-            // as the sum width), but there are no good way to avoid them.
-            // NOTE: This heuristic does not work with proportional glyphs.
-            // NOTE: This heuristic does not work when a ZWJ sequence is partially combined.
-            // E.g. If system has a glyph for "A ZWJ B" and not for "A ZWJ B ZWJ C", this heuristic
-            // returns true for "A ZWJ B ZWJ C".
-            float sumWidth = 0;
-            int i = 0;
-            while (i < length) {
-                int charCount = Character.charCount(string.codePointAt(i));
-                sumWidth += paint.measureText(string, i, i + charCount);
-                i += charCount;
-            }
-            if (width >= sumWidth) {
-                return false;
-            }
-        }
-
-        if (width != missingGlyphWidth) {
-            // If the widths are different then its not tofu
-            return true;
-        }
-
-        // If the widths are the same, lets check the bounds. The chance of them being
-        // different chars with the same bounds is extremely small
-        final Pair<Rect, Rect> rects = obtainEmptyRects();
-        paint.getTextBounds(TOFU_STRING, 0, TOFU_STRING.length(), rects.first);
-        paint.getTextBounds(string, 0, length, rects.second);
-        return !rects.first.equals(rects.second);
+        return paint.hasGlyph(string);
     }
 
     /**
@@ -145,18 +79,6 @@ public final class PaintCompat {
         }
     }
 
-    private static Pair<Rect, Rect> obtainEmptyRects() {
-        Pair<Rect, Rect> rects = sRectThreadLocal.get();
-        if (rects == null) {
-            rects = new Pair<>(new Rect(), new Rect());
-            sRectThreadLocal.set(rects);
-        } else {
-            rects.first.setEmpty();
-            rects.second.setEmpty();
-        }
-        return rects;
-    }
-
     private PaintCompat() {
     }
 
@@ -168,17 +90,6 @@ public final class PaintCompat {
 
         static void setBlendMode(Paint paint, Object blendmode) {
             paint.setBlendMode((BlendMode) blendmode);
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean hasGlyph(Paint paint, String string) {
-            return paint.hasGlyph(string);
         }
     }
 }

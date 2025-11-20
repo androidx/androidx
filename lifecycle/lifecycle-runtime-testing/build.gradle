@@ -24,6 +24,7 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,26 +33,22 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.testing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-runtime"))
             }
         }
@@ -64,13 +61,68 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+        }
+
+        androidHostTest {
+            dependsOn(jvmTest)
+        }
+
+        androidDeviceTest {
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)
                 implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+        }
+
+        nativeMain {
+            dependsOn(commonMain)
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
+        }
+
+        webMain {
+            dependsOn(commonMain)
+        }
+
+        webTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            }
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -86,4 +138,3 @@ androidx {
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
 }
-

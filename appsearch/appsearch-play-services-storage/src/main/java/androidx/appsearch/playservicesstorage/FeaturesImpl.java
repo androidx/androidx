@@ -65,6 +65,8 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 // fall through
+            case Features.SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // fall through
             case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
@@ -72,6 +74,10 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // fall through
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
                 return true; // AppSearch features present in GMSCore AppSearch.
 
             // RegisterObserver and UnregisterObserver are not yet supported by GMSCore AppSearch.
@@ -100,6 +106,18 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // TODO(b/275592563) : Update once this features is supported.
+                // fall through
+            case Features.SEARCH_EMBEDDING_MATCH_INFO:
+                // TODO(b/395128139) : Update once this features is supported.
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM:
+                // READ_GLOBAL_APP_SEARCH_DATA permission is only supported in platform storage.
+                // fall through
+            case Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES:
+                // TODO(b/457496944) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
+                // TODO(b/395128139) : Update once this features is supported.
                 // fall through
             default:
                 return false; // AppSearch features absent in GMSCore AppSearch.

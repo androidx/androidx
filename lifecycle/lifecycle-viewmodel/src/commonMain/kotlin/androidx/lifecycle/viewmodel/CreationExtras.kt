@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.lifecycle.viewmodel
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.Factory
+import androidx.lifecycle.viewmodel.CreationExtras.Empty
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -106,6 +110,20 @@ internal constructor(initialExtras: Map<Key<*>, Any?>) : CreationExtras() {
      */
     @Suppress("UNCHECKED_CAST") public override fun <T> get(key: Key<T>): T? = extras[key] as T?
 }
+
+/**
+ * Builds a new read-only [CreationExtras] starting with the given [initialExtras].
+ *
+ * You can customize the extras further by applying a [builderAction] on a [MutableCreationExtras].
+ *
+ * The [MutableCreationExtras] passed as a receiver to the [builderAction] is valid only inside that
+ * function. Using it outside of the function produces an unspecified behavior.
+ */
+@JvmOverloads
+public fun CreationExtras(
+    initialExtras: CreationExtras = Empty,
+    builderAction: MutableCreationExtras.() -> Unit = {},
+): CreationExtras = MutableCreationExtras(initialExtras).apply(builderAction)
 
 /**
  * Checks if the [CreationExtras] contains the given [key].

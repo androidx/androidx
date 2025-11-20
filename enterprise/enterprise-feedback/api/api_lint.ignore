@@ -6,7 +6,7 @@ ExecutorRegistration: androidx.enterprise.feedback.KeyedAppStatesReporter#setSta
 
 
 InvalidNullabilityOverride: androidx.enterprise.feedback.KeyedAppStatesService#onBind(android.content.Intent) parameter #0:
-    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Intent in parameter `intent` in method `onBind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 StaticFinalBuilder: androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder:

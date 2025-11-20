@@ -18,8 +18,6 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.testing.impl.fakes.FakeImageInfo;
@@ -33,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class CameraCaptureResultsTest {
     private CameraCaptureResult mCameraCaptureResult = Mockito.mock(CameraCaptureResult.class);
 

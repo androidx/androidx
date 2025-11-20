@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.os.Build;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -119,11 +118,9 @@ public class RecyclerViewTest {
         view = (RecyclerView) getActivity().findViewById(R.id.recyclerView5);
         assertTrue("Incorrect default nested scrolling value", view.isNestedScrollingEnabled());
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            view = (RecyclerView) getActivity().findViewById(R.id.recyclerView6);
-            assertFalse("Incorrect explicit nested scrolling value",
-                    view.isNestedScrollingEnabled());
-        }
+        view = (RecyclerView) getActivity().findViewById(R.id.recyclerView6);
+        assertFalse("Incorrect explicit nested scrolling value",
+                view.isNestedScrollingEnabled());
 
         view = (RecyclerView) getActivity().findViewById(R.id.focusability_undefined);
         assertEquals(ViewGroup.FOCUS_AFTER_DESCENDANTS, view.getDescendantFocusability());

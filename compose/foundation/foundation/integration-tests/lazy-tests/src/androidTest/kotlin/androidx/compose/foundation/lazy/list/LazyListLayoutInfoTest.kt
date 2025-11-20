@@ -80,7 +80,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
                 reverseLayout = reverseLayout,
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -96,7 +96,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
                 reverseLayout = reverseLayout,
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -116,7 +116,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
                 state = rememberLazyListState().also { state = it },
                 reverseLayout = reverseLayout,
                 spacedBy = itemSizeDp,
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -138,7 +138,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
                 reverseLayout = reverseLayout,
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -169,7 +169,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
         rule.setContent {
             LazyColumnOrRow(
                 reverseLayout = reverseLayout,
-                state = rememberLazyListState().also { state = it }
+                state = rememberLazyListState().also { state = it },
             ) {
                 item { Box(Modifier.requiredSize(size)) }
             }
@@ -196,7 +196,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
         rule.setContent {
             LazyColumnOrRow(
                 reverseLayout = reverseLayout,
-                state = rememberLazyListState().also { state = it }
+                state = rememberLazyListState().also { state = it },
             ) {
                 items((0 until count).toList()) { Box(Modifier.requiredSize(10.dp)) }
             }
@@ -219,7 +219,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 Modifier.mainAxisSize(sizeDp).crossAxisSize(sizeDp * 2),
                 reverseLayout = reverseLayout,
-                state = rememberLazyListState().also { state = it }
+                state = rememberLazyListState().also { state = it },
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -258,10 +258,10 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
                         beforeContent = beforeContentPaddingDp,
                         afterContent = afterContentPaddingDp,
                         beforeContentCrossAxis = 2.dp,
-                        afterContentCrossAxis = 2.dp
+                        afterContentCrossAxis = 2.dp,
                     ),
                 reverseLayout = reverseLayout,
-                state = rememberLazyListState().also { state = it }
+                state = rememberLazyListState().also { state = it },
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -318,8 +318,8 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
                 contentPadding =
                     PaddingValues(
                         beforeContent = beforeContentPaddingDp,
-                        afterContent = afterContentPaddingDp
-                    )
+                        afterContent = afterContentPaddingDp,
+                    ),
             ) {}
         }
 
@@ -358,8 +358,8 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
                 contentPadding =
                     PaddingValues(
                         beforeContent = beforeContentPaddingDp,
-                        afterContent = afterContentPaddingDp
-                    )
+                        afterContent = afterContentPaddingDp,
+                    ),
             ) {
                 item { Box(Modifier.size(sizeDp / 2)) }
             }
@@ -384,7 +384,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
                 reverseLayout = reverseLayout,
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -399,7 +399,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
         rule.setContent {
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSizeDp * 3.5f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3.5f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -420,7 +420,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
         rule.setContent {
             LazyColumnOrRow(
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSizeDp * 3f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3f),
             ) {
                 items(2, contentType = { it }) { Box(Modifier.requiredSize(itemSizeDp)) }
                 item { Box(Modifier.requiredSize(itemSizeDp)) }
@@ -441,7 +441,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
                 modifier = Modifier.requiredSize(itemSizeDp * 5),
                 reverseLayout = reverseLayout,
                 reverseArrangement = true,
-                state = state
+                state = state,
             ) {
                 items(4) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -464,7 +464,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             LazyColumnOrRow(
                 modifier = Modifier.size(15.dp),
                 reverseLayout = reverseLayout,
-                state = state
+                state = state,
             ) {
                 items(100) { Box(Modifier.size(10.dp)) }
             }
@@ -486,7 +486,7 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
         startIndex: Int = 0,
         startOffset: Int = 0,
         expectedSize: Int = itemSizePx,
-        spacing: Int = 0
+        spacing: Int = 0,
     ) {
         assertThat(visibleItemsInfo.size).isEqualTo(count)
         var currentIndex = startIndex

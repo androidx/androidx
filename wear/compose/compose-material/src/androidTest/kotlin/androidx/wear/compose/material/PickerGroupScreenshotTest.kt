@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +38,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -46,10 +46,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class PickerGroupScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -81,7 +81,7 @@ class PickerGroupScreenshotTest {
                     .fillMaxWidth()
                     .background(MaterialTheme.colors.background)
                     .testTag(TEST_TAG),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             PickerGroup(
                 pickers = getPickerColumns(pickerCount),
@@ -97,7 +97,7 @@ class PickerGroupScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
@@ -114,7 +114,7 @@ class PickerGroupScreenshotTest {
         Array(count) {
             PickerGroupItem(
                 pickerState = PickerState(10),
-                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) },
             )
         }
 }

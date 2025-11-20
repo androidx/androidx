@@ -1,0 +1,14 @@
+// Signature format: 4.0
+package androidx.compose.remote.player.compose {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalRemoteComposePlayerApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi public final class RemoteComposePlayerFlags {
+    property public boolean isViewPlayerEnabled;
+    field public static final androidx.compose.remote.player.compose.RemoteComposePlayerFlags INSTANCE;
+    field public static boolean isViewPlayerEnabled;
+  }
+
+}
+

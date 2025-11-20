@@ -22,14 +22,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@RequiresApi(21) // This method is only used on exactly API 28
 class GhostViewPlatform implements GhostView {
 
     private static final String TAG = "GhostViewApi21";

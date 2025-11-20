@@ -1,0 +1,13 @@
+{
+  "projectPath": ":core:core-backported-fixes",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadows-framework",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

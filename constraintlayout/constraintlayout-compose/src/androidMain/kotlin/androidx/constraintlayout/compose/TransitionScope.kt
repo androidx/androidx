@@ -43,7 +43,7 @@ import kotlin.reflect.KProperty
 fun Transition(
     from: String = "start",
     to: String = "end",
-    content: TransitionScope.() -> Unit
+    content: TransitionScope.() -> Unit,
 ): Transition {
     val transitionScope = TransitionScope(from, to)
     transitionScope.content()
@@ -185,7 +185,7 @@ class TransitionScope internal constructor(private val from: String, private val
      */
     fun keyAttributes(
         vararg targets: ConstrainedLayoutReference,
-        keyAttributesContent: KeyAttributesScope.() -> Unit
+        keyAttributesContent: KeyAttributesScope.() -> Unit,
     ) {
         val scope = KeyAttributesScope(*targets)
         keyAttributesContent(scope)
@@ -200,7 +200,7 @@ class TransitionScope internal constructor(private val from: String, private val
      */
     fun keyPositions(
         vararg targets: ConstrainedLayoutReference,
-        keyPositionsContent: KeyPositionsScope.() -> Unit
+        keyPositionsContent: KeyPositionsScope.() -> Unit,
     ) {
         val scope = KeyPositionsScope(*targets)
         keyPositionsContent(scope)
@@ -215,7 +215,7 @@ class TransitionScope internal constructor(private val from: String, private val
      */
     fun keyCycles(
         vararg targets: ConstrainedLayoutReference,
-        keyCyclesContent: KeyCyclesScope.() -> Unit
+        keyCyclesContent: KeyCyclesScope.() -> Unit,
     ) {
         val scope = KeyCyclesScope(*targets)
         keyCyclesContent(scope)
@@ -300,7 +300,7 @@ sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
      */
     internal fun <E : NamedPropertyOrValue?> addNameOnPropertyChange(
         initialValue: E,
-        nameOverride: String? = null
+        nameOverride: String? = null,
     ) =
         object : ObservableProperty<E>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: E, newValue: E) {
@@ -448,9 +448,10 @@ sealed class BaseKeyFrameScope {
      *
      * E.g.: `var curveFit: CurveFit? by addNameOnPropertyChange(null)`
      */
+    @Suppress("EXPOSED_TYPE_PARAMETER_BOUND_DEPRECATION_WARNING")
     protected fun <E : NamedPropertyOrValue?> addNameOnPropertyChange(
         initialValue: E,
-        nameOverride: String? = null
+        nameOverride: String? = null,
     ) =
         object : ObservableProperty<E>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: E, newValue: E) {
@@ -743,7 +744,7 @@ internal constructor(
     internal val springThreshold: Float = 0.01f,
     internal val springBoundary: SpringBoundary = SpringBoundary.Overshoot,
     internal val maxVelocity: Float = 4f,
-    internal val maxAcceleration: Float = 1.2f
+    internal val maxAcceleration: Float = 1.2f,
 ) {
     companion object {
         /**
@@ -775,7 +776,7 @@ internal constructor(
             SwipeMode(
                 name = "velocity",
                 maxVelocity = maxVelocity,
-                maxAcceleration = maxAcceleration
+                maxAcceleration = maxAcceleration,
             )
 
         /**
@@ -801,7 +802,7 @@ internal constructor(
             stiffness: Float = 400f,
             damping: Float = 10f,
             threshold: Float = 0.01f,
-            boundary: SpringBoundary = SpringBoundary.Overshoot
+            boundary: SpringBoundary = SpringBoundary.Overshoot,
         ): SwipeMode =
             SwipeMode(
                 name = "spring",
@@ -809,7 +810,7 @@ internal constructor(
                 springStiffness = stiffness,
                 springDamping = damping,
                 springThreshold = threshold,
-                springBoundary = boundary
+                springBoundary = boundary,
             )
     }
 }

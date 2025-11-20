@@ -1,10 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.collection {
 
   public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K,V> implements java.util.Map<K,V> {
     ctor public ArrayMap();
-    ctor public ArrayMap(int);
     ctor public ArrayMap(androidx.collection.SimpleArrayMap!);
+    ctor public ArrayMap(int);
     method public boolean containsAll(java.util.Collection<?>);
     method public java.util.Set<java.util.Map.Entry<K!,V!>!>! entrySet();
     method public java.util.Set<K!>! keySet();
@@ -16,8 +16,8 @@ package androidx.collection {
 
   public final class ArraySet<E> implements java.util.Collection<E> java.util.Set<E> {
     ctor public ArraySet();
-    ctor public ArraySet(int);
     ctor public ArraySet(androidx.collection.ArraySet<E!>?);
+    ctor public ArraySet(int);
     ctor public ArraySet(java.util.Collection<E!>?);
     method public boolean add(E?);
     method public void addAll(androidx.collection.ArraySet<? extends E>);
@@ -126,8 +126,8 @@ package androidx.collection {
 
   public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
-    ctor public SimpleArrayMap(int);
     ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<K!,V!>!);
+    ctor public SimpleArrayMap(int);
     method public void clear();
     method public boolean containsKey(Object?);
     method public boolean containsValue(Object!);

@@ -34,20 +34,20 @@ class ServerBinderCodeConverterTest {
                 services =
                     setOf(
                         AnnotatedInterface(
-                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk")
                         )
                     ),
                 values =
                     setOf(
                         AnnotatedDataClass(
                             type = Type(packageName = "com.mysdk", simpleName = "Value"),
-                            properties = listOf()
+                            properties = listOf(),
                         )
                     ),
                 callbacks =
                     setOf(
                         AnnotatedInterface(
-                            type = Type(packageName = "com.mysdk", simpleName = "Callback"),
+                            type = Type(packageName = "com.mysdk", simpleName = "Callback")
                         )
                     ),
             )
@@ -65,7 +65,7 @@ class ServerBinderCodeConverterTest {
                 converter
                     .convertToBinderCode(
                         Type(packageName = "com.mysdk", simpleName = "Value"),
-                        expression = "value"
+                        expression = "value",
                     )
                     .toString()
             )
@@ -78,7 +78,7 @@ class ServerBinderCodeConverterTest {
                 converter
                     .convertToBinderCode(
                         Type(packageName = "com.mysdk", simpleName = "Callback"),
-                        expression = "callback"
+                        expression = "callback",
                     )
                     .toString()
             )

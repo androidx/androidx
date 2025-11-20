@@ -4,8 +4,10 @@ package androidx.core.i18n {
   public final class DateTimeFormatter {
     ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options);
     ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
+    ctor @BytecodeOnly public DateTimeFormatter(android.content.Context!, androidx.core.i18n.DateTimeFormatterSkeletonOptions!, java.util.Locale!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options);
     ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
+    ctor @BytecodeOnly public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions!, java.util.Locale!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public String format(java.util.Calendar calendar);
     method public String format(java.util.Date date);
     method public String format(long milliseconds);
@@ -63,8 +65,8 @@ package androidx.core.i18n {
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateInstance(int style);
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createDateTimeInstance(int dateStyle, int timeStyle);
     method public static androidx.core.i18n.DateTimeFormatterJdkStyleOptions createTimeInstance(int style);
-    method public int getDateStyle();
-    method public int getTimeStyle();
+    method @InaccessibleFromKotlin public int getDateStyle();
+    method @InaccessibleFromKotlin public int getTimeStyle();
     property public int dateStyle;
     property public int timeStyle;
     field public static final androidx.core.i18n.DateTimeFormatterJdkStyleOptions.Companion Companion;
@@ -95,6 +97,7 @@ package androidx.core.i18n {
   public static final class DateTimeFormatterSkeletonOptions.Builder {
     ctor public DateTimeFormatterSkeletonOptions.Builder();
     ctor public DateTimeFormatterSkeletonOptions.Builder(optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year year, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month month, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay weekDay, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period period, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour hour, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute minute, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second second, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fractionalSecond, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone timezone);
+    ctor @BytecodeOnly public DateTimeFormatterSkeletonOptions.Builder(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions build();
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setDay(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setEra(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era);
@@ -115,7 +118,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Day {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day NONE;
@@ -132,7 +135,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Era {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era ABBREVIATED;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era.Companion Companion;
@@ -151,7 +154,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.FractionalSecond {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond NONE;
@@ -170,7 +173,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Hour {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour FORCE_12H_NUMERIC;
@@ -195,7 +198,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Minute {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute NONE;
@@ -212,7 +215,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Month {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month ABBREVIATED;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month.Companion Companion;
@@ -235,7 +238,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Period {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period ABBREVIATED;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period.Companion Companion;
@@ -256,7 +259,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Second {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second NONE;
@@ -273,7 +276,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Timezone {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone LONG;
@@ -298,7 +301,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.WeekDay {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay ABBREVIATED;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay.Companion Companion;
@@ -319,7 +322,7 @@ package androidx.core.i18n {
 
   public static final class DateTimeFormatterSkeletonOptions.Year {
     method public static androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year fromString(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year.Companion Companion;
     field public static final androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year NONE;
@@ -345,6 +348,7 @@ package androidx.core.i18n {
     method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
     method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
     method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method @BytecodeOnly public static String! format$default(androidx.core.i18n.MessageFormat.Companion!, android.content.Context!, java.util.Locale!, String!, java.util.Map!, int, Object!);
   }
 
 }

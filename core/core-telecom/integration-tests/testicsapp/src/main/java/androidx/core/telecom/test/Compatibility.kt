@@ -99,7 +99,7 @@ object Compatibility {
         service: InCallService,
         endpoint: CallEndpoint,
         executor: Executor,
-        callback: OutcomeReceiver<Void, CallEndpointException>
+        callback: OutcomeReceiver<Void, CallEndpointException>,
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             Api34Impl.requestCallEndpointChange(service, endpoint, executor, callback)
@@ -161,7 +161,7 @@ object Api34Impl {
         service: InCallService,
         endpoint: CallEndpoint,
         executor: Executor,
-        callback: OutcomeReceiver<Void, CallEndpointException>
+        callback: OutcomeReceiver<Void, CallEndpointException>,
     ) {
         service.requestCallEndpointChange(endpoint, executor, callback)
     }

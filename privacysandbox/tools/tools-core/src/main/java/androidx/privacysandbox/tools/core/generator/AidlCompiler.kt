@@ -49,7 +49,7 @@ class AidlCompiler(
                     "--include=$workingDir",
                     "--preprocessed=$preProcessedAidlPath",
                     "--out=$workingDir",
-                    *sources.map(Path::toString).toTypedArray()
+                    *sources.map(Path::toString).toTypedArray(),
                 )
             val process = ProcessBuilder(command).start()
             val timedOut = !process.waitFor(aidlCompileTimeoutMs, TimeUnit.MILLISECONDS)

@@ -45,7 +45,7 @@ class PrivacySandboxExceptionFileGenerator(private val basePackageName: String) 
                                 Throwable::class.asTypeName().copy(nullable = true),
                             )
                             .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-                            .build()
+                            .build(),
                     )
                 )
             }

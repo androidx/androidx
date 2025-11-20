@@ -25,7 +25,9 @@ import android.util.Base64
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -64,13 +66,22 @@ internal object ClipboardUtils {
         if (clipEntry == null) return false
         return clipEntry.clipData.description.hasMimeType("text/*")
     }
+
+    /**
+     * This method allows to check if there is a text in the Clipboard without triggering the toast
+     * "APP pasted from the clipboard" on Android (unlike, clipboard.getClipEntry())
+     */
+    @JvmStatic
+    fun hasText(clipboard: Clipboard): Boolean {
+        return clipboard.nativeClipboard.primaryClipDescription?.hasMimeType("text/*") == true
+    }
 }
 
-internal actual fun ClipEntry.readText(): String? {
+internal actual suspend fun ClipEntry.readText(): String? {
     return ClipboardUtils.readText(this)
 }
 
-internal actual fun ClipEntry.readAnnotatedString(): AnnotatedString? {
+internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {
     return ClipboardUtils.readAnnotatedString(this)
 }
 
@@ -81,6 +92,10 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 internal actual fun ClipEntry?.hasText(): Boolean {
     return ClipboardUtils.hasText(this)
 }
+
+internal actual fun Clipboard.isReadSupported(): Boolean = true
+
+internal actual fun Clipboard.isWriteSupported(): Boolean = true
 
 // Copy pasted from ui module
 internal fun AnnotatedString.convertToCharSequence(): CharSequence {
@@ -100,7 +115,7 @@ internal fun AnnotatedString.convertToCharSequence(): CharSequence {
             Annotation("androidx.compose.text.SpanStyle", encodeHelper.encodedString()),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
     return spannableString
@@ -382,7 +397,7 @@ internal class DecodeHelper(string: String) {
     }
 
     fun decodeColor(): Color {
-        return Color(decodeULong())
+        return Color.fromColorLong(parcel.readLong())
     }
 
     fun decodeTextUnit(): TextUnit {
@@ -448,7 +463,7 @@ internal class DecodeHelper(string: String) {
         return Shadow(
             color = decodeColor(),
             offset = Offset(decodeFloat(), decodeFloat()),
-            blurRadius = decodeFloat()
+            blurRadius = decodeFloat(),
         )
     }
 
@@ -492,7 +507,7 @@ private class MutableSpanStyle(
     var localeList: LocaleList? = null,
     var background: Color = Color.Unspecified,
     var textDecoration: TextDecoration? = null,
-    var shadow: Shadow? = null
+    var shadow: Shadow? = null,
 ) {
     fun toSpanStyle(): SpanStyle {
         return SpanStyle(
@@ -509,7 +524,7 @@ private class MutableSpanStyle(
             localeList = localeList,
             background = background,
             textDecoration = textDecoration,
-            shadow = shadow
+            shadow = shadow,
         )
     }
 }

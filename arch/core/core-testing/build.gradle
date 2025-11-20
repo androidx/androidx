@@ -35,13 +35,10 @@ dependencies {
     api(libs.junit)
     api(libs.mockitoCore)
 
-    testImplementation(libs.junit)
-
-    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.hamcrestCore)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
+    androidTestRuntimeOnly(libs.testCore)
 }
 
 androidx {

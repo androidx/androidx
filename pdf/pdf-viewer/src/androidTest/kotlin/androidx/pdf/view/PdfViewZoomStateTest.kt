@@ -75,14 +75,13 @@ class PdfViewZoomStateTest {
             onView(withId(PDF_VIEW_ID)).check { view, noViewFoundException ->
                 view ?: throw noViewFoundException
                 val pdfView = view as PdfView
-                assertThat(pdfView.isInitialZoomDone).isTrue()
                 assertThat(pdfView.zoom).isWithin(0.01f).of(1.0f)
             }
         }
     }
 
     @Test
-    fun testGetDefaultZoom_fitWidth() = runTest {
+    fun testGetFitToWidthZoom_fitWidth() = runTest {
         val fakePdfDocument = FakePdfDocument(List(20) { Point(PAGE_WIDTH, PAGE_HEIGHT) })
 
         setupPdfView(fakePdfDocument)
@@ -92,7 +91,7 @@ class PdfViewZoomStateTest {
             val pdfView = activity.findViewById<PdfView>(PDF_VIEW_ID)
             pdfView.zoom = 2.0f
             val expectedZoom = 1.0f
-            val actualZoom = pdfView.getDefaultZoom()
+            val actualZoom = pdfView.getFitToWidthZoom()
             assertThat(actualZoom).isWithin(0.01f).of(expectedZoom)
         }
     }
@@ -111,9 +110,8 @@ class PdfViewZoomStateTest {
             pdfView.zoom = savedZoom
             pdfView.scrollTo(
                 (savedScrollPosition.x * savedZoom - pdfView.viewportWidth / 2f).toInt(),
-                (savedScrollPosition.y * savedZoom - pdfView.viewportHeight / 2f).toInt()
+                (savedScrollPosition.y * savedZoom - pdfView.viewportHeight / 2f).toInt(),
             )
-            pdfView.isInitialZoomDone = true
         }
 
         activityScenario.recreate()
@@ -135,11 +133,3 @@ class PdfViewZoomStateTest {
 private const val PDF_VIEW_ID = 123456789
 private const val PAGE_WIDTH = 500
 private const val PAGE_HEIGHT = 800
-
-/** The height of the viewport, minus padding */
-val PdfView.viewportHeight: Int
-    get() = bottom - top - paddingBottom - paddingTop
-
-/** The width of the viewport, minus padding */
-val PdfView.viewportWidth: Int
-    get() = right - left - paddingRight - paddingLeft

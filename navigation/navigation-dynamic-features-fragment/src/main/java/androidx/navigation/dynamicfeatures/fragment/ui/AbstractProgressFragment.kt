@@ -154,7 +154,7 @@ public abstract class AbstractProgressFragment : Fragment {
                                         .build()
                                 )
                             },
-                            INSTALL_REQUEST_CODE
+                            INSTALL_REQUEST_CODE,
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
@@ -170,7 +170,7 @@ public abstract class AbstractProgressFragment : Fragment {
                     onProgress(
                         sessionState.status(),
                         sessionState.bytesDownloaded(),
-                        sessionState.totalBytesToDownload()
+                        sessionState.totalBytesToDownload(),
                     )
                 }
             }
@@ -187,7 +187,7 @@ public abstract class AbstractProgressFragment : Fragment {
     protected abstract fun onProgress(
         @SplitInstallSessionStatus status: Int,
         bytesDownloaded: Long,
-        bytesTotal: Long
+        bytesTotal: Long,
     )
 
     /** Called when the user decided to cancel installation. */

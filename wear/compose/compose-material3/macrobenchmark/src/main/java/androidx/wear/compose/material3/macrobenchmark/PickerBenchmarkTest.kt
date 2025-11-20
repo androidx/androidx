@@ -28,5 +28,5 @@ class PickerBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = PickerBenchmark,
-        actionSuffix = "PICKER_ACTIVITY"
+        actionSuffix = "PICKER_ACTIVITY",
     )

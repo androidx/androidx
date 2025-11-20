@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.LayoutDirection;
 import android.util.Size;
 import android.view.Surface;
@@ -40,7 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class PreviewViewMeteringPointFactoryTest {
 
     private static final int WIDTH = 800;

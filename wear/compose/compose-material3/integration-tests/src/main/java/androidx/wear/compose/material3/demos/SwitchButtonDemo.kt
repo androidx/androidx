@@ -43,11 +43,7 @@ fun SwitchButtonDemo() {
         item { DemoSwitchButton(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Switch with Icon") } }
         item {
-            DemoSwitchButton(
-                enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label",
-            ) {
+            DemoSwitchButton(enabled = true, initiallyChecked = true, primary = "Primary label") {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
@@ -56,7 +52,7 @@ fun SwitchButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label",
-                secondary = "Secondary label"
+                secondary = "Secondary label",
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
@@ -77,7 +73,7 @@ fun SwitchButtonDemo() {
                     enabled = false,
                     initiallyChecked = initiallyChecked,
                     primary = "Primary label",
-                    secondary = "Secondary label"
+                    secondary = "Secondary label",
                 ) {
                     Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
                 }
@@ -89,14 +85,7 @@ fun SwitchButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
-                secondary = "Monday"
-            )
-        }
-        item {
-            DemoSwitchButton(
-                enabled = true,
-                initiallyChecked = true,
-                primary = "Primary Label with at most three lines of content"
+                secondary = "Monday",
             )
         }
         item {
@@ -104,7 +93,14 @@ fun SwitchButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with at most three lines of content",
-                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoSwitchButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Primary Label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text",
             )
         }
         item {
@@ -140,10 +136,7 @@ private fun DemoSwitchButton(
         },
         secondaryLabel = {
             if (secondary.isNotEmpty()) {
-                Text(
-                    secondary,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                Text(secondary, modifier = Modifier.fillMaxWidth())
             }
         },
         checked = checked,

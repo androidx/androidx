@@ -460,7 +460,7 @@ public class TimePickerTest {
         Thread.sleep(UPDATE_LENGTH);
 
         ViewGroup mTimePickerInnerView = mTimePicker12HourView.findViewById(
-                R.id.picker);
+                androidx.leanback.R.id.picker);
 
         assertThat("The first column of TimePicker should initially hold focus",
                 mTimePickerInnerView.getChildAt(0).hasFocus(), is(true));

@@ -39,12 +39,26 @@ public class MutableVec(
     public constructor() : this(0F, 0F)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asImmutable(): ImmutableVec = ImmutableVec(x, y)
+    override fun toImmutable(): ImmutableVec = ImmutableVec(x, y)
 
     /** Fills this [MutableVec] with the same values contained in [input]. */
     public fun populateFrom(input: Vec): MutableVec {
         x = input.x
         y = input.y
+        return this
+    }
+
+    /**
+     * Fills this [MutableVec] to have the given magnitude and direction in degrees rotated from the
+     * positive x-axis in the direction of positive y-axis.
+     */
+    public fun populateFromDirectionInDegreesAndMagnitude(
+        @AngleDegreesFloat directionDegrees: Float,
+        magnitude: Float,
+    ): MutableVec {
+        val directionRadians = Angle.degreesToRadians(directionDegrees)
+        x = magnitude * cos(directionRadians)
+        y = magnitude * sin(directionRadians)
         return this
     }
 
@@ -56,13 +70,6 @@ public class MutableVec(
 
     override fun toString(): String = "Mutable${string(this)}"
 
-    public companion object {
-        @JvmStatic
-        public fun fromDirectionAndMagnitude(
-            @AngleRadiansFloat direction: Float,
-            magnitude: Float,
-        ): MutableVec {
-            return MutableVec(magnitude * cos(direction), magnitude * sin(direction))
-        }
-    }
+    // Allows for extension methods.
+    public companion object
 }

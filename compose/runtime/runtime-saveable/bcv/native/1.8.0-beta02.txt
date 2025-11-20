@@ -1,0 +1,44 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.runtime:runtime-saveable>
+abstract fun interface androidx.compose.runtime.saveable/SaverScope { // androidx.compose.runtime.saveable/SaverScope|null[0]
+    abstract fun canBeSaved(kotlin/Any): kotlin/Boolean // androidx.compose.runtime.saveable/SaverScope.canBeSaved|canBeSaved(kotlin.Any){}[0]
+}
+
+abstract interface <#A: kotlin/Any?, #B: kotlin/Any> androidx.compose.runtime.saveable/Saver { // androidx.compose.runtime.saveable/Saver|null[0]
+    abstract fun (androidx.compose.runtime.saveable/SaverScope).save(#A): #B? // androidx.compose.runtime.saveable/Saver.save|save@androidx.compose.runtime.saveable.SaverScope(1:0){}[0]
+    abstract fun restore(#B): #A? // androidx.compose.runtime.saveable/Saver.restore|restore(1:1){}[0]
+}
+
+abstract interface androidx.compose.runtime.saveable/SaveableStateHolder { // androidx.compose.runtime.saveable/SaveableStateHolder|null[0]
+    abstract fun SaveableStateProvider(kotlin/Any, kotlin/Function0<kotlin/Unit>) // androidx.compose.runtime.saveable/SaveableStateHolder.SaveableStateProvider|SaveableStateProvider(kotlin.Any;kotlin.Function0<kotlin.Unit>){}[0]
+    abstract fun removeState(kotlin/Any) // androidx.compose.runtime.saveable/SaveableStateHolder.removeState|removeState(kotlin.Any){}[0]
+}
+
+abstract interface androidx.compose.runtime.saveable/SaveableStateRegistry { // androidx.compose.runtime.saveable/SaveableStateRegistry|null[0]
+    abstract fun canBeSaved(kotlin/Any): kotlin/Boolean // androidx.compose.runtime.saveable/SaveableStateRegistry.canBeSaved|canBeSaved(kotlin.Any){}[0]
+    abstract fun consumeRestored(kotlin/String): kotlin/Any? // androidx.compose.runtime.saveable/SaveableStateRegistry.consumeRestored|consumeRestored(kotlin.String){}[0]
+    abstract fun performSave(): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/Any?>> // androidx.compose.runtime.saveable/SaveableStateRegistry.performSave|performSave(){}[0]
+    abstract fun registerProvider(kotlin/String, kotlin/Function0<kotlin/Any?>): androidx.compose.runtime.saveable/SaveableStateRegistry.Entry // androidx.compose.runtime.saveable/SaveableStateRegistry.registerProvider|registerProvider(kotlin.String;kotlin.Function0<kotlin.Any?>){}[0]
+
+    abstract interface Entry { // androidx.compose.runtime.saveable/SaveableStateRegistry.Entry|null[0]
+        abstract fun unregister() // androidx.compose.runtime.saveable/SaveableStateRegistry.Entry.unregister|unregister(){}[0]
+    }
+}
+
+final val androidx.compose.runtime.saveable/LocalSaveableStateRegistry // androidx.compose.runtime.saveable/LocalSaveableStateRegistry|{}LocalSaveableStateRegistry[0]
+    final fun <get-LocalSaveableStateRegistry>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.runtime.saveable/SaveableStateRegistry?> // androidx.compose.runtime.saveable/LocalSaveableStateRegistry.<get-LocalSaveableStateRegistry>|<get-LocalSaveableStateRegistry>(){}[0]
+
+final fun <#A: kotlin/Any> androidx.compose.runtime.saveable/rememberSaveable(kotlin/Array<out kotlin/Any?>..., androidx.compose.runtime.saveable/Saver<#A, out kotlin/Any> = ..., kotlin/String? = ..., kotlin/Function0<#A>): #A // androidx.compose.runtime.saveable/rememberSaveable|rememberSaveable(kotlin.Array<out|kotlin.Any?>...;androidx.compose.runtime.saveable.Saver<0:0,out|kotlin.Any>;kotlin.String?;kotlin.Function0<0:0>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any> androidx.compose.runtime.saveable/Saver(kotlin/Function2<androidx.compose.runtime.saveable/SaverScope, #A, #B?>, kotlin/Function1<#B, #A?>): androidx.compose.runtime.saveable/Saver<#A, #B> // androidx.compose.runtime.saveable/Saver|Saver(kotlin.Function2<androidx.compose.runtime.saveable.SaverScope,0:0,0:1?>;kotlin.Function1<0:1,0:0?>){0§<kotlin.Any?>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.compose.runtime.saveable/listSaver(kotlin/Function2<androidx.compose.runtime.saveable/SaverScope, #A, kotlin.collections/List<#B>>, kotlin/Function1<kotlin.collections/List<#B>, #A?>): androidx.compose.runtime.saveable/Saver<#A, kotlin/Any> // androidx.compose.runtime.saveable/listSaver|listSaver(kotlin.Function2<androidx.compose.runtime.saveable.SaverScope,0:0,kotlin.collections.List<0:1>>;kotlin.Function1<kotlin.collections.List<0:1>,0:0?>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime.saveable/autoSaver(): androidx.compose.runtime.saveable/Saver<#A, kotlin/Any> // androidx.compose.runtime.saveable/autoSaver|autoSaver(){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime.saveable/mapSaver(kotlin/Function2<androidx.compose.runtime.saveable/SaverScope, #A, kotlin.collections/Map<kotlin/String, kotlin/Any?>>, kotlin/Function1<kotlin.collections/Map<kotlin/String, kotlin/Any?>, #A?>): androidx.compose.runtime.saveable/Saver<#A, kotlin/Any> // androidx.compose.runtime.saveable/mapSaver|mapSaver(kotlin.Function2<androidx.compose.runtime.saveable.SaverScope,0:0,kotlin.collections.Map<kotlin.String,kotlin.Any?>>;kotlin.Function1<kotlin.collections.Map<kotlin.String,kotlin.Any?>,0:0?>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime.saveable/rememberSaveable(kotlin/Array<out kotlin/Any?>..., androidx.compose.runtime.saveable/Saver<#A, out kotlin/Any>, kotlin/String? = ..., kotlin/Function0<androidx.compose.runtime/MutableState<#A>>): androidx.compose.runtime/MutableState<#A> // androidx.compose.runtime.saveable/rememberSaveable|rememberSaveable(kotlin.Array<out|kotlin.Any?>...;androidx.compose.runtime.saveable.Saver<0:0,out|kotlin.Any>;kotlin.String?;kotlin.Function0<androidx.compose.runtime.MutableState<0:0>>){0§<kotlin.Any?>}[0]
+final fun androidx.compose.runtime.saveable/SaveableStateRegistry(kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/Any?>>?, kotlin/Function1<kotlin/Any, kotlin/Boolean>): androidx.compose.runtime.saveable/SaveableStateRegistry // androidx.compose.runtime.saveable/SaveableStateRegistry|SaveableStateRegistry(kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.Any?>>?;kotlin.Function1<kotlin.Any,kotlin.Boolean>){}[0]
+final fun androidx.compose.runtime.saveable/rememberSaveableStateHolder(): androidx.compose.runtime.saveable/SaveableStateHolder // androidx.compose.runtime.saveable/rememberSaveableStateHolder|rememberSaveableStateHolder(){}[0]

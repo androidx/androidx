@@ -107,11 +107,11 @@ class DynamicAnimationTest {
         assertEquals(springAnimationWithoutFinalPosition.spring.finalPosition, 100f)
         assertEquals(
             springAnimationWithoutFinalPosition.spring.dampingRatio,
-            SpringForce.DAMPING_RATIO_HIGH_BOUNCY
+            SpringForce.DAMPING_RATIO_HIGH_BOUNCY,
         )
         assertEquals(
             springAnimationWithoutFinalPosition.spring.stiffness,
-            SpringForce.STIFFNESS_HIGH
+            SpringForce.STIFFNESS_HIGH,
         )
         val springAnimationWithFinalPosition =
             springAnimationOf(view::setTranslationX, view::getTranslationX, 120f)
@@ -123,7 +123,7 @@ class DynamicAnimationTest {
         assertEquals(springAnimationWithFinalPosition.spring.finalPosition, 120f)
         assertEquals(
             springAnimationWithFinalPosition.spring.dampingRatio,
-            SpringForce.DAMPING_RATIO_LOW_BOUNCY
+            SpringForce.DAMPING_RATIO_LOW_BOUNCY,
         )
         assertEquals(springAnimationWithFinalPosition.spring.stiffness, SpringForce.STIFFNESS_LOW)
     }

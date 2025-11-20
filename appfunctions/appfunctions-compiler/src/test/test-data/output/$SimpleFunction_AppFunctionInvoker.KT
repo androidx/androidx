@@ -2,8 +2,8 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
-import androidx.appfunctions.`internal`.AppFunctionInvoker
-import androidx.appfunctions.`internal`.ConfigurableAppFunctionFactory
+import androidx.appfunctions.service.`internal`.AppFunctionInvoker
+import androidx.appfunctions.service.`internal`.ConfigurableAppFunctionFactory
 import javax.`annotation`.processing.Generated
 import kotlin.Any
 import kotlin.String
@@ -21,11 +21,11 @@ public class `$SimpleFunction_AppFunctionInvoker` : AppFunctionInvoker {
     functionIdentifier: String,
     parameters: Map<String, Any?>,
   ): Any? {
-    val result = when (functionIdentifier) {
+    val result: Any? = when (functionIdentifier) {
       "com.testdata.SimpleFunction#simpleFunction" -> {
         ConfigurableAppFunctionFactory<SimpleFunction>(
           appFunctionContext.context
-        )
+        ) { SimpleFunction() }
         .createEnclosingClass(SimpleFunction::class.java)
         .simpleFunction(appFunctionContext)
       }

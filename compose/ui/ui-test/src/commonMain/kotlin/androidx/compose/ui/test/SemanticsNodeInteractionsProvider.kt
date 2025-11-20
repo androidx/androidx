@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.CheckResult
 import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 
 /**
@@ -40,9 +41,10 @@ interface SemanticsNodeInteractionsProvider {
      *   of a larger semantic unit, for example a text and an image forming a Button together.
      * @see onAllNodes to work with multiple elements
      */
+    @CheckResult
     fun onNode(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean = false
+        useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteraction
 
     /**
@@ -59,8 +61,9 @@ interface SemanticsNodeInteractionsProvider {
      *   of a larger semantic unit, for example a text and an image forming a Button together.
      * @see onNode
      */
+    @CheckResult
     fun onAllNodes(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean = false
+        useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteractionCollection
 }

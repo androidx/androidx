@@ -58,7 +58,7 @@ class MeasureCountingView @JvmOverloads constructor(context: Context, attrs: Att
             if (MeasureSpec.getMode(widthMeasureSpec) == AT_MOST) {
                 MeasureSpec.makeMeasureSpec(
                     MeasureSpec.getSize(widthMeasureSpec).coerceAtMost(100),
-                    MeasureSpec.EXACTLY
+                    MeasureSpec.EXACTLY,
                 )
             } else widthMeasureSpec
         super.onMeasure(modifiedWidthSpec, heightMeasureSpec)

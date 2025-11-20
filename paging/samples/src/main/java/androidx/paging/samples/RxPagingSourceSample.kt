@@ -52,7 +52,7 @@ fun rxPagingSourceSample() {
                     LoadResult.Page(
                         data = result.items,
                         prevKey = result.prev,
-                        nextKey = result.next
+                        nextKey = result.next,
                     )
                 }
                 .onErrorReturn { e ->

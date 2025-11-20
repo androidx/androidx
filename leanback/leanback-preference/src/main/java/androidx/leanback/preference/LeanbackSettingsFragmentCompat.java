@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
@@ -59,7 +60,8 @@ public abstract class LeanbackSettingsFragmentCompat extends Fragment
     private static final String PREFERENCE_FRAGMENT_TAG =
             "androidx.leanback.preference.LeanbackSettingsFragment.PREFERENCE_FRAGMENT";
 
-    private final RootViewOnKeyListener mRootViewOnKeyListener = new RootViewOnKeyListener();
+    private final OnKeyListener mRootViewOnKeyListener =
+            decorateOnKeyListener(new RootViewOnKeyListener());
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -174,7 +176,17 @@ public abstract class LeanbackSettingsFragmentCompat extends Fragment
                 .commit();
     }
 
-    private class RootViewOnKeyListener implements View.OnKeyListener {
+    /**
+     * Modifies or replaces the OnKeyListener automatically set for this fragment.
+     *
+     * <p>The default implementation simply returns the listener.
+     */
+    @NonNull
+    protected OnKeyListener decorateOnKeyListener(@NonNull OnKeyListener onKeyListener) {
+        return onKeyListener;
+    }
+
+    private class RootViewOnKeyListener implements OnKeyListener {
         RootViewOnKeyListener() {
         }
 

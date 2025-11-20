@@ -26,8 +26,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests {@link KeyedAppStatesCallbackMerger}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
-@Config(minSdk = 21)
 public class KeyedAppStatesCallbackMergerTest {
 
     private final TestKeyedAppStatesCallback mCallback = new TestKeyedAppStatesCallback();

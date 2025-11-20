@@ -55,13 +55,13 @@ public object MultiProcessDataStoreFactory {
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     ): DataStore<T> =
         DataStoreImpl<T>(
             storage = storage,
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            scope = scope
+            scope = scope,
         )
 
     /**
@@ -99,17 +99,17 @@ public object MultiProcessDataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile: () -> File
+        produceFile: () -> File,
     ): DataStore<T> =
         DataStoreImpl<T>(
             storage =
                 FileStorage(
                     serializer,
                     { MultiProcessCoordinator(scope.coroutineContext, it) },
-                    produceFile
+                    produceFile,
                 ),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            scope = scope
+            scope = scope,
         )
 }

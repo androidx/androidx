@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized
 class TrivialStartupPerfettoSdkOverheadBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
-    private val isPerfettoSdkEnabled: Boolean
+    private val isPerfettoSdkEnabled: Boolean,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -48,7 +48,7 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
             benchmarkRule.measureStartup(
                 compilationMode = compilationMode,
                 startupMode = startupMode,
-                packageName = "androidx.compose.integration.macrobenchmark.target"
+                packageName = "androidx.compose.integration.macrobenchmark.target",
             ) {
                 action =
                     "androidx.compose.integration.macrobenchmark.target." +
@@ -77,7 +77,7 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
                     // for cold and not, since the behavior is very different in those scenarios
                     createStartupCompilationParams(
                             listOf(StartupMode.COLD, StartupMode.WARM),
-                            listOf(CompilationMode.DEFAULT)
+                            listOf(CompilationMode.DEFAULT),
                         )
                         .map { it + true } /* perfetto sdk enabled */
             }

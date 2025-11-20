@@ -145,7 +145,7 @@ class FakeHealthConnectClientOverridesTest {
                 fake.deleteRecords(
                     recordType = runRecord1::class,
                     timeRangeFilter =
-                        TimeRangeFilter(runRecord1.startTime.minusMillis(1), runRecord1.endTime)
+                        TimeRangeFilter(runRecord1.startTime.minusMillis(1), runRecord1.endTime),
                 )
             }
         }
@@ -161,7 +161,7 @@ class FakeHealthConnectClientOverridesTest {
                 fake.deleteRecords(
                     recordType = runRecord1::class,
                     recordIdsList = emptyList(),
-                    clientRecordIdsList = emptyList()
+                    clientRecordIdsList = emptyList(),
                 )
             }
         }
@@ -235,7 +235,7 @@ class FakeHealthConnectClientOverridesTest {
                                     }
                             ),
                             startTime = LocalDateTime.now(),
-                            endTime = LocalDateTime.now()
+                            endTime = LocalDateTime.now(),
                         )
                     )
             )
@@ -262,7 +262,7 @@ class FakeHealthConnectClientOverridesTest {
                             ),
                             startTime = runRecord1.startTime,
                             endTime = runRecord1.endTime,
-                            zoneOffset = runRecord1.startZoneOffset!!
+                            zoneOffset = runRecord1.startZoneOffset!!,
                         )
                     )
             )
@@ -309,7 +309,7 @@ class FakeHealthConnectClientOverridesTest {
                     changes = listOf(UpsertionChange(runRecord1)),
                     hasMore = true,
                     changesTokenExpired = false,
-                    nextChangesToken = "next"
+                    nextChangesToken = "next",
                 )
             } else {
                 throw IllegalStateException()

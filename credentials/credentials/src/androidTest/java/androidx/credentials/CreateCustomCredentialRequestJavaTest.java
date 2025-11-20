@@ -129,8 +129,6 @@ public class CreateCustomCredentialRequestJavaTest {
                         /* requestDisplayInfo= */null, false));
     }
 
-
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void frameworkConversion_success() {
         String expectedType = "TYPE";

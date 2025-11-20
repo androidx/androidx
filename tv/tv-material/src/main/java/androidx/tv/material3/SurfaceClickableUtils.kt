@@ -30,13 +30,13 @@ internal fun Modifier.tvClickable(
     enabled: Boolean,
     onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)?,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource,
 ) =
     handleDPadEnter(
             enabled = enabled,
             interactionSource = interactionSource,
             onClick = onClick,
-            onLongClick = onLongClick
+            onLongClick = onLongClick,
         )
         // We are not using "clickable" modifier here because if we set "enabled" to false
         // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
@@ -65,7 +65,7 @@ internal fun Modifier.tvClickable(
 internal fun ClickableSurfaceShape.currentShape(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Shape {
     return when {
         pressed && enabled -> pressedShape
@@ -79,7 +79,7 @@ internal fun ClickableSurfaceShape.currentShape(
 internal fun ClickableSurfaceColors.currentContainerColor(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Color {
     return when {
         pressed && enabled -> pressedContainerColor
@@ -92,7 +92,7 @@ internal fun ClickableSurfaceColors.currentContainerColor(
 internal fun ClickableSurfaceColors.currentContentColor(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Color {
     return when {
         pressed && enabled -> pressedContentColor
@@ -105,7 +105,7 @@ internal fun ClickableSurfaceColors.currentContentColor(
 internal fun ClickableSurfaceScale.currentScale(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Float {
     return when {
         pressed && enabled -> pressedScale
@@ -119,7 +119,7 @@ internal fun ClickableSurfaceScale.currentScale(
 internal fun ClickableSurfaceBorder.currentBorder(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Border {
     return when {
         pressed && enabled -> pressedBorder
@@ -133,7 +133,7 @@ internal fun ClickableSurfaceBorder.currentBorder(
 internal fun ClickableSurfaceGlow.currentGlow(
     enabled: Boolean,
     focused: Boolean,
-    pressed: Boolean
+    pressed: Boolean,
 ): Glow {
     return if (enabled) {
         when {

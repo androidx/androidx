@@ -42,6 +42,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -56,7 +57,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class ImageVectorTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testProgrammaticAndXmlImageVectorsAreTheSame() {
@@ -111,7 +112,7 @@ class ImageVectorTest {
                             painterResource(
                                 androidx.compose.ui.graphics.benchmark.R.drawable.ic_auto_mirror
                             ),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
@@ -154,11 +155,11 @@ class ImageVectorTest {
             assertEquals(Color.Red.toArgb(), getPixel(width - insetRectSize - 2, insetRectSize + 2))
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(insetRectSize + 2, height - insetRectSize - 2)
+                getPixel(insetRectSize + 2, height - insetRectSize - 2),
             )
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(width - insetRectSize - 2, height - insetRectSize - 2)
+                getPixel(width - insetRectSize - 2, height - insetRectSize - 2),
             )
         }
     }

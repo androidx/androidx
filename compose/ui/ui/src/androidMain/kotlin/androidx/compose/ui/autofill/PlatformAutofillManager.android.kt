@@ -63,7 +63,7 @@ internal class PlatformAutofillManagerImpl(val platformAndroidManager: AutofillM
                 view,
                 platformAndroidManager,
                 semanticsId,
-                isVisible
+                isVisible,
             )
         }
     }

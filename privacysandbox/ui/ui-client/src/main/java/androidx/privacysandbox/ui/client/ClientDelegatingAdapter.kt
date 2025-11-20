@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.privacysandbox.ui.client
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory.createFromCoreLibInfo
@@ -28,10 +31,16 @@ import androidx.privacysandbox.ui.core.IDelegatorCallback
 import androidx.privacysandbox.ui.core.ISessionRefreshCallback
 import androidx.privacysandbox.ui.core.RemoteCallManager.tryToCallRemoteObject
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.core.SessionConstants
+import androidx.privacysandbox.ui.core.SessionData
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -52,8 +61,12 @@ internal class ClientDelegatingAdapter(
      * conditions on opening a session with the delegate and changing the delegate so, a lock must
      * be acquired when dealing with this variable.
      */
-    @GuardedBy("lock") var latestDelegate: SandboxedUiAdapter
+    @GuardedBy("lock") var latestDelegate: SandboxedUiAdapter,
 ) : SandboxedUiAdapter {
+    private companion object {
+        private const val TAG = "ClientDelegatingAdapter"
+    }
+
     private val lock = Any()
 
     // Using Dispatcher.Unconfined implies the coroutine may resume on any available thread.
@@ -83,7 +96,7 @@ internal class ClientDelegatingAdapter(
     private inner class ClientWrapper(
         private var client: RefreshableSessionClient?,
         /** the delegate that was used when this [ClientWrapper] was created to open a session. */
-        private val delegateUsed: SandboxedUiAdapter
+        private val delegateUsed: SandboxedUiAdapter,
     ) : SandboxedUiAdapter.SessionClient {
 
         // It is possible that onSessionError and onSessionOpened race in certain conditions so,
@@ -143,22 +156,22 @@ internal class ClientDelegatingAdapter(
      */
     override fun openSession(
         context: Context,
-        sessionConstants: SessionConstants,
+        sessionData: SessionData,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
         clientExecutor: Executor,
-        client: SandboxedUiAdapter.SessionClient
+        client: SandboxedUiAdapter.SessionClient,
     ) {
         val delegateUsed: SandboxedUiAdapter = synchronized(lock) { latestDelegate }
         delegateUsed.openSession(
             context,
-            sessionConstants,
+            sessionData,
             initialWidth,
             initialHeight,
             isZOrderOnTop,
             clientExecutor,
-            ClientWrapper(client as RefreshableSessionClient, delegateUsed)
+            ClientWrapper(client as RefreshableSessionClient, delegateUsed),
         )
     }
 
@@ -198,6 +211,7 @@ internal class ClientDelegatingAdapter(
                                 callback.onDelegateChangeResult(overallSuccess)
                             }
                         } catch (e: Exception) {
+                            Log.w(TAG, "Delegate Switch failed: $e")
                             callback.onDelegateChangeResult(false)
                         } finally {
                             toDispatch.clear()

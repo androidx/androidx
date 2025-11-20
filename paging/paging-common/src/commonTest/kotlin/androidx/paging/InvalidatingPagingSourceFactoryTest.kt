@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 
 class InvalidatingPagingSourceFactoryTest {
 
@@ -90,16 +90,15 @@ class InvalidatingPagingSourceFactoryTest {
     }
 
     @Test
-    fun invalidate_threadSafe() =
-        runBlocking<Unit> {
-            val factory = InvalidatingPagingSourceFactory { TestPagingSource() }
-            (0 until 100)
-                .map {
-                    async(Dispatchers.Default) {
-                        factory().registerInvalidatedCallback { factory().invalidate() }
-                        factory.invalidate()
-                    }
+    fun invalidate_threadSafe() = runTest {
+        val factory = InvalidatingPagingSourceFactory { TestPagingSource() }
+        (0 until 100)
+            .map {
+                async(Dispatchers.Default) {
+                    factory().registerInvalidatedCallback { factory().invalidate() }
+                    factory.invalidate()
                 }
-                .awaitAll()
-        }
+            }
+            .awaitAll()
+    }
 }

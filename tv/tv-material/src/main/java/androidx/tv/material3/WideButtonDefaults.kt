@@ -53,17 +53,14 @@ object WideButtonDefaults {
             start = HorizontalPadding,
             top = VerticalPadding,
             end = HorizontalPadding,
-            bottom = VerticalPadding
+            bottom = VerticalPadding,
         )
 
     private val ContainerShape = RoundedCornerShape(12.dp)
 
     /** Default background for a [WideButton] */
     @Composable
-    fun Background(
-        enabled: Boolean,
-        interactionSource: MutableInteractionSource,
-    ) {
+    fun Background(enabled: Boolean, interactionSource: MutableInteractionSource) {
         val isFocused = interactionSource.collectIsFocusedAsState().value
         val isPressed = interactionSource.collectIsPressedAsState().value
 
@@ -92,14 +89,14 @@ object WideButtonDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -117,13 +114,13 @@ object WideButtonDefaults {
         color: Color = MaterialTheme.colorScheme.onSurface,
         focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedColor: Color = focusedColor,
-        disabledColor: Color = color
+        disabledColor: Color = color,
     ) =
         WideButtonContentColor(
             contentColor = color,
             focusedContentColor = focusedColor,
             pressedContentColor = pressedColor,
-            disabledContentColor = disabledColor
+            disabledContentColor = disabledColor,
         )
 
     /**
@@ -143,14 +140,14 @@ object WideButtonDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -175,15 +172,15 @@ object WideButtonDefaults {
             Border(
                 border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border),
                 inset = 0.dp,
-                shape = ContainerShape
-            )
+                shape = ContainerShape,
+            ),
     ) =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**

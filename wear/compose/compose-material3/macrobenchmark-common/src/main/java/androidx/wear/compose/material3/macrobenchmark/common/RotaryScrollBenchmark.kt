@@ -49,17 +49,14 @@ object RotaryScrollBenchmark : MacrobenchmarkScreen {
                     verticalArrangement =
                         Arrangement.spacedBy(
                             space = defaultItemSpacingDp,
-                            alignment = Alignment.CenterVertically
+                            alignment = Alignment.CenterVertically,
                         ),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
                     state = rememberTransformingLazyColumnState(),
                 ) {
                     items(5000) { it ->
                         Box(Modifier.requiredHeight(itemHeightDp).fillMaxSize()) {
-                            Text(
-                                modifier = Modifier.align(Alignment.Center),
-                                text = "Item $it",
-                            )
+                            Text(modifier = Modifier.align(Alignment.Center), text = "Item $it")
                         }
                     }
                 }
@@ -100,7 +97,7 @@ object RotaryScrollBenchmark : MacrobenchmarkScreen {
             /* deviceId = */ getRotaryInputDevice(),
             /* edgeFlags = */ 0,
             /* source = */ InputDevice.SOURCE_ROTARY_ENCODER,
-            /* flags = */ 0
+            /* flags = */ 0,
         )
     }
 }

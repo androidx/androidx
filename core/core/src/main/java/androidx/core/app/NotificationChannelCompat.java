@@ -263,9 +263,7 @@ public class NotificationChannelCompat {
     NotificationChannelCompat(@NonNull String id, int importance) {
         mId = Preconditions.checkNotNull(id);
         mImportance = importance;
-        if (Build.VERSION.SDK_INT >= 21) {
-            mAudioAttributes = Notification.AUDIO_ATTRIBUTES_DEFAULT;
-        }
+        mAudioAttributes = Notification.AUDIO_ATTRIBUTES_DEFAULT;
     }
 
     @RequiresApi(26)

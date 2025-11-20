@@ -68,7 +68,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId
+        stream: StreamId,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onBufferLost(requestMetadata, frameNumber, stream) }
@@ -78,7 +78,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        result: FrameInfo
+        result: FrameInfo,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onComplete(requestMetadata, frameNumber, result) }
@@ -88,7 +88,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        requestFailure: RequestFailure
+        requestFailure: RequestFailure,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onFailed(requestMetadata, frameNumber, requestFailure) }
@@ -98,7 +98,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        captureResult: FrameMetadata
+        captureResult: FrameMetadata,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute {
@@ -115,7 +115,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
 
     override fun onRequestSequenceCompleted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber
+        frameNumber: FrameNumber,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onRequestSequenceCompleted(requestMetadata, frameNumber) }
@@ -137,7 +137,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        timestamp: CameraTimestamp
+        timestamp: CameraTimestamp,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute { listener.onStarted(requestMetadata, frameNumber, timestamp) }
@@ -147,7 +147,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        totalCaptureResult: FrameInfo
+        totalCaptureResult: FrameInfo,
     ) {
         listeners.forEach { (listener, executor) ->
             executor.execute {

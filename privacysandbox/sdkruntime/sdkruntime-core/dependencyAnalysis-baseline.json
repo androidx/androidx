@@ -1,0 +1,53 @@
+{
+  "projectPath": ":privacysandbox:sdkruntime:sdkruntime-core",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.6.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.6.2"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-runtime",
+        "resolvedVersion": "2.6.2"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.1"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.1"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

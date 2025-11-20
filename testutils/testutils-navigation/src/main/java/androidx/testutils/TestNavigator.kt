@@ -43,7 +43,7 @@ open class TestNavigator(private val hasTransitions: Boolean = false) :
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         entries.forEach { entry ->
             if (hasTransitions) {

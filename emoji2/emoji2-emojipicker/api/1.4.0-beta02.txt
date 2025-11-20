@@ -2,9 +2,9 @@
 package androidx.emoji2.emojipicker {
 
   public final class EmojiPickerView extends android.widget.FrameLayout {
-    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
-    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmojiPickerView(android.content.Context context);
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
     method public int getEmojiGridColumns();
     method public float getEmojiGridRows();
     method public void setEmojiGridColumns(int);

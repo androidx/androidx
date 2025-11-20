@@ -60,19 +60,19 @@ fun ModalDrawerSample() {
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp),
                 onClick = { scope.launch { drawerState.close() } },
-                content = { Text("Close Drawer") }
+                content = { Text("Close Drawer") },
             )
         },
         content = {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
                 Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
-        }
+        },
     )
 }
 
@@ -99,7 +99,7 @@ fun BottomDrawerSample() {
                 Button(
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 16.dp),
                     onClick = { scope.launch { drawerState.close() } },
-                    content = { Text("Close Drawer") }
+                    content = { Text("Close Drawer") },
                 )
                 LazyColumn {
                     items(25) {
@@ -108,9 +108,9 @@ fun BottomDrawerSample() {
                             icon = {
                                 Icon(
                                     Icons.Default.Favorite,
-                                    contentDescription = "Localized description"
+                                    contentDescription = "Localized description",
                                 )
-                            }
+                            },
                         )
                     }
                 }
@@ -118,7 +118,7 @@ fun BottomDrawerSample() {
             content = {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     val openText = if (gesturesEnabled) "▲▲▲ Pull up ▲▲▲" else "Click the button!"
                     Text(text = if (drawerState.isClosed) openText else "▼▼▼ Drag down ▼▼▼")
@@ -127,7 +127,7 @@ fun BottomDrawerSample() {
                         Text("Click to open")
                     }
                 }
-            }
+            },
         )
     }
 }

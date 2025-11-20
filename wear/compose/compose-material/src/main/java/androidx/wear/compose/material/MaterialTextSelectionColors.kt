@@ -50,8 +50,8 @@ internal fun rememberTextSelectionColors(colors: Colors): TextSelectionColors {
                 calculateSelectionBackgroundColor(
                     selectionColor = primaryColor,
                     textColor = textColorWithLowestAlpha,
-                    backgroundColor = backgroundColor
-                )
+                    backgroundColor = backgroundColor,
+                ),
         )
     }
 }
@@ -76,14 +76,14 @@ internal fun rememberTextSelectionColors(colors: Colors): TextSelectionColors {
 internal fun calculateSelectionBackgroundColor(
     selectionColor: Color,
     textColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
 ): Color {
     val maximumContrastRatio =
         calculateContrastRatio(
             selectionColor = selectionColor,
             selectionColorAlpha = DefaultSelectionBackgroundAlpha,
             textColor = textColor,
-            backgroundColor = backgroundColor
+            backgroundColor = backgroundColor,
         )
 
     val minimumContrastRatio =
@@ -91,7 +91,7 @@ internal fun calculateSelectionBackgroundColor(
             selectionColor = selectionColor,
             selectionColorAlpha = MinimumSelectionBackgroundAlpha,
             textColor = textColor,
-            backgroundColor = backgroundColor
+            backgroundColor = backgroundColor,
         )
 
     val alpha =
@@ -105,7 +105,7 @@ internal fun calculateSelectionBackgroundColor(
                 binarySearchForAccessibleSelectionColorAlpha(
                     selectionColor = selectionColor,
                     textColor = textColor,
-                    backgroundColor = backgroundColor
+                    backgroundColor = backgroundColor,
                 )
         }
 
@@ -141,7 +141,7 @@ internal fun calculateSelectionBackgroundColor(
 private fun binarySearchForAccessibleSelectionColorAlpha(
     selectionColor: Color,
     textColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
 ): Float {
     var attempts = 0
     val maxAttempts = 7
@@ -156,7 +156,7 @@ private fun binarySearchForAccessibleSelectionColorAlpha(
                 selectionColor = selectionColor,
                 selectionColorAlpha = alpha,
                 textColor = textColor,
-                backgroundColor = backgroundColor
+                backgroundColor = backgroundColor,
             )
 
         // Percentage error of the calculated contrast compared to the actual contrast. Positive
@@ -194,7 +194,7 @@ private fun calculateContrastRatio(
     selectionColor: Color,
     selectionColorAlpha: Float,
     textColor: Color,
-    backgroundColor: Color
+    backgroundColor: Color,
 ): Float {
     val compositeBackground =
         selectionColor.copy(alpha = selectionColorAlpha).compositeOver(backgroundColor)

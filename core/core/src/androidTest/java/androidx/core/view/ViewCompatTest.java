@@ -24,7 +24,6 @@ import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_START;
 import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_ACTIVATE;
 import static androidx.core.view.HapticFeedbackConstantsCompat.GESTURE_THRESHOLD_DEACTIVATE;
 import static androidx.core.view.HapticFeedbackConstantsCompat.KEYBOARD_RELEASE;
-import static androidx.core.view.HapticFeedbackConstantsCompat.KEYBOARD_TAP;
 import static androidx.core.view.HapticFeedbackConstantsCompat.LONG_PRESS;
 import static androidx.core.view.HapticFeedbackConstantsCompat.NO_HAPTICS;
 import static androidx.core.view.HapticFeedbackConstantsCompat.REJECT;
@@ -47,7 +46,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -66,7 +64,6 @@ import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
-import android.view.autofill.AutofillId;
 import android.view.contentcapture.ContentCaptureSession;
 import android.widget.FrameLayout;
 
@@ -245,7 +242,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void  dispatchNestedScroll_viewIsNotAndroidXNestedScrollingChild_callsCorrectMethod() {
         final ViewSubclass viewSubclass = mock(ViewSubclass.class);
 
@@ -292,7 +288,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         View container = mActivityTestRule.getActivity().findViewById(R.id.container);
 
         // action_bar isn't present inside container
-        ViewCompat.requireViewById(container, R.id.action_bar);
+        ViewCompat.requireViewById(container, androidx.appcompat.R.id.action_bar);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -323,7 +319,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
     @Test
     @UiThreadTest
-    @SdkSuppress(minSdkVersion = 20) // dispatchApplyWindowInsets only works on API 20+
     public void dispatchApplyWindowInsets_correctReturnValue() {
         final View view = mActivityTestRule.getActivity().findViewById(R.id.container);
 
@@ -342,7 +337,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertTrue(result.isConsumed());
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testPerformAction_ExpectedActionAndArguments() {
         AccessibilityActionCompat actionCompat = AccessibilityActionCompat.ACTION_PRESS_AND_HOLD;
@@ -371,16 +365,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         AutofillIdCompat result = ViewCompat.getAutofillId(mView);
 
         assertEquals(mView.getAutofillId(), result.toAutofillId());
-    }
-
-    @SdkSuppress(minSdkVersion = 28)
-    @Test
-    public void testSetAutofillId_throwsIllegalStateExceptionAboveSDK28() {
-        AutofillId id = mock(AutofillId.class);
-        AutofillIdCompat idCompat = AutofillIdCompat.toAutofillIdCompat(id);
-        // Some final methods in the mock object throw IllegalStateException.
-        assertThrows(IllegalStateException.class,
-                () -> ViewCompat.setAutofillId(mView, idCompat));
     }
 
     @SdkSuppress(maxSdkVersion = 29)
@@ -478,7 +462,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
     }
 
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 29)
+    @SdkSuppress(maxSdkVersion = 29)
     @Test
     public void testPerformHapticFeedback_useFallbackForConstantsFromSdk30() {
         // Maintain constants supported in SDK >= 23
@@ -507,55 +491,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
         assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
         assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
-    }
-
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
-    @Test
-    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk23() {
-        // Maintain constants supported in SDK >= 21
-        assertHapticFeedbackPerformed(CLOCK_TICK);
-
-        // Fallbacks for constants from SDK >= 23
-        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
-        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
-        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
-        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_END);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_ON);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_TICK);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_ACTIVATE);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, TOGGLE_OFF);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, SEGMENT_FREQUENT_TICK);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, GESTURE_THRESHOLD_DEACTIVATE);
-        assertFallbackHapticFeedbackPerformed(CLOCK_TICK, CONTEXT_CLICK);
-        assertNoHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
-        assertNoHapticFeedbackPerformed(KEYBOARD_RELEASE);
-        assertNoHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
-    }
-
-    @SdkSuppress(maxSdkVersion = 20)
-    @Test
-    public void testPerformHapticFeedback_useFallbackForConstantsFromSdk21() {
-        // Maintain constants supported in SDK < 21
-        assertHapticFeedbackPerformed(KEYBOARD_TAP);
-
-        // Fallbacks for constants from SDK >= 21
-        assertFallbackHapticFeedbackPerformed(LONG_PRESS, DRAG_START);
-        assertFallbackHapticFeedbackPerformed(LONG_PRESS, REJECT);
-        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, CONFIRM);
-        assertFallbackHapticFeedbackPerformed(VIRTUAL_KEY, GESTURE_START);
-        assertNoHapticFeedbackPerformed(GESTURE_END);
-        assertNoHapticFeedbackPerformed(TOGGLE_ON);
-        assertNoHapticFeedbackPerformed(SEGMENT_TICK);
-        assertNoHapticFeedbackPerformed(GESTURE_THRESHOLD_ACTIVATE);
-        assertNoHapticFeedbackPerformed(TOGGLE_OFF);
-        assertNoHapticFeedbackPerformed(SEGMENT_FREQUENT_TICK);
-        assertNoHapticFeedbackPerformed(GESTURE_THRESHOLD_DEACTIVATE);
-        assertNoHapticFeedbackPerformed(CONTEXT_CLICK);
-        assertNoHapticFeedbackPerformed(CLOCK_TICK);
-        assertNoHapticFeedbackPerformed(TEXT_HANDLE_MOVE);
-        assertNoHapticFeedbackPerformed(KEYBOARD_RELEASE);
-        assertNoHapticFeedbackPerformed(VIRTUAL_KEY_RELEASE);
     }
 
     private void assertHapticFeedbackPerformed(int feedbackConstant) {

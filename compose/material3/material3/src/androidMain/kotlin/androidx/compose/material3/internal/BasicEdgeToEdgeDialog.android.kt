@@ -159,7 +159,7 @@ private class DialogWrapper(
     ComponentDialog(
         ContextThemeWrapper(
             composeView.context,
-            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme
+            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme,
         )
     ),
     ViewRootForInspector {
@@ -256,7 +256,7 @@ private class DialogWrapper(
             } else {
                 WindowManager.LayoutParams.FLAG_SECURE.inv()
             },
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
     }
 
@@ -286,7 +286,7 @@ private class DialogWrapper(
                     WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
                 } else {
                     @Suppress("DEPRECATION") WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-                },
+                }
             )
         }
     }
@@ -311,10 +311,8 @@ private class DialogWrapper(
 }
 
 @Suppress("ViewConstructor")
-private class DialogLayout(
-    context: Context,
-    override val window: Window,
-) : AbstractComposeView(context), DialogWindowProvider {
+private class DialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context), DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 

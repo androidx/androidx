@@ -39,7 +39,7 @@ fun PaddingFromSample() {
     // baseline of the first line of text.
     Text(
         text = "This is an example.",
-        modifier = Modifier.paddingFrom(FirstBaseline, before = distanceToBaselineDp)
+        modifier = Modifier.paddingFrom(FirstBaseline, before = distanceToBaselineDp),
     )
 }
 
@@ -54,7 +54,7 @@ fun PaddingFromBaselineSampleDp() {
     val distanceFromLastBaseline = 40.dp
     Text(
         text = "This line has the first baseline.\nThis line has the last baseline.",
-        modifier = Modifier.paddingFromBaseline(distanceToFirstBaseline, distanceFromLastBaseline)
+        modifier = Modifier.paddingFromBaseline(distanceToFirstBaseline, distanceFromLastBaseline),
     )
 }
 
@@ -68,6 +68,6 @@ fun PaddingFromBaselineSampleTextUnit() {
     val distanceFromLastBaseline = 40.sp
     Text(
         text = "This line has the first baseline.\nThis line has the last baseline.",
-        modifier = Modifier.paddingFromBaseline(distanceToFirstBaseline, distanceFromLastBaseline)
+        modifier = Modifier.paddingFromBaseline(distanceToFirstBaseline, distanceFromLastBaseline),
     )
 }

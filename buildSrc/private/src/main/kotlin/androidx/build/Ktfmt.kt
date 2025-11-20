@@ -59,20 +59,12 @@ fun Project.configureKtfmt() {
 
     // afterEvaluate because Gradle's default "check" task doesn't exist yet
     afterEvaluate {
-        // multiplatform projects with no enabled platforms do not actually apply the kotlin plugin
-        // and therefore do not have the check task. They are skipped unless a platform is enabled.
-        if (tasks.findByName("check") != null) {
-            addToCheckTask(ktCheckTask)
-            addToBuildOnServer(ktCheckTask)
-        }
+        addToCheckTask(ktCheckTask)
+        addToBuildOnServer(ktCheckTask)
     }
 }
 
-private val ExcludedDirectories =
-    listOf(
-        "test-data",
-        "external",
-    )
+private val ExcludedDirectories = listOf("test-data", "external")
 
 private val ExcludedDirectoryGlobs = ExcludedDirectories.map { "**/$it/**/*.kt" }
 private const val MainClass = "com.facebook.ktfmt.cli.Main"
@@ -84,10 +76,10 @@ private fun Project.getKtfmtConfiguration(): FileCollection {
     conf.attributes {
         it.attribute(
             TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-            project.objects.named(TargetJvmEnvironment.STANDARD_JVM)
+            project.objects.named(TargetJvmEnvironment.STANDARD_JVM),
         )
     }
-    return files(conf)
+    return conf.incoming.files
 }
 
 @CacheableTask
@@ -228,7 +220,7 @@ abstract class KtfmtCheckFileTask : BaseKtfmtTask() {
         option = "file",
         description =
             "File to check. This option can be used multiple times: --file file1.kt " +
-                "--file file2.kt"
+                "--file file2.kt",
     )
     var files: List<String> = emptyList()
 
@@ -237,7 +229,7 @@ abstract class KtfmtCheckFileTask : BaseKtfmtTask() {
         option = "format",
         description =
             "Use --format to auto-correct style violations (if some errors cannot be " +
-                "fixed automatically they will be printed to stderr)"
+                "fixed automatically they will be printed to stderr)",
     )
     var format = false
 

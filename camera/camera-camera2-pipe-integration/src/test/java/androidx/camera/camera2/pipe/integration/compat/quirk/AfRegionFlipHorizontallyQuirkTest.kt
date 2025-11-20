@@ -34,13 +34,14 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = 21)
+@Config(sdk = [Config.ALL_SDKS])
 class AfRegionFlipHorizontallyQuirkTest(
     private val brand: String,
     private val lensFacing: Int,
-    private val quirkEnablingExpected: Boolean
+    private val quirkEnablingExpected: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0}, LensFacing = {1}")
         fun data() =
@@ -70,9 +71,9 @@ class AfRegionFlipHorizontallyQuirkTest(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         cameraMetadata,
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                    ),
+                ),
             )
             .quirks
     }

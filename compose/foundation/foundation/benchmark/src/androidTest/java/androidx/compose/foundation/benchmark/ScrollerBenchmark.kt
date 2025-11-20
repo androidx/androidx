@@ -72,7 +72,7 @@ class ScrollerBenchmark {
     fun changeScroll_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(
             scrollerCaseFactory,
-            toggleCausesRecompose = false
+            toggleCausesRecompose = false,
         )
     }
 

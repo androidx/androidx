@@ -168,14 +168,7 @@ public class AppCompatEditTextReceiveContentTest {
         // version that's running.
         boolean result = triggerContextMenuAction(android.R.id.paste);
         assertThat(result).isTrue();
-        if (Build.VERSION.SDK_INT <= 20) {
-            // The platform code on Android K and earlier had logic to insert a space before and
-            // after the pasted content (if no space was already present). See
-            // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
-            assertTextAndCursorPosition("x y z", 3);
-        } else {
-            assertTextAndCursorPosition("xyz", 2);
-        }
+        assertTextAndCursorPosition("xyz", 2);
     }
 
     @UiThreadTest
@@ -246,7 +239,6 @@ public class AppCompatEditTextReceiveContentTest {
         verifyNoMoreInteractions(mMockReceiver);
     }
 
-    @SdkSuppress(minSdkVersion = 23) // The action "Paste as plain text" was added in SDK 23.
     @UiThreadTest
     @Test
     public void testPasteAsPlainText_noReceiver() throws Exception {
@@ -468,12 +460,7 @@ public class AppCompatEditTextReceiveContentTest {
         boolean result = triggerDropEvent(clip);
 
         assertThat(result).isTrue();
-        if (Build.VERSION.SDK_INT <= 20) {
-            // The platform code on Android K and earlier had logic to insert a space before and
-            // after the inserted content (if no space was already present). See
-            // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
-            assertTextAndCursorPosition("ab xz", 2);
-        } else if (Build.VERSION.SDK_INT <= 30) {
+        if (Build.VERSION.SDK_INT <= 30) {
             assertTextAndCursorPosition("abxz", 2);
         } else {
             assertTextAndCursorPosition("a\nbxz", 3);
@@ -499,14 +486,7 @@ public class AppCompatEditTextReceiveContentTest {
             // Note: The cursor is moved to the location of the drop before calling the receiver.
             assertTextAndCursorPosition("xz", 0);
         } else {
-            if (Build.VERSION.SDK_INT <= 20) {
-                // The platform code on Android K and earlier had logic to insert a space before and
-                // after the inserted content (if no space was already present). See
-                // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
-                assertTextAndCursorPosition("ab xz", 2);
-            } else {
-                assertTextAndCursorPosition("abxz", 2);
-            }
+            assertTextAndCursorPosition("abxz", 2);
         }
     }
 

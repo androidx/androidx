@@ -47,7 +47,7 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
             UImportStatement::class.java,
             USimpleNameReferenceExpression::class.java,
             UClass::class.java,
-            UObjectLiteralExpression::class.java
+            UObjectLiteralExpression::class.java,
         )
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
@@ -70,7 +70,7 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                     IMPORT_ISSUE,
                     target,
                     context.getLocation(target),
-                    "Platform-dependent import in a common module"
+                    "Platform-dependent import in a common module",
                 )
             }
 
@@ -87,7 +87,7 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                         REFERENCE_ISSUE,
                         node,
                         context.getLocation(node),
-                        "Platform reference in a common module"
+                        "Platform reference in a common module",
                     )
                 }
             }
@@ -99,7 +99,7 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                         EXTENDS_LAMBDA_ISSUE,
                         node,
                         context.getLocation(node.nameIdentifier),
-                        "Extending Kotlin lambda interfaces is not allowed in common code"
+                        "Extending Kotlin lambda interfaces is not allowed in common code",
                     )
                 }
             }
@@ -111,7 +111,7 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                         EXTENDS_LAMBDA_ISSUE,
                         node,
                         context.getLocation(node),
-                        "Extending Kotlin lambda interfaces is not allowed in common code"
+                        "Extending Kotlin lambda interfaces is not allowed in common code",
                     )
                 }
             }
@@ -134,8 +134,8 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         CommonModuleIncompatibilityDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
             )
 
         val REFERENCE_ISSUE =
@@ -153,8 +153,8 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         CommonModuleIncompatibilityDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
             )
 
         val EXTENDS_LAMBDA_ISSUE =
@@ -171,8 +171,8 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         CommonModuleIncompatibilityDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
             )
 
         private const val COMMON_MAIN_PATH_PREFIX = "src/commonMain"

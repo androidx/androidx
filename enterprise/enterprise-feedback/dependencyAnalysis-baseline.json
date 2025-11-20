@@ -1,0 +1,29 @@
+{
+  "projectPath": ":enterprise:enterprise-feedback",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:annotations",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadowapi",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadows-framework",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

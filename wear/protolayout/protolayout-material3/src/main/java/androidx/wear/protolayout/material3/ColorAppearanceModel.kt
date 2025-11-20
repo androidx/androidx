@@ -76,7 +76,7 @@ internal class Cam(
     /** a* coordinate in CAM16-UCS */
     val astar: Float,
     /** b* coordinate in CAM16-UCS */
-    val bstar: Float
+    val bstar: Float,
 ) {
     /**
      * Distance in CAM16-UCS space between two colors.
@@ -196,8 +196,15 @@ internal class Cam(
             val atan2 = atan2(b, a)
             val atanDegrees = atan2 * 180.0f / PI.toFloat()
             val hue =
-                if (atanDegrees < 0) atanDegrees + 360.0f
-                else if (atanDegrees >= 360) atanDegrees - 360.0f else atanDegrees
+                if (atanDegrees < 0) {
+                    atanDegrees + 360.0f
+                } else {
+                    if (atanDegrees >= 360) {
+                        atanDegrees - 360.0f
+                    } else {
+                        atanDegrees
+                    }
+                }
             val hueRadians = hue * PI.toFloat() / 180.0f
             // achromatic response to color
             val ac = p2 * frame.nbb
@@ -307,7 +314,7 @@ internal class Cam(
                 return HctSolver.solveToInt(
                     huePrime.toDouble(),
                     chroma.toDouble(),
-                    lstar.toDouble()
+                    lstar.toDouble(),
                 )
             }
             if (chroma < 1.0 || Math.round(lstar) <= 0.0 || Math.round(lstar) >= 100.0) {
@@ -451,7 +458,7 @@ private constructor(
     @get:VisibleForTesting val rgbD: FloatArray,
     val fl: Float,
     @get:VisibleForTesting val flRoot: Float,
-    val z: Float
+    val z: Float,
 ) {
     companion object {
         // Standard viewing conditions assumed in RGB specification - Stokes, Anderson,
@@ -482,7 +489,7 @@ private constructor(
                 (200.0f / PI * CamUtils.yFromLstar(50.0) / 100.0).toFloat(),
                 50.0f,
                 2.0f,
-                false
+                false,
             )
 
         /** Create a custom frame. */
@@ -491,7 +498,7 @@ private constructor(
             adaptingLuminance: Float,
             backgroundLstar: Float,
             surround: Float,
-            discountingIlluminant: Boolean
+            discountingIlluminant: Boolean,
         ): Frame {
             // Transform white point XYZ to 'cone'/'rgb' responses
             val matrix = CamUtils.XYZ_TO_CAM16RGB
@@ -511,16 +518,21 @@ private constructor(
             val f = 0.8f + (surround / 10.0f)
             // "Exponential non-linearity"
             val c: Float =
-                if ((f >= 0.9)) lerp(0.59f, 0.69f, ((f - 0.9f) * 10.0f))
-                else lerp(0.525f, 0.59f, ((f - 0.8f) * 10.0f))
+                if ((f >= 0.9)) {
+                    lerp(0.59f, 0.69f, ((f - 0.9f) * 10.0f))
+                } else {
+                    lerp(0.525f, 0.59f, ((f - 0.8f) * 10.0f))
+                }
             // Calculate degree of adaptation to illuminant
             var d =
-                if (discountingIlluminant) 1.0f
-                else
+                if (discountingIlluminant) {
+                    1.0f
+                } else {
                     f *
                         (1.0f -
                             ((1.0f / 3.6f) *
                                 exp(((-adaptingLuminance - 42.0f) / 92.0f).toDouble()).toFloat()))
+                }
             // Per Li et al, if D is greater than 1 or less than 0, set it to 1 or 0.
             d = if ((d > 1.0)) 1.0f else if ((d < 0.0)) 0.0f else d
             // Chromatic induction factor
@@ -561,7 +573,7 @@ private constructor(
                 floatArrayOf(
                     (fl * rgbD[0] * rW / 100f).pow(0.42f),
                     (fl * rgbD[1] * gW / 100f).pow(0.42f),
-                    (fl * rgbD[2] * bW / 100f).pow(0.42f)
+                    (fl * rgbD[2] * bW / 100f).pow(0.42f),
                 )
             val rgbA =
                 floatArrayOf(
@@ -621,14 +633,14 @@ internal object CamUtils {
         arrayOf(
             floatArrayOf(0.401288f, 0.650173f, -0.051461f),
             floatArrayOf(-0.250268f, 1.204414f, 0.045854f),
-            floatArrayOf(-0.002079f, 0.048952f, 0.953127f)
+            floatArrayOf(-0.002079f, 0.048952f, 0.953127f),
         )
     // Transforms 'cone'/'RGB' responses in CAM16 to XYZ color space coordinates.
     val CAM16RGB_TO_XYZ: Array<FloatArray> =
         arrayOf(
             floatArrayOf(1.86206786f, -1.01125463f, 0.14918677f),
             floatArrayOf(0.38752654f, 0.62144744f, -0.00897398f),
-            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f)
+            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f),
         )
     // Need this, XYZ coordinates in internal ColorUtils are private  sRGB specification has D65
     // whitepoint - Stokes, Anderson, Chandrasekar, Motta - A Standard Default Color Space for the
@@ -645,21 +657,9 @@ internal object CamUtils {
         )
     private val XYZ_TO_SRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                3.2413774792388685,
-                -1.5376652402851851,
-                -0.49885366846268053,
-            ),
-            doubleArrayOf(
-                -0.9691452513005321,
-                1.8758853451067872,
-                0.04156585616912061,
-            ),
-            doubleArrayOf(
-                0.05562093689691305,
-                -0.20395524564742123,
-                1.0571799111220335,
-            ),
+            doubleArrayOf(3.2413774792388685, -1.5376652402851851, -0.49885366846268053),
+            doubleArrayOf(-0.9691452513005321, 1.8758853451067872, 0.04156585616912061),
+            doubleArrayOf(0.05562093689691305, -0.20395524564742123, 1.0571799111220335),
         )
 
     /**
@@ -769,7 +769,7 @@ internal object CamUtils {
         return ColorUtils.XYZToColor(
             (xT * WHITE_POINT_D65[0]).toDouble(),
             (yT * WHITE_POINT_D65[1]).toDouble(),
-            (zT * WHITE_POINT_D65[2]).toDouble()
+            (zT * WHITE_POINT_D65[2]).toDouble(),
         )
     }
 
@@ -861,40 +861,16 @@ internal object HctSolver {
     // Matrix used when converting from linear RGB to CAM16.
     private val SCALED_DISCOUNT_FROM_LINRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                0.001200833568784504,
-                0.002389694492170889,
-                0.0002795742885861124,
-            ),
-            doubleArrayOf(
-                0.0005891086651375999,
-                0.0029785502573438758,
-                0.0003270666104008398,
-            ),
-            doubleArrayOf(
-                0.00010146692491640572,
-                0.0005364214359186694,
-                0.0032979401770712076,
-            ),
+            doubleArrayOf(0.001200833568784504, 0.002389694492170889, 0.0002795742885861124),
+            doubleArrayOf(0.0005891086651375999, 0.0029785502573438758, 0.0003270666104008398),
+            doubleArrayOf(0.00010146692491640572, 0.0005364214359186694, 0.0032979401770712076),
         )
     // Matrix used when converting from CAM16 to linear RGB.
     private val LINRGB_FROM_SCALED_DISCOUNT: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                1373.2198709594231,
-                -1100.4251190754821,
-                -7.278681089101213,
-            ),
-            doubleArrayOf(
-                -271.815969077903,
-                559.6580465940733,
-                -32.46047482791194,
-            ),
-            doubleArrayOf(
-                1.9622899599665666,
-                -57.173814538844006,
-                308.7233197812385,
-            ),
+            doubleArrayOf(1373.2198709594231, -1100.4251190754821, -7.278681089101213),
+            doubleArrayOf(-271.815969077903, 559.6580465940733, -32.46047482791194),
+            doubleArrayOf(1.9622899599665666, -57.173814538844006, 308.7233197812385),
         )
     // Weights for transforming a set of linear RGB coordinates to Y in XYZ.
     private val Y_FROM_LINRGB: DoubleArray = doubleArrayOf(0.2126, 0.7152, 0.0722)
@@ -1278,7 +1254,7 @@ internal object HctSolver {
         source: DoubleArray,
         coordinate: Double,
         target: DoubleArray,
-        axis: Int
+        axis: Int,
     ): DoubleArray {
         val t = intercept(source[axis], coordinate, target[axis])
         return lerpPoint(source, t, target)
@@ -1425,7 +1401,7 @@ internal object HctSolver {
         return CamUtils.argbFromLinrgbComponents(
             (left[0] + right[0]) / 2,
             (left[1] + right[1]) / 2,
-            (left[2] + right[2]) / 2
+            (left[2] + right[2]) / 2,
         )
     }
 

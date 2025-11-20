@@ -20,12 +20,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Instant;
 
 /** Tests for {@link TimeInterval}. */
 @RunWith(ComplicationsTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TimeIntervalTest {
     private static final TimeInterval INTERVAL_A =

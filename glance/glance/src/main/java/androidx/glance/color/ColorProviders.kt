@@ -25,37 +25,37 @@ import androidx.glance.unit.ColorProvider
  * Holds a set of Glance specific [ColorProvider] that can be used to represent a Material 3 color
  * scheme.
  */
-sealed class ColorProviders {
+public sealed class ColorProviders {
 
-    val primary: ColorProvider
-    val onPrimary: ColorProvider
-    val primaryContainer: ColorProvider
-    val onPrimaryContainer: ColorProvider
-    val secondary: ColorProvider
-    val onSecondary: ColorProvider
-    val secondaryContainer: ColorProvider
-    val onSecondaryContainer: ColorProvider
-    val tertiary: ColorProvider
-    val onTertiary: ColorProvider
-    val tertiaryContainer: ColorProvider
-    val onTertiaryContainer: ColorProvider
-    val error: ColorProvider
-    val errorContainer: ColorProvider
-    val onError: ColorProvider
-    val onErrorContainer: ColorProvider
-    val background: ColorProvider
-    val onBackground: ColorProvider
-    val surface: ColorProvider
-    val onSurface: ColorProvider
-    val surfaceVariant: ColorProvider
-    val onSurfaceVariant: ColorProvider
-    val outline: ColorProvider
-    val inverseOnSurface: ColorProvider
-    val inverseSurface: ColorProvider
-    val inversePrimary: ColorProvider
-    val widgetBackground: ColorProvider
+    public val primary: ColorProvider
+    public val onPrimary: ColorProvider
+    public val primaryContainer: ColorProvider
+    public val onPrimaryContainer: ColorProvider
+    public val secondary: ColorProvider
+    public val onSecondary: ColorProvider
+    public val secondaryContainer: ColorProvider
+    public val onSecondaryContainer: ColorProvider
+    public val tertiary: ColorProvider
+    public val onTertiary: ColorProvider
+    public val tertiaryContainer: ColorProvider
+    public val onTertiaryContainer: ColorProvider
+    public val error: ColorProvider
+    public val errorContainer: ColorProvider
+    public val onError: ColorProvider
+    public val onErrorContainer: ColorProvider
+    public val background: ColorProvider
+    public val onBackground: ColorProvider
+    public val surface: ColorProvider
+    public val onSurface: ColorProvider
+    public val surfaceVariant: ColorProvider
+    public val onSurfaceVariant: ColorProvider
+    public val outline: ColorProvider
+    public val inverseOnSurface: ColorProvider
+    public val inverseSurface: ColorProvider
+    public val inversePrimary: ColorProvider
+    public val widgetBackground: ColorProvider
 
-    constructor(
+    protected constructor(
         primary: ColorProvider,
         onPrimary: ColorProvider,
         primaryContainer: ColorProvider,
@@ -114,7 +114,7 @@ sealed class ColorProviders {
     }
 
     @Deprecated("Hidden")
-    constructor(
+    protected constructor(
         primary: ColorProvider,
         onPrimary: ColorProvider,
         primaryContainer: ColorProvider,
@@ -276,7 +276,7 @@ sealed class ColorProviders {
  * devices this falls back to the Material baseline theme.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object DynamicThemeColorProviders :
+public object DynamicThemeColorProviders :
     ColorProviders(
         primary = ColorProvider(R.color.glance_colorPrimary),
         onPrimary = ColorProvider(R.color.glance_colorOnPrimary),
@@ -366,7 +366,7 @@ internal class CustomColorProviders(
         widgetBackground = widgetBackground,
     )
 
-fun colorProviders(
+public fun colorProviders(
     primary: ColorProvider,
     onPrimary: ColorProvider,
     primaryContainer: ColorProvider,
@@ -425,7 +425,7 @@ fun colorProviders(
         widgetBackground = widgetBackground,
     )
 
-fun colorProviders(
+public fun colorProviders(
     primary: ColorProvider,
     onPrimary: ColorProvider,
     primaryContainer: ColorProvider,

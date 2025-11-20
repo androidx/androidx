@@ -75,7 +75,7 @@ fun VariableFontsDemo() {
                     value = weight,
                     onValueChange = setWeight,
                     modifier = Modifier.fillMaxWidth(),
-                    valueRange = 1f..1000f
+                    valueRange = 1f..1000f,
                 )
                 Row {
                     Text("Italic: ")
@@ -128,10 +128,10 @@ fun AssetFont(weight: Int, italic: Boolean) {
                         context.assets,
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
-                                FontVariation.italic(if (italic) 1f else 0f)
-                            )
+                                FontVariation.italic(if (italic) 1f else 0f),
+                            ),
                     )
                 )
             }
@@ -139,7 +139,7 @@ fun AssetFont(weight: Int, italic: Boolean) {
             "A",
             fontSize = 48.sp,
             fontFamily = assetFonts,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
 }
@@ -160,10 +160,10 @@ fun FileFont(weight: Int, italic: Boolean) {
                         File(actualPath),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
-                                FontVariation.italic(if (italic) 1f else 0f)
-                            )
+                                FontVariation.italic(if (italic) 1f else 0f),
+                            ),
                     )
                 )
             }
@@ -171,7 +171,7 @@ fun FileFont(weight: Int, italic: Boolean) {
             "A",
             fontSize = 48.sp,
             fontFamily = fileFonts,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
 }
@@ -193,10 +193,10 @@ fun ParcelFileDescriptorFont(weight: Int, italic: Boolean) {
                         File(actualPath).toParcelFileDescriptor(context),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
-                                FontVariation.italic(if (italic) 1f else 0f)
-                            )
+                                FontVariation.italic(if (italic) 1f else 0f),
+                            ),
                     )
                 )
             }
@@ -204,7 +204,7 @@ fun ParcelFileDescriptorFont(weight: Int, italic: Boolean) {
             "A",
             fontSize = 48.sp,
             fontFamily = parcelFonts,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
 }
@@ -220,10 +220,10 @@ fun DeviceNamedFontFamilyFont(weight: Int, italic: Boolean) {
                         DeviceFontFamilyName("sans-serif"),
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
-                                FontVariation.italic(if (italic) 1f else 0f)
-                            )
+                                FontVariation.italic(if (italic) 1f else 0f),
+                            ),
                     )
                 )
             }
@@ -231,7 +231,7 @@ fun DeviceNamedFontFamilyFont(weight: Int, italic: Boolean) {
             "Setting variation on system fonts has no effect on (most) Android builds",
             fontSize = 12.sp,
             fontFamily = deviceFonts,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
         val textPaint = remember { TextPaint() }
         Canvas(modifier = Modifier.fillMaxWidth().height(40.dp)) {
@@ -248,7 +248,7 @@ fun DeviceNamedFontFamilyFont(weight: Int, italic: Boolean) {
                     "Platform 'sans-serif' behavior on this device' (nativeCanvas)" /* text */,
                     0f /* x */,
                     40f /* y */,
-                    textPaint
+                    textPaint,
                 )
             }
         }
@@ -266,10 +266,10 @@ fun ResourceFont(weight: Int, italic: Boolean) {
                         R.font.variable_font,
                         variationSettings =
                             FontVariation.Settings(
-                                FontVariation.weight(weight.toInt()), /* Changes "A" glyph */
+                                FontVariation.weight(weight), /* Changes "A" glyph */
                                 /* italic not supported by font, ignored */
-                                FontVariation.italic(if (italic) 1f else 0f)
-                            )
+                                FontVariation.italic(if (italic) 1f else 0f),
+                            ),
                     )
                 )
             }
@@ -277,7 +277,7 @@ fun ResourceFont(weight: Int, italic: Boolean) {
             "A",
             fontSize = 48.sp,
             fontFamily = resourceFonts,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
 }

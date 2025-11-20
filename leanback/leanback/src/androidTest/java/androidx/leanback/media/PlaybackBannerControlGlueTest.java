@@ -165,7 +165,7 @@ public class PlaybackBannerControlGlueTest {
     public void playerAdapterTest() {
         mContext = new ContextThemeWrapper(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                androidx.leanback.test.R.style.Theme_Leanback);
+                androidx.leanback.R.style.Theme_Leanback);
 
         final PlayerAdapter impl = Mockito.mock(PlayerAdapter.class);
         when(impl.isPrepared()).thenReturn(true);
@@ -220,7 +220,7 @@ public class PlaybackBannerControlGlueTest {
     public void savePlayerAdapterEventBeforeAttachToHost() {
         mContext = new ContextThemeWrapper(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                androidx.leanback.test.R.style.Theme_Leanback);
+                androidx.leanback.R.style.Theme_Leanback);
 
         final PlayerAdapter impl = Mockito.mock(PlayerAdapter.class);
         when(impl.isPrepared()).thenReturn(true);

@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import android.os.Build;
-
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
 
 import org.junit.Before;
@@ -33,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class ArgumentCaptorTest {
     private static final Object DUMMY_ARGUMENT_1 = new Object();
     private static final Object DUMMY_ARGUMENT_2 = new Object();

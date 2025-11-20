@@ -40,7 +40,7 @@ class UpdateExerciseTypeConfigRequest(
             val proto = RequestsProto.UpdateExerciseTypeConfigRequest.parseFrom(bytes)
             UpdateExerciseTypeConfigRequest(
                 proto.packageName,
-                ExerciseTypeConfig.fromProto(proto.config)
+                ExerciseTypeConfig.fromProto(proto.config),
             )
         }
     }

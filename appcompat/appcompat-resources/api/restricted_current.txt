@@ -81,8 +81,8 @@ package androidx.appcompat.widget {
     method public boolean tintDrawableUsingColorFilter(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintContextWrapper extends android.content.ContextWrapper {
-    method public static android.content.Context! wrap(android.content.Context);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintContextWrapper extends android.content.ContextWrapper {
+    method @Deprecated public static android.content.Context! wrap(android.content.Context);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintInfo {

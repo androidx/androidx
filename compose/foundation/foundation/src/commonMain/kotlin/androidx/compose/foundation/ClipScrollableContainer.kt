@@ -65,7 +65,7 @@ private object HorizontalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
         return Outline.Rectangle(
@@ -73,7 +73,7 @@ private object HorizontalScrollableClipShape : Shape {
                 left = 0f,
                 top = -inflateSize,
                 right = size.width,
-                bottom = size.height + inflateSize
+                bottom = size.height + inflateSize,
             )
         )
     }
@@ -83,7 +83,7 @@ private object VerticalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
         return Outline.Rectangle(
@@ -91,7 +91,7 @@ private object VerticalScrollableClipShape : Shape {
                 left = -inflateSize,
                 top = 0f,
                 right = size.width + inflateSize,
-                bottom = size.height
+                bottom = size.height,
             )
         )
     }

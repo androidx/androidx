@@ -33,7 +33,7 @@ internal object ClassReader {
         val classNode = ClassNode(Opcodes.ASM9)
         reader.accept(
             classNode,
-            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
         )
         return classNode
     }

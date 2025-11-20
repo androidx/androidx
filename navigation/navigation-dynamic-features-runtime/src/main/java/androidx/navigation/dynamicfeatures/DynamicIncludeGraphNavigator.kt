@@ -41,7 +41,7 @@ public class DynamicIncludeGraphNavigator(
     private val context: Context,
     private val navigatorProvider: NavigatorProvider,
     private val navInflater: NavInflater,
-    private val installManager: DynamicInstallManager
+    private val installManager: DynamicInstallManager,
 ) : Navigator<DynamicIncludeGraphNavigator.DynamicIncludeNavGraph>() {
 
     internal val packageName: String = context.packageName
@@ -66,7 +66,7 @@ public class DynamicIncludeGraphNavigator(
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         for (entry in entries) {
             navigate(entry, navOptions, navigatorExtras)
@@ -81,7 +81,7 @@ public class DynamicIncludeGraphNavigator(
     private fun navigate(
         entry: NavBackStackEntry,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         val destination = entry.destination as DynamicIncludeNavGraph
         val extras = navigatorExtras as? DynamicExtras
@@ -108,7 +108,7 @@ public class DynamicIncludeGraphNavigator(
             context.resources.getIdentifier(
                 destination.graphResourceName,
                 "navigation",
-                destination.graphPackage
+                destination.graphPackage,
             )
         if (graphId == 0) {
             throw Resources.NotFoundException(

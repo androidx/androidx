@@ -54,7 +54,7 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         relativeDragDistance: Float,
         duration: Long,
         interpolator: Interpolator = LinearInterpolator(),
-        suppressFling: Boolean = false
+        suppressFling: Boolean = false,
     ) {
         viewPager.post { fakeDrag(relativeDragDistance, duration, interpolator, suppressFling) }
     }
@@ -63,7 +63,7 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         relativeDragDistance: Float,
         duration: Long,
         interpolator: Interpolator = LinearInterpolator(),
-        suppressFling: Boolean = false
+        suppressFling: Boolean = false,
     ) {
         // Generate the deltas to feed to fakeDragBy()
         val rtlModifier = if (needsRtlModifier) -1 else 1
@@ -100,7 +100,7 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
 
     private inner class FakeDragExecutor(
         private val deltas: List<Float>,
-        private val suppressFling: Boolean
+        private val suppressFling: Boolean,
     ) : Runnable {
         private var nextStep = 0
         private val stepsLeft

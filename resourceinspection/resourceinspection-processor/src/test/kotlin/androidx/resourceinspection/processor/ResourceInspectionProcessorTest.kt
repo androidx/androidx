@@ -54,7 +54,7 @@ class ResourceInspectionProcessorTest {
                             return 4;
                         }
                     }
-                """
+                """,
                 ),
             )
 
@@ -105,7 +105,7 @@ class ResourceInspectionProcessorTest {
                             mTestAttributeId, trivialTestView.getTestAttribute ());
                     }
                 }
-            """
+            """,
             )
 
         assertThat(compilation).succeededWithoutWarnings()
@@ -149,8 +149,8 @@ class ResourceInspectionProcessorTest {
                             }
                         }
 
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile("androidx.pkg.MixedNamespaceTestView\$InspectionCompanion")
@@ -205,7 +205,7 @@ class ResourceInspectionProcessorTest {
                                     mixedNamespaceTestView.getLibraryColor());
                             }
                         }
-                    """
+                    """,
                 )
             )
     }
@@ -231,7 +231,7 @@ class ResourceInspectionProcessorTest {
                         "layoutResourceId",
                         "anyResourceId",
                         "gravityInt",
-                        "intArray"
+                        "intArray",
                     ),
                     java(
                         "androidx.pkg.SimpleTypesTestView",
@@ -343,8 +343,8 @@ class ResourceInspectionProcessorTest {
                                 return new int[15];
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile("androidx.pkg.SimpleTypesTestView\$InspectionCompanion")
@@ -485,7 +485,7 @@ class ResourceInspectionProcessorTest {
                                     simpleTypesTestView.getTestString());
                             }
                         }
-                    """
+                    """,
                 )
             )
     }
@@ -519,8 +519,8 @@ class ResourceInspectionProcessorTest {
                                 return 0;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile("androidx.pkg.IntEnumTestView\$InspectionCompanion")
@@ -590,7 +590,7 @@ class ResourceInspectionProcessorTest {
                                     .readIntEnum(mIntEnumId, intEnumTestView.getIntEnum());
                             }
                         }
-                    """
+                    """,
                 )
             )
     }
@@ -625,8 +625,8 @@ class ResourceInspectionProcessorTest {
                                 return 0;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile("androidx.pkg.IntFlagTestView\$InspectionCompanion")
@@ -701,7 +701,7 @@ class ResourceInspectionProcessorTest {
                                     .readIntFlag(mIntFlagId, intFlagTestView.getIntFlag());
                             }
                         }
-                    """
+                    """,
                 )
             )
     }
@@ -731,7 +731,7 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -763,7 +763,7 @@ class ResourceInspectionProcessorTest {
                                 // no-op
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -796,7 +796,7 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -827,7 +827,7 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -860,7 +860,7 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -891,7 +891,7 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
+                    """,
                     )
                 )
             )
@@ -928,8 +928,8 @@ class ResourceInspectionProcessorTest {
                                 return 2;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining("Attribute androidx.pkg:bad not found")
@@ -966,8 +966,8 @@ class ResourceInspectionProcessorTest {
                             return 2;
                         }
                     }
-                """
-                )
+                """,
+                ),
             )
 
         assertThat(compilation)
@@ -1005,12 +1005,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.BackgroundTintTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.BackgroundTintTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1066,7 +1066,7 @@ class ResourceInspectionProcessorTest {
                                 backgroundTintTestView.getBackgroundTintMode());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1080,7 +1080,7 @@ class ResourceInspectionProcessorTest {
                         "autoSizeMaxTextSize",
                         "autoSizeMinTextSize",
                         "autoSizeStepGranularity",
-                        "autoSizeTextType"
+                        "autoSizeTextType",
                     ),
                     fakeInterface("androidx.core.widget.AutoSizeableTextView"),
                     java(
@@ -1101,12 +1101,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.AutoSizeTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.AutoSizeTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1191,7 +1191,7 @@ class ResourceInspectionProcessorTest {
                                 autoSizeTestView.getAutoSizeTextType());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1220,12 +1220,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.CheckMarkTintTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.CheckMarkTintTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1281,7 +1281,7 @@ class ResourceInspectionProcessorTest {
                                 checkMarkTintTestView.getCheckMarkTintMode());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1310,12 +1310,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.CompoundButtonTintTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.CompoundButtonTintTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1371,7 +1371,7 @@ class ResourceInspectionProcessorTest {
                                 compoundButtonTintTestView.getButtonTintMode());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1400,12 +1400,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.CompoundDrawablesTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.CompoundDrawablesTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1461,7 +1461,7 @@ class ResourceInspectionProcessorTest {
                                 compoundDrawablesTestView.getCompoundDrawableTintMode());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1490,12 +1490,12 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .generatedSourceFile(
-                "androidx.appcompat.test.ImageTintTestView${'$'}InspectionCompanion",
+                "androidx.appcompat.test.ImageTintTestView${'$'}InspectionCompanion"
             )
             .hasSourceEquivalentTo(
                 java(
@@ -1547,7 +1547,7 @@ class ResourceInspectionProcessorTest {
                                 .readObject(mTintModeId, imageTintTestView.getImageTintMode());
                         }
                     }
-                """
+                """,
                 )
             )
     }
@@ -1576,8 +1576,8 @@ class ResourceInspectionProcessorTest {
                                 super(context, attrs);
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining(
@@ -1606,7 +1606,7 @@ class ResourceInspectionProcessorTest {
                             super(context, attrs);
                         }
                     }
-                """
+                """,
                     )
                 )
             )
@@ -1632,7 +1632,7 @@ class ResourceInspectionProcessorTest {
                         return 1;
                     }
                 }
-            """
+            """,
             )
 
         val classpath =
@@ -1682,8 +1682,8 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining("Duplicate int enum entry name: \"duplicated\"")
@@ -1719,8 +1719,8 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining("Int enum value 1 is duplicated on entries \"FOO\", \"BAR\"")
@@ -1753,8 +1753,8 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining("Int flag mask 0x1 does not reveal value 0x3")
@@ -1789,8 +1789,8 @@ class ResourceInspectionProcessorTest {
                                 return 1;
                             }
                         }
-                    """
-                    )
+                    """,
+                    ),
                 )
             )
             .hadErrorContaining(
@@ -1819,7 +1819,7 @@ class ResourceInspectionProcessorTest {
             }.joinToString(separator = "\n") }
                     }
                 }
-            """
+            """,
         )
     }
 
@@ -1832,7 +1832,7 @@ class ResourceInspectionProcessorTest {
                 package $packageName;
 
                 public interface $simpleName {}
-            """
+            """,
         )
     }
 }

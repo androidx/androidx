@@ -108,5 +108,5 @@ enum class ButtonType {
     ElevatedButton,
     FilledTonalButton,
     OutlinedButton,
-    TextButton
+    TextButton,
 }

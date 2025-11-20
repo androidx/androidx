@@ -534,6 +534,17 @@ package androidx.appcompat.text {
     method public void onFocusChanged(android.view.View!, CharSequence!, boolean, int, android.graphics.Rect!);
   }
 
+  public final class TextAppearanceSpanCompat extends android.text.style.MetricAffectingSpan {
+    method public static androidx.appcompat.text.TextAppearanceSpanCompat create(android.content.Context context, int appearance, int colorList, java.util.concurrent.Executor executor, Runnable onComplete);
+    method public void updateDrawState(android.text.TextPaint? ds);
+    method public void updateMeasureState(android.text.TextPaint ds);
+    field public static final androidx.appcompat.text.TextAppearanceSpanCompat.Companion Companion;
+  }
+
+  public static final class TextAppearanceSpanCompat.Companion {
+    method public androidx.appcompat.text.TextAppearanceSpanCompat create(android.content.Context context, int appearance, int colorList, java.util.concurrent.Executor executor, Runnable onComplete);
+  }
+
 }
 
 package androidx.appcompat.view {
@@ -674,11 +685,11 @@ package androidx.appcompat.view {
     method public void onPanelClosed(int, android.view.Menu!);
     method public boolean onPreparePanel(int, android.view.View!, android.view.Menu!);
     method public boolean onSearchRequested();
-    method @RequiresApi(23) public boolean onSearchRequested(android.view.SearchEvent!);
+    method public boolean onSearchRequested(android.view.SearchEvent!);
     method public void onWindowAttributesChanged(android.view.WindowManager.LayoutParams!);
     method public void onWindowFocusChanged(boolean);
     method public android.view.ActionMode! onWindowStartingActionMode(android.view.ActionMode.Callback!);
-    method @RequiresApi(23) public android.view.ActionMode! onWindowStartingActionMode(android.view.ActionMode.Callback!, int);
+    method public android.view.ActionMode! onWindowStartingActionMode(android.view.ActionMode.Callback!, int);
   }
 
 }
@@ -1200,6 +1211,7 @@ package androidx.appcompat.widget {
     method public void postShowOverflowMenu();
     method public void setContentHeight(int);
     method public void setCustomView(android.view.View!);
+    method public void setPaddingForInsets(int, int, int, int);
     method public void setSubtitle(CharSequence!);
     method public void setTitle(CharSequence!);
     method public void setTitleOptional(boolean);
@@ -1212,7 +1224,6 @@ package androidx.appcompat.widget {
     ctor public ActionBarOverlayLayout(android.content.Context, android.util.AttributeSet?);
     method public boolean canShowOverflowMenu();
     method public void dismissPopups();
-    method protected boolean fitSystemWindows(android.graphics.Rect!);
     method protected androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method public int getActionBarHideOffset();
@@ -2044,7 +2055,7 @@ package androidx.appcompat.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintTypedArray {
     method public boolean getBoolean(int, boolean);
-    method @RequiresApi(21) public int getChangingConfigurations();
+    method public int getChangingConfigurations();
     method public int getColor(int, int);
     method public android.content.res.ColorStateList! getColorStateList(int);
     method public float getDimension(int, float);

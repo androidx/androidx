@@ -21,9 +21,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.util.Rational
-import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
@@ -34,7 +32,7 @@ import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
@@ -48,11 +46,10 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.TransformUtils.within360
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.AndroidUtil.isEmulator
-import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraTaskTrackingExecutor
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -64,6 +61,7 @@ import androidx.camera.testing.impl.video.Recording
 import androidx.camera.testing.impl.video.RecordingSession
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
@@ -78,7 +76,9 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.TestRule
 import org.junit.runners.Parameterized
 
 abstract class VideoRecordingTestBase(
@@ -89,9 +89,7 @@ abstract class VideoRecordingTestBase(
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName.contains(CameraPipeConfig::class.simpleName!!),
-        )
+        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
 
     @get:Rule
     val cameraRule =
@@ -107,7 +105,11 @@ abstract class VideoRecordingTestBase(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
 
-    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    // Chain rule to not run WakelockEmptyActivityRule when the test is ignored.
+    @get:Rule
+    val skipAndWakelockRule: TestRule =
+        RuleChain.outerRule(IgnoreVideoRecordingProblematicDeviceRule())
+            .around(WakelockEmptyActivityRule())
 
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L
@@ -127,6 +129,13 @@ abstract class VideoRecordingTestBase(
                     Camera2Config.defaultConfig(),
                 ),
                 arrayOf(
+                    "external+" + Camera2Config::class.simpleName,
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
+                    Camera2Config.defaultConfig(),
+                ),
+                arrayOf(
                     "back+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     CameraPipeConfig.defaultConfig(),
@@ -134,6 +143,13 @@ abstract class VideoRecordingTestBase(
                 arrayOf(
                     "front+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_FRONT_CAMERA,
+                    CameraPipeConfig.defaultConfig(),
+                ),
+                arrayOf(
+                    "external+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL)
+                        .build(),
                     CameraPipeConfig.defaultConfig(),
                 ),
             )
@@ -145,8 +161,7 @@ abstract class VideoRecordingTestBase(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
-    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
-    private val dynamicRange = DynamicRange.SDR
+    private val defaultDynamicRange = SDR
     private lateinit var cameraProvider: ProcessCameraProviderWrapper
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var preview: Preview
@@ -178,13 +193,6 @@ abstract class VideoRecordingTestBase(
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        skipVideoRecordingTestIfNotSupportedByEmulator()
-
-        // Skip for b/264902324
-        assumeFalse(
-            "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
-        )
 
         cameraExecutor = CameraTaskTrackingExecutor()
         val cameraXConfig =
@@ -195,7 +203,7 @@ abstract class VideoRecordingTestBase(
         cameraProvider =
             ProcessCameraProviderWrapper(
                 ProcessCameraProvider.getInstance(context).get(),
-                enableStreamSharing
+                enableStreamSharing,
             )
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
@@ -285,7 +293,7 @@ abstract class VideoRecordingTestBase(
     private fun testGetCorrectResolution_when_setAspectRatio(aspectRatio: Int) {
         // Pre-arrange.
         assumeExtraCroppingQuirk()
-        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+        assumeTrue(videoCapabilities.getSupportedQualities(defaultDynamicRange).isNotEmpty())
 
         // Arrange.
         val recorder = Recorder.Builder().setAspectRatio(aspectRatio).build()
@@ -300,7 +308,7 @@ abstract class VideoRecordingTestBase(
         // Verify.
         verifyVideoAspectRatio(
             getRotatedAspectRatio(aspectRatio, getRotationNeeded(videoCapture, cameraInfo)),
-            result.file
+            result.file,
         )
     }
 
@@ -314,17 +322,22 @@ abstract class VideoRecordingTestBase(
         assumeExtraCroppingQuirk()
 
         // Arrange.
-        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+        assumeTrue(videoCapabilities.getSupportedQualities(defaultDynamicRange).isNotEmpty())
         val quality = Quality.LOWEST
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
         // Arbitrary cropping
-        val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
-        val targetResolution = Size(profile.width, profile.height)
+        val profile =
+            videoCapabilities.getProfiles(quality, defaultDynamicRange)!!.defaultVideoProfile
+        val targetResolution = profile.resolution
         val cropRect = Rect(6, 6, targetResolution.width - 7, targetResolution.height - 7)
         videoCapture.setViewPortCropRect(cropRect)
 
         checkAndBindUseCases(preview, videoCapture)
+        // On some devices stream sharing could be forcibly enabled by workaround
+        // StreamSharingForceEnabler.java such as on moto-e20. Check stream sharing after binding
+        // and skip it by the same reason above.
+        assumeFalse(isStreamSharingEnabled(videoCapture))
         val calculatedCropRect = videoCapture.cropRect!!
 
         // Act.
@@ -335,7 +348,7 @@ abstract class VideoRecordingTestBase(
         verifyVideoResolution(
             context,
             result.file,
-            rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo))
+            rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo)),
         )
     }
 
@@ -434,7 +447,7 @@ abstract class VideoRecordingTestBase(
         // Checks that video can be recorded successfully when onError is received.
         triggerOnErrorAndWaitForReady(
             sessionConfig,
-            videoCapture.output.mVideoEncoderSession.readyToReleaseFuture
+            videoCapture.output.mVideoEncoderSession.readyToReleaseFuture,
         )
         // Verifies recording after triggering onError event
         recordingSession.createRecording().recordAndVerify()
@@ -462,7 +475,7 @@ abstract class VideoRecordingTestBase(
         // error listener.
         triggerOnErrorAndWaitForReady(
             sessionConfig,
-            videoCapture.output.mVideoEncoderSession.readyToReleaseFuture
+            videoCapture.output.mVideoEncoderSession.readyToReleaseFuture,
         )
         // Verifies recording after triggering onError event to the new active error listener
         recordingSession.createRecording().recordAndVerify()
@@ -474,6 +487,24 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording().recordAndVerify()
         recordingSession.createRecording().recordAndVerify()
         recordingSession.createRecording().recordAndVerify()
+    }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @Test
+    fun canRecordMultipleFilesInARow_whenHdr() {
+        val recorder = Recorder.Builder().build()
+        val highDynamicRanges = videoCapabilities.supportedDynamicRanges.filter { it != SDR }
+        assumeTrue(highDynamicRanges.isNotEmpty())
+
+        highDynamicRanges.forEach { dynamicRange ->
+            assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+
+            val videoCapture = VideoCapture.Builder(recorder).setDynamicRange(dynamicRange).build()
+            checkAndBindUseCases(preview, videoCapture)
+            recordingSession.createRecording(recorder = recorder).recordAndVerify()
+            recordingSession.createRecording(recorder = recorder).recordAndVerify()
+            recordingSession.createRecording(recorder = recorder).recordAndVerify()
+        }
     }
 
     @Test
@@ -599,6 +630,11 @@ abstract class VideoRecordingTestBase(
 
     @Test
     fun canRecordWithCorrectTransformation() {
+        assumeTrue(
+            "No OppositeCamera for test.",
+            CameraUtil.hasCameraWithLensFacing(oppositeCameraSelector.lensFacing!!),
+        )
+
         // Act.
         checkAndBindUseCases(preview, videoCapture)
         val result1 = recordingSession.createRecording().recordAndVerify()
@@ -606,7 +642,7 @@ abstract class VideoRecordingTestBase(
         // Assert.
         verifyMetadataRotation(
             getExpectedRotation(videoCapture, camera.cameraInfo).metadataRotation,
-            result1.file
+            result1.file,
         )
 
         instrumentation.runOnMainSync { cameraProvider.unbindAll() }
@@ -617,7 +653,7 @@ abstract class VideoRecordingTestBase(
         // Assert.
         verifyMetadataRotation(
             getExpectedRotation(videoCapture, oppositeCamera.cameraInfo).metadataRotation,
-            result2.file
+            result2.file,
         )
     }
 
@@ -629,28 +665,28 @@ abstract class VideoRecordingTestBase(
         val recording = recordingSession.createRecording().startAndVerify()
         camera.cameraControl.verifyIfInVideoUsage(
             true,
-            "Video started but camera still not in video usage"
+            "Video started but camera still not in video usage",
         )
 
         // Act 2 - isRecording is false after pause.
         recording.pauseAndVerify()
         camera.cameraControl.verifyIfInVideoUsage(
             false,
-            "Video paused but camera still in video usage"
+            "Video paused but camera still in video usage",
         )
 
         // Act 3 - isRecording is true after resume.
         recording.resumeAndVerify()
         camera.cameraControl.verifyIfInVideoUsage(
             true,
-            "Video resumed but camera still not in video usage"
+            "Video resumed but camera still not in video usage",
         )
 
         // Act 4 - isRecording is false after stop.
         recording.stopAndVerify()
         camera.cameraControl.verifyIfInVideoUsage(
             false,
-            "Video stopped but camera still in video usage"
+            "Video stopped but camera still in video usage",
         )
     }
 
@@ -666,7 +702,7 @@ abstract class VideoRecordingTestBase(
 
         camera.cameraControl.verifyIfInVideoUsage(
             false,
-            "Video stopped but camera still in video usage"
+            "Video stopped but camera still in video usage",
         )
 
         // Cleanup.
@@ -678,7 +714,7 @@ abstract class VideoRecordingTestBase(
         recordingSession.createRecording().startAndVerify()
         camera.cameraControl.verifyIfInVideoUsage(
             true,
-            "Video started but camera still not in video usage"
+            "Video started but camera still not in video usage",
         )
     }
 
@@ -694,7 +730,7 @@ abstract class VideoRecordingTestBase(
 
         camera.cameraControl.verifyIfInVideoUsage(
             false,
-            "Lifecycle stopped but camera still in video usage"
+            "Lifecycle stopped but camera still in video usage",
         )
     }
 
@@ -709,7 +745,7 @@ abstract class VideoRecordingTestBase(
     private fun isUseCasesCombinationSupported(
         vararg useCases: UseCase,
         withStreamSharing: Boolean,
-        useOppositeCamera: Boolean = false
+        useOppositeCamera: Boolean = false,
     ) = getCamera(useOppositeCamera).isUseCasesCombinationSupported(withStreamSharing, *useCases)
 
     /** Checks use case combination with considering StreamSharing and then binds to lifecycle. */
@@ -722,7 +758,7 @@ abstract class VideoRecordingTestBase(
             isUseCasesCombinationSupported(
                 *useCases,
                 withStreamSharing = withStreamSharing,
-                useOppositeCamera = useOppositeCamera
+                useOppositeCamera = useOppositeCamera,
             )
         )
 
@@ -730,7 +766,7 @@ abstract class VideoRecordingTestBase(
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 getCameraSelector(useOppositeCamera),
-                *useCases
+                *useCases,
             )
         }
     }
@@ -739,7 +775,7 @@ abstract class VideoRecordingTestBase(
 
     private fun getExpectedRotation(
         videoCapture: VideoCapture<Recorder>,
-        cameraInfo: CameraInfo
+        cameraInfo: CameraInfo,
     ): ExpectedRotation {
         val rotationNeeded = getRotationNeeded(videoCapture, cameraInfo)
         return if (isSurfaceProcessingEnabled(videoCapture)) {
@@ -796,7 +832,7 @@ abstract class VideoRecordingTestBase(
 
     private suspend fun CameraControl.verifyIfInVideoUsage(
         expected: Boolean,
-        message: String = ""
+        message: String = "",
     ) {
         instrumentation.waitForIdleSync() // VideoCapture observes Recorder in main thread
         // VideoUsage is updated in camera thread. So, we should ensure all tasks already submitted
@@ -822,12 +858,12 @@ abstract class VideoRecordingTestBase(
      */
     private fun triggerOnErrorAndWaitForReady(
         sessionConfig: SessionConfig,
-        readyFuture: ListenableFuture<*>? = null
+        readyFuture: ListenableFuture<*>? = null,
     ) {
         instrumentation.runOnMainSync {
             sessionConfig.errorListener!!.onError(
                 sessionConfig,
-                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN,
             )
         }
 

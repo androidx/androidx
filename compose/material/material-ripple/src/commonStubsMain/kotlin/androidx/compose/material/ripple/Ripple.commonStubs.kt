@@ -26,7 +26,7 @@ internal actual fun createPlatformRippleNode(
     bounded: Boolean,
     radius: Dp,
     color: ColorProducer,
-    rippleAlpha: () -> RippleAlpha
+    rippleAlpha: () -> RippleAlpha,
 ): DelegatableNode = implementedInJetBrainsFork()
 
 @Suppress("DEPRECATION")

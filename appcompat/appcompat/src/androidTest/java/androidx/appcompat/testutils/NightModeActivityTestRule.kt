@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatDelegate
 class NightModeActivityTestRule<T : AppCompatActivity>(
     activityClazz: Class<T>,
     initialTouchMode: Boolean = false,
-    launchActivity: Boolean = true
+    launchActivity: Boolean = true,
 ) : androidx.test.rule.ActivityTestRule<T>(activityClazz, initialTouchMode, launchActivity) {
     override fun beforeActivityLaunched() {
         // By default we'll set the night mode to NO, which allows us to make better

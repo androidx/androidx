@@ -298,7 +298,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
                     it.layoutParams =
                         TestedFrameLayout.FullControlLayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            200
+                            200,
                         )
                     it.orientation = LinearLayout.VERTICAL
                 }
@@ -392,7 +392,7 @@ class PoolingContainerRecyclerViewTest : BaseRecyclerViewInstrumentationTest() {
 class PoolingContainerTestAdapter(
     val context: Context,
     var items: Int,
-    private val itemHeightPx: Int = 1
+    private val itemHeightPx: Int = 1,
 ) : RecyclerView.Adapter<PoolingContainerTestAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 

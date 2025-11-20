@@ -16,39 +16,33 @@
 
 package androidx.tracing.driver
 
-/** Represents a track for a Thread like construct in Perfetto. */
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+
+/** [Track] representing a `Thread` in the specified [ProcessTrack]. */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class ThreadTrack(
     /** The thread id. */
-    internal val id: Int,
+    public val id: Int,
     /** The name of the thread. */
-    internal val name: String,
+    public val name: String,
     /** The process track that the thread belongs to. */
-    internal val process: ProcessTrack,
-    hasPreamble: Boolean = true,
-) :
-    EventTrack(
-        context = process.context,
-        hasPreamble = hasPreamble,
-        uuid = monotonicId(),
-        parent = process
-    ) {
-    override fun preamblePacket(): PooledTracePacket? {
-        val packet = pool.obtainTracePacket()
-        val track = pool.obtainTrackDescriptor()
-        val thread = pool.obtainThreadDescriptor()
-        packet.trackPoolableForOwnership(track)
-        packet.trackPoolableForOwnership(thread)
-        // Populate thread details
-        thread.threadDescriptor.pid = process.id
-        thread.threadDescriptor.tid = id
-        thread.threadDescriptor.thread_name = name
-        // Link
-        track.trackDescriptor.uuid = uuid
-        track.trackDescriptor.thread = thread.threadDescriptor
-        packet.tracePacket.timestamp = nanoTime()
-        packet.tracePacket.track_descriptor = track.trackDescriptor
-        packet.tracePacket.trusted_packet_sequence_id = context.sequenceId
-        return packet
+    public val process: ProcessTrack,
+) : SliceTrack(context = process.context, uuid = monotonicId()) {
+
+    init {
+        val event = obtainTraceEvent()
+        event?.setPreamble(
+            TrackDescriptor(
+                name = name,
+                uuid = uuid,
+                parentUuid = DEFAULT_LONG,
+                pid = process.id,
+                tid = id,
+                type = TRACK_DESCRIPTOR_TYPE_THREAD,
+            )
+        )
+        dispatchTraceEvent(event, immediateDispatch = true)
     }
 }
 
@@ -58,11 +52,4 @@ private const val EMPTY_THREAD_ID = -1
 private const val EMPTY_THREAD_NAME = "Empty Thread"
 
 internal class EmptyThreadTrack(process: EmptyProcessTrack) :
-    ThreadTrack(
-        id = EMPTY_THREAD_ID,
-        name = EMPTY_THREAD_NAME,
-        process = process,
-        hasPreamble = false
-    ) {
-    override fun preamblePacket(): PooledTracePacket? = null
-}
+    ThreadTrack(id = EMPTY_THREAD_ID, name = EMPTY_THREAD_NAME, process = process) {}

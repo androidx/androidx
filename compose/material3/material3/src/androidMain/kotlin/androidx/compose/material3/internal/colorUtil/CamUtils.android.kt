@@ -57,7 +57,7 @@ internal object CamUtils {
         arrayOf(
             floatArrayOf(0.401288f, 0.650173f, -0.051461f),
             floatArrayOf(-0.250268f, 1.204414f, 0.045854f),
-            floatArrayOf(-0.002079f, 0.048952f, 0.953127f)
+            floatArrayOf(-0.002079f, 0.048952f, 0.953127f),
         )
 
     // Transforms 'cone'/'RGB' responses in CAM16 to XYZ color space coordinates.
@@ -65,7 +65,7 @@ internal object CamUtils {
         arrayOf(
             floatArrayOf(1.86206786f, -1.01125463f, 0.14918677f),
             floatArrayOf(0.38752654f, 0.62144744f, -0.00897398f),
-            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f)
+            floatArrayOf(-0.01584150f, -0.03412294f, 1.04996444f),
         )
 
     // Need this, XYZ coordinates in internal ColorUtils are private  sRGB specification has D65
@@ -85,21 +85,9 @@ internal object CamUtils {
 
     private val XYZ_TO_SRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                3.2413774792388685,
-                -1.5376652402851851,
-                -0.49885366846268053,
-            ),
-            doubleArrayOf(
-                -0.9691452513005321,
-                1.8758853451067872,
-                0.04156585616912061,
-            ),
-            doubleArrayOf(
-                0.05562093689691305,
-                -0.20395524564742123,
-                1.0571799111220335,
-            ),
+            doubleArrayOf(3.2413774792388685, -1.5376652402851851, -0.49885366846268053),
+            doubleArrayOf(-0.9691452513005321, 1.8758853451067872, 0.04156585616912061),
+            doubleArrayOf(0.05562093689691305, -0.20395524564742123, 1.0571799111220335),
         )
 
     /**
@@ -214,7 +202,7 @@ internal object CamUtils {
         return ColorUtils.XYZToColor(
             (xT * WHITE_POINT_D65[0]).toDouble(),
             (yT * WHITE_POINT_D65[1]).toDouble(),
-            (zT * WHITE_POINT_D65[2]).toDouble()
+            (zT * WHITE_POINT_D65[2]).toDouble(),
         )
     }
 

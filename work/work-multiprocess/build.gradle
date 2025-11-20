@@ -21,30 +21,28 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     compileSdk = 35
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.work.multiprocess"
 }
 
 dependencies {
     api(libs.jspecify)
     api(project(":work:work-runtime"))
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
-    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -57,8 +55,8 @@ dependencies {
 androidx {
     name = "WorkManager Multiprocess"
     type = SoftwareType.PUBLISHED_LIBRARY
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2020"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
-    legacyDisableKotlinStrictApiMode = true
 }

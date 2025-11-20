@@ -56,13 +56,13 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
     constructor(
         activity: Class<T>,
         initialTouchMode: Boolean,
-        launchActivity: Boolean
+        launchActivity: Boolean,
     ) : super(activity, initialTouchMode, launchActivity)
 
     constructor(
         singleActivityFactory: SingleActivityFactory<T>,
         initialTouchMode: Boolean,
-        launchActivity: Boolean
+        launchActivity: Boolean,
     ) : super(singleActivityFactory, initialTouchMode, launchActivity)
 
     @SuppressLint("BanUncheckedReflection")

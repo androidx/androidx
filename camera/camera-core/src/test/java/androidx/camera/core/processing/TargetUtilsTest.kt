@@ -16,7 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.os.Build
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -32,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [TargetUtils]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class TargetUtilsTest {
 
     @Test

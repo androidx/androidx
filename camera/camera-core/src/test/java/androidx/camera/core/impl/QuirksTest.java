@@ -18,15 +18,12 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SdkSuppress;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SdkSuppress(minSdkVersion = 21)
 public class QuirksTest {
 
     @Test

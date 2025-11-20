@@ -1,0 +1,93 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.android.experimental.built-in-kotlin")
+}
+
+dependencies {
+    api(libs.jspecify)
+    api(project(":xr:runtime:runtime"))
+    api(project(":xr:scenecore:scenecore-runtime"))
+
+    implementation(project(":xr:arcore:arcore-openxr"))
+
+    implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(libs.androidx.core)
+    implementation libs.testRules
+
+    testImplementation(libs.junit)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.testExtJunit)
+    testImplementation("org.robolectric:robolectric")
+    testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid5)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
+    androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
+
+    // For com.android.xr.extensions.
+    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+}
+
+android {
+    defaultConfig {
+        consumerProguardFiles("proguard-rules.pro")
+        minSdk = 24
+    }
+    sourceSets {
+        androidTest {
+            jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+        }
+    }
+    namespace = "androidx.xr.scenecore.spatial.core"
+}
+
+androidx {
+    name = "XR SceneCore Spatial Core"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2025"
+    description = "SceneCore's core implementation for devices with full spatial capabilities, enabling a comprehensive experience."
+
+    enableRobolectric()
+}
+

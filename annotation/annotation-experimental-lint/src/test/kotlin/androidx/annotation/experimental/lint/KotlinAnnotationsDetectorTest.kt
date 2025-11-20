@@ -46,7 +46,7 @@ class KotlinAnnotationsDetectorTest {
             arrayOf(
                 javaSample("sample.kotlin.AnnotatedJavaMembers"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
-                javaSample("sample.kotlin.UseJavaExperimentalMembersFromJava")
+                javaSample("sample.kotlin.UseJavaExperimentalMembersFromJava"),
             )
 
         val expected =
@@ -85,7 +85,7 @@ src/sample/kotlin/UseJavaExperimentalMembersFromJava.java:61: Error: This declar
             arrayOf(
                 javaSample("sample.kotlin.AnnotatedJavaClass"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
-                javaSample("sample.kotlin.UseJavaExperimentalClassFromJava")
+                javaSample("sample.kotlin.UseJavaExperimentalClassFromJava"),
             )
 
         val expected =
@@ -129,7 +129,7 @@ src/sample/kotlin/UseJavaExperimentalClassFromJava.java:54: Error: This declarat
                 javaSample("sample.kotlin.AnnotatedJavaClass2"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation2"),
-                javaSample("sample.kotlin.UseJavaExperimentalMultipleMarkersFromJava")
+                javaSample("sample.kotlin.UseJavaExperimentalMultipleMarkersFromJava"),
             )
 
         val expected =
@@ -160,7 +160,7 @@ src/sample/kotlin/UseJavaExperimentalMultipleMarkersFromJava.java:34: Error: Thi
                 ktSample("sample.kotlin.ExperimentalKotlinAnnotation"),
                 ktSample("sample.kotlin.ExperimentalKotlinAnnotation2"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
-                javaSample("sample.kotlin.UseKtExperimentalFromJava")
+                javaSample("sample.kotlin.UseKtExperimentalFromJava"),
             )
 
         val expected =
@@ -212,7 +212,7 @@ src/sample/kotlin/UseKtExperimentalFromJava.java:117: Error: This declaration is
                 SAMPLE_FOO_PACKAGE_INFO,
                 javaSample("sample.kotlin.foo.AnnotatedJavaPackage"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
-                javaSample("sample.kotlin.UseJavaPackageFromJava")
+                javaSample("sample.kotlin.UseJavaPackageFromJava"),
             )
 
         val expected =
@@ -247,7 +247,7 @@ src/sample/kotlin/UseJavaPackageFromJava.java:66: Error: This declaration is opt
                 SAMPLE_FOO_PACKAGE_INFO,
                 javaSample("sample.kotlin.foo.AnnotatedJavaPackage"),
                 javaSample("sample.kotlin.ExperimentalJavaAnnotation"),
-                javaSample("sample.kotlin.foo.RegressionTestJava218798815")
+                javaSample("sample.kotlin.foo.RegressionTestJava218798815"),
             )
 
         val expected =
@@ -453,7 +453,7 @@ src/sample/kotlin/RegressionTestJava192562926.java:52: Error: This declaration i
                     "+PB1kNSjCLlml9Y8Ho6KHyecX7/NLZn1xsxXvIIJFPDOfnrRy4C+ugQOeEYm" +
                     "EQbUeIelCFCiQQUoSQhdK3J8iqBos8WRgEAmcDHgjncE2IWcCnBr4kPRdB9L" +
                     "qkDoxZYuEICbEXsqQXgZpB85JFVQ9Ftj1Y+ZagK8WdlA6tmAsAGoxxgc+ACq" +
-                    "I6JIyQMAAA=="
+                    "I6JIyQMAAA==",
             )
     }
 }

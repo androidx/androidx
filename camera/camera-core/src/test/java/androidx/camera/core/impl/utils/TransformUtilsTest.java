@@ -29,7 +29,6 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
-import android.os.Build;
 import android.util.Size;
 
 import org.junit.Test;
@@ -43,7 +42,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class TransformUtilsTest {
 
     private static final int WIDTH = 400;

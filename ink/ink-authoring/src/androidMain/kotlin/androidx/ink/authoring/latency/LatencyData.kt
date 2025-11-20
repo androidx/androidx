@@ -245,7 +245,7 @@ public class LatencyData {
 
             public fun fromMotionEvent(
                 event: MotionEvent,
-                predicted: Boolean = false
+                predicted: Boolean = false,
             ): EventAction =
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN,

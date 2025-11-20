@@ -47,11 +47,11 @@ fun ScrollingAndroidViewsDemo() {
         var checkedItems by remember { mutableStateOf(emptySet<Int>()) }
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         ) {
             Button(
                 onClick = { checkedItems = (0 until ItemCount).toSet() },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text("Check All")
             }
@@ -66,7 +66,7 @@ fun ScrollingAndroidViewsDemo() {
             onChangeCheck = { item, checked ->
                 @Suppress("SuspiciousCollectionReassignment")
                 if (checked) checkedItems += item else checkedItems -= item
-            }
+            },
         )
     }
 }
@@ -74,7 +74,7 @@ fun ScrollingAndroidViewsDemo() {
 @Composable
 private fun RecyclingAndroidViewLazyColumn(
     checkedItems: Set<Int>,
-    onChangeCheck: (Int, Boolean) -> Unit
+    onChangeCheck: (Int, Boolean) -> Unit,
 ) {
     var allocationCounter by remember { mutableIntStateOf(0) }
     val resetViews = remember { mutableSetOf<View>() }
@@ -110,7 +110,7 @@ private fun RecyclingAndroidViewLazyColumn(
                     }
                 },
                 onReset = { view -> resetViews += view },
-                onRelease = { view -> resetViews -= view }
+                onRelease = { view -> resetViews -= view },
             )
         }
     }

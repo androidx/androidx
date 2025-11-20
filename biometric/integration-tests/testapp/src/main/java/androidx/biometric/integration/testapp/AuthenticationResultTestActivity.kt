@@ -23,6 +23,7 @@ import androidx.biometric.AuthenticationRequest.Biometric
 import androidx.biometric.AuthenticationRequest.Companion.biometricRequest
 import androidx.biometric.AuthenticationRequest.Companion.credentialRequest
 import androidx.biometric.AuthenticationResult
+import androidx.biometric.AuthenticationResultCallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.PromptContentItemBulletedText
@@ -50,13 +51,20 @@ class AuthenticationResultTestActivity : FragmentActivity() {
         }
 
     private val authResultLauncher =
-        registerForAuthenticationResult(onAuthFailedCallback = { onAuthenticationFailed() }) {
-            result: AuthenticationResult ->
-            when (result) {
-                is AuthenticationResult.Success -> onAuthenticationSucceeded(result)
-                is AuthenticationResult.Error -> onAuthenticationError(result)
+        registerForAuthenticationResult(
+            object : AuthenticationResultCallback {
+                override fun onAuthResult(result: AuthenticationResult) {
+                    when (result) {
+                        is AuthenticationResult.Success -> onAuthenticationSucceeded(result)
+                        is AuthenticationResult.Error -> onAuthenticationError(result)
+                    }
+                }
+
+                override fun onAuthFailure() {
+                    onAuthenticationFailed()
+                }
             }
-        }
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,8 +111,8 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                     "Vertical list description",
                     listOf(
                         PromptContentItemBulletedText("test item1"),
-                        PromptContentItemBulletedText("test item2")
-                    )
+                        PromptContentItemBulletedText("test item2"),
+                    ),
                 )
             } else {
                 null
@@ -113,9 +121,7 @@ class AuthenticationResultTestActivity : FragmentActivity() {
         val authRequest =
             if (binding.credentialButton.isChecked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    credentialRequest(
-                        title = title,
-                    ) {
+                    credentialRequest(title = title) {
                         setSubtitle(subtitle)
                         setContent(bodyContent)
                         setCryptoObject(createCryptoOrNull())
@@ -264,10 +270,7 @@ class AuthenticationResultTestActivity : FragmentActivity() {
 
     /** Returns a new crypto object for authentication or `null`, based on the selected options. */
     private fun createCryptoOrNull(): BiometricPrompt.CryptoObject? {
-        return if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                binding.common.useCryptoAuthCheckbox.isChecked
-        ) {
+        return if (binding.common.useCryptoAuthCheckbox.isChecked) {
             createCryptoObject(isBiometricAllowed, isCredentialAllowed)
         } else {
             null

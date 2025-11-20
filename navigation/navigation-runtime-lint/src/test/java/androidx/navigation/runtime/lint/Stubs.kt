@@ -123,7 +123,7 @@ public inline fun <reified T : Any> NavGraphBuilder.activity() {}
                 VzThHlnK3L1KsnQcvaH8YPd9pi3NogEZ4uS51oktZpnSISTvd72RfN2Mj1n5
                 hQbKra+of2Ei8YSxsjKxx9hYcxcbXB08LVIO9ov6CAdcu5xpcObOEE4fd/vY
                 7MPDFlNs97GDe0MIg/t4METZYMPgoUHTYNeg+hsUN/EQjAIAAA==
-                """
+                """,
     )
 
 val STUBS = arrayOf(*NAVIGATION_STUBS, TEST_CLASS).map { it.toTestBytecodeStub() }.toTypedArray()

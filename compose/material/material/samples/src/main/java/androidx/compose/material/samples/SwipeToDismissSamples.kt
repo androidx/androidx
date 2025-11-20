@@ -68,7 +68,7 @@ private val items =
         "Marshmallow",
         "Nougat",
         "Oreo",
-        "Pie"
+        "Pie",
     )
 
 @Sampled
@@ -120,12 +120,12 @@ fun SwipeToDismissListItems() {
 
                     Box(
                         Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
-                        contentAlignment = alignment
+                        contentAlignment = alignment,
                     ) {
                         Icon(
                             icon,
                             contentDescription = "Localized description",
-                            modifier = Modifier.scale(scale)
+                            modifier = Modifier.scale(scale),
                         )
                     }
                 },
@@ -141,10 +141,10 @@ fun SwipeToDismissListItems() {
                             text = {
                                 Text(item, fontWeight = if (unread) FontWeight.Bold else null)
                             },
-                            secondaryText = { Text("Swipe me left or right!") }
+                            secondaryText = { Text("Swipe me left or right!") },
                         )
                     }
-                }
+                },
             )
         }
     }

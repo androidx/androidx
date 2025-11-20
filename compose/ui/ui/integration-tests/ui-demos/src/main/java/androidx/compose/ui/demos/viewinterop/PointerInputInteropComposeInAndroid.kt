@@ -96,31 +96,31 @@ val ComposeInAndroidDemos =
         listOf(
             ActivityDemo(
                 "Compose with no gestures in Android tap",
-                ComposeNothingInAndroidTap::class
+                ComposeNothingInAndroidTap::class,
             ),
             ActivityDemo("Compose tap in Android tap", ComposeTapInAndroidTap::class),
             ActivityDemo(
                 "Compose tap (dynamically loaded via window manager) in Android",
-                AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager::class
+                AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager::class,
             ),
             ActivityDemo("Compose tap in Android scroll", ComposeTapInAndroidScroll::class),
             ActivityDemo(
                 "Compose scroll in Android scroll (same orientation, vertical)",
-                ComposeScrollInAndroidScrollSameOrientation::class
+                ComposeScrollInAndroidScrollSameOrientation::class,
             ),
             ActivityDemo(
                 "Compose scroll in Android scroll (horizontal pager)",
-                ComposeScrollInAndroidScrollSameOrientationHorizontal::class
+                ComposeScrollInAndroidScrollSameOrientationHorizontal::class,
             ),
             ActivityDemo(
                 "Compose scroll in Android scroll (different orientations)",
-                ComposeScrollInAndroidScrollDifferentOrientation::class
+                ComposeScrollInAndroidScrollDifferentOrientation::class,
             ),
             ActivityDemo(
                 "Compose in Android dialog dismisses dialog during dispatch",
-                ComposeInAndroidDialogDismissDialogDuringDispatch::class
-            )
-        )
+                ComposeInAndroidDialogDismissDialogDuringDispatch::class,
+            ),
+        ),
     )
 
 open class ComposeNothingInAndroidTap : ComponentActivity() {
@@ -321,7 +321,7 @@ private fun SimpleClickableButton() {
                         IconButton(onClick = { topBarClickCount++ }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = null)
                         }
-                    }
+                    },
                 )
             }
         ) { padding ->
@@ -379,8 +379,8 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
             },
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
         )
     }
 }
@@ -427,8 +427,8 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
             },
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
         )
     }
 }
@@ -458,14 +458,14 @@ internal class ViewPager2Adapter(private val ctx: Context) :
             LazyRow(
                 modifier = Modifier.border(4.dp, Color.DarkGray),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
-                contentPadding = PaddingValues(24.dp)
+                contentPadding = PaddingValues(24.dp),
             ) {
                 items(5) { index ->
                     Card(modifier = Modifier.height(240.dp)) {
                         Text(
                             modifier = Modifier.padding(12.dp),
                             text = "LazyRow Item: $index",
-                            style = MaterialTheme.typography.h6
+                            style = MaterialTheme.typography.h6,
                         )
                     }
                 }
@@ -523,8 +523,8 @@ open class ComposeScrollInAndroidScrollDifferentOrientation : ComponentActivity(
             },
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
         )
     }
 }
@@ -560,7 +560,7 @@ class MyDialogFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
 
         val frameLayout =
@@ -568,7 +568,7 @@ class MyDialogFragment : DialogFragment() {
                 layoutParams =
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                     )
             }
 

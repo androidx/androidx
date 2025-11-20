@@ -23,7 +23,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -85,11 +84,7 @@ public class CardView extends FrameLayout {
     private static final CardViewImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new CardViewApi21Impl();
-        } else {
-            IMPL = new CardViewBaseImpl();
-        }
+        IMPL = new CardViewApi21Impl();
         IMPL.initStatic();
     }
 

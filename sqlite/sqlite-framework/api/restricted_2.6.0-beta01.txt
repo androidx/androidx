@@ -1,0 +1,42 @@
+// Signature format: 4.0
+package androidx.sqlite.db.framework {
+
+  public final class FrameworkSQLiteOpenHelperFactory implements androidx.sqlite.db.SupportSQLiteOpenHelper.Factory {
+    ctor public FrameworkSQLiteOpenHelperFactory();
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration configuration);
+  }
+
+}
+
+package androidx.sqlite.driver {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AndroidSQLiteConnection implements androidx.sqlite.SQLiteConnection {
+    ctor public AndroidSQLiteConnection(android.database.sqlite.SQLiteDatabase db);
+    method public void close();
+    method public android.database.sqlite.SQLiteDatabase getDb();
+    method public androidx.sqlite.SQLiteStatement prepare(String sql);
+    property public android.database.sqlite.SQLiteDatabase db;
+  }
+
+  public final class AndroidSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public AndroidSQLiteDriver();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
+    property public boolean hasConnectionPool;
+  }
+
+  public final class SupportSQLiteConnection implements androidx.sqlite.SQLiteConnection {
+    ctor public SupportSQLiteConnection(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void close();
+    method public androidx.sqlite.db.SupportSQLiteDatabase getDb();
+    method public androidx.sqlite.SQLiteStatement prepare(String sql);
+    property public androidx.sqlite.db.SupportSQLiteDatabase db;
+  }
+
+  public final class SupportSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public SupportSQLiteDriver(androidx.sqlite.db.SupportSQLiteOpenHelper openHelper);
+    method public androidx.sqlite.driver.SupportSQLiteConnection open(String fileName);
+    property public boolean hasConnectionPool;
+  }
+
+}
+

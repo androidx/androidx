@@ -48,7 +48,7 @@ object ExtensionsTestUtil {
     @JvmStatic
     fun setTestApiVersionAndAdvancedExtender(
         testString: String,
-        isAdvancedExtenderImplemented: Boolean
+        isAdvancedExtenderImplemented: Boolean,
     ) {
         val mockExtensionVersionImpl = Mockito.mock(ExtensionVersionImpl::class.java)
         Mockito.`when`(mockExtensionVersionImpl.checkApiVersion(ArgumentMatchers.anyString()))

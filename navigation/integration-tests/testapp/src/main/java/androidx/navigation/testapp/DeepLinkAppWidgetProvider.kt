@@ -28,7 +28,7 @@ class DeepLinkAppWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        appWidgetIds: IntArray,
     ) {
         val remoteViews = RemoteViews(context.packageName, R.layout.deep_link_appwidget)
 

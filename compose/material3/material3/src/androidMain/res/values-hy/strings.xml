@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"Այլ ընտրանքներ"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"Երկխոսության պատուհան"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Ծավալված է"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Ծալված է"</string>
@@ -61,10 +62,9 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"Ծալել ներքևի էկրանը"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"Փակել ներքևի էկրանը"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Ծավալել ներքևի էկրանը"</string>
-    <!-- no translation found for m3c_floating_toolbar_collapse (6072492480528318635) -->
-    <skip />
-    <!-- no translation found for m3c_floating_toolbar_expand (6880757017246780255) -->
-    <skip />
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Ծալել գործիքագոտին"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Ծավալել գործիքագոտին"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"Այլ ընտրանքներ"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Հուշակ"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Ցուցադրել հուշում"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -79,8 +79,8 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"Ժամ"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"րոպեներ"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"ժամեր"</string>
-    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"Ժամը մուտքագրելու համար անցեք տեքստի ներածման ռեժիմին"</string>
-    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"Ժամը մուտքագրելու համար անցեք ժամացույցի ռեժիմին"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Անցնել տեքստի ներածման ռեժիմին"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Անցնել ժամացույցի ռեժիմին"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Ընտրեք ժամը"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Մուտքագրեք ժամը"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Փակել նավիգացիայի գոտին"</string>

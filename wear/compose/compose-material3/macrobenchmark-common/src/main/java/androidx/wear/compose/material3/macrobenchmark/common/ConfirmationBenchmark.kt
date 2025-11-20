@@ -44,11 +44,11 @@ object ConfirmationBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = SHOW_CONFIRMATION }
+                    modifier = Modifier.semantics { contentDescription = SHOW_CONFIRMATION },
                 ) {
                     Text("Open")
                 }
@@ -59,7 +59,7 @@ object ConfirmationBenchmark : MacrobenchmarkScreen {
                 onDismissRequest = { showDialog.value = false },
                 durationMillis = 2000,
                 curvedText = { confirmationDialogCurvedText("Text", style) },
-                content = { ConfirmationDialogDefaults.SuccessIcon() }
+                content = { ConfirmationDialogDefaults.SuccessIcon() },
             )
         }
 

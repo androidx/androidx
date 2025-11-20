@@ -36,15 +36,19 @@
       <item quantity="one">%d segon</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Període"</string>
+    <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Desplaça\'t per definir l\'hora"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Dia"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mes"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Any"</string>
+    <string name="wear_m3c_date_picker_heading" msgid="1824308273028674826">"Desplaça\'t per definir la data"</string>
+    <string name="wear_m3c_picker_click_to_adjust_hint" msgid="167976024035966099">"Ajusta el valor"</string>
+    <string name="wear_m3c_picker_click_to_select_hint" msgid="7994498880084699884">"Selecciona el valor"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Confirma"</string>
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Següent"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"Redueix"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Augmenta"</string>
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"Confirma"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Ignora"</string>
-    <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Obre al telèfon"</string>
-    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="7845336918219306426">"Icona per obrir al telèfon"</string>
+    <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"Ves al telèfon"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"Comprova la icona del telèfon"</string>
 </resources>

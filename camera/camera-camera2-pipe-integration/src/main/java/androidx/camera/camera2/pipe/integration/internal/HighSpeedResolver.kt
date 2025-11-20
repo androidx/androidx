@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.internal
 
-import android.graphics.ImageFormat.PRIVATE
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO
@@ -27,7 +26,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.Logger
-import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.AttachedSurfaceInfo
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
+import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.internal.utils.SizeUtil.getArea
 
 /** A class responsible for resolving parameters for high-speed session scenario. */
@@ -85,16 +87,11 @@ public class HighSpeedResolver(private val cameraMetadata: CameraMetadata) {
      * This method retrieves the supported high-speed FPS ranges for the given size from the camera
      * characteristics. It then returns the maximum frame rate (upper bound) among those ranges.
      *
-     * @param imageFormat The image format. Only [PRIVATE] is supported for high-speed session.
      * @param size The size for which to find the maximum supported high-speed frame rate.
      * @return The maximum high-speed frame rate supported for the given size, or 0 if no high-speed
-     *   FPS ranges are supported for that size or the image format is not supported.
+     *   FPS ranges are supported for that size.
      */
-    public fun getMaxFrameRate(imageFormat: Int, size: Size): Int {
-        if (imageFormat != SUPPORTED_FORMAT) {
-            return 0
-        }
-
+    public fun getMaxFrameRate(size: Size): Int {
         val supportedFpsRangesForSize =
             getHighSpeedVideoFpsRangesFor(size).takeIf { it.isNotEmpty() }
                 ?: run {
@@ -193,8 +190,47 @@ public class HighSpeedResolver(private val cameraMetadata: CameraMetadata) {
             ?.toList() ?: emptyList()
     }
 
-    private companion object {
+    public companion object {
         private const val TAG = "HighSpeedResolver"
-        private const val SUPPORTED_FORMAT = INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+
+        public val DEFAULT_FPS: Range<Int> = Range(120, 120)
+
+        /**
+         * Checks if a high-speed session is enabled based on the provided attached surfaces and new
+         * use case configurations.
+         *
+         * If any of the session types in the `attachedSurfaces` or `newUseCaseConfigs` indicate
+         * `SESSION_TYPE_HIGH_SPEED`, then this method ensures that ALL session types are
+         * `SESSION_TYPE_HIGH_SPEED`. If there's a mix of session types when high-speed is present,
+         * an `IllegalArgumentException` is thrown.
+         *
+         * @param attachedSurfaces A collection of `AttachedSurfaceInfo` objects representing
+         *   currently attached surfaces.
+         * @param newUseCaseConfigs A collection of `UseCaseConfig` objects representing new use
+         *   case configurations.
+         * @return `true` if all `attachedSurfaces` or `newUseCaseConfigs`'s session types are
+         *   `SESSION_TYPE_HIGH_SPEED`, `false` otherwise.
+         * @throws IllegalArgumentException if `SESSION_TYPE_HIGH_SPEED` is present among the
+         *   session types, but not all session types are `SESSION_TYPE_HIGH_SPEED`.
+         */
+        @JvmStatic
+        public fun isHighSpeedOn(
+            attachedSurfaces: Collection<AttachedSurfaceInfo>,
+            newUseCaseConfigs: Collection<UseCaseConfig<*>>,
+        ): Boolean {
+            val sessionTypes =
+                attachedSurfaces.map { it.sessionType } +
+                    newUseCaseConfigs.map { it.getSessionType(SESSION_TYPE_REGULAR) }
+
+            val hasHighSpeedSessionType = sessionTypes.any { it == SESSION_TYPE_HIGH_SPEED }
+
+            // If a high-speed session type is present, all session types must be high-speed.
+            if (hasHighSpeedSessionType) {
+                require(sessionTypes.all { it == SESSION_TYPE_HIGH_SPEED }) {
+                    "All sessionTypes should be high-speed when any of them is high-speed"
+                }
+            }
+            return hasHighSpeedSessionType
+        }
     }
 }

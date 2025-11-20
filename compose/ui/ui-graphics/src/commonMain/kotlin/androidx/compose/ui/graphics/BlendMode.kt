@@ -222,7 +222,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * favor the destination.
          *
          * Specifically, if the destination value is smaller, this multiplies it with the source
-         * value, whereas is the source value is smaller, it multiplies the inverse of the source
+         * value, whereas if the source value is smaller, it multiplies the inverse of the source
          * value with the inverse of the destination value, then inverts the result.
          *
          * Inverting the components means that a fully saturated channel (opaque white) is treated
@@ -305,7 +305,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          *
          * See also:
-         * * [Color], which is a more subtle tinting effect.
+         * * [BlendMode.Color], which is a more subtle tinting effect.
          */
         val Softlight = BlendMode(21)
 
@@ -377,7 +377,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          *
          * See also:
-         * * [Color], which also applies the hue of the source image.
+         * * [BlendMode.Color], which also applies the hue of the source image.
          * * [Luminosity], which applies the luminosity of the source image to the destination.
          */
         val Saturation = BlendMode(26)

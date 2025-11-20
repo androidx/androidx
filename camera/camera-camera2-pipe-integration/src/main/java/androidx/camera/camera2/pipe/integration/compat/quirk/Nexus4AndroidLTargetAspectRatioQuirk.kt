@@ -27,7 +27,7 @@ import androidx.camera.core.impl.Quirk
  * The preview will be stretched when configuring a JPEG that doesn't actually have the same aspect
  * ratio as the maximum JPEG resolution. Device(s): Google Nexus 4
  *
- * @see androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio
+ * @see androidx.camera.camera2.compat.workaround.TargetAspectRatio
  */
 public class Nexus4AndroidLTargetAspectRatioQuirk : Quirk {
     /** Get the corrected aspect ratio. */

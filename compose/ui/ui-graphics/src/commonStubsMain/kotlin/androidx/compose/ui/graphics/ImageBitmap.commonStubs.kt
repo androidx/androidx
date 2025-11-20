@@ -23,7 +23,7 @@ internal actual fun ActualImageBitmap(
     height: Int,
     config: ImageBitmapConfig,
     hasAlpha: Boolean,
-    colorSpace: ColorSpace
+    colorSpace: ColorSpace,
 ): ImageBitmap = implementedInJetBrainsFork()
 
 internal actual fun createImageBitmap(bytes: ByteArray): ImageBitmap = implementedInJetBrainsFork()

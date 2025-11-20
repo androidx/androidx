@@ -70,14 +70,14 @@ class RxPagedListTest {
             object : PositionalDataSource<String>() {
                 override fun loadInitial(
                     params: LoadInitialParams,
-                    callback: LoadInitialCallback<String>
+                    callback: LoadInitialCallback<String>,
                 ) {
                     callback.onResult(listOf(), 0, 0)
                 }
 
                 override fun loadRange(
                     params: LoadRangeParams,
-                    callback: LoadRangeCallback<String>
+                    callback: LoadRangeCallback<String>,
                 ) {
                     // never completes...
                 }

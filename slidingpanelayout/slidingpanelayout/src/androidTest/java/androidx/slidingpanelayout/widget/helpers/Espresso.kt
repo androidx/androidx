@@ -37,7 +37,7 @@ fun slideClose(): ViewAction? {
             Swipe.FAST,
             GeneralLocation.CENTER_LEFT,
             GeneralLocation.CENTER_RIGHT,
-            Press.FINGER
+            Press.FINGER,
         )
     )
 }
@@ -48,7 +48,7 @@ fun slideOpen(): ViewAction? {
             Swipe.FAST,
             GeneralLocation.CENTER_RIGHT,
             GeneralLocation.CENTER_LEFT,
-            Press.FINGER
+            Press.FINGER,
         )
     )
 }

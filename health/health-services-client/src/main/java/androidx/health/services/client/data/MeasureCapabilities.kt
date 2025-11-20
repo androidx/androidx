@@ -30,7 +30,7 @@ public class MeasureCapabilities(
      * Some data types are not available for measurement; this is typically used to measure health
      * data (e.g. HR).
      */
-    public val supportedDataTypesMeasure: Set<DeltaDataType<*, *>>,
+    public val supportedDataTypesMeasure: Set<DeltaDataType<*, *>>
 ) {
 
     internal constructor(

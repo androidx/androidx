@@ -28,5 +28,5 @@ class OpenOnPhoneDialogBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = OpenOnPhoneDialogBenchmark,
-        actionSuffix = "OPEN_ON_PHONE_DIALOG_ACTIVITY"
+        actionSuffix = "OPEN_ON_PHONE_DIALOG_ACTIVITY",
     )

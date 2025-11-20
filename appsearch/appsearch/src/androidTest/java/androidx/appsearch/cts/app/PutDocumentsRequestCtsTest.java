@@ -71,8 +71,12 @@ public class PutDocumentsRequestCtsTest {
                 .addTakenActionGenericDocuments(takenActionGenericDocument);
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> builder.build());
-        assertThat(e.getMessage()).isEqualTo("Document id " + takenActionGenericDocument.getId()
-                + " cannot exist in both taken action and normal document");
+        assertThat(e)
+            .hasMessageThat()
+            .isEqualTo(
+                "Document id "
+                    + takenActionGenericDocument.getId()
+                    + " cannot exist in both taken action and normal document");
     }
 
     @Test

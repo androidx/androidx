@@ -69,10 +69,7 @@ import androidx.compose.ui.viewinterop.AndroidViewBinding
 import kotlin.math.max
 
 @Composable
-fun LastElementOverLaidColumn(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+fun LastElementOverLaidColumn(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var yPosition = 0
 
     Layout(modifier = modifier, content = content) { measurables, constraints ->
@@ -113,12 +110,12 @@ fun CardRow(
     modifier: Modifier,
     columnNumber: Int,
     topSampleText: String,
-    bottomSampleText: String
+    bottomSampleText: String,
 ) {
     Row(
         modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End
+        horizontalArrangement = Arrangement.End,
     ) {
         Column {
             Text(topSampleText + columnNumber)
@@ -139,13 +136,13 @@ fun NestedContainersFalseDemo() {
                 Modifier.semantics { isTraversalGroup = false },
                 1,
                 topSampleText,
-                bottomSampleText
+                bottomSampleText,
             )
             CardRow(
                 Modifier.semantics { isTraversalGroup = false },
                 2,
                 topSampleText,
-                bottomSampleText
+                bottomSampleText,
             )
         }
     }
@@ -163,13 +160,13 @@ fun NestedContainersTrueDemo() {
                 Modifier.semantics { isTraversalGroup = true },
                 1,
                 topSampleText,
-                bottomSampleText
+                bottomSampleText,
             )
             CardRow(
                 Modifier.semantics { isTraversalGroup = true },
                 2,
                 topSampleText,
-                bottomSampleText
+                bottomSampleText,
             )
         }
     }
@@ -207,7 +204,7 @@ fun ScaffoldSampleDemo() {
         content = { padding -> Text("Content", modifier = Modifier.padding(padding)) },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
-        }
+        },
     )
 }
 
@@ -227,7 +224,7 @@ fun ScaffoldSampleScrollDemo() {
         content = { padding -> ScrollColumn(padding) },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
-        }
+        },
     )
 }
 
@@ -318,7 +315,7 @@ fun NestedTraversalIndexInheritanceDemo() {
         content = { padding -> ContentColumn(padding = padding) },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
-        }
+        },
     )
 }
 
@@ -374,17 +371,17 @@ fun IconsInScaffoldWithListDemo() {
         content = { innerPadding ->
             LazyColumn(
                 contentPadding = innerPadding,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val list = (0..75).map { it.toString() }
                 items(count = list.size) {
                     Text(
                         text = list[it],
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -422,7 +419,7 @@ fun InteropSample() {
         content = { padding -> InteropColumn(padding) },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
-        }
+        },
     )
 }
 
@@ -435,7 +432,7 @@ fun InteropColumnBackwards(padding: PaddingValues) {
 
         AndroidViewBinding(
             TestLayoutBinding::inflate,
-            modifier = Modifier.semantics { traversalIndex = 3f }
+            modifier = Modifier.semantics { traversalIndex = 3f },
         ) {
             text1.text = "Fourth — AndroidViewBinding"
         }
@@ -471,7 +468,7 @@ fun InteropSampleBackwards() {
         content = { padding -> InteropColumnBackwards(padding) },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
-        }
+        },
     )
 }
 
@@ -528,7 +525,7 @@ private fun SimpleTestLayout(modifier: Modifier = Modifier, content: @Composable
                 with(placeables) {
                     Pair(
                         max(maxByOrNull { it.width }?.width ?: 0, constraints.minWidth),
-                        max(maxByOrNull { it.height }?.height ?: 0, constraints.minHeight)
+                        max(maxByOrNull { it.height }?.height ?: 0, constraints.minHeight),
                     )
                 }
             layout(width, height) {

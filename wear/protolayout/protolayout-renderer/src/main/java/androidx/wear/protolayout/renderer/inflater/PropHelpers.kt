@@ -50,7 +50,7 @@ internal object PropHelpers {
                         stringProp.value,
                         locale,
                         posId,
-                        consumer
+                        consumer,
                     )
             } catch (ex: RuntimeException) {
                 Log.e(TAG, "Error building pipeline", ex)
@@ -179,7 +179,7 @@ internal object PropHelpers {
                         floatProp.dynamicValue,
                         floatProp.value,
                         posId,
-                        dynamicValueconsumer
+                        dynamicValueconsumer,
                     )
             } catch (ex: RuntimeException) {
                 Log.e(TAG, "Error building pipeline", ex)

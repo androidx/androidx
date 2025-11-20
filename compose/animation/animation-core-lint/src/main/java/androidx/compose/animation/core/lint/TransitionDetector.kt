@@ -85,7 +85,7 @@ class TransitionDetector : Detector(), SourceCodeScanner {
                             UnusedTransitionTargetStateParameter,
                             node,
                             location,
-                            "Target state parameter `$name` is not used"
+                            "Target state parameter `$name` is not used",
                         )
                     }
                 }
@@ -109,8 +109,8 @@ class TransitionDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     TransitionDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

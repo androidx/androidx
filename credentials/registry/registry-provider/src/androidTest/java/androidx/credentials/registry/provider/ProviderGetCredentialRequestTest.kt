@@ -46,4 +46,83 @@ class ProviderGetCredentialRequestTest {
 
         assertThat(request.selectedEntryId).isNull()
     }
+
+    @Test
+    fun selectedCredentialSet_setContainsSingleCredential_success() {
+        val request =
+            ProviderGetCredentialRequest(listOf(GetPasswordOption()), getTestCallingAppInfo(null))
+        val requestBundle = ProviderGetCredentialRequest.asBundle(request)
+        requestBundle.putString(EXTRA_CREDENTIAL_SET_ID, "setId")
+        requestBundle.putInt(EXTRA_CREDENTIAL_SET_ELEMENT_LENGTH, 1)
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}0", "credId0")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX}0", "metadata")
+        val actual = ProviderGetCredentialRequest.fromBundle(requestBundle)
+
+        val selectedCredentialSet = actual.selectedCredentialSet!!
+
+        assertThat(selectedCredentialSet.credentialSetId).isEqualTo("setId")
+        assertThat(selectedCredentialSet.credentials)
+            .isEqualTo(listOf(SelectedCredential("credId0", "metadata")))
+    }
+
+    @Test
+    fun selectedCredentialSet_setContainsMultipleCredentials_success() {
+        val request =
+            ProviderGetCredentialRequest(listOf(GetPasswordOption()), getTestCallingAppInfo(null))
+        val requestBundle = ProviderGetCredentialRequest.asBundle(request)
+        requestBundle.putString(EXTRA_CREDENTIAL_SET_ID, "setId")
+        requestBundle.putInt(EXTRA_CREDENTIAL_SET_ELEMENT_LENGTH, 3)
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}0", "credId0")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX}0", "metadata0")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}1", "credId1")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}2", "credId2")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX}2", "metadata2")
+        val actual = ProviderGetCredentialRequest.fromBundle(requestBundle)
+
+        val selectedCredentialSet = actual.selectedCredentialSet!!
+
+        assertThat(selectedCredentialSet.credentialSetId).isEqualTo("setId")
+        assertThat(selectedCredentialSet.credentials)
+            .isEqualTo(
+                listOf(
+                    SelectedCredential("credId0", "metadata0"),
+                    SelectedCredential("credId1", null),
+                    SelectedCredential("credId2", "metadata2"),
+                )
+            )
+    }
+
+    @Test
+    fun selectedCredentialSet_malformedData_success() {
+        val request =
+            ProviderGetCredentialRequest(listOf(GetPasswordOption()), getTestCallingAppInfo(null))
+        val requestBundle = ProviderGetCredentialRequest.asBundle(request)
+        requestBundle.putString(EXTRA_CREDENTIAL_SET_ID, "setId")
+        requestBundle.putInt(EXTRA_CREDENTIAL_SET_ELEMENT_LENGTH, 3)
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}0", "credId0")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX}0", "metadata0")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX}2", "credId2")
+        requestBundle.putString("${EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX}2", "metadata2")
+
+        assertThat(request.selectedCredentialSet).isNull()
+    }
+
+    @Test
+    fun selectedCredentialSet_doesNotExist_returnsNull() {
+        val request =
+            ProviderGetCredentialRequest(listOf(GetPasswordOption()), getTestCallingAppInfo(null))
+
+        assertThat(request.selectedCredentialSet).isNull()
+    }
+
+    private companion object {
+        const val EXTRA_CREDENTIAL_SET_ID =
+            "androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ID"
+        const val EXTRA_CREDENTIAL_SET_ELEMENT_LENGTH =
+            "androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ELEMENT_LENGTH"
+        const val EXTRA_CREDENTIAL_SET_ELEMENT_ID_PREFIX =
+            "androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ELEMENT_ID_"
+        const val EXTRA_CREDENTIAL_SET_ELEMENT_METADATA_PREFIX =
+            "androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ELEMENT_METADATA_"
+    }
 }

@@ -12,8 +12,9 @@ Daemon will be stopped at the end of the build
 \[Incubating\] Problems report is available at\:.*
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+Parallel Configuration Cache is an incubating feature\.
 # > Task :listTaskOutputs
-Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
+Deprecated Gradle features were used in this build, making it incompatible with Gradle .*
 BUILD SUCCESSFUL in .*
 > Task :benchmark:integration-tests:macrobenchmark-target:compileReleaseKotlin
 # dexmaker is missing riscv64 native libraries
@@ -26,13 +27,17 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
-\$SUPPORT/compose/runtime/runtime\-saveable/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/runtime/runtime\-saveable/src/androidDeviceTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
 Calculating task graph as no cached configuration is available for tasks.*
+Calculating task graph as configuration cache cannot be reused because the file system entry.*
+Calculating task graph as configuration cache cannot be reused because directory.*
+Calculating task graph as configuration cache cannot be reused because an input to plugin class.*
+Calculating task graph as configuration cache cannot be reused because an input to unknown location has changed.*
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
@@ -49,8 +54,8 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 [0-9]+ problem.* found storing the configuration cache.*
 See the complete report at file://.*/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
-\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :buildSrc:build UP-TO-DATE
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :docs
@@ -100,6 +105,8 @@ WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/RemoteViewsCompat\.kt:[0-9
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `verticalGravity` in DFunction setLinearLayoutVerticalGravity
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/poolingcontainer\/PoolingContainer\.kt:[0-9]+ Missing @param tag for parameter `listener` in DFunction addPoolingContainerListener
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/widget\/ViewDragHelper\.java:[0-9]+ Missing @param tag for parameter `pointerId` in DFunction isEdgeTouched
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/commonJvmMain/androidx/datastore/core/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/commonMain/androidx/datastore/preferences/core/Preferences\.kt:[0-9]+ Missing @param tag for parameter `value` in DFunction set
 WARN: .*\/unzippedJvmSources\/androidx\/datastore\/rxjava2\/RxDataStoreDelegate\.kt:[0-9]+ Missing @param tag for parameter `serializer` in DFunction rxDataStore
 WARN: .*\/unzippedJvmSources\/androidx\/datastore\/rxjava3\/RxDataStoreDelegate\.kt:[0-9]+ Missing @param tag for parameter `serializer` in DFunction rxDataStore
 WARN: .*\/unzippedJvmSources\/androidx\/documentfile\/provider\/DocumentFile\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction fromSingleUri
@@ -107,7 +114,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/documentfile\/provider\/DocumentFile\.ja
 WARN: .*\/unzippedJvmSources\/androidx\/draganddrop\/DropHelper\.java:[0-9]+ Failed to resolve See <a href="https:\/\/developer\.android\.com\/guide\/topics\/ui\/drag-drop">Drag and drop<\/a> in DClass DropHelper
 WARN: .*\/unzippedJvmSources\/androidx\/emoji\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
 WARN: .*\/unzippedJvmSources\/androidx\/emoji2\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/navigation/dynamicfeatures/DynamicIncludeGraphNavigator\.kt:[0-9]+ Failed to resolve See Navigator\.navigate in DFunction navigate\. Did you mean Navigator\#navigate\?
 WARN: .*\/unzippedJvmSources\/androidx\/leanback\/app\/SearchFragment\.java:[0-9]+ Missing @param tag for parameter `query` in DFunction createArgs
 WARN: .*\/unzippedJvmSources\/androidx\/leanback\/app\/SearchSupportFragment\.java:[0-9]+ Missing @param tag for parameter `query` in DFunction createArgs
 WARN: .*\/unzippedJvmSources\/androidx\/leanback\/widget\/DetailsOverviewRowPresenter\.java:[0-9]+ Missing @param tag for parameter `detailsPresenter` in DFunction ViewHolder
@@ -224,14 +230,19 @@ WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/AnnotatedString\.kt:[0-9]+ Missing @param tag for parameter `text` in DFunction append
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/AnnotatedString\.kt:[0-9]+ Missing @param tag for parameter `text` in DFunction AnnotatedString
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/preferences\/core\/Preferences\.kt:[0-9]+ Missing @param tag for parameter `value` in DFunction set
+WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
 WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material\/DesktopMenu\.desktop\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/.*Main\/androidx\/room\/RoomDatabase.*\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/.*Main\/androidx\/room3?\/RoomDatabase.*\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources/jvmNativeMain/androidx/room3?/RoomDatabase\.jvmNative\.kt:[0-9]+ Link does not resolve for @throws IllegalArgumentException in DFunction setQueryCoroutineContext\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 # b/376423687
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateDecoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction decodeFromSavedState\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateEncoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction encodeToSavedState\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateDecoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction decodeFromSavedStateNullable\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateEncoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction encodeToSavedStateNullable\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
 [0-9]+ cpus, so not storing build metrics.
 64 cpus, so storing build metrics.
@@ -239,7 +250,7 @@ WARN: File location could not be determined\. Failed to resolve See <a href="htt
 ERROR: An attempt to write .*\/reference\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
 ERROR: An attempt to write .*\/reference\/kotlin\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/compose/ui/ui\-tooling/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/ui/ui\-tooling/src/androidDeviceTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
 You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
 For more on this\, please refer to https\:\/\/docs\.gradle\.org\/.*\/userguide\/command_line_interface\.html\#sec\:command_line_warnings in the Gradle documentation\.
@@ -252,15 +263,14 @@ meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at An
 To honour the JVM settings for this build a single\-use Daemon process will be forked.*
 # > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
 C/C\+\+: Compiling for ARM
-w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+w: \[ksp\] \$SUPPORT/room3/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room3/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
-# > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
-\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+# > Task :room3:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
+\$OUT_DIR/androidx/room3/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room3/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
-public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
-public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
-\^
+public abstract java\.util\.List<androidx\.room3\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
+public abstract androidx\.room3\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 # > Task :slice:slice-builders-ktx:compileDebugKotlin
 w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/main/java/androidx/slice/builders/ListBuilder\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
 # > Task :slice:slice-builders-ktx:compileDebugAndroidTestKotlin
@@ -274,10 +284,10 @@ import androidx\.slice\.core\.SliceHints;
 import androidx\.slice\.widget\.SliceView;
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperties\) Downloading dependency: file:.*/prebuilts/androidx/konan/.*
+.*Downloading dependency[:]? file:.*/prebuilts/androidx/konan/.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
-Download file:\.\./\.\./.*
+Download file:\$CHECKOUT/prebuilts/androidx/konan/nativeCompilerPrebuilts/.*
 Download kotlin\-native\-prebuilt\-.*.gz finished\, took .*
 Downloading native dependencies \(LLVM, sysroot etc\)\. This is a one\-time action performed only on the first run of the compiler\.
 Extracting dependency: .*\.konan/dependencies/cache.*
@@ -292,20 +302,21 @@ Warning\: No libraries found for target (macos|ios|ios_simulator|tvos|tvos_simul
 # KMP messages on successful XCFramework builds.
 xcframework successfully .*
 # > Task :compose:foundation:foundation:processDebugAndroidTestManifest
-\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:foundation:foundation:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/compose/foundation/foundation/src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidDeviceTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
 # > Task :compose:ui:ui:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/compose/ui/ui/src/androidInstrumentedTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/ui/ui/src/androidDeviceTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
 # b/271306193 remove after aosp/2589888 :emoji:emoji:spdxSbomForRelease
 spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has no specified version
 # temporary diagnostic for b/307738543
 docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
+WARN: Source sets 'main' and 'commonMain' have the common sample roots: \$OUT_DIR/androidx/docs\-(tip-of-tree|public)/build/unzippedJvmSampleSources, \$OUT_DIR/androidx/docs\-(tip-of-tree|public)/build/unzippedMultiplatformSampleSources, \$SUPPORT/samples\. Every Kotlin source file should belong to only one source set \(module\)\.
 docs-tip-of-tree:docs completing
 # > Configure project :androidx-demos
 The current default is 'false'\.
@@ -337,6 +348,16 @@ e: The daemon has terminated unexpectedly on startup attempt #1 with error code:
 WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
 warning: unable to find kotlin\-stdlib\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
 warning: unable to find kotlin\-script\-runtime\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
+# b/388455777
+\$OUT_DIR/tmp/extract\-shim\-transform[0-9]+/androidx/privacysandbox/tools/integration/testsdk/NativeAd\.kt:[0-9]+:[0-9]+: warning: this API is experimental\. It may be changed in the future without notice\.
+\^+$
+public interface NativeAd : SharedUiAdapter
+\$OUT_DIR/tmp/extract\-shim\-transform[0-9]+/androidx/privacysandbox/tools/integration/testsdk/NativeAdClientProxy\.kt:[0-9]+:[0-9]+: warning: this API is experimental\. It may be changed in the future without notice\.
+public override fun openSession\(clientExecutor: Executor, client: SharedUiAdapter\.SessionClient\) \{
+public val sharedUiAdapter: SharedUiAdapter =
+SharedUiAdapterFactory\.createFromCoreLibInfo\(coreLibInfo\)
+client: SharedUiAdapter\.SessionClient\) \{
+sharedUiAdapter\.openSession\(clientExecutor, client\)
 # develocity plugin begign warning, reported back to Gradle
 Failed sysctl call: hw\.nperflevels, Error code: 2
 # > Task :benchmark:benchmark-macro:processReleaseAndroidTestManifest
@@ -355,6 +376,7 @@ For more details, see: https://kotl\.in/gradle/internal\-compiler\-symbols
 \[log\].*
 # b/382336155 Capture more logging for Kotlin JS Tests
 .*STANDARD_OUT
+Completed
 # Warning emitted on empty Java files generated from AIDL:
 # https://github.com/kythe/kythe/issues/6145
 .*com.google\.devtools\.kythe\.extractors\.java\.JavaCompilationUnitExtractor.*
@@ -362,3 +384,68 @@ For more details, see: https://kotl\.in/gradle/internal\-compiler\-symbols
 # b/359449191
 > Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:integration\-tests:testsdkproviderwrapper\) with ExtractCompileSdkShimTransform
 > Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:integration\-tests:mediateesdkproviderwrapper\) with ExtractCompileSdkShimTransform
+> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:macrobenchmark:testapp:testsdkproviderwrapper\) with ExtractCompileSdkShimTransform
+> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:macrobenchmark:testapp:mediateesdkproviderwrapper\) with ExtractCompileSdkShimTransform
+# > Task :room3:integration-tests:room-testapp:runErrorProneWithPreKmpCompilerRelease
+\$OUT_DIR/androidx/room3/integration\-tests/room\-testapp/build/errorProne/WithPreKmpCompilerRelease/androidx/room3/integration/testapp/database/CustomerDao_Impl\.java:[0-9]+: warning: \[removal\] finalize\(\) in Object has been deprecated and marked for removal
+protected void finalize\(\) \{
+1 warning
+# b/399029837
+^C/C\+\+: ninja: warning: build log version is too old; starting over.*
+^C/C\+\+: ninja: warning: bad deps log signature or version; starting over.*
+# b/388455777 Warnings are thrown for classes generated by privacysandbox-tools for features behind
+# the @RequiresOptIn flag. This can be ignored for now as all required code is still generated.
+# > Task :privacysandbox:tools:integration-tests:testsdk:compileReleaseKotlin
+w: file://\$OUT_DIR/androidx/privacysandbox/tools/integration\-tests/testsdk/build/generated/ksp/release/kotlin/androidx/privacysandbox/tools/integration/testsdk/NativeAdDataConverter\.kt:[0-9]+:[0-9]+ This API is experimental\. It may be changed in the future without notice\.
+# > Task :docs-public:docs
+In Dokka K[0-9]+ it will be an error\. Also, please consider reporting your user case: https://github\.com/Kotlin/dokka/issues/[0-9]+
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/CredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See CredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean CredentialAuthPrompt\#authenticate\?
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricOrCredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricOrCredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricOrCredentialAuthPrompt\#authenticate\?
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/Class[0-9]+BiometricAuthExtensions\.kt:[0-9]+ Failed to resolve See Class[0-9]+BiometricAuthPrompt\.authenticate in DFunction authenticate\. Did you mean Class[0-9]+BiometricAuthPrompt\#authenticate\?
+# https://youtrack.jetbrains.com/issue/KT-77220
+w: file://\$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/text/CoreTextField\.kt:[0-9]+:[0-9]+ Inconsistent target list for lambda annotation: \+androidx\.compose\.runtime\.DontMemoize \[EXPRESSION\] on androidx\.compose\.foundation\.text\.CoreTextField\$lambda\$[0-9]+
+# work/work-runtime/build.gradle b/407640603 and buildSrc:imports:binary-compatibility-validator:compileKotlin b/410631668
+w: Language version 1\.9 is deprecated and its support will be removed in a future version of Kotlin
+# Remove when https://youtrack.jetbrains.com/issue/KT-70013 is fixed, o/w anytime a new entry is added to this list, this message will be printed.
+Calculating task graph as configuration cache cannot be reused because the set of paths ignored in file-system-check input tracking.*
+# b/414775532
+# > Task :compose-hero-benchmarks:poxedex-compose:app:kspReleaseKotlin
+w: \[ksp\] LibraryGlideModules \[\] are included more than once, keeping only one\!
+# > Task :glance:glance-wear-tiles:compileReleaseKotlin
+w: file://\$SUPPORT/glance/glance\-wear\-tiles/integration.* is deprecated\. glance\-wear\-tiles is deprecated and will be removed\.
+w: file://\$SUPPORT/glance/glance\-wear\-tiles/src/.* is deprecated\. glance\-wear\-tiles is deprecated and will be removed\.
+# b/439568035
+WARNING: The option setting 'android\.builtInKotlin=false' is deprecated\.
+WARNING: The option setting 'android\.newDsl=false' is deprecated\.
+The current default is 'true'\.
+It will be removed in version 10\.0 of the Android Gradle plugin\.
+# b/439073627
+warning Waiting for the other yarn instance to finish.*
+# Kotlinx Benchmark Plugin
+Analyzing \d+ files from .*/(kotlin|jvm|java|processedResources|sources)(.*/.*)
+Writing out Java source to .*benchmark.*
+# b/446708295, b/409324917, b/407927787, b/429040474 Tracing - Driver warnings (https://youtrack.jetbrains.com/issue/KTIJ-22326)
+w: file://\$SUPPORT/[a-zA-Z-_/]+\.kt:[0-9]+:[0-9]+ Suppression of error '(OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE|UNSAFE_CALL|INVISIBLE_REFERENCE|WRONG_ANNOTATION_TARGET|UPPER_BOUND_VIOLATED)' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED\. Please report your use case to the Kotlin issue tracker instead: https://kotl\.in/issue
+# Cannot be suppressed because the issue is in generated code
+# > Task :compose:integration-tests:hero:pokedex:pokedex-macrobenchmark-target:compileDebugKotlin
+w: file://\$OUT_DIR/androidx/compose/integration\-tests/hero/pokedex/pokedex\-macrobenchmark\-target/build/generated/ksp/debug/kotlin/com/bumptech/glide/GeneratedAppGlideModuleImpl\.kt:[0-9]+:[0-9]+ 'internal' declaration exposes 'public/\*package\*/' type 'GeneratedAppGlideModule'\. This will become an error in language version [0-9]+\.[0-9]+\. See https://youtrack\.jetbrains\.com/issue/KTLC\-[0-9]+\.
+# Cannot be suppressed because the issue is in generated code
+# > Task :compose:integration-tests:hero:pokedex:pokedex-macrobenchmark-target:compileReleaseKotlin
+w: file://\$OUT_DIR/androidx/compose/integration\-tests/hero/pokedex/pokedex\-macrobenchmark\-target/build/generated/ksp/release/kotlin/com/bumptech/glide/GeneratedAppGlideModuleImpl\.kt:[0-9]+:[0-9]+ 'internal' declaration exposes 'public/\*package\*/' type 'GeneratedAppGlideModule'\. This will become an error in language version [0-9]+\.[0-9]+\. See https://youtrack\.jetbrains\.com/issue/KTLC\-[0-9]+\.
+# Cannot be suppressed because the issue is in generated code
+# > Task :room3:integration-tests:room-testapp:compileDebugAndroidTestKotlin
+w: file://\$OUT_DIR/androidx/room3/integration\-tests/room\-testapp/build/generated/ksp/.+\.kt:[0-9]+:[0-9]+ 'internal' declaration exposes 'public/\*package\*/' type.+
+# > Task :compose:runtime:runtime-test-utils:compileKotlinWasmJs
+w: file://\$SUPPORT/compose/runtime/runtime/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+# > Task :navigationevent:navigationevent:compileKotlinWasmJs
+w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsMain/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsTest/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+# b/446708297
+# > Task :kotlinWasmToolingSetup
+\(node:[0-9]+\) \[DEP[0-9]+\] DeprecationWarning: The `punycode` module is deprecated\. Please use a userland alternative instead\.
+\(Use `node \-\-trace\-deprecation \.\.\.` to show where the warning was created\)
+# > Task :kruth:kruth:compileNativeMainKotlinMetadata
+w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more than one library: \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/commonMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonNonJvmMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-webMain\-Y[0-9]+sbrw\.klib
+# > Task :wear:watchfacepush:watchfacepush:processReleaseAndroidTestManifest
+\$SUPPORT/wear/watchfacepush/watchfacepush/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+uses\-library\#wear\-sdk@android:required was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present

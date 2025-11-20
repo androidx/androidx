@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -21,7 +22,8 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 @file:OptIn(ExperimentalContracts::class)
 
@@ -108,9 +110,7 @@ public fun mutableIntSetOf(vararg elements: Int): MutableIntSet =
  *
  * @param builderAction Lambda in which the [MutableIntSet] can be populated.
  */
-public inline fun buildIntSet(
-    builderAction: MutableIntSet.() -> Unit,
-): IntSet {
+public inline fun buildIntSet(builderAction: MutableIntSet.() -> Unit): IntSet {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableIntSet().apply(builderAction)
 }
@@ -323,17 +323,19 @@ public sealed class IntSet {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@IntSet.forEach { element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@IntSet.forEach { element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(element)
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(element)
-            index++
         }
         append(postfix)
     }
@@ -353,20 +355,22 @@ public sealed class IntSet {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Int) -> CharSequence
+        crossinline transform: (Int) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@IntSet.forEach { element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@IntSet.forEach { element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(element))
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(element))
-            index++
         }
         append(postfix)
     }

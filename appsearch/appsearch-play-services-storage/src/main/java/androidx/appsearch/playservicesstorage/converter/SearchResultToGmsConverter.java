@@ -77,6 +77,8 @@ public class SearchResultToGmsConverter {
     private static SearchResult.@NonNull MatchInfo toJetpackMatchInfo(
             com.google.android.gms.appsearch.SearchResult.@NonNull MatchInfo
                     gmsMatchInfo) {
+        // TODO(b/395128139): Use the new version of MatchInfo with EmbeddingMatchInfo once it's
+        //  available in GmsAppSearch.
         Preconditions.checkNotNull(gmsMatchInfo);
         SearchResult.MatchInfo.Builder builder = new SearchResult.MatchInfo.Builder(
                 gmsMatchInfo.getPropertyPath())

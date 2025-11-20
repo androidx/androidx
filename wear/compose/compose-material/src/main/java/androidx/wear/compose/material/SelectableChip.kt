@@ -113,7 +113,7 @@ public fun SelectableChip(
     shape: Shape = MaterialTheme.shapes.large,
     selectionControl: @Composable () -> Unit = {
         RadioButton(selected = selected, enabled = enabled)
-    }
+    },
 ): Unit =
     androidx.wear.compose.materialcore.ToggleButton(
         checked = selected,
@@ -122,13 +122,13 @@ public fun SelectableChip(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, selected),
                 textStyle = MaterialTheme.typography.button,
-                content = label
+                content = label,
             ),
         toggleControl = null,
         selectionControl =
             provideContent(
                 contentColor = colors.selectionControlColor(enabled, selected),
-                content = selectionControl
+                content = selectionControl,
             ),
         modifier =
             modifier
@@ -137,13 +137,13 @@ public fun SelectableChip(
         icon =
             provideNullableScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, selected = selected),
-                content = appIcon
+                content = appIcon,
             ),
         secondaryLabel =
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, selected),
                 textStyle = MaterialTheme.typography.caption2,
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         background = { isEnabled, isSelected ->
             val painter = colors.background(enabled = isEnabled, selected = isSelected).value
@@ -159,7 +159,7 @@ public fun SelectableChip(
         labelSpacerSize = 0.dp,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /**
@@ -255,14 +255,14 @@ public fun SplitSelectableChip(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled),
                 textStyle = MaterialTheme.typography.button,
-                content = label
+                content = label,
             ),
         onClick = onContainerClick,
         toggleControl = null,
         selectionControl =
             provideScopeContent(
                 contentColor = colors.selectionControlColor(enabled = enabled, selected = selected),
-                content = selectionControl
+                content = selectionControl,
             ),
         modifier =
             modifier
@@ -272,7 +272,7 @@ public fun SplitSelectableChip(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled),
                 textStyle = MaterialTheme.typography.caption2,
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         backgroundColor = { isEnabled, _ -> colors.backgroundColor(enabled = isEnabled) },
         splitBackgroundColor = { isEnabled, isSelected ->
@@ -285,7 +285,7 @@ public fun SplitSelectableChip(
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /** Represents the background and content colors used in [SelectableChip]s in different states. */
@@ -426,7 +426,7 @@ public object SelectableChipDefaults {
         unselectedContentColor: Color = contentColorFor(selectedEndBackgroundColor),
         unselectedSecondaryContentColor: Color = unselectedContentColor,
         unselectedSelectionControlColor: Color = unselectedContentColor,
-        gradientDirection: LayoutDirection = LocalLayoutDirection.current
+        gradientDirection: LayoutDirection = LocalLayoutDirection.current,
     ): SelectableChipColors {
         val selectedBackgroundColors: List<Color>
         val disabledSelectedBackgroundColors: List<Color>
@@ -436,7 +436,7 @@ public object SelectableChipDefaults {
             disabledSelectedBackgroundColors =
                 listOf(
                     selectedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                    selectedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                    selectedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
                 )
         } else {
             selectedBackgroundColors =
@@ -455,7 +455,7 @@ public object SelectableChipDefaults {
             disabledUnselectedBackgroundColors =
                 listOf(
                     unselectedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                    unselectedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                    unselectedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
                 )
         } else {
             unselectedBackgroundColors =
@@ -551,7 +551,7 @@ public object SelectableChipDefaults {
             start = ChipHorizontalPadding,
             top = ChipVerticalPadding,
             end = ChipHorizontalPadding,
-            bottom = ChipVerticalPadding
+            bottom = ChipVerticalPadding,
         )
 
     /**

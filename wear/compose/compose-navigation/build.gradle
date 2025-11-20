@@ -21,19 +21,20 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api("androidx.compose.animation:animation:1.7.4")
-    api("androidx.compose.ui:ui:1.7.4")
-    api("androidx.compose.runtime:runtime:1.7.4")
+    api("androidx.compose.animation:animation:1.9.0")
+    api("androidx.compose.ui:ui:1.9.0")
+    api("androidx.compose.runtime:runtime:1.9.0")
     api("androidx.navigation:navigation-runtime:2.6.0")
     api(project(":wear:compose:compose-material"))
     api("androidx.activity:activity-compose:1.9.0")
@@ -58,10 +59,6 @@ android {
 
     defaultConfig {
         minSdk = 25
-    }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
-    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace = "androidx.wear.compose.navigation"

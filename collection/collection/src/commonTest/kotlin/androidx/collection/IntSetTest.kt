@@ -32,6 +32,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+@Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class IntSetTest {
     @Test
     fun emptyIntSetConstructor() {
@@ -349,21 +350,21 @@ class IntSetTest {
         assertEquals(
             "${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}, " +
                 "${order[3].toInt()}, ${order[4].toInt()}",
-            set.joinToString()
+            set.joinToString(),
         )
         assertEquals(
-            "x${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}...",
-            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+            "x${order[0].toInt()}, ${order[1].toInt()}, ${order[2].toInt()}, ...y",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${order[0].toInt()}-${order[1].toInt()}-${order[2].toInt()}-" +
                 "${order[3].toInt()}-${order[4].toInt()}<",
-            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+            set.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
-            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
-            set.joinToString(limit = 3) { names[it.toInt()] }
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}, ...",
+            set.joinToString(limit = 3) { names[it.toInt()] },
         )
     }
 

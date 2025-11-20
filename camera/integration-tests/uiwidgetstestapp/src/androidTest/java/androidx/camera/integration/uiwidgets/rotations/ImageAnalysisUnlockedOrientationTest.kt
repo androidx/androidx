@@ -37,7 +37,7 @@ class ImageAnalysisUnlockedOrientationTest(
     private val lensFacing: Int,
     private val cameraXConfig: String,
     private val rotation: RotationUnlocked,
-    private val testName: String
+    private val testName: String,
 ) : ImageAnalysisBaseTest<UnlockedOrientationActivity>(cameraXConfig) {
 
     companion object {
@@ -81,7 +81,7 @@ class ImageAnalysisUnlockedOrientationTest(
             Instrumentation.ActivityMonitor(
                 UnlockedOrientationActivity::class.java.name,
                 null,
-                false
+                false,
             )
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
 

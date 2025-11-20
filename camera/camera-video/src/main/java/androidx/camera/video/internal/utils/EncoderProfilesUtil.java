@@ -20,7 +20,6 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.camera.core.impl.EncoderProfilesProxy;
-import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.config.VideoConfigUtil;
 
 import org.jspecify.annotations.NonNull;
@@ -41,8 +40,7 @@ public class EncoderProfilesUtil {
      * @param baseVideoProfile    the VideoProfile to derive.
      * @param newResolution       the new resolution.
      * @param bitrateRangeToClamp the bitrate range to clamp. This is usually the supported
-     *                            bitrate range of the target codec. Set
-     *                            {@link VideoSpec#BITRATE_RANGE_AUTO} as no clamp required.
+     *                            bitrate range of the target codec.
      * @return a derived VideoProfile.
      */
     public static EncoderProfilesProxy.@NonNull VideoProfileProxy deriveVideoProfile(
@@ -51,13 +49,13 @@ public class EncoderProfilesUtil {
             @NonNull Range<Integer> bitrateRangeToClamp) {
 
         // "Guess" bit rate.
-        int derivedBitrate = VideoConfigUtil.scaleAndClampBitrate(
+        int derivedBitrate = VideoConfigUtil.scaleBitrate(
                 baseVideoProfile.getBitrate(),
                 baseVideoProfile.getBitDepth(), baseVideoProfile.getBitDepth(),
                 baseVideoProfile.getFrameRate(), baseVideoProfile.getFrameRate(),
                 newResolution.getWidth(), baseVideoProfile.getWidth(),
-                newResolution.getHeight(), baseVideoProfile.getHeight(),
-                bitrateRangeToClamp);
+                newResolution.getHeight(), baseVideoProfile.getHeight());
+        derivedBitrate = bitrateRangeToClamp.clamp(derivedBitrate);
 
         return EncoderProfilesProxy.VideoProfileProxy.create(
                 baseVideoProfile.getCodec(),

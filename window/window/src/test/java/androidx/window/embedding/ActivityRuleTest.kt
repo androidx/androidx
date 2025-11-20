@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ActivityRuleTest {
 
     @Test
@@ -59,6 +60,10 @@ class ActivityRuleTest {
 
         assertEquals(firstRule, secondRule)
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
+
+        // The hashCode should be consistent to the predetermined value.
+        // Note that the value should be updated whenever hashCode calculation is changed.
+        assertEquals(-883899860, firstRule.hashCode())
     }
 
     /**

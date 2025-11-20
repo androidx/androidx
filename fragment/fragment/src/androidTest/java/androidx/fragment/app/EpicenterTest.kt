@@ -25,7 +25,6 @@ import android.widget.FrameLayout
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -37,7 +36,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21) // FragmentTransitionCompat21 requires API 21
 class EpicenterTest {
 
     @Suppress("DEPRECATION")
@@ -102,7 +100,7 @@ class EpicenterTest {
                 FrameLayout.LayoutParams(100, 100).apply {
                     leftMargin = 50
                     topMargin = 50
-                }
+                },
             )
             view.left = 50
             view.top = 50

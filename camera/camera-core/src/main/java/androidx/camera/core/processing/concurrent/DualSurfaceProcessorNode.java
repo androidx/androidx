@@ -18,14 +18,18 @@ package androidx.camera.core.processing.concurrent;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.runOnMain;
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.isAspectRatioMatchingWithRoundingError;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
@@ -64,7 +68,6 @@ import java.util.concurrent.CancellationException;
 @SuppressWarnings("UnusedVariable")
 public class DualSurfaceProcessorNode implements
         Node<DualSurfaceProcessorNode.In, DualSurfaceProcessorNode.Out> {
-
     private static final String TAG = "DualSurfaceProcessorNode";
 
     final @NonNull SurfaceProcessorInternal mSurfaceProcessor;
@@ -73,6 +76,7 @@ public class DualSurfaceProcessorNode implements
     // Guarded by main thread.
     private @Nullable Out mOutput;
     private @Nullable In mInput;
+    private final @Nullable String mDebugInfo;
 
     /**
      * Constructs the {@link DualSurfaceProcessorNode}.
@@ -80,14 +84,18 @@ public class DualSurfaceProcessorNode implements
      * @param primaryCameraInternal the associated primary camera instance.
      * @param secondaryCameraInternal the associated secondary camera instance.
      * @param surfaceProcessor the interface to wrap around.
+     * @param debugInfo the debug information to be shown in the log
      */
+    @SuppressLint("LambdaLast")
     public DualSurfaceProcessorNode(
             @NonNull CameraInternal primaryCameraInternal,
             @NonNull CameraInternal secondaryCameraInternal,
-            @NonNull SurfaceProcessorInternal surfaceProcessor) {
+            @NonNull SurfaceProcessorInternal surfaceProcessor,
+            @Nullable String debugInfo) {
         mPrimaryCameraInternal = primaryCameraInternal;
         mSecondaryCameraInternal = secondaryCameraInternal;
         mSurfaceProcessor = surfaceProcessor;
+        mDebugInfo = debugInfo;
     }
 
     /**
@@ -97,6 +105,13 @@ public class DualSurfaceProcessorNode implements
     @MainThread
     public @NonNull Out transform(@NonNull In in) {
         Threads.checkMainThread();
+        String info = mDebugInfo == null ? "" : "[" + mDebugInfo + "] ";
+        Logger.d(TAG, info + "DualSurfaceProcessorNode Transform Processor = " + mSurfaceProcessor
+                + "\n   primary input = " + in.getPrimarySurfaceEdge()
+                + "\n   secondary input = " + in.getSecondarySurfaceEdge());
+        for (DualOutConfig outConfig : in.getOutConfigs()) {
+            Logger.d("SurfaceProcessorNode", "   outputConfig = " + outConfig);
+        }
         mInput = in;
         mOutput = new Out();
 
@@ -108,8 +123,8 @@ public class DualSurfaceProcessorNode implements
                     primaryInputSurfaceEdge,
                     config.getPrimaryOutConfig()));
         }
-        sendSurfaceRequest(mPrimaryCameraInternal, primaryInputSurfaceEdge, mOutput, true);
-        sendSurfaceRequest(mSecondaryCameraInternal, secondaryInputSurfaceEdge, mOutput, false);
+        sendSurfaceRequest(mPrimaryCameraInternal, primaryInputSurfaceEdge, true);
+        sendSurfaceRequest(mSecondaryCameraInternal, secondaryInputSurfaceEdge, false);
 
         sendSurfaceOutputs(mPrimaryCameraInternal, mSecondaryCameraInternal,
                 primaryInputSurfaceEdge, secondaryInputSurfaceEdge, mOutput);
@@ -125,7 +140,11 @@ public class DualSurfaceProcessorNode implements
 
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
-                new android.graphics.Matrix();
+                new android.graphics.Matrix(input.getSensorToBufferTransform());
+        android.graphics.Matrix newTransform = getRectToRect(
+                new RectF(cropRect),
+                sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
+        sensorToBufferTransform.postConcat(newTransform);
 
         // The aspect ratio of the output must match the aspect ratio of the crop rect. Otherwise
         // the output will be stretched.
@@ -161,11 +180,8 @@ public class DualSurfaceProcessorNode implements
     private void sendSurfaceRequest(
             @NonNull CameraInternal cameraInternal,
             @NonNull SurfaceEdge input,
-            @NonNull Map<DualOutConfig, SurfaceEdge> outputs,
             boolean isPrimary) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(cameraInternal, isPrimary);
-        // TODO(b/348402401): Different from SurfaceProcessorNode, we don't support device rotation
-        //  for dual camera recording.
         try {
             mSurfaceProcessor.onInputSurface(surfaceRequest);
         } catch (ProcessingException e) {
@@ -207,6 +223,7 @@ public class DualSurfaceProcessorNode implements
             @NonNull SurfaceEdge secondarySurfaceEdge,
             Map.Entry<DualOutConfig, SurfaceEdge> output) {
         SurfaceEdge outputEdge = output.getValue();
+        Logger.d(TAG, "     -> outputEdge = " + outputEdge);
         SurfaceOutput.CameraInputInfo primaryCameraInputInfo = SurfaceOutput.CameraInputInfo.of(
                 primarySurfaceEdge.getStreamSpec().getResolution(),
                 output.getKey().getPrimaryOutConfig().getCropRect(),

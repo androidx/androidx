@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -408,13 +407,8 @@ public class ShareActionProvider extends ActionProvider {
     }
 
     void updateIntent(Intent intent) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            // If we're on Lollipop, we can open the intent as a document
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
-                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        } else {
-            // Else, we will use the old CLEAR_WHEN_TASK_RESET flag
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        }
+        // If we're on Lollipop, we can open the intent as a document
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+                | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     }
 }

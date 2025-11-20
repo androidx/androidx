@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -34,7 +34,6 @@ dependencies {
 
     implementation("androidx.core:core:1.10.1")
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRules)
@@ -62,4 +61,5 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     // TODO: b/326456246
     optOutJSpecify = true
+    enableRobolectric()
 }

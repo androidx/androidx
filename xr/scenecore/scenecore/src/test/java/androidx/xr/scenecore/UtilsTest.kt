@@ -16,20 +16,38 @@
 
 package androidx.xr.scenecore
 
+import androidx.xr.arcore.Plane
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions as RuntimeDimensions
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity as RuntimeEntity
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEvent as RuntimeInputEvent
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEvent.HitInfo as RuntimeHitInfo
-import androidx.xr.scenecore.JxrPlatformAdapter.MoveEvent as RuntimeMoveEvent
-import androidx.xr.scenecore.JxrPlatformAdapter.PixelDimensions as RuntimePixelDimensions
-import androidx.xr.scenecore.JxrPlatformAdapter.ResizeEvent as RuntimeResizeEvent
-import androidx.xr.scenecore.JxrPlatformAdapter.SpatialCapabilities as RuntimeSpatialCapabilities
+import androidx.xr.runtime.testing.math.assertRotation
+import androidx.xr.scenecore.ScenePose.HitTestFilter
+import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
+import androidx.xr.scenecore.runtime.AnchorPlacement as RtAnchorPlacement
+import androidx.xr.scenecore.runtime.Dimensions as RuntimeDimensions
+import androidx.xr.scenecore.runtime.Entity as RuntimeEntity
+import androidx.xr.scenecore.runtime.HitTestResult as RuntimeHitTestResult
+import androidx.xr.scenecore.runtime.InputEvent as RuntimeInputEvent
+import androidx.xr.scenecore.runtime.InputEvent.HitInfo as RuntimeHitInfo
+import androidx.xr.scenecore.runtime.MoveEvent as RuntimeMoveEvent
+import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RuntimePerceivedResolutionResult
+import androidx.xr.scenecore.runtime.PixelDimensions as RuntimePixelDimensions
+import androidx.xr.scenecore.runtime.PlaneSemantic as RtPlaneSemantic
+import androidx.xr.scenecore.runtime.PlaneType as RtPlaneType
+import androidx.xr.scenecore.runtime.ResizeEvent as RuntimeResizeEvent
+import androidx.xr.scenecore.runtime.ScenePose.HitTestFilter as RtHitTestFilter
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SpatialCapabilities as RuntimeSpatialCapabilities
+import androidx.xr.scenecore.runtime.SpatialPointerIcon as RtSpatialPointerIcon
+import androidx.xr.scenecore.runtime.SpatialVisibility as RuntimeSpatialVisibility
+import androidx.xr.scenecore.runtime.TextureSampler as RuntimeTextureSampler
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -102,10 +120,10 @@ class UtilsTest {
         val vector1 = Vector3(1f, 1f, 1f)
         val vector2 = Vector3(2f, 2f, 2f)
 
-        val initialInputRay = JxrPlatformAdapter.Ray(vector0, vector1)
-        val currentInputRay = JxrPlatformAdapter.Ray(vector1, vector2)
+        val initialInputRay = Ray(vector0, vector1)
+        val currentInputRay = Ray(vector1, vector2)
         val entityManager = EntityManager()
-        val activitySpace = mock<JxrPlatformAdapter.ActivitySpace>()
+        val activitySpace = mock<RtActivitySpace>()
         entityManager.setEntityForRtEntity(activitySpace, mock<Entity>())
         val moveEvent =
             RuntimeMoveEvent(
@@ -162,22 +180,21 @@ class UtilsTest {
     @Test
     fun verifyRtInputEventToInputEventConversion() {
         val entityManager = EntityManager()
-        val activitySpace = mock<JxrPlatformAdapter.ActivitySpace>()
+        val activitySpace = mock<RtActivitySpace>()
         entityManager.setEntityForRtEntity(activitySpace, mock<Entity>())
         val inputEvent =
             RuntimeInputEvent(
-                    RuntimeInputEvent.SOURCE_HANDS,
-                    RuntimeInputEvent.POINTER_TYPE_LEFT,
+                    RuntimeInputEvent.Source.HANDS,
+                    RuntimeInputEvent.Pointer.LEFT,
                     123456789,
                     Vector3(1f, 2f, 3f),
                     Vector3(4f, 5f, 6f),
-                    RuntimeInputEvent.ACTION_DOWN,
-                    null,
-                    null,
+                    RuntimeInputEvent.Action.DOWN,
+                    emptyList(),
                 )
                 .toInputEvent(entityManager)
-        assertThat(inputEvent.source).isEqualTo(InputEvent.SOURCE_HANDS)
-        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.POINTER_TYPE_LEFT)
+        assertThat(inputEvent.source).isEqualTo(InputEvent.Source.HANDS)
+        assertThat(inputEvent.pointerType).isEqualTo(InputEvent.Pointer.LEFT)
         assertThat(inputEvent.timestamp).isEqualTo(123456789)
         assertThat(inputEvent.origin.x).isEqualTo(1f)
         assertThat(inputEvent.origin.y).isEqualTo(2f)
@@ -185,7 +202,8 @@ class UtilsTest {
         assertThat(inputEvent.direction.x).isEqualTo(4f)
         assertThat(inputEvent.direction.y).isEqualTo(5f)
         assertThat(inputEvent.direction.z).isEqualTo(6f)
-        assertThat(inputEvent.action).isEqualTo(InputEvent.ACTION_DOWN)
+        assertThat(inputEvent.action).isEqualTo(InputEvent.Action.DOWN)
+        assertThat(inputEvent.hitInfoList).isEmpty()
     }
 
     @Test
@@ -218,33 +236,40 @@ class UtilsTest {
     }
 
     @Test
-    fun verifyRtDimensionsToDimensions() {
-        val dimensions: Dimensions = RuntimeDimensions(2f, 4f, 6f).toDimensions()
+    fun verifyRtDimensionsToFloatSize3d() {
+        val dimensions: FloatSize3d = RuntimeDimensions(2f, 4f, 6f).toFloatSize3d()
+
         assertThat(dimensions.width).isEqualTo(2f)
         assertThat(dimensions.height).isEqualTo(4f)
         assertThat(dimensions.depth).isEqualTo(6f)
     }
 
     @Test
-    fun verifyRtPixelDimensionsToPixelDimensions() {
-        val pixelDimensions: PixelDimensions = RuntimePixelDimensions(14, 15).toPixelDimensions()
+    fun verifyRtPixelDimensionsToIntSize2d() {
+        val pixelDimensions: IntSize2d = RuntimePixelDimensions(14, 15).toIntSize2d()
+
         assertThat(pixelDimensions.width).isEqualTo(14)
         assertThat(pixelDimensions.height).isEqualTo(15)
     }
 
     @Test
-    fun verifyPixelDimensionsToRtPixelDimensions() {
-        val pixelDimensions: PixelDimensions = RuntimePixelDimensions(17, 18).toPixelDimensions()
+    fun verifyIntSize2dToRtPixelDimensions() {
+        val pixelDimensions: IntSize2d = RuntimePixelDimensions(17, 18).toIntSize2d()
+
         assertThat(pixelDimensions.width).isEqualTo(17)
         assertThat(pixelDimensions.height).isEqualTo(18)
     }
 
     @Test
     fun verifyRuntimeResizeEventToResizeEvent() {
+        val entity = mock<Entity>()
+
         val resizeEvent: ResizeEvent =
             RuntimeResizeEvent(RuntimeResizeEvent.RESIZE_STATE_START, RuntimeDimensions(1f, 3f, 5f))
-                .toResizeEvent()
-        assertThat(resizeEvent.resizeState).isEqualTo(ResizeEvent.RESIZE_STATE_START)
+                .toResizeEvent(entity)
+
+        assertThat(resizeEvent.entity).isEqualTo(entity)
+        assertThat(resizeEvent.resizeState).isEqualTo(ResizeEvent.ResizeState.START)
         assertThat(resizeEvent.newSize.width).isEqualTo(1f)
         assertThat(resizeEvent.newSize.height).isEqualTo(3f)
         assertThat(resizeEvent.newSize.depth).isEqualTo(5f)
@@ -253,16 +278,7 @@ class UtilsTest {
     @Test
     fun runtimeSpatialCapabilitiesToSpatialCapabilities_noCapabilities() {
         val caps = RuntimeSpatialCapabilities(0).toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps.isEmpty()).isTrue()
     }
 
     @Test
@@ -270,30 +286,12 @@ class UtilsTest {
         var caps =
             RuntimeSpatialCapabilities(RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI)
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps).isEqualTo(setOf(SpatialCapability.SPATIAL_UI))
 
         caps =
             RuntimeSpatialCapabilities(RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO)
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        assertThat(caps).isEqualTo(setOf(SpatialCapability.SPATIAL_AUDIO))
     }
 
     @Test
@@ -308,16 +306,18 @@ class UtilsTest {
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
                 )
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isTrue()
+
+        val allCaps =
+            setOf(
+                SpatialCapability.APP_ENVIRONMENT,
+                SpatialCapability.EMBED_ACTIVITY,
+                SpatialCapability.PASSTHROUGH_CONTROL,
+                SpatialCapability.SPATIAL_3D_CONTENT,
+                SpatialCapability.SPATIAL_AUDIO,
+                SpatialCapability.SPATIAL_UI,
+            )
+
+        assertThat(caps).isEqualTo(allCaps)
     }
 
     @Test
@@ -328,16 +328,9 @@ class UtilsTest {
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO
                 )
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isFalse()
+        var expectedCaps =
+            setOf(SpatialCapability.SPATIAL_3D_CONTENT, SpatialCapability.SPATIAL_AUDIO)
+        assertThat(caps).isEqualTo(expectedCaps)
 
         caps =
             RuntimeSpatialCapabilities(
@@ -347,25 +340,68 @@ class UtilsTest {
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
                 )
                 .toSpatialCapabilities()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT))
-            .isTrue()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO))
-            .isFalse()
-        assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
-            .isTrue()
+        expectedCaps =
+            setOf(
+                SpatialCapability.SPATIAL_UI,
+                SpatialCapability.PASSTHROUGH_CONTROL,
+                SpatialCapability.APP_ENVIRONMENT,
+                SpatialCapability.EMBED_ACTIVITY,
+            )
+        assertThat(caps).isEqualTo(expectedCaps)
+    }
+
+    @Test
+    fun RtSpatialVisibilityToSpatialVisibility_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        RuntimeSpatialVisibility(RuntimeSpatialVisibility.UNKNOWN),
+                        RuntimeSpatialVisibility(RuntimeSpatialVisibility.OUTSIDE_FOV),
+                        RuntimeSpatialVisibility(RuntimeSpatialVisibility.PARTIALLY_WITHIN_FOV),
+                        RuntimeSpatialVisibility(RuntimeSpatialVisibility.WITHIN_FOV),
+                    )
+                    .map { it.toSpatialVisibility() }
+            )
+            .containsExactly(
+                SpatialVisibility.UNKNOWN,
+                SpatialVisibility.OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.WITHIN_FIELD_OF_VIEW,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun intToSpatialVisibility_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        RuntimeSpatialVisibility.UNKNOWN,
+                        RuntimeSpatialVisibility.OUTSIDE_FOV,
+                        RuntimeSpatialVisibility.PARTIALLY_WITHIN_FOV,
+                        RuntimeSpatialVisibility.WITHIN_FOV,
+                    )
+                    .map { it.toSpatialVisibilityValue() }
+            )
+            .containsExactly(
+                SpatialVisibility.UNKNOWN,
+                SpatialVisibility.OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.WITHIN_FIELD_OF_VIEW,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun intToSpatialVisibility_invalidValue_throwsError() {
+        assertFailsWith<IllegalStateException> { 100.toSpatialVisibilityValue() }
     }
 
     @Test
     fun intToMoveState_convertsCorrectly() {
         assertThat(
                 listOf(
-                        JxrPlatformAdapter.MoveEvent.MOVE_STATE_START,
-                        JxrPlatformAdapter.MoveEvent.MOVE_STATE_ONGOING,
-                        JxrPlatformAdapter.MoveEvent.MOVE_STATE_END,
+                        RuntimeMoveEvent.MOVE_STATE_START,
+                        RuntimeMoveEvent.MOVE_STATE_ONGOING,
+                        RuntimeMoveEvent.MOVE_STATE_END,
                     )
                     .map { it.toMoveState() }
             )
@@ -386,18 +422,18 @@ class UtilsTest {
     fun intToResizeState_convertsCorrectly() {
         assertThat(
                 listOf(
-                        JxrPlatformAdapter.ResizeEvent.RESIZE_STATE_UNKNOWN,
-                        JxrPlatformAdapter.ResizeEvent.RESIZE_STATE_START,
-                        JxrPlatformAdapter.ResizeEvent.RESIZE_STATE_ONGOING,
-                        JxrPlatformAdapter.ResizeEvent.RESIZE_STATE_END,
+                        RuntimeResizeEvent.RESIZE_STATE_UNKNOWN,
+                        RuntimeResizeEvent.RESIZE_STATE_START,
+                        RuntimeResizeEvent.RESIZE_STATE_ONGOING,
+                        RuntimeResizeEvent.RESIZE_STATE_END,
                     )
                     .map { it.toResizeState() }
             )
             .containsExactly(
-                ResizeEvent.RESIZE_STATE_UNKNOWN,
-                ResizeEvent.RESIZE_STATE_START,
-                ResizeEvent.RESIZE_STATE_ONGOING,
-                ResizeEvent.RESIZE_STATE_END,
+                ResizeEvent.ResizeState.UNKNOWN,
+                ResizeEvent.ResizeState.START,
+                ResizeEvent.ResizeState.ONGOING,
+                ResizeEvent.ResizeState.END,
             )
             .inOrder()
     }
@@ -411,22 +447,22 @@ class UtilsTest {
     fun intToInputEventSource_convertsCorrectly() {
         assertThat(
                 listOf(
-                        JxrPlatformAdapter.InputEvent.SOURCE_UNKNOWN,
-                        JxrPlatformAdapter.InputEvent.SOURCE_HEAD,
-                        JxrPlatformAdapter.InputEvent.SOURCE_CONTROLLER,
-                        JxrPlatformAdapter.InputEvent.SOURCE_HANDS,
-                        JxrPlatformAdapter.InputEvent.SOURCE_MOUSE,
-                        JxrPlatformAdapter.InputEvent.SOURCE_GAZE_AND_GESTURE,
+                        RuntimeInputEvent.Source.UNKNOWN,
+                        RuntimeInputEvent.Source.HEAD,
+                        RuntimeInputEvent.Source.CONTROLLER,
+                        RuntimeInputEvent.Source.HANDS,
+                        RuntimeInputEvent.Source.MOUSE,
+                        RuntimeInputEvent.Source.GAZE_AND_GESTURE,
                     )
                     .map { it.toInputEventSource() }
             )
             .containsExactly(
-                InputEvent.SOURCE_UNKNOWN,
-                InputEvent.SOURCE_HEAD,
-                InputEvent.SOURCE_CONTROLLER,
-                InputEvent.SOURCE_HANDS,
-                InputEvent.SOURCE_MOUSE,
-                InputEvent.SOURCE_GAZE_AND_GESTURE,
+                InputEvent.Source.UNKNOWN,
+                InputEvent.Source.HEAD,
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Source.HANDS,
+                InputEvent.Source.MOUSE,
+                InputEvent.Source.GAZE_AND_GESTURE,
             )
             .inOrder()
     }
@@ -440,72 +476,47 @@ class UtilsTest {
     fun intToInputEventPointerType_convertsCorrectly() {
         assertThat(
                 listOf(
-                        JxrPlatformAdapter.InputEvent.POINTER_TYPE_DEFAULT,
-                        JxrPlatformAdapter.InputEvent.POINTER_TYPE_LEFT,
-                        JxrPlatformAdapter.InputEvent.POINTER_TYPE_RIGHT,
+                        RuntimeInputEvent.Pointer.DEFAULT,
+                        RuntimeInputEvent.Pointer.LEFT,
+                        RuntimeInputEvent.Pointer.RIGHT,
                     )
-                    .map { it.toInputEventPointerType() }
+                    .map { it.toInputEventPointer() }
             )
             .containsExactly(
-                InputEvent.POINTER_TYPE_DEFAULT,
-                InputEvent.POINTER_TYPE_LEFT,
-                InputEvent.POINTER_TYPE_RIGHT,
+                InputEvent.Pointer.DEFAULT,
+                InputEvent.Pointer.LEFT,
+                InputEvent.Pointer.RIGHT,
             )
             .inOrder()
     }
 
     @Test
     fun intToInputEventPointerType_invalidValue_throwsError() {
-        assertFailsWith<IllegalStateException> { 100.toInputEventPointerType() }
-    }
-
-    @Test
-    fun intToSpatialCapability_convertsCorrectly() {
-        assertThat(
-                listOf(
-                        JxrPlatformAdapter.SpatialCapabilities.SPATIAL_CAPABILITY_UI,
-                        JxrPlatformAdapter.SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT,
-                        JxrPlatformAdapter.SpatialCapabilities
-                            .SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL,
-                        JxrPlatformAdapter.SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT,
-                        JxrPlatformAdapter.SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO,
-                        JxrPlatformAdapter.SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY,
-                    )
-                    .map { it.toSpatialCapability() }
-            )
-            .containsExactly(
-                SpatialCapabilities.SPATIAL_CAPABILITY_UI,
-                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT,
-                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL,
-                SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT,
-                SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO,
-                SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY,
-            )
-            .inOrder()
+        assertFailsWith<IllegalStateException> { 100.toInputEventPointer() }
     }
 
     @Test
     fun intToInputEventAction_convertsCorrectly() {
         assertThat(
                 listOf(
-                        JxrPlatformAdapter.InputEvent.ACTION_DOWN,
-                        JxrPlatformAdapter.InputEvent.ACTION_UP,
-                        JxrPlatformAdapter.InputEvent.ACTION_MOVE,
-                        JxrPlatformAdapter.InputEvent.ACTION_CANCEL,
-                        JxrPlatformAdapter.InputEvent.ACTION_HOVER_MOVE,
-                        JxrPlatformAdapter.InputEvent.ACTION_HOVER_ENTER,
-                        JxrPlatformAdapter.InputEvent.ACTION_HOVER_EXIT,
+                        RuntimeInputEvent.Action.DOWN,
+                        RuntimeInputEvent.Action.UP,
+                        RuntimeInputEvent.Action.MOVE,
+                        RuntimeInputEvent.Action.CANCEL,
+                        RuntimeInputEvent.Action.HOVER_MOVE,
+                        RuntimeInputEvent.Action.HOVER_ENTER,
+                        RuntimeInputEvent.Action.HOVER_EXIT,
                     )
                     .map { it.toInputEventAction() }
             )
             .containsExactly(
-                InputEvent.ACTION_DOWN,
-                InputEvent.ACTION_UP,
-                InputEvent.ACTION_MOVE,
-                InputEvent.ACTION_CANCEL,
-                InputEvent.ACTION_HOVER_MOVE,
-                InputEvent.ACTION_HOVER_ENTER,
-                InputEvent.ACTION_HOVER_EXIT,
+                InputEvent.Action.DOWN,
+                InputEvent.Action.UP,
+                InputEvent.Action.MOVE,
+                InputEvent.Action.CANCEL,
+                InputEvent.Action.HOVER_MOVE,
+                InputEvent.Action.HOVER_ENTER,
+                InputEvent.Action.HOVER_EXIT,
             )
             .inOrder()
     }
@@ -517,32 +528,32 @@ class UtilsTest {
 
     @Test
     fun anchorPlacementToRuntimeAnchorPlacement_setsCorrectly() {
-        val mockRuntime = mock<JxrPlatformAdapter>()
-        val mockAnchorPlacement1 = mock<JxrPlatformAdapter.AnchorPlacement>()
-        val mockAnchorPlacement2 = mock<JxrPlatformAdapter.AnchorPlacement>()
+        val mockRuntime = mock<SceneRuntime>()
+        val mockAnchorPlacement1 = mock<RtAnchorPlacement>()
+        val mockAnchorPlacement2 = mock<RtAnchorPlacement>()
         whenever(
                 mockRuntime.createAnchorPlacementForPlanes(
-                    setOf(JxrPlatformAdapter.PlaneType.HORIZONTAL),
-                    setOf(JxrPlatformAdapter.PlaneSemantic.ANY),
+                    setOf(RtPlaneType.HORIZONTAL),
+                    setOf(RtPlaneSemantic.ANY),
                 )
             )
             .thenReturn(mockAnchorPlacement1)
         whenever(
                 mockRuntime.createAnchorPlacementForPlanes(
-                    setOf(JxrPlatformAdapter.PlaneType.ANY),
-                    setOf(
-                        JxrPlatformAdapter.PlaneSemantic.WALL,
-                        JxrPlatformAdapter.PlaneSemantic.FLOOR
-                    ),
+                    setOf(RtPlaneType.ANY),
+                    setOf(RtPlaneSemantic.WALL, RtPlaneSemantic.FLOOR),
                 )
             )
             .thenReturn(mockAnchorPlacement2)
 
         val anchorPlacement1 =
-            AnchorPlacement.createForPlanes(planeTypeFilter = setOf(PlaneType.HORIZONTAL))
+            AnchorPlacement.createForPlanes(
+                anchorablePlaneOrientations = setOf(PlaneOrientation.HORIZONTAL)
+            )
         val anchorPlacement2 =
             AnchorPlacement.createForPlanes(
-                planeSemanticFilter = setOf(PlaneSemantic.WALL, PlaneSemantic.FLOOR)
+                anchorablePlaneSemanticTypes =
+                    setOf(PlaneSemanticType.WALL, PlaneSemanticType.FLOOR)
             )
 
         val rtPlacementSet =
@@ -554,10 +565,221 @@ class UtilsTest {
 
     @Test
     fun anchorPlacementToRuntimeAnchotPlacementEmptySet_returnsEmptySet() {
-        val mockRuntime = mock<JxrPlatformAdapter>()
+        val mockRuntime = mock<SceneRuntime>()
 
         val rtPlacementSet = emptySet<AnchorPlacement>().toRtAnchorPlacement(mockRuntime)
 
         assertThat(rtPlacementSet).isEmpty()
+    }
+
+    @Test
+    fun planeTypeToSceneCoreOrientation_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        Plane.Type.HORIZONTAL_UPWARD_FACING,
+                        Plane.Type.HORIZONTAL_DOWNWARD_FACING,
+                        Plane.Type.VERTICAL,
+                    )
+                    .map { it.toSceneCoreOrientation() }
+            )
+            .containsExactly(
+                PlaneOrientation.HORIZONTAL,
+                PlaneOrientation.HORIZONTAL,
+                PlaneOrientation.VERTICAL,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun planeLabelToSceneCoreSemanticType_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        Plane.Label.FLOOR,
+                        Plane.Label.TABLE,
+                        Plane.Label.WALL,
+                        Plane.Label.CEILING,
+                        Plane.Label.UNKNOWN,
+                    )
+                    .map { it.toSceneCoreSemanticType() }
+            )
+            .containsExactly(
+                PlaneSemanticType.FLOOR,
+                PlaneSemanticType.TABLE,
+                PlaneSemanticType.WALL,
+                PlaneSemanticType.CEILING,
+                PlaneSemanticType.ANY,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun intToTextureSampler_convertsCorrectly() {
+        val sampler =
+            TextureSampler(
+                minificationFilter = TextureSampler.MinificationFilter.NEAREST,
+                magnificationFilter = TextureSampler.MagnificationFilter.LINEAR,
+                wrapModeHorizontal = TextureSampler.WrapMode.CLAMP_TO_EDGE,
+                wrapModeVertical = TextureSampler.WrapMode.REPEAT,
+                wrapModeDepth = TextureSampler.WrapMode.MIRRORED_REPEAT,
+                compareMode = TextureSampler.CompareMode.NONE,
+                compareFunction = TextureSampler.CompareFunction.LESSER_OR_EQUAL,
+                anisotropyLog2 = 2,
+            )
+
+        val rtSampler: RuntimeTextureSampler = sampler.toRtTextureSampler()
+
+        assertThat(rtSampler.wrapModeS).isEqualTo(RuntimeTextureSampler.CLAMP_TO_EDGE)
+        assertThat(rtSampler.wrapModeT).isEqualTo(RuntimeTextureSampler.REPEAT)
+        assertThat(rtSampler.wrapModeR).isEqualTo(RuntimeTextureSampler.MIRRORED_REPEAT)
+        assertThat(rtSampler.minFilter).isEqualTo(RuntimeTextureSampler.NEAREST)
+        assertThat(rtSampler.magFilter).isEqualTo(RuntimeTextureSampler.MAG_LINEAR)
+        assertThat(rtSampler.compareMode).isEqualTo(RuntimeTextureSampler.NONE)
+        assertThat(rtSampler.compareFunc).isEqualTo(RuntimeTextureSampler.LE)
+        assertThat(rtSampler.anisotropyLog2).isEqualTo(2)
+    }
+
+    @Test
+    fun runtimeHitTestResultToHitTestResult_convertsCorrectly() {
+        val hitPosition = Vector3(1f, 2f, 3f)
+        val surfaceNormal = Vector3(4f, 5f, 6f)
+        val surfaceType = RuntimeHitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE
+        val distance = 7f
+        val rtHitTestResult =
+            RuntimeHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
+        val hitTestResult = rtHitTestResult.toHitTestResult()
+        assertThat(hitTestResult!!.hitPosition).isEqualTo(hitPosition)
+        assertThat(hitTestResult.surfaceNormal).isEqualTo(surfaceNormal)
+        assertThat(hitTestResult.surfaceType).isEqualTo(HitTestResult.SurfaceType.PLANE)
+        assertThat(hitTestResult.distance).isEqualTo(distance)
+    }
+
+    @Test
+    fun runtimeHitTestResultWithNullToHitTestResult_convertsCorrectly() {
+        val hitPosition = null
+        val surfaceNormal = null
+        val surfaceType =
+            RuntimeHitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN
+        val distance = Float.POSITIVE_INFINITY
+        val rtHitTestResult =
+            RuntimeHitTestResult(hitPosition, surfaceNormal, surfaceType, distance)
+
+        val hitTestResult = rtHitTestResult.toHitTestResult()
+
+        assertNull(hitTestResult)
+    }
+
+    @Test
+    fun hitTestFilterToRuntimeHitTestFilter_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        0,
+                        HitTestFilter.SELF_SCENE,
+                        HitTestFilter.OTHER_SCENES,
+                        (HitTestFilter.SELF_SCENE or HitTestFilter.OTHER_SCENES),
+                    )
+                    .map { it.toRtHitTestFilter() }
+            )
+            .containsExactly(
+                0,
+                RtHitTestFilter.SELF_SCENE,
+                RtHitTestFilter.OTHER_SCENES,
+                RtHitTestFilter.SELF_SCENE or RtHitTestFilter.OTHER_SCENES,
+            )
+    }
+
+    @Test
+    fun runtimeHitTestSurfaceTypeToHitTestSurfaceType_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        RuntimeHitTestResult.HitTestSurfaceType
+                            .HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
+                        RuntimeHitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE,
+                        RuntimeHitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_OBJECT,
+                    )
+                    .map { it.toHitTestSurfaceType() }
+            )
+            .containsExactly(
+                HitTestResult.SurfaceType.UNKNOWN,
+                HitTestResult.SurfaceType.PLANE,
+                HitTestResult.SurfaceType.OBJECT,
+            )
+    }
+
+    @Test
+    fun spatialPointerIconToRtSpatialPointerIcon_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        SpatialPointerIcon.DEFAULT,
+                        SpatialPointerIcon.NONE,
+                        SpatialPointerIcon.CIRCLE,
+                    )
+                    .map { it.toRtSpatialPointerIcon() }
+            )
+            .containsExactly(
+                RtSpatialPointerIcon.TYPE_DEFAULT,
+                RtSpatialPointerIcon.TYPE_NONE,
+                RtSpatialPointerIcon.TYPE_CIRCLE,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun rtSpatialPointerIconToInt_convertsCorrectly() {
+        assertThat(
+                listOf(
+                        RtSpatialPointerIcon.TYPE_DEFAULT,
+                        RtSpatialPointerIcon.TYPE_NONE,
+                        RtSpatialPointerIcon.TYPE_CIRCLE,
+                    )
+                    .map { it.toSpatialPointerIcon() }
+            )
+            .containsExactly(
+                SpatialPointerIcon.DEFAULT,
+                SpatialPointerIcon.NONE,
+                SpatialPointerIcon.CIRCLE,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun rtPerceivedResolutionResultSuccess_convertsCorrectly() {
+        val runtimeSuccess =
+            RuntimePerceivedResolutionResult.Success(RuntimePixelDimensions(100, 200))
+        val result = runtimeSuccess.toPerceivedResolutionResult()
+
+        assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
+        val success = result as PerceivedResolutionResult.Success
+        assertThat(success.perceivedResolution.width).isEqualTo(100)
+        assertThat(success.perceivedResolution.height).isEqualTo(200)
+    }
+
+    @Test
+    fun rtPerceivedResolutionResultEntityTooClose_convertsCorrectly() {
+        val runtimeEntityTooClose = RuntimePerceivedResolutionResult.EntityTooClose()
+        val result = runtimeEntityTooClose.toPerceivedResolutionResult()
+
+        assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
+    }
+
+    @Test
+    fun rtPerceivedResolutionResultInvalidCameraView_convertsCorrectly() {
+        val runtimeInvalidCamera = RuntimePerceivedResolutionResult.InvalidCameraView()
+        val result = runtimeInvalidCamera.toPerceivedResolutionResult()
+
+        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+    }
+
+    @Test
+    fun rotateEntityToPlane_rotatesToPlan() {
+        // Moving from (0f, 0f, 0f, 1f) int the common space to (0f, 0f, 0f, 1f) in the plane
+        // rotation results in an updated rotation of (-0.707f, 0f, 0f, 0.707f). This quaternion
+        // represents a 90 degree rotation around the x-axis Which is expected when the panel is
+        // rotated into the plane's reference space.
+        val planeRotation = Quaternion(0f, 0f, 0f, 1f)
+        val proposedRotation = Quaternion(0f, 0f, 0f, 1f)
+        val updatedRotation = rotateEntityToPlane(proposedRotation, planeRotation)
+        val expectedRotation = Quaternion(-0.707f, 0f, 0f, 0.707f)
+
+        assertRotation(updatedRotation, expectedRotation)
     }
 }

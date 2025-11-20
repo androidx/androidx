@@ -43,16 +43,19 @@ class FastScrollGestureDetectorTest {
     private val pdfDocument: PdfDocument = FakePdfDocument.newInstance()
     private val thumbDrawable =
         ContextCompat.getDrawable(context, R.drawable.fastscroll_background)!!
-    private val trackDrawable = ContextCompat.getDrawable(context, R.drawable.drag_indicator)!!
     private val pageIndicatorBackgroundDrawable =
         ContextCompat.getDrawable(context, R.drawable.page_indicator_background)!!
+    private val fastScrollVerticalThumbMarginEnd = 0
+    private val fastScrollPageIndicatorMarginEnd =
+        context.getDimensions(R.dimen.page_indicator_right_margin).toInt()
     private val fastScrollDrawer =
         FastScrollDrawer(
             context,
             pdfDocument,
             thumbDrawable,
-            trackDrawable,
-            pageIndicatorBackgroundDrawable
+            pageIndicatorBackgroundDrawable,
+            fastScrollVerticalThumbMarginEnd,
+            fastScrollPageIndicatorMarginEnd,
         )
     private val fastScrollCalculator = FastScrollCalculator(context)
     private val fastScroller = FastScroller(fastScrollDrawer, fastScrollCalculator)
@@ -69,13 +72,14 @@ class FastScrollGestureDetectorTest {
         val event = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 10f, 10f, 0)
         val viewWidth = 500
 
-        val result = gestureDetector.handleEvent(event, viewWidth)
+        val result = gestureDetector.handleEvent(event, parent = null, viewWidth)
 
         assertFalse(result)
         assertFalse(
             gestureDetector.handleEvent(
                 MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_MOVE, 10f, 10f, 0),
-                viewWidth
+                parent = null,
+                viewWidth,
             )
         )
         verify(gestureHandler, never()).onFastScrollDetected(10f)
@@ -86,12 +90,12 @@ class FastScrollGestureDetectorTest {
         val downEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 450f, 50f, 0)
         val viewWidth = 500
 
-        val result = gestureDetector.handleEvent(downEvent, viewWidth)
+        val result = gestureDetector.handleEvent(downEvent, parent = null, viewWidth)
 
         assertTrue(result)
 
         val moveEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_MOVE, 450f, 400f, 0)
-        assertTrue(gestureDetector.handleEvent(moveEvent, viewWidth))
+        assertTrue(gestureDetector.handleEvent(moveEvent, parent = null, viewWidth))
         verify(gestureHandler).onFastScrollDetected(400f)
     }
 
@@ -99,21 +103,21 @@ class FastScrollGestureDetectorTest {
     fun testHandleEvent_actionUp_stopsTracking() {
         val downEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_DOWN, 450f, 50f, 0)
         val viewWidth = 500
-        gestureDetector.handleEvent(downEvent, viewWidth)
+        gestureDetector.handleEvent(downEvent, parent = null, viewWidth)
 
         val moveEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_MOVE, 450f, 400f, 0)
-        assertTrue(gestureDetector.handleEvent(moveEvent, viewWidth))
+        assertTrue(gestureDetector.handleEvent(moveEvent, parent = null, viewWidth))
         verify(gestureHandler).onFastScrollDetected(400f)
 
         val upEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_UP, 450f, 400f, 0)
-        assertTrue(gestureDetector.handleEvent(upEvent, viewWidth))
+        assertTrue(gestureDetector.handleEvent(upEvent, parent = null, viewWidth))
     }
 
     open class FakeFastScrollGestureHandler : FastScrollGestureDetector.FastScrollGestureHandler {
         var lastScrollY: Float = 0f
 
-        override fun onFastScrollDetected(scrollY: Float) {
-            lastScrollY = scrollY
+        override fun onFastScrollDetected(eventY: Float) {
+            lastScrollY = eventY
         }
     }
 }

@@ -20,7 +20,7 @@ import androidx.annotation.IdRes
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.createViewModelLazy
-import androidx.hilt.navigation.HiltViewModelFactory
+import androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory as createHiltViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.fragment.findNavController
@@ -29,7 +29,8 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 /**
  * Returns a property delegate to access a
  * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] scoped to a navigation graph present on the [NavController] back stack:
+ * -annotated [ViewModel] scoped to a navigation graph present on the
+ * [androidx.navigation.NavController] back stack:
  * ```
  * class MyFragment : Fragment() {
  *     val viewmodel: MainViewModel by hiltNavGraphViewModels(R.navigation.main)
@@ -39,7 +40,8 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * This property can be accessed only after this NavGraph is on the NavController back stack, and an
  * attempt access prior to that will result in an IllegalArgumentException.
  *
- * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
+ * @param navGraphId ID of a NavGraph that exists on the [androidx.navigation.NavController] back
+ *   stack
  */
 @MainThread
 public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
@@ -51,9 +53,12 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
         VM::class,
         storeProducer,
         factoryProducer = {
-            HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
+            createHiltViewModelFactory(
+                requireActivity(),
+                backStackEntry.defaultViewModelProviderFactory,
+            )
         },
-        extrasProducer = { backStackEntry.defaultViewModelCreationExtras }
+        extrasProducer = { backStackEntry.defaultViewModelCreationExtras },
     )
 }
 
@@ -61,7 +66,7 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
  * Returns a property delegate to access a
  * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
  * -annotated [ViewModel] with an [@AssistedInject]-annotated constructor that is scoped to a
- * navigation graph present on the [NavController] back stack:
+ * navigation graph present on the [androidx.navigation.NavController] back stack:
  * ```
  * class MyFragment : Fragment() {
  *     val viewmodel: MainViewModel by hiltNavGraphViewModels(R.navigation.main) { factory: MainViewModelFactory ->
@@ -73,14 +78,15 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
  * This property can be accessed only after this NavGraph is on the NavController back stack, and an
  * attempt access prior to that will result in an IllegalArgumentException.
  *
- * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
+ * @param navGraphId ID of a NavGraph that exists on the [androidx.navigation.NavController] back
+ *   stack
  * @param creationCallback callback that takes an @AssistedFactory-annotated factory and creates a
  *   HiltViewModel using @AssistedInject-annotated constructor.
  */
 @MainThread
 public inline fun <reified VM : ViewModel, reified VMF : Any> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int,
-    noinline creationCallback: (VMF) -> VM
+    noinline creationCallback: (VMF) -> VM,
 ): Lazy<VM> {
     val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphId) }
     val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
@@ -88,10 +94,13 @@ public inline fun <reified VM : ViewModel, reified VMF : Any> Fragment.hiltNavGr
         viewModelClass = VM::class,
         storeProducer = storeProducer,
         factoryProducer = {
-            HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
+            createHiltViewModelFactory(
+                requireActivity(),
+                backStackEntry.defaultViewModelProviderFactory,
+            )
         },
         extrasProducer = {
             backStackEntry.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
-        }
+        },
     )
 }

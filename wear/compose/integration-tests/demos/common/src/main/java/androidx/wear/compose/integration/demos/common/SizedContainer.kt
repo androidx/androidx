@@ -50,7 +50,7 @@ import kotlin.math.roundToInt
 fun AdaptiveScreen(
     screenSizeDp: Int = 220,
     zoomLevel: Float = 1.5f,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     if (LocalConfiguration.current.screenWidthDp < 300) {
         Box(Modifier.fillMaxSize(), content = content)
@@ -60,7 +60,7 @@ fun AdaptiveScreen(
             zoomLevel = zoomLevel,
             roundScreen = true,
             modifier = Modifier.fillMaxSize().padding(10.dp).wrapContentSize(Alignment.TopCenter),
-            content = content
+            content = content,
         )
     }
 }

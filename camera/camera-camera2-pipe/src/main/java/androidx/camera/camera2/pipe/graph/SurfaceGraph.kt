@@ -37,7 +37,7 @@ internal class SurfaceGraph(
     private val streamGraphImpl: StreamGraphImpl,
     private val cameraController: Provider<CameraController>,
     private val surfaceManager: CameraSurfaceManager,
-    private val imageSources: Map<StreamId, ImageSource>
+    private val imageSources: Map<StreamId, ImageSource>,
 ) : SurfaceTracker, AutoCloseable {
     private val lock = Any()
 

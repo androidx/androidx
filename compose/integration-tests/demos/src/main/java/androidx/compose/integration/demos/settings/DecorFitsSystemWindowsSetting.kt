@@ -57,7 +57,7 @@ internal object DecorFitsSystemWindowsSetting : DemoSetting<Boolean> {
 internal fun DecorFitsSystemWindowsEffect(
     decorFitsSystemWindows: Boolean,
     view: View,
-    window: Window
+    window: Window,
 ) {
     DisposableEffect(decorFitsSystemWindows, window) {
         setDecorFitsSystemWindows(window, decorFitsSystemWindows)

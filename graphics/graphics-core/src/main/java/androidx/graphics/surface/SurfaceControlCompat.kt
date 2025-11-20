@@ -66,7 +66,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
                     BUFFER_TRANSFORM_MIRROR_VERTICAL,
                     BUFFER_TRANSFORM_ROTATE_180,
                     BUFFER_TRANSFORM_ROTATE_90,
-                    BUFFER_TRANSFORM_ROTATE_270
+                    BUFFER_TRANSFORM_ROTATE_270,
                 ]
         )
         internal annotation class BufferTransform
@@ -296,7 +296,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          */
         fun reparent(
             surfaceControl: SurfaceControlCompat,
-            newParent: SurfaceControlCompat?
+            newParent: SurfaceControlCompat?,
         ): Transaction {
             mImpl.reparent(surfaceControl.scImpl, newParent?.scImpl)
             return this
@@ -314,7 +314,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun reparent(
             surfaceControl: SurfaceControlCompat,
-            attachedSurfaceControl: AttachedSurfaceControl
+            attachedSurfaceControl: AttachedSurfaceControl,
         ): Transaction {
             mImpl.reparent(surfaceControl.scImpl, attachedSurfaceControl)
             return this
@@ -349,7 +349,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
             surfaceControl: SurfaceControlCompat,
             buffer: HardwareBuffer?,
             fence: SyncFenceCompat? = null,
-            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null,
         ): Transaction {
             mImpl.setBuffer(surfaceControl.scImpl, buffer, fence?.mImpl, releaseCallback)
             return this
@@ -384,7 +384,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
-            listener: TransactionCommittedListener
+            listener: TransactionCommittedListener,
         ): Transaction {
             mImpl.addTransactionCommittedListener(executor, listener)
             return this
@@ -459,7 +459,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         fun setScale(
             surfaceControl: SurfaceControlCompat,
             scaleX: Float,
-            scaleY: Float
+            scaleY: Float,
         ): Transaction {
             mImpl.setScale(surfaceControl.scImpl, scaleX, scaleY)
             return this
@@ -483,7 +483,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          */
         fun setBufferTransform(
             surfaceControl: SurfaceControlCompat,
-            @BufferTransform transformation: Int
+            @BufferTransform transformation: Int,
         ): Transaction {
             mBufferTransforms[surfaceControl] = transformation
             mImpl.setBufferTransform(surfaceControl.scImpl, transformation)
@@ -526,7 +526,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
             surfaceControl: SurfaceControlCompat,
             frameRate: Float,
             @FrameRateCompatibility compatibility: Int,
-            @ChangeFrameRateStrategy changeFrameRateStrategy: Int
+            @ChangeFrameRateStrategy changeFrameRateStrategy: Int,
         ): Transaction {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val strategy =
@@ -601,12 +601,12 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
         fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlCompat,
             @FloatRange(from = 1.0, fromInclusive = true) currentBufferRatio: Float,
-            @FloatRange(from = 1.0, fromInclusive = true) desiredRatio: Float
+            @FloatRange(from = 1.0, fromInclusive = true) desiredRatio: Float,
         ): Transaction {
             mImpl.setExtendedRangeBrightness(
                 surfaceControl.scImpl,
                 currentBufferRatio,
-                desiredRatio
+                desiredRatio,
             )
             return this
         }
@@ -628,7 +628,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          */
         fun setDataSpace(
             surfaceControl: SurfaceControlCompat,
-            @DataSpace.NamedDataSpace dataSpace: Int
+            @DataSpace.NamedDataSpace dataSpace: Int,
         ): Transaction {
             mImpl.setDataSpace(surfaceControl.scImpl, dataSpace)
             return this

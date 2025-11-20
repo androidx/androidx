@@ -90,9 +90,13 @@ internal object ProjectXml {
     ): Element {
         val moduleElement = DocumentHelper.createElement("module")
         moduleElement.addAttribute("name", sourceSetName)
-        // TODO(b/322156458): This should not be set to true for common, but it is necessary to
-        // allow annotations from androidx.annotation to be resolved in other projects.
-        moduleElement.addAttribute("android", "true")
+        if (sourceSetName == "androidMain") {
+            moduleElement.addAttribute("android", "true")
+        }
+        // Currently, we only process JVM compilations in metalava, so it works to set just the JVM
+        // platform for all modules (a common module should list all platforms it is used by).
+        // TODO(b/407737495): use all platforms for non-JVM targets, don't hardcode the java version
+        moduleElement.addAttribute("kotlinPlatforms", "JVM [1.8]")
 
         for (dependsOn in dependsOnSourceSets) {
             val depElement = DocumentHelper.createElement("dep")

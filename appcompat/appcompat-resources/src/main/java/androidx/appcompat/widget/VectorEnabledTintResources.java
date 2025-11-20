@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 
@@ -39,8 +38,7 @@ public class VectorEnabledTintResources extends ResourcesWrapper {
     private static boolean sCompatVectorFromResourcesEnabled = false;
 
     public static boolean shouldBeUsed() {
-        return isCompatVectorFromResourcesEnabled()
-                && Build.VERSION.SDK_INT <= MAX_SDK_WHERE_REQUIRED;
+        return false;
     }
 
     /**

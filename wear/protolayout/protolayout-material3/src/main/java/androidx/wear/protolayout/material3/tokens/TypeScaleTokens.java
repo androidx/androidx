@@ -29,41 +29,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.FontSetting;
 /** A list of text style values in Material3 for supporting product needs. */
 @RestrictTo(Scope.LIBRARY)
 public final class TypeScaleTokens {
-
-    public static final String ARC_MEDIUM_FONT_FAMILY = TypefaceTokens.BRAND;
-
-    @Dimension(unit = SP)
-    public static final float ARC_MEDIUM_LINE_HEIGHT = 18.0f;
-
-    @Dimension(unit = SP)
-    public static final float ARC_MEDIUM_SIZE = 15.0f;
-
-    @Dimension(unit = SP)
-    public static final float ARC_MEDIUM_TRACKING = 0.4f;
-
-    public static final FontSetting ARC_MEDIUM_WEIGHT = FontSetting.weight(600);
-
-    public static final FontSetting ARC_MEDIUM_WEIGHT_PROMINENT = FontSetting.weight(800);
-
-    public static final FontSetting ARC_MEDIUM_WIDTH = FontSetting.width(100.0f);
-
-    public static final String ARC_SMALL_FONT_FAMILY = TypefaceTokens.BRAND;
-
-    @Dimension(unit = SP)
-    public static final float ARC_SMALL_LINE_HEIGHT = 16.0f;
-
-    @Dimension(unit = SP)
-    public static final float ARC_SMALL_SIZE = 14.0f;
-
-    @Dimension(unit = SP)
-    public static final float ARC_SMALL_TRACKING = 0.4f;
-
-    public static final FontSetting ARC_SMALL_WEIGHT = FontSetting.weight(560);
-
-    public static final FontSetting ARC_SMALL_WEIGHT_PROMINENT = FontSetting.weight(760);
-
-    public static final FontSetting ARC_SMALL_WIDTH = FontSetting.width(100.0f);
-
     public static final String BODY_EXTRA_SMALL_FONT_FAMILY = TypefaceTokens.BRAND;
 
     @Dimension(unit = SP)
@@ -76,8 +41,6 @@ public final class TypeScaleTokens {
     public static final float BODY_EXTRA_SMALL_TRACKING = 0.2f;
 
     public static final FontSetting BODY_EXTRA_SMALL_WEIGHT = FontSetting.weight(500);
-
-    public static final FontSetting BODY_EXTRA_SMALL_WEIGHT_PROMINENT = FontSetting.weight(700);
 
     public static final FontSetting BODY_EXTRA_SMALL_WIDTH = FontSetting.width(104.0f);
 
@@ -94,8 +57,6 @@ public final class TypeScaleTokens {
 
     public static final FontSetting BODY_LARGE_WEIGHT = FontSetting.weight(450);
 
-    public static final FontSetting BODY_LARGE_WEIGHT_PROMINENT = FontSetting.weight(650);
-
     public static final FontSetting BODY_LARGE_WIDTH = FontSetting.width(110.0f);
 
     public static final String BODY_MEDIUM_FONT_FAMILY = TypefaceTokens.BRAND;
@@ -111,8 +72,6 @@ public final class TypeScaleTokens {
 
     public static final FontSetting BODY_MEDIUM_WEIGHT = FontSetting.weight(450);
 
-    public static final FontSetting BODY_MEDIUM_WEIGHT_PROMINENT = FontSetting.weight(650);
-
     public static final FontSetting BODY_MEDIUM_WIDTH = FontSetting.width(110.0f);
 
     public static final String BODY_SMALL_FONT_FAMILY = TypefaceTokens.BRAND;
@@ -127,8 +86,6 @@ public final class TypeScaleTokens {
     public static final float BODY_SMALL_TRACKING = 0.4f;
 
     public static final FontSetting BODY_SMALL_WEIGHT = FontSetting.weight(500);
-
-    public static final FontSetting BODY_SMALL_WEIGHT_PROMINENT = FontSetting.weight(700);
 
     public static final FontSetting BODY_SMALL_WIDTH = FontSetting.width(110.0f);
 
@@ -150,7 +107,7 @@ public final class TypeScaleTokens {
     public static final String DISPLAY_MEDIUM_FONT_FAMILY = TypefaceTokens.BRAND;
 
     @Dimension(unit = SP)
-    public static final float DISPLAY_MEDIUM_LINE_HEIGHT = 36.0f;
+    public static final float DISPLAY_MEDIUM_LINE_HEIGHT = 34.0f;
 
     @Dimension(unit = SP)
     public static final float DISPLAY_MEDIUM_SIZE = 30.0f;
@@ -194,6 +151,8 @@ public final class TypeScaleTokens {
 
     public static final String LABEL_MEDIUM_FONT_FAMILY = TypefaceTokens.BRAND;
 
+    // Note that this is the intentional diff from the spec because 18 doesn't work with adjusting
+    // max lines for ellipsize (b/414353620).
     @Dimension(unit = SP)
     public static final float LABEL_MEDIUM_LINE_HEIGHT = 16.0f;
 
@@ -235,8 +194,6 @@ public final class TypeScaleTokens {
 
     public static final FontSetting NUMERAL_EXTRA_LARGE_WEIGHT = FontSetting.weight(560);
 
-    public static final FontSetting NUMERAL_EXTRA_LARGE_WEIGHT_PROMINENT = FontSetting.weight(760);
-
     public static final FontSetting NUMERAL_EXTRA_LARGE_WIDTH = FontSetting.width(110.0f);
 
     public static final String NUMERAL_EXTRA_SMALL_FONT_FAMILY = TypefaceTokens.BRAND;
@@ -252,8 +209,6 @@ public final class TypeScaleTokens {
 
     public static final FontSetting NUMERAL_EXTRA_SMALL_WEIGHT = FontSetting.weight(550);
 
-    public static final FontSetting NUMERAL_EXTRA_SMALL_WEIGHT_PROMINENT = FontSetting.weight(750);
-
     public static final FontSetting NUMERAL_EXTRA_SMALL_WIDTH = FontSetting.width(100.0f);
 
     public static final String NUMERAL_LARGE_FONT_FAMILY = TypefaceTokens.BRAND;
@@ -265,11 +220,9 @@ public final class TypeScaleTokens {
     public static final float NUMERAL_LARGE_SIZE = 50.0f;
 
     @Dimension(unit = SP)
-    public static final float NUMERAL_LARGE_TRACKING = 1.0f;
+    public static final float NUMERAL_LARGE_TRACKING = 0.0f;
 
     public static final FontSetting NUMERAL_LARGE_WEIGHT = FontSetting.weight(580);
-
-    public static final FontSetting NUMERAL_LARGE_WEIGHT_PROMINENT = FontSetting.weight(780);
 
     public static final FontSetting NUMERAL_LARGE_WIDTH = FontSetting.width(110.0f);
 
@@ -286,8 +239,6 @@ public final class TypeScaleTokens {
 
     public static final FontSetting NUMERAL_MEDIUM_WEIGHT = FontSetting.weight(580);
 
-    public static final FontSetting NUMERAL_MEDIUM_WEIGHT_PROMINENT = FontSetting.weight(780);
-
     public static final FontSetting NUMERAL_MEDIUM_WIDTH = FontSetting.width(100.0f);
 
     public static final String NUMERAL_SMALL_FONT_FAMILY = TypefaceTokens.BRAND;
@@ -299,21 +250,19 @@ public final class TypeScaleTokens {
     public static final float NUMERAL_SMALL_SIZE = 30.0f;
 
     @Dimension(unit = SP)
-    public static final float NUMERAL_SMALL_TRACKING = 1.0f;
+    public static final float NUMERAL_SMALL_TRACKING = 0.0f;
 
     public static final FontSetting NUMERAL_SMALL_WEIGHT = FontSetting.weight(550);
-
-    public static final FontSetting NUMERAL_SMALL_WEIGHT_PROMINENT = FontSetting.weight(750);
 
     public static final FontSetting NUMERAL_SMALL_WIDTH = FontSetting.width(100.0f);
 
     public static final String TITLE_LARGE_FONT_FAMILY = TypefaceTokens.BRAND;
 
     @Dimension(unit = SP)
-    public static final float TITLE_LARGE_LINE_HEIGHT = 22.0f;
+    public static final float TITLE_LARGE_LINE_HEIGHT = 20.0f;
 
     @Dimension(unit = SP)
-    public static final float TITLE_LARGE_SIZE = 20.0f;
+    public static final float TITLE_LARGE_SIZE = 18.0f;
 
     @Dimension(unit = SP)
     public static final float TITLE_LARGE_TRACKING = 0.2f;

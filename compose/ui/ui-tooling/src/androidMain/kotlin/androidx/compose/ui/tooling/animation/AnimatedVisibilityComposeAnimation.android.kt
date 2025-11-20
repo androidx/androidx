@@ -29,7 +29,7 @@ internal fun Transition<Boolean>.parseAnimatedVisibility(): AnimatedVisibilityCo
 /** [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_VISIBILITY]. */
 internal class AnimatedVisibilityComposeAnimation(
     override val animationObject: Transition<Boolean>,
-    override val label: String?
+    override val label: String?,
 ) : ComposeAnimation {
     override val type = ComposeAnimationType.ANIMATED_VISIBILITY
     override val states = setOf(AnimatedVisibilityState.Enter, AnimatedVisibilityState.Exit)

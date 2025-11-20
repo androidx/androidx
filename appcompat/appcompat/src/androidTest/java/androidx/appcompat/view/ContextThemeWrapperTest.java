@@ -77,7 +77,7 @@ public class ContextThemeWrapperTest {
         // set Theme to TextAppearance
         contextThemeWrapper.setTheme(R.style.TextAppearance);
         TypedArray ta = contextThemeWrapper.getTheme().obtainStyledAttributes(
-                R.styleable.TextAppearance);
+                androidx.appcompat.R.styleable.TextAppearance);
 
         // assert theme style of TextAppearance
         verifyIdenticalTextAppearanceStyle(ta);
@@ -128,7 +128,6 @@ public class ContextThemeWrapperTest {
 
     @Test
     public void testApplyOverrideDensityConfiguration() {
-        // Configuration.densityDpi is only available on API 17 and above
         final int realDensity = mContext.getResources().getConfiguration().densityDpi;
         final int expectedDensity = realDensity + 1;
 
@@ -167,7 +166,8 @@ public class ContextThemeWrapperTest {
         Resources.Theme expected = mContext.getResources().newTheme();
         expected.setTo(mContext.getTheme());
         expected.applyStyle(R.style.TextAppearance, true);
-        TypedArray expectedTa = expected.obtainStyledAttributes(R.styleable.TextAppearance);
+        TypedArray expectedTa = expected.obtainStyledAttributes(
+                androidx.appcompat.R.styleable.TextAppearance);
         assertEquals(expectedTa.getIndexCount(), ta.getIndexCount());
         assertEquals(expectedTa.getColor(
                 androidx.appcompat.R.styleable.TextAppearance_android_textColor,

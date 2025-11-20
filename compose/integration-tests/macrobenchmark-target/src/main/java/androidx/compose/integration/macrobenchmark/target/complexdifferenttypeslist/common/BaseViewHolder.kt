@@ -31,7 +31,7 @@ abstract class BaseViewHolder<T>(private val containerView: View) :
     constructor(
         parent: ViewGroup,
         @LayoutRes layoutId: Int,
-        attachToRoot: Boolean = false
+        attachToRoot: Boolean = false,
     ) : this(LayoutInflater.from(parent.context).inflate(layoutId, parent, attachToRoot))
 
     val context: Context = itemView.context

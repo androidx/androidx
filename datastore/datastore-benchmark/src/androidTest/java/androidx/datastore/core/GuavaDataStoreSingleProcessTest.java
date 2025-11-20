@@ -18,9 +18,12 @@ package androidx.datastore.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
+
 import androidx.benchmark.BenchmarkState;
 import androidx.benchmark.junit4.BenchmarkRule;
 import androidx.datastore.guava.GuavaDataStore;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -31,19 +34,12 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 public class GuavaDataStoreSingleProcessTest {
     @Rule
     public BenchmarkRule benchmarkRule = new BenchmarkRule();
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
-
-    private static Byte incrementByte(Byte byteIn) {
-        return ++byteIn;
-    }
-
-    private static Byte sameValueByte(Byte byteIn) {
-        return byteIn;
-    }
 
     @Test
     public void testCreate() throws Exception {
@@ -69,9 +65,7 @@ public class GuavaDataStoreSingleProcessTest {
                 new TestingSerializer(),
                 () -> testFile
         ).build();
-        ListenableFuture<Byte> updateFuture = store.updateDataAsync(
-                GuavaDataStoreSingleProcessTest::incrementByte
-        );
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync((input -> ++input));
         assertThat(updateFuture.get()).isEqualTo(1);
 
         while (state.keepRunning()) {
@@ -91,14 +85,11 @@ public class GuavaDataStoreSingleProcessTest {
                 new TestingSerializer(),
                 () -> testFile
         ).build();
-        ListenableFuture<Byte> updateFuture = store.updateDataAsync(
-                GuavaDataStoreSingleProcessTest::incrementByte
-        );
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync(input -> ++input);
         assertThat(updateFuture.get()).isEqualTo(1);
 
         while (state.keepRunning()) {
-            Byte updatedData = store.updateDataAsync(
-                    GuavaDataStoreSingleProcessTest::sameValueByte).get();
+            Byte updatedData = store.updateDataAsync(byteIn -> byteIn).get();
 
             state.pauseTiming();
             assertThat(updatedData).isEqualTo(1);
@@ -116,15 +107,12 @@ public class GuavaDataStoreSingleProcessTest {
                 () -> testFile
         ).build();
         // first update creates the file
-        ListenableFuture<Byte> updateFuture = store.updateDataAsync(
-                GuavaDataStoreSingleProcessTest::incrementByte
-        );
+        ListenableFuture<Byte> updateFuture = store.updateDataAsync(input -> ++input);
         counter++;
         assertThat(updateFuture.get()).isEqualTo(counter);
 
         while (state.keepRunning()) {
-            Byte updatedData = store.updateDataAsync(
-                    GuavaDataStoreSingleProcessTest::incrementByte).get();
+            Byte updatedData = store.updateDataAsync(input -> ++input).get();
 
             state.pauseTiming();
             counter++;

@@ -31,7 +31,7 @@ fun getTestCallingAppInfo(origin: String?): CallingAppInfo {
         val packageInfo =
             context.packageManager.getPackageInfo(
                 packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
+                PackageManager.GET_SIGNING_CERTIFICATES,
             )
         Assert.assertNotNull(packageInfo.signingInfo)
         return CallingAppInfo(packageName, packageInfo.signingInfo!!, origin)

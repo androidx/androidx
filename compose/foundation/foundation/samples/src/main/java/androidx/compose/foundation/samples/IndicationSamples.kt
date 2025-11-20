@@ -43,11 +43,11 @@ fun IndicationSample() {
                     // clickable will dispatch events using MutableInteractionSource
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = LocalIndication.current
+                        indication = LocalIndication.current,
                     ) {
                         /** do something */
                     }
-                    .padding(10.dp)
+                    .padding(10.dp),
         )
         Spacer(Modifier.requiredHeight(10.dp))
         Text(
@@ -57,7 +57,7 @@ fun IndicationSample() {
                     // this element doesn't have a click, but will show default indication from the
                     // CompositionLocal as it accepts the same MutableInteractionSource
                     .indication(interactionSource, LocalIndication.current)
-                    .padding(10.dp)
+                    .padding(10.dp),
         )
     }
 }

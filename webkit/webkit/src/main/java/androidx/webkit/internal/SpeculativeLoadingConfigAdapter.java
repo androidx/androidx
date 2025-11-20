@@ -16,11 +16,13 @@
 
 package androidx.webkit.internal;
 
+import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingConfig;
 
 import org.chromium.support_lib_boundary.SpeculativeLoadingConfigBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
+@Profile.ExperimentalUrlPrefetch
 public class SpeculativeLoadingConfigAdapter implements SpeculativeLoadingConfigBoundaryInterface {
     private final SpeculativeLoadingConfig mSpeculativeLoadingConfig;
 
@@ -36,5 +38,10 @@ public class SpeculativeLoadingConfigAdapter implements SpeculativeLoadingConfig
     @Override
     public int getPrefetchTTLSeconds() {
         return mSpeculativeLoadingConfig.getPrefetchTtlSeconds();
+    }
+
+    @Override
+    public int getMaxPrerenders() {
+        return mSpeculativeLoadingConfig.getMaxPrerenders();
     }
 }

@@ -1,0 +1,236 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.core.operations.layout.modifiers;
+
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+
+import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.Operation;
+import androidx.compose.remote.core.Operations;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
+import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.utilities.StringSerializer;
+import androidx.compose.remote.core.serialize.MapSerializer;
+import androidx.compose.remote.core.serialize.SerializeTags;
+
+import org.jspecify.annotations.NonNull;
+
+import java.util.List;
+
+/**
+ * Represents a padding modifier. Padding modifiers can be chained and will impact following
+ * modifiers.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PaddingModifierOperation extends Operation implements ModifierOperation,
+        VariableSupport {
+    private static final int OP_CODE = Operations.MODIFIER_PADDING;
+    public static final String CLASS_NAME = "PaddingModifierOperation";
+    float mLeft;
+    float mTop;
+    float mRight;
+    float mBottom;
+
+    float mLeftValue;
+    float mTopValue;
+    float mRightValue;
+    float mBottomValue;
+
+    public PaddingModifierOperation(float left, float top, float right, float bottom) {
+        this.mLeft = left;
+        this.mTop = top;
+        this.mRight = right;
+        this.mBottom = bottom;
+        this.mLeftValue = left;
+        this.mTopValue = top;
+        this.mRightValue = right;
+        this.mBottomValue = bottom;
+    }
+
+    public float getLeft() {
+        return mLeftValue;
+    }
+
+    public float getTop() {
+        return mTopValue;
+    }
+
+    public float getRight() {
+        return mRightValue;
+    }
+
+    public float getBottom() {
+        return mBottomValue;
+    }
+
+    public void setLeft(float left) {
+        this.mLeftValue = mLeft = left;
+    }
+
+    public void setTop(float top) {
+        this.mTopValue = mTop = top;
+    }
+
+    public void setRight(float right) {
+        this.mRightValue = mRight = right;
+    }
+
+    public void setBottom(float bottom) {
+        this.mBottomValue = mBottom = bottom;
+    }
+
+    @Override
+    public void write(@NonNull WireBuffer buffer) {
+        apply(buffer, mLeft, mTop, mRight, mBottom);
+    }
+
+    @Override
+    public void serializeToString(int indent, @NonNull StringSerializer serializer) {
+        serializer.append(
+                indent, "PADDING = [" + mLeftValue + ", " + mTopValue + ", " + mRightValue + ", "
+                        + mBottomValue + "]");
+    }
+
+    @Override
+    public void apply(@NonNull RemoteContext context) {
+    }
+
+    @NonNull
+    @Override
+    public String deepToString(@NonNull String indent) {
+        return (indent != null ? indent : "") + toString();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PaddingModifierOperation("
+                + mLeftValue
+                + ", "
+                + mTopValue
+                + ", "
+                + mRightValue
+                + ", "
+                + mBottomValue
+                + ")";
+    }
+
+    /**
+     * The name of the class
+     *
+     * @return the name
+     */
+    @NonNull
+    public static String name() {
+        return CLASS_NAME;
+    }
+
+    /**
+     * The OP_CODE for this command
+     *
+     * @return the opcode
+     */
+    public static int id() {
+        return Operations.MODIFIER_PADDING;
+    }
+
+    /**
+     * Write operation to the buffer
+     *
+     * @param buffer a WireBuffer
+     * @param left   left padding
+     * @param top    top padding
+     * @param right  right padding
+     * @param bottom bottom padding
+     */
+    public static void apply(
+            @NonNull WireBuffer buffer, float left, float top, float right, float bottom) {
+        buffer.start(Operations.MODIFIER_PADDING);
+        buffer.writeFloat(left);
+        buffer.writeFloat(top);
+        buffer.writeFloat(right);
+        buffer.writeFloat(bottom);
+    }
+
+    /**
+     * Read this operation and add it to the list of operations
+     *
+     * @param buffer     the buffer to read
+     * @param operations the list of operations that will be added to
+     */
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
+        float left = buffer.readFloat();
+        float top = buffer.readFloat();
+        float right = buffer.readFloat();
+        float bottom = buffer.readFloat();
+        operations.add(new PaddingModifierOperation(left, top, right, bottom));
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .description("define the Padding Modifier")
+                .field(FLOAT, "left", "")
+                .field(FLOAT, "top", "")
+                .field(FLOAT, "right", "")
+                .field(FLOAT, "bottom", "");
+    }
+
+    @Override
+    public void serialize(@NonNull MapSerializer serializer) {
+        serializer
+                .addTags(SerializeTags.MODIFIER)
+                .addType("PaddingModifierOperation")
+                .add("left", mLeftValue)
+                .add("top", mTopValue)
+                .add("right", mRightValue)
+                .add("bottom", mBottomValue);
+    }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        if (Float.isNaN(mLeft)) {
+            context.listensTo(Utils.idFromNan(mLeft), this);
+        }
+        if (Float.isNaN(mTop)) {
+            context.listensTo(Utils.idFromNan(mTop), this);
+        }
+        if (Float.isNaN(mRight)) {
+            context.listensTo(Utils.idFromNan(mRight), this);
+        }
+        if (Float.isNaN(mBottom)) {
+            context.listensTo(Utils.idFromNan(mBottom), this);
+        }
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {
+        mLeftValue = Float.isNaN(mLeft) ? context.getFloat(Utils.idFromNan(mLeft))
+                : mLeft;
+        mTopValue = Float.isNaN(mTop) ? context.getFloat(Utils.idFromNan(mTop)) : mTop;
+        mRightValue = Float.isNaN(mRight) ? context.getFloat(Utils.idFromNan(mRight))
+                : mRight;
+        mBottomValue = Float.isNaN(mBottom) ? context.getFloat(Utils.idFromNan(mBottom))
+                : mBottom;
+    }
+}

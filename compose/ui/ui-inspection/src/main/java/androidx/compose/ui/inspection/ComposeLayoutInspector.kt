@@ -38,6 +38,8 @@ import androidx.compose.ui.inspection.proto.ConversionContext
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
 import androidx.compose.ui.inspection.proto.toComposableRoot
+import androidx.compose.ui.inspection.recompositions.StateReadHandler
+import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
 import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.inspection.util.groupByToLongObjectMap
@@ -60,30 +62,40 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetPara
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParameterDetailsResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersResponse
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadCommand
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterGroup
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Response
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadSettings
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UnknownCommandResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsResponse
 
+// The ".studio" prefix prevents logs from showing in logcat,
+// unless the "logcat.ignore.studio.tags" flag is disabled.
+internal const val LOG_TAG = "ComposeInspector"
+internal const val SPAM_LOG_TAG = "studio.$LOG_TAG"
+
 private const val LAYOUT_INSPECTION_ID = "layoutinspector.compose.inspection"
 private const val MAX_RECURSIONS = 2
 private const val MAX_ITERABLE_SIZE = 5
-private const val TAG = "ComposeLayoutInspector"
 
 // created by java.util.ServiceLoader
 class ComposeLayoutInspectorFactory :
     InspectorFactory<ComposeLayoutInspector>(LAYOUT_INSPECTION_ID) {
     override fun createInspector(
         connection: Connection,
-        environment: InspectorEnvironment
+        environment: InspectorEnvironment,
     ): ComposeLayoutInspector {
         return ComposeLayoutInspector(connection, environment)
     }
 }
 
-class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvironment) :
-    Inspector(connection) {
+class ComposeLayoutInspector(
+    private val connection: Connection,
+    // Keep this instance for easy access through reflection:
+    private val environment: InspectorEnvironment,
+) : Inspector(connection) {
 
     /** Cache data which allows us to reuse previously queried inspector nodes */
     private class CacheData(val rootView: View, val trees: List<CacheTree>) {
@@ -111,12 +123,13 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
     internal class CacheTree(
         val viewParent: View,
         val nodes: List<InspectorNode>,
-        val viewsToSkip: LongList
+        val viewsToSkip: LongList,
     )
 
     private val rootsDetector = RootsDetector(environment)
-    private val layoutInspectorTree = LayoutInspectorTree()
-    private val recompositionHandler = RecompositionHandler(environment.artTooling())
+    private val anchorMap = AnchorMap()
+    private val layoutInspectorTree = LayoutInspectorTree(anchorMap)
+    private val recompositionHandler = StateReadHandler(environment.artTooling(), anchorMap)
     private var delayParameterExtractions = false
     // Reduce the protobuf nesting of ComposableNode by storing nested nodes with only 1 child each
     // as children under the top node. This limits the stack used when computing the protobuf size.
@@ -128,6 +141,8 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
     private var cachedGeneration = 0
     private var cachedSystemComposablesSkipped = false
     private var cachedHasAllParameters = false
+    // Keep this instance for easy access through reflection
+    private var disposed = false
     private val cachedNodes: MutableLongObjectMap<CacheData>
         get() {
             check(Thread.currentThread() == inspectorThread) {
@@ -140,11 +155,17 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
         enableInspection(environment.artTooling())
     }
 
+    override fun onDispose() {
+        disposed = true
+        recompositionHandler.dispose()
+        cachedNodes.clear()
+    }
+
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
         val command =
             try {
                 Command.parseFrom(data)
-            } catch (ignored: InvalidProtocolBufferException) {
+            } catch (_: InvalidProtocolBufferException) {
                 handleUnknownCommand(data, callback)
                 return
             }
@@ -165,6 +186,12 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
             Command.SpecializedCase.UPDATE_SETTINGS_COMMAND -> {
                 handleUpdateSettingsCommand(command.updateSettingsCommand, callback)
             }
+            Command.SpecializedCase.GET_RECOMPOSITION_STATE_READ_COMMAND -> {
+                handleGetRecompositionStateReadCommand(
+                    command.getRecompositionStateReadCommand,
+                    callback,
+                )
+            }
             else -> handleUnknownCommand(data, callback)
         }
     }
@@ -180,7 +207,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
 
     private fun handleGetComposablesCommand(
         getComposablesCommand: GetComposablesCommand,
-        callback: CommandCallback
+        callback: CommandCallback,
     ) {
         val data =
             getComposableNodes(
@@ -188,7 +215,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                 getComposablesCommand.skipSystemComposables,
                 getComposablesCommand.extractAllParameters || !delayParameterExtractions,
                 getComposablesCommand.generation,
-                getComposablesCommand.generation == 0
+                getComposablesCommand.generation == 0,
             )
 
         val location = IntArray(2)
@@ -214,7 +241,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
 
     private fun handleGetParametersCommand(
         getParametersCommand: GetParametersCommand,
-        callback: CommandCallback
+        callback: CommandCallback,
     ) {
         val foundComposable =
             if (
@@ -228,7 +255,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                         getParametersCommand.rootViewId,
                         getParametersCommand.skipSystemComposables,
                         true,
-                        getParametersCommand.generation
+                        getParametersCommand.generation,
                     )
                     ?.lookup
                     ?.get(getParametersCommand.composableId)
@@ -253,7 +280,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                                     getParametersCommand.maxInitialIterableSize.orElse(
                                         MAX_ITERABLE_SIZE
                                     ),
-                                    stringTable
+                                    stringTable,
                                 )
                             addAllStrings(stringTable.toStringEntries())
                         }
@@ -266,14 +293,14 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
 
     private fun handleGetAllParametersCommand(
         getAllParametersCommand: GetAllParametersCommand,
-        callback: CommandCallback
+        callback: CommandCallback,
     ) {
         val allComposables =
             getComposableNodes(
                     getAllParametersCommand.rootViewId,
                     getAllParametersCommand.skipSystemComposables,
                     true,
-                    getAllParametersCommand.generation
+                    getAllParametersCommand.generation,
                 )
                 ?.lookup ?: longObjectMapOf()
 
@@ -288,7 +315,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                         getAllParametersCommand.rootViewId,
                         getAllParametersCommand.maxRecursions.orElse(MAX_RECURSIONS),
                         getAllParametersCommand.maxInitialIterableSize.orElse(MAX_ITERABLE_SIZE),
-                        stringTable
+                        stringTable,
                     )
                 )
             }
@@ -306,7 +333,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
 
     private fun handleGetParameterDetailsCommand(
         getParameterDetailsCommand: GetParameterDetailsCommand,
-        callback: CommandCallback
+        callback: CommandCallback,
     ) {
         val indices = mutableIntListOf()
         getParameterDetailsCommand.reference.compositeIndexList.forEach { indices.add(it) }
@@ -316,7 +343,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                 getParameterDetailsCommand.reference.anchorHash,
                 getParameterDetailsCommand.reference.kind.convert(),
                 getParameterDetailsCommand.reference.parameterIndex,
-                indices
+                indices,
             )
         val foundComposable =
             if (
@@ -330,7 +357,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                         getParameterDetailsCommand.rootViewId,
                         getParameterDetailsCommand.skipSystemComposables,
                         true,
-                        getParameterDetailsCommand.generation
+                        getParameterDetailsCommand.generation,
                     )
                     ?.lookup
                     ?.get(reference.nodeId)
@@ -371,18 +398,51 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
 
     private fun handleUpdateSettingsCommand(
         updateSettingsCommand: UpdateSettingsCommand,
-        callback: CommandCallback
+        callback: CommandCallback,
     ) {
         recompositionHandler.changeCollectionMode(
             updateSettingsCommand.includeRecomposeCounts,
-            updateSettingsCommand.keepRecomposeCounts
+            updateSettingsCommand.keepRecomposeCounts,
+            updateSettingsCommand.stateReadSettings,
         )
         delayParameterExtractions = updateSettingsCommand.delayParameterExtractions
         reduceChildNesting = updateSettingsCommand.reduceChildNesting
         callback.reply {
             updateSettingsResponse =
                 UpdateSettingsResponse.newBuilder()
-                    .apply { canDelayParameterExtractions = true }
+                    .apply {
+                        canDelayParameterExtractions = true
+                        addSupportedStateReadKind(StateReadSettings.Kind.ALL)
+                        addSupportedStateReadKind(StateReadSettings.Kind.BY_ID)
+                    }
+                    .build()
+        }
+    }
+
+    private fun handleGetRecompositionStateReadCommand(
+        getRecompositionStateReadCommand: GetRecompositionStateReadCommand,
+        callback: CommandCallback,
+    ) {
+        val result =
+            recompositionHandler.getReadsAndRemove(
+                getRecompositionStateReadCommand.anchorHash,
+                getRecompositionStateReadCommand.recompositionNumberStart,
+                getRecompositionStateReadCommand.recompositionNumberEnd,
+                includeExtra = getRecompositionStateReadCommand.includeExtra,
+            )
+
+        val stringTable = StringTable()
+        callback.reply {
+            getRecompositionStateReadResponse =
+                GetRecompositionStateReadResponse.newBuilder()
+                    .apply {
+                        anchorHash = getRecompositionStateReadCommand.anchorHash
+                        result.forEach { read ->
+                            addRead(read.convert(stringTable, layoutInspectorTree))
+                        }
+                        addAllStrings(stringTable.toStringEntries())
+                        purgedStateReads = recompositionHandler.getPurgedStateReadCount()
+                    }
                     .build()
         }
     }
@@ -399,7 +459,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
         skipSystemComposables: Boolean,
         includeAllParameters: Boolean,
         generation: Int,
-        forceRegeneration: Boolean = false
+        forceRegeneration: Boolean = false,
     ): CacheData? {
         if (
             !forceRegeneration &&
@@ -436,8 +496,8 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                                         nodesByComposeView[it.composeView.uniqueDrawingId]
                                             ?: emptyList()
                                     CacheTree(it.viewParent, nodes, it.viewsToSkip)
-                                }
-                            )
+                                },
+                            ),
                         )
                     }
                     data
@@ -473,7 +533,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
     private fun getAndroidComposeViews(
         rootViewId: Long,
         skipSystemComposables: Boolean,
-        generation: Int
+        generation: Int,
     ): List<AndroidComposeViewWrapper> {
         ThreadUtils.assertOnMainThread()
 
@@ -566,7 +626,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
                 field.isAccessible = true
                 field.setBoolean(null, true)
             } catch (ex: Exception) {
-                Log.w(TAG, "Could not access isDebugInspectorInfoEnabled.", ex)
+                Log.w(LOG_TAG, "Could not access isDebugInspectorInfoEnabled.", ex)
             }
         }
     }

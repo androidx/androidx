@@ -22,11 +22,13 @@ import kotlinx.coroutines.channels.Channel
 internal class CallChannels(
     val currentEndpointChannel: Channel<CallEndpointCompat> = Channel(Channel.UNLIMITED),
     val availableEndpointChannel: Channel<List<CallEndpointCompat>> = Channel(Channel.UNLIMITED),
-    val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED)
+    val isMutedChannel: Channel<Boolean> = Channel(Channel.UNLIMITED),
+    val callTypeChannel: Channel<Int> = Channel(Channel.UNLIMITED),
 ) {
     fun closeAllChannels() {
         currentEndpointChannel.close()
         availableEndpointChannel.close()
         isMutedChannel.close()
+        callTypeChannel.close()
     }
 }

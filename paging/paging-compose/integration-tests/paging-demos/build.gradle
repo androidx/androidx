@@ -27,12 +27,12 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     // workaround for https://github.com/gradle/gradle/issues/8489
     implementation("androidx.activity:activity:1.7.1")
     implementation("androidx.lifecycle:lifecycle-common:2.6.1")
@@ -43,9 +43,9 @@ dependencies {
     implementation(project(":paging:paging-compose"))
     implementation(project(":paging:paging-compose:paging-compose-samples"))
 
-    ksp(project(":room:room-compiler"))
-    implementation(project(":room:room-ktx"))
-    implementation(project(":room:room-paging"))
+    ksp("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    implementation("androidx.room:room-paging:2.7.2")
 }
 
 androidx {

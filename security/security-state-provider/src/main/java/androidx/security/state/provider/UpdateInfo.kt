@@ -45,7 +45,7 @@ internal class SerializableUpdateInfo(
     private val uri: String,
     private val component: String,
     private val securityPatchLevel: String,
-    @Serializable(with = DateSerializer::class) private val publishedDate: Date
+    @Serializable(with = DateSerializer::class) private val publishedDate: Date,
 ) {
     internal fun toUpdateInfo(): UpdateInfo =
         UpdateInfo(uri, component, securityPatchLevel, publishedDate)
@@ -63,7 +63,7 @@ public class UpdateInfo(
      */
     public val securityPatchLevel: String,
     /** Date when the available update was published. */
-    public val publishedDate: Date
+    public val publishedDate: Date,
 ) {
 
     internal fun toSerializableUpdateInfo(): SerializableUpdateInfo =

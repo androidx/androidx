@@ -49,7 +49,7 @@ internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 @OptIn(ExperimentalContracts::class)
 internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     destination: C,
-    transform: (T) -> R
+    transform: (T) -> R,
 ): C {
     contract { callsInPlace(transform) }
     fastForEach { item -> destination.add(transform(item)) }

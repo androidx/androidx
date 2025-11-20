@@ -28,6 +28,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ExerciseConfigTest {
     @Test
     fun protoRoundTrip() {
@@ -61,7 +62,7 @@ class ExerciseConfigTest {
                                     120.0,
                                     GREATER_THAN,
                                     /* initialDelay= */ 60,
-                                    /* durationAtThreshold= */ 5
+                                    /* durationAtThreshold= */ 5,
                                 )
                             ),
                             DebouncedGoal.createAggregateDebouncedGoal(
@@ -70,7 +71,7 @@ class ExerciseConfigTest {
                                     120.0,
                                     GREATER_THAN,
                                     /* initialDelay= */ 60,
-                                    /* durationAtThreshold= */ 5
+                                    /* durationAtThreshold= */ 5,
                                 )
                             ),
                         ),
@@ -136,7 +137,7 @@ class ExerciseConfigTest {
                             ExerciseGoal.createOneTimeGoal(
                                 DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
                             ),
-                        )
+                        ),
                 )
                 .toProto()
 

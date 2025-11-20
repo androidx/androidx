@@ -101,7 +101,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private ProgressBar mSearchingProgressBar;
     private ListView mListView;
     private RouteAdapter mAdapter;
-    private ScreenOnOffReceiver mScreenOnOffReceiver;
+    private final ScreenOnOffReceiver mScreenOnOffReceiver;
 
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
@@ -574,7 +574,8 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
 
         @Override
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo route) {
+                @NonNull MediaRouter.RouteInfo selectedRoute, int reason,
+                @NonNull MediaRouter.RouteInfo requestedRoute) {
             dismiss();
         }
     }

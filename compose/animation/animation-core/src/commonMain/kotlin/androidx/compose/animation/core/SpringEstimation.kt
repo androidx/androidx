@@ -38,7 +38,7 @@ public fun estimateAnimationDurationMillis(
     dampingRatio: Float,
     initialVelocity: Float,
     initialDisplacement: Float,
-    delta: Float
+    delta: Float,
 ): Long {
     if (dampingRatio == 0f) {
         // No damping, duration is infinite (max value).
@@ -50,7 +50,7 @@ public fun estimateAnimationDurationMillis(
         dampingRatio = dampingRatio.toDouble(),
         initialVelocity = initialVelocity.toDouble(),
         initialDisplacement = initialDisplacement.toDouble(),
-        delta = delta.toDouble()
+        delta = delta.toDouble(),
     )
 }
 
@@ -61,7 +61,7 @@ public fun estimateAnimationDurationMillis(
     dampingRatio: Double,
     initialVelocity: Double,
     initialDisplacement: Double,
-    delta: Double
+    delta: Double,
 ): Long {
     val dampingCoefficient = 2.0 * dampingRatio * sqrt(stiffness)
 
@@ -82,7 +82,7 @@ public fun estimateAnimationDurationMillis(
         dampingRatio,
         initialVelocity,
         initialDisplacement,
-        delta
+        delta,
     )
 }
 
@@ -94,7 +94,7 @@ public fun estimateAnimationDurationMillis(
     mass: Double,
     initialVelocity: Double,
     initialDisplacement: Double,
-    delta: Double
+    delta: Double,
 ): Long {
     val criticalDamping = 2.0 * sqrt(springConstant * mass)
     val dampingRatio = dampingCoefficient / criticalDamping
@@ -116,7 +116,7 @@ public fun estimateAnimationDurationMillis(
         dampingRatio,
         initialVelocity,
         initialDisplacement,
-        delta
+        delta,
     )
 }
 
@@ -130,7 +130,7 @@ private fun estimateUnderDamped(
     firstRootImaginary: Double,
     p0: Double,
     v0: Double,
-    delta: Double
+    delta: Double,
 ): Double {
     val r = firstRootReal
     val c1 = p0
@@ -148,7 +148,7 @@ private fun estimateCriticallyDamped(
     firstRootReal: Double,
     p0: Double,
     v0: Double,
-    delta: Double
+    delta: Double,
 ): Double {
     val r = firstRootReal
     val c1 = p0
@@ -212,7 +212,7 @@ private fun estimateCriticallyDamped(
             iterateNewtonsMethod(
                 tCurr,
                 { t -> (c1 + c2 * t) * exp(r * t) + signedDelta },
-                { t -> (c2 * (r * t + 1) + c1 * r) * exp(r * t) }
+                { t -> (c2 * (r * t + 1) + c1 * r) * exp(r * t) },
             )
         tDelta = abs(tLast - tCurr)
     }
@@ -229,7 +229,7 @@ private fun estimateOverDamped(
     secondRootReal: Double,
     p0: Double,
     v0: Double,
-    delta: Double
+    delta: Double,
 ): Double {
     val r1 = firstRootReal
     val r2 = secondRootReal
@@ -292,7 +292,7 @@ private fun estimateOverDamped(
             iterateNewtonsMethod(
                 tCurr,
                 { t -> c1 * exp(r1 * t) + c2 * exp(r2 * t) + signedDelta },
-                { t -> c1 * r1 * exp(r1 * t) + c2 * r2 * exp(r2 * t) }
+                { t -> c1 * r1 * exp(r1 * t) + c2 * r2 * exp(r2 * t) },
             )
         tDelta = abs(tLast - tCurr)
     }
@@ -309,7 +309,7 @@ private fun estimateDurationInternal(
     dampingRatio: Double,
     initialVelocity: Double,
     initialPosition: Double,
-    delta: Double
+    delta: Double,
 ): Long {
     if (initialPosition == 0.0 && initialVelocity == 0.0) {
         return 0L
@@ -327,7 +327,7 @@ private fun estimateDurationInternal(
                     firstRootImaginary,
                     v0 = v0,
                     p0 = p0,
-                    delta = delta
+                    delta = delta,
                 )
             else -> estimateCriticallyDamped(firstRootReal, p0 = p0, v0 = v0, delta = delta)
         } * 1000.0)
@@ -337,7 +337,7 @@ private fun estimateDurationInternal(
 private inline fun iterateNewtonsMethod(
     x: Double,
     fn: (Double) -> Double,
-    fnPrime: (Double) -> Double
+    fnPrime: (Double) -> Double,
 ): Double {
     return x - fn(x) / fnPrime(x)
 }

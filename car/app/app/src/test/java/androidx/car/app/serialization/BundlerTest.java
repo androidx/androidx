@@ -73,6 +73,7 @@ import java.util.Set;
 
 /** Tests for {@link Bundler}. */
 @RunWith(RobolectricTestRunner.class)
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.TARGET_SDK})
 @DoNotInstrument
 public class BundlerTest {
     private static final String TAG_CLASS_NAME = "tag_class_name";

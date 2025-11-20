@@ -98,7 +98,7 @@ class DisplayFeatureTestingTest {
                 windowBounds = windowBounds,
                 size = width,
                 state = FLAT,
-                orientation = VERTICAL
+                orientation = VERTICAL,
             )
         val expectedBounds = Rect(center - width / 2, 0, center + width / 2, windowBounds.height())
 

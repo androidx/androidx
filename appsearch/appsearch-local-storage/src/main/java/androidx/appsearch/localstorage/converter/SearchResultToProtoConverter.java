@@ -35,6 +35,7 @@ import androidx.collection.ArrayMap;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.DocumentProtoOrBuilder;
+import com.google.android.icing.proto.EmbeddingMatchSnippetProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SnippetMatchProto;
@@ -59,8 +60,8 @@ public class SearchResultToProtoConverter {
     /**
      * Translate a {@link SearchResultProto} into {@link SearchResultPage}.
      *
-     * @param proto         The {@link SearchResultProto} containing results.
-     * @param schemaCache   The SchemaCache instance held in AppSearch.
+     * @param proto       The {@link SearchResultProto} containing results.
+     * @param schemaCache The SchemaCache instance held in AppSearch.
      * @return {@link SearchResultPage} of results.
      */
     public static @NonNull SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
@@ -79,8 +80,8 @@ public class SearchResultToProtoConverter {
      * Translate a {@link SearchResultProto.ResultProto} into {@link SearchResult}. The package and
      * database prefix will be removed from {@link GenericDocument}.
      *
-     * @param proto          The proto to be converted.
-     * @param schemaCache   The SchemaCache instance held in AppSearch.
+     * @param proto       The proto to be converted.
+     * @param schemaCache The SchemaCache instance held in AppSearch.
      * @return A {@link SearchResult}.
      */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
@@ -104,9 +105,16 @@ public class SearchResultToProtoConverter {
             for (int i = 0; i < proto.getSnippet().getEntriesCount(); i++) {
                 SnippetProto.EntryProto entry = proto.getSnippet().getEntries(i);
                 for (int j = 0; j < entry.getSnippetMatchesCount(); j++) {
-                    SearchResult.MatchInfo matchInfo = toMatchInfo(
+                    SearchResult.MatchInfo matchInfo = toMatchInfoWithTextMatch(
                             entry.getSnippetMatches(j), entry.getPropertyName());
                     builder.addMatchInfo(matchInfo);
+                }
+                if (Flags.enableEmbeddingMatchInfo()) {
+                    for (int j = 0; j < entry.getEmbeddingMatchesCount(); j++) {
+                        SearchResult.MatchInfo matchInfo = toMatchInfoWithEmbeddingMatch(
+                                entry.getEmbeddingMatches(j), entry.getPropertyName());
+                        builder.addMatchInfo(matchInfo);
+                    }
                 }
             }
         }
@@ -151,8 +159,9 @@ public class SearchResultToProtoConverter {
         }
     }
 
-    private static SearchResult.MatchInfo toMatchInfo(
-            @NonNull SnippetMatchProto snippetMatchProto, @NonNull String propertyPath) {
+    private static SearchResult.MatchInfo toMatchInfoWithTextMatch(
+            @NonNull SnippetMatchProto snippetMatchProto,
+            @NonNull String propertyPath) {
         int exactMatchPosition = snippetMatchProto.getExactMatchUtf16Position();
         return new SearchResult.MatchInfo.Builder(propertyPath)
                 .setExactMatchRange(
@@ -168,6 +177,22 @@ public class SearchResultToProtoConverter {
                                 snippetMatchProto.getWindowUtf16Position(),
                                 snippetMatchProto.getWindowUtf16Position()
                                         + snippetMatchProto.getWindowUtf16Length()))
+                .build();
+    }
+
+    /**
+     * Returns a MatchInfo for an embedding match. Requires Flags.enableEmbeddingMatchInfo() = true.
+     */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    private static SearchResult.MatchInfo toMatchInfoWithEmbeddingMatch(
+            @NonNull EmbeddingMatchSnippetProto embeddingMatchSnippetProto,
+            @NonNull String propertyPath) {
+        SearchResult.EmbeddingMatchInfo embeddingMatch = new SearchResult.EmbeddingMatchInfo(
+                embeddingMatchSnippetProto.getSemanticScore(),
+                embeddingMatchSnippetProto.getEmbeddingQueryVectorIndex(),
+                embeddingMatchSnippetProto.getEmbeddingQueryMetricType().getNumber());
+        return new SearchResult.MatchInfo.Builder(propertyPath)
+                .setEmbeddingMatch(embeddingMatch)
                 .build();
     }
 }

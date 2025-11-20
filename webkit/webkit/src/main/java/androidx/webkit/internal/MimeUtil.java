@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import java.net.URLConnection;
 
 class MimeUtil {
+    private MimeUtil() {}
 
     public static String getMimeFromFileName(String fileName) {
         if (fileName == null) {

@@ -18,7 +18,6 @@ package androidx.camera.video
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class MediaStoreOutputOptionsTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()

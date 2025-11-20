@@ -73,8 +73,8 @@ fun DrawTextStyledSample() {
                 TextStyle(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    textDecoration = TextDecoration.Underline
-                )
+                    textDecoration = TextDecoration.Underline,
+                ),
         )
     }
 }
@@ -91,7 +91,7 @@ fun DrawTextAnnotatedStringSample() {
                 buildAnnotatedString {
                     withStyle(ParagraphStyle(textAlign = TextAlign.Start)) { append("Hello") }
                     withStyle(ParagraphStyle(textAlign = TextAlign.End)) { append("World") }
-                }
+                },
         )
     }
 }
@@ -148,7 +148,7 @@ fun DrawTextDrawWithCacheSample() {
         infiniteTransition.animateColor(
             initialValue = Color.Red,
             targetValue = Color.Blue,
-            animationSpec = infiniteRepeatable(tween(1000))
+            animationSpec = infiniteRepeatable(tween(1000)),
         )
 
     Box(
@@ -162,9 +162,9 @@ fun DrawTextDrawWithCacheSample() {
                     constraints =
                         Constraints.fixed(
                             width = (size.width / 2).roundToInt(),
-                            height = (size.height / 2).roundToInt()
+                            height = (size.height / 2).roundToInt(),
                         ),
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             // color changes will only invalidate draw phase
             onDrawWithContent {
@@ -176,7 +176,7 @@ fun DrawTextDrawWithCacheSample() {
                         Offset(
                             (size.width - textLayoutResult.size.width) / 2,
                             (size.height - textLayoutResult.size.height) / 2,
-                        )
+                        ),
                 )
             }
         }

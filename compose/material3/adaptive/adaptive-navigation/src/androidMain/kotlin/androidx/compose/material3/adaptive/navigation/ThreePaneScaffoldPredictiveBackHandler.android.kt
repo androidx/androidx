@@ -68,7 +68,7 @@ fun <T> ThreePaneScaffoldPredictiveBackHandler(
                         fraction =
                             backProgressToStateProgress(
                                 progress = backEvent.progress,
-                                scaffoldValue = navigator.scaffoldValue
+                                scaffoldValue = navigator.scaffoldValue,
                             ),
                     )
                 }

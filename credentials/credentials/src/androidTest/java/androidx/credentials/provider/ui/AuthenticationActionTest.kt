@@ -59,7 +59,7 @@ class AuthenticationActionTest {
     fun constructor_emptyTitle_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty title to throw IAE",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             AuthenticationAction("", mPendingIntent)
         }

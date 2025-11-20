@@ -49,13 +49,10 @@ import org.junit.runners.model.Statement
  *
  * @property active true to activate this rule.
  */
-public class CameraPipeConfigTestRule(
-    public val active: Boolean,
-) : TestRule {
+public class CameraPipeConfigTestRule(public val active: Boolean) : TestRule {
 
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
-            private var standardHandler: Thread.UncaughtExceptionHandler? = null
 
             override fun evaluate() {
                 if (active) {
@@ -77,16 +74,14 @@ public class CameraPipeConfigTestRule(
             private fun testInPipeLab() {
                 try {
                     log("started: ${description.displayName}")
-                    logUncaughtExceptions()
                     base.evaluate()
                 } catch (e: AssumptionViolatedException) {
                     log("AssumptionViolatedException: ${description.displayName}", e)
-                    handleException(e)
+                    throw e
                 } catch (e: Throwable) {
                     log("failed: ${description.displayName}", e)
-                    handleException(e)
+                    throw e
                 } finally {
-                    restoreUncaughtExceptionHandler()
                     log("finished: ${description.displayName}")
                 }
             }
@@ -104,26 +99,6 @@ public class CameraPipeConfigTestRule(
 
             private fun testInAllowList() =
                 allowPresubmitTests.any { description.displayName.contains(it, ignoreCase = true) }
-
-            private fun handleException(e: Throwable) {
-                if (Log.isLoggable(CAMERA_PIPE_TEST_FLAG, Log.DEBUG)) {
-                    throw e
-                } else {
-                    throw AssumptionViolatedException("CameraPipeTestFailure", e)
-                }
-            }
-
-            private fun logUncaughtExceptions() {
-                standardHandler = Thread.getDefaultUncaughtExceptionHandler()
-                Thread.setDefaultUncaughtExceptionHandler { _, e ->
-                    log("Invoking uncaught exception handler: ${description.displayName}", e)
-                    handleException(e)
-                }
-            }
-
-            private fun restoreUncaughtExceptionHandler() {
-                Thread.setDefaultUncaughtExceptionHandler(standardHandler)
-            }
         }
 
     private companion object {
@@ -135,12 +110,18 @@ public class CameraPipeConfigTestRule(
 
         private val allowPresubmitTests =
             listOf(
-                // CoreTestApps
-                "androidx.camera.integration.core.",
                 // Camera-View
                 "androidx.camera.view.",
                 // Camera-Video
                 "androidx.camera.video.",
+                // Benchmark
+                "androidx.camera.integration.benchmark.",
+                // CoreTestApp
+                "androidx.camera.integration.core.",
+                // FeatureGroupTestApp
+                "androidx.camera.integration.featurecombo",
+                // Macrobenchmark
+                "androidx.camera.integration.macrobenchmark.",
                 // UIWidgets
                 "androidx.camera.integration.uiwidgets.",
             )

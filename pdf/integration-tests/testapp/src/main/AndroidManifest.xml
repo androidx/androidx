@@ -41,5 +41,5 @@
         This flag is optional and can be customized by the host app to achieve the desired behavior. -->
 
     </application>
-
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 </manifest>

@@ -1,0 +1,45 @@
+{
+  "projectPath": ":camera:camera-camera2-pipe-testing",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.3"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.3"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-guava",
+        "resolvedVersion": "1.7.3"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:annotations",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:sandbox",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

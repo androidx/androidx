@@ -1,0 +1,29 @@
+{
+  "projectPath": ":asynclayoutinflater:asynclayoutinflater-appcompat",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appcompat:appcompat-resources",
+        "resolvedVersion": "1.7.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.13.0"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

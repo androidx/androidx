@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="ComposeTestRuleDispatcher"
+        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        errorLine1="    @get:Rule val rule = createComposeRule()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/compose/ui/samples/AndroidViewBindingTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposeTestRuleDispatcher"
+        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        errorLine1="    @get:Rule val rule = createAndroidComposeRule&lt;EmptyFragmentActivity>()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/compose/ui/samples/FragmentRemoveTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposeTestRuleDispatcher"
+        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        errorLine1="    @get:Rule val rule = createAndroidComposeRule&lt;EmptyFragmentActivity>()"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/compose/ui/samples/ReusableAndroidViewBindingTest.kt"/>
+    </issue>
+
+</issues>

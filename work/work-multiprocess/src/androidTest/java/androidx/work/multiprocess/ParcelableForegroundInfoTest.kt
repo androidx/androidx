@@ -62,7 +62,7 @@ class ParcelableForegroundInfoTest {
             ForegroundInfo(
                 notificationId,
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
 
         assertOn(foregroundInfo)
@@ -73,7 +73,7 @@ class ParcelableForegroundInfoTest {
         val parcelled: ParcelableForegroundInfo =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelable),
-                ParcelableForegroundInfo.CREATOR
+                ParcelableForegroundInfo.CREATOR,
             )
         equal(foregroundInfo, parcelled.foregroundInfo)
     }

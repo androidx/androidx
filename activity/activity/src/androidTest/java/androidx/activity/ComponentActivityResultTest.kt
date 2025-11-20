@@ -167,7 +167,7 @@ class ResultComponentActivity : ComponentActivity() {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {
                 registryLaunchCount++
             }

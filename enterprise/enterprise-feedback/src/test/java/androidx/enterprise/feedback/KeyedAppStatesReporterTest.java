@@ -34,8 +34,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests {@link KeyedAppStatesReporter}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
-@Config(minSdk = 21)
 public class KeyedAppStatesReporterTest {
 
     private final ContextWrapper mContext = ApplicationProvider.getApplicationContext();

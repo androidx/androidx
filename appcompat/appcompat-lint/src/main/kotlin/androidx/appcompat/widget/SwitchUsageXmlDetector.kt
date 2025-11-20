@@ -36,7 +36,7 @@ class SwitchUsageXmlDetector : LayoutDetector() {
                 Category.CORRECTNESS,
                 5,
                 Severity.WARNING,
-                Implementation(SwitchUsageXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+                Implementation(SwitchUsageXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
             )
     }
 
@@ -47,7 +47,7 @@ class SwitchUsageXmlDetector : LayoutDetector() {
             USING_CORE_SWITCH_XML,
             element,
             context.getLocation(element),
-            "Use `SwitchCompat` from AppCompat or `MaterialSwitch` from Material library"
+            "Use `SwitchCompat` from AppCompat or `MaterialSwitch` from Material library",
         )
     }
 }

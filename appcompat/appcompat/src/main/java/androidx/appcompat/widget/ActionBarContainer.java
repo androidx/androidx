@@ -21,14 +21,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 
@@ -102,9 +100,7 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
-        if (Build.VERSION.SDK_INT >= 21) {
-            Api21Impl.invalidateOutline(this);
-        }
+        invalidateOutline();
     }
 
     public void setStackedBackground(Drawable bg) {
@@ -123,9 +119,7 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
-        if (Build.VERSION.SDK_INT >= 21) {
-            Api21Impl.invalidateOutline(this);
-        }
+        invalidateOutline();
     }
 
     public void setSplitBackground(Drawable bg) {
@@ -143,9 +137,7 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
-        if (Build.VERSION.SDK_INT >= 21) {
-            Api21Impl.invalidateOutline(this);
-        }
+        invalidateOutline();
     }
 
     @Override
@@ -342,17 +334,6 @@ public class ActionBarContainer extends FrameLayout {
 
         if (needsInvalidate) {
             invalidate();
-        }
-    }
-
-    @RequiresApi(21)
-    private static class Api21Impl {
-        private Api21Impl() {
-            // Non-instantiable.
-        }
-
-        public static void invalidateOutline(ActionBarContainer drawable) {
-            drawable.invalidateOutline();
         }
     }
 }

@@ -43,7 +43,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
  */
 public open class DynamicInstallManager(
     private val context: Context,
-    private val splitInstallManager: SplitInstallManager
+    private val splitInstallManager: SplitInstallManager,
 ) {
 
     internal companion object {
@@ -61,7 +61,7 @@ public open class DynamicInstallManager(
     public fun performInstall(
         backStackEntry: NavBackStackEntry,
         extras: DynamicExtras?,
-        moduleName: String
+        moduleName: String,
     ): NavDestination? {
         if (extras?.installMonitor != null) {
             requestInstall(moduleName, extras.installMonitor)
@@ -122,7 +122,7 @@ public open class DynamicInstallManager(
                             /* bytesDownloaded */ 0,
                             /* totalBytesToDownload */ 0,
                             listOf(module),
-                            emptyList()
+                            emptyList(),
                         )
                     terminateLiveData(status)
                 } else {
@@ -133,7 +133,7 @@ public open class DynamicInstallManager(
             .addOnFailureListener { exception ->
                 Log.i(
                     "DynamicInstallManager",
-                    "Error requesting install of $module: ${exception.message}"
+                    "Error requesting install of $module: ${exception.message}",
                 )
                 installMonitor.exception = exception
                 status.value =
@@ -145,7 +145,7 @@ public open class DynamicInstallManager(
                         /* bytesDownloaded */ 0,
                         /* totalBytesToDownload */ 0,
                         listOf(module),
-                        emptyList()
+                        emptyList(),
                     )
                 terminateLiveData(status)
             }
@@ -154,7 +154,7 @@ public open class DynamicInstallManager(
     private class SplitInstallListenerWrapper(
         private val context: Context,
         private val status: MutableLiveData<SplitInstallSessionState>,
-        private val installMonitor: DynamicInstallMonitor
+        private val installMonitor: DynamicInstallMonitor,
     ) : SplitInstallStateUpdatedListener {
 
         override fun onStateUpdate(splitInstallSessionState: SplitInstallSessionState) {

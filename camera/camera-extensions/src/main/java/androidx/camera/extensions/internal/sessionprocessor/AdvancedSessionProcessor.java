@@ -100,18 +100,18 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final boolean mWillReceiveOnCaptureCompleted;
 
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
-            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull List<CaptureRequest.Key<?>> supportedKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         this(impl, supportedKeys, vendorExtender, context, ExtensionMode.NONE);
     }
 
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl,
-            @NonNull List<CaptureRequest.Key> supportedKeys,
+            @NonNull List<CaptureRequest.Key<?>> supportedKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context,
             @ExtensionMode.Mode int mode) {
-        super(supportedKeys);
+        super(supportedKeys, mode);
         mImpl = impl;
         mVendorExtender = vendorExtender;
         mContext = context;

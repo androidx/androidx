@@ -34,7 +34,7 @@ internal class CachedLocalSdkStorage
 private constructor(
     private val context: Context,
     private val rootFolderProvider: LocalSdkFolderProvider,
-    private val lowSpaceThreshold: Long
+    private val lowSpaceThreshold: Long,
 ) : LocalSdkStorage {
 
     /**
@@ -72,7 +72,7 @@ private constructor(
             Log.e(
                 LOG_TAG,
                 "Failed to extract ${sdkConfig.packageName}, deleting $targetFolder.",
-                ex
+                ex,
             )
 
             if (!targetFolder.deleteRecursively()) {
@@ -83,10 +83,7 @@ private constructor(
         }
     }
 
-    private fun extractAssetToFile(
-        assetName: String,
-        outputFile: File,
-    ) {
+    private fun extractAssetToFile(assetName: String, outputFile: File) {
         outputFile.createNewFile()
         context.assets.open(assetName).use { fromStream ->
             outputFile.outputStream().use { toStream -> fromStream.copyTo(toStream) }

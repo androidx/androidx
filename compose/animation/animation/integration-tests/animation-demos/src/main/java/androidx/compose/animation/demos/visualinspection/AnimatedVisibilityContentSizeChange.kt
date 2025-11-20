@@ -47,26 +47,23 @@ fun AnimatedVisibilityContentSizeChange() {
         val (checked, onCheckedChanged) = remember { mutableStateOf(false) }
         Row(
             Modifier.height(60.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(
                 onClick = { isOpen.value = !isOpen.value },
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             ) {
                 Text("Toggle\n visibility")
             }
 
             Row(modifier = Modifier.align(Alignment.CenterVertically)) {
-                Checkbox(
-                    checked,
-                    onCheckedChanged,
-                )
+                Checkbox(checked, onCheckedChanged)
                 Text("animateContentSize", Modifier.clickable { onCheckedChanged(!checked) })
             }
 
             Button(
                 onClick = { itemListState.value = itemList + (itemList.size + 1) },
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             ) {
                 Text("Add\n item")
             }

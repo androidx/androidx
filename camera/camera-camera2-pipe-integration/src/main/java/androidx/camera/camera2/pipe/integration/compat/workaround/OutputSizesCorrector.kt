@@ -36,7 +36,7 @@ public class OutputSizesCorrector
 @Inject
 constructor(
     private val cameraMetadata: CameraMetadata?,
-    private val streamConfigurationMap: StreamConfigurationMap?
+    private val streamConfigurationMap: StreamConfigurationMap?,
 ) {
     private val tag = "OutputSizesCorrector"
     private val excludedSupportedSizesQuirk: ExcludedSupportedSizesQuirk? =
@@ -91,7 +91,7 @@ constructor(
      */
     private fun <T> addExtraSupportedOutputSizesByClass(
         sizeList: MutableList<Size>,
-        klass: Class<T>
+        klass: Class<T>,
     ) {
         if (extraSupportedOutputSizeQuirk == null) {
             return
@@ -130,7 +130,7 @@ constructor(
      */
     private fun <T> excludeProblematicOutputSizesByClass(
         sizeList: MutableList<Size>,
-        klass: Class<T>
+        klass: Class<T>,
     ) {
         if (cameraMetadata == null || excludedSupportedSizesQuirk == null) {
             return

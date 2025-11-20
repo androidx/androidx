@@ -62,7 +62,7 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
      */
     abstract fun loadSingle(
         loadType: LoadType,
-        state: PagingState<Key, Value>
+        state: PagingState<Key, Value>,
     ): Single<MediatorResult>
 
     /**
@@ -82,7 +82,7 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
 
     final override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Key, Value>
+        state: PagingState<Key, Value>,
     ): MediatorResult {
         return loadSingle(loadType, state).await()
     }

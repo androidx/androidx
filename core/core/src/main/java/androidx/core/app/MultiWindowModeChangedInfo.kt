@@ -29,7 +29,7 @@ public class MultiWindowModeChangedInfo(
      *
      * @return True if the activity is in multi-window mode.
      */
-    public val isInMultiWindowMode: Boolean,
+    public val isInMultiWindowMode: Boolean
 ) {
     @RequiresApi(26) private var newConfiguration: Configuration? = null
 
@@ -44,7 +44,7 @@ public class MultiWindowModeChangedInfo(
     @RequiresApi(26)
     public constructor(
         isInMultiWindowMode: Boolean,
-        newConfig: Configuration
+        newConfig: Configuration,
     ) : this(isInMultiWindowMode) {
         this.newConfiguration = newConfig
     }

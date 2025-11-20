@@ -36,7 +36,7 @@ class ListenableFuturePagingSourceTest {
         return Page(
             List(params.loadSize) { it + key },
             prevKey = key - params.loadSize,
-            nextKey = key + params.loadSize
+            nextKey = key + params.loadSize,
         )
     }
 

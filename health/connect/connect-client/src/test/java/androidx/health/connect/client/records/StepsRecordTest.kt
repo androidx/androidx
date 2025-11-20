@@ -16,16 +16,17 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_UNKNOWN
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
+@Config(minSdk = 28)
 @RunWith(AndroidJUnit4::class)
 class StepsRecordTest {
 
@@ -37,7 +38,7 @@ class StepsRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     count = 10,
                 )
             )
@@ -47,7 +48,7 @@ class StepsRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     count = 10,
                 )
             )
@@ -61,12 +62,13 @@ class StepsRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 count = 10,
             )
         }
     }
 
+    @Config(maxSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun invalidSteps_tooFewCount_throws() {
         assertFailsWith<IllegalArgumentException> {
@@ -75,7 +77,7 @@ class StepsRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1235L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 count = 0,
             )
         }
@@ -89,7 +91,7 @@ class StepsRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1235L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 count = 1000_001,
             )
         }
@@ -103,7 +105,7 @@ class StepsRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN),
+                        metadata = Metadata.unknownRecordingMethod(),
                         count = 42,
                     )
                     .toString()

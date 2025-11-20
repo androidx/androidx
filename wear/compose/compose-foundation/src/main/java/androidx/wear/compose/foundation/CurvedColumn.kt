@@ -49,21 +49,21 @@ public fun CurvedScope.curvedColumn(
     modifier: CurvedModifier = CurvedModifier,
     radialDirection: CurvedDirection.Radial? = null,
     angularAlignment: CurvedAlignment.Angular? = null,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ): Unit =
     add(
         CurvedColumnChild(
             curvedLayoutDirection.copy(overrideRadial = radialDirection),
             angularAlignment,
-            contentBuilder
+            contentBuilder,
         ),
-        modifier
+        modifier,
     )
 
 internal class CurvedColumnChild(
     curvedLayoutDirection: CurvedLayoutDirection,
     private val angularAlignment: CurvedAlignment.Angular?,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.outsideIn(), contentBuilder) {
     override fun doEstimateThickness(maxRadius: Float): Float =
         maxRadius -
@@ -112,14 +112,14 @@ internal class CurvedColumnChild(
             maxSweep,
             parentOuterRadius,
             parentOuterRadius - outerRadius,
-            (parentOuterRadius + outerRadius) / 2 // ?
+            (parentOuterRadius + outerRadius) / 2, // ?
         )
     }
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         children.fastForEach { child ->
             var childAngularPosition = parentStartAngleRadians

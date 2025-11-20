@@ -95,8 +95,8 @@ fun PeriodicKeyframesWithSplines() {
 
                             1f at 1000 using LinearEasing
                         },
-                    repeatMode = RepeatMode.Restart
-                )
+                    repeatMode = RepeatMode.Restart,
+                ),
         ) { value, _ ->
             alpha = value
         }
@@ -105,6 +105,6 @@ fun PeriodicKeyframesWithSplines() {
         imageVector = Icons.Filled.Favorite,
         contentDescription = null,
         modifier = Modifier.size(150.dp).graphicsLayer { this.alpha = alpha },
-        colorFilter = ColorFilter.tint(Color.Red)
+        colorFilter = ColorFilter.tint(Color.Red),
     )
 }

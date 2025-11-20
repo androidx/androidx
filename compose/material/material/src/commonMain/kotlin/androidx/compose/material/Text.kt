@@ -21,13 +21,18 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -107,7 +112,7 @@ fun Text(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     // TL:DR: profile before you change any line of code in this method
     //
@@ -149,20 +154,20 @@ fun Text(
                 fontFamily = fontFamily,
                 textDecoration = textDecoration,
                 fontStyle = fontStyle,
-                letterSpacing = letterSpacing
+                letterSpacing = letterSpacing,
             ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        color = { overrideColorOrUnspecified }
+        color = { overrideColorOrUnspecified },
     )
 }
 
 @Deprecated(
     "Maintained for binary compatibility. Use version with minLines instead",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 fun Text(
@@ -181,7 +186,7 @@ fun Text(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     Text(
         text,
@@ -200,7 +205,7 @@ fun Text(
         maxLines,
         1,
         onTextLayout,
-        style
+        style,
     )
 }
 
@@ -280,7 +285,7 @@ fun Text(
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     // TL:DR: profile before you change any line of code in this method
     //
@@ -310,8 +315,12 @@ fun Text(
             localContentColor.copy(localContentAlpha)
         }
 
+    val linkStyles = rememberTextLinkStyles()
+    val textWithMaterialLinkStyles =
+        remember(text, linkStyles) { createTextWithLinkStyles(text, linkStyles) }
+
     BasicText(
-        text = text,
+        text = textWithMaterialLinkStyles,
         modifier = modifier,
         style =
             style.merge(
@@ -322,7 +331,7 @@ fun Text(
                 fontFamily = fontFamily,
                 textDecoration = textDecoration,
                 fontStyle = fontStyle,
-                letterSpacing = letterSpacing
+                letterSpacing = letterSpacing,
             ),
         onTextLayout = onTextLayout,
         overflow = overflow,
@@ -330,13 +339,13 @@ fun Text(
         maxLines = maxLines,
         minLines = minLines,
         inlineContent = inlineContent,
-        color = { overrideColorOrUnspecified }
+        color = { overrideColorOrUnspecified },
     )
 }
 
 @Deprecated(
     "Maintained for binary compatibility. Use version with minLines instead",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 fun Text(
@@ -356,7 +365,7 @@ fun Text(
     maxLines: Int = Int.MAX_VALUE,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     Text(
         text,
@@ -376,7 +385,7 @@ fun Text(
         1,
         inlineContent,
         onTextLayout,
-        style
+        style,
     )
 }
 
@@ -401,4 +410,30 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun createTextWithLinkStyles(
+    text: AnnotatedString,
+    linkStyles: TextLinkStyles,
+): AnnotatedString =
+    text.mapAnnotations { range ->
+        val link = range.item
+        when {
+            link is LinkAnnotation.Url && link.styles == null ->
+                (range as Range<LinkAnnotation.Url>).copy(link.copy(styles = linkStyles))
+            link is LinkAnnotation.Clickable && link.styles == null ->
+                (range as Range<LinkAnnotation.Clickable>).copy(link.copy(styles = linkStyles))
+            else -> range
+        }
+    }
+
+@Composable
+private fun rememberTextLinkStyles(): TextLinkStyles {
+    val primaryColor = MaterialTheme.colors.primary
+    return remember(primaryColor) {
+        TextLinkStyles(
+            style = SpanStyle(color = primaryColor, textDecoration = TextDecoration.Underline)
+        )
+    }
 }

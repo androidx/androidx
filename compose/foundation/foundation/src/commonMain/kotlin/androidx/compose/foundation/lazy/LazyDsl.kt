@@ -50,7 +50,7 @@ interface LazyListScope {
     fun item(
         key: Any? = null,
         contentType: Any? = null,
-        content: @Composable LazyItemScope.() -> Unit
+        content: @Composable LazyItemScope.() -> Unit,
     ) {
         error("The method is not implemented")
     }
@@ -80,7 +80,7 @@ interface LazyListScope {
         count: Int,
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
-        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyItemScope.(index: Int) -> Unit,
     ) {
         error("The method is not implemented")
     }
@@ -89,7 +89,7 @@ interface LazyListScope {
     fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
-        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyItemScope.(index: Int) -> Unit,
     ) {
         items(count, key, { null }, itemContent)
     }
@@ -114,12 +114,12 @@ interface LazyListScope {
     @Deprecated(
         "Please use the overload with indexing capabilities.",
         level = DeprecationLevel.HIDDEN,
-        replaceWith = ReplaceWith("stickyHeader(key, contentType, { _ -> content() })")
+        replaceWith = ReplaceWith("stickyHeader(key, contentType, { _ -> content() })"),
     )
     fun stickyHeader(
         key: Any? = null,
         contentType: Any? = null,
-        content: @Composable LazyItemScope.() -> Unit
+        content: @Composable LazyItemScope.() -> Unit,
     ) = stickyHeader(key, contentType) { _ -> content() }
 
     /**
@@ -144,7 +144,7 @@ interface LazyListScope {
     fun stickyHeader(
         key: Any? = null,
         contentType: Any? = null,
-        content: @Composable LazyItemScope.(Int) -> Unit
+        content: @Composable LazyItemScope.(Int) -> Unit,
     ) {
         item(key, contentType) { content.invoke(this, 0) }
     }
@@ -169,12 +169,12 @@ inline fun <T> LazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
 ) =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(items[index]) } else null,
-        contentType = { index: Int -> contentType(items[index]) }
+        contentType = { index: Int -> contentType(items[index]) },
     ) {
         itemContent(items[it])
     }
@@ -183,7 +183,7 @@ inline fun <T> LazyListScope.items(
 inline fun <T> LazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
 ) = items(items, key, itemContent = itemContent)
 
 /**
@@ -205,12 +205,12 @@ inline fun <T> LazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
 ) =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(index, items[index]) } else null,
-        contentType = { index -> contentType(index, items[index]) }
+        contentType = { index -> contentType(index, items[index]) },
     ) {
         itemContent(it, items[it])
     }
@@ -219,7 +219,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 inline fun <T> LazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
 ) = itemsIndexed(items, key, itemContent = itemContent)
 
 /**
@@ -241,12 +241,12 @@ inline fun <T> LazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
 ) =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(items[index]) } else null,
-        contentType = { index: Int -> contentType(items[index]) }
+        contentType = { index: Int -> contentType(items[index]) },
     ) {
         itemContent(items[it])
     }
@@ -255,7 +255,7 @@ inline fun <T> LazyListScope.items(
 inline fun <T> LazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
 ) = items(items, key, itemContent = itemContent)
 
 /**
@@ -277,12 +277,12 @@ inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
 ) =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(index, items[index]) } else null,
-        contentType = { index -> contentType(index, items[index]) }
+        contentType = { index -> contentType(index, items[index]) },
     ) {
         itemContent(it, items[it])
     }
@@ -291,7 +291,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 inline fun <T> LazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
 ) = itemsIndexed(items, key, itemContent = itemContent)
 
 /**
@@ -336,7 +336,7 @@ fun LazyRow(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyList(
         modifier = modifier,
@@ -349,7 +349,7 @@ fun LazyRow(
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        content = content
+        content = content,
     )
 }
 
@@ -396,7 +396,7 @@ fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyList(
         modifier = modifier,
@@ -409,7 +409,7 @@ fun LazyColumn(
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        content = content
+        content = content,
     )
 }
 
@@ -425,7 +425,7 @@ fun LazyColumn(
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -437,7 +437,7 @@ fun LazyColumn(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
-        content = content
+        content = content,
     )
 }
 
@@ -452,7 +452,7 @@ fun LazyColumn(
         if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -463,7 +463,7 @@ fun LazyColumn(
         horizontalAlignment = horizontalAlignment,
         flingBehavior = flingBehavior,
         userScrollEnabled = true,
-        content = content
+        content = content,
     )
 }
 
@@ -479,7 +479,7 @@ fun LazyRow(
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyRow(
         modifier = modifier,
@@ -491,7 +491,7 @@ fun LazyRow(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
-        content = content
+        content = content,
     )
 }
 
@@ -506,7 +506,7 @@ fun LazyRow(
         if (!reverseLayout) Arrangement.Start else Arrangement.End,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyRow(
         modifier = modifier,
@@ -517,6 +517,6 @@ fun LazyRow(
         verticalAlignment = verticalAlignment,
         flingBehavior = flingBehavior,
         userScrollEnabled = true,
-        content = content
+        content = content,
     )
 }

@@ -46,7 +46,7 @@ fun SingleValueAnimationDemo() {
         Modifier.fillMaxSize()
             .clickable(
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }
+                interactionSource = remember { MutableInteractionSource() },
             ) {
                 enabled.value = !enabled.value
             }

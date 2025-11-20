@@ -28,7 +28,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.remoteviews.test.R
 import androidx.core.widget.RemoteViewsCompat.setLinearLayoutWeightSum
 import androidx.core.widget.RemoteViewsCompat.setTextViewError
@@ -49,6 +48,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 @DoNotInstrument
 class RemoteViewsTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -104,8 +104,6 @@ class RemoteViewsTest {
         assertThat(mTextView.maxLines).isEqualTo(7)
     }
 
-    @Config(minSdk = 21)
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     fun setTextViewHint_res() {
         mRemoteViews.setTextViewHint(R.id.text, R.string.hello_world)
@@ -114,7 +112,7 @@ class RemoteViewsTest {
             value = { findViewById<TextView>(R.id.text).hint.toString() },
             configuration = { setLocale(Locale("es")) },
             before = "Hello world",
-            after = "Hola mundo"
+            after = "Hola mundo",
         )
     }
 
@@ -147,12 +145,11 @@ class RemoteViewsTest {
 
     // Note: createConfigurationContext was added in API 17, but only seems to work properly in
     // Robolectric from API 21.
-    @RequiresApi(21)
     private fun <T> testBeforeAndAfterConfigChange(
         value: View.() -> T,
         configuration: Configuration.() -> Unit,
         before: T,
-        after: T
+        after: T,
     ) {
         reapplyRemoteViews()
         assertThat(value(mView)).isEqualTo(before)

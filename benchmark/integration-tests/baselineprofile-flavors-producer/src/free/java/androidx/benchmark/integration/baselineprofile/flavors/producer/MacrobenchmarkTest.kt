@@ -38,7 +38,7 @@ class MacrobenchmarkTest {
             iterations = 10,
             startupMode = StartupMode.COLD,
             setupBlock = { pressHome() },
-            measureBlock = { startActivityAndWait {} }
+            measureBlock = { startActivityAndWait {} },
         )
 
     companion object {

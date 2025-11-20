@@ -79,7 +79,7 @@ class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
                         color = Color.Black,
                         style = Stroke(2f),
                         topLeft = (offsetAnimation.pendingTarget!! - placementOffset).toOffset(),
-                        size = sizeAnimation.pendingTarget!!.toSize()
+                        size = sizeAnimation.pendingTarget!!.toSize(),
                     )
                 }
             }
@@ -92,14 +92,14 @@ class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
                     val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
                     offsetAnimation.updateTarget(target.round(), coroutineScope, spring())
                     !offsetAnimation.isIdle
-                }
+                },
             ) { measurable, _ ->
                 with(coroutineScope) {
                     val (width, height) =
                         sizeAnimation.updateTarget(
                             lookaheadSize,
                             coroutineScope,
-                            spring(stiffness = Spring.StiffnessMediumLow)
+                            spring(stiffness = Spring.StiffnessMediumLow),
                         )
                     val animatedConstraints = Constraints.fixed(width, height)
                     val placeable = measurable.measure(animatedConstraints)
@@ -133,7 +133,7 @@ fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
                     color = Color.Black,
                     style = Stroke(2f),
                     topLeft = Offset.Zero,
-                    size = targetSize!!.toSize()
+                    size = targetSize!!.toSize(),
                 )
             }
         }
@@ -170,11 +170,7 @@ internal fun DeferredTargetAnimation<IntOffset, AnimationVector2D>.updateTargetB
                     val targetOffset =
                         lookaheadScopeCoordinates.localLookaheadPositionOf(coordinates)
                     val animOffset =
-                        updateTarget(
-                            targetOffset.round(),
-                            coroutineScope,
-                            animationSpec,
-                        )
+                        updateTarget(targetOffset.round(), coroutineScope, animationSpec)
                     val current =
                         lookaheadScopeCoordinates.localPositionOf(coordinates, Offset.Zero).round()
                     return (animOffset - current)

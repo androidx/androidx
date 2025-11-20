@@ -70,12 +70,12 @@ fun AnimatedVisibilityLazyColumnDemo() {
                 AnimatedVisibility(
                     item.visible,
                     enter = expandVertically(),
-                    exit = shrinkVertically()
+                    exit = shrinkVertically(),
                 ) {
                     Box(Modifier.fillMaxWidth().requiredHeight(90.dp).background(item.color)) {
                         Button(
                             { model.removeItem(item) },
-                            modifier = Modifier.align(CenterEnd).padding(15.dp)
+                            modifier = Modifier.align(CenterEnd).padding(15.dp),
                         ) {
                             Text("Remove")
                         }
@@ -128,5 +128,5 @@ internal val turquoiseColors =
         Color(0xff50B6CD),
         Color(0xffBCF8FF),
         Color(0xff8AEAE9),
-        Color(0xff46CECA)
+        Color(0xff46CECA),
     )

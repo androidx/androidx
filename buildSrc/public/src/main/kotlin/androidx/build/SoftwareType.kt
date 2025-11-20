@@ -82,7 +82,7 @@ sealed class SoftwareType(
         compilationTarget: CompilationTarget = CompilationTarget.DEVICE,
         allowCallingVisibleForTestsApis: Boolean = false,
         targetsKotlinConsumersOnly: Boolean = false,
-        isForTesting: Boolean = true
+        isForTesting: Boolean = true,
     ) :
         SoftwareType(
             name,
@@ -102,7 +102,7 @@ sealed class SoftwareType(
                 name = "ANNOTATION_PROCESSOR",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.No("Annotation Processor"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -111,7 +111,7 @@ sealed class SoftwareType(
                 name = "ANNOTATION_PROCESSOR_UTILS",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.No("Annotation Processor Helper Library"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -120,7 +120,7 @@ sealed class SoftwareType(
                 name = "GRADLE_PLUGIN",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.No("Gradle Plugin (Host-only)"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -129,7 +129,7 @@ sealed class SoftwareType(
                 name = "OTHER_CODE_PROCESSOR",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.No("Code Processor (Host-only)"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         // Lint libraries
@@ -138,7 +138,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "LINT",
                 checkApi = RunApiTasks.No("Lint Library"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -147,7 +147,7 @@ sealed class SoftwareType(
                 name = "STANDALONE_PUBLISHED_LINT",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.No("Lint Library"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         // Published libraries
@@ -156,7 +156,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "PUBLISHED_LIBRARY",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
-                checkApi = RunApiTasks.Yes()
+                checkApi = RunApiTasks.Yes(),
             )
 
         @JvmStatic
@@ -165,7 +165,7 @@ sealed class SoftwareType(
                 name = "PUBLISHED_PROTO_LIBRARY",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi =
-                    RunApiTasks.No("Metalava doesn't properly parse the proto sources b/180579063")
+                    RunApiTasks.No("Metalava doesn't properly parse the proto sources b/180579063"),
             )
 
         @JvmStatic
@@ -174,7 +174,7 @@ sealed class SoftwareType(
                 name = "PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
                 checkApi = RunApiTasks.Yes(),
-                targetsKotlinConsumersOnly = true
+                targetsKotlinConsumersOnly = true,
             )
 
         // Published test libraries
@@ -205,8 +205,8 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS",
                 publish = Publish.SNAPSHOT_ONLY,
-                checkApi = RunApiTasks.Yes(),
-                targetsKotlinConsumersOnly = true
+                checkApi = RunApiTasks.No("Snapshot-only library that does not run API tasks"),
+                targetsKotlinConsumersOnly = true,
             )
 
         @JvmStatic
@@ -215,7 +215,7 @@ sealed class SoftwareType(
                 name = "SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS",
                 publish = Publish.SNAPSHOT_ONLY,
                 checkApi = RunApiTasks.Yes(),
-                allowCallingVisibleForTestsApis = true
+                allowCallingVisibleForTestsApis = true,
             )
 
         @JvmStatic
@@ -223,7 +223,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS",
                 publish = Publish.SNAPSHOT_ONLY,
-                checkApi = RunApiTasks.Yes("Snapshot-only library that runs API tasks")
+                checkApi = RunApiTasks.Yes("Snapshot-only library that runs API tasks"),
             )
 
         @JvmStatic
@@ -231,7 +231,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "SNAPSHOT_ONLY_LIBRARY",
                 publish = Publish.SNAPSHOT_ONLY,
-                checkApi = RunApiTasks.No("Snapshot-only library that does not run API tasks")
+                checkApi = RunApiTasks.No("Snapshot-only library that does not run API tasks"),
             )
 
         // Samples library
@@ -240,7 +240,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "SAMPLES",
                 publish = Publish.SNAPSHOT_AND_RELEASE,
-                checkApi = RunApiTasks.No("Sample Library")
+                checkApi = RunApiTasks.No("Sample Library"),
             )
 
         // IDE libraries
@@ -249,7 +249,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "IDE_PLUGIN",
                 checkApi = RunApiTasks.No("IDE Plugin (consumed only by Android Studio)"),
-                compilationTarget = CompilationTarget.DEVICE
+                compilationTarget = CompilationTarget.DEVICE,
             )
 
         // Internal libraries
@@ -258,7 +258,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "INTERNAL_GRADLE_PLUGIN",
                 checkApi = RunApiTasks.No("Internal Gradle Plugin"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -274,7 +274,7 @@ sealed class SoftwareType(
         val INTERNAL_LIBRARY_WITH_API_TASKS =
             ConfigurableSoftwareType(
                 name = "INTERNAL_LIBRARY_WITH_API_TASKS",
-                checkApi = RunApiTasks.Yes("Always run API tasks even if not published")
+                checkApi = RunApiTasks.Yes("Always run API tasks even if not published"),
             )
 
         @JvmStatic
@@ -282,7 +282,7 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "INTERNAL_OTHER_CODE_PROCESSOR",
                 checkApi = RunApiTasks.No("Code Processor (Host-only)"),
-                compilationTarget = CompilationTarget.HOST
+                compilationTarget = CompilationTarget.HOST,
             )
 
         @JvmStatic
@@ -300,14 +300,14 @@ sealed class SoftwareType(
             ConfigurableSoftwareType(
                 name = "BENCHMARK",
                 checkApi = RunApiTasks.No("Benchmark Library"),
-                allowCallingVisibleForTestsApis = true
+                allowCallingVisibleForTestsApis = true,
             )
 
         @JvmStatic
         val TEST_APPLICATION =
             ConfigurableSoftwareType(
                 name = "TEST_APPLICATION",
-                checkApi = RunApiTasks.No("Test App")
+                checkApi = RunApiTasks.No("Test App"),
             )
 
         val UNSET = ConfigurableSoftwareType(name = "UNSET")
@@ -338,7 +338,7 @@ sealed class SoftwareType(
                     BENCHMARK,
                     OTHER_CODE_PROCESSOR,
                     IDE_PLUGIN,
-                    UNSET
+                    UNSET,
                 )
                 .associateBy { it.name }
         }
@@ -356,7 +356,7 @@ enum class CompilationTarget {
     /** This library is meant to run on the host machine (like an annotation processor). */
     HOST,
     /** This library is meant to run on an Android device. */
-    DEVICE
+    DEVICE,
 }
 
 /**

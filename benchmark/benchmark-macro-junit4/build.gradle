@@ -22,19 +22,17 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     defaultConfig {
-        minSdk = 23
 
         // The package name is passed to the app as an instrumentation runner argument.
         // Set default target package at runtime. This could also be set by baseline profile
@@ -55,7 +53,6 @@ android {
 
 dependencies {
     api(libs.junit)
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":benchmark:benchmark-macro"))
     api("androidx.test.uiautomator:uiautomator:2.3.0")
@@ -91,6 +88,5 @@ androidx {
         targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
         targetAppVariant = "release"
     }
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
     samples(project(":benchmark:benchmark-samples"))
 }

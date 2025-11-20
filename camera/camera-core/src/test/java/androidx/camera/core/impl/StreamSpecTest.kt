@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl
 
-import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.DynamicRange
@@ -32,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class StreamSpecTest {
 
     @Test

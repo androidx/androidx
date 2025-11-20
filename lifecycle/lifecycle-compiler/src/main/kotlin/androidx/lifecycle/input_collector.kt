@@ -38,7 +38,7 @@ import javax.tools.Diagnostic
 @Suppress("DEPRECATION")
 fun collectAndVerifyInput(
     processingEnv: ProcessingEnvironment,
-    roundEnv: RoundEnvironment
+    roundEnv: RoundEnvironment,
 ): InputModel {
     val validator = Validator(processingEnv)
     val worldCollector = ObserversCollector(processingEnv)
@@ -103,7 +103,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
     @Suppress("DEPRECATION")
     private fun createObserverInfo(
         typeElement: TypeElement,
-        parents: List<LifecycleObserverInfo>
+        parents: List<LifecycleObserverInfo>,
     ): LifecycleObserverInfo? {
         if (!validator.validateClass(typeElement)) {
             return null
@@ -162,7 +162,7 @@ class Validator(val processingEnv: ProcessingEnvironment) {
                 !validateParam(
                     params[1],
                     Lifecycle.Event::class.java,
-                    ErrorMessages.INVALID_SECOND_ARGUMENT
+                    ErrorMessages.INVALID_SECOND_ARGUMENT,
                 )
         ) {
             return false
@@ -172,7 +172,7 @@ class Validator(val processingEnv: ProcessingEnvironment) {
             return validateParam(
                 params[0],
                 LifecycleOwner::class.java,
-                ErrorMessages.INVALID_FIRST_ARGUMENT
+                ErrorMessages.INVALID_FIRST_ARGUMENT,
             )
         }
         return true

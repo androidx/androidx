@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe
 
-import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -25,7 +24,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class StreamTest {
     private val streamConfig1 =
         CameraStream.Config.create(size = Size(640, 480), format = StreamFormat.YUV_420_888)

@@ -33,7 +33,7 @@ internal class DateTimeFormatterImplAndroid(skeleton: String, locale: Locale) :
     private val sdf =
         java.text.SimpleDateFormat(
             android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton),
-            locale
+            locale,
         )
 
     override fun format(calendar: Calendar): String {

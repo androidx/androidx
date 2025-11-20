@@ -25,12 +25,12 @@ import androidx.benchmark.traceprocessor.TraceProcessor
 class FrameCostMetric : TraceMetric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,
-        traceSession: TraceProcessor.Session
+        traceSession: TraceProcessor.Session,
     ): List<Measurement> {
         val costs =
             FrameCostQuery.getFrameCost(
                 session = traceSession,
-                packageName = captureInfo.targetPackageName
+                packageName = captureInfo.targetPackageName,
             )
         return listOf(Measurement("frameCost", costs))
     }

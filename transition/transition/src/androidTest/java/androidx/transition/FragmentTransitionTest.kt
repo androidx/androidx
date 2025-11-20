@@ -15,7 +15,6 @@
  */
 package androidx.transition
 
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
@@ -24,7 +23,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import androidx.testutils.withActivity
@@ -47,7 +45,6 @@ import org.mockito.Mockito.verify
 
 @MediumTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
 
     @Suppress("DEPRECATION")
@@ -519,7 +516,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
             object : SharedElementCallback() {
                 override fun onMapSharedElements(
                     names: List<String>,
-                    sharedElements: MutableMap<String, View>
+                    sharedElements: MutableMap<String, View>,
                 ) {
                     assertThat(names).containsExactly("blueSquare")
                     assertThat(sharedElements).containsExactly("blueSquare", startBlue)
@@ -553,7 +550,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
             object : SharedElementCallback() {
                 override fun onMapSharedElements(
                     names: List<String>,
-                    sharedElements: MutableMap<String, View>
+                    sharedElements: MutableMap<String, View>,
                 ) {
                     assertThat(names).containsExactly("blueSquare")
                     val expectedBlue = findViewById(fragment1, R.id.blueSquare)
@@ -592,7 +589,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
             object : SharedElementCallback() {
                 override fun onMapSharedElements(
                     names: List<String>,
-                    sharedElements: MutableMap<String, View>
+                    sharedElements: MutableMap<String, View>,
                 ) {
                     assertThat(names).containsExactly("blueSquare")
                     val blueSquare = findViewById(fragment2, R.id.blueSquare)
@@ -629,7 +626,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
             object : SharedElementCallback() {
                 override fun onMapSharedElements(
                     names: List<String>,
-                    sharedElements: MutableMap<String, View>
+                    sharedElements: MutableMap<String, View>,
                 ) {
                     assertThat(names).containsExactly("blueSquare")
                     assertThat(sharedElements).containsExactly("blueSquare", endBlue)
@@ -1102,8 +1099,8 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
             verifyNoOtherTransitions(fragment2)
             verifyNoOtherTransitions(fragment3)
         } else {
-            // The pop transition will be executed so we should wait until fragment 1 finishes
-            fragment1.waitForTransition()
+            // fragment1 transition gets merged out by the specialEffects controller
+            verifyNoOtherTransitions(fragment1)
             // fragment3 doesn't get a transition since it conflicts with the pop transition
             verifyNoOtherTransitions(fragment3)
             // Everything else is just doing its best. Ordered transactions can't handle
@@ -1259,7 +1256,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
     private fun verifyTransition(
         from: TransitionFragment,
         to: TransitionFragment,
-        sharedElementName: String
+        sharedElementName: String,
     ) {
         val startOnBackStackChanged = onBackStackChangedTimes
         val startBlue = activityRule.findBlue()
@@ -1307,7 +1304,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
     private fun verifyCrossTransition(
         swapSource: Boolean,
         from1: TransitionFragment,
-        from2: TransitionFragment
+        from2: TransitionFragment,
     ) {
         val startNumOnBackStackChanged = onBackStackChangedTimes
         val changesPerOperation = if (reorderingAllowed is Reordered) 1 else 2
@@ -1449,7 +1446,7 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
         numPops: Int,
         from: TransitionFragment,
         to: TransitionFragment,
-        vararg others: TransitionFragment
+        vararg others: TransitionFragment,
     ) {
         val startOnBackStackChanged = onBackStackChangedTimes
         val startBlue = activityRule.findBlue()

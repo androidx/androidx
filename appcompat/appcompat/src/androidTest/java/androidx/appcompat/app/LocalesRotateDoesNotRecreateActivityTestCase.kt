@@ -48,7 +48,7 @@ class LocalesRotateDoesNotRecreateActivityTestCase() {
             LocalesRotateDoesNotRecreateActivity::class.java,
             initialTouchMode = false,
             // Let the test method launch its own activity so that we can ensure it's RESUMED.
-            launchActivity = false
+            launchActivity = false,
         )
 
     @Test

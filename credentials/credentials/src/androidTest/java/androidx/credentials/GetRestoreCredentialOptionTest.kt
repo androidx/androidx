@@ -31,7 +31,7 @@ class GetRestoreCredentialOptionTest {
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             GetRestoreCredentialOption("")
         }

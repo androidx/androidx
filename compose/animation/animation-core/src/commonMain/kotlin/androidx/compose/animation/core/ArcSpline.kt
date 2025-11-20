@@ -79,7 +79,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
                         x1 = yArray[k],
                         y1 = yArray[k + 1],
                         x2 = yArray1[k],
-                        y2 = yArray1[k + 1]
+                        y2 = yArray1[k + 1],
                     )
                 }
             }
@@ -197,7 +197,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
         private val x1: Float,
         private val y1: Float,
         private val x2: Float,
-        private val y2: Float
+        private val y2: Float,
     ) {
         private var arcDistance = 0f
         private var tmpSinAngle = 0f

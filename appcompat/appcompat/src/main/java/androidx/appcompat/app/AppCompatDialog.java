@@ -26,15 +26,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.activity.ComponentDialog;
-import androidx.activity.ViewTreeOnBackPressedDispatcherOwner;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.view.KeyEventDispatcher;
-import androidx.lifecycle.ViewTreeLifecycleOwner;
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -96,28 +93,20 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         getDelegate().setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@NonNull View view) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         getDelegate().setContentView(view);
     }
 
     @Override
     public void setContentView(@NonNull View view, ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         getDelegate().setContentView(view, params);
-    }
-
-    private void initViewTreeOwners() {
-        // Set the view tree owners before setting the content view so that the inflation process
-        // and attach listeners will see them already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
-        ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
-        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")
@@ -140,7 +129,7 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
 
     @Override
     public void addContentView(@NonNull View view, ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         getDelegate().addContentView(view, params);
     }
 

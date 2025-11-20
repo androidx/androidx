@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_UNKNOWN_EXCEPTIO
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
@@ -59,7 +60,7 @@ import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class RetryingCameraStateOpenerTest {
     private val cameraId0 = CameraId("0")
     private val camera2MetadataProvider =
@@ -72,14 +73,14 @@ class RetryingCameraStateOpenerTest {
 
             override suspend fun getCameraExtensionMetadata(
                 cameraId: CameraId,
-                extension: Int
+                extension: Int,
             ): CameraExtensionMetadata {
                 throw UnsupportedOperationException("Not supported for this test")
             }
 
             override fun awaitCameraExtensionMetadata(
                 cameraId: CameraId,
-                extension: Int
+                extension: Int,
             ): CameraExtensionMetadata {
                 throw UnsupportedOperationException("Not supported for this test")
             }
@@ -92,16 +93,37 @@ class RetryingCameraStateOpenerTest {
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
     private val cameraOpener =
         object : CameraOpener {
+            var toBlock: Boolean = false
             var toThrow: Throwable? = null
             var numberOfOpens = 0
+            var lastCameraId: CameraId? = null
+            var lastStateCallback: CameraDevice.StateCallback? = null
 
-            override fun openCamera(cameraId: CameraId, stateCallback: CameraDevice.StateCallback) {
+            override suspend fun openCamera(
+                cameraId: CameraId,
+                stateCallback: CameraDevice.StateCallback,
+            ) {
                 numberOfOpens++
+                if (toBlock) {
+                    delay(10_000L)
+                }
                 toThrow?.let { throw it }
+
+                lastCameraId = cameraId
+                lastStateCallback = stateCallback
+            }
+
+            fun simulateCameraOpen() {
+                val cameraId = checkNotNull(lastCameraId)
+                val stateCallback = checkNotNull(lastStateCallback)
+
+                val cameraDevice: CameraDevice = mock()
+                whenever(cameraDevice.id).thenReturn(cameraId.value)
+                stateCallback.onOpened(cameraDevice)
             }
         }
 
-    private val fakeCamera2Quirks = Camera2Quirks(camera2MetadataProvider)
+    private val fakeCamera2Quirks = Camera2Quirks(camera2MetadataProvider, CameraPipe.Flags())
     private val fakeTimeSource = FakeTimeSource()
     private val cameraDeviceCloser = FakeCamera2DeviceCloser()
 
@@ -113,7 +135,7 @@ class RetryingCameraStateOpenerTest {
             override fun onCameraError(
                 cameraId: CameraId,
                 cameraError: CameraError,
-                willAttemptRetry: Boolean
+                willAttemptRetry: Boolean,
             ) {
                 numberOfErrorCalls++
             }
@@ -127,14 +149,14 @@ class RetryingCameraStateOpenerTest {
             fakeCamera2Quirks,
             fakeTimeSource,
             cameraInteropConfig = null,
-            FakeThreads.fromTestScope(TestScope())
+            FakeThreads.fromTestScope(TestScope()),
         )
 
     private val cameraAvailabilityMonitor =
         object : CameraAvailabilityMonitor {
             override suspend fun awaitAvailableCamera(
                 cameraId: CameraId,
-                timeoutMillis: Long
+                timeoutMillis: Long,
             ): Boolean {
                 delay(timeoutMillis)
                 fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
@@ -612,6 +634,95 @@ class RetryingCameraStateOpenerTest {
     }
 
     @Test
+    fun cameraStateOpenerOpensCamera() = runTest {
+        val resultDeferred = async {
+            cameraStateOpener.tryOpenCamera(
+                cameraId0,
+                1,
+                Timestamps.now(fakeTimeSource),
+                cameraDeviceCloser,
+                audioRestrictionController,
+            )
+        }
+
+        // Simulate the opening of a camera that takes 1s.
+        advanceTimeBy(1_000L)
+        cameraOpener.simulateCameraOpen()
+
+        advanceUntilIdle()
+        val result = resultDeferred.getCompleted()
+        assertThat(result.cameraState).isNotNull()
+        assertThat(result.errorCode).isNull()
+    }
+
+    @Test
+    fun cameraStateOpenerSucceedsOnLongCameraOpens() = runTest {
+        val resultDeferred = async {
+            cameraStateOpener.tryOpenCamera(
+                cameraId0,
+                1,
+                Timestamps.now(fakeTimeSource),
+                cameraDeviceCloser,
+                audioRestrictionController,
+            )
+        }
+
+        // Simulate the opening of a camera that takes 10s.
+        advanceTimeBy(10_000L)
+        cameraOpener.simulateCameraOpen()
+
+        advanceUntilIdle()
+        val result = resultDeferred.getCompleted()
+        assertThat(result.cameraState).isNotNull()
+        assertThat(result.errorCode).isNull()
+    }
+
+    @Test
+    fun cameraStateOpenerTimesOutWhenOpenCameraBlocks() = runTest {
+        cameraOpener.toBlock = true
+        val resultDeferred = async {
+            cameraStateOpener.tryOpenCamera(
+                cameraId0,
+                1,
+                Timestamps.now(fakeTimeSource),
+                cameraDeviceCloser,
+                audioRestrictionController,
+            )
+        }
+
+        advanceUntilIdle()
+        val result = resultDeferred.getCompleted()
+        assertThat(result.cameraState).isNull()
+        assertThat(result.errorCode).isNotNull()
+        assertThat(result.errorCode).isEqualTo(CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
+    }
+
+    @Test
+    fun cameraStateOpenerCancelsCameraOpens() = runTest {
+        val resultDeferred = async {
+            cameraStateOpener.tryOpenCamera(
+                cameraId0,
+                1,
+                Timestamps.now(fakeTimeSource),
+                cameraDeviceCloser,
+                audioRestrictionController,
+            )
+        }
+
+        advanceUntilIdle()
+
+        // When camera open is cancelled, we should stop the wait for camera open result after a
+        // timeout.
+        cameraStateOpener.cancelOpen()
+        advanceTimeBy(10_000L)
+
+        val result = resultDeferred.getCompleted()
+        assertThat(result.cameraState).isNull()
+        assertThat(result.errorCode).isNotNull()
+        assertThat(result.errorCode).isEqualTo(CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
+    }
+
+    @Test
     fun cameraStateOpenerReturnsCorrectError() = runTest {
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
         val result =
@@ -620,7 +731,7 @@ class RetryingCameraStateOpenerTest {
                 1,
                 Timestamps.now(fakeTimeSource),
                 cameraDeviceCloser,
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         assertThat(result.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
@@ -635,7 +746,7 @@ class RetryingCameraStateOpenerTest {
                 1,
                 Timestamps.now(fakeTimeSource),
                 cameraDeviceCloser,
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         assertThat(result.errorCode).isEqualTo(ERROR_UNKNOWN_EXCEPTION)
@@ -650,14 +761,14 @@ class RetryingCameraStateOpenerTest {
                     "android.hardware.Camera",
                     "_enableShutterSound",
                     "Native Method",
-                    0
+                    0,
                 ),
                 StackTraceElement(
                     "android.hardware.Camera",
                     "updateAppOpsPlayAudio",
                     "Camera.java",
-                    1770
-                )
+                    1770,
+                ),
             )
         cameraOpener.toThrow = throwable
 
@@ -668,7 +779,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     Timestamps.now(fakeTimeSource),
                     cameraDeviceCloser,
-                    audioRestrictionController
+                    audioRestrictionController,
                 )
             assertThat(result.errorCode).isEqualTo(ERROR_DO_NOT_DISTURB_ENABLED)
         } catch (throwable: Throwable) {

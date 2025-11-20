@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.activity.compose.ComponentActivityKt#setContent$default(androidx.activity.ComponentActivity, androidx.compose.runtime.CompositionContext, kotlin.jvm.functions.Function2, int, Object):
+    Added method androidx.activity.compose.ComponentActivityKt.setContent$default(androidx.activity.ComponentActivity,androidx.compose.runtime.CompositionContext,kotlin.jvm.functions.Function2,int,Object)

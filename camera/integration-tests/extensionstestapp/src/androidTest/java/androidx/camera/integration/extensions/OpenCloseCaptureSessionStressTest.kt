@@ -41,7 +41,6 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -59,7 +58,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTestParams) {
     @get:Rule
     val cameraPipeConfigTestRule =
@@ -89,9 +87,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
         val (_, cameraXConfig, cameraId, extensionMode) = config
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
@@ -121,7 +117,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
 
     private fun injectCameraSessionMonitor(
         previewBuilder: Preview.Builder,
-        cameraMonitor: CameraSessionMonitor
+        cameraMonitor: CameraSessionMonitor,
     ) {
         Camera2Interop.Extender(previewBuilder)
             .setSessionStateCallback(
@@ -144,7 +140,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
 
                     override fun onSurfacePrepared(
                         session: CameraCaptureSession,
-                        surface: Surface
+                        surface: Surface,
                     ) {}
                 }
             )
@@ -191,7 +187,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
             bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
                 preview,
                 imageCapture,
-                imageAnalysis
+                imageAnalysis,
             )
         }
 
@@ -201,7 +197,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
      */
     private fun bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
         vararg useCases: UseCase,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
             // Arrange: resets the camera session monitor

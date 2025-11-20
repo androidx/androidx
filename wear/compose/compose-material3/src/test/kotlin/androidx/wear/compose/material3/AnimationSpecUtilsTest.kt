@@ -140,7 +140,7 @@ class AnimationSpecUtilsTest {
                             FastOutSlowInEasing,
                             LinearOutSlowInEasing,
                             FastOutLinearInEasing,
-                            LinearEasing
+                            LinearEasing,
                         )
                         .forEach { easing -> add(tween(duration, delay, easing)) }
                 }

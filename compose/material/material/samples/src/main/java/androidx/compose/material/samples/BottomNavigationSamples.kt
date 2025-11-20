@@ -42,7 +42,7 @@ fun BottomNavigationSample() {
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                 label = { Text(item) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { selectedItem = index },
             )
         }
     }
@@ -60,7 +60,7 @@ fun BottomNavigationWithOnlySelectedLabelsSample() {
                 label = { Text(item) },
                 selected = selectedItem == index,
                 onClick = { selectedItem = index },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
             )
         }
     }

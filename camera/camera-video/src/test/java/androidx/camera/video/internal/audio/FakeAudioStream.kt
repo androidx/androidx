@@ -28,7 +28,7 @@ class FakeAudioStream(
     private val audioDataProvider: (index: Int) -> AudioData,
     isSilenced: Boolean = false,
     private val exceptionOnStart: AudioStream.AudioStreamException? = null,
-    private val exceptionOnStartMaxTimes: Int = Int.MAX_VALUE
+    private val exceptionOnStartMaxTimes: Int = Int.MAX_VALUE,
 ) : AudioStream {
     var isSilenced: Boolean = isSilenced
         set(value) {
@@ -111,7 +111,7 @@ class FakeAudioStream(
     override fun setCallback(callback: AudioStream.AudioStreamCallback?, executor: Executor?) {
         checkArgument(
             callback == null || executor != null,
-            "executor can't be null with non-null callback."
+            "executor can't be null with non-null callback.",
         )
         audioStreamCallback = callback
         callbackExecutor = executor
@@ -125,50 +125,26 @@ class FakeAudioStream(
     fun verifyStartCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
-        inOder: Boolean = false
-    ) =
-        startCalls.verifyAcceptCall(
-            Unit::class.java,
-            inOder,
-            timeoutMs,
-            callTimes,
-        )
+        inOder: Boolean = false,
+    ) = startCalls.verifyAcceptCall(Unit::class.java, inOder, timeoutMs, callTimes)
 
     fun verifyStopCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
-        inOder: Boolean = false
-    ) =
-        stopCalls.verifyAcceptCall(
-            Unit::class.java,
-            inOder,
-            timeoutMs,
-            callTimes,
-        )
+        inOder: Boolean = false,
+    ) = stopCalls.verifyAcceptCall(Unit::class.java, inOder, timeoutMs, callTimes)
 
     fun verifyReleaseCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
-        inOder: Boolean = false
-    ) =
-        releaseCalls.verifyAcceptCall(
-            Unit::class.java,
-            inOder,
-            timeoutMs,
-            callTimes,
-        )
+        inOder: Boolean = false,
+    ) = releaseCalls.verifyAcceptCall(Unit::class.java, inOder, timeoutMs, callTimes)
 
     fun verifyReadCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
-        inOder: Boolean = false
-    ) =
-        readCalls.verifyAcceptCall(
-            Unit::class.java,
-            inOder,
-            timeoutMs,
-            callTimes,
-        )
+        inOder: Boolean = false,
+    ) = readCalls.verifyAcceptCall(Unit::class.java, inOder, timeoutMs, callTimes)
 
     private fun notifySilence() {
         if (!isStarted || isReleased) {

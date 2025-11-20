@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 fun InfiniteTransitionDemo() {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         InfinitePulsingHeart()
         Spacer(Modifier.size(200.dp))
@@ -69,7 +69,7 @@ fun InfinitePulsingHeart() {
             initialValue = 3f,
             targetValue = 6f,
             animationSpec =
-                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Restart)
+                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Restart),
         )
 
     val color by
@@ -79,15 +79,15 @@ fun InfinitePulsingHeart() {
             animationSpec =
                 infiniteRepeatable(
                     animation = tween(1000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
+                    repeatMode = RepeatMode.Reverse,
+                ),
         )
 
     Icon(
         Icons.Filled.Favorite,
         null,
         Modifier.graphicsLayer(scaleX = scale, scaleY = scale),
-        tint = color
+        tint = color,
     )
 }
 
@@ -107,7 +107,7 @@ fun InfiniteTransition.PulsingDot(startOffset: StartOffset) {
         animateFloat(
             0.2f,
             1f,
-            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
+            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset),
         )
     Box(
         Modifier.padding(5.dp)

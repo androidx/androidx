@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import android.os.Build
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
@@ -31,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -38,10 +38,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class SliderScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -58,7 +58,7 @@ class SliderScreenshotTest {
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -79,7 +79,7 @@ class SliderScreenshotTest {
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -107,11 +107,11 @@ class SliderScreenshotTest {
                         disabledBackgroundColor = Color.DarkGray,
                         disabledSpacerColor = Color.LightGray,
                         disabledSelectedBarColor = Color.Red,
-                        disabledUnselectedBarColor = Color.Blue
+                        disabledUnselectedBarColor = Color.Blue,
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -133,7 +133,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -162,11 +162,11 @@ class SliderScreenshotTest {
                         disabledBackgroundColor = Color.DarkGray,
                         disabledSpacerColor = Color.LightGray,
                         disabledSelectedBarColor = Color.Red,
-                        disabledUnselectedBarColor = Color.Blue
+                        disabledUnselectedBarColor = Color.Blue,
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -189,7 +189,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
 

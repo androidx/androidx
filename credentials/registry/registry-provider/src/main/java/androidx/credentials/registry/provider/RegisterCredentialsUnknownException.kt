@@ -25,7 +25,7 @@ package androidx.credentials.registry.provider
 public class RegisterCredentialsUnknownException(errorMessage: CharSequence? = null) :
     RegisterCredentialsException(
         type = TYPE_REGISTER_CREDENTIALS_UNKNOWN_EXCEPTION,
-        errorMessage = errorMessage
+        errorMessage = errorMessage,
     ) {
     private companion object {
         const val TYPE_REGISTER_CREDENTIALS_UNKNOWN_EXCEPTION =

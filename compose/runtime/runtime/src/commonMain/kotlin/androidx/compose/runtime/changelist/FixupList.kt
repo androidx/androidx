@@ -45,7 +45,7 @@ internal class FixupList : OperationsDebugStringFormattable() {
         applier: Applier<*>,
         slots: SlotWriter,
         rememberManager: RememberManager,
-        errorContext: OperationErrorContext?
+        errorContext: OperationErrorContext?,
     ) {
         runtimeCheck(pendingOperations.isEmpty()) {
             "FixupList has pending fixup operations that were not realized. " +
@@ -55,7 +55,7 @@ internal class FixupList : OperationsDebugStringFormattable() {
             applier,
             slots,
             rememberManager,
-            errorContext
+            errorContext,
         )
     }
 

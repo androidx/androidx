@@ -39,7 +39,7 @@ class ContentValuesTest {
                 "float" to 1f,
                 "double" to 1.0,
                 "boolean" to true,
-                "byteArray" to byteArrayOf()
+                "byteArray" to byteArrayOf(),
             )
         assertEquals(10, values.size())
         assertNull(values.get("null"))

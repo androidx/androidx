@@ -34,11 +34,8 @@ import android.os.Bundle
  * @throws IllegalArgumentException If [type] is null or, empty
  */
 open class BeginGetCustomCredentialOption
-constructor(
-    id: String,
-    type: String,
-    candidateQueryData: Bundle,
-) : BeginGetCredentialOption(id, type, candidateQueryData) {
+constructor(id: String, type: String, candidateQueryData: Bundle) :
+    BeginGetCredentialOption(id, type, candidateQueryData) {
     init {
         require(id.isNotEmpty()) { "id should not be empty" }
         require(type.isNotEmpty()) { "type should not be empty" }
@@ -49,7 +46,7 @@ constructor(
         internal fun createFrom(
             data: Bundle,
             id: String,
-            type: String
+            type: String,
         ): BeginGetCustomCredentialOption {
             return BeginGetCustomCredentialOption(id, type, data)
         }
@@ -58,7 +55,7 @@ constructor(
         internal fun createFromEntrySlice(
             data: Bundle,
             id: String,
-            type: String
+            type: String,
         ): BeginGetCustomCredentialOption {
             return BeginGetCustomCredentialOption(id, type, data)
         }

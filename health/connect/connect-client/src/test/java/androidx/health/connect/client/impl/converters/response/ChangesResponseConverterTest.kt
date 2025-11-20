@@ -55,7 +55,7 @@ class ChangesResponseConverterTest {
                                 .setDataType(DataProto.DataType.newBuilder().setName("Steps"))
                                 .putValues(
                                     "count",
-                                    DataProto.Value.newBuilder().setLongVal(120L).build()
+                                    DataProto.Value.newBuilder().setLongVal(120L).build(),
                                 )
                                 .setStartTimeMillis(1234L)
                                 .setEndTimeMillis(5678L)
@@ -84,7 +84,7 @@ class ChangesResponseConverterTest {
                             lastModifiedTime = Instant.ofEpochMilli(9999L),
                             dataOrigin = DataOrigin(packageName = "pkg1"),
                             recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
-                        )
+                        ),
                 )
             )
     }

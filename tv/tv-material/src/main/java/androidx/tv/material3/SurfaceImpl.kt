@@ -60,7 +60,7 @@ internal fun SurfaceImpl(
     glow: Glow,
     tonalElevation: Dp,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable (BoxScope.() -> Unit)
+    content: @Composable (BoxScope.() -> Unit),
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -72,34 +72,31 @@ internal fun SurfaceImpl(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = selected
+            selected = selected,
         )
 
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
 
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        LocalAbsoluteTonalElevation provides absoluteElevation
+        LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
         val zIndex by
             animateFloatAsState(
                 targetValue = if (focused) FocusedZIndex else NonFocusedZIndex,
-                label = "zIndex"
+                label = "zIndex",
             )
 
         val backgroundColorByState =
             calculateSurfaceColorAtElevation(
                 color = color,
-                elevation = LocalAbsoluteTonalElevation.current
+                elevation = LocalAbsoluteTonalElevation.current,
             )
 
         Box(
             modifier =
                 modifier
-                    .tvSurfaceScale(
-                        scale = scale,
-                        interactionSource = interactionSource,
-                    )
+                    .tvSurfaceScale(scale = scale, interactionSource = interactionSource)
                     .ifElse(API_28_OR_ABOVE, Modifier.tvSurfaceGlow(shape, glow))
                     // Increasing the zIndex of this Surface when it is in the focused state to
                     // avoid the glowIndication from being overlapped by subsequent items if
@@ -112,14 +109,14 @@ internal fun SurfaceImpl(
                         this.shape = shape
                         this.clip = true
                     },
-            propagateMinConstraints = true
+            propagateMinConstraints = true,
         ) {
             Box(
                 modifier =
                     Modifier.graphicsLayer {
                         this.alpha = if (!enabled) DisabledContentAlpha else EnabledContentAlpha
                     },
-                content = content
+                content = content,
             )
         }
     }
@@ -199,7 +196,7 @@ private fun calculateAlphaBasedOnState(
     enabled: Boolean,
     focused: Boolean,
     pressed: Boolean,
-    selected: Boolean
+    selected: Boolean,
 ): Float {
     return when {
         !enabled && pressed -> DisabledPressedStateAlpha
@@ -234,7 +231,7 @@ private val AcceptableEnterClickKeys =
     intArrayOf(
         NativeKeyEvent.KEYCODE_DPAD_CENTER,
         NativeKeyEvent.KEYCODE_ENTER,
-        NativeKeyEvent.KEYCODE_NUMPAD_ENTER
+        NativeKeyEvent.KEYCODE_NUMPAD_ENTER,
     )
 
 /**

@@ -33,6 +33,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.ZoomScroll> {
     private final PaginatedView mPaginatedView;
@@ -140,19 +142,36 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             // If selection is within the range of visible pages
             if (selectionPage >= firstPageInVisibleRange
                     && selectionPage <= lastPageInVisisbleRange) {
+                List<Rect> selectionRects =
+                        mPaginatedView.getSelectionModel().selection().get().getRects();
+                int startX = Integer.MAX_VALUE;
+                int startY = Integer.MAX_VALUE;
+                int endX = Integer.MIN_VALUE;
+                int endY = Integer.MIN_VALUE;
+                for (Rect rect : selectionRects) {
+                    if (rect.left < startX) {
+                        startX = rect.left;
+                    }
+                    if (rect.top < startY) {
+                        startY = rect.top;
+                    }
+                    if (rect.right > endX) {
+                        endX = rect.right;
+                    }
+                    if (rect.bottom > endY) {
+                        endY = rect.bottom;
+                    }
+                }
+
                 // Start and stop coordinates in a page wrt pagination model
-                int startX = mPaginatedView.getModel().getLookAtX(selectionPage,
-                        mPaginatedView.getSelectionModel().selection().get().getStart().getX());
-                int startY = mPaginatedView.getModel().getLookAtY(selectionPage,
-                        mPaginatedView.getSelectionModel().selection().get().getStart().getY());
-                int stopX = mPaginatedView.getModel().getLookAtX(selectionPage,
-                        mPaginatedView.getSelectionModel().selection().get().getStop().getX());
-                int stopY = mPaginatedView.getModel().getLookAtY(selectionPage,
-                        mPaginatedView.getSelectionModel().selection().get().getStop().getY());
+                startX = mPaginatedView.getModel().getLookAtX(selectionPage, startX);
+                startY = mPaginatedView.getModel().getLookAtY(selectionPage, startY);
+                endX = mPaginatedView.getModel().getLookAtX(selectionPage, endX);
+                endY = mPaginatedView.getModel().getLookAtY(selectionPage, endY);
 
                 Rect currentViewArea = mPaginatedView.getViewArea();
 
-                if (currentViewArea.intersect(startX, startY, stopX, stopY)) {
+                if (currentViewArea.intersects(startX, startY, endX, endY)) {
                     mSelectionActionMode.resume();
                 }
             }

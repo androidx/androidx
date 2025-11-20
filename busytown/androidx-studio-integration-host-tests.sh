@@ -3,12 +3,10 @@ set -e
 
 echo "Starting $0 at $(date)"
 
-SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
+BUILD_SCRIPT="impl/build-studio-and-androidx.sh"
+HOST_TEST_TASKS="test allHostTests zipOwnersFiles createModuleInfo"
+STUDIO_INTEGRATION_PARAMS="--ci"
 
-$SCRIPT_PATH/impl/build-studio-and-androidx.sh test \
-    --ci \
-    -Pandroidx.ignoreTestFailures \
-    -Pandroidx.displayTestOutput=false \
-    "$@"
+"$(dirname "$0")/impl/host_test_common_test_runner.sh" "$BUILD_SCRIPT" "$HOST_TEST_TASKS" "$STUDIO_INTEGRATION_PARAMS" "$@"
 
 echo "Completing $0 at $(date)"

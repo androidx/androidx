@@ -18,7 +18,6 @@ package androidx.build.kythe
 
 import androidx.build.KotlinTarget
 import androidx.build.OperatingSystem
-import androidx.build.addToBuildOnServer
 import androidx.build.checkapi.CompilationInputs
 import androidx.build.checkapi.MultiplatformCompilationInputs
 import androidx.build.getCheckoutRoot
@@ -125,7 +124,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                             file
                                 .createJarFromDirectory(
                                     kytheClassJarsDir.get().asFile,
-                                    checkoutRoot
+                                    checkoutRoot,
                                 )
                                 .relativeTo(checkoutRoot)
                         }
@@ -146,7 +145,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                     kotlinTarget.get().apiVersion.version,
                     "-language-version",
                     kotlinTarget.get().apiVersion.version,
-                    "-opt-in=kotlin.contracts.ExperimentalContracts"
+                    "-opt-in=kotlin.contracts.ExperimentalContracts",
                 )
             )
         }
@@ -172,7 +171,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                     "-vnames",
                     vnamesJson.get().asFile.relativeTo(checkoutRoot).path,
                     "-args",
-                    (args + multiplatformArg + filteredKotlincFreeCompilerArgs).joinToString(" ")
+                    (args + multiplatformArg + filteredKotlincFreeCompilerArgs).joinToString(" "),
                 )
             )
             sourceFiles.forEach { addAll(listOf("-srcs", it.path)) }
@@ -200,38 +199,36 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                         addAll(it.compilerOptions.freeCompilerArgs)
                     }
                 }
-            project.tasks
-                .register("generateKotlinKzip", GenerateKotlinKzipTask::class.java) { task ->
-                    task.apply {
-                        kotlincExtractorBin.set(
-                            File(
-                                project.getPrebuiltsRoot(),
-                                "build-tools/${osName()}/bin/kotlinc_extractor"
-                            )
+            project.tasks.register("generateKotlinKzip", GenerateKotlinKzipTask::class.java) { task
+                ->
+                task.apply {
+                    kotlincExtractorBin.set(
+                        File(
+                            project.getPrebuiltsRoot(),
+                            "build-tools/${osName()}/bin/kotlinc_extractor",
                         )
-                        sourcePaths.setFrom(compilationInputs.sourcePaths)
-                        commonModuleSourcePaths.from(
-                            (compilationInputs as? MultiplatformCompilationInputs)
-                                ?.commonModuleSourcePaths
+                    )
+                    sourcePaths.setFrom(compilationInputs.sourcePaths)
+                    (compilationInputs as? MultiplatformCompilationInputs)
+                        ?.commonModuleSourcePaths
+                        ?.let { commonModuleSourcePaths.from(it) }
+                    vnamesJson.set(project.getVnamesJson())
+                    dependencyClasspath.setFrom(
+                        compilationInputs.dependencyClasspath + compilationInputs.bootClasspath
+                    )
+                    this.compiledSources.setFrom(compiledSources)
+                    this.kotlinTarget.set(kotlinTarget)
+                    jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
+                    kzipOutputFile.set(
+                        File(
+                            project.layout.buildDirectory.get().asFile,
+                            "kzips/${project.group}-${project.name}.kotlin.kzip",
                         )
-                        vnamesJson.set(project.getVnamesJson())
-                        dependencyClasspath.setFrom(
-                            compilationInputs.dependencyClasspath + compilationInputs.bootClasspath
-                        )
-                        this.compiledSources.setFrom(compiledSources)
-                        this.kotlinTarget.set(kotlinTarget)
-                        jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
-                        kzipOutputFile.set(
-                            File(
-                                project.layout.buildDirectory.get().asFile,
-                                "kzips/${project.group}-${project.name}.kotlin.kzip"
-                            )
-                        )
-                        kytheClassJarsDir.set(project.layout.buildDirectory.dir("kythe-class-jars"))
-                        this.kotlincFreeCompilerArgs.set(kotlincFreeCompilerArgs)
-                    }
+                    )
+                    kytheClassJarsDir.set(project.layout.buildDirectory.dir("kythe-class-jars"))
+                    this.kotlincFreeCompilerArgs.set(kotlincFreeCompilerArgs)
                 }
-                .also { project.addToBuildOnServer(it) }
+            }
         }
     }
 }

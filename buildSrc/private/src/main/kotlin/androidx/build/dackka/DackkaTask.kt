@@ -68,11 +68,6 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val frameworkSamplesDir: DirectoryProperty
 
-    // Directory containing the code samples derived via the old method. This will be removed
-    // as soon as all libraries have been published with samples. b/329424152
-    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    abstract val samplesDeprecatedDir: DirectoryProperty
-
     // Directory containing the code samples for non-KMP libraries
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val samplesJvmDir: DirectoryProperty
@@ -146,11 +141,19 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:Input
     @set:Option(
         option = "version-metadata",
-        description = "Include added-in/deprecated-in API version metadata"
+        description = "Include added-in/deprecated-in API version metadata",
     )
     var includeVersionMetadata: Boolean = true
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
+        fun getSampleSourceFileCollection(): FileCollection {
+            // Filter out non-existent directories as Dackka crashes if you pass it in b/332262321
+            val dirs =
+                listOf(samplesJvmDir, samplesKmpDir, frameworkSamplesDir).mapNotNull {
+                    if (it.get().asFile.exists()) it else null
+                }
+            return objects.fileCollection().from(dirs)
+        }
         val externalDocs =
             externalLinks.map { (name, url) ->
                 DokkaInputModels.GlobalDocsLink(
@@ -158,7 +161,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                     packageListUrl =
                         "file://${
                             projectListsDirectory.get().asFile.absolutePath
-                        }/$name/package-list"
+                        }/$name/package-list",
                 )
             }
         val gson = GsonBuilder().create()
@@ -170,43 +173,44 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 ?.let { metadataFile ->
                     val metadata =
                         gson.fromJson(metadataFile.readText(), ProjectStructureMetadata::class.java)
-                    metadata.sourceSets.mapNotNull { sourceSet ->
-                        val sourceDir = multiplatformSourcesDir.get().asFile.resolve(sourceSet.name)
-                        if (!sourceDir.exists()) return@mapNotNull null
-                        val analysisPlatform =
-                            DokkaAnalysisPlatform.valueOf(sourceSet.analysisPlatform.uppercase())
-                        DokkaInputModels.SourceSet(
-                            id = sourceSetIdForSourceSet(sourceSet.name),
-                            displayName = sourceSet.name,
-                            analysisPlatform = analysisPlatform.jsonName,
-                            sourceRoots = objects.fileCollection().from(sourceDir),
-                            // TODO(b/181224204): KMP samples aren't supported, dackka assumes all
-                            // samples are in common
-                            samples =
-                                if (analysisPlatform == DokkaAnalysisPlatform.COMMON) {
-                                    objects
-                                        .fileCollection()
-                                        .from(
-                                            samplesDeprecatedDir,
-                                            samplesJvmDir,
-                                            samplesKmpDir,
-                                            frameworkSamplesDir.get().asFile
-                                        )
-                                } else {
-                                    objects.fileCollection()
-                                },
-                            includes = objects.fileCollection().from(includesFiles(sourceDir)),
-                            classpath = dependenciesClasspath,
-                            externalDocumentationLinks = externalDocs,
-                            dependentSourceSets =
-                                sourceSet.dependencies.map { sourceSetIdForSourceSet(it) },
-                            noJdkLink = !analysisPlatform.androidOrJvm(),
-                            noAndroidSdkLink = analysisPlatform != DokkaAnalysisPlatform.ANDROID,
-                            noStdlibLink = false,
-                            // Dackka source link configuration doesn't use the Dokka version
-                            sourceLinks = emptyList()
-                        )
-                    }
+                    // Sort to ensure that child sourceSets come after their parents, b/404784813
+                    metadata.sourceSets
+                        .sortedWith(compareBy({ it.dependencies.size }, { it.name }))
+                        .mapNotNull { sourceSet ->
+                            val sourceDir =
+                                multiplatformSourcesDir.get().asFile.resolve(sourceSet.name)
+                            if (!sourceDir.exists()) return@mapNotNull null
+                            val analysisPlatform =
+                                DokkaAnalysisPlatform.valueOf(
+                                    sourceSet.analysisPlatform.uppercase()
+                                )
+                            DokkaInputModels.SourceSet(
+                                id = sourceSetIdForSourceSet(sourceSet.name),
+                                displayName = sourceSet.name,
+                                analysisPlatform = analysisPlatform.jsonName,
+                                sourceRoots = objects.fileCollection().from(sourceDir),
+                                // TODO(b/181224204): KMP samples aren't supported, dackka assumes
+                                // all
+                                // samples are in common
+                                samples =
+                                    if (analysisPlatform == DokkaAnalysisPlatform.COMMON) {
+                                        getSampleSourceFileCollection()
+                                    } else {
+                                        objects.fileCollection()
+                                    },
+                                includes = objects.fileCollection().from(includesFiles(sourceDir)),
+                                classpath = dependenciesClasspath,
+                                externalDocumentationLinks = externalDocs,
+                                dependentSourceSets =
+                                    sourceSet.dependencies.map { sourceSetIdForSourceSet(it) },
+                                noJdkLink = !analysisPlatform.androidOrJvm(),
+                                noAndroidSdkLink =
+                                    analysisPlatform != DokkaAnalysisPlatform.ANDROID,
+                                noStdlibLink = false,
+                                // Dackka source link configuration doesn't use the Dokka version
+                                sourceLinks = emptyList(),
+                            )
+                        }
                 } ?: emptyList()
         return listOf(
             DokkaInputModels.SourceSet(
@@ -214,15 +218,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 displayName = "main",
                 analysisPlatform = "jvm",
                 sourceRoots = objects.fileCollection().from(jvmSourcesDir),
-                samples =
-                    objects
-                        .fileCollection()
-                        .from(
-                            samplesDeprecatedDir,
-                            samplesJvmDir,
-                            samplesKmpDir,
-                            frameworkSamplesDir.get().asFile
-                        ),
+                samples = getSampleSourceFileCollection(),
                 includes = objects.fileCollection().from(includesFiles(jvmSourcesDir.get().asFile)),
                 classpath = dependenciesClasspath,
                 externalDocumentationLinks = externalDocs,
@@ -231,7 +227,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 noAndroidSdkLink = false,
                 noStdlibLink = false,
                 // Dackka source link configuration doesn't use the Dokka version
-                sourceLinks = emptyList()
+                sourceLinks = emptyList(),
             )
         ) + multiplatformSourceSets
     }
@@ -281,9 +277,9 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "validNullabilityAnnotations" to
                                             nullabilityAnnotations.get(),
                                     )
-                                )
+                                ),
                         )
-                    )
+                    ),
             )
 
         val json = gson.toJson(jsonMap)
@@ -327,7 +323,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 "coroutinesCore" to "https://kotlinlang.org/api/kotlinx.coroutines/",
                 "android" to "https://developer.android.com/reference",
                 "guava" to "https://guava.dev/releases/18.0/api/docs/",
-                "kotlin" to "https://kotlinlang.org/api/latest/jvm/stdlib/",
+                "kotlin" to "https://kotlinlang.org/api/core/kotlin-stdlib/",
                 "junit" to "https://junit.org/junit4/javadoc/4.12/",
                 "okio" to "https://square.github.io/okio/3.x/okio/",
                 "protobuf" to "https://protobuf.dev/reference/java/api-docs/",
@@ -377,11 +373,7 @@ interface DackkaParams : WorkParameters {
     val classpath: SetProperty<File>
 }
 
-fun runDackkaWithArgs(
-    classpath: FileCollection,
-    argsFile: File,
-    workerExecutor: WorkerExecutor,
-) {
+fun runDackkaWithArgs(classpath: FileCollection, argsFile: File, workerExecutor: WorkerExecutor) {
     val workQueue = workerExecutor.noIsolation()
     workQueue.submit(DackkaWorkAction::class.java) { parameters ->
         parameters.args.set(listOf(argsFile.path, "-loggingLevel", "WARN"))

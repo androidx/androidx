@@ -37,6 +37,7 @@ import androidx.wear.compose.material3.TimePicker
 import androidx.wear.compose.material3.TimePickerType
 import androidx.wear.compose.material3.samples.TimePickerSample
 import androidx.wear.compose.material3.samples.TimePickerWith12HourClockSample
+import androidx.wear.compose.material3.samples.TimePickerWithMinutesAndSecondsSample
 import androidx.wear.compose.material3.samples.TimePickerWithSecondsSample
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -46,6 +47,7 @@ val TimePickerDemos =
     listOf(
         ComposableDemo("Time HH:MM:SS") { TimePickerWithSecondsSample() },
         ComposableDemo("Time HH:MM") { TimePicker24hWithoutSecondsDemo() },
+        ComposableDemo("Time MM:SS") { TimePickerWithMinutesAndSecondsSample() },
         ComposableDemo("Time 12 Hour") { TimePickerWith12HourClockSample() },
         ComposableDemo("Time System time format") { TimePickerSample() },
     )
@@ -64,13 +66,10 @@ private fun TimePicker24hWithoutSecondsDemo() {
             },
             timePickerType = TimePickerType.HoursMinutes24H,
             // Initialize with last picked time on reopen
-            initialTime = timePickerTime
+            initialTime = timePickerTime,
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },

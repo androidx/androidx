@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="discard_changes_dialog_title" msgid="5744996873433756810">"Hylätäänkö muutokset?"</string>
+    <string name="discard_changes_dialog_message" msgid="1531057581600971330">"Muutoksia ei tallenneta."</string>
+    <string name="keep_editing_button" msgid="1452730992602657656">"Jatka muokkausta"</string>
+    <string name="discard_button" msgid="8907718452026370630">"Hylkää"</string>
+    <string name="annotation_pen_button_content_desc" msgid="2505660264801773100">"Kynä"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="1162019976938296458">"Korostus"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7325793170289162803">"Pyyhekumi"</string>
+    <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"Kumoa"</string>
+    <string name="annotation_redo_button_content_desc" msgid="3758120724922767367">"Toista"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7425032497404166935">"Muistiinpano päälle/pois"</string>
+</resources>

@@ -1,0 +1,87 @@
+{
+  "projectPath": ":appfunctions:appfunctions-runtime",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appsearch:appsearch-platform-storage",
+        "resolvedVersion": "1.1.0-alpha07"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appsearch:appsearch",
+        "resolvedVersion": "1.1.0-alpha07"
+      },
+      "fromConfiguration": "implementation",
+      "toConfiguration": "runtimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.concurrent:concurrent-futures-ktx",
+        "resolvedVersion": "1.1.0"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:core",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation",
+      "toConfiguration": "androidTestRuntimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:runner",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:guava",
+        "resolvedVersion": "30.1-jre"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.3"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:listenablefuture",
+        "resolvedVersion": "1.0"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

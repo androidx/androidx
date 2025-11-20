@@ -117,19 +117,18 @@ class CameraHelper(private val cameraImplementation: CameraImplementation) {
     companion object {
         enum class CameraImplementation {
             CAMERA2,
-            CAMERA_PIPE
+            CAMERA_PIPE,
         }
 
         private val FPS_30 = Range(30, 30)
 
-        @SuppressLint("NullAnnotationGroup")
         @OptIn(ExperimentalCamera2Interop::class)
         @kotlin.OptIn(
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
         )
         private fun VideoCapture.Builder<Recorder>.setTargetFpsRange(
             range: Range<Int>,
-            cameraImplementation: CameraImplementation
+            cameraImplementation: CameraImplementation,
         ): VideoCapture.Builder<Recorder> {
             Log.d(TAG, "Set target fps to $range")
             when (cameraImplementation) {
@@ -146,14 +145,13 @@ class CameraHelper(private val cameraImplementation: CameraImplementation) {
             return this
         }
 
-        @SuppressLint("NullAnnotationGroup")
         @OptIn(ExperimentalCamera2Interop::class)
         @kotlin.OptIn(
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
         )
         private fun isLegacyDevice(
             cameraInfo: CameraInfo,
-            cameraImplementation: CameraImplementation
+            cameraImplementation: CameraImplementation,
         ): Boolean {
             val hardwareLevel =
                 when (cameraImplementation) {
@@ -173,7 +171,7 @@ class CameraHelper(private val cameraImplementation: CameraImplementation) {
             return if (canDeviceWriteToMediaStore()) {
                 recorder.prepareRecording(
                     context,
-                    generateVideoMediaStoreOptions(context.contentResolver, fileName)
+                    generateVideoMediaStoreOptions(context.contentResolver, fileName),
                 )
             } else {
                 recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))

@@ -3,14 +3,14 @@ package androidx.lifecycle {
 
   public abstract class AbstractSavedStateViewModelFactory extends androidx.lifecycle.ViewModelProvider.KeyedFactory {
     ctor public AbstractSavedStateViewModelFactory(androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
     method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
     method protected abstract <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>, androidx.lifecycle.SavedStateHandle);
   }
 
   public final class SavedStateHandle {
-    ctor public SavedStateHandle(java.util.Map<java.lang.String!,java.lang.Object!>);
     ctor public SavedStateHandle();
+    ctor public SavedStateHandle(java.util.Map<java.lang.String!,java.lang.Object!>);
     method @MainThread public void clearSavedStateProvider(String);
     method @MainThread public boolean contains(String);
     method @MainThread public <T> T? get(String);

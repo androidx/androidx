@@ -38,7 +38,7 @@ class ProviderGetCredentialRequestTest {
     fun constructor_success() {
         ProviderGetCredentialRequest(
             listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-            getTestCallingAppInfo(null)
+            getTestCallingAppInfo(null),
         )
     }
 
@@ -48,7 +48,7 @@ class ProviderGetCredentialRequestTest {
             listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
             getTestCallingAppInfo("origin"),
             null,
-            null
+            null,
         )
     }
 
@@ -75,10 +75,10 @@ class ProviderGetCredentialRequestTest {
                         expectedRequestData,
                         expectedCandidateQueryData,
                         expectedRequireSystemProvider,
-                        expectedAllowedProviders
+                        expectedAllowedProviders,
                     )
                 ),
-                getTestCallingAppInfo(null)
+                getTestCallingAppInfo(null),
             )
         val actualCredentialOptionsList = providerGetCredentialRequest.credentialOptions
         assertThat(actualCredentialOptionsList.size).isEqualTo(1)
@@ -105,7 +105,7 @@ class ProviderGetCredentialRequestTest {
         val providerGetCredentialRequest =
             ProviderGetCredentialRequest(
                 listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-                CallingAppInfo(expectedPackageName, SigningInfo())
+                CallingAppInfo(expectedPackageName, SigningInfo()),
             )
         val actualPackageName = providerGetCredentialRequest.callingAppInfo.packageName
 
@@ -117,7 +117,7 @@ class ProviderGetCredentialRequestTest {
         val request =
             ProviderGetCredentialRequest(
                 listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-                getTestCallingAppInfo("test-origin")
+                getTestCallingAppInfo("test-origin"),
             )
 
         val actualRequest =

@@ -18,12 +18,16 @@
 
 package androidx.datastore
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
+import androidx.datastore.core.deviceProtectedDataStoreFile
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
@@ -54,7 +58,8 @@ import okio.Path.Companion.toPath
  * ```
  *
  * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore acts
- *   on. The File is obtained from [dataStoreFile]. It is created in the "/datastore" subdirectory.
+ *   on. The File is obtained from [dataStoreFile]. It is created in the "/datastore" subdirectory,
+ *   in the user encrypted storage.
  * @param serializer The serializer for `T`.
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  *   [androidx.datastore.core.CorruptionException] when attempting to read data.
@@ -72,14 +77,51 @@ public fun <T> dataStore(
     serializer: Serializer<T>,
     corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
     produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
 ): ReadOnlyProperty<Context, DataStore<T>> {
     return DataStoreSingletonDelegate(
         fileName,
         OkioSerializerWrapper(serializer),
         corruptionHandler,
         produceMigrations,
-        scope
+        scope,
+        createInDeviceProtectedStorage = false,
+    )
+}
+
+/**
+ * Creates a property delegate for a single process DataStore to be used in direct boot.
+ *
+ * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore acts
+ *   on. The File is obtained from [dataStoreFile]. It is created in the "/datastore" subdirectory,
+ *   in the user encrypted storage.
+ * @param serializer The serializer for `T`.
+ * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+ *   [androidx.datastore.core.CorruptionException] when attempting to read data.
+ *   CorruptionExceptions are thrown by serializers when data can not be de-serialized.
+ * @param produceMigrations produce the migrations. The ApplicationContext is passed in to these
+ *   callbacks as a parameter. DataMigrations are run before any access to data can occur. Each
+ *   producer and migration may be run more than once whether or not it already succeeded
+ *   (potentially because another migration failed or a write to disk failed.)
+ * @param scope The scope in which IO operations and transform functions will execute.
+ * @return a property delegate that manages a datastore as a singleton.
+ */
+@Suppress("MissingJvmstatic")
+@RequiresApi(Build.VERSION_CODES.N)
+public fun <T> deviceProtectedDataStore(
+    fileName: String,
+    serializer: Serializer<T>,
+    corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
+    produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+): ReadOnlyProperty<Context, DataStore<T>> {
+    return DataStoreSingletonDelegate(
+        fileName,
+        OkioSerializerWrapper(serializer),
+        corruptionHandler,
+        produceMigrations,
+        scope,
+        createInDeviceProtectedStorage = true,
     )
 }
 
@@ -90,7 +132,8 @@ internal constructor(
     private val serializer: OkioSerializer<T>,
     private val corruptionHandler: ReplaceFileCorruptionHandler<T>?,
     private val produceMigrations: (Context) -> List<DataMigration<T>>,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val createInDeviceProtectedStorage: Boolean,
 ) : ReadOnlyProperty<Context, DataStore<T>> {
 
     private val lock = Any()
@@ -100,9 +143,16 @@ internal constructor(
     /**
      * Gets the instance of the DataStore.
      *
+     * This function is not guarded by a [RequiresApi] annotation as only [deviceProtectedDataStore]
+     * will set [createInDeviceProtectedStorage] to true, resulting in a call to
+     * [deviceProtectedDataStoreFile]. Since [deviceProtectedDataStore] is guarded by @RequiresApi,
+     * we do not set an API requirement on [getValue] so [deviceProtectedDataStore] and [dataStore]
+     * property delegates can share the function.
+     *
      * @param thisRef must be an instance of [Context]
      * @param property not used
      */
+    @SuppressLint("NewApi")
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
         return INSTANCE
             ?: synchronized(lock) {
@@ -112,11 +162,24 @@ internal constructor(
                         DataStoreFactory.create(
                             storage =
                                 OkioStorage(FileSystem.SYSTEM, serializer) {
-                                    applicationContext.dataStoreFile(fileName).absolutePath.toPath()
+                                    if (createInDeviceProtectedStorage) {
+                                            // Should not be able to reach here with lower SDK level
+                                            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                                            applicationContext.deviceProtectedDataStoreFile(
+                                                fileName
+                                            )
+                                        } else {
+                                            // Regardless of whether thisRef is a
+                                            // DeviceProtectedStorageContext, the applicationContext
+                                            // will always provide a User-Encrypted Storage Context.
+                                            applicationContext.dataStoreFile(fileName)
+                                        }
+                                        .absolutePath
+                                        .toPath()
                                 },
                             corruptionHandler = corruptionHandler,
                             migrations = produceMigrations(applicationContext),
-                            scope = scope
+                            scope = scope,
                         )
                 }
                 INSTANCE!!

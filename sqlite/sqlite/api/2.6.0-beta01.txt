@@ -1,0 +1,232 @@
+// Signature format: 4.0
+package androidx.sqlite {
+
+  public final class SQLite {
+    method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
+    method public static Void throwSQLiteException(int errorCode, String? errorMsg);
+    property public static int SQLITE_DATA_BLOB;
+    property public static int SQLITE_DATA_FLOAT;
+    property public static int SQLITE_DATA_INTEGER;
+    property public static int SQLITE_DATA_NULL;
+    property public static int SQLITE_DATA_TEXT;
+    field public static final int SQLITE_DATA_BLOB = 4; // 0x4
+    field public static final int SQLITE_DATA_FLOAT = 2; // 0x2
+    field public static final int SQLITE_DATA_INTEGER = 1; // 0x1
+    field public static final int SQLITE_DATA_NULL = 5; // 0x5
+    field public static final int SQLITE_DATA_TEXT = 3; // 0x3
+  }
+
+  public interface SQLiteConnection extends java.lang.AutoCloseable {
+    method public void close();
+    method public default boolean inTransaction();
+    method public androidx.sqlite.SQLiteStatement prepare(String sql);
+  }
+
+  public interface SQLiteDriver {
+    method public default boolean hasConnectionPool();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
+    property public default boolean hasConnectionPool;
+  }
+
+  public interface SQLiteStatement extends java.lang.AutoCloseable {
+    method public void bindBlob(@IntRange(from=1L) int index, byte[] value);
+    method public default void bindBoolean(@IntRange(from=1L) int index, boolean value);
+    method public void bindDouble(@IntRange(from=1L) int index, double value);
+    method public default void bindFloat(@IntRange(from=1L) int index, float value);
+    method public default void bindInt(@IntRange(from=1L) int index, int value);
+    method public void bindLong(@IntRange(from=1L) int index, long value);
+    method public void bindNull(@IntRange(from=1L) int index);
+    method public void bindText(@IntRange(from=1L) int index, String value);
+    method public void clearBindings();
+    method public void close();
+    method public byte[] getBlob(@IntRange(from=0L) int index);
+    method public default boolean getBoolean(@IntRange(from=0L) int index);
+    method public int getColumnCount();
+    method public String getColumnName(@IntRange(from=0L) int index);
+    method public default java.util.List<java.lang.String> getColumnNames();
+    method public int getColumnType(@IntRange(from=0L) int index);
+    method public double getDouble(@IntRange(from=0L) int index);
+    method public default float getFloat(@IntRange(from=0L) int index);
+    method public default int getInt(@IntRange(from=0L) int index);
+    method public long getLong(@IntRange(from=0L) int index);
+    method public String getText(@IntRange(from=0L) int index);
+    method public boolean isNull(@IntRange(from=0L) int index);
+    method public void reset();
+    method public boolean step();
+  }
+
+}
+
+package androidx.sqlite.db {
+
+  public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
+    ctor public SimpleSQLiteQuery(String query);
+    ctor public SimpleSQLiteQuery(String query, Object?[]? bindArgs);
+    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object?[]? bindArgs);
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
+    method public int getArgCount();
+    method public String getSql();
+    property public int argCount;
+    property public String sql;
+    field public static final androidx.sqlite.db.SimpleSQLiteQuery.Companion Companion;
+  }
+
+  public static final class SimpleSQLiteQuery.Companion {
+    method public void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object?[]? bindArgs);
+  }
+
+  public interface SupportSQLiteDatabase extends java.io.Closeable {
+    method public void beginTransaction();
+    method public void beginTransactionNonExclusive();
+    method public default void beginTransactionReadOnly();
+    method public void beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener transactionListener);
+    method public void beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener transactionListener);
+    method public default void beginTransactionWithListenerReadOnly(android.database.sqlite.SQLiteTransactionListener transactionListener);
+    method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
+    method public int delete(String table, String? whereClause, Object?[]? whereArgs);
+    method public void disableWriteAheadLogging();
+    method public boolean enableWriteAheadLogging();
+    method public void endTransaction();
+    method public default void execPerConnectionSQL(String sql, Object?[]? bindArgs);
+    method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public void execSQL(String sql) throws android.database.SQLException;
+    method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public void execSQL(String sql, Object?[] bindArgs) throws android.database.SQLException;
+    method public java.util.List<android.util.Pair<java.lang.String,java.lang.String>>? getAttachedDbs();
+    method public long getMaximumSize();
+    method public long getPageSize();
+    method public String? getPath();
+    method public int getVersion();
+    method public boolean inTransaction();
+    method @kotlin.jvm.Throws(exceptionClasses=SQLException::class) public long insert(String table, int conflictAlgorithm, android.content.ContentValues values) throws android.database.SQLException;
+    method public boolean isDatabaseIntegrityOk();
+    method public boolean isDbLockedByCurrentThread();
+    method public default boolean isExecPerConnectionSQLSupported();
+    method public boolean isOpen();
+    method public boolean isReadOnly();
+    method public boolean isWriteAheadLoggingEnabled();
+    method public boolean needUpgrade(int newVersion);
+    method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
+    method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, android.os.CancellationSignal? cancellationSignal);
+    method public android.database.Cursor query(String query);
+    method public android.database.Cursor query(String query, Object?[] bindArgs);
+    method public void setForeignKeyConstraintsEnabled(boolean enabled);
+    method public void setLocale(java.util.Locale locale);
+    method public void setMaxSqlCacheSize(int cacheSize);
+    method public long setMaximumSize(long numBytes);
+    method public void setPageSize(long);
+    method public void setTransactionSuccessful();
+    method public void setVersion(int);
+    method public int update(String table, int conflictAlgorithm, android.content.ContentValues values, String? whereClause, Object?[]? whereArgs);
+    method public boolean yieldIfContendedSafely();
+    method public boolean yieldIfContendedSafely(long sleepAfterYieldDelayMillis);
+    property public abstract java.util.List<android.util.Pair<java.lang.String,java.lang.String>>? attachedDbs;
+    property public abstract boolean isDatabaseIntegrityOk;
+    property public abstract boolean isDbLockedByCurrentThread;
+    property public default boolean isExecPerConnectionSQLSupported;
+    property public abstract boolean isOpen;
+    property public abstract boolean isReadOnly;
+    property public abstract boolean isWriteAheadLoggingEnabled;
+    property public abstract long maximumSize;
+    property public abstract long pageSize;
+    property public abstract String? path;
+    property public abstract int version;
+  }
+
+  public interface SupportSQLiteOpenHelper extends java.io.Closeable {
+    method public void close();
+    method public String? getDatabaseName();
+    method public androidx.sqlite.db.SupportSQLiteDatabase getReadableDatabase();
+    method public androidx.sqlite.db.SupportSQLiteDatabase getWritableDatabase();
+    method public void setWriteAheadLoggingEnabled(boolean enabled);
+    property public abstract String? databaseName;
+    property public abstract androidx.sqlite.db.SupportSQLiteDatabase readableDatabase;
+    property public abstract androidx.sqlite.db.SupportSQLiteDatabase writableDatabase;
+  }
+
+  public abstract static class SupportSQLiteOpenHelper.Callback {
+    ctor public SupportSQLiteOpenHelper.Callback(int version);
+    method public void onConfigure(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onCorruption(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onDowngrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
+    method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public abstract void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase db, int oldVersion, int newVersion);
+    property public final int version;
+    field public final int version;
+  }
+
+  public static final class SupportSQLiteOpenHelper.Configuration {
+    ctor public SupportSQLiteOpenHelper.Configuration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback, optional boolean useNoBackupDirectory, optional boolean allowDataLossOnRecovery);
+    method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
+    property public boolean allowDataLossOnRecovery;
+    property public androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
+    property public android.content.Context context;
+    property public String? name;
+    property public boolean useNoBackupDirectory;
+    field public static final androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Companion Companion;
+    field public final boolean allowDataLossOnRecovery;
+    field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
+    field public final android.content.Context context;
+    field public final String? name;
+    field public final boolean useNoBackupDirectory;
+  }
+
+  public static class SupportSQLiteOpenHelper.Configuration.Builder {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder allowDataLossOnRecovery(boolean allowDataLossOnRecovery);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration build();
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String? name);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder noBackupDirectory(boolean useNoBackupDirectory);
+  }
+
+  public static final class SupportSQLiteOpenHelper.Configuration.Companion {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
+  }
+
+  public static fun interface SupportSQLiteOpenHelper.Factory {
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration configuration);
+  }
+
+  public interface SupportSQLiteProgram extends java.io.Closeable {
+    method public void bindBlob(int index, byte[] value);
+    method public void bindDouble(int index, double value);
+    method public void bindLong(int index, long value);
+    method public void bindNull(int index);
+    method public void bindString(int index, String value);
+    method public void clearBindings();
+  }
+
+  public interface SupportSQLiteQuery {
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
+    method public int getArgCount();
+    method public String getSql();
+    property public abstract int argCount;
+    property public abstract String sql;
+  }
+
+  public final class SupportSQLiteQueryBuilder {
+    method public static androidx.sqlite.db.SupportSQLiteQueryBuilder builder(String tableName);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder columns(String[]? columns);
+    method public androidx.sqlite.db.SupportSQLiteQuery create();
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder distinct();
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder groupBy(String? groupBy);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder having(String? having);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder limit(String limit);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder orderBy(String? orderBy);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder selection(String? selection, Object?[]? bindArgs);
+    field public static final androidx.sqlite.db.SupportSQLiteQueryBuilder.Companion Companion;
+  }
+
+  public static final class SupportSQLiteQueryBuilder.Companion {
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder builder(String tableName);
+  }
+
+  public interface SupportSQLiteStatement extends androidx.sqlite.db.SupportSQLiteProgram {
+    method public void execute();
+    method public long executeInsert();
+    method public int executeUpdateDelete();
+    method public long simpleQueryForLong();
+    method public String? simpleQueryForString();
+  }
+
+}
+

@@ -25,7 +25,6 @@ import android.credentials.Credential;
 import android.os.OutcomeReceiver;
 import android.widget.EditText;
 
-import androidx.annotation.RequiresApi;
 import androidx.credentials.internal.FrameworkImplHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -51,7 +50,7 @@ public class CredentialManagerViewHandlerJavaTest {
             FrameworkImplHelper.convertGetRequestToFrameworkClass(GET_CRED_PASSWORD_REQ);
 
     @Test
-    @RequiresApi(35)
+    @SdkSuppress(minSdkVersion = 35)
     public void setPendingCredentialRequest_frameworkAttrSetSuccessfully() {
         EditText editText = new EditText(mContext);
 
@@ -71,7 +70,7 @@ public class CredentialManagerViewHandlerJavaTest {
     }
 
     @Test
-    @RequiresApi(35)
+    @SdkSuppress(minSdkVersion = 35)
     public void setPendingCredentialRequest_callbackInvokedSuccessfully()
             throws InterruptedException {
         CountDownLatch latch1 = new CountDownLatch(1);

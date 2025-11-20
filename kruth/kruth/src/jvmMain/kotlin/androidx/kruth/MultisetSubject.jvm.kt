@@ -20,10 +20,8 @@ import com.google.common.collect.Multiset
 
 /** Propositions for [Multiset] subjects. */
 class MultisetSubject<T>
-internal constructor(
-    actual: Multiset<T>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : IterableSubject<T>(actual, metadata) {
+internal constructor(actual: Multiset<T>?, metadata: FailureMetadata = FailureMetadata()) :
+    IterableSubject<T>(actual, metadata) {
     private val _actual = actual
 
     /** Fails if the element does not have the given count. */

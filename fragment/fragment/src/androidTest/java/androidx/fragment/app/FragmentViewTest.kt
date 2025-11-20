@@ -1114,7 +1114,7 @@ class FragmentViewTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             val fragment2 = StrictViewFragment(R.layout.fragment_a)
 
@@ -1136,7 +1136,7 @@ class FragmentViewTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             onCreateViewCount++
             return super.onCreateView(inflater, container, savedInstanceState)

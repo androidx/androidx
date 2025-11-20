@@ -30,8 +30,6 @@ import androidx.core.os.LocaleListCompat;
 
 import org.jspecify.annotations.NonNull;
 
-import java.util.Locale;
-
 /**
  * Helper for accessing features in {@link android.app.LocaleManager} in a backwards compatible
  * fashion.
@@ -101,21 +99,8 @@ public final class LocaleManagerCompat {
     static LocaleListCompat getConfigurationLocales(Configuration conf) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.getLocales(conf);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return LocaleListCompat.forLanguageTags(Api21Impl.toLanguageTag(conf.locale));
         } else {
-            // Create LocaleListCompat using the configuration locale directly since
-            // Locale.toLanguageTag() was added for API level 21 and above.
-            return LocaleListCompat.create(conf.locale);
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {}
-
-        static String toLanguageTag(Locale locale) {
-            return locale.toLanguageTag();
+            return LocaleListCompat.forLanguageTags(conf.locale.toLanguageTag());
         }
     }
 

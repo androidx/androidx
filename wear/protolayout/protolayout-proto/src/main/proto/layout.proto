@@ -249,11 +249,6 @@ message Text {
   // While this field is statically accessible from 1.0, it's only bindable
   // since version 1.2 and renderers supporting version 1.2 will use the dynamic
   // value (if set).
-  //
-  // When using a dynamic value, make sure to specify the bounding constraints
-  // for the affected layout element through {@code
-  // setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise
-  // {@code build()} fails.
   StringProp text = 1;
 
   // The style of font to use (size, bold etc). If not specified, defaults to
@@ -382,11 +377,6 @@ message Spacer {
   // While this field is statically accessible from 1.0, it's only bindable
   // since version 1.2 and renderers supporting version 1.2 will use the dynamic
   // value (if set).
-  //
-  // When using a dynamic value, make sure to specify the bounding constraints
-  // for the affected layout element through {@code
-  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
-  // {@code build()} fails.
   SpacerDimension width = 1;
 
   // The height of this spacer. If not defined, defaults to 0.
@@ -394,11 +384,6 @@ message Spacer {
   // While this field is statically accessible from 1.0, it's only bindable
   // since version 1.2 and renderers supporting version 1.2 will use the dynamic
   // value (if set).
-  //
-  // When using a dynamic value, make sure to specify the bounding constraints
-  // for the affected layout element through {@code
-  // setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise
-  // {@code build()} fails.
   SpacerDimension height = 2;
 
   // Modifiers for this element.
@@ -668,11 +653,6 @@ message ArcLine {
   // While this field is statically accessible from 1.0, it's only bindable
   // since version 1.2 and renderers supporting version 1.2 will use the dynamic
   // value (if set).
-  //
-  // When using a dynamic value, make sure to specify the bounding constraints
-  // for the affected layout element through {@code
-  // setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise
-  // {@code build()} fails.
   DegreesProp length = 1;
 
   // The thickness of this line. If not defined, defaults to 0.
@@ -743,11 +723,6 @@ message StrokeCapProp {
 message DashedArcLine {
   // The length of this line in degrees, including gaps. <setter> If not defined,
   // defaults to 0.</setter>
-  //
-  // <setter>When using a dynamic value, make sure to specify the bounding constraints
-  // for the affected layout element through {@code
-  // setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise
-  // {@code build()} fails.<setter>
   DegreesProp length = 1;
 
   // The thickness of this line. <setter> If not defined, defaults to 0.</setter>

@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Looper;
 import android.webkit.TracingController;
@@ -61,6 +62,7 @@ public class ApiHelperForP {
      */
     public static void start(@NonNull TracingController tracingController,
             @NonNull TracingConfig tracingConfig) {
+        @SuppressLint("WrongConstant") // Mapping AndroidX constants to framework constants.
         android.webkit.TracingConfig config =
                 new android.webkit.TracingConfig.Builder()
                         .addCategories(tracingConfig.getPredefinedCategories())

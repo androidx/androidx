@@ -16,15 +16,15 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
 
 
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
-    Invalid nullability on parameter `event` in method `dispatchKeyEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.KeyEvent in parameter `event` in method `dispatchKeyEvent`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
-    Invalid nullability on parameter `event` in method `dispatchKeyShortcutEvent`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.KeyEvent in parameter `event` in method `dispatchKeyShortcutEvent`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean, android.content.res.Configuration) parameter #1:
-    Invalid nullability on parameter `newConfig` in method `onMultiWindowModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.res.Configuration in parameter `newConfig` in method `onMultiWindowModeChanged`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean, android.content.res.Configuration) parameter #1:
-    Invalid nullability on parameter `newConfig` in method `onPictureInPictureModeChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.res.Configuration in parameter `newConfig` in method `onPictureInPictureModeChanged`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#onRetainNonConfigurationInstance():
-    Invalid nullability on method `onRetainNonConfigurationInstance` return. Overrides of unannotated super method cannot be Nullable.
+    Invalid nullability on type java.lang.Object in method `onRetainNonConfigurationInstance` return. Method override cannot use a nullable type when the corresponding type from the super method is platform-nullness.
 
 
 MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Builder#setFlags(int, int):
@@ -37,3 +37,7 @@ PairedRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androi
     Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcher
 PairedRegistration: androidx.activity.OnBackPressedDispatcherKt#addCallback(androidx.activity.OnBackPressedDispatcher, androidx.lifecycle.LifecycleOwner, boolean, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit>):
     Found addCallback but not removeCallback in androidx.activity.OnBackPressedDispatcherKt
+
+
+TypeParameterName: androidx.activity.ActivityViewModelLazyKt#viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

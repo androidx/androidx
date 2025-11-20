@@ -1,0 +1,15 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.room3:room3-testing>
+final class androidx.room3.testing/MigrationTestHelper { // androidx.room3.testing/MigrationTestHelper|null[0]
+    constructor <init>(kotlin/String, kotlin/String, androidx.sqlite/SQLiteDriver, kotlin.reflect/KClass<out androidx.room3/RoomDatabase>, kotlin/Function0<androidx.room3/RoomDatabase> = ..., kotlin.collections/List<androidx.room3.migration/AutoMigrationSpec> = ...) // androidx.room3.testing/MigrationTestHelper.<init>|<init>(kotlin.String;kotlin.String;androidx.sqlite.SQLiteDriver;kotlin.reflect.KClass<out|androidx.room3.RoomDatabase>;kotlin.Function0<androidx.room3.RoomDatabase>;kotlin.collections.List<androidx.room3.migration.AutoMigrationSpec>){}[0]
+
+    final fun createDatabase(kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.createDatabase|createDatabase(kotlin.Int){}[0]
+    final fun finished() // androidx.room3.testing/MigrationTestHelper.finished|finished(){}[0]
+    final fun runMigrationsAndValidate(kotlin/Int, kotlin.collections/List<androidx.room3.migration/Migration> = ...): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.runMigrationsAndValidate|runMigrationsAndValidate(kotlin.Int;kotlin.collections.List<androidx.room3.migration.Migration>){}[0]
+}

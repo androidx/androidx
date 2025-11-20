@@ -17,6 +17,7 @@ package androidx.window.layout.adapter
 
 import android.app.Activity
 import android.content.Context
+import android.inputmethodservice.InputMethodService
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
@@ -42,7 +43,7 @@ internal interface WindowBackend {
     fun registerLayoutChangeCallback(
         @UiContext context: Context,
         executor: Executor,
-        callback: Consumer<WindowLayoutInfo>
+        callback: Consumer<WindowLayoutInfo>,
     )
 
     /** Unregisters a callback for window layout changes. */
@@ -61,4 +62,21 @@ internal interface WindowBackend {
     @RequiresWindowSdkExtension(version = 6)
     @get:RequiresWindowSdkExtension(version = 6)
     val supportedPostures: List<SupportedPosture>
+
+    /**
+     * Returns the current [WindowLayoutInfo] for the given [Context].
+     *
+     * This API provides a convenient way to access the current [WindowLayoutInfo] without
+     * registering a listener via [registerLayoutChangeCallback]. It simplifies the retrieval of
+     * [WindowLayoutInfo] in scenarios like [Activity.onCreate].
+     *
+     * @param context a [Context] that corresponds to a window or an area on the screen. This can be
+     *   an [Activity], a [Context] created with [Context.createWindowContext], or an
+     *   [InputMethodService].
+     * @return the current [WindowLayoutInfo] for the given [Context].
+     * @throws UnsupportedOperationException if the Window SDK extension version is less than 9.
+     * @throws IllegalArgumentException when [context] is not an [UiContext].
+     */
+    @RequiresWindowSdkExtension(version = 9)
+    fun getCurrentWindowLayoutInfo(@UiContext context: Context): WindowLayoutInfo
 }

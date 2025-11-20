@@ -42,11 +42,11 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = 21)
+@Config(sdk = [Config.ALL_SDKS])
 class FlashAvailabilityCheckerTest(
     private val manufacturer: String,
     private val model: String,
-    private val cameraProperties: CameraProperties
+    private val cameraProperties: CameraProperties,
 ) {
     @Before
     fun setup() {
@@ -83,6 +83,7 @@ class FlashAvailabilityCheckerTest(
         override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
         override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
         override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
+        override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
         val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
         override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     ) : CameraMetadata {

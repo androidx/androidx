@@ -53,7 +53,7 @@ fun RecyclerViewFocusTransferDemo() {
                 adapter = DemoAdapter(listOf("purple", "blue", "green", "yellow", "orange", "red"))
             }
         },
-        update = { it.requestFocus() }
+        update = { it.requestFocus() },
     )
 }
 
@@ -79,10 +79,10 @@ private class DemoAdapter(val entries: List<String>) : Adapter<DemoAdapter.DemoV
                 setContent {
                     FocusableText(
                         text = text.value,
-                        modifier = Modifier.focusRequester(focusRequester)
+                        modifier = Modifier.focusRequester(focusRequester),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -106,6 +106,6 @@ private fun FocusableText(text: String, modifier: Modifier) {
                 .focusTarget()
                 .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
-        fontSize = 30.sp
+        fontSize = 30.sp,
     )
 }

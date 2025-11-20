@@ -16,9 +16,11 @@
 package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.Anchor
+import androidx.compose.runtime.Composer
 import androidx.compose.runtime.ComposerImpl.CompositionContextHolder
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.GroupSourceInformation
+import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
@@ -42,26 +44,32 @@ internal class ReaderTraceBuilder(private val reader: SlotReader) : ComposeStack
 }
 
 internal abstract class ComposeStackTraceBuilder {
-    private val trace = mutableListOf<ComposeStackTraceFrame>()
+    private val _trace = mutableListOf<ComposeStackTraceFrame>()
 
-    fun trace(): List<ComposeStackTraceFrame> = trace
+    fun trace(): List<ComposeStackTraceFrame> = _trace
 
-    private fun appendTraceFrame(groupSourceInformation: GroupSourceInformation, child: Any?) {
-        val frame = extractTraceFrame(groupSourceInformation, child)
+    private fun appendTraceFrame(
+        groupKey: Int,
+        groupSourceInformation: GroupSourceInformation?,
+        child: Any?,
+    ) {
+        val frame = extractTraceFrame(groupKey, groupSourceInformation, child)
         if (frame != null) {
-            trace += frame
+            _trace += frame
         }
     }
 
+    @OptIn(ComposeToolingApi::class)
     private fun extractTraceFrame(
-        groupSourceInformation: GroupSourceInformation,
-        targetChild: Any?
+        groupKey: Int,
+        groupSourceInformation: GroupSourceInformation?,
+        targetChild: Any?,
     ): ComposeStackTraceFrame? {
-        val parsed = groupSourceInformation.sourceInformation?.let { parseSourceInfo(it) }
+        val parsed = groupSourceInformation?.sourceInformation?.let { parseSourceInformation(it) }
         if (parsed != null) {
             if (targetChild == null) {
                 // no child specified
-                return ComposeStackTraceFrame(parsed, null)
+                return ComposeStackTraceFrame(groupKey, parsed, null)
             }
             // calculate the call offset by checking source information of the children
             var callCount = 0
@@ -98,9 +106,9 @@ internal abstract class ComposeStackTraceBuilder {
                     }
                 }
             }
-            return ComposeStackTraceFrame(parsed, callCount)
+            return ComposeStackTraceFrame(groupKey, parsed, callCount)
         }
-        return null
+        return ComposeStackTraceFrame(groupKey, null, null)
     }
 
     private fun sourceInformationOf(group: Any) =
@@ -114,33 +122,41 @@ internal abstract class ComposeStackTraceBuilder {
         sourceInformation?.startsWith("C") == true
 
     fun processEdge(
+        groupKey: Int,
+        objectKey: Any?,
         sourceInformation: GroupSourceInformation?,
         childData: Any?, // (Anchor | Int | null)
     ) {
-        if (sourceInformation != null) {
-            if (childData == null) {
-                appendTraceFrame(sourceInformation, null)
-            } else {
-                val found = findInGroupSourceInformation(sourceInformation, childData)
+        when {
+            sourceInformation == null && objectKey != Composer.Empty -> {
+                // Ignore movable groups without source info
+                return
+            }
+            childData == null || sourceInformation == null -> {
+                appendTraceFrame(groupKey, sourceInformation, null)
+            }
+            else -> {
+                val found = appendGroupSourceInformation(groupKey, sourceInformation, childData)
                 if (!found && !sourceInformation.closed) {
                     // We found an incomplete group, very likely crash happened exactly
                     // at that location.
-                    appendTraceFrame(sourceInformation, childData)
+                    appendTraceFrame(groupKey, sourceInformation, childData)
                 }
             }
         }
     }
 
-    private fun findInGroupSourceInformation(
+    private fun appendGroupSourceInformation(
+        groupKey: Int,
         sourceInformation: GroupSourceInformation,
-        target: Any // (Anchor | Int)
+        target: Any, // (Anchor | Int)
     ): Boolean {
         val children = sourceInformation.groups
         if (children == null) {
             if (!sourceInformation.closed) {
                 // We found an incomplete group, very likely crash happened exactly
                 // at that location.
-                appendTraceFrame(sourceInformation, null)
+                appendTraceFrame(groupKey, sourceInformation, null)
                 return true
             }
             // if the group is a leaf and we are searching for a data offset, check if it matches
@@ -152,7 +168,7 @@ internal abstract class ComposeStackTraceBuilder {
                     target in slotStart until slotEnd ||
                         (slotStart == slotEnd && slotStart == target)
                 if (found) {
-                    appendTraceFrame(sourceInformation, target)
+                    appendTraceFrame(sourceInformation.key, sourceInformation, null)
                 }
                 return found
             }
@@ -164,14 +180,14 @@ internal abstract class ComposeStackTraceBuilder {
                 is Anchor -> {
                     // edge found, return
                     if (child == target) {
-                        appendTraceFrame(sourceInformation, child)
+                        appendTraceFrame(sourceInformation.key, sourceInformation, child)
                         return true
                     }
                 }
                 is GroupSourceInformation -> {
-                    val found = findInGroupSourceInformation(child, target)
+                    val found = appendGroupSourceInformation(groupKey, child, target)
                     if (found) {
-                        appendTraceFrame(sourceInformation, child)
+                        appendTraceFrame(sourceInformation.key, sourceInformation, child)
                         return true
                     }
                 }
@@ -186,82 +202,10 @@ internal abstract class ComposeStackTraceBuilder {
     abstract fun groupKeyOf(anchor: Anchor): Int
 }
 
-private val EmptyIntArray = IntArray(0)
-
-private fun parseSourceInfo(data: String): ParsedSourceInformation? {
-    if (data.isEmpty()) {
-        return null
-    }
-
-    var i = 0
-    var functionName: String? = null
-    var isCall = false
-    if (data[i] == 'C') { // call
-        i++
-        isCall = true
-        if (data[i] == 'C') { // inline call
-            i++
-        }
-        // parse function name
-        if (data[i] == '(') {
-            var end = ++i
-            while (data[end] != ')') end++
-            functionName = data.substring(i, end)
-            i = ++end
-        } else {
-            functionName = "<lambda>"
-        }
-        // skip over parameter info
-        if (data[i] == 'P') {
-            var end = ++i
-            while (data[end] != ')') end++
-            i = ++end
-        }
-    }
-
-    // parse offset section ([*]<line-number>@<offset>L<length>[,])
-    var callInfoEnd = i
-    while (callInfoEnd < data.length && data[callInfoEnd] != ':') callInfoEnd++
-    val lineInfo =
-        if (i < callInfoEnd) {
-            data
-                .substring(i, callInfoEnd)
-                .split(',')
-                // points to end of previous line, so adding 1
-                .map { it.substringBefore('@').substringAfter('*').toInt() + 1 }
-                .toIntArray()
-        } else {
-            EmptyIntArray
-        }
-
-    // parse file name and package hash
-    var fileName: String? = null
-    i = callInfoEnd
-    if (i < data.length) {
-        var end = ++i
-        while (data[end] != '#') end++
-        fileName = data.substring(i, end)
-        i = end
-    }
-    var packageHash: String? = null
-    if (i < data.length) {
-        packageHash = data.substring(++i)
-    }
-
-    return ParsedSourceInformation(
-        isCall = isCall,
-        functionName = functionName,
-        lineNumbers = lineInfo,
-        fileName = fileName,
-        packageHash = packageHash,
-        dataString = data
-    )
-}
-
 internal fun SlotWriter.buildTrace(
     child: Any? = null,
     group: Int = currentGroup,
-    parent: Int? = null
+    parent: Int? = null,
 ): List<ComposeStackTraceFrame> {
     val writer = this
     if (!writer.closed && writer.size != 0) {
@@ -272,13 +216,37 @@ internal fun SlotWriter.buildTrace(
         var parentGroup =
             parent ?: if (writer.parent < 0) writer.parent(currentGroup) else writer.parent
         var childData: Any? = child ?: writer.groupSlotIndex(currentGroup)
+        var groupKey =
+            if (writer.isValid(currentGroup)) {
+                writer.groupKey(currentGroup)
+            } else {
+                // the writer did not manage to even record the group key
+                // so proceed from parent
+                currentGroup = parentGroup
+                if (currentGroup >= 0) {
+                    parentGroup = writer.parent(currentGroup)
+                }
+                writer.groupKey(currentGroup)
+            }
         while (currentGroup >= 0) {
-            traceBuilder.processEdge(writer.sourceInformationOf(currentGroup), childData)
+            val objectKey =
+                if (writer.hasObjectKey(currentGroup)) {
+                    writer.groupObjectKey(currentGroup)
+                } else {
+                    Composer.Empty
+                }
+            traceBuilder.processEdge(
+                groupKey,
+                objectKey,
+                writer.sourceInformationOf(currentGroup),
+                childData,
+            )
             childData = writer.anchor(currentGroup)
             currentGroup = parentGroup
 
             if (currentGroup >= 0) {
                 parentGroup = writer.parent(currentGroup)
+                groupKey = writer.groupKey(currentGroup)
             }
         }
         return traceBuilder.trace()
@@ -293,7 +261,18 @@ internal fun SlotReader.buildTrace(): List<ComposeStackTraceFrame> {
         var currentGroup = reader.parent
         var childAnchor: Any? = reader.slot
         while (currentGroup >= 0) {
-            traceBuilder.processEdge(reader.table.sourceInformationOf(currentGroup), childAnchor)
+            val objectKey =
+                if (reader.hasObjectKey(currentGroup)) {
+                    reader.groupObjectKey(currentGroup)
+                } else {
+                    Composer.Empty
+                }
+            traceBuilder.processEdge(
+                reader.groupKey(currentGroup),
+                objectKey,
+                reader.table.sourceInformationOf(currentGroup),
+                childAnchor,
+            )
             childAnchor = reader.anchor(currentGroup)
             val parentGroup = reader.parent(currentGroup)
             currentGroup = parentGroup
@@ -305,7 +284,7 @@ internal fun SlotReader.buildTrace(): List<ComposeStackTraceFrame> {
 
 internal fun SlotReader.traceForGroup(
     group: Int,
-    child: Any? /* Anchor | Int | null */
+    child: Any?, /* Anchor | Int | null */
 ): List<ComposeStackTraceFrame> {
     val reader = this
     val traceBuilder = ReaderTraceBuilder(reader)
@@ -314,7 +293,18 @@ internal fun SlotReader.traceForGroup(
     var parentAnchor = reader.anchor(currentGroup)
     var childAnchor: Any? = child
     while (currentGroup >= 0) {
-        traceBuilder.processEdge(reader.table.sourceInformationOf(currentGroup), childAnchor)
+        val objectKey =
+            if (reader.hasObjectKey(currentGroup)) {
+                reader.groupObjectKey(currentGroup)
+            } else {
+                Composer.Empty
+            }
+        traceBuilder.processEdge(
+            reader.groupKey(currentGroup),
+            objectKey,
+            reader.table.sourceInformationOf(currentGroup),
+            childAnchor,
+        )
         currentGroup = parentGroup
         childAnchor = parentAnchor
         if (currentGroup >= 0) {
@@ -360,7 +350,8 @@ internal fun SlotTable.findSubcompositionContextGroup(context: CompositionContex
                         reader.groupKey(current) == referenceKey &&
                         reader.groupObjectKey(current) == reference
                 ) {
-                    val contextHolder = reader.groupGet(current, 0) as? CompositionContextHolder
+                    val observerHolder = reader.groupGet(current, 0) as? RememberObserverHolder
+                    val contextHolder = observerHolder?.wrapped as? CompositionContextHolder
                     if (contextHolder != null && contextHolder.ref == context) {
                         return current
                     }

@@ -26,16 +26,16 @@ import androidx.compose.runtime.Updater
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-inline fun <T : Emittable> GlanceNode(
+public inline fun <T : Emittable> GlanceNode(
     noinline factory: () -> T,
-    update: @DisallowComposableCalls Updater<T>.() -> Unit
+    update: @DisallowComposableCalls Updater<T>.() -> Unit,
 ) {
     ComposeNode<T, Applier>(factory, update)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-inline fun <T : Emittable> GlanceNode(
+public inline fun <T : Emittable> GlanceNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
     content: @Composable @GlanceComposable () -> Unit,

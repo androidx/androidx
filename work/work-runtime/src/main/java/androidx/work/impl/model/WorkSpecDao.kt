@@ -42,26 +42,26 @@ import org.intellij.lang.annotations.Language
 /** The Data Access Object for [WorkSpec]s. */
 @Dao
 @SuppressLint("UnknownNullness")
-interface WorkSpecDao {
+public interface WorkSpecDao {
     /**
      * Attempts to insert a [WorkSpec] into the database.
      *
      * @param workSpec The WorkSpec to insert.
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertWorkSpec(workSpec: WorkSpec)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) public fun insertWorkSpec(workSpec: WorkSpec)
 
     /**
      * Deletes [WorkSpec]s from the database.
      *
      * @param id The WorkSpec id to delete.
      */
-    @Query("DELETE FROM workspec WHERE id=:id") fun delete(id: String)
+    @Query("DELETE FROM workspec WHERE id=:id") public fun delete(id: String)
 
     /**
      * @param id The identifier
      * @return The WorkSpec associated with that id
      */
-    @Query("SELECT * FROM workspec WHERE id=:id") fun getWorkSpec(id: String): WorkSpec?
+    @Query("SELECT * FROM workspec WHERE id=:id") public fun getWorkSpec(id: String): WorkSpec?
 
     /**
      * @param name The work graph name
@@ -71,15 +71,15 @@ interface WorkSpecDao {
         "SELECT id, state FROM workspec WHERE id IN " +
             "(SELECT work_spec_id FROM workname WHERE name=:name)"
     )
-    fun getWorkSpecIdAndStatesForName(name: String): List<WorkSpec.IdAndState>
+    public fun getWorkSpecIdAndStatesForName(name: String): List<WorkSpec.IdAndState>
 
     /** @return All WorkSpec ids in the database. */
-    @Query("SELECT id FROM workspec") fun getAllWorkSpecIds(): List<String>
+    @Query("SELECT id FROM workspec") public fun getAllWorkSpecIds(): List<String>
 
     /** @return A [LiveData] list of all WorkSpec ids in the database. */
     @Transaction
     @Query("SELECT id FROM workspec")
-    fun getAllWorkSpecIdsLiveData(): LiveData<List<String>>
+    public fun getAllWorkSpecIdsLiveData(): LiveData<List<String>>
 
     /**
      * Updates the state of at least one [WorkSpec] by ID.
@@ -89,7 +89,7 @@ interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET state=:state WHERE id=:id")
-    fun setState(state: WorkInfo.State, id: String): Int
+    public fun setState(state: WorkInfo.State, id: String): Int
 
     /**
      * Sets cancelled state for workspec
@@ -102,11 +102,11 @@ interface WorkSpecDao {
             "SET stop_reason = CASE WHEN state=$RUNNING THEN $STOP_REASON_CANCELLED_BY_APP " +
             "ELSE ${WorkInfo.STOP_REASON_NOT_STOPPED} END, state=$CANCELLED WHERE id=:id"
     )
-    fun setCancelledState(id: String): Int
+    public fun setCancelledState(id: String): Int
 
     /** Increment periodic counter. */
     @Query("UPDATE workspec SET period_count=period_count+1 WHERE id=:id")
-    fun incrementPeriodCount(id: String)
+    public fun incrementPeriodCount(id: String)
 
     /**
      * Updates the output of a [WorkSpec].
@@ -115,7 +115,7 @@ interface WorkSpecDao {
      * @param output The [Data] to set as the output
      */
     @Query("UPDATE workspec SET output=:output WHERE id=:id")
-    fun setOutput(id: String, output: Data)
+    public fun setOutput(id: String, output: Data)
 
     /**
      * Updates the period start time of a [WorkSpec].
@@ -124,7 +124,7 @@ interface WorkSpecDao {
      * @param enqueueTime The time when the period started.
      */
     @Query("UPDATE workspec SET last_enqueue_time=:enqueueTime WHERE id=:id")
-    fun setLastEnqueueTime(id: String, enqueueTime: Long)
+    public fun setLastEnqueueTime(id: String, enqueueTime: Long)
 
     /**
      * Increment run attempt count of a [WorkSpec].
@@ -133,7 +133,7 @@ interface WorkSpecDao {
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET run_attempt_count=run_attempt_count+1 WHERE id=:id")
-    fun incrementWorkSpecRunAttemptCount(id: String): Int
+    public fun incrementWorkSpecRunAttemptCount(id: String): Int
 
     /**
      * Reset run attempt count of a [WorkSpec].
@@ -142,7 +142,7 @@ interface WorkSpecDao {
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
-    fun resetWorkSpecRunAttemptCount(id: String): Int
+    public fun resetWorkSpecRunAttemptCount(id: String): Int
 
     /**
      * Updates the next schedule time of a [WorkSpec].
@@ -155,7 +155,7 @@ interface WorkSpecDao {
         "UPDATE workspec SET next_schedule_time_override=:nextScheduleTimeOverrideMillis " +
             "WHERE id=:id"
     )
-    fun setNextScheduleTimeOverride(id: String, nextScheduleTimeOverrideMillis: Long)
+    public fun setNextScheduleTimeOverride(id: String, nextScheduleTimeOverrideMillis: Long)
 
     /**
      * Resets the next schedule time override of a [WorkSpec] if the override generation has not
@@ -167,7 +167,7 @@ interface WorkSpecDao {
         "UPDATE workspec SET next_schedule_time_override=${Long.MAX_VALUE} WHERE " +
             "(id=:id AND next_schedule_time_override_generation=:overrideGeneration)"
     )
-    fun resetWorkSpecNextScheduleTimeOverride(id: String, overrideGeneration: Int)
+    public fun resetWorkSpecNextScheduleTimeOverride(id: String, overrideGeneration: Int)
 
     /**
      * Retrieves the state of a [WorkSpec].
@@ -175,7 +175,8 @@ interface WorkSpecDao {
      * @param id The identifier for the [WorkSpec]
      * @return The state of the [WorkSpec]
      */
-    @Query("SELECT state FROM workspec WHERE id=:id") fun getState(id: String): WorkInfo.State?
+    @Query("SELECT state FROM workspec WHERE id=:id")
+    public fun getState(id: String): WorkInfo.State?
 
     /**
      * For a [WorkSpec] identifier, retrieves its [WorkSpec.WorkInfoPojo].
@@ -185,7 +186,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query("SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id=:id")
-    fun getWorkStatusPojoForId(id: String): WorkSpec.WorkInfoPojo?
+    public fun getWorkStatusPojoForId(id: String): WorkSpec.WorkInfoPojo?
 
     /**
      * For a list of [WorkSpec] identifiers, retrieves a [List] of their [WorkSpec.WorkInfoPojo].
@@ -195,7 +196,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query("SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)")
-    fun getWorkStatusPojoForIds(ids: List<String>): List<WorkSpec.WorkInfoPojo>
+    public fun getWorkStatusPojoForIds(ids: List<String>): List<WorkSpec.WorkInfoPojo>
 
     /**
      * For a list of [WorkSpec] identifiers, retrieves a [LiveData] list of their
@@ -206,7 +207,9 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_IDS)
-    fun getWorkStatusPojoLiveDataForIds(ids: List<String>): LiveData<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoLiveDataForIds(
+        ids: List<String>
+    ): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * For a list of [WorkSpec] identifiers, retrieves a [LiveData] list of their
@@ -217,7 +220,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_IDS)
-    fun getWorkStatusPojoFlowDataForIds(ids: List<String>): Flow<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoFlowDataForIds(ids: List<String>): Flow<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * Retrieves a list of [WorkSpec.WorkInfoPojo] for all work with a given tag.
@@ -230,7 +233,7 @@ interface WorkSpecDao {
         """SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN
             (SELECT work_spec_id FROM worktag WHERE tag=:tag)"""
     )
-    fun getWorkStatusPojoForTag(tag: String): List<WorkSpec.WorkInfoPojo>
+    public fun getWorkStatusPojoForTag(tag: String): List<WorkSpec.WorkInfoPojo>
 
     /**
      * Retrieves a [LiveData] list of [WorkSpec.WorkInfoPojo] for all work with a given tag.
@@ -240,7 +243,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_TAG)
-    fun getWorkStatusPojoFlowForTag(tag: String): Flow<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoFlowForTag(tag: String): Flow<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * Retrieves a [LiveData] list of [WorkSpec.WorkInfoPojo] for all work with a given tag.
@@ -250,7 +253,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_TAG)
-    fun getWorkStatusPojoLiveDataForTag(tag: String): LiveData<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoLiveDataForTag(tag: String): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * Retrieves a list of [WorkSpec.WorkInfoPojo] for all work with a given name.
@@ -263,7 +266,7 @@ interface WorkSpecDao {
         "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN " +
             "(SELECT work_spec_id FROM workname WHERE name=:name)"
     )
-    fun getWorkStatusPojoForName(name: String): List<WorkSpec.WorkInfoPojo>
+    public fun getWorkStatusPojoForName(name: String): List<WorkSpec.WorkInfoPojo>
 
     /**
      * Retrieves a [LiveData] list of [WorkSpec.WorkInfoPojo] for all work with a given name.
@@ -273,7 +276,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_NAME)
-    fun getWorkStatusPojoLiveDataForName(name: String): LiveData<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoLiveDataForName(name: String): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * Retrieves a [Flow] list of [WorkSpec.WorkInfoPojo] for all work with a given name.
@@ -283,7 +286,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(WORK_INFO_BY_NAME)
-    fun getWorkStatusPojoFlowForName(name: String): Flow<List<WorkSpec.WorkInfoPojo>>
+    public fun getWorkStatusPojoFlowForName(name: String): Flow<List<WorkSpec.WorkInfoPojo>>
 
     /**
      * Gets all inputs coming from prerequisites for a particular [WorkSpec]. These are [Data] set
@@ -296,7 +299,7 @@ interface WorkSpecDao {
         """SELECT output FROM workspec WHERE id IN
              (SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)"""
     )
-    fun getInputsFromPrerequisites(id: String): List<Data>
+    public fun getInputsFromPrerequisites(id: String): List<Data>
 
     /**
      * Retrieves work ids for unfinished work with a given tag.
@@ -309,7 +312,7 @@ interface WorkSpecDao {
             COMPLETED_STATES +
             " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
     )
-    fun getUnfinishedWorkWithTag(tag: String): List<String>
+    public fun getUnfinishedWorkWithTag(tag: String): List<String>
 
     /**
      * Retrieves work ids for unfinished work with a given name.
@@ -322,7 +325,7 @@ interface WorkSpecDao {
             COMPLETED_STATES +
             " AND id IN (SELECT work_spec_id FROM workname WHERE name=:name)"
     )
-    fun getUnfinishedWorkWithName(name: String): List<String>
+    public fun getUnfinishedWorkWithName(name: String): List<String>
 
     /**
      * Retrieves work ids for all unfinished work.
@@ -330,11 +333,11 @@ interface WorkSpecDao {
      * @return A list of work ids
      */
     @Query("SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES)
-    fun getAllUnfinishedWork(): List<String>
+    public fun getAllUnfinishedWork(): List<String>
 
     /** @return `true` if there is pending work. */
     @Query("SELECT COUNT(*) > 0 FROM workspec WHERE state NOT IN $COMPLETED_STATES LIMIT 1")
-    fun hasUnfinishedWorkFlow(): Flow<Boolean>
+    public fun hasUnfinishedWorkFlow(): Flow<Boolean>
 
     /**
      * Marks a [WorkSpec] as scheduled.
@@ -344,11 +347,11 @@ interface WorkSpecDao {
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET schedule_requested_at=:startTime WHERE id=:id")
-    fun markWorkSpecScheduled(id: String, startTime: Long): Int
+    public fun markWorkSpecScheduled(id: String, startTime: Long): Int
 
     /** @return The time at which the [WorkSpec] was scheduled. */
     @Query("SELECT schedule_requested_at FROM workspec WHERE id=:id")
-    fun getScheduleRequestedAtLiveData(id: String): LiveData<Long?>
+    public fun getScheduleRequestedAtLiveData(id: String): LiveData<Long?>
 
     /**
      * Resets the scheduled state on the [WorkSpec]s that are not in a a completed state.
@@ -361,7 +364,7 @@ interface WorkSpecDao {
             " WHERE state NOT IN " +
             COMPLETED_STATES
     )
-    fun resetScheduledState(): Int
+    public fun resetScheduledState(): Int
 
     /** @return The List of [WorkSpec]s that are eligible to be scheduled. */
     @Query(
@@ -384,7 +387,7 @@ interface WorkSpecDao {
             COMPLETED_STATES +
             ")"
     )
-    fun getEligibleWorkForScheduling(schedulerLimit: Int): List<WorkSpec>
+    public fun getEligibleWorkForScheduling(schedulerLimit: Int): List<WorkSpec>
 
     /** @return The List of [WorkSpec]s that are eligible to be scheduled. */
     @Query(
@@ -396,7 +399,7 @@ interface WorkSpecDao {
             // Order by period start time so we execute scheduled WorkSpecs in FIFO order
             " ORDER BY last_enqueue_time"
     )
-    fun getEligibleWorkForSchedulingWithContentUris(): List<WorkSpec>
+    public fun getEligibleWorkForSchedulingWithContentUris(): List<WorkSpec>
 
     /** @return The List of [WorkSpec]s that can be scheduled irrespective of scheduling limits. */
     @Query(
@@ -406,7 +409,9 @@ interface WorkSpecDao {
             " ORDER BY last_enqueue_time" +
             " LIMIT :maxLimit"
     )
-    fun getAllEligibleWorkSpecsForScheduling(maxLimit: Int): List<WorkSpec> // Unfinished work
+    public fun getAllEligibleWorkSpecsForScheduling(
+        maxLimit: Int
+    ): List<WorkSpec> // Unfinished work
 
     // We only want WorkSpecs which have been scheduled.
     /** @return The List of [WorkSpec]s that are unfinished and scheduled. */
@@ -417,7 +422,7 @@ interface WorkSpecDao {
             " AND schedule_requested_at<>" +
             WorkSpec.SCHEDULE_NOT_REQUESTED_YET
     )
-    fun getScheduledWork(): List<WorkSpec>
+    public fun getScheduledWork(): List<WorkSpec>
 
     /** @return The List of [WorkSpec]s that are running. */
     @Query(
@@ -425,7 +430,7 @@ interface WorkSpecDao {
             "state=" +
             WorkTypeConverters.StateIds.RUNNING
     )
-    fun getRunningWork(): List<WorkSpec>
+    public fun getRunningWork(): List<WorkSpec>
 
     /** @return The List of [WorkSpec] which completed recently. */
     @Query(
@@ -435,7 +440,7 @@ interface WorkSpecDao {
             COMPLETED_STATES +
             " ORDER BY last_enqueue_time DESC"
     )
-    fun getRecentlyCompletedWork(startingAt: Long): List<WorkSpec>
+    public fun getRecentlyCompletedWork(startingAt: Long): List<WorkSpec>
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:
@@ -453,36 +458,36 @@ interface WorkSpecDao {
             COMPLETED_STATES +
             "))"
     )
-    fun pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
+    public fun pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
 
     @Query("UPDATE workspec SET generation=generation+1 WHERE id=:id")
-    fun incrementGeneration(id: String)
+    public fun incrementGeneration(id: String)
 
-    @Update fun updateWorkSpec(workSpec: WorkSpec)
+    @Update public fun updateWorkSpec(workSpec: WorkSpec)
 
     @Query(
         "Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
             " AND state NOT IN $COMPLETED_STATES"
     )
-    fun countNonFinishedContentUriTriggerWorkers(): Int
+    public fun countNonFinishedContentUriTriggerWorkers(): Int
 
     @Query("UPDATE workspec SET stop_reason=:stopReason WHERE id=:id")
-    fun setStopReason(id: String, stopReason: Int)
+    public fun setStopReason(id: String, stopReason: Int)
 }
 
-fun WorkSpecDao.getWorkStatusPojoFlowDataForIds(id: UUID): Flow<WorkInfo?> =
+public fun WorkSpecDao.getWorkStatusPojoFlowDataForIds(id: UUID): Flow<WorkInfo?> =
     getWorkStatusPojoFlowDataForIds(listOf("$id"))
         .map { it.firstOrNull()?.toWorkInfo() }
         .distinctUntilChanged()
 
-fun WorkSpecDao.getWorkStatusPojoFlowForName(
+public fun WorkSpecDao.getWorkStatusPojoFlowForName(
     dispatcher: CoroutineDispatcher,
-    name: String
+    name: String,
 ): Flow<List<WorkInfo>> = getWorkStatusPojoFlowForName(name).dedup(dispatcher)
 
-fun WorkSpecDao.getWorkStatusPojoFlowForTag(
+public fun WorkSpecDao.getWorkStatusPojoFlowForTag(
     dispatcher: CoroutineDispatcher,
-    tag: String
+    tag: String,
 ): Flow<List<WorkInfo>> = getWorkStatusPojoFlowForTag(tag).dedup(dispatcher)
 
 internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(

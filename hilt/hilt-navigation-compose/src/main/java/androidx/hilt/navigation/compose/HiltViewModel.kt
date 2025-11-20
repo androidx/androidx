@@ -18,16 +18,13 @@ package androidx.hilt.navigation.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.HiltViewModelFactory
+import androidx.hilt.lifecycle.viewmodel.HiltViewModelFactory
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel as composeHiltViewModel
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
-import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
-import dagger.hilt.android.lifecycle.withCreationCallback
 
 /**
  * Returns an existing
@@ -42,16 +39,21 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
+@Deprecated(
+    "Moved to package: androidx.hilt.lifecycle.viewmodel.compose",
+    replaceWith =
+        ReplaceWith(
+            expression = "hiltViewModel(viewModelStoreOwner, key)",
+            imports = ["androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel"],
+        ),
+)
 inline fun <reified VM : ViewModel> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
-    key: String? = null
-): VM {
-    val factory = createHiltViewModelFactory(viewModelStoreOwner)
-    return viewModel(viewModelStoreOwner, key, factory = factory)
-}
+    key: String? = null,
+): VM = composeHiltViewModel(viewModelStoreOwner, key)
 
 /**
  * Returns an existing
@@ -66,29 +68,22 @@ inline fun <reified VM : ViewModel> hiltViewModel(
  * @sample androidx.hilt.navigation.compose.samples.NestedNavComposable
  */
 @Composable
+@Deprecated(
+    "Moved to package: androidx.hilt.lifecycle.viewmodel.compose",
+    replaceWith =
+        ReplaceWith(
+            expression = "hiltViewModel(viewModelStoreOwner, key, creationCallback)",
+            imports = ["androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel"],
+        ),
+)
 inline fun <reified VM : ViewModel, reified VMF> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner =
         checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
     key: String? = null,
-    noinline creationCallback: (VMF) -> VM
-): VM {
-    val factory = createHiltViewModelFactory(viewModelStoreOwner)
-    return viewModel(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
-        factory = factory,
-        extras =
-            viewModelStoreOwner.run {
-                if (this is HasDefaultViewModelProviderFactory) {
-                    this.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
-                } else {
-                    CreationExtras.Empty.withCreationCallback(creationCallback)
-                }
-            }
-    )
-}
+    noinline creationCallback: (VMF) -> VM,
+): VM = composeHiltViewModel(viewModelStoreOwner, key, creationCallback)
 
 @Composable
 @PublishedApi
@@ -98,7 +93,7 @@ internal fun createHiltViewModelFactory(
     if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
         HiltViewModelFactory(
             context = LocalContext.current,
-            delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory
+            delegateFactory = viewModelStoreOwner.defaultViewModelProviderFactory,
         )
     } else {
         // Use the default factory provided by the ViewModelStoreOwner

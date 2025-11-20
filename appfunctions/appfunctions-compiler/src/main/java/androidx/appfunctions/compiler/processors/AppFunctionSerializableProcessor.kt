@@ -17,12 +17,9 @@
 package androidx.appfunctions.compiler.processors
 
 import androidx.annotation.VisibleForTesting
-import androidx.appfunctions.AppFunctionData
-import androidx.appfunctions.compiler.AppFunctionCompiler
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializable
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableAnnotation
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableFactoryClass
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableFactoryClass.FromAppFunctionDataMethod.APP_FUNCTION_DATA_PARAM_NAME
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
+import androidx.appfunctions.compiler.core.AppFunctionSerializableType
+import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.logException
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -33,19 +30,12 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
-import kotlin.text.replaceFirstChar
 
 /**
  * Generates a factory class with methods to convert classes annotated with
- * [androidx.appfunctions.AppFunctionSerializable] to [androidx.appfunctions.AppFunctionData], and
+ * androidx.appfunctions.AppFunctionSerializable or
+ * androidx.appfunctions.AppFunctionSerializableProxy to androidx.appfunctions.AppFunctionData, and
  * vice-versa.
  *
  * **Example:**
@@ -66,8 +56,8 @@ import kotlin.text.replaceFirstChar
  *     return Location(latitude, longitude)
  *   }
  *
- *   override fun toAppFunctionData(location: Location): AppFunctionData {
- *     val builder = AppFunctionData.Builder("")
+ *   override fun toAppFunctionData(appFunctionSerializable: Location): AppFunctionData {
+ *     val builder = getAppFunctionDataBuilder("")
  *
  *     builder.setDouble("latitude", location.latitude)
  *     builder.setDouble("longitude", location.longitude)
@@ -81,112 +71,69 @@ class AppFunctionSerializableProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) : SymbolProcessor {
+    private var hasProcessed = false
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (hasProcessed) return emptyList()
+        hasProcessed = true
+
         try {
-            val entityClasses = resolveAppFunctionSerializables(resolver)
+            val entitySymbolResolver = AppFunctionSymbolResolver(resolver)
+            val entityClasses = entitySymbolResolver.resolveAnnotatedAppFunctionSerializables()
+            val globalResolvedAnnotatedSerializableProxies =
+                ResolvedAnnotatedSerializableProxies(
+                    entitySymbolResolver.resolveAllAnnotatedSerializableProxiesFromModule()
+                )
+            val localResolvedAnnotatedSerializableProxies =
+                ResolvedAnnotatedSerializableProxies(
+                    entitySymbolResolver.resolveLocalAnnotatedAppFunctionSerializableProxy()
+                )
             for (entity in entityClasses) {
-                buildAppFunctionSerializableFactoryClass(entity)
+                val fileSpec =
+                    entity
+                        .getFactoryCodeBuilder(globalResolvedAnnotatedSerializableProxies)
+                        .buildAppFunctionSerializableFactoryClass()
+                writeFile(serializable = entity, fileSpec = fileSpec)
             }
+            for (entityProxy in
+                localResolvedAnnotatedSerializableProxies.resolvedAnnotatedSerializableProxies) {
+                // Check if the factory class has already been generated.
+                if (
+                    codeGenerator.generatedFile.any {
+                        it.path.contains(entityProxy.factoryClassName.simpleName)
+                    }
+                ) {
+                    continue
+                }
+                // Only generate factory for local proxy classes to ensure that the factory is
+                // only generated once in the same compilation unit as the prexy definition.
+                val fileSpec =
+                    entityProxy
+                        .getFactoryCodeBuilder(globalResolvedAnnotatedSerializableProxies)
+                        .buildAppFunctionSerializableFactoryClass()
+                writeFile(serializable = entityProxy, fileSpec = fileSpec)
+            }
+            return globalResolvedAnnotatedSerializableProxies.resolvedAnnotatedSerializableProxies
+                .map { it.classDeclaration }
         } catch (e: ProcessingException) {
             logger.logException(e)
         }
+
         return emptyList()
     }
 
-    fun resolveAppFunctionSerializables(
-        resolver: Resolver
-    ): List<AnnotatedAppFunctionSerializable> {
-        val annotatedAppFunctionSerializables =
-            resolver.getSymbolsWithAnnotation(
-                AppFunctionSerializableAnnotation.CLASS_NAME.canonicalName
-            )
-        return annotatedAppFunctionSerializables
-            .map {
-                if (it !is KSClassDeclaration) {
-                    throw ProcessingException(
-                        "Only classes can be annotated with @AppFunctionSerializable",
-                        it
-                    )
-                }
-                AnnotatedAppFunctionSerializable(it).validate()
-            }
-            .toList()
-    }
-
-    // TODO(b/392587953): handle nullable types
-    private fun buildAppFunctionSerializableFactoryClass(
-        annotatedClass: AnnotatedAppFunctionSerializable
-    ) {
-        val superInterfaceClass =
-            AppFunctionSerializableFactoryClass.CLASS_NAME.parameterizedBy(
-                listOf(annotatedClass.originalClassName)
-            )
-
-        val factoryCodeBuilder = AppFunctionSerializableFactoryCodeBuilder(annotatedClass)
-        val generatedFactoryClassName = "\$${annotatedClass.originalClassName.simpleName}Factory"
-        val fileSpec =
-            FileSpec.builder(
-                    annotatedClass.originalClassName.packageName,
-                    generatedFactoryClassName
-                )
-                .addType(
-                    TypeSpec.classBuilder(generatedFactoryClassName)
-                        .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
-                        .addSuperinterface(superInterfaceClass)
-                        .addFunction(
-                            buildFromAppFunctionDataFunction(annotatedClass, factoryCodeBuilder)
-                        )
-                        .addFunction(
-                            buildToAppFunctionDataFunction(annotatedClass, factoryCodeBuilder)
-                        )
-                        .build()
-                )
-                .build()
+    private fun writeFile(serializable: AppFunctionSerializableType, fileSpec: FileSpec) {
         codeGenerator
             .createNewFile(
                 Dependencies(
-                    aggregating = false,
-                    checkNotNull(annotatedClass.appFunctionSerializableClass.containingFile)
+                    aggregating = true,
+                    *serializable.getSerializableSourceFiles().toTypedArray(),
                 ),
-                annotatedClass.originalClassName.packageName,
-                generatedFactoryClassName
+                fileSpec.packageName,
+                fileSpec.name,
             )
             .bufferedWriter()
             .use { fileSpec.writeTo(it) }
-    }
-
-    private fun buildFromAppFunctionDataFunction(
-        annotatedClass: AnnotatedAppFunctionSerializable,
-        factoryCodeBuilder: AppFunctionSerializableFactoryCodeBuilder,
-    ): FunSpec {
-        return FunSpec.builder(
-                AppFunctionSerializableFactoryClass.FromAppFunctionDataMethod.METHOD_NAME
-            )
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter(
-                ParameterSpec.builder(APP_FUNCTION_DATA_PARAM_NAME, AppFunctionData::class).build()
-            )
-            .addCode(factoryCodeBuilder.appendFromAppFunctionDataMethodBody())
-            .returns(annotatedClass.originalClassName)
-            .build()
-    }
-
-    private fun buildToAppFunctionDataFunction(
-        annotatedClass: AnnotatedAppFunctionSerializable,
-        factoryCodeBuilder: AppFunctionSerializableFactoryCodeBuilder
-    ): FunSpec {
-        val methodParamName =
-            annotatedClass.originalClassName.simpleName.replaceFirstChar { it -> it.lowercase() }
-        return FunSpec.builder(
-                AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod.METHOD_NAME
-            )
-            .addModifiers(KModifier.OVERRIDE)
-            .addParameter(
-                ParameterSpec.builder(methodParamName, annotatedClass.originalClassName).build()
-            )
-            .addCode(factoryCodeBuilder.appendToAppFunctionDataMethodBody())
-            .returns(AppFunctionData::class.asTypeName())
-            .build()
     }
 
     @VisibleForTesting

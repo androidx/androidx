@@ -17,9 +17,7 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -89,25 +87,18 @@ internal abstract class VelocityPathFinder {
     }
 }
 
-@OptIn(ExperimentalVelocityTrackerApi::class)
-internal fun VelocityPathFinder(
+internal expect fun VelocityPathFinder(
     startPosition: Offset,
     endPosition: Offset,
     endVelocity: Float,
-    durationMillis: Long
-): VelocityPathFinder {
-    return if (VelocityTrackerStrategyUseImpulse) {
-        ImpulseVelocityPathFinder(startPosition, endPosition, endVelocity, durationMillis)
-    } else {
-        LsqVelocityPathFinder(startPosition, endPosition, endVelocity, durationMillis)
-    }
-}
+    durationMillis: Long,
+): VelocityPathFinder
 
 internal class ImpulseVelocityPathFinder(
     private val startPosition: Offset,
     private val endPosition: Offset,
     private val endVelocity: Float,
-    private val durationMillis: Long
+    private val durationMillis: Long,
 ) : VelocityPathFinder() {
 
     private val vx: Double
@@ -138,7 +129,7 @@ internal class ImpulseVelocityPathFinder(
         velocity: Double,
         start: Float,
         end: Float,
-        time: Long
+        time: Long,
     ): Float {
         val T = durationMillis
 
@@ -206,7 +197,7 @@ internal class ImpulseVelocityPathFinder(
                             HorizonMilliseconds,
                             d,
                             x,
-                            time - (T - HorizonMilliseconds)
+                            time - (T - HorizonMilliseconds),
                         )
                 }
             }
@@ -237,7 +228,7 @@ internal class ImpulseVelocityPathFinder(
         T: Long,
         d: Long,
         x: Float,
-        t: Long
+        t: Long,
     ): Float {
         require(t in 0L..T) { "You must provide 0 <= t <= $T, but received t=$t instead" }
         if (t < d) {
@@ -252,7 +243,7 @@ internal class ImpulseVelocityPathFinder(
         end: Float,
         T: Long,
         d: Long,
-        x: Float
+        x: Float,
     ): Float {
         val vt = VelocityTracker()
 
@@ -278,7 +269,7 @@ internal class ImpulseVelocityPathFinder(
         start: Float,
         end: Float,
         T: Long,
-        targetVelocity: Float
+        targetVelocity: Float,
     ): FittingResult? {
         val TOLERANCE = 1f
         val step = (max(end, start) - min(end, start)) / 1000f
@@ -301,7 +292,7 @@ internal class LsqVelocityPathFinder(
     private val startPosition: Offset,
     private val endPosition: Offset,
     private val endVelocity: Float,
-    private val durationMillis: Long
+    private val durationMillis: Long,
 ) : VelocityPathFinder() {
     private val vx: Double
     private val vy: Double
@@ -356,7 +347,7 @@ internal class LsqVelocityPathFinder(
         velocity: Double,
         start: Float,
         end: Float,
-        time: Long
+        time: Long,
     ): Float {
         val T = durationMillis
         // `d = T - t_d` in scenario 2 (see documentation above)

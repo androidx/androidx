@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowAudioRecord;
 
@@ -42,6 +43,7 @@ import java.nio.ByteBuffer;
 
 /** Tests for {@link CarAudioRecord}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class AutomotiveCarAudioRecordTest implements ShadowAudioRecord.AudioRecordSourceProvider {
     private final TestCarContext mCarContext =

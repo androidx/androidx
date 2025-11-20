@@ -102,7 +102,7 @@ internal constructor(
                 signingCertificateHistory =
                     signingInfo.signingCertificateHistory?.filterNotNull() ?: emptyList(),
                 hasPastSigningCertificates = signingInfo.hasPastSigningCertificates(),
-                hasMultipleSigners = signingInfo.hasMultipleSigners()
+                hasMultipleSigners = signingInfo.hasMultipleSigners(),
             )
 
         /**
@@ -126,7 +126,7 @@ internal constructor(
                 schemeVersion = 0 /* unknown */,
                 signingCertificateHistory = signatures,
                 hasPastSigningCertificates = false,
-                hasMultipleSigners = false
+                hasMultipleSigners = false,
             )
         }
     }

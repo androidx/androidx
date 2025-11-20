@@ -143,17 +143,11 @@ class Cbor {
                 return Item(-1 - arg.arg, arg.len)
             }
             TYPE_BYTE_STRING -> {
-                val ret =
-                    data.sliceArray(
-                        offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt()
-                    )
+                val ret = data.sliceArray(offset + arg.len until offset + arg.len + arg.arg.toInt())
                 return Item(ret, arg.len + arg.arg.toInt())
             }
             TYPE_TEXT_STRING -> {
-                val ret =
-                    data.sliceArray(
-                        offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt()
-                    )
+                val ret = data.sliceArray(offset + arg.len until offset + arg.len + arg.arg.toInt())
                 return Item(ret.toString(Charsets.UTF_8), arg.len + arg.arg.toInt())
             }
             TYPE_ARRAY -> {
@@ -197,7 +191,7 @@ class Cbor {
             return byteArrayOf(
                 ((t or 25) and 0xFF).toByte(),
                 ((a shr 8) and 0xFF).toByte(),
-                (a and 0xFF).toByte()
+                (a and 0xFF).toByte(),
             )
         }
         if (arg <= 0xFFFFFFFF) {
@@ -206,7 +200,7 @@ class Cbor {
                 ((a shr 24) and 0xFF).toByte(),
                 ((a shr 16) and 0xFF).toByte(),
                 ((a shr 8) and 0xFF).toByte(),
-                (a and 0xFF).toByte()
+                (a and 0xFF).toByte(),
             )
         }
         throw IllegalArgumentException("bad Arg")

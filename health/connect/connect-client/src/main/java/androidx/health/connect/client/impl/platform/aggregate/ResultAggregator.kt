@@ -28,7 +28,7 @@ import java.time.temporal.Temporal
  */
 internal class ResultAggregator<T : Record, U : Temporal>(
     private val timeRange: TimeRange<U>,
-    private val processor: AggregationProcessor<T>
+    private val processor: AggregationProcessor<T>,
 ) : Aggregator<T, AggregationResult> {
 
     override fun filterAndAggregate(record: T) {

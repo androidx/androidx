@@ -18,11 +18,9 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
 import android.webkit.CookieManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.test.common.WebkitUtils;
 
@@ -33,7 +31,6 @@ import java.util.List;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class CookieManagerCompatTest {
     @Test
     public void testGetCookieInfo() throws Throwable {

@@ -28,12 +28,6 @@ import org.gradle.api.provider.Provider
  */
 const val ADD_GROUP_CONSTRAINTS = "androidx.constraints"
 
-/**
- * Setting this property makes Test tasks succeed even if there are some failing tests. Useful when
- * running tests in CI where build passes test results as XML to test reporter.
- */
-const val TEST_FAILURES_DO_NOT_FAIL_TEST_TASK = "androidx.ignoreTestFailures"
-
 /** Setting this property to false makes test tasks not display detailed output to stdout. */
 const val DISPLAY_TEST_OUTPUT = "androidx.displayTestOutput"
 
@@ -42,18 +36,6 @@ const val ALTERNATIVE_PROJECT_URL = "androidx.alternativeProjectUrl"
 
 /** Validate the project structure against Jetpack guidelines */
 const val VALIDATE_PROJECT_STRUCTURE = "androidx.validateProjectStructure"
-
-/**
- * Setting this property enables Compose Compiler metrics - see
- * compose/compiler/design/compiler-metrics.md
- */
-const val ENABLE_COMPOSE_COMPILER_METRICS = "androidx.enableComposeCompilerMetrics"
-
-/**
- * Setting this property enables Compose Compiler reports - see
- * compose/compiler/design/compiler-metrics.md
- */
-const val ENABLE_COMPOSE_COMPILER_REPORTS = "androidx.enableComposeCompilerReports"
 
 /** Returns whether the project should generate documentation. */
 const val ENABLE_DOCUMENTATION = "androidx.enableDocumentation"
@@ -129,8 +111,6 @@ const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 /** If true, yarn dependencies are fetched from an offline mirror */
 const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 
-const val FORCE_KOTLIN_2_0_TARGET = "androidx.forceKotlin20Target"
-
 /** Defined by AndroidX Benchmark Plugin, may be used for local experiments with compilation */
 const val FORCE_BENCHMARK_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
 
@@ -139,8 +119,6 @@ val ALL_ANDROIDX_PROPERTIES =
         ADD_GROUP_CONSTRAINTS,
         ALTERNATIVE_PROJECT_URL,
         VALIDATE_PROJECT_STRUCTURE,
-        ENABLE_COMPOSE_COMPILER_METRICS,
-        ENABLE_COMPOSE_COMPILER_REPORTS,
         DISPLAY_TEST_OUTPUT,
         ENABLE_DOCUMENTATION,
         HIGH_MEMORY,
@@ -148,7 +126,6 @@ val ALL_ANDROIDX_PROPERTIES =
         STUDIO_TYPE,
         SUMMARIZE_STANDARD_ERROR,
         USE_MAX_DEP_VERSIONS,
-        TEST_FAILURES_DO_NOT_FAIL_TEST_TASK,
         VALIDATE_NO_UNRECOGNIZED_MESSAGES,
         VERIFY_UP_TO_DATE,
         WRITE_VERSIONED_API_FILES,
@@ -166,18 +143,14 @@ val ALL_ANDROIDX_PROPERTIES =
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
         YARN_OFFLINE_MODE,
-        FORCE_KOTLIN_2_0_TARGET,
         FORCE_BENCHMARK_AOT_COMPILATION,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
-
-fun Project.shouldForceKotlin20Target() =
-    project.providers.gradleProperty(FORCE_KOTLIN_2_0_TARGET).map { it.toBoolean() }.orElse(false)
 
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for
  * more details
  */
-fun Project.shouldAddGroupConstraints() =
+fun Project.shouldAddGroupConstraints(): Provider<Boolean> =
     project.providers.gradleProperty(ADD_GROUP_CONSTRAINTS).map { s -> s.toBoolean() }.orElse(true)
 
 /**
@@ -235,17 +208,9 @@ fun Project.isWriteVersionedApiFilesEnabled(): Boolean =
     findBooleanProperty(WRITE_VERSIONED_API_FILES) ?: true
 
 /** Returns whether the build is for checking forward compatibility across projects */
-fun Project.usingMaxDepVersions(): Boolean {
-    return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).isPresent()
+fun Project.usingMaxDepVersions(): Provider<Boolean> {
+    return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).map { true }.orElse(false)
 }
-
-/** Returns whether we export compose compiler metrics */
-fun Project.enableComposeCompilerMetrics() =
-    findBooleanProperty(ENABLE_COMPOSE_COMPILER_METRICS) ?: false
-
-/** Returns whether we export compose compiler reports */
-fun Project.enableComposeCompilerReports() =
-    findBooleanProperty(ENABLE_COMPOSE_COMPILER_REPORTS) ?: false
 
 /** Returns whether we should use the offline mirror for dependencies */
 fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
@@ -261,8 +226,5 @@ fun Project.allowMissingLintProject() =
 fun Project.isCustomCompileSdkAllowed(): Boolean =
     findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
-fun Project.findBooleanProperty(propName: String) = booleanPropertyProvider(propName).get()
-
-fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
-    return project.providers.gradleProperty(propName).map { s -> s.toBoolean() }.orElse(false)
-}
+fun Project.findBooleanProperty(propName: String): Boolean? =
+    project.providers.gradleProperty(propName).map { it.toBoolean() }.getOrNull()

@@ -98,7 +98,7 @@ fun Modifier.magnifier(
     size: DpSize = DpSize.Unspecified,
     cornerRadius: Dp = Dp.Unspecified,
     elevation: Dp = Dp.Unspecified,
-    clip: Boolean = true
+    clip: Boolean = true,
 ): Modifier {
     return magnifier(
         sourceCenter = sourceCenter,
@@ -109,7 +109,7 @@ fun Modifier.magnifier(
         size = size,
         cornerRadius = cornerRadius,
         elevation = elevation,
-        clippingEnabled = clip
+        clippingEnabled = clip,
     )
 }
 
@@ -128,7 +128,7 @@ internal fun Modifier.magnifier(
     cornerRadius: Dp = Dp.Unspecified,
     elevation: Dp = Dp.Unspecified,
     clippingEnabled: Boolean = true,
-    platformMagnifierFactory: PlatformMagnifierFactory? = null
+    platformMagnifierFactory: PlatformMagnifierFactory? = null,
 ): Modifier {
     return if (isPlatformMagnifierSupported()) {
         then(
@@ -145,7 +145,7 @@ internal fun Modifier.magnifier(
                 platformMagnifierFactory =
                     platformMagnifierFactory
                         ?: PlatformMagnifierFactory
-                            .getForCurrentPlatform() // this doesn't do an alloc
+                            .getForCurrentPlatform(), // this doesn't do an alloc
             )
         )
     } else {
@@ -166,7 +166,7 @@ internal class MagnifierElement(
     private val cornerRadius: Dp = Dp.Unspecified,
     private val elevation: Dp = Dp.Unspecified,
     private val clippingEnabled: Boolean = true,
-    private val platformMagnifierFactory: PlatformMagnifierFactory
+    private val platformMagnifierFactory: PlatformMagnifierFactory,
 ) : ModifierNodeElement<MagnifierNode>() {
 
     override fun create(): MagnifierNode {
@@ -180,7 +180,7 @@ internal class MagnifierElement(
             elevation = elevation,
             clippingEnabled = clippingEnabled,
             onSizeChanged = onSizeChanged,
-            platformMagnifierFactory = platformMagnifierFactory
+            platformMagnifierFactory = platformMagnifierFactory,
         )
     }
 
@@ -195,7 +195,7 @@ internal class MagnifierElement(
             elevation = elevation,
             clippingEnabled = clippingEnabled,
             onSizeChanged = onSizeChanged,
-            platformMagnifierFactory = platformMagnifierFactory
+            platformMagnifierFactory = platformMagnifierFactory,
         )
     }
 
@@ -254,7 +254,7 @@ internal class MagnifierNode(
     var elevation: Dp = Dp.Unspecified,
     var clippingEnabled: Boolean = true,
     var platformMagnifierFactory: PlatformMagnifierFactory =
-        PlatformMagnifierFactory.getForCurrentPlatform()
+        PlatformMagnifierFactory.getForCurrentPlatform(),
 ) :
     Modifier.Node(),
     GlobalPositionAwareModifierNode,
@@ -322,7 +322,7 @@ internal class MagnifierNode(
         elevation: Dp,
         clippingEnabled: Boolean,
         onSizeChanged: ((DpSize) -> Unit)?,
-        platformMagnifierFactory: PlatformMagnifierFactory
+        platformMagnifierFactory: PlatformMagnifierFactory,
     ) {
         val previousZoom = this.zoom
         val previousSize = this.size
@@ -412,7 +412,7 @@ internal class MagnifierNode(
                 elevation = elevation,
                 clippingEnabled = clippingEnabled,
                 density = density,
-                initialZoom = zoom
+                initialZoom = zoom,
             )
         updateSizeIfNecessary()
     }
@@ -441,7 +441,7 @@ internal class MagnifierNode(
             magnifier?.update(
                 sourceCenter = sourceCenterInRoot,
                 magnifierCenter = magnifierCenter,
-                zoom = zoom
+                zoom = zoom,
             )
             updateSizeIfNecessary()
             return

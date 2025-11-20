@@ -18,6 +18,7 @@ package androidx.wear.protolayout.material3
 
 import androidx.annotation.Dimension
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -26,6 +27,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class MaterialGoldenTest(private val expected: String, private val testCase: RunnerUtils.TestCase) {
     @JvmField
     @Rule
@@ -40,7 +42,7 @@ class MaterialGoldenTest(private val expected: String, private val testCase: Run
             rule = mScreenshotRule,
             layout = testCase.layout,
             expected = expected,
-            isRtlDirection = false
+            isRtlDirection = false,
         )
     }
 
@@ -52,7 +54,7 @@ class MaterialGoldenTest(private val expected: String, private val testCase: Run
             rule = mScreenshotRule,
             layout = testCase.layout,
             expected = expected + "_rtl",
-            isRtlDirection = true
+            isRtlDirection = true,
         )
     }
 
@@ -70,7 +72,7 @@ class MaterialGoldenTest(private val expected: String, private val testCase: Run
                 RunnerUtils.convertToTestParameters(
                     TestCasesGenerator.generateTestCases(),
                     isForRtr = true,
-                    isForLtr = true
+                    isForLtr = true,
                 )
             )
 

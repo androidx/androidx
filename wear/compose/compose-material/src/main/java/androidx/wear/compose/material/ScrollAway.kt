@@ -44,10 +44,9 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListState
  * @param offset Adjustment to the starting point for scrolling away. Positive values result in the
  *   scroll away starting later.
  */
-public fun Modifier.scrollAway(
-    scrollState: ScrollState,
-    offset: Dp = 0.dp,
-): Modifier = scrollAway { ScrollParams(valid = true, yPx = scrollState.value - offset.toPx()) }
+public fun Modifier.scrollAway(scrollState: ScrollState, offset: Dp = 0.dp): Modifier = scrollAway {
+    ScrollParams(valid = true, yPx = scrollState.value - offset.toPx())
+}
 
 /**
  * Scroll an item vertically in/out of view based on a [LazyListState]. Typically used to scroll a
@@ -69,7 +68,7 @@ public fun Modifier.scrollAway(
         yPx =
             scrollState.layoutInfo.visibleItemsInfo
                 .fastFirstOrNull { it.index == itemIndex }
-                ?.let { -it.offset - offset.toPx() }
+                ?.let { -it.offset - offset.toPx() },
     )
 }
 
@@ -93,7 +92,7 @@ public fun Modifier.scrollAway(
         yPx =
             scrollState.layoutInfo.visibleItemsInfo
                 .fastFirstOrNull { it.index == itemIndex }
-                ?.let { -it.offset - offset.toPx() }
+                ?.let { -it.offset - offset.toPx() },
     )
 }
 
@@ -111,7 +110,7 @@ public fun Modifier.scrollAway(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState " +
         "from wear.compose.foundation.lazy package",
-    level = DeprecationLevel.WARNING
+    level = DeprecationLevel.WARNING,
 )
 public fun Modifier.scrollAway(
     @Suppress("DEPRECATION") scrollState: androidx.wear.compose.material.ScalingLazyListState,
@@ -123,7 +122,7 @@ public fun Modifier.scrollAway(
         yPx =
             scrollState.layoutInfo.visibleItemsInfo
                 .fastFirstOrNull { it.index == itemIndex }
-                ?.let { -it.offset - offset.toPx() }
+                ?.let { -it.offset - offset.toPx() },
     )
 }
 
@@ -132,7 +131,7 @@ private fun Modifier.scrollAway(scrollFn: Density.() -> ScrollParams): Modifier 
         object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 val placeable = measurable.measure(constraints)
                 return layout(placeable.width, placeable.height) {

@@ -79,7 +79,7 @@ abstract class PrepareSqliteSourcesTask extends DefaultTask {
         fileSystemOperations.copy { CopySpec copySpec ->
             copySpec.from(originalSqliteSources)
             copySpec.into(targetSourceDirectory)
-            copySpec.include("sqlite3.c", "sqlite3.h")
+            copySpec.include("sqlite3.c", "sqlite3.h", "sqlite3ext.h")
         }
     }
 

@@ -61,7 +61,7 @@ class KeyframesSpecWithSplineBenchmark {
                 playTimeNanos = playTimeNanosToEvaluate,
                 initialValue = initialVector,
                 targetValue = targetVector,
-                initialVelocity = initialVector
+                initialVelocity = initialVector,
             )
         }
     }
@@ -101,7 +101,7 @@ class KeyframesSpecWithSplineBenchmark {
             playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,
-            initialVelocity = initialVector
+            initialVelocity = initialVector,
         )
 
         val frame0 = playTimeNanosToEvaluate
@@ -112,13 +112,13 @@ class KeyframesSpecWithSplineBenchmark {
                     playTimeNanos = frame0,
                     initialValue = initialVector,
                     targetValue = targetVector,
-                    initialVelocity = initialVector
+                    initialVelocity = initialVector,
                 )
                 vectorized.getValueFromNanos(
                     playTimeNanos = frame1,
                     initialValue = initialVector,
                     targetValue = targetVector,
-                    initialVelocity = initialVector
+                    initialVelocity = initialVector,
                 )
             }
         }
@@ -144,7 +144,7 @@ class KeyframesSpecWithSplineBenchmark {
             playTimeNanos = playTimeNanosToEvaluate * 2 / 3L,
             initialValue = initialVector,
             targetValue = targetVector,
-            initialVelocity = initialVector
+            initialVelocity = initialVector,
         )
 
         val frame0 = (durationMillisToTest * 0.1f).roundToLong() * 1_000_000
@@ -153,7 +153,7 @@ class KeyframesSpecWithSplineBenchmark {
                 playTimeNanos = frame0,
                 initialValue = initialVector,
                 targetValue = targetVector,
-                initialVelocity = initialVector
+                initialVelocity = initialVector,
             )
 
             // Flip initial / target to invalidate the vectorized MonoSpline
@@ -161,7 +161,7 @@ class KeyframesSpecWithSplineBenchmark {
                 playTimeNanos = frame0,
                 initialValue = targetVector,
                 targetValue = initialVector,
-                initialVelocity = initialVector
+                initialVelocity = initialVector,
             )
         }
     }

@@ -163,9 +163,7 @@ public final class MediaControllerCompat {
             MediaControllerCompat mediaController) {
         activity.getWindow().getDecorView().setTag(
                 R.id.media_controller_compat_view_tag, mediaController);
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            MediaControllerImplApi21.setMediaController(activity, mediaController);
-        }
+        MediaControllerImplApi21.setMediaController(activity, mediaController);
     }
 
     /**
@@ -184,10 +182,9 @@ public final class MediaControllerCompat {
                 .getTag(R.id.media_controller_compat_view_tag);
         if (tag instanceof MediaControllerCompat) {
             return (MediaControllerCompat) tag;
-        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
+        } else {
             return MediaControllerImplApi21.getMediaController(activity);
         }
-        return null;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -238,10 +235,8 @@ public final class MediaControllerCompat {
 
         if (Build.VERSION.SDK_INT >= 29) {
             mImpl = new MediaControllerImplApi29(context, sessionToken);
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaControllerImplApi21(context, sessionToken);
         } else {
-            mImpl = new MediaControllerImplBase(sessionToken);
+            mImpl = new MediaControllerImplApi21(context, sessionToken);
         }
     }
 
@@ -677,12 +672,7 @@ public final class MediaControllerCompat {
         IMediaControllerCallback mIControllerCallback;
 
         public Callback() {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
-                mCallbackFwk = new MediaControllerCallbackApi21(this);
-            } else {
-                mCallbackFwk = null;
-                mIControllerCallback = new StubCompat(this);
-            }
+            mCallbackFwk = new MediaControllerCallbackApi21(this);
         }
 
         /**
@@ -835,7 +825,6 @@ public final class MediaControllerCompat {
         }
 
         // Callback methods in this class are run on handler which was given to registerCallback().
-        @RequiresApi(21)
         private static class MediaControllerCallbackApi21 extends MediaController.Callback {
             private final WeakReference<MediaControllerCompat.Callback> mCallback;
 
@@ -2004,7 +1993,6 @@ public final class MediaControllerCompat {
         }
     }
 
-    @RequiresApi(21)
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final MediaController mControllerFwk;
 
@@ -2411,7 +2399,6 @@ public final class MediaControllerCompat {
         }
     }
 
-    @RequiresApi(21)
     static class TransportControlsApi21 extends TransportControls {
         protected final MediaController.TransportControls mControlsFwk;
 

@@ -37,7 +37,7 @@ jobs:
       affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     env:
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
-      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: Pull request format
@@ -90,7 +90,7 @@ jobs:
           echo "files=$AFFECTED_FILES" >> $GITHUB_OUTPUT
 
       - name: "Setup Gradle"
-        uses: gradle/gradle-build-action@v3-beta
+        uses: gradle/actions/setup-gradle@v4
         with:
           # Only save Gradle User Home state for builds on the 'androidx-main' branch.
           # Builds on other branches will only read existing entries from the cache.
@@ -120,7 +120,7 @@ jobs:
         os: [ubuntu-latest]
         # If you would like to remove some projects temporarily, use .github/ci-control/ci-config.json instead.
         # Keep these in alphabetical order.
-        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "lint", "navigation", "paging", "room", "sqlite", "work"]
+        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "lint", "mediarouter", "navigation", "paging", "room", "sqlite", "work"]
         include:
           - project: "compose-runtime"
             project-root: "compose/runtime"
@@ -134,7 +134,7 @@ jobs:
       artifact-id: ${{matrix.project}}
       project-root: playground-projects/${{matrix.project-root || matrix.project}}-playground
       GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
-      GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+      DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
       - name: "Checkout androidx repo"
@@ -157,21 +157,3 @@ jobs:
           gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           gradle-flags: ${{ needs.setup.outputs.gradlew_flags }}
-      # Upload artifacts task should be in the build-single-project
-      # action but they have a tendency to fail and continue-on-error
-      # is not supported there yet.
-      # https://github.com/actions/runner/issues/1457
-      - name: "Upload build artifacts"
-        continue-on-error: true
-        if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts_${{ matrix.project }}
-          path: ~/dist
-      - name: "Upload daemon logs"
-        continue-on-error: true
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-daemon-logs_${{ matrix.project }}
-          path: ~/.gradle/daemon

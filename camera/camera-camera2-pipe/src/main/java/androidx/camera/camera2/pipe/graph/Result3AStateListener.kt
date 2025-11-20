@@ -47,13 +47,13 @@ internal interface Result3AStateListener : GraphLoop.Listener {
 internal class Result3AStateListenerImpl(
     private val exitCondition: (FrameMetadata) -> Boolean,
     private val frameLimit: Int? = null,
-    private val timeLimitNs: Long? = null
+    private val timeLimitNs: Long? = null,
 ) : Result3AStateListener {
 
     internal constructor(
         exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
         frameLimit: Int? = null,
-        timeLimitNs: Long? = null
+        timeLimitNs: Long? = null,
     ) : this(
         exitCondition = exitConditionForKeys.toConditionChecker(),
         frameLimit = frameLimit,

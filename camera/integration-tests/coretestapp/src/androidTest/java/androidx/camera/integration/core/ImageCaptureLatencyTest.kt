@@ -41,7 +41,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertTrue
-import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -62,14 +61,12 @@ private const val NUM_IMAGES = 10
 @RunWith(Parameterized::class)
 class ImageCaptureLatencyTest(
     private val implName: String,
-    private val cameraXConfig: CameraXConfig
+    private val cameraXConfig: CameraXConfig,
 ) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =
@@ -85,6 +82,7 @@ class ImageCaptureLatencyTest(
     private lateinit var camera: CameraUseCaseAdapter
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
+    private lateinit var defaultCameraSelector: CameraSelector
 
     companion object {
         private const val TAG = "ImageCaptureLatencyTest"
@@ -94,13 +92,13 @@ class ImageCaptureLatencyTest(
         fun data() =
             listOf(
                 arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
             )
     }
 
     @Before
     fun setUp() = runBlocking {
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+        defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get(10, TimeUnit.SECONDS)
 
@@ -137,11 +135,7 @@ class ImageCaptureLatencyTest(
         val imageCapture = ImageCapture.Builder().setCaptureMode(captureMode).build()
 
         camera =
-            CameraUtil.createCameraAndAttachUseCase(
-                context,
-                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build(),
-                imageCapture
-            )
+            CameraUtil.createCameraAndAttachUseCase(context, defaultCameraSelector, imageCapture)
 
         // Skip if capture mode is ZSL and the device doesn't support ZSL
         if (
@@ -164,7 +158,7 @@ class ImageCaptureLatencyTest(
                         image.close()
                         countDownLatch.countDown()
                     }
-                }
+                },
             )
         }
 
@@ -177,7 +171,7 @@ class ImageCaptureLatencyTest(
         // pattern "Image capture performance profiling" in the device output log.
         Logger.d(
             TAG,
-            "Image capture performance profiling, duration: [$duration] capture mode: $captureMode"
+            "Image capture performance profiling, duration: [$duration] capture mode: $captureMode",
         )
     }
 }

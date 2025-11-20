@@ -16,11 +16,8 @@
 
 package androidx.compose.runtime
 
-import androidx.collection.IntIntMap
-import androidx.collection.IntList
-import androidx.collection.MutableIntIntMap
-import androidx.collection.MutableIntList
-import androidx.collection.MutableIntSet
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
 import androidx.compose.runtime.mock.CompositionTestScope
 import androidx.compose.runtime.mock.NonReusableText
 import androidx.compose.runtime.mock.compositionTest
@@ -34,8 +31,8 @@ import kotlin.test.assertNotEquals
 class CompoundHashKeyTests {
     @Test // b/157905524
     fun testWithSubCompose() = compositionTest {
-        val outerKeys = mutableListOf<Int>()
-        val innerKeys = mutableListOf<Int>()
+        val outerKeys = mutableListOf<CompositeKeyHashCode>()
+        val innerKeys = mutableListOf<CompositeKeyHashCode>()
         val invalidates = mutableListOf<RecomposeScope>()
         fun invalidateComposition() {
             invalidates.forEach { it.invalidate() }
@@ -44,15 +41,15 @@ class CompoundHashKeyTests {
         @Composable
         fun recordHashKeys() {
             invalidates.add(currentRecomposeScope)
-            outerKeys.add(currentCompositeKeyHash)
+            outerKeys.add(currentCompositeKeyHashCode)
             TestSubcomposition {
                 invalidates.add(currentRecomposeScope)
-                innerKeys.add(currentCompositeKeyHash)
+                innerKeys.add(currentCompositeKeyHashCode)
             }
         }
 
-        val firstOuter = mutableListOf<Int>()
-        val firstInner = mutableListOf<Int>()
+        val firstOuter = mutableListOf<CompositeKeyHashCode>()
+        val firstInner = mutableListOf<CompositeKeyHashCode>()
         compose { (0..1).forEach { key(it) { recordHashKeys() } } }
         assertEquals(2, outerKeys.size)
         assertEquals(2, innerKeys.size)
@@ -85,18 +82,18 @@ class CompoundHashKeyTests {
 
     @Test // b/263760668
     fun testReusableContentNodeKeys() = compositionTest {
-        var keyOnEnter = -1
-        var keyOnExit = -1
+        var keyOnEnter = CompositeKeyHashCode(-1)
+        var keyOnExit = CompositeKeyHashCode(-1)
 
         var contentKey by mutableStateOf(0)
 
         compose {
             ReusableContent(contentKey) {
-                keyOnEnter = currentCompositeKeyHash
+                keyOnEnter = currentCompositeKeyHashCode
 
                 NonReusableText("$contentKey")
 
-                keyOnExit = currentCompositeKeyHash
+                keyOnExit = currentCompositeKeyHashCode
             }
         }
 
@@ -158,14 +155,14 @@ class CompoundHashKeyTests {
     @Test // regression test for b/382670037
     fun nestedCompositeHashKeyIsConsistentOnRecompose() = compositionTest {
         lateinit var scope: RecomposeScope
-        var lastRecordedHash = -1
+        var lastRecordedHash = CompositeKeyHashCode(-1)
 
         compose {
             RestartGroup {}
             key(0) {
                 RestartGroup {
                     scope = currentRecomposeScope
-                    lastRecordedHash = currentCompositeKeyHash
+                    lastRecordedHash = currentCompositeKeyHashCode
                 }
             }
         }
@@ -199,7 +196,7 @@ class CompoundHashKeyTests {
 }
 
 private class EnumTestClass {
-    var currentKey = 0
+    var currentKey = EmptyCompositeKeyHashCode
     lateinit var scope: RecomposeScope
     val state = mutableStateOf(0)
     private val config = mutableStateOf(Config.A)
@@ -212,47 +209,52 @@ private class EnumTestClass {
     @Composable
     private fun Child() {
         scope = currentRecomposeScope
-        currentKey = currentCompositeKeyHash
+        currentKey = currentCompositeKeyHashCode
     }
 
     enum class Config {
         A,
-        B
+        B,
     }
 }
 
 private var hashTraceRecomposeState = mutableStateOf(0)
-private var hashTrace = MutableIntList()
-private var markerToHash = MutableIntIntMap()
+private var hashTrace = mutableListOf<CompositeKeyHashCode>()
+private var markerToHash = MutableIntObjectMap<CompositeKeyHashCode>()
 
 private var marker = 100
 
 private fun newMarker() = marker++
 
-private data class TraceResult(val trace: IntList, val markers: IntIntMap)
+private data class TraceResult(
+    val trace: List<CompositeKeyHashCode>,
+    val markers: MutableIntObjectMap<CompositeKeyHashCode>,
+)
 
 private fun CompositionTestScope.composeTrace(content: @Composable () -> Unit): TraceResult {
-    hashTrace = MutableIntList()
-    markerToHash = MutableIntIntMap()
+    hashTrace = mutableListOf()
+    markerToHash = MutableIntObjectMap()
     compose(content)
     val result = TraceResult(hashTrace, markerToHash)
-    hashTrace = MutableIntList()
-    markerToHash = MutableIntIntMap()
+    hashTrace = mutableListOf()
+    markerToHash = MutableIntObjectMap()
     return result
 }
 
 private fun CompositionTestScope.retrace(): TraceResult {
     hashTraceRecomposeState.value++
-    hashTrace = MutableIntList()
-    markerToHash = MutableIntIntMap()
+    hashTrace = mutableListOf()
+    markerToHash = MutableIntObjectMap()
     advance()
     val result = TraceResult(hashTrace, markerToHash)
-    hashTrace = MutableIntList()
-    markerToHash = MutableIntIntMap()
+    hashTrace = mutableListOf()
+    markerToHash = MutableIntObjectMap()
     return result
 }
 
-private fun CompositionTestScope.retraceConsistentWith(markers: IntIntMap): IntIntMap {
+private fun CompositionTestScope.retraceConsistentWith(
+    markers: IntObjectMap<CompositeKeyHashCode>
+): IntObjectMap<CompositeKeyHashCode> {
     val recomposeMarkers = retrace().markers
     return markers.mergedWith(recomposeMarkers) { key, existing, merged ->
         error("Inconsistent marker $key expected hash $existing but found $merged")
@@ -264,10 +266,10 @@ private fun CompositionTestScope.expectUniqueHashCodes(content: @Composable () -
 
 private fun CompositionTestScope.expectHashCodes(
     duplicateCount: Int,
-    content: @Composable () -> Unit
-): IntIntMap {
+    content: @Composable () -> Unit,
+): IntObjectMap<CompositeKeyHashCode> {
     val (hashCodes, markers) = composeTrace(content)
-    val uniqueCodes = hashCodes.unique()
+    val uniqueCodes = hashCodes.distinct()
     assertEquals(
         hashCodes.size,
         uniqueCodes.size + duplicateCount,
@@ -277,7 +279,7 @@ private fun CompositionTestScope.expectHashCodes(
         else
             "Expected $duplicateCount keys but found but found ${
             hashCodes.size - uniqueCodes.size
-        }"
+        }",
     )
     val (recomposeTrace, recomposeMarkers) = retrace()
     assertEquals(hashCodes.size, recomposeTrace.size)
@@ -290,27 +292,18 @@ private fun CompositionTestScope.expectHashCodes(
     }
 }
 
-private fun IntList.unique(): IntList {
-    val result = MutableIntList()
-    val set = MutableIntSet()
-    forEach {
-        if (it !in set) {
-            set.add(it)
-            result.add(it)
-        }
-    }
-    return result
-}
-
-private fun IntIntMap.mergedWith(
-    other: IntIntMap,
-    inconsistent: (key: Int, existingValue: Int, mergedValue: Int) -> Int
-): IntIntMap {
-    val result = MutableIntIntMap()
+private fun IntObjectMap<CompositeKeyHashCode>.mergedWith(
+    other: IntObjectMap<CompositeKeyHashCode>,
+    inconsistent:
+        (
+            key: Int, existingValue: CompositeKeyHashCode, mergedValue: CompositeKeyHashCode,
+        ) -> CompositeKeyHashCode,
+): IntObjectMap<CompositeKeyHashCode> {
+    val result = MutableIntObjectMap<CompositeKeyHashCode>()
     forEach { key, value ->
         var mergedValue = value
         if (key in other) {
-            val otherValue = other[key]
+            val otherValue = other[key] ?: EmptyCompositeKeyHashCode
             if (otherValue != value) mergedValue = inconsistent(key, value, otherValue)
         }
         result[key] = mergedValue
@@ -326,7 +319,7 @@ private fun IntIntMap.mergedWith(
 @Composable
 private fun A(marker: Int = remember { newMarker() }) {
     hashTraceRecomposeState.value
-    val hash = currentCompositeKeyHash
+    val hash = currentCompositeKeyHashCode
     hashTrace.add(hash)
     markerToHash[marker] = hash
 }

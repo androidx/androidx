@@ -72,7 +72,7 @@ internal class RangeSliderTestCase : LayeredComposeTestCase(), ToggleableTestCas
                         .clip(CircleShape)
                         .shadow(10.dp, CircleShape)
                 )
-            }
+            },
         )
     }
 

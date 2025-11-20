@@ -20,9 +20,14 @@ import android.content.ComponentName
 import android.graphics.Color
 import android.graphics.Rect
 import androidx.window.core.ActivityComponentInfo
+import androidx.window.embedding.DividerAttributes.Companion.NO_DIVIDER
+import androidx.window.embedding.EmbeddingAspectRatio.Companion.ALWAYS_ALLOW
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFAULT
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
 import junit.framework.TestCase
@@ -33,9 +38,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Unit test for [SplitPairRule] to check the construction is correct by using it's builder. */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [Config.TARGET_SDK])
 internal class SplitPairRuleTest {
 
     @Test
@@ -53,7 +60,7 @@ internal class SplitPairRuleTest {
         return SplitPairFilter(
             ActivityComponentInfo("package", "class"),
             ActivityComponentInfo("otherPackage", "otherClass"),
-            null
+            null,
         )
     }
 
@@ -62,10 +69,48 @@ internal class SplitPairRuleTest {
     @Test
     fun equalsImpliesHashCode() {
         val filter = SplitPairFilter(ComponentName("a", "b"), ComponentName("c", "d"), "ACTION")
-        val firstRule = SplitPairRule.Builder(setOf(filter)).build()
-        val secondRule = SplitPairRule.Builder(setOf(filter)).build()
+        val firstRule =
+            SplitPairRule.Builder(setOf(filter))
+                .setClearTop(true)
+                .setDefaultSplitAttributes(
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_HINGE)
+                        .setDividerAttributes(NO_DIVIDER)
+                        .setAnimationParams(EmbeddingAnimationParams.Builder().build())
+                        .build()
+                )
+                .setMinWidthDp(100)
+                .setMinHeightDp(100)
+                .setMinSmallestWidthDp(100)
+                .setFinishPrimaryWithSecondary(ADJACENT)
+                .setFinishSecondaryWithPrimary(ADJACENT)
+                .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+                .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+                .build()
+        val secondRule =
+            SplitPairRule.Builder(setOf(filter))
+                .setClearTop(true)
+                .setDefaultSplitAttributes(
+                    SplitAttributes.Builder()
+                        .setSplitType(SPLIT_TYPE_HINGE)
+                        .setDividerAttributes(NO_DIVIDER)
+                        .setAnimationParams(EmbeddingAnimationParams.Builder().build())
+                        .build()
+                )
+                .setMinWidthDp(100)
+                .setMinHeightDp(100)
+                .setMinSmallestWidthDp(100)
+                .setFinishPrimaryWithSecondary(ADJACENT)
+                .setFinishSecondaryWithPrimary(ADJACENT)
+                .setMaxAspectRatioInLandscape(ALWAYS_ALLOW)
+                .setMaxAspectRatioInPortrait(ALWAYS_ALLOW)
+                .build()
         assertEquals(firstRule, secondRule)
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
+
+        // The hashCode should be consistent to the predetermined value.
+        // Note that the value should be updated whenever hashCode calculation is changed.
+        assertEquals(-1740043078, firstRule.hashCode())
     }
 
     /*------------------------------Builder Test------------------------------*/
@@ -108,6 +153,7 @@ internal class SplitPairRuleTest {
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GREEN)
                         )
+                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()
@@ -320,7 +366,7 @@ internal class SplitPairRuleTest {
             SplitPairFilter(
                 ActivityComponentInfo("a", "b"),
                 ActivityComponentInfo("c", "d"),
-                "ACTION"
+                "ACTION",
             )
         )
         val ruleString =

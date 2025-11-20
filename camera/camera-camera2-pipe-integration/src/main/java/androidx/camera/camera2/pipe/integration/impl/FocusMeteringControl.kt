@@ -29,8 +29,6 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEF
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
@@ -107,6 +105,15 @@ constructor(
         cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AE, 0)
     private val maxAwbRegionCount =
         cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB, 0)
+    private val supportsAutoFocusTrigger = cameraProperties.metadata.supportsAutoFocusTrigger
+    private val availableAeModes: List<AeMode?>? =
+        cameraProperties.metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES]?.map {
+            AeMode.fromIntOrNull(it)
+        }
+    private val availableAfModes =
+        cameraProperties.metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]?.map {
+            AfMode.fromIntOrNull(it)
+        }
 
     private var updateSignal: CompletableDeferred<FocusMeteringResult>? = null
     private var cancelSignal: CompletableDeferred<Result3A?>? = null
@@ -180,7 +187,7 @@ constructor(
                 else null
 
             val deferredResult3A =
-                if (afRectangles.isEmpty() || !cameraProperties.metadata.supportsAutoFocusTrigger) {
+                if (afRectangles.isEmpty() || !supportsAutoFocusTrigger) {
                     /*
                      * Controller3A.lock3A() returns early in such cases without updating the 3A
                      * regions which conflicts with [CameraControl.startFocusAndMetering] doc.
@@ -188,7 +195,7 @@ constructor(
                      * instead of all cases because Controller3A.update3A() will invalidate
                      * the CameraGraph and thus may cause extra requests to the camera.
                      */
-                    debug { "startFocusAndMetering: updating 3A regions only" }
+                    Camera2Logger.debug { "startFocusAndMetering: updating 3A regions only" }
                     requestControl.update3aRegions(
                         aeRegions = aeRegions,
                         afRegions = afRegions,
@@ -206,7 +213,9 @@ constructor(
                             autoFocusTimeoutMs
                         }
 
-                    debug { "startFocusAndMetering: updating 3A regions & triggering AF" }
+                    Camera2Logger.debug {
+                        "startFocusAndMetering: updating 3A regions & triggering AF"
+                    }
                     /*
                      * If device does not support a 3A region, we should not update it at all.
                      * If device does support but a region list is empty, it means any previously
@@ -218,9 +227,9 @@ constructor(
                         awbRegions = awbRegions,
                         afLockBehavior =
                             if (maxAfRegionCount > 0) Lock3ABehavior.IMMEDIATE else null,
-                        afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
+                        afTriggerStartAeMode = getSupportedAeMode(AeMode.ON),
                         timeLimitNs =
-                            TimeUnit.NANOSECONDS.convert(finalFocusTimeout, TimeUnit.MILLISECONDS)
+                            TimeUnit.NANOSECONDS.convert(finalFocusTimeout, TimeUnit.MILLISECONDS),
                     )
                 }
 
@@ -255,7 +264,7 @@ constructor(
         autoCancelJob =
             threads.sequentialScope.launch {
                 delay(delayMillis)
-                debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
+                Camera2Logger.debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
                 cancelFocusAndMeteringNowAsync(requestControl, resultToCancel)
             }
     }
@@ -269,7 +278,7 @@ constructor(
         focusTimeoutJob =
             threads.sequentialScope.launch {
                 delay(delayMillis)
-                debug {
+                Camera2Logger.debug {
                     "triggerFocusTimeout:" +
                         " completing with focus result unsuccessful after $delayMillis ms"
                 }
@@ -283,13 +292,15 @@ constructor(
     ) {
         invokeOnCompletion { throwable ->
             if (throwable != null) {
-                warn(throwable) {
+                Camera2Logger.warn(throwable) {
                     "propagateToFocusMeteringResultDeferred: completed exceptionally!"
                 }
                 resultDeferred.completeExceptionally(throwable)
             } else {
                 val result3A = getCompleted()
-                debug { "propagateToFocusMeteringResultDeferred: result3A = $result3A" }
+                Camera2Logger.debug {
+                    "propagateToFocusMeteringResultDeferred: result3A = $result3A"
+                }
                 if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
                     resultDeferred.completeExceptionally(
                         OperationCanceledException("Camera is not active.")
@@ -337,19 +348,16 @@ constructor(
     }
 
     // TODO: Move this to a lower level so it is automatically checked for all requests
-    private fun CameraProperties.getSupportedAeMode(preferredMode: AeMode): AeMode {
-        val modes =
-            metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES]?.map {
-                AeMode.fromIntOrNull(it)
-            } ?: return AeMode.OFF
+    private fun getSupportedAeMode(preferredMode: AeMode): AeMode {
+        if (availableAeModes == null) return AeMode.OFF
 
         // if preferredMode is supported, use it
-        if (modes.contains(preferredMode)) {
+        if (availableAeModes.contains(preferredMode)) {
             return preferredMode
         }
 
         // if not found, priority is AE_ON > AE_OFF
-        return if (modes.contains(AeMode.ON)) {
+        return if (availableAeModes.contains(AeMode.ON)) {
             AeMode.ON
         } else AeMode.OFF
     }
@@ -412,7 +420,7 @@ constructor(
         val isFocusSuccessful =
             when {
                 !shouldTriggerAf -> false
-                !cameraProperties.isAfModeSupported(AfMode.AUTO) -> true
+                !isAfModeSupported(AfMode.AUTO) -> true
                 frameMetadata == null -> false
                 resultAfState == null -> true
                 else -> resultAfState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
@@ -421,12 +429,8 @@ constructor(
         return FocusMeteringResult.create(isFocusSuccessful)
     }
 
-    private fun CameraProperties.isAfModeSupported(afMode: AfMode): Boolean {
-        val modes =
-            metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]?.map {
-                AfMode.fromIntOrNull(it)
-            } ?: return false
-
+    private fun isAfModeSupported(afMode: AfMode): Boolean {
+        val modes = availableAfModes ?: return false
         return modes.contains(afMode)
     }
 
@@ -463,7 +467,7 @@ constructor(
                         cropRegionAspectRatio,
                         defaultAspectRatio,
                         meteringMode,
-                        meteringRegionCorrection
+                        meteringRegionCorrection,
                     )
                 val meteringRectangle: MeteringRectangle =
                     getMeteringRect(adjustedPoint, meteringPoint.size, cropSensorRegion)
@@ -515,7 +519,7 @@ constructor(
         private fun getMeteringRect(
             normalizedPointF: PointF,
             normalizedSize: Float,
-            cropRegion: Rect
+            cropRegion: Rect,
         ): MeteringRectangle {
             val centerX = (cropRegion.left + normalizedPointF.x * cropRegion.width()).toInt()
             val centerY = (cropRegion.top + normalizedPointF.y * cropRegion.height()).toInt()
@@ -526,7 +530,7 @@ constructor(
                     centerX - width / 2,
                     centerY - height / 2,
                     centerX + width / 2,
-                    centerY + height / 2
+                    centerY + height / 2,
                 )
             focusRect.left = focusRect.left.coerceIn(cropRegion.left, cropRegion.right)
             focusRect.right = focusRect.right.coerceIn(cropRegion.left, cropRegion.right)

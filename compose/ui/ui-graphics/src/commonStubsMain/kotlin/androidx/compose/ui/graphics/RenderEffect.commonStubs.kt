@@ -30,7 +30,7 @@ actual constructor(
     private val renderEffect: RenderEffect?,
     private val radiusX: Float,
     private val radiusY: Float,
-    private val edgeTreatment: TileMode
+    private val edgeTreatment: TileMode,
 ) : RenderEffect()
 
 @Immutable

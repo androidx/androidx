@@ -25,8 +25,8 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.testing.VerifyResultListener
-import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.integration.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.integration.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -36,7 +36,6 @@ import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
@@ -54,7 +53,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class EvCompDeviceTest {
     private lateinit var cameraSelector: CameraSelector
     private lateinit var context: Context
@@ -69,15 +67,15 @@ class EvCompDeviceTest {
         // TODO(b/162296654): Workaround the google_3a specific behavior.
         Assume.assumeFalse(
             "Cuttlefish uses google_3a v1 or v2 it might fail to set EV before first AE converge.",
-            Build.MODEL.contains("Cuttlefish")
+            Build.MODEL.contains("Cuttlefish"),
         )
         Assume.assumeFalse(
             "Pixel uses google_3a v1 or v2 it might fail to set EV before first AE converge.",
-            Build.MODEL.contains("Pixel")
+            Build.MODEL.contains("Pixel"),
         )
         Assume.assumeFalse(
             "Disable Nexus 5 in postsubmit for b/173743705",
-            Build.MODEL.contains("Nexus 5") && !Log.isLoggable("MH", Log.DEBUG)
+            Build.MODEL.contains("Nexus 5") && !Log.isLoggable("MH", Log.DEBUG),
         )
 
         Assume.assumeTrue(CameraUtil.deviceHasCamera())

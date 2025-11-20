@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_108
+// VERSION: v0_111
 // GENERATED CODE - DO NOT MODIFY BY HAND
 package androidx.wear.compose.material3.tokens
 
@@ -23,22 +23,22 @@ import androidx.compose.ui.unit.sp
 internal object TypeScaleTokens {
     val ArcLargeFont = TypefaceTokens.Brand
     val ArcLargeLineHeight = 22.0.sp
-    val ArcLargeSize = 20.sp
-    val ArcLargeTrackingBottom = 1.8.sp
+    val ArcLargeSize = 18.sp
+    val ArcLargeTrackingBottom = 1.6.sp
     val ArcLargeTrackingTop = 0.4.sp
-    val ArcLargeWeight = 600.0f
+    val ArcLargeWeight = 599.0f
     val ArcLargeWidth = 100.0f
     val ArcMediumFont = TypefaceTokens.Brand
     val ArcMediumLineHeight = 18.0.sp
     val ArcMediumSize = 15.sp
     val ArcMediumTrackingBottom = 1.4.sp
     val ArcMediumTrackingTop = 0.6.sp
-    val ArcMediumWeight = 600.0f
+    val ArcMediumWeight = 599.0f
     val ArcMediumWidth = 100.0f
     val ArcSmallFont = TypefaceTokens.Brand
     val ArcSmallLineHeight = 16.0.sp
     val ArcSmallSize = 14.sp
-    val ArcSmallTrackingBottom = 1.6.sp
+    val ArcSmallTrackingBottom = 1.4.sp
     val ArcSmallTrackingTop = 0.6.sp
     val ArcSmallWeight = 560.0f
     val ArcSmallWidth = 100.0f
@@ -142,8 +142,8 @@ internal object TypeScaleTokens {
     val NumeralSmallWeightProminent = 750.0f
     val NumeralSmallWidth = 100.0f
     val TitleLargeFont = TypefaceTokens.Brand
-    val TitleLargeSize = 18.sp
     val TitleLargeLineHeight = 20.0.sp
+    val TitleLargeSize = 18.sp
     val TitleLargeTracking = 0.2.sp
     val TitleLargeWeight = 500.0f
     val TitleLargeWidth = 110.0f

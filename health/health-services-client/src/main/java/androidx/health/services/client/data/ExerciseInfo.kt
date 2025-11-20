@@ -36,7 +36,7 @@ public class ExerciseInfo(
         proto: DataProto.ExerciseInfo
     ) : this(
         ExerciseTrackedStatus.fromProto(proto.exerciseTrackedStatus),
-        ExerciseType.fromProto(proto.exerciseType)
+        ExerciseType.fromProto(proto.exerciseType),
     )
 
     internal val proto: DataProto.ExerciseInfo =

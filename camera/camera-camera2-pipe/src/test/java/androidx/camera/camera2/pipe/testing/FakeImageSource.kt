@@ -35,10 +35,7 @@ class FakeImageSource(
     override val surface: Surface
         get() = fakeSurface
 
-    fun simulateImage(
-        timestamp: Long,
-        outputId: OutputId? = null,
-    ): FakeImage {
+    fun simulateImage(timestamp: Long, outputId: OutputId? = null): FakeImage {
         val id = outputId ?: outputSizes.keys.single()
         val size = outputSizes[id]!!
         val fakeImage = FakeImage(size.width, size.height, streamFormat.value, timestamp)

@@ -45,7 +45,7 @@ internal data class GetterAttribute(
     override val namespace: String,
     override val name: String,
     override val type: AttributeType,
-    override val intMapping: List<IntMap> = emptyList()
+    override val intMapping: List<IntMap> = emptyList(),
 ) : Attribute {
     override val invocation: String
         get() = "${getter.simpleName}()"
@@ -61,7 +61,7 @@ internal data class ShadowedAttribute(
     override val invocation: String,
     override val type: AttributeType = AttributeType.OBJECT,
     override val intMapping: List<IntMap> = emptyList(),
-    override val namespace: String = "androidx.appcompat"
+    override val namespace: String = "androidx.appcompat",
 ) : Attribute
 
 /** Represents an `Attribute.IntMap` entry. */
@@ -69,7 +69,7 @@ internal data class IntMap(
     val name: String,
     val value: Int,
     val mask: Int = 0,
-    val annotation: AnnotationMirror? = null
+    val annotation: AnnotationMirror? = null,
 )
 
 /** Represents the type of the attribute, determined from context and the annotation itself. */
@@ -87,5 +87,5 @@ internal enum class AttributeType(val apiSuffix: String) {
     GRAVITY("Gravity"),
     RESOURCE_ID("ResourceId"),
     INT_FLAG("IntFlag"),
-    INT_ENUM("IntEnum")
+    INT_ENUM("IntEnum"),
 }

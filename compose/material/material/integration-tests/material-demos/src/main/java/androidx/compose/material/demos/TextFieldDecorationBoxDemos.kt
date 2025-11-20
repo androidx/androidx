@@ -64,7 +64,7 @@ fun DecorationBoxDemos() {
     LazyColumn(
         modifier = Modifier.wrapContentSize(Alignment.Center).width(280.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
+        contentPadding = PaddingValues(vertical = 16.dp),
     ) {
         item {
             Text("Progressing indicator")
@@ -100,7 +100,7 @@ private fun DenseOutlinedTextField() {
         onValueChange = { text = it },
         modifier = Modifier.height(40.dp).width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) { innerTextField ->
         @OptIn(ExperimentalMaterialApi::class)
         OutlinedTextFieldDecorationBox(
@@ -114,8 +114,8 @@ private fun DenseOutlinedTextField() {
                 TextFieldDefaults.outlinedTextFieldPadding(
                     // make it dense, Modifier.height controls the height in this case
                     top = 0.dp,
-                    bottom = 0.dp
-                )
+                    bottom = 0.dp,
+                ),
         )
     }
 }
@@ -135,11 +135,11 @@ private fun DenseTextField() {
                     enabled,
                     false,
                     interactionSource,
-                    TextFieldDefaults.textFieldColors()
+                    TextFieldDefaults.textFieldColors(),
                 )
                 .width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) { innerTextField ->
         TextFieldDecorationBox(
             value = text,
@@ -153,8 +153,8 @@ private fun DenseTextField() {
                 TextFieldDefaults.textFieldWithLabelPadding(
                     start = 4.dp,
                     end = 4.dp,
-                    bottom = 4.dp // make it dense
-                )
+                    bottom = 4.dp, // make it dense
+                ),
         )
     }
 }
@@ -181,7 +181,7 @@ private fun IndicatorLineTextField(type: IndicatorType) {
         modifier = indicator.width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
         interactionSource = interactionSource,
-        enabled = enabled
+        enabled = enabled,
     ) { innerTextField ->
         @OptIn(ExperimentalMaterialApi::class)
         TextFieldDecorationBox(
@@ -192,7 +192,7 @@ private fun IndicatorLineTextField(type: IndicatorType) {
             visualTransformation = VisualTransformation.None,
             interactionSource = interactionSource,
             label = { Text("Label") },
-            colors = colors
+            colors = colors,
         )
     }
 }
@@ -202,7 +202,7 @@ private const val ExpectedInputLength = 8
 private fun Modifier.progressIndicatorLine(
     text: String,
     interactionSource: InteractionSource,
-    enabled: Boolean
+    enabled: Boolean,
 ): Modifier = composed {
     val animationDuration = 150
     val focused by interactionSource.collectIsFocusedAsState()
@@ -237,7 +237,7 @@ private fun Modifier.animatedIndicator(
     interactionSource: InteractionSource,
     enabled: Boolean,
     isError: Boolean,
-    colors: TextFieldColors
+    colors: TextFieldColors,
 ): Modifier = composed {
     val animationDuration = 150
     val focused by interactionSource.collectIsFocusedAsState()
@@ -272,7 +272,7 @@ private fun Modifier.animatedIndicator(
 
 private fun Modifier.animatedGradient(
     interactionSource: InteractionSource,
-    enabled: Boolean
+    enabled: Boolean,
 ): Modifier = composed {
     val animationDuration = 150
     val unfocusedColor =
@@ -299,12 +299,12 @@ private fun Modifier.animatedGradient(
                     infiniteTransition.animateFloat(
                         0.2f,
                         0.8f,
-                        infiniteRepeatable(tween(3_000), RepeatMode.Reverse)
+                        infiniteRepeatable(tween(3_000), RepeatMode.Reverse),
                     )
                 Brush.horizontalGradient(
                     0.0f to Color.Blue,
                     progress.value to Color.Cyan,
-                    1f to Color.Blue
+                    1f to Color.Blue,
                 )
             }
         }
@@ -321,5 +321,5 @@ private fun Modifier.animatedGradient(
 private enum class IndicatorType {
     Progress,
     Animated,
-    Gradient
+    Gradient,
 }

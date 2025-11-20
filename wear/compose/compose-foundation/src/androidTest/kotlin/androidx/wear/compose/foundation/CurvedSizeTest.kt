@@ -20,11 +20,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class CurvedSizeTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test fun proper_nested_sizes_work() = nested_size_test(60f, 30.dp, 30f, 20.dp)
 
@@ -43,7 +44,7 @@ class CurvedSizeTest {
         angle: Float,
         thickness: Dp,
         innerAngle: Float,
-        innerThickness: Dp
+        innerThickness: Dp,
     ) {
         val capturedInfo = CapturedInfo()
         val innerCapturedInfo = CapturedInfo()
@@ -73,10 +74,7 @@ class CurvedSizeTest {
         }
     }
 
-    private fun nested_angular_size_test(
-        angularSizeInDp: Dp,
-        innerAngularSizeInDp: Dp,
-    ) {
+    private fun nested_angular_size_test(angularSizeInDp: Dp, innerAngularSizeInDp: Dp) {
         val capturedInfo = CapturedInfo()
         val innerCapturedInfo = CapturedInfo()
         var angularSizeInPx = 0f

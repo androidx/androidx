@@ -48,7 +48,11 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
@@ -59,7 +63,7 @@ import kotlin.math.min
 /**
  * Modify element to add border with appearance specified with a [border] and a [shape] and clip it.
  *
- * @sample androidx.compose.foundation.samples.BorderSample()
+ * @sample androidx.compose.foundation.samples.BorderSample
  * @param border [BorderStroke] class that specifies border appearance, such as size and color
  * @param shape shape of the border
  */
@@ -71,7 +75,7 @@ fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape) =
  * Modify element to add border with appearance specified with a [width], a [color] and a [shape]
  * and clip it.
  *
- * @sample androidx.compose.foundation.samples.BorderSampleWithDataClass()
+ * @sample androidx.compose.foundation.samples.BorderSampleWithDataClass
  * @param width width of the border. Use [Dp.Hairline] for a hairline border.
  * @param color color to paint the border with
  * @param shape shape of the border
@@ -84,8 +88,8 @@ fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
  * Modify element to add border with appearance specified with a [width], a [brush] and a [shape]
  * and clip it.
  *
- * @sample androidx.compose.foundation.samples.BorderSampleWithBrush()
- * @sample androidx.compose.foundation.samples.BorderSampleWithDynamicData()
+ * @sample androidx.compose.foundation.samples.BorderSampleWithBrush
+ * @sample androidx.compose.foundation.samples.BorderSampleWithDynamicData
  * @param width width of the border. Use [Dp.Hairline] for a hairline border.
  * @param brush brush to paint the border with
  * @param shape shape of the border
@@ -120,8 +124,11 @@ internal data class BorderModifierNodeElement(val width: Dp, val brush: Brush, v
 internal class BorderModifierNode(
     widthParameter: Dp,
     brushParameter: Brush,
-    shapeParameter: Shape
-) : DelegatingNode() {
+    shapeParameter: Shape,
+) : DelegatingNode(), SemanticsModifierNode {
+
+    override val shouldAutoInvalidate: Boolean = false
+    override val isImportantForBounds = false
 
     // BorderCache object that is lazily allocated depending on the type of shape
     // This object is only used for generic shapes and rounded rectangles with different corner
@@ -150,6 +157,7 @@ internal class BorderModifierNode(
             if (field != value) {
                 field = value
                 drawWithCacheModifierNode.invalidateDrawCache()
+                invalidateSemantics()
             }
         }
 
@@ -163,7 +171,7 @@ internal class BorderModifierNode(
                     val strokeWidthPx =
                         min(
                             if (width == Dp.Hairline) 1f else ceil(width.toPx()),
-                            ceil(size.minDimension / 2)
+                            ceil(size.minDimension / 2),
                         )
                     val halfStroke = strokeWidthPx / 2
                     val topLeft = Offset(halfStroke, halfStroke)
@@ -180,7 +188,7 @@ internal class BorderModifierNode(
                                 topLeft,
                                 borderSize,
                                 fillArea,
-                                strokeWidthPx
+                                strokeWidthPx,
                             )
                         is Outline.Rectangle ->
                             drawRectBorder(brush, topLeft, borderSize, fillArea, strokeWidthPx)
@@ -198,7 +206,7 @@ internal class BorderModifierNode(
         brush: Brush,
         outline: Outline.Generic,
         fillArea: Boolean,
-        strokeWidth: Float
+        strokeWidth: Float,
     ): DrawResult =
         if (fillArea) {
             onDrawWithContent {
@@ -254,7 +262,7 @@ internal class BorderModifierNode(
                             drawPath(
                                 path = outline.path,
                                 brush = brush,
-                                style = Stroke(strokeWidth * 2)
+                                style = Stroke(strokeWidth * 2),
                             )
 
                             // Scale the canvas slightly to cover the background that may be visible
@@ -264,7 +272,7 @@ internal class BorderModifierNode(
                                 drawPath(
                                     path = maskPath,
                                     brush = brush,
-                                    blendMode = BlendMode.Clear
+                                    blendMode = BlendMode.Clear,
                                 )
                             }
                         }
@@ -286,7 +294,7 @@ internal class BorderModifierNode(
         topLeft: Offset,
         borderSize: Size,
         fillArea: Boolean,
-        strokeWidth: Float
+        strokeWidth: Float,
     ): DrawResult {
         return if (outline.roundRect.isSimple) {
             val cornerRadius = outline.roundRect.topLeftCornerRadius
@@ -310,7 +318,7 @@ internal class BorderModifierNode(
                             strokeWidth,
                             size.width - strokeWidth,
                             size.height - strokeWidth,
-                            clipOp = ClipOp.Difference
+                            clipOp = ClipOp.Difference,
                         ) {
                             drawRoundRect(brush, cornerRadius = cornerRadius)
                         }
@@ -325,7 +333,7 @@ internal class BorderModifierNode(
                             topLeft = topLeft,
                             size = borderSize,
                             cornerRadius = cornerRadius.shrink(halfStroke),
-                            style = borderStroke
+                            style = borderStroke,
                         )
                     }
                 }
@@ -344,6 +352,10 @@ internal class BorderModifierNode(
             }
         }
     }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        shape = this@BorderModifierNode.shape
+    }
 }
 
 /**
@@ -354,12 +366,12 @@ private data class BorderCache(
     private var imageBitmap: ImageBitmap? = null,
     private var canvas: androidx.compose.ui.graphics.Canvas? = null,
     private var canvasDrawScope: CanvasDrawScope? = null,
-    private var borderPath: Path? = null
+    private var borderPath: Path? = null,
 ) {
     inline fun CacheDrawScope.drawBorderCache(
         borderSize: IntSize,
         config: ImageBitmapConfig,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ): ImageBitmap {
 
         var targetImageBitmap = imageBitmap
@@ -413,7 +425,7 @@ private fun CacheDrawScope.drawRectBorder(
     topLeft: Offset,
     borderSize: Size,
     fillArea: Boolean,
-    strokeWidthPx: Float
+    strokeWidthPx: Float,
 ): DrawResult {
     // If we are drawing a rectangular stroke, just offset it by half the stroke
     // width as strokes are always drawn centered on their geometry.
@@ -435,7 +447,7 @@ private fun createRoundRectPath(
     targetPath: Path,
     roundedRect: RoundRect,
     strokeWidth: Float,
-    fillArea: Boolean
+    fillArea: Boolean,
 ): Path =
     targetPath.apply {
         reset()
@@ -456,7 +468,7 @@ private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
         topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
         topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
         bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
-        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx)
+        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
     )
 
 /**

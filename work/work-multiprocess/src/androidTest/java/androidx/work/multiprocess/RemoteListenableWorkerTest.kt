@@ -17,7 +17,6 @@
 package androidx.work.multiprocess
 
 import android.annotation.SuppressLint
-import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CONNECTIVITY
 import android.content.Context
 import android.os.Build
 import androidx.concurrent.futures.CallbackToFutureAdapter
@@ -31,6 +30,8 @@ import androidx.work.ForegroundUpdater
 import androidx.work.OneTimeWorkRequest
 import androidx.work.ProgressUpdater
 import androidx.work.WorkInfo
+import androidx.work.WorkInfo.Companion.STOP_REASON_CANCELLED_BY_APP
+import androidx.work.WorkInfo.Companion.STOP_REASON_CONSTRAINT_CONNECTIVITY
 import androidx.work.WorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.impl.Processor
@@ -185,7 +186,9 @@ public class RemoteListenableWorkerTest {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
         }
-        testUnbindService<RemoteSuccessWorker>()
+        val delegatingWorker = buildDelegatingWorker<RemoteSuccessWorker>()
+        delegatingWorker.startWork().get()
+        assertNull(delegatingWorker.client.connection)
     }
 
     @Test
@@ -195,7 +198,23 @@ public class RemoteListenableWorkerTest {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
         }
-        testUnbindService<RemoteFailureWorker>()
+        val delegatingWorker = buildDelegatingWorker<RemoteFailureWorker>()
+        delegatingWorker.startWork().get()
+        assertNull(delegatingWorker.client.connection)
+    }
+
+    @Test
+    @MediumTest
+    public fun testUnbindService_stopWorker() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+        val delegatingWorker = buildDelegatingWorker<RemoteStopWorker>()
+        delegatingWorker.startWork()
+        delegatingWorker.client.connection!!.mFuture.get()
+        delegatingWorker.stop(STOP_REASON_CANCELLED_BY_APP)
+        assertNull(delegatingWorker.client.connection)
     }
 
     public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
@@ -221,12 +240,13 @@ public class RemoteListenableWorkerTest {
                 mForegroundProcessor,
                 mDatabase,
                 mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
-                emptyList()
+                emptyList(),
             )
             .build()
     }
 
-    private inline fun <reified T : RemoteListenableWorker> testUnbindService() {
+    private inline fun <reified T : RemoteListenableWorker> buildDelegatingWorker():
+        RemoteListenableDelegatingWorker {
         val request = buildRequest<T>()
         val inputData =
             Data.Builder()
@@ -249,16 +269,15 @@ public class RemoteListenableWorkerTest {
                 mTaskExecutor,
                 mConfiguration.workerFactory,
                 progressUpdater,
-                foregroundUpdater
+                foregroundUpdater,
             )
         val worker: RemoteListenableDelegatingWorker =
             mConfiguration.workerFactory.createWorkerWithDefaultFallback(
                 mContext,
                 RemoteListenableDelegatingWorker::class.java.name,
-                parameters
+                parameters,
             ) as RemoteListenableDelegatingWorker
-        worker.startWork().get()
-        assertNull(worker.client.connection)
+        return worker
     }
 }
 

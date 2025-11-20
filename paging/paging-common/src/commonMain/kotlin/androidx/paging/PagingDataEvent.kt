@@ -121,10 +121,8 @@ public sealed class PagingDataEvent<T : Any> {
      */
     public class Refresh<T : Any>
     @RestrictTo(LIBRARY_GROUP)
-    constructor(
-        val newList: PlaceholderPaddedList<T>,
-        val previousList: PlaceholderPaddedList<T>,
-    ) : PagingDataEvent<T>() {
+    constructor(val newList: PlaceholderPaddedList<T>, val previousList: PlaceholderPaddedList<T>) :
+        PagingDataEvent<T>() {
         override fun equals(other: Any?): Boolean {
             return other is Refresh<*> &&
                 newList.placeholdersBefore == other.newList.placeholdersBefore &&

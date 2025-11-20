@@ -17,7 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.calories
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -38,7 +37,7 @@ class ActiveCaloriesBurnedRecordTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     energy = 10.calories,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
             .isEqualTo(
@@ -48,7 +47,7 @@ class ActiveCaloriesBurnedRecordTest {
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
                     energy = 10.calories,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
     }
@@ -62,7 +61,7 @@ class ActiveCaloriesBurnedRecordTest {
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
                 energy = 10.calories,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
             )
         }
     }
@@ -76,7 +75,7 @@ class ActiveCaloriesBurnedRecordTest {
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
                         energy = 10.calories,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                        metadata = Metadata.manualEntry(),
                     )
                     .toString()
             )

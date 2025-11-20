@@ -38,7 +38,7 @@ class NightModeLocalBeforeAttachBaseTestCase {
     val rule =
         NightModeActivityTestRule(
             NightModeLocalBeforeAttachBaseActivity::class.java,
-            launchActivity = false
+            launchActivity = false,
         )
 
     @Test

@@ -65,12 +65,12 @@ fun RtlDemo() {
         TestSiblings()
         Text(
             "PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT",
-            Modifier.align(Alignment.CenterHorizontally)
+            Modifier.align(Alignment.CenterHorizontally),
         )
         CustomLayout(true)
         Text(
             "PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT",
-            Modifier.align(Alignment.CenterHorizontally)
+            Modifier.align(Alignment.CenterHorizontally),
         )
         CustomLayout(false)
         Text("WITH CONSTRAINTS", Modifier.align(Alignment.CenterHorizontally))
@@ -92,7 +92,7 @@ private fun TestPlacementInLimitedSpace() {
         Box(modifier = Modifier.padding(12.dp).size(56.dp).background(Color.Yellow)) {
             IconButton( // adds minimumTouchTargetSize
                 modifier = Modifier.padding(horizontal = 12.dp),
-                onClick = {}
+                onClick = {},
             ) {
                 Icon(Icons.Filled.Info, null)
             }

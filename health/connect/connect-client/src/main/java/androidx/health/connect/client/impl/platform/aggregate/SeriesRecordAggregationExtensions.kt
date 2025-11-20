@@ -46,20 +46,20 @@ private val RECORDS_TO_AGGREGATE_METRICS_INFO_MAP =
             AggregateMetricsInfo(
                 averageMetric = CyclingPedalingCadenceRecord.RPM_AVG,
                 maxMetric = CyclingPedalingCadenceRecord.RPM_MAX,
-                minMetric = CyclingPedalingCadenceRecord.RPM_MIN
+                minMetric = CyclingPedalingCadenceRecord.RPM_MIN,
             ),
         SpeedRecord::class to
             AggregateMetricsInfo(
                 averageMetric = SpeedRecord.SPEED_AVG,
                 maxMetric = SpeedRecord.SPEED_MAX,
-                minMetric = SpeedRecord.SPEED_MIN
+                minMetric = SpeedRecord.SPEED_MIN,
             ),
         StepsCadenceRecord::class to
             AggregateMetricsInfo(
                 averageMetric = StepsCadenceRecord.RATE_AVG,
                 maxMetric = StepsCadenceRecord.RATE_MAX,
-                minMetric = StepsCadenceRecord.RATE_MIN
-            )
+                minMetric = StepsCadenceRecord.RATE_MIN,
+            ),
     )
 
 internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.aggregateSeries(
@@ -70,12 +70,12 @@ internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.ag
         ReadRecordsRequest(
             T::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultAggregator(
             timeRange,
-            SeriesAggregationProcessor(T::class, aggregateRequest.metrics, timeRange)
-        )
+            SeriesAggregationProcessor(T::class, aggregateRequest.metrics, timeRange),
+        ),
     )
 }
 
@@ -86,14 +86,14 @@ internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.ag
         ReadRecordsRequest(
             T::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByPeriodAggregator(
             createLocalTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             SeriesAggregationProcessor(T::class, aggregateRequest.metrics, it)
-        }
+        },
     )
 }
 
@@ -104,14 +104,14 @@ internal suspend inline fun <reified T : SeriesRecord<*>> HealthConnectClient.ag
         ReadRecordsRequest(
             T::class,
             aggregateRequest.timeRangeFilter.withBufferedStart(),
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByDurationAggregator(
             createTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             SeriesAggregationProcessor(T::class, aggregateRequest.metrics, it)
-        }
+        },
     )
 }
 
@@ -171,5 +171,5 @@ internal class SeriesAggregationProcessor<T : SeriesRecord<*>>(
 internal data class AggregateMetricsInfo<T : Any>(
     val averageMetric: AggregateMetric<T>,
     val minMetric: AggregateMetric<T>,
-    val maxMetric: AggregateMetric<T>
+    val maxMetric: AggregateMetric<T>,
 )

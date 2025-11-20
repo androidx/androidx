@@ -1,7 +1,7 @@
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 
 if [ "$(uname)" = "Darwin" ]; then
-  VIRTUAL_ENV_INSTALL_COMMAND="pip3 install virtualenv"
+  VIRTUAL_ENV_INSTALL_COMMAND="pip3 install --require-hashes -r base-requirements.txt"
   else
   VIRTUAL_ENV_INSTALL_COMMAND="sudo apt-get install virtualenv python3-venv"
 fi
@@ -17,7 +17,7 @@ fi
 virtualenv androidx_project_creator
 
 # install necessary tools
-androidx_project_creator/bin/pip3 install setuptools toml
+androidx_project_creator/bin/pip3 install --require-hashes -r $SCRIPT_DIR/requirements.txt
 
 # run project creator
 androidx_project_creator/bin/python3 $SCRIPT_DIR/create_project.py "$@"

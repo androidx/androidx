@@ -17,6 +17,8 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.annotation.FloatRange
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,33 +28,43 @@ import kotlin.math.roundToInt
  * Represents an out of viewport area of a Lazy Layout where items should be cached. Items will be
  * prepared in the Cache Window area in advance to improve scroll performance.
  */
-internal interface LazyLayoutCacheWindow {
+@ExperimentalFoundationApi
+@Stable
+interface LazyLayoutCacheWindow {
 
     /**
-     * Calculates the prefetch window area for prefetching on the scroll direction, "ahead window".
-     * The prefetch window strategy will prepare items in the ahead area in advance so they're ready
-     * to be used when they become visible.
+     * Calculates the prefetch window area in pixels for prefetching on the scroll direction, "ahead
+     * window". The prefetch window strategy will prepare items in the ahead area in advance s they
+     * are ready to be used when they become visible.
+     *
+     * @param viewport The size of the viewport in this Lazy Layout in pixels.
      */
     fun Density.calculateAheadWindow(viewport: Int): Int = 0
 
     /**
-     * Calculates the window area for keeping items in the scroll counter direction, "behind
-     * window". Items in the behind window will not be disposed and can be accessed more quickly if
-     * they become visible again.
+     * Calculates the window area in pixels for keeping items in the scroll counter direction,
+     * "behind window". Items in the behind window will not be disposed and can be accessed more
+     * quickly if they become visible again.
+     *
+     * @param viewport The size of the viewport in this Lazy Layout in pixels.
      */
     fun Density.calculateBehindWindow(viewport: Int): Int = 0
 }
 
 /**
- * A fixed/static [LazyLayoutCacheWindow].
+ * A Dp based [LazyLayoutCacheWindow].
  *
- * @param ahead The size of the ahead window.
- * @param behind The size of the behind window.
+ * @param ahead The size of the ahead window to be used as per
+ *   [LazyLayoutCacheWindow.calculateAheadWindow].
+ * @param behind The size of the behind window to be used as per
+ *   [LazyLayoutCacheWindow.calculateBehindWindow].
  */
-internal fun LazyLayoutCacheWindow(ahead: Dp = 0.dp, behind: Dp = 0.dp): LazyLayoutCacheWindow {
+@ExperimentalFoundationApi
+fun LazyLayoutCacheWindow(ahead: Dp = 0.dp, behind: Dp = 0.dp): LazyLayoutCacheWindow {
     return DpLazyLayoutCacheWindow(ahead, behind)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private class DpLazyLayoutCacheWindow(val ahead: Dp, val behind: Dp) : LazyLayoutCacheWindow {
     override fun Density.calculateAheadWindow(viewport: Int): Int = ahead.roundToPx()
 
@@ -77,11 +89,13 @@ private class DpLazyLayoutCacheWindow(val ahead: Dp, val behind: Dp) : LazyLayou
  * @param aheadFraction The fraction of the viewport to be used for the ahead window.
  * @param behindFraction The fraction of the viewport to be used for the behind window.
  */
-internal fun LazyLayoutCacheWindow(
-    @FloatRange(from = 0.0, to = 1.0) aheadFraction: Float = 0.0f,
-    @FloatRange(from = 0.0, to = 1.0) behindFraction: Float = 0.0f
+@ExperimentalFoundationApi
+fun LazyLayoutCacheWindow(
+    @FloatRange(from = 0.0) aheadFraction: Float = 0.0f,
+    @FloatRange(from = 0.0) behindFraction: Float = 0.0f,
 ): LazyLayoutCacheWindow = FractionLazyLayoutCacheWindow(aheadFraction, behindFraction)
 
+@OptIn(ExperimentalFoundationApi::class)
 private class FractionLazyLayoutCacheWindow(val aheadFraction: Float, val behindFraction: Float) :
     LazyLayoutCacheWindow {
     override fun Density.calculateAheadWindow(viewport: Int): Int =

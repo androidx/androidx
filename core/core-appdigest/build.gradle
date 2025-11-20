@@ -30,15 +30,19 @@ plugins {
 
 dependencies {
     api(libs.jspecify)
+    api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation:1.8.1")
+
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.56")
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":core:core"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testMonitor)
 }
 
 androidx {

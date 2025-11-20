@@ -18,12 +18,11 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-wear-tiles"))
     implementation("androidx.activity:activity:1.4.0")

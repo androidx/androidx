@@ -1,3 +1,5 @@
+import androidx.build.ApkCopyHelperKt
+
 /*
  * Copyright (C) 2019 The Android Open Source Project
  *
@@ -17,24 +19,15 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.camera.integration.view"
     }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
-    }
-
     buildTypes {
         release {
             minifyEnabled = true
@@ -43,12 +36,13 @@ android {
                     "proguard-rules.pro")
         }
     }
-
     namespace = "androidx.camera.integration.view"
 }
 
 dependencies {
     api(libs.jspecify)
+    api(libs.constraintLayout)
+
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-camera2-pipe-integration"))
@@ -60,7 +54,6 @@ dependencies {
     implementation(project(":camera:camera-effects"))
     implementation(project(":camera:media3:media3-effect"))
     implementation(libs.guavaAndroid)
-    implementation("com.google.mlkit:barcode-scanning:17.0.2")
     implementation("androidx.exifinterface:exifinterface:1.3.2")
     implementation(libs.mlkitBarcode)
     // old version of common-java8 conflicts with newer version, because both have
@@ -68,7 +61,6 @@ dependencies {
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
     implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
-    api(libs.constraintLayout)
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
@@ -88,7 +80,6 @@ dependencies {
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
 
     // Testing framework
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
@@ -97,8 +88,7 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
@@ -107,4 +97,29 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
+
+    // Transitive dependencies
+    implementation 'androidx.arch.core:core-common:2.2.0'
+    implementation 'androidx.compose.foundation:foundation-layout:1.4.0'
+    implementation 'androidx.compose.ui:ui-graphics:1.4.0'
+    implementation 'androidx.compose.ui:ui-text:1.4.0'
+    implementation 'androidx.compose.ui:ui-unit:1.4.0'
+    implementation 'androidx.fragment:fragment:1.3.4'
+    implementation 'androidx.lifecycle:lifecycle-common:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.1'
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.0.0")
+    implementation("com.google.mlkit:barcode-scanning-common:17.0.0")
+    implementation 'com.google.mlkit:vision-interfaces:16.0.0'
+    implementation libs.androidx.annotation
+    implementation libs.androidx.core
+    implementation project(':camera:camera-core')
+    androidTestImplementation libs.hamcrestCore
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.testMonitor
 }
+
+// Publish the APK to dist/apk for testing.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
+androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630

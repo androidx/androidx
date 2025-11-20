@@ -46,7 +46,7 @@ constructor(
      *
      * @return SavedState of default argument values
      */
-    public var defaultArguments: SavedState? = null
+    public var defaultArguments: SavedState? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

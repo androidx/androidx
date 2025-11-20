@@ -50,7 +50,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
     AlertDialog(
@@ -61,7 +61,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
                 Icons.Rounded.AccountCircle,
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Enable Battery Saver Mode?") },
@@ -81,7 +81,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
                     showDialog = false
                 }
             )
-        }
+        },
     )
 }
 
@@ -95,7 +95,7 @@ fun AlertDialogWithEdgeButtonSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
 
@@ -107,7 +107,7 @@ fun AlertDialogWithEdgeButtonSample() {
                 Icons.Rounded.AccountCircle,
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Mobile network is not currently available") },
@@ -118,7 +118,7 @@ fun AlertDialogWithEdgeButtonSample() {
                     showDialog = false
                 }
             )
-        }
+        },
     )
 }
 
@@ -134,7 +134,7 @@ fun AlertDialogWithContentGroupsSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
     AlertDialog(
@@ -151,14 +151,14 @@ fun AlertDialogWithContentGroupsSample() {
             ) {
                 Text("Share once")
             }
-        }
+        },
     ) {
         item {
             SwitchButton(
                 modifier = Modifier.fillMaxWidth(),
                 checked = weatherEnabled,
                 onCheckedChange = { weatherEnabled = it },
-                label = { Text("Weather") }
+                label = { Text("Weather") },
             )
         }
         item {
@@ -166,7 +166,7 @@ fun AlertDialogWithContentGroupsSample() {
                 modifier = Modifier.fillMaxWidth(),
                 checked = calendarEnabled,
                 onCheckedChange = { calendarEnabled = it },
-                label = { Text("Calendar") }
+                label = { Text("Calendar") },
             )
         }
         item { AlertDialogDefaults.GroupSeparator() }
@@ -174,14 +174,14 @@ fun AlertDialogWithContentGroupsSample() {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") },
             )
         }
         item {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") },
             )
         }
     }

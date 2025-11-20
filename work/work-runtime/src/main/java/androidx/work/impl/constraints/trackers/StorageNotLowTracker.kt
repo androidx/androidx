@@ -25,7 +25,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 /** Tracks whether or not the device's storage is low. */
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class StorageNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
+public class StorageNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
     override fun readSystemState(): Boolean {

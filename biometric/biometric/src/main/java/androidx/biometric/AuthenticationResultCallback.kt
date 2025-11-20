@@ -20,4 +20,10 @@ package androidx.biometric
 public fun interface AuthenticationResultCallback {
     /** Called when result is available */
     public fun onAuthResult(result: AuthenticationResult)
+
+    /**
+     * The optional callback to be called when authentication fails intermediately. This is not a
+     * terminal auth result, so it could happen multiple times.
+     */
+    public fun onAuthFailure() {}
 }

@@ -28,7 +28,7 @@ package androidx.annotation
     AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FIELD,
     AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.ANNOTATION_CLASS
+    AnnotationTarget.ANNOTATION_CLASS,
 )
 public annotation class Dimension(@DimensionUnit val unit: Int = PX) {
     public companion object {

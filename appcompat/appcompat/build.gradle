@@ -5,13 +5,14 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.android.legacy-kapt")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -21,13 +22,12 @@ dependencies {
 
     // Required to make activity 1.5.0-rc01 dependencies resolve.
     implementation("androidx.core:core-ktx:1.13.0")
-    implementation(libs.kotlinStdlib)
 
     implementation("androidx.emoji2:emoji2:1.3.0")
     implementation("androidx.emoji2:emoji2-views-helper:1.2.0")
     implementation("androidx.collection:collection:1.4.2")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api("androidx.activity:activity:1.7.0")
+    api("androidx.activity:activity:1.8.0")
     api("androidx.fragment:fragment:1.5.4")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
@@ -39,7 +39,6 @@ dependencies {
 
     kapt("androidx.resourceinspection:resourceinspection-processor:1.0.1")
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -50,26 +49,14 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1", {
-        // Needed to ensure that the same version of lifecycle-runtime-ktx
-        // is pulled into main and androidTest configurations. Otherwise,
-        // potentially leads to confusing errors about resolution
-        // ambiguity, especially from playground build which replaces
-        // project dependency with snapshot artifacts.
-        exclude group: "androidx.lifecycle", module: "lifecycle-runtime-ktx"
-    })
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-lifecycle"))
-    androidTestImplementation(project(":internal-testutils-appcompat"), {
-        exclude group: "androidx.appcompat", module: "appcompat"
-        exclude group: "androidx.core", module: "core"
-    })
+    androidTestImplementation(project(":internal-testutils-appcompat"))
     androidTestImplementation(project(":internal-testutils-fonts"))
 
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
 
     lintPublish(project(":appcompat:appcompat-lint"))
 }
@@ -78,6 +65,7 @@ android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        consumerProguardFiles("proguard-rules.pro")
     }
     aaptOptions {
         additionalParameters "--no-version-vectors"
@@ -86,14 +74,6 @@ android {
 
     testOptions {
         animationsDisabled = true
-
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
     }
 
     useLibrary "android.test.runner"
@@ -110,4 +90,5 @@ androidx {
     description = "Provides backwards-compatible implementations of UI-related Android SDK " +
             "functionality, including dark mode and Material theming."
     failOnDeprecationWarnings = false
+    enableRobolectric()
 }

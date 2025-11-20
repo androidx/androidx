@@ -24,7 +24,7 @@ object GsonHelpers {
         val builder = GsonBuilder()
         builder.registerTypeAdapter(
             ActionsTestSummaryGroupOrMeta::class.java,
-            ActionTestSummaryDeserializer()
+            ActionTestSummaryDeserializer(),
         )
         return builder
     }

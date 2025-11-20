@@ -34,6 +34,6 @@ class ApiLintVersionsTest {
 
         val registry = UiIssueRegistry()
         assertThat(registry.api).isEqualTo(CURRENT_API)
-        assertThat(registry.minApi).isEqualTo(14)
+        assertThat(registry.minApi).isEqualTo(16)
     }
 }

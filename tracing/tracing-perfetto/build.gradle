@@ -27,7 +27,7 @@ import androidx.build.AndroidXConfig
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -54,13 +54,11 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
-    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
 }
 
@@ -69,15 +67,12 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto SDK"
-    legacyDisableKotlinStrictApiMode = true
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
     }
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.tracing.perfetto"
 }

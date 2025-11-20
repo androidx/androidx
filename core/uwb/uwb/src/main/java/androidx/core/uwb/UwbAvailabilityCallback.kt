@@ -50,7 +50,7 @@ public interface UwbAvailabilityCallback {
                 [
                     STATE_CHANGE_REASON_UNKNOWN,
                     STATE_CHANGE_REASON_SYSTEM_POLICY,
-                    STATE_CHANGE_REASON_COUNTRY_CODE_ERROR
+                    STATE_CHANGE_REASON_COUNTRY_CODE_ERROR,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

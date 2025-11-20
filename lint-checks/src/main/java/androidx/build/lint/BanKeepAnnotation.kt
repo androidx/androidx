@@ -64,7 +64,7 @@ class BanKeepAnnotation : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanKeepAnnotation::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanKeepAnnotation::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

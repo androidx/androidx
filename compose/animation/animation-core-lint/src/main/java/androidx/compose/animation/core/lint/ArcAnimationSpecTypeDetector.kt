@@ -85,7 +85,7 @@ class ArcAnimationSpecTypeDetector : Detector(), SourceCodeScanner {
                     location = context.getNameLocation(node),
                     message =
                         "Arc animation is intended for 2D values such as Offset, IntOffset or " +
-                            "DpOffset.\nOtherwise, the animation might not be what you expect."
+                            "DpOffset.\nOtherwise, the animation might not be what you expect.",
                 )
             }
         }
@@ -108,8 +108,8 @@ class ArcAnimationSpecTypeDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         ArcAnimationSpecTypeDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 }

@@ -67,7 +67,7 @@ fun ScreenTransitionDemo() {
                             else -> TestScreens.Screen1
                         }
                 },
-                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp)
+                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp),
             ) {
                 Text("Previous screen")
             }
@@ -80,7 +80,7 @@ fun ScreenTransitionDemo() {
                             else -> TestScreens.Screen1
                         }
                 },
-                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp)
+                modifier = Modifier.align(Alignment.CenterVertically).padding(10.dp),
             ) {
                 Text("Next screen")
             }
@@ -109,7 +109,7 @@ fun ScreenTransitionDemo() {
                         fadeIn(animationSpec = tween(220, delayMillis = 90)) +
                             scaleIn(
                                 initialScale = 0.92f,
-                                animationSpec = tween(220, delayMillis = 90)
+                                animationSpec = tween(220, delayMillis = 90),
                             ) togetherWith fadeOut(animationSpec = tween(90))
                 }
             }
@@ -126,7 +126,7 @@ fun ScreenTransitionDemo() {
 enum class TestScreens {
     Screen1,
     Screen2,
-    Screen3
+    Screen3,
 }
 
 @Composable

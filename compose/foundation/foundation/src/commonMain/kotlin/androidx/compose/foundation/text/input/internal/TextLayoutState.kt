@@ -47,14 +47,22 @@ internal class TextLayoutState {
     /**
      * Measured layout coordinates of the decoration box, core text field, and text layout node.
      *
+     * ```
      * DecoratorNode
      * -------------------
-     * | CoreNode |--> Outer Decoration Box with padding | ------------- | | | | | | | |--|-->
-     * Visible inner text field | ------------- | (Below the dashed line is not visible) | | | | | |
-     * | |
+     * |  CoreNode       |--> Outer Decoration Box with padding
+     * |  -------------  |
+     * |  |           |  |
+     * |  |           |--|--> Visible inner text field
+     * |  -------------  |    (Below the dashed line is not visible)
+     * |  |           |  |
+     * |  |           |  |
      * -------------------
-     * | | | |---> Scrollable part (TextLayoutNode)
-     * -------------
+     *    |           |
+     *    |           |---> Scrollable part (TextLayoutNode)
+     *    -------------
+     * ```
+     *
      * These coordinates are used to calculate the relative positioning between multiple layers of a
      * BasicTextField. For example, touches are processed by the decoration box but these should be
      * converted to text layout positions to find out which character is pressed.
@@ -246,4 +254,12 @@ internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
             offset
         }
     } ?: offset
+}
+
+internal fun TextLayoutState.fromTextLayoutToDecoration(rect: Rect): Rect {
+    val textLayoutNode = textLayoutNodeCoordinates?.takeIf { it.isAttached } ?: return rect
+    val decoratorNode = decoratorNodeCoordinates?.takeIf { it.isAttached } ?: return rect
+
+    val topLeft = decoratorNode.localBoundingBoxOf(textLayoutNode, clipBounds = false).topLeft
+    return rect.translate(topLeft)
 }

@@ -21,8 +21,10 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -31,19 +33,16 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.testutils.lifecycle"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -51,9 +50,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
 
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
             }
@@ -65,6 +63,22 @@ androidXMultiplatform {
                 api(libs.testRules)
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
+            }
+        }
+
+        nativeMain {
+            dependsOn(commonMain)
+        }
+
+        webMain {
+            dependsOn(commonMain)
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
             }
         }
     }

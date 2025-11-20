@@ -28,8 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/components/cards" class="external" target="_blank">Material Design
- * card</a>.
+ * [Material Design card](https://material.io/components/cards)
  *
  * Cards contain content and actions about a single subject.
  *
@@ -61,7 +60,7 @@ fun Card(
     contentColor: Color = contentColorFor(backgroundColor),
     border: BorderStroke? = null,
     elevation: Dp = 1.dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -70,7 +69,7 @@ fun Card(
         contentColor = contentColor,
         elevation = elevation,
         border = border,
-        content = content
+        content = content,
     )
 }
 
@@ -113,7 +112,7 @@ fun Card(
     border: BorderStroke? = null,
     elevation: Dp = 1.dp,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Surface(
         onClick = onClick,
@@ -125,6 +124,6 @@ fun Card(
         border = border,
         elevation = elevation,
         interactionSource = interactionSource,
-        content = content
+        content = content,
     )
 }

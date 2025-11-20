@@ -91,7 +91,7 @@ fun CallsScreen(
     context: Context = LocalContext.current,
     ongoingCallsViewModel: OngoingCallsViewModel,
     onShowAudioRouting: () -> Unit,
-    onMoveToSettings: () -> Unit
+    onMoveToSettings: () -> Unit,
 ) {
     DisposableEffect(lifecycleOwner, context) {
         ongoingCallsViewModel.connectService(context)
@@ -114,14 +114,14 @@ fun CallsScreen(
                 colors =
                     topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary
+                        titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                 title = { Text("Ongoing Calls") },
                 actions = {
                     IconButton(onClick = onMoveToSettings) {
                         Icon(imageVector = Icons.Rounded.Settings, contentDescription = "Settings ")
                     }
-                }
+                },
             )
         }
     ) { scaffoldPadding ->
@@ -131,7 +131,7 @@ fun CallsScreen(
             isMuted,
             currentAudioRoute,
             onChangeMuteState = ongoingCallsViewModel::onChangeMuteState,
-            onShowAudioRouteDialog = onShowAudioRouting
+            onShowAudioRouteDialog = onShowAudioRouting,
         )
     }
 }
@@ -151,7 +151,7 @@ fun ServiceConnectedCallContent(
                 isMuted,
                 currentAudioRoute,
                 onShowAudioRouteDialog = onShowAudioRouteDialog,
-                onMuteStateChange = onChangeMuteState
+                onMuteStateChange = onChangeMuteState,
             )
         }
         calls.forEach { caller -> CallCard(caller = caller) }
@@ -168,14 +168,14 @@ fun CallerCard(
     photo: Uri? = null,
     direction: Direction = Direction.INCOMING,
     callType: CallType = CallType.AUDIO,
-    callState: CallState = CallState.UNKNOWN
+    callState: CallState = CallState.UNKNOWN,
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         if (photo == null) {
             Icon(
                 Icons.Rounded.Face,
                 modifier = Modifier.size(48.dp),
-                contentDescription = "Caller Icon"
+                contentDescription = "Caller Icon",
             )
         } else {
             val context = LocalContext.current
@@ -189,7 +189,7 @@ fun CallerCard(
             Image(
                 modifier = Modifier.size(48.dp).clip(CircleShape),
                 painter = BitmapPainter(bitmap.asImageBitmap()),
-                contentDescription = "Caller Icon"
+                contentDescription = "Caller Icon",
             )
         }
         Column(modifier = Modifier.padding(6.dp)) {
@@ -245,40 +245,38 @@ fun DeviceStatusCard(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             ),
-        modifier = Modifier.fillMaxWidth().padding(6.dp)
+        modifier = Modifier.fillMaxWidth().padding(6.dp),
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(6.dp),
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(6.dp)) {
             Text("Device State")
             HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Text("Global Mute:")
                 OutlinedIconButton(onClick = { onMuteStateChange(!isMuted) }) {
                     if (!isMuted) {
                         Icon(
                             painter = painterResource(R.drawable.mic),
-                            contentDescription = "device unmuted globally"
+                            contentDescription = "device unmuted globally",
                         )
                     } else {
                         Icon(
                             painter = painterResource(R.drawable.mic_off_24px),
-                            contentDescription = "device muted globally"
+                            contentDescription = "device muted globally",
                         )
                     }
                 }
                 Text("Current Audio Route:")
                 OutlinedIconButton(
                     enabled = currentAudioRoute.audioRoute != AudioRoute.UNKNOWN,
-                    onClick = onShowAudioRouteDialog
+                    onClick = onShowAudioRouteDialog,
                 ) {
                     Icon(
                         painter =
                             painterResource(getResourceForAudioRoute(currentAudioRoute.audioRoute)),
-                        contentDescription = "current audio route"
+                        contentDescription = "current audio route",
                     )
                 }
             }
@@ -306,7 +304,7 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                 .height(IntrinsicSize.Min)
                 .fillMaxWidth()
                 .padding(padding)
-                .clickable { isExpanded = !isExpanded }
+                .clickable { isExpanded = !isExpanded },
     ) {
         Column {
             Column(modifier = Modifier.padding(6.dp)) {
@@ -317,7 +315,7 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                     photo = caller.photo,
                     direction = caller.direction,
                     callType = caller.callType,
-                    callState = caller.state
+                    callState = caller.state,
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     val isCallTransitionPossible =
@@ -325,7 +323,7 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                             caller.validTransition != CallStateTransition.DISCONNECT
                     if (isCallTransitionPossible) {
                         OutlinedButton(
-                            onClick = { caller.onStateChanged(caller.validTransition) },
+                            onClick = { caller.onStateChanged(caller.validTransition) }
                         ) {
                             val stateTransitionText =
                                 when (caller.validTransition) {
@@ -340,7 +338,7 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                     }
                     Spacer(modifier = Modifier.padding(horizontal = 6.dp))
                     OutlinedButton(
-                        onClick = { caller.onStateChanged(CallStateTransition.DISCONNECT) },
+                        onClick = { caller.onStateChanged(CallStateTransition.DISCONNECT) }
                     ) {
                         val disconnectText =
                             if (caller.state == CallState.INCOMING) {
@@ -357,9 +355,10 @@ fun CallCard(caller: CallUiState, defaultExpandedState: Boolean = false) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
                     ExtensionsContent(
                         ExtensionUiState(
+                            caller.meetingSummaryUiState,
                             caller.localCallSilenceUiState,
                             caller.participantUiState,
-                            caller.callIconUiState
+                            caller.callIconUiState,
                         )
                     )
                 }

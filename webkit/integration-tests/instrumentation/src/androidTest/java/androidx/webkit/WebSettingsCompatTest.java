@@ -24,32 +24,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatTest {
-    public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";
     WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -60,8 +64,14 @@ public class WebSettingsCompatTest {
     @After
     public void tearDown() {
         if (mWebViewOnUiThread != null) {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.COOKIE_INTERCEPT)) {
+                WebSettingsCompat.setCookiesIncludedInShouldInterceptRequest(
+                        mWebViewOnUiThread.getSettings(), false);
+            }
             mWebViewOnUiThread.cleanUp();
         }
+        WebkitUtils.onMainThreadSync(() -> CookieManager.getInstance().removeAllCookies(value -> {
+        }));
     }
 
     /**
@@ -138,35 +148,6 @@ public class WebSettingsCompatTest {
     }
 
     @Test
-    public void testSetAppPackageNameXRequestedWithHeaderAllowList() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST);
-
-        WebSettings settings = mWebViewOnUiThread.getSettings();
-        Assert.assertTrue("The default should be an empty allow-list.",
-                WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings).isEmpty());
-        Set<String> allowList = new HashSet<>(
-                Arrays.asList("https://*.google.com", "https://*.example"
-                        + ".com:8443"));
-        WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, allowList);
-        assertEquals(
-                "After setting an allow-list, it should be returned",
-                allowList, WebSettingsCompat.getRequestedWithHeaderOriginAllowList(settings));
-
-        // Check that the allow-list is respected, and the URL will get the expected header set.
-        try (MockWebServer mockWebServer = new MockWebServer()) {
-            HttpUrl url = mockWebServer.url("/");
-            String requestUrl = url.toString();
-            String requestOrigin = url.scheme() + "://" + url.host() + ":" + url.port();
-            WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings,
-                    Collections.singleton(requestOrigin));
-            mWebViewOnUiThread.loadUrl(requestUrl);
-            RecordedRequest recordedRequest = mockWebServer.takeRequest();
-            String headerValue = recordedRequest.getHeader("X-Requested-With");
-            Assert.assertEquals(TEST_APK_NAME, headerValue);
-        }
-    }
-
-    @Test
     public void testAttributionRegistrationBehaviorChange() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR);
         WebSettings settings = mWebViewOnUiThread.getSettings();
@@ -203,9 +184,8 @@ public class WebSettingsCompatTest {
         WebSettings settings = mWebViewOnUiThread.getSettings();
         Assert.assertEquals(WEBVIEW_MEDIA_INTEGRITY_API_ENABLED,
                 WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings).getDefaultStatus());
-        Assert.assertTrue(
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getOverrideRules().isEmpty());
+        Assert.assertTrue(WebSettingsCompat.getWebViewMediaIntegrityApiStatus(
+                settings).getOverrideRules().isEmpty());
     }
 
     @Test
@@ -215,16 +195,12 @@ public class WebSettingsCompatTest {
 
         WebViewMediaIntegrityApiStatusConfig config =
                 new WebViewMediaIntegrityApiStatusConfig.Builder(
-                        WEBVIEW_MEDIA_INTEGRITY_API_DISABLED)
-                        .build();
+                        WEBVIEW_MEDIA_INTEGRITY_API_DISABLED).build();
         WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config);
-        Assert.assertEquals(
-                WEBVIEW_MEDIA_INTEGRITY_API_DISABLED,
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getDefaultStatus());
-        Assert.assertTrue(
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getOverrideRules().isEmpty());
+        Assert.assertEquals(WEBVIEW_MEDIA_INTEGRITY_API_DISABLED,
+                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings).getDefaultStatus());
+        Assert.assertTrue(WebSettingsCompat.getWebViewMediaIntegrityApiStatus(
+                settings).getOverrideRules().isEmpty());
     }
 
     @Test
@@ -234,17 +210,13 @@ public class WebSettingsCompatTest {
 
         WebViewMediaIntegrityApiStatusConfig config =
                 new WebViewMediaIntegrityApiStatusConfig.Builder(
-                        WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY)
-                        .addOverrideRule("http://*.example.com",
-                                WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
-                        .build();
+                        WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY).addOverrideRule(
+                        "http://*.example.com", WEBVIEW_MEDIA_INTEGRITY_API_ENABLED).build();
         WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config);
-        Assert.assertEquals(
-                WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY,
+        Assert.assertEquals(WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY,
                 WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings).getDefaultStatus());
-        Assert.assertEquals(1,
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getOverrideRules().size());
+        Assert.assertEquals(1, WebSettingsCompat.getWebViewMediaIntegrityApiStatus(
+                settings).getOverrideRules().size());
     }
 
     @Test
@@ -255,12 +227,10 @@ public class WebSettingsCompatTest {
 
         WebViewMediaIntegrityApiStatusConfig config =
                 new WebViewMediaIntegrityApiStatusConfig.Builder(invalidStatus).build();
-        Assert.assertThrows(
-                IllegalArgumentException.class,
+        Assert.assertThrows(IllegalArgumentException.class,
                 () -> WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config));
-        Assert.assertTrue(
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getOverrideRules().isEmpty());
+        Assert.assertTrue(WebSettingsCompat.getWebViewMediaIntegrityApiStatus(
+                settings).getOverrideRules().isEmpty());
     }
 
     @Test
@@ -272,33 +242,26 @@ public class WebSettingsCompatTest {
         String invalidRule2 = "customscheme://xyz";
 
         WebViewMediaIntegrityApiStatusConfig config =
-                new WebViewMediaIntegrityApiStatusConfig
-                        .Builder(WEBVIEW_MEDIA_INTEGRITY_API_DISABLED)
-                        .addOverrideRule(validRule, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
-                        .addOverrideRule(invalidRule1, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
-                        .addOverrideRule(invalidRule2, WEBVIEW_MEDIA_INTEGRITY_API_ENABLED)
-                        .build();
-        Exception error = Assert.assertThrows(
-                IllegalArgumentException.class,
+                new WebViewMediaIntegrityApiStatusConfig.Builder(
+                        WEBVIEW_MEDIA_INTEGRITY_API_DISABLED).addOverrideRule(validRule,
+                        WEBVIEW_MEDIA_INTEGRITY_API_ENABLED).addOverrideRule(invalidRule1,
+                        WEBVIEW_MEDIA_INTEGRITY_API_ENABLED).addOverrideRule(invalidRule2,
+                        WEBVIEW_MEDIA_INTEGRITY_API_ENABLED).build();
+        Exception error = Assert.assertThrows(IllegalArgumentException.class,
                 () -> WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config));
         Assert.assertTrue(error.getMessage().contains(invalidRule1));
         Assert.assertTrue(error.getMessage().contains(invalidRule2));
-        Assert.assertTrue(
-                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                        .getOverrideRules().isEmpty());
+        Assert.assertTrue(WebSettingsCompat.getWebViewMediaIntegrityApiStatus(
+                settings).getOverrideRules().isEmpty());
     }
 
     @Test
     public void testWebauthnSupport() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_AUTHENTICATION);
         WebSettings settings = mWebViewOnUiThread.getSettings();
-        mWebViewOnUiThread.setCleanupTask(
-                () ->
-                        WebkitUtils.onMainThreadSync(() ->
-                                WebSettingsCompat.setWebAuthenticationSupport(settings,
-                                        WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_NONE)
-                        )
-        );
+        mWebViewOnUiThread.setCleanupTask(() -> WebkitUtils.onMainThreadSync(
+                () -> WebSettingsCompat.setWebAuthenticationSupport(settings,
+                        WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_NONE)));
 
         WebkitUtils.onMainThreadSync(() -> {
             Assert.assertEquals("NONE is the expected default",
@@ -347,4 +310,132 @@ public class WebSettingsCompatTest {
         WebSettingsCompat.setBackForwardCacheEnabled(settings, true);
         Assert.assertTrue(WebSettingsCompat.getBackForwardCacheEnabled(settings));
     }
+
+    @Test
+    public void testBFCacheSettings() {
+        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        final int pageLimit = 5;
+        final int timeout = 96000;
+
+        BackForwardCacheSettings backForwardCacheSettings =
+                new BackForwardCacheSettings.Builder()
+                        .setTimeoutSeconds(timeout)
+                        .setMaxPagesInCache(pageLimit)
+                        .build();
+
+        WebSettingsCompat.setBackForwardCacheSettings(settings, backForwardCacheSettings);
+        BackForwardCacheSettings newBackForwardCacheSettings =
+                WebSettingsCompat.getBackForwardCacheSettings(settings);
+        Assert.assertEquals(backForwardCacheSettings.getMaxPagesInCache(),
+                newBackForwardCacheSettings.getMaxPagesInCache());
+        Assert.assertEquals(backForwardCacheSettings.getTimeoutSeconds(),
+                newBackForwardCacheSettings.getTimeoutSeconds());
+    }
+
+    @Test
+    public void testPaymentRequestSupport() {
+        WebkitUtils.checkFeature(WebViewFeature.PAYMENT_REQUEST);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+
+        assertFalse("PaymentRequest API should be disabled by default.",
+                WebSettingsCompat.getPaymentRequestEnabled(settings));
+
+        WebSettingsCompat.setPaymentRequestEnabled(settings, true);
+        assertTrue(WebSettingsCompat.getPaymentRequestEnabled(settings));
+
+        // Reset to the default state to avoid leaking state to the other test cases.
+        WebSettingsCompat.setPaymentRequestEnabled(settings, false);
+    }
+
+    @Test
+    public void testPaymentRequestHasEnrolledInstrumentSupport() {
+        WebkitUtils.checkFeature(WebViewFeature.PAYMENT_REQUEST);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+
+        assertTrue("PaymentRequest.hasEnrolledInstrument() should be enabled by default.",
+                WebSettingsCompat.getHasEnrolledInstrumentEnabled(settings));
+
+        WebSettingsCompat.setHasEnrolledInstrumentEnabled(settings, false);
+        assertFalse(WebSettingsCompat.getHasEnrolledInstrumentEnabled(settings));
+
+        // Reset to the default state to avoid leaking state to the other test cases.
+        WebSettingsCompat.setHasEnrolledInstrumentEnabled(settings, true);
+    }
+
+    @Test
+    public void testCookieInterceptReceivesHeaderAndSetsCookies() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.COOKIE_INTERCEPT);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        WebSettingsCompat.setCookiesIncludedInShouldInterceptRequest(settings, true);
+        settings.setJavaScriptEnabled(true);
+
+        String interceptUrl = "http://example.com/intercept.html";
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setCookie(interceptUrl, "foo=bar");
+
+        BlockingQueue<Map<String, String>> interceptInfo = new LinkedBlockingQueue<>();
+        setCookieInterceptWebViewClient(interceptUrl, interceptInfo);
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(interceptUrl);
+
+        Map<String, String> requestHeaders = interceptInfo.take();
+        Assert.assertTrue(requestHeaders.containsKey("Cookie"));
+        Assert.assertEquals("foo=bar", requestHeaders.get("Cookie"));
+
+        Set<String> cookies = new HashSet<>(
+                CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
+        Assert.assertEquals(
+                Set.of("foo=bar; domain=example.com; path=/",
+                        "bar=baz; domain=example.com; path=/",
+                        "baz=foo; domain=example.com; path=/"), cookies);
+    }
+
+    @Test
+    public void testCookieInterceptNoHeadersAndSetsNoCookiesIfDisabled() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.COOKIE_INTERCEPT);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        WebSettingsCompat.setCookiesIncludedInShouldInterceptRequest(settings, false);
+        settings.setJavaScriptEnabled(true);
+
+        String interceptUrl = "http://example.com/intercept.html";
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setCookie(interceptUrl, "foo=bar");
+
+        BlockingQueue<Map<String, String>> interceptInfo = new LinkedBlockingQueue<>();
+        setCookieInterceptWebViewClient(interceptUrl, interceptInfo);
+        mWebViewOnUiThread.loadUrl(interceptUrl);
+        Map<String, String> requestHeaders = interceptInfo.take();
+        // No cookie header in the request.
+        Assert.assertFalse(requestHeaders.containsKey("Cookie"));
+
+        // No updates made to stored cookies.
+        Set<String> cookies = new HashSet<>(
+                CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
+        Assert.assertEquals(Set.of("foo=bar; domain=example.com; path=/"), cookies);
+    }
+
+    private void setCookieInterceptWebViewClient(String interceptUrl,
+            BlockingQueue<Map<String, String>> interceptInfo) {
+        mWebViewOnUiThread.setWebViewClient(
+                new WebViewOnUiThread.WaitForLoadedClient(mWebViewOnUiThread) {
+                    @Override
+                    public @Nullable WebResourceResponse shouldInterceptRequest(WebView view,
+                            WebResourceRequest request) {
+                        String requestUrl = request.getUrl().toString();
+                        if (requestUrl.equals(interceptUrl)) {
+                            interceptInfo.add(request.getRequestHeaders());
+                            WebResourceResponseCompat response = new WebResourceResponseCompat(
+                                    "text/html", "utf-8",
+                                    new ByteArrayInputStream(
+                                            "hello, world".getBytes(StandardCharsets.UTF_8)));
+                            response.setCookies(List.of("bar=baz", "baz=foo"));
+                            return response.toWebResourceResponse();
+                        }
+                        return null;
+                    }
+                });
+    }
+
 }

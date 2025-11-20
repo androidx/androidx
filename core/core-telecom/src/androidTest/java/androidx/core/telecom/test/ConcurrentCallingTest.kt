@@ -20,7 +20,6 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.telecom.DisconnectCause
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -33,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -44,12 +44,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class ConcurrentCallingTest : BaseTelecomTest() {
     companion object {
         val TAG = ConcurrentCallingTest::class.simpleName
-        const val DISCONNECT_DELAY: Long = 1000L
+        const val DISCONNECT_DELAY: Long = 3000L
     }
 
     // Data class to represent different call scenarios. Each scenario defines the
@@ -59,78 +58,85 @@ class ConcurrentCallingTest : BaseTelecomTest() {
         val firstCallAttributes: CallAttributesCompat,
         val firstCallExpectInactive: Boolean = true,
         val secondCallAttributes: CallAttributesCompat,
-        val secondCallExpectInactive: Boolean = false
+        val secondCallExpectInactive: Boolean = false,
     )
 
-    // List of call scenarios to test. Each scenario represents a different
-    // combination of incoming and outgoing calls.
-    val callScenarios =
-        listOf(
-            // Scenario 1: Outgoing call followed by incoming call. The outgoing call
-            // is expected to become inactive when the incoming call arrives.
-            CallScenario(
-                firstCallAttributes = OUTGOING_CALL_ATTRIBUTES,
-                firstCallExpectInactive = true,
-                secondCallAttributes = INCOMING_CALL_ATTRIBUTES,
-                secondCallExpectInactive = false
-            ),
-            // Scenario 2: Start a call and make an outgoing call. The active call
-            // is expected to become inactive when the outgoing call starts.
-            CallScenario(
-                firstCallAttributes = INCOMING_CALL_ATTRIBUTES,
-                firstCallExpectInactive = true,
-                secondCallAttributes = OUTGOING_CALL_ATTRIBUTES,
-                secondCallExpectInactive = false
-            )
+    private val outgoingThenIncomingScenario =
+        CallScenario(
+            firstCallAttributes = OUTGOING_CALL_ATTRIBUTES,
+            firstCallExpectInactive = true,
+            secondCallAttributes = INCOMING_CALL_ATTRIBUTES,
+            secondCallExpectInactive = false,
         )
 
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    private val incomingThenOutgoingScenario =
+        CallScenario(
+            firstCallAttributes = INCOMING_CALL_ATTRIBUTES,
+            firstCallExpectInactive = true,
+            secondCallAttributes = OUTGOING_CALL_ATTRIBUTES,
+            secondCallExpectInactive = false,
+        )
+
+    /**
+     * Test an outgoing call followed by an incoming call. The outgoing call is expected to become
+     * inactive.
+     */
     @LargeTest
     @Test(timeout = 10000)
-    fun testCallStateTransitions() {
-        // This parameterized test verifies the behavior of the CallsManager when
-        // two calls are made in sequence. It checks that both calls are added
-        // successfully and that the first call transitions to the inactive state
-        // when the second call arrives, based on the provided scenario.
-        for (scenario in callScenarios) {
-            runBlocking {
-                try {
-                    // Make the first call with the attributes and expectation defined
-                    // in the scenario.
-                    val firstCallIsActive = CompletableDeferred<CallControlResult>()
-                    val firstCallDeferred = async {
-                        addCall(
-                            activeResult = firstCallIsActive,
-                            callAttributes = scenario.firstCallAttributes,
-                            expectInactiveCallback = scenario.firstCallExpectInactive
-                        )
-                    }
+    fun testStateTransition_outgoingThenIncoming() = runBlocking {
+        assertCallStateTransition(outgoingThenIncomingScenario)
+    }
 
-                    // Wait for the first call to go active before adding the second. This simulates
-                    // the scenario where one call is already in progress when another call arrives.
-                    firstCallIsActive.await()
+    /**
+     * Test an active call followed by a new outgoing call. The first call is expected to become
+     * inactive.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testStateTransition_incomingThenOutgoing() = runBlocking {
+        assertCallStateTransition(incomingThenOutgoingScenario)
+    }
 
-                    // Make the second call with the attributes and expectation defined
-                    // in the scenario.
-                    val secondCallDeferred = async {
-                        addCall(
-                            callAttributes = scenario.secondCallAttributes,
-                            expectInactiveCallback = scenario.secondCallExpectInactive
-                        )
-                    }
-
-                    // Wait for both calls to complete.
-                    val (firstCallResult, secondCallResult) =
-                        awaitAll(firstCallDeferred, secondCallDeferred)
-
-                    // Assert that both calls transited to active
-                    assertEquals(CallControlResult.Success(), firstCallResult)
-                    assertEquals(CallControlResult.Success(), secondCallResult)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error in test", e)
-                    fail("Test failed with exception: ${e.message}")
-                }
+    /**
+     * Helper function that contains the shared test logic for executing a single CallScenario. This
+     * keeps the test code DRY.
+     */
+    private suspend fun CoroutineScope.assertCallStateTransition(scenario: CallScenario) {
+        try {
+            // Make the first call with the attributes and expectation defined
+            // in the scenario.
+            val firstCallIsActive = CompletableDeferred<CallControlResult>()
+            val firstCallDeferred = async {
+                addCall(
+                    activeResult = firstCallIsActive,
+                    callAttributes = scenario.firstCallAttributes,
+                    expectInactiveCallback = scenario.firstCallExpectInactive,
+                )
             }
+
+            // Wait for the first call to go active before adding the second.
+            firstCallIsActive.await()
+            Log.i(TAG, "First call is active for scenario: $scenario")
+
+            // Make the second call
+            val secondCallDeferred = async {
+                addCall(
+                    callAttributes = scenario.secondCallAttributes,
+                    expectInactiveCallback = scenario.secondCallExpectInactive,
+                )
+            }
+
+            // Wait for both calls to complete their lifecycles.
+            val (firstCallResult, secondCallResult) =
+                awaitAll(firstCallDeferred, secondCallDeferred)
+            Log.i(TAG, "Both calls completed for scenario: $scenario")
+
+            // Assert that both calls were successfully added.
+            assertEquals(CallControlResult.Success(), firstCallResult)
+            assertEquals(CallControlResult.Success(), secondCallResult)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in test scenario: $scenario", e)
+            fail("Test failed for scenario: [$scenario] with exception: ${e.message}")
         }
     }
 
@@ -143,7 +149,7 @@ class ConcurrentCallingTest : BaseTelecomTest() {
         activeResult: CompletableDeferred<CallControlResult> =
             CompletableDeferred<CallControlResult>(),
         callAttributes: CallAttributesCompat,
-        expectInactiveCallback: Boolean
+        expectInactiveCallback: Boolean,
     ): CallControlResult {
         val inactiveCall = run {
             // TODO:: b/391963273 to fix onSetInactive issue on P- builds
@@ -164,7 +170,7 @@ class ConcurrentCallingTest : BaseTelecomTest() {
                 {
                     Log.d(TAG, "onSetInActive: name=[${callAttributes.displayName}] completing")
                     inactiveCall.complete(Unit)
-                }
+                },
             ) {
                 launch {
                     try {

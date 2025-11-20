@@ -1,0 +1,713 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.camera.integration.featurecombo.ui
+
+import android.content.ContentValues
+import android.content.Context
+import android.provider.MediaStore
+import android.util.Log
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Logger
+import androidx.camera.core.Preview
+import androidx.camera.core.SessionConfig
+import androidx.camera.core.UseCase
+import androidx.camera.core.featuregroup.GroupableFeature
+import androidx.camera.core.takePicture
+import androidx.camera.integration.featurecombo.AppFeatures
+import androidx.camera.integration.featurecombo.DynamicRange
+import androidx.camera.integration.featurecombo.Effect
+import androidx.camera.integration.featurecombo.Fps
+import androidx.camera.integration.featurecombo.ImageFormat
+import androidx.camera.integration.featurecombo.MainActivity
+import androidx.camera.integration.featurecombo.RecordingQuality
+import androidx.camera.integration.featurecombo.StabilizationMode
+import androidx.camera.integration.featurecombo.effects.BouncyLogoOverlayEffect
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.lifecycle.awaitInstance
+import androidx.camera.video.GroupableFeatures
+import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.Recorder
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoRecordEvent
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlin.time.measureTimedValue
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+@androidx.annotation.OptIn(ExperimentalCameraProviderConfiguration::class)
+class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+    private lateinit var appContext: Context
+    private var bouncyLogoOverlayEffect: BouncyLogoOverlayEffect? = null
+
+    private val isCameraPipe: Boolean by lazy {
+        savedStateHandle.get<String>(MainActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION) ==
+            CAMERA_PIPE_IMPLEMENTATION_OPTION
+    }
+
+    private val cameraProviderDeferred = CompletableDeferred<ProcessCameraProvider>()
+
+    private suspend fun cameraProvider() = cameraProviderDeferred.await()
+
+    private lateinit var cameraSelector: CameraSelector
+
+    private var preview = Preview.Builder().build()
+    private val imageCapture = ImageCapture.Builder().build()
+    private val videoCapture: VideoCapture<Recorder> =
+        VideoCapture.withOutput(Recorder.Builder().build())
+
+    private val _useCases = MutableStateFlow(emptyList<UseCase>())
+    private val useCases: StateFlow<List<UseCase>>
+        get() = _useCases
+
+    val useCaseTargets: StateFlow<Int> =
+        _useCases
+            .map { it.toTargets() }
+            .stateIn(
+                viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = 0,
+            )
+
+    private val _toastMessages = MutableSharedFlow<String>()
+    private var activeRecording: Recording? = null
+    val toastMessages = _toastMessages.asSharedFlow()
+
+    private val _isRearCamera = MutableStateFlow(true)
+    val isRearCamera: StateFlow<Boolean>
+        get() = _isRearCamera
+
+    private val _isVideoOnlyMode = MutableStateFlow(true)
+    val isVideoOnlyMode: StateFlow<Boolean>
+        get() = _isVideoOnlyMode
+
+    private val _featureUiList = MutableStateFlow(listOf<FeatureUi>())
+    val featureUiList: StateFlow<List<FeatureUi>>
+        get() = _featureUiList
+
+    private val _useCaseDetails = MutableStateFlow("")
+    val useCaseDetails: StateFlow<String>
+        get() = _useCaseDetails
+
+    private var appFeatures: AppFeatures =
+        AppFeatures(
+            dynamicRange = DynamicRange.SDR,
+            fps = Fps.FPS_30,
+            stabilizationMode = StabilizationMode.OFF,
+            imageFormat = ImageFormat.JPEG,
+            recordingQuality = RecordingQuality.SD,
+        )
+
+    data class FeatureCombo(
+        val requiredFeatures: Set<GroupableFeature> = emptySet(),
+        val preferredFeatures: List<GroupableFeature> = emptyList(),
+        val effects: List<Effect> = emptyList(),
+    )
+
+    private var featureCombo: FeatureCombo? = null
+
+    private var bindStartTime: Long = Long.MIN_VALUE
+
+    init {
+        ProcessCameraProvider.configureInstance(
+            if (isCameraPipe) {
+                CameraPipeConfig.defaultConfig()
+            } else {
+                Camera2Config.defaultConfig()
+            }
+        )
+    }
+
+    fun setupCamera(applicationContext: Context, lifecycleOwner: LifecycleOwner) {
+        appContext = applicationContext
+
+        viewModelScope.launch {
+            with(ProcessCameraProvider.awaitInstance(applicationContext)) {
+                cameraProviderDeferred.complete(this)
+                initCameraSelector()
+
+                if (!::cameraSelector.isInitialized) {
+                    Log.e(TAG, "No camera found!")
+                    return@launch
+                }
+
+                if (featureCombo == null) {
+                    reconfigureUseCasesAndFeatureCombo(lifecycleOwner)
+                } else {
+                    bindCamera(lifecycleOwner)
+                }
+            }
+        }
+    }
+
+    private suspend fun CameraSelector.getCameraInfo(): CameraInfo {
+        return cameraProvider().getCameraInfo(this)
+    }
+
+    private suspend fun initCameraSelector() {
+        if (::cameraSelector.isInitialized) return
+
+        if (cameraProvider().hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+            _isRearCamera.value = true
+            cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        } else if (cameraProvider().hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+            _isRearCamera.value = false
+            cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        } else {
+            showToast("No camera found!")
+        }
+    }
+
+    private suspend fun bindCamera(lifecycleOwner: LifecycleOwner) {
+        Log.d(
+            TAG,
+            "bindCamera: isVideoOnlyMode.value = ${isVideoOnlyMode.value}" +
+                ", featureCombo = $featureCombo, appFeatures = $appFeatures",
+        )
+
+        val featureCombo = featureCombo // snapshot for nullability
+
+        if (featureCombo == null) {
+            showToast("No feature combination found!")
+            return
+        }
+
+        val selectedFeatures = CompletableDeferred<Set<GroupableFeature>>()
+
+        val sessionConfig =
+            SessionConfig(
+                    useCases = useCases.value,
+                    requiredFeatureGroup = featureCombo.requiredFeatures,
+                    preferredFeatureGroup = featureCombo.preferredFeatures,
+                    effects = featureCombo.effects.toCameraXEffects(),
+                )
+                .apply {
+                    setFeatureSelectionListener { features ->
+                        val duration = System.currentTimeMillis() - bindStartTime
+                        if (features.isNotEmpty()) {
+                            showToast(
+                                "Features selected" +
+                                    (if (bindStartTime != Long.MIN_VALUE) " in $duration ms"
+                                    else "")
+                            )
+                        } else {
+                            showToast(
+                                "No feature combination supported!" +
+                                    " $duration ms elapsed after bind start."
+                            )
+                        }
+
+                        Logger.d(TAG, "Selected features: $features")
+                        selectedFeatures.complete(features)
+                    }
+                }
+
+        cameraProvider().unbindAll() // TODO: Check why this is needed while switching camera
+
+        bindStartTime = System.currentTimeMillis()
+
+        cameraProvider().bindToLifecycle(lifecycleOwner, cameraSelector, sessionConfig)
+
+        viewModelScope.launch {
+            updateAppFeatures(
+                selectedFeatures
+                    .await()
+                    .toAppFeatures()
+                    .copy(effect = featureCombo.effects.firstOrNull() ?: Effect.NONE)
+            )
+            updateUnsupportedFeatures()
+        }
+
+        val previewSize = preview.resolutionInfo?.resolution
+        val videoCaptureSize = videoCapture.resolutionInfo?.resolution
+        if (isVideoOnlyMode.value) {
+            _useCaseDetails.value =
+                "Preview (${previewSize?.width} x ${previewSize?.height})" +
+                    "\nVideoCapture (${videoCaptureSize?.width} x ${videoCaptureSize?.height})"
+        } else {
+            val imageCaptureSize = imageCapture.resolutionInfo?.resolution
+            _useCaseDetails.value =
+                "Preview (${previewSize?.width} x ${previewSize?.height})" +
+                    "\nVideoCapture (${videoCaptureSize?.width} x ${videoCaptureSize?.height})" +
+                    "\nImageCapture (${imageCaptureSize?.width} x ${imageCaptureSize?.height})"
+        }
+    }
+
+    fun setSurfaceProvider(surfaceProvider: Preview.SurfaceProvider?) {
+        preview.surfaceProvider = surfaceProvider
+    }
+
+    fun setBouncyLogoOverlayEffect(
+        bouncyLogoOverlayEffect: BouncyLogoOverlayEffect?,
+        lifecycleOwner: LifecycleOwner,
+    ) {
+        this.bouncyLogoOverlayEffect = bouncyLogoOverlayEffect
+        viewModelScope.launch { bindCamera(lifecycleOwner) }
+    }
+
+    fun toggleCamera(lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch {
+            val newCamera =
+                if (!isRearCamera.value) {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                }
+
+            if (cameraProvider().hasCamera(newCamera)) {
+                _isRearCamera.value = !_isRearCamera.value
+                cameraSelector = newCamera
+
+                // If the use case has already been bound to the previous camera, it may throw an
+                // exception if not unbound first
+                cameraProvider().unbindAll() // TODO
+                reconfigureUseCasesAndFeatureCombo(lifecycleOwner)
+            } else {
+                showToast("newCamera($newCamera) is not supported!")
+            }
+        }
+    }
+
+    fun toggleVideoMode(lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch {
+            _isVideoOnlyMode.value = !_isVideoOnlyMode.value
+            reconfigureUseCasesAndFeatureCombo(lifecycleOwner)
+        }
+    }
+
+    fun resetUseCasesAndFeatureCombo(lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch { reconfigureUseCasesAndFeatureCombo(lifecycleOwner) }
+    }
+
+    fun updateFeature(featureUi: FeatureUi, newValueIndex: Int, lifecycleOwner: LifecycleOwner) {
+        Log.d(TAG, "updateFeature: featureUi = $featureUi, newValueIndex = $newValueIndex")
+
+        val candidateAppFeatures =
+            when (featureUi.title) {
+                AppFeatureTitle.HDR -> {
+                    appFeatures.copy(dynamicRange = DynamicRange.entries[newValueIndex])
+                }
+                AppFeatureTitle.FPS -> {
+                    appFeatures.copy(fps = Fps.entries[newValueIndex])
+                }
+                AppFeatureTitle.STABILIZATION -> {
+                    appFeatures.copy(stabilizationMode = StabilizationMode.entries[newValueIndex])
+                }
+                AppFeatureTitle.IMAGE_FORMAT -> {
+                    appFeatures.copy(imageFormat = ImageFormat.entries[newValueIndex])
+                }
+                AppFeatureTitle.RECORDING_QUALITY -> {
+                    appFeatures.copy(recordingQuality = RecordingQuality.entries[newValueIndex])
+                }
+                AppFeatureTitle.EFFECT -> {
+                    appFeatures.copy(effect = Effect.entries[newValueIndex])
+                }
+            }
+
+        viewModelScope.launch {
+            Log.d(TAG, "updateFeature: candidateAppFeatures = $candidateAppFeatures")
+
+            if (candidateAppFeatures.isSupported()) {
+                updateAppFeatures(candidateAppFeatures)
+                featureCombo = appFeatures.toFeatureCombo()
+                bindCamera(lifecycleOwner)
+                updateUnsupportedFeatures()
+            } else {
+                showToast("New feature combination not supported!")
+            }
+        }
+    }
+
+    private fun updateAppFeatures(appFeatures: AppFeatures) {
+        Log.d(TAG, "updateAppFeatures: appFeatures = $appFeatures")
+        this.appFeatures = appFeatures
+        _featureUiList.value = appFeatures.toFeatureUiList(isVideoOnlyMode.value)
+    }
+
+    fun capture(context: Context) {
+        require(!isVideoOnlyMode.value) { "Capture is not supported in video-only mode!" }
+        capturePhoto(context)
+    }
+
+    fun record(context: Context) {
+        recordVideo(context)
+    }
+
+    private fun capturePhoto(context: Context) {
+        viewModelScope.launch {
+            val name =
+                "CameraXFcq_" +
+                    SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
+            val contentValues =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                    put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraXFcq")
+                }
+
+            val outputFileOptions =
+                ImageCapture.OutputFileOptions.Builder(
+                        context.contentResolver,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues,
+                    )
+                    .build()
+
+            val outputResults = imageCapture.takePicture(outputFileOptions)
+            showToast("Image saved to: ${outputResults.savedUri}")
+        }
+    }
+
+    private fun recordVideo(context: Context) {
+        viewModelScope.launch {
+            val name =
+                "CameraXFcq_" +
+                    SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
+            val contentValues =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraXFcq")
+                }
+            val mediaStoreOutput =
+                MediaStoreOutputOptions.Builder(
+                        context.contentResolver,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    )
+                    .setContentValues(contentValues)
+                    .setDurationLimitMillis(2_050)
+                    .build()
+
+            activeRecording =
+                videoCapture.output.prepareRecording(context, mediaStoreOutput).start { event ->
+                    when (event) {
+                        is VideoRecordEvent.Start -> {
+                            showToast("Recording started")
+                        }
+                        is VideoRecordEvent.Finalize -> {
+                            if (event.hasError() && event.error != ERROR_DURATION_LIMIT_REACHED) {
+                                showToast("Recording error: ${event.error}")
+                            } else {
+                                showToast("Recording saved to: ${event.outputResults.outputUri}")
+                            }
+                            activeRecording = null
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun updateUseCases() {
+        val useCaseList = mutableListOf<UseCase>()
+
+        useCaseList.add(preview)
+
+        if (isVideoOnlyMode.value) {
+            useCaseList.add(videoCapture)
+        } else {
+            useCaseList.add(videoCapture)
+            useCaseList.add(imageCapture)
+        }
+
+        _useCases.value = useCaseList
+    }
+
+    private suspend fun reconfigureUseCasesAndFeatureCombo(lifecycleOwner: LifecycleOwner) {
+        updateUseCases()
+
+        if (isVideoOnlyMode.value) {
+            featureCombo =
+                FeatureCombo(
+                    preferredFeatures =
+                        listOf(
+                            GroupableFeature.HDR_HLG10,
+                            GroupableFeatures.UHD_RECORDING,
+                            GroupableFeatures.FHD_RECORDING,
+                            GroupableFeatures.HD_RECORDING,
+                            GroupableFeatures.SD_RECORDING,
+                            GroupableFeature.FPS_60,
+                            GroupableFeature.PREVIEW_STABILIZATION,
+                            GroupableFeatures.VIDEO_STABILIZATION,
+                        )
+                )
+        } else {
+            featureCombo =
+                FeatureCombo(
+                    preferredFeatures =
+                        listOf(
+                            GroupableFeature.IMAGE_ULTRA_HDR,
+                            GroupableFeature.HDR_HLG10,
+                            GroupableFeature.PREVIEW_STABILIZATION,
+                            GroupableFeatures.VIDEO_STABILIZATION,
+                            GroupableFeature.FPS_60,
+                        )
+                )
+        }
+
+        bindCamera(lifecycleOwner)
+    }
+
+    private fun showToast(text: String) {
+        Log.d(TAG, "showToast: text = $text")
+        viewModelScope.launch { _toastMessages.emit(text) }
+    }
+
+    private fun updateUnsupportedFeatures() {
+        viewModelScope.launch {
+            val (appFeatures, duration) =
+                measureTimedValue {
+                    if (isVideoOnlyMode.value) {
+                            getVideoModeUnsupportedFeatures()
+                        } else {
+                            getImageModeUnsupportedFeatures()
+                        }
+                        .run {
+                            // Calculate unsupported features that are common for all modes.
+                            copy(
+                                unsupportedDynamicRanges =
+                                    DynamicRange.entries.toTypedArray().getUnsupportedValues(
+                                        appFeatures.dynamicRange
+                                    ) {
+                                        appFeatures.copy(dynamicRange = it)
+                                    },
+                                unsupportedFps =
+                                    Fps.entries.toTypedArray().getUnsupportedValues(
+                                        appFeatures.fps
+                                    ) {
+                                        appFeatures.copy(fps = it)
+                                    },
+                                unsupportedStabilizationModes =
+                                    StabilizationMode.entries.toTypedArray().getUnsupportedValues(
+                                        appFeatures.stabilizationMode
+                                    ) {
+                                        appFeatures.copy(stabilizationMode = it)
+                                    },
+                                unsupportedEffects =
+                                    Effect.entries.toTypedArray().getUnsupportedValues(
+                                        appFeatures.effect
+                                    ) {
+                                        appFeatures.copy(effect = it)
+                                    },
+                            )
+                        }
+                }
+
+            Logger.d(TAG, "updateUnsupportedFeatures: duration = $duration")
+
+            updateAppFeatures(appFeatures)
+        }
+    }
+
+    private suspend fun getVideoModeUnsupportedFeatures(): AppFeatures {
+        return appFeatures.copy(
+            unsupportedRecordingQualities =
+                RecordingQuality.entries.toTypedArray().getUnsupportedValues(
+                    appFeatures.recordingQuality
+                ) {
+                    appFeatures.copy(recordingQuality = it)
+                }
+        )
+    }
+
+    private suspend fun getImageModeUnsupportedFeatures(): AppFeatures {
+        return appFeatures.copy(
+            unsupportedImageFormats =
+                ImageFormat.entries.toTypedArray().getUnsupportedValues(appFeatures.imageFormat) {
+                    appFeatures.copy(imageFormat = it)
+                }
+        )
+    }
+
+    /**
+     * Returns the list of unsupported values from the receiver array of values.
+     *
+     * @param currentValue Currently selected value.
+     * @param newAppFeatures The function to create a new [AppFeatures] using a specific value.
+     */
+    private suspend fun <T> Array<T>.getUnsupportedValues(
+        currentValue: T,
+        newAppFeatures: (T) -> AppFeatures,
+    ): List<T> {
+        val unsupportedValues = mutableListOf<T>()
+        forEach {
+            if (it == currentValue) return@forEach
+            if (!newAppFeatures(it).isSupported()) {
+                unsupportedValues.add(it)
+            }
+        }
+        return unsupportedValues
+    }
+
+    private suspend fun AppFeatures.isSupported(): Boolean {
+        return this.toFeatureCombo().isSupported()
+    }
+
+    private suspend fun FeatureCombo.isSupported(): Boolean {
+        Log.d(TAG, "isSupported: cameraSelector lensFacing = ${cameraSelector.lensFacing}")
+        Log.d(TAG, "isSupported: useCases = $useCases")
+        Log.d(TAG, "isSupported: featureCombo = $this")
+
+        val isSupported =
+            cameraSelector
+                .getCameraInfo()
+                .isSessionConfigSupported(
+                    SessionConfig(
+                        useCases.value,
+                        requiredFeatureGroup = requiredFeatures,
+                        effects = effects.toCameraXEffects(),
+                    )
+                )
+
+        Log.d(TAG, "isSupported: isSupported = $isSupported")
+
+        return isSupported
+    }
+
+    private fun AppFeatures.toFeatureCombo(): FeatureCombo {
+        return FeatureCombo(requiredFeatures = toCameraXFeatures(), effects = listOf(effect))
+    }
+
+    private fun AppFeatures.toCameraXFeatures(): Set<GroupableFeature> {
+        val features = mutableSetOf<GroupableFeature>()
+
+        if (isVideoOnlyMode.value) {
+            when (recordingQuality) {
+                RecordingQuality.UHD -> features.add(GroupableFeatures.UHD_RECORDING)
+                RecordingQuality.FHD -> features.add(GroupableFeatures.FHD_RECORDING)
+                RecordingQuality.HD -> features.add(GroupableFeatures.HD_RECORDING)
+                RecordingQuality.SD -> features.add(GroupableFeatures.SD_RECORDING)
+            }
+        } else {
+            if (imageFormat == ImageFormat.JPEG_R) {
+                features.add(GroupableFeature.IMAGE_ULTRA_HDR)
+            }
+        }
+
+        if (dynamicRange == DynamicRange.HLG_10) {
+            features.add(GroupableFeature.HDR_HLG10)
+        }
+        if (fps == Fps.FPS_60) {
+            features.add(GroupableFeature.FPS_60)
+        }
+
+        when (stabilizationMode) {
+            StabilizationMode.PREVIEW -> features.add(GroupableFeature.PREVIEW_STABILIZATION)
+            StabilizationMode.VIDEO -> features.add(GroupableFeatures.VIDEO_STABILIZATION)
+            else -> {}
+        }
+
+        return features
+    }
+
+    private fun Collection<Effect>.toCameraXEffects(): List<CameraEffect> {
+        return mapNotNull {
+            when (it) {
+                Effect.BOUNCY_LOGO_EFFECT ->
+                    bouncyLogoOverlayEffect
+                        ?: null.also {
+                            Log.e(TAG, "toCameraEffects: bouncyLogoOverlayEffect is null!")
+                        }
+
+                Effect.NONE -> null
+            }
+        }
+    }
+
+    private fun Collection<UseCase>.toTargets(): Int {
+        var targets = 0
+
+        forEach {
+            targets =
+                targets or
+                    when (it) {
+                        preview -> CameraEffect.PREVIEW
+                        videoCapture -> CameraEffect.VIDEO_CAPTURE
+                        imageCapture -> CameraEffect.IMAGE_CAPTURE
+                        else -> 0
+                    }
+        }
+
+        return targets
+    }
+
+    private fun Set<GroupableFeature>.toAppFeatures(): AppFeatures {
+        var newAppFeatures = AppFeatures()
+
+        forEach { feature ->
+            when (feature) {
+                GroupableFeatures.UHD_RECORDING -> {
+                    newAppFeatures = newAppFeatures.copy(recordingQuality = RecordingQuality.UHD)
+                }
+                GroupableFeatures.FHD_RECORDING -> {
+                    newAppFeatures = newAppFeatures.copy(recordingQuality = RecordingQuality.FHD)
+                }
+                GroupableFeatures.HD_RECORDING -> {
+                    newAppFeatures = newAppFeatures.copy(recordingQuality = RecordingQuality.HD)
+                }
+                GroupableFeatures.SD_RECORDING -> {
+                    newAppFeatures = newAppFeatures.copy(recordingQuality = RecordingQuality.SD)
+                }
+                GroupableFeature.HDR_HLG10 -> {
+                    newAppFeatures = newAppFeatures.copy(dynamicRange = DynamicRange.HLG_10)
+                }
+                GroupableFeature.FPS_60 -> {
+                    newAppFeatures = newAppFeatures.copy(fps = Fps.FPS_60)
+                }
+                GroupableFeature.PREVIEW_STABILIZATION -> {
+                    newAppFeatures =
+                        newAppFeatures.copy(stabilizationMode = StabilizationMode.PREVIEW)
+                }
+                GroupableFeatures.VIDEO_STABILIZATION -> {
+                    newAppFeatures =
+                        newAppFeatures.copy(stabilizationMode = StabilizationMode.VIDEO)
+                }
+                GroupableFeature.IMAGE_ULTRA_HDR -> {
+                    newAppFeatures = newAppFeatures.copy(imageFormat = ImageFormat.JPEG_R)
+                }
+            }
+        }
+
+        Log.d(TAG, "toAppFeatures: newAppFeatures = $newAppFeatures")
+
+        return newAppFeatures
+    }
+
+    companion object {
+        private const val TAG = "CamXFcqViewModel"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+
+        const val CAMERA_PIPE_IMPLEMENTATION_OPTION: String = "camera_pipe"
+    }
+}

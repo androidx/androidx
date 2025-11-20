@@ -35,8 +35,10 @@ import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Translates an {@link AppSearchSchema} into a {@link SchemaTypeConfigProto}.
@@ -55,7 +57,8 @@ public final class SchemaToProtoConverter {
     // TODO(b/284356266): Consider handling addition of schema name prefixes in this function.
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull SchemaTypeConfigProto toSchemaTypeConfigProto(
-            @NonNull AppSearchSchema schema, int version) {
+            @NonNull AppSearchSchema schema, @Nullable Set<String> accountPropertyPaths,
+            int version) {
         Preconditions.checkNotNull(schema);
         SchemaTypeConfigProto.Builder protoBuilder = SchemaTypeConfigProto.newBuilder()
                 .setSchemaType(schema.getSchemaType())
@@ -67,6 +70,9 @@ public final class SchemaToProtoConverter {
             protoBuilder.addProperties(propertyProto);
         }
         protoBuilder.addAllParentTypes(schema.getParentTypes());
+        if (accountPropertyPaths != null) {
+            protoBuilder.addAllAccountProperties(accountPropertyPaths);
+        }
         return protoBuilder.build();
     }
 
@@ -447,12 +453,11 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
             case RANGE:
                 return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid indexingType: " + numericMatchType.getNumber());
-                return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid indexingType: " + numericMatchType.getNumber());
+        return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     }
 
     private static EmbeddingIndexingConfig.EmbeddingIndexingType.@NonNull Code
@@ -476,12 +481,11 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
             case LINEAR_SEARCH:
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid indexingType: " + indexingType.getNumber());
-                return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid indexingType: " + indexingType.getNumber());
+        return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
     }
 
     @OptIn(markerClass = ExperimentalAppSearchApi.class)

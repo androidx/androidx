@@ -51,7 +51,8 @@ import java.util.Objects;
         name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
 @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
 @SafeParcelable.Class(creator = "EmbeddingVectorCreator")
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch until this is resolved.
 @SuppressWarnings({"HiddenSuperclass", "JSpecifyNullness"})
 public final class EmbeddingVector extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -95,10 +96,16 @@ public final class EmbeddingVector extends AbstractSafeParcelable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (!(o instanceof EmbeddingVector)) return false;
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof EmbeddingVector)) {
+            return false;
+        }
         EmbeddingVector that = (EmbeddingVector) o;
         return Arrays.equals(mValues, that.mValues)
                 && mModelSignature.equals(that.mModelSignature);

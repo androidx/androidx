@@ -12,11 +12,11 @@ ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Obje
 
 
 BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.database.SQLException does not need to be listed in the method throws clause (only in documentation)
 BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.database.SQLException does not need to be listed in the method throws clause (only in documentation)
 BannedThrow: androidx.sqlite.db.SupportSQLiteDatabase#insert(String, int, android.content.ContentValues):
-    Methods must not throw unchecked exceptions
+    Unchecked exception android.database.SQLException does not need to be listed in the method throws clause (only in documentation)
 
 
 BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#allowDataLossOnRecovery(boolean):

@@ -21,11 +21,8 @@ package androidx.health.connect.client.units
  * - mmol/L - see [BloodGlucose.millimolesPerLiter]
  * - mg/dL - see [BloodGlucose.milligramsPerDeciliter]
  */
-class BloodGlucose
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<BloodGlucose> {
+class BloodGlucose private constructor(private val value: Double, private val type: Type) :
+    Comparable<BloodGlucose> {
 
     /** Returns the blood glucose level in mmol/L. */
     @get:JvmName("getMillimolesPerLiter")

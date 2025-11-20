@@ -37,7 +37,7 @@ private val LightColorScheme =
     lightColorScheme(
         primary = Purple40,
         secondary = PurpleGrey40,
-        tertiary = Pink40
+        tertiary = Pink40,
 
         /* Other default colors to override
         background = Color(0xFFFFFBFE),
@@ -56,7 +56,7 @@ fun MultimoduleTemplateTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme =
         when {

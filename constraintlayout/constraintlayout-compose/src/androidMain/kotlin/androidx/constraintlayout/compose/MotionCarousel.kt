@@ -145,7 +145,7 @@ fun MotionCarousel(
     forwardTransition: String = "forward",
     slotPrefix: String = "slot",
     showSlots: Boolean = false,
-    content: MotionCarouselScope.() -> Unit
+    content: MotionCarouselScope.() -> Unit,
 ) {
 
     val swipeStateStart = "start"
@@ -172,7 +172,7 @@ fun MotionCarousel(
             mapOf(
                 -componentWidth to swipeStateBackward,
                 0f to swipeStateStart,
-                componentWidth to swipeStateForward
+                componentWidth to swipeStateForward,
             )
         }
 
@@ -227,9 +227,9 @@ fun MotionCarousel(
                     reverseDirection = true,
                     // TODO: replace this implementation?
                     thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
-                .onSizeChanged { size -> componentWidth = size.width.toFloat() }
+                .onSizeChanged { size -> componentWidth = size.width.toFloat() },
     ) {
         for (i in 0 until numSlots) {
             val idx = i + currentIndex - initialSlotIndex
@@ -263,7 +263,7 @@ fun ItemHolder(i: Int, slotPrefix: String, showSlot: Boolean, function: @Composa
 
 private enum class MotionCarouselDirection {
     FORWARD,
-    BACKWARD
+    BACKWARD,
 }
 
 private data class CarouselState(
@@ -271,12 +271,12 @@ private data class CarouselState(
     var index: Int,
     var targetIndex: Int,
     var snapping: Boolean,
-    var animating: Boolean
+    var animating: Boolean,
 )
 
 inline fun <T> MotionCarouselScope.items(
     items: List<T>,
-    crossinline itemContent: @Composable (item: T) -> Unit
+    crossinline itemContent: @Composable (item: T) -> Unit,
 ) = items(items.size) { index -> itemContent(items[index]) }
 
 interface MotionCarouselScope {
@@ -289,7 +289,7 @@ interface MotionCarouselScope {
         @Suppress("HiddenTypeParameter")
         itemContent:
             @Composable
-            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
+            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit,
     )
 }
 
@@ -300,7 +300,7 @@ inline fun <T> MotionCarouselScope.itemsWithProperties(
     @Suppress("HiddenTypeParameter")
     crossinline itemContent:
         @Composable
-        (item: T, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
+        (item: T, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit,
 ) = itemsWithProperties(items.size) { index, properties -> itemContent(items[index], properties) }
 
 @Composable
@@ -319,7 +319,7 @@ interface MotionItemsProvider {
     fun getContent(
         index: Int,
         @SuppressWarnings("HiddenTypeParameter")
-        properties: androidx.compose.runtime.State<MotionProperties>
+        properties: androidx.compose.runtime.State<MotionProperties>,
     ): @Composable() () -> Unit
 
     fun count(): Int
@@ -346,7 +346,7 @@ private class MotionCarouselScopeImpl() : MotionCarouselScope, MotionItemsProvid
         count: Int,
         itemContent:
             @Composable
-            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
+            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit,
     ) {
         itemsCount = count
         itemsProviderWithProperties = itemContent
@@ -358,7 +358,7 @@ private class MotionCarouselScopeImpl() : MotionCarouselScope, MotionItemsProvid
 
     override fun getContent(
         index: Int,
-        properties: androidx.compose.runtime.State<MotionProperties>
+        properties: androidx.compose.runtime.State<MotionProperties>,
     ): @Composable () -> Unit {
         return { itemsProviderWithProperties?.invoke(index, properties) }
     }

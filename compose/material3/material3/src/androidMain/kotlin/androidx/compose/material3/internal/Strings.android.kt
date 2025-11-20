@@ -182,6 +182,9 @@ internal actual value class Strings constructor(val value: Int) {
         actual inline val FloatingToolbarExpand
             get() = Strings(MaterialR.string.m3c_floating_toolbar_expand)
 
+        actual inline val FloatingToolbarMoreOptions
+            get() = Strings(MaterialR.string.m3c_floating_toolbar_more_options)
+
         actual inline val BottomSheetPaneTitle
             get() = Strings(MaterialR.string.m3c_bottom_sheet_pane_title)
 
@@ -265,6 +268,9 @@ internal actual value class Strings constructor(val value: Int) {
 
         actual inline val WideNavigationRailPaneTitle
             get() = Strings(MaterialR.string.m3c_wide_navigation_rail_pane_title)
+
+        actual inline val ButtonGroupMoreOptions
+            get() = Strings(MaterialR.string.m3c_button_group_more_options)
     }
 }
 

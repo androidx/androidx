@@ -30,7 +30,7 @@ abstract class UnzipChromeBuildService
 @Inject
 constructor(
     private val archiveOperations: ArchiveOperations,
-    private val fileSystemOperations: FileSystemOperations
+    private val fileSystemOperations: FileSystemOperations,
 ) : BuildService<UnzipChromeBuildService.Parameters> {
 
     interface Parameters : BuildServiceParameters {

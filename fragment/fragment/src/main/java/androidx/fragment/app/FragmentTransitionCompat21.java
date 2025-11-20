@@ -25,15 +25,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiresApi(21)
 class FragmentTransitionCompat21 extends FragmentTransitionImpl {
 
     @Override

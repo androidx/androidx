@@ -115,6 +115,7 @@ public final class CarIcon {
                     TYPE_ERROR,
                     TYPE_PAN,
                     TYPE_COMPOSE_MESSAGE,
+                    TYPE_MEDIA_PLAYBACK,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarIconType {
@@ -168,6 +169,13 @@ public final class CarIcon {
     public static final int TYPE_COMPOSE_MESSAGE = 8;
 
     /**
+     * A media playback icon.
+     *
+     * @see #MEDIA_PLAYBACK
+     */
+    public static final int TYPE_MEDIA_PLAYBACK = 9;
+
+    /**
      * Represents the app's icon, as defined in the app's manifest by the {@code android:icon}
      * attribute of the {@code application} element.
      */
@@ -200,6 +208,15 @@ public final class CarIcon {
     @RequiresCarApi(7)
     public static final @NonNull CarIcon COMPOSE_MESSAGE =
             CarIcon.forStandardType(TYPE_COMPOSE_MESSAGE);
+
+    /**
+     * An icon that represents a playable media item.
+     * Note: This is specifically used for category MEDIA apps. Used in conjunction with
+     * {@link Action.MEDIA_PLAYBACK}
+     */
+    @RequiresCarApi(8)
+    public static final @NonNull CarIcon MEDIA_PLAYBACK =
+            CarIcon.forStandardType(TYPE_MEDIA_PLAYBACK);
 
     @CarIconType
     private final int mType;
@@ -323,6 +340,8 @@ public final class CarIcon {
                 return "PAN";
             case TYPE_COMPOSE_MESSAGE:
                 return "COMPOSE_MESSAGE";
+            case TYPE_MEDIA_PLAYBACK:
+                return "MEDIA_PLAYBACK";
             case TYPE_CUSTOM:
                 return "CUSTOM";
             default:
@@ -363,7 +382,7 @@ public final class CarIcon {
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
          * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
-         * @throws NullPointerException if {@code tin} is {@code null}
+         * @throws NullPointerException if {@code tint} is {@code null}
          * @see CarColor
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
          */

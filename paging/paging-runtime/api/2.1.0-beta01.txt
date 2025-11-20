@@ -1,9 +1,9 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.paging {
 
   public class AsyncPagedListDiffer<T> {
-    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T!>);
     method public androidx.paging.PagedList<T!>? getCurrentList();
     method public T? getItem(int);
@@ -27,8 +27,8 @@ package androidx.paging {
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public androidx.paging.PagedList<T!>? getCurrentList();
     method protected T? getItem(int);
     method public int getItemCount();

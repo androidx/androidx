@@ -60,7 +60,7 @@ public inline fun TextView.addTextChangedListener(
     crossinline onTextChanged: (text: CharSequence?, start: Int, before: Int, count: Int) -> Unit =
         { _, _, _, _ ->
         },
-    crossinline afterTextChanged: (text: Editable?) -> Unit = {}
+    crossinline afterTextChanged: (text: Editable?) -> Unit = {},
 ): TextWatcher {
     val textWatcher =
         object : TextWatcher {
@@ -72,7 +72,7 @@ public inline fun TextView.addTextChangedListener(
                 text: CharSequence?,
                 start: Int,
                 count: Int,
-                after: Int
+                after: Int,
             ) {
                 beforeTextChanged.invoke(text, start, count, after)
             }

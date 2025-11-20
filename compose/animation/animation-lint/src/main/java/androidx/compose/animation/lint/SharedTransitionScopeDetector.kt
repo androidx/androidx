@@ -77,7 +77,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
      */
     private fun detectUnusedSharedTransitionModifierParameter(
         context: JavaContext,
-        node: UCallExpression
+        node: UCallExpression,
     ) {
         // Only one argument expected for `SharedTransitionScope(...)`, the content lambda.
         val lambdaArgument = node.getArgumentForParameter(0) as? ULambdaExpression ?: return
@@ -96,7 +96,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
                     buildUnusedSharedTransitionModifierQuickFix(
                         context = context,
                         node = fixCandidate,
-                        unusedModifierParameter = unreferencedParameter
+                        unusedModifierParameter = unreferencedParameter,
                     )
                 }
 
@@ -107,7 +107,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
                 message =
                     "Supplied Modifier parameter should be used on the top most " +
                         "Composable. Otherwise, consider using `SharedTransitionLayout`.",
-                quickfixData = quickFix
+                quickfixData = quickFix,
             )
         }
     }
@@ -150,7 +150,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
      */
     private fun detectConstantLiteralInSharedContentSateWithinItemsCall(
         context: JavaContext,
-        node: UCallExpression
+        node: UCallExpression,
     ) {
         // We first check whether the key is a constant literal
         val keyElement = node.getArgumentForParameter(0)
@@ -212,7 +212,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
             message =
                 "Each Composable within a LazyList `items` call should have unique content state " +
                     "keys. Make sure to either associate a unique key related to the item's " +
-                    "data, or simply append the item's index to the key."
+                    "data, or simply append the item's index to the key.",
         )
     }
 
@@ -301,7 +301,7 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
     private fun buildUnusedSharedTransitionModifierQuickFix(
         context: JavaContext,
         node: UCallExpression,
-        unusedModifierParameter: UnreferencedParameter
+        unusedModifierParameter: UnreferencedParameter,
     ): LintFix? {
         val callName = node.methodName ?: return null
 
@@ -372,8 +372,8 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         SharedTransitionScopeDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
 
         val ConstantContentStateKeyInItemsCall =
@@ -394,8 +394,8 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         SharedTransitionScopeDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
     }
 }

@@ -46,7 +46,7 @@ enum class CameraAPI(private val api: String) {
     /** Camera 2 API */
     CAMERA2("Camera2"),
     /** Camera X API */
-    CAMERAX("CameraX")
+    CAMERAX("CameraX"),
 }
 
 /** The output capture size to request for captures */
@@ -64,7 +64,7 @@ enum class FocusMode(private val mode: String) {
     /** Continuous auto-focus */
     CONTINUOUS("Continuous"),
     /** For fixed-focus lenses */
-    FIXED("Fixed")
+    FIXED("Fixed"),
 }
 
 /**
@@ -199,13 +199,13 @@ fun initializeCameras(activity: MainActivity) {
                     cam2MaxSize =
                         Collections.max(
                             Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                            CompareSizesByArea()
+                            CompareSizesByArea(),
                         )
 
                     cam2MinSize =
                         Collections.min(
                             Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                            CompareSizesByArea()
+                            CompareSizesByArea(),
                         )
 
                     // Use minimum image size for preview
@@ -245,7 +245,7 @@ fun setupImageReader(activity: MainActivity, params: CameraParams, testConfig: T
         params.imageReader = ImageReader.newInstance(size.width, size.height, ImageFormat.JPEG, 5)
         params.imageReader?.setOnImageAvailableListener(
             params.imageAvailableListener,
-            params.backgroundHandler
+            params.backgroundHandler,
         )
     }
 }
@@ -268,7 +268,7 @@ fun setAutoFlash(params: CameraParams, requestBuilder: CaptureRequest.Builder?) 
         if (params.hasFlash) {
             requestBuilder?.set(
                 CaptureRequest.CONTROL_AE_MODE,
-                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH,
             )
 
             // Force flash always on

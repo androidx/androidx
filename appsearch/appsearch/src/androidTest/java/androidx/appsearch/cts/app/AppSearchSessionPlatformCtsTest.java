@@ -152,4 +152,9 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Override
     @Test
     public void testQuery_advancedRankingWithJoin() throws Exception { }
+
+    // Remove when b/441557822 is fixed
+    @Test
+    @Override
+    public void testPutHugeDocumentInBatch() throws Exception { }
 }

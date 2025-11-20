@@ -15,12 +15,17 @@
  */
 package androidx.compose.ui.text.style
 
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.text.internal.requirePrecondition
+
 /**
  * Defines how to align text horizontally. `TextAlign` controls how text aligns in the space it
  * appears.
+ *
+ * @property value The integer representation of the TextAlign.
  */
 @kotlin.jvm.JvmInline
-value class TextAlign internal constructor(internal val value: Int) {
+value class TextAlign internal constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -71,13 +76,46 @@ value class TextAlign internal constructor(internal val value: Int) {
          */
         val End = TextAlign(6)
 
-        /** Return a list containing all possible values of TextAlign. */
-        fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
-
         /**
          * This represents an unset value, a usual replacement for "null" when a primitive value is
          * desired.
          */
-        val Unspecified = TextAlign(Int.MIN_VALUE)
+        val Unspecified = TextAlign(0)
+
+        /** Return a list containing all possible values of TextAlign. */
+        fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
+
+        /**
+         * Creates a TextAlign from the given integer value. This can be useful if you need to
+         * serialize/deserialize TextAlign values.
+         *
+         * This function throws an [IllegalArgumentException] if the given [value] is not recognized
+         * by the preset [TextAlign] values.
+         *
+         * @param value The integer representation of the TextAlign.
+         * @see [TextAlign.value]
+         */
+        fun valueOf(value: Int): TextAlign {
+            requirePrecondition(value in 0..6) {
+                "The given value=$value is not recognized by TextAlign."
+            }
+            return TextAlign(value)
+        }
     }
+}
+
+/**
+ * Returns `true` if this [TextAlign] is not [TextAlign.Unspecified].
+ *
+ * @see TextAlign.Unspecified
+ */
+inline val TextAlign.isSpecified: Boolean
+    get() = value != 0
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun TextAlign.takeOrElse(block: () -> TextAlign): TextAlign {
+    return if (isSpecified) this else block()
 }

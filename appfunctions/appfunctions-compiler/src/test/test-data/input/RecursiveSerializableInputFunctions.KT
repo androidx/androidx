@@ -1,31 +1,30 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.service.AppFunction
 import androidx.appfunctions.AppFunctionContext
-import androidx.appfunctions.AppFunctionSerializable
 
 class RecursiveSerializableInputFunctions {
     @AppFunction
-    fun simpleFunction(appFunctionContext: AppFunctionContext, serializable: SampleSerializable) {}
+    fun simpleFunction(
+        appFunctionContext: AppFunctionContext,
+        serializable: RecursiveSerializable
+    ) {}
 
     @AppFunction
     fun simpleFunctionSerializableList(
         appFunctionContext: AppFunctionContext,
-        serializable: List<SampleSerializable>
+        serializable: List<RecursiveSerializable>
     ) {}
 
     @AppFunction
     fun simpleFunctionNullableSerializableList(
         appFunctionContext: AppFunctionContext,
-        serializable: List<SampleSerializable>?
+        serializable: List<RecursiveSerializable>?
     ) {}
 
     @AppFunction
     fun simpleFunctionNullableSerializable(
         appFunctionContext: AppFunctionContext,
-        serializable: SampleSerializable?
+        serializable: RecursiveSerializable?
     ) {}
 }
-
-@AppFunctionSerializable
-class SampleSerializable(val nested: SampleSerializable?)

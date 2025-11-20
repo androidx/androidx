@@ -173,7 +173,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
                 if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
                     profileInstalled(
                         RESULT_CODE_COMPILED_WITH_PROFILE,
-                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
+                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING,
                     )
                 } else {
                     profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
@@ -240,7 +240,7 @@ class ProfileVerificationTestWithProfileInstallerInitializer {
                 if ((isApi29 && isCuttlefish) || (isApi28 && !isCuttlefish)) {
                     profileInstalled(
                         RESULT_CODE_COMPILED_WITH_PROFILE,
-                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
+                        RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING,
                     )
                 } else {
                     profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)

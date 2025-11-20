@@ -59,6 +59,10 @@ class ProjectDependencyGraph {
         return allProjects.keySet()
     }
 
+    Map<String, Set<String>> allProjectConsumers() {
+        return projectConsumers
+    }
+
     /**
      * Adds the given pair to the list of known projects
      *
@@ -253,7 +257,7 @@ class ProjectDependencyGraph {
                 if (multilineProjectReference.matcher(line).find()) {
                     throw new IllegalStateException(
                             "Multi-line project() references are not supported." +
-                                    "Please fix $file.absolutePath"
+                                    "Please fix $buildFile.absolutePath"
                     )
                 }
                 Matcher targetProject = testProjectTarget.matcher(line)
@@ -271,6 +275,13 @@ class ProjectDependencyGraph {
                 if (publishedLibrary.matcher(line).find()) {
                     publishedLibraryProjects.add(projectPath)
                 }
+                Matcher publishProject = publishProjectReference.matcher(line)
+                if (publishProject.find()) {
+                    links.add(publishProject.group(1))
+                }
+
+                // Validate certain common DSL setters
+                validateAndroidDsl(line, buildFile)
             }
         } else if (!projectDir.exists()) {
             // Remove file existence checking when https://github.com/gradle/gradle/issues/25531 is
@@ -283,6 +294,64 @@ class ProjectDependencyGraph {
             }
         }
         return links
+    }
+
+    private static void validateAndroidDsl(String line, File buildFile) {
+        Matcher matcherCompileSdk = compileSdk.matcher(line)
+        if (matcherCompileSdk) {
+            String middlePart = matcherCompileSdk.group(1)
+            if (middlePart !in [" = ", "Extension = ", "Minor = "]) {
+                String compileSdkValue = matcherCompileSdk.group(2)
+                if (middlePart.contains("Extension")) {
+                    throw new Exception("Invalid way to set compileSdkExtension " +
+                            "in $buildFile.absolutePath.\n" +
+                            "It is compileSdk$middlePart$compileSdkValue, " +
+                            "but should be compileSdkExtension = $compileSdkValue"
+                    )
+                } else if (middlePart.contains("Minor")) {
+                    throw new Exception("Invalid way to set compileSdkMinor " +
+                            "in $buildFile.absolutePath.\n" +
+                            "It is compileSdk$middlePart$compileSdkValue, " +
+                            "but should be compileSdkMinor = $compileSdkValue"
+                    )
+                } else {
+                    throw new Exception("Invalid way to set compileSdk " +
+                            "in $buildFile.absolutePath.\n" +
+                            "It is compileSdk$middlePart$compileSdkValue, " +
+                            "but should be compileSdk = $compileSdkValue"
+                    )
+                }
+            }
+        }
+        Matcher matcherMinSdk = minSdk.matcher(line)
+        if (matcherMinSdk) {
+            String middlePart = matcherMinSdk.group(1)
+            if (middlePart !in [" = ", "ForFtlOverride = "]) {
+                throw new Exception("Invalid way to set minSdk " +
+                        "in $buildFile.absolutePath.\n" +
+                        "It is minSdk$middlePart${matcherMinSdk.group(2)}, " +
+                        "but should be minSdk = ${matcherMinSdk.group(2)}"
+                )
+            }
+        }
+        Matcher matcherNamespace = namespace.matcher(line)
+        if (matcherNamespace) {
+            String middlePart = matcherNamespace.group(1)
+            String quotes = matcherNamespace.group(2)
+            if (middlePart != "= " || quotes != "\"") {
+                String namespaceValue = matcherNamespace.group(3)
+                throw new Exception("Invalid way to set namespace " +
+                        "in $buildFile.absolutePath.\n" +
+                        "It is namespace $middlePart$quotes$namespaceValue$quotes, " +
+                        "but should be namespace = \"$namespaceValue\""
+                )
+            }
+        }
+        Matcher matcherRepositories = repositories.matcher(line)
+        if (matcherRepositories) {
+            throw new Exception("$buildFile.absolutePath file should not set up repositories. " +
+                    "This list is controlled at a global build level.")
+        }
     }
 
     private static Pattern projectReferencePattern = Pattern.compile(
@@ -298,6 +367,11 @@ class ProjectDependencyGraph {
                     "|PUBLISHED_TEST_LIBRARY|PUBLISHED_PROTO_LIBRARY|PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY)|" +
                     "publish = Publish\\.SNAPSHOT_AND_RELEASE)"
     )
+    private static Pattern publishProjectReference = Pattern.compile("\"(.*):publish\"")
+    private static Pattern compileSdk = Pattern.compile("compileSdk(\\D*)([0-9]+)\$")
+    private static Pattern minSdk = Pattern.compile("minSdk(\\D*)([0-9]+)\$")
+    private static Pattern namespace = Pattern.compile("namespace (.*)(['\"])([^'^\"]*)['\"]\$")
+    private static Pattern repositories = Pattern.compile("repositories \\{")
     private static List<String> buildFileNames = ["build.gradle", "build.gradle.kts"]
 }
 
@@ -306,3 +380,7 @@ ProjectDependencyGraph createProjectDependencyGraph(Settings settings, boolean c
 }
 // export a function to create ProjectDependencyGraph
 ext.createProjectDependencyGraph = this.&createProjectDependencyGraph
+
+ext.allProjectsConsumers = { ProjectDependencyGraph graph ->
+    graph.allProjectConsumers()
+}

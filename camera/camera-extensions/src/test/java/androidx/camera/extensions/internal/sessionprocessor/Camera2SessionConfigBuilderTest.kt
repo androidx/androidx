@@ -18,7 +18,6 @@ package androidx.camera.extensions.internal.sessionprocessor
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class Camera2SessionConfigBuilderTest {
     @Test
     fun canAddOutputConfig() {
@@ -68,11 +67,11 @@ class Camera2SessionConfigBuilderTest {
         // Act
         builder.addSessionParameter(
             CaptureRequest.CONTROL_AWB_MODE,
-            CaptureRequest.CONTROL_AWB_MODE_OFF
+            CaptureRequest.CONTROL_AWB_MODE_OFF,
         )
         builder.addSessionParameter(
             CaptureRequest.CONTROL_AF_MODE,
-            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO,
         )
 
         // Assert

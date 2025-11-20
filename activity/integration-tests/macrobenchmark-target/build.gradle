@@ -8,15 +8,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-   compileSdk = 35
+   compileSdk = 36
    namespace = "androidx.activity.integration.macrobenchmark.target"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":activity:activity"))
 }

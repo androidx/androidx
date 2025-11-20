@@ -27,7 +27,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EdgeEffect;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -96,7 +95,6 @@ public class EdgeEffectCompatTest extends
             initEdgeEffect(context, attrs);
         }
 
-        @RequiresApi(21)
         @SuppressWarnings("unused")
         public ViewWithEdgeEffect(Context context, AttributeSet attrs, int defStyleAttr,
                 int defStyleRes) {

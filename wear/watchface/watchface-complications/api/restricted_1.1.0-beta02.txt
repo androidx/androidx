@@ -39,21 +39,21 @@ package androidx.wear.watchface.complications {
   }
 
   public final class ComplicationSlotBounds {
-    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
     ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
+    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
     method public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
     property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
   }
 
   public final class DefaultComplicationDataSourcePolicy {
     ctor public DefaultComplicationDataSourcePolicy();
-    ctor @Deprecated public DefaultComplicationDataSourcePolicy(int systemProvider);
-    ctor public DefaultComplicationDataSourcePolicy(int systemDataSource, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceDefaultType);
-    ctor @Deprecated public DefaultComplicationDataSourcePolicy(android.content.ComponentName dataSource, int systemDataSourceFallback);
-    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, androidx.wear.watchface.complications.data.ComplicationType primaryDataSourceDefaultType, int systemDataSourceFallback, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType);
     ctor @Deprecated public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, android.content.ComponentName secondaryDataSource, int systemDataSourceFallback);
     ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, androidx.wear.watchface.complications.data.ComplicationType primaryDataSourceDefaultType, android.content.ComponentName secondaryDataSource, androidx.wear.watchface.complications.data.ComplicationType secondaryDataSourceDefaultType, int systemDataSourceFallback, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType);
+    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, androidx.wear.watchface.complications.data.ComplicationType primaryDataSourceDefaultType, int systemDataSourceFallback, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType);
+    ctor @Deprecated public DefaultComplicationDataSourcePolicy(android.content.ComponentName dataSource, int systemDataSourceFallback);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DefaultComplicationDataSourcePolicy(androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat wireFormat);
+    ctor @Deprecated public DefaultComplicationDataSourcePolicy(int systemProvider);
+    ctor public DefaultComplicationDataSourcePolicy(int systemDataSource, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceDefaultType);
     method public android.content.ComponentName? getPrimaryDataSource();
     method public androidx.wear.watchface.complications.data.ComplicationType? getPrimaryDataSourceDefaultType();
     method public android.content.ComponentName? getSecondaryDataSource();

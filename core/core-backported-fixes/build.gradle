@@ -26,19 +26,17 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
+    api(libs.androidx.annotation)
 
     testImplementation(libs.testCore)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinReflect)
 }
-
 
 android {
     namespace = "androidx.core.backported.fixes"
@@ -50,4 +48,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE_BACKPORTED_FIXES
     inceptionYear = "2024"
     description = "This library makes it easy for developers to use check if a known critical issue is fixed on a device."
+    enableRobolectric()
+    samples(project(":core:core-backported-fixes:core-backported-fixes-samples"))
 }

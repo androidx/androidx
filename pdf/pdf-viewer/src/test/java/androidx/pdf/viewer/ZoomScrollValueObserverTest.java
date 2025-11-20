@@ -29,12 +29,10 @@ import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.models.PageSelection;
-import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Observables;
 import androidx.pdf.widget.ZoomView;
-import androidx.test.filters.SmallTest;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -44,9 +42,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-@SmallTest
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class ZoomScrollValueObserverTest {
     private static final ObservableValue<ViewState>
             VIEW_STATE_EXPOSED_VALUE =
@@ -102,8 +104,10 @@ public class ZoomScrollValueObserverTest {
 
             }
         });
-        when(mMockPageSelection.getStart()).thenReturn(new SelectionBoundary(0, 0, 0, false));
-        when(mMockPageSelection.getStop()).thenReturn(new SelectionBoundary(0, 100, 100, false));
+        List<Rect> selectionBoundaries = new ArrayList<>();
+        selectionBoundaries.add(new Rect(0, 0, 10, 10));
+        selectionBoundaries.add(new Rect(90, 90, 100, 100));
+        when(mMockPageSelection.getRects()).thenReturn(selectionBoundaries);
         when(mMockPaginatedView.getViewArea()).thenReturn(RECT);
         when(mMockPaginationModel.getLookAtX(0, 0)).thenReturn(1);
         when(mMockPaginationModel.getLookAtX(0, 100)).thenReturn(50);

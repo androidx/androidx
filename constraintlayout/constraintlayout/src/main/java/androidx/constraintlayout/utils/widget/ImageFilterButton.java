@@ -24,12 +24,10 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.R;
 
@@ -132,13 +130,9 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
                 } else if (attr == R.styleable.ImageFilterView_contrast) {
                     setContrast(a.getFloat(attr, 0));
                 } else if (attr == R.styleable.ImageFilterView_round) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        setRound(a.getDimension(attr, 0));
-                    }
+                    setRound(a.getDimension(attr, 0));
                 } else if (attr == R.styleable.ImageFilterView_roundPercent) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        setRoundPercent(a.getFloat(attr, 0));
-                    }
+                    setRoundPercent(a.getFloat(attr, 0));
                 } else if (attr == R.styleable.ImageFilterView_overlay) {
                     setOverlay(a.getBoolean(attr, mOverlay));
                 } else if (attr == R.styleable.ImageFilterView_imagePanX) {
@@ -481,7 +475,6 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
      *
      * @param round the radius of curvature as a fraction of the smaller width
      */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public void setRoundPercent(float round) {
         boolean change = (mRoundPercent != round);
         mRoundPercent = round;
@@ -492,21 +485,19 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
             if (mRect == null) {
                 mRect = new RectF();
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (mViewOutlineProvider == null) {
-                    mViewOutlineProvider = new ViewOutlineProvider() {
-                        @Override
-                        public void getOutline(View view, Outline outline) {
-                            int w = getWidth();
-                            int h = getHeight();
-                            float r = Math.min(w, h) * mRoundPercent / 2;
-                            outline.setRoundRect(0, 0, w, h, r);
-                        }
-                    };
-                    setOutlineProvider(mViewOutlineProvider);
-                }
-                setClipToOutline(true);
+            if (mViewOutlineProvider == null) {
+                mViewOutlineProvider = new ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, Outline outline) {
+                        int w = getWidth();
+                        int h = getHeight();
+                        float r = Math.min(w, h) * mRoundPercent / 2;
+                        outline.setRoundRect(0, 0, w, h, r);
+                    }
+                };
+                setOutlineProvider(mViewOutlineProvider);
             }
+            setClipToOutline(true);
             int w = getWidth();
             int h = getHeight();
             float r = Math.min(w, h) * mRoundPercent / 2;
@@ -514,14 +505,10 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
             mPath.reset();
             mPath.addRoundRect(mRect, r, r, Path.Direction.CW);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                setClipToOutline(false);
-            }
+            setClipToOutline(false);
         }
         if (change) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                invalidateOutline();
-            }
+            invalidateOutline();
         }
 
     }
@@ -531,7 +518,6 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
      *
      * @param round the radius of curvature  NaN = default meaning roundPercent in effect
      */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public void setRound(float round) {
         if (Float.isNaN(round)) {
             mRound = round;
@@ -550,35 +536,29 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
             if (mRect == null) {
                 mRect = new RectF();
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (mViewOutlineProvider == null) {
-                    mViewOutlineProvider = new ViewOutlineProvider() {
-                        @Override
-                        public void getOutline(View view, Outline outline) {
-                            int w = getWidth();
-                            int h = getHeight();
-                            outline.setRoundRect(0, 0, w, h, mRound);
-                        }
-                    };
-                    setOutlineProvider(mViewOutlineProvider);
-                }
-                setClipToOutline(true);
-
+            if (mViewOutlineProvider == null) {
+                mViewOutlineProvider = new ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, Outline outline) {
+                        int w = getWidth();
+                        int h = getHeight();
+                        outline.setRoundRect(0, 0, w, h, mRound);
+                    }
+                };
+                setOutlineProvider(mViewOutlineProvider);
             }
+            setClipToOutline(true);
+
             int w = getWidth();
             int h = getHeight();
             mRect.set(0, 0, w, h);
             mPath.reset();
             mPath.addRoundRect(mRect, mRound, mRound, Path.Direction.CW);
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                setClipToOutline(false);
-            }
+            setClipToOutline(false);
         }
         if (change) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                invalidateOutline();
-            }
+            invalidateOutline();
         }
 
     }
@@ -603,18 +583,7 @@ public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageB
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        boolean clip = false;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            if (mRound != 0.0f && mPath != null) {
-                clip = true;
-                canvas.save();
-                canvas.clipPath(mPath);
-            }
-        }
         super.draw(canvas);
-        if (clip) {
-            canvas.restore();
-        }
     }
 
     @Override

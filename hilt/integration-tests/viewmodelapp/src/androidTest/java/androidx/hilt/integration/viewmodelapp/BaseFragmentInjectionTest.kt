@@ -16,14 +16,12 @@
 
 package androidx.hilt.integration.viewmodelapp
 
-import android.os.Build
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -36,7 +34,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 // TODO: Find out why random ClassNotFoundException is thrown in APIs lower than 21.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class BaseFragmentInjectionTest {
 
     @get:Rule val rule = HiltAndroidRule(this)
@@ -48,7 +45,7 @@ class BaseFragmentInjectionTest {
                 val fragment =
                     activity.supportFragmentManager.fragmentFactory.instantiate(
                         TestFragment::class.java.classLoader!!,
-                        TestFragment::class.java.name
+                        TestFragment::class.java.name,
                     ) as TestFragment
                 activity.supportFragmentManager
                     .beginTransaction()

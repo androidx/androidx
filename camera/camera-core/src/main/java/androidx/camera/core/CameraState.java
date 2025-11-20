@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.content.ComponentName;
 
 import androidx.annotation.IntDef;
+import androidx.lifecycle.LiveData;
 
 import com.google.auto.value.AutoValue;
 
@@ -102,6 +103,8 @@ import java.lang.annotation.RetentionPolicy;
  * the error it encountered:
  *
  * <ul>
+ * <li>If the camera is physically removed (e.g. a USB camera is unplugged), its state will
+ * move directly to {@link Type#CLOSED} with an {@link #ERROR_CAMERA_REMOVED} error.</li>
  * <li>If opening the camera device fails prematurely, for example, when "Do Not Disturb" mode is
  * enabled on a device that's affected by a bug in Android 9 (see
  * {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED}), the state moves to the {@link Type#CLOSED} state
@@ -198,6 +201,25 @@ public abstract class CameraState {
     public static final int ERROR_DO_NOT_DISTURB_MODE_ENABLED = 7;
 
     /**
+     * An error indicating that the camera device is no longer available because it has been
+     * removed from the system.
+     *
+     * <p>This error will be reported when a camera is disconnected from the host
+     * device (e.g., a USB camera is unplugged). This is a terminal state for the
+     * camera session. Once this error is received, the associated {@link Camera} and
+     * {@link CameraInfo} objects are no longer valid. Attempting to call methods on them may
+     * result in exceptions.
+     *
+     * <p><b>Action:</b> The application should unbind all use cases from the invalid camera
+     * and switch to another available camera. To find a new camera, use
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#getAvailableCameraInfos()} or
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#hasCamera(CameraSelector)}.
+     *
+     * <p>This error is considered critical, and CameraX will not attempt to recover.
+     */
+    public static final int ERROR_CAMERA_REMOVED = 8;
+
+    /**
      * Create a new {@link CameraState} instance from a {@link Type} and a {@code null}
      * {@link StateError}.
      *
@@ -238,7 +260,8 @@ public abstract class CameraState {
             ERROR_STREAM_CONFIG,
             ERROR_CAMERA_DISABLED,
             ERROR_CAMERA_FATAL_ERROR,
-            ERROR_DO_NOT_DISTURB_MODE_ENABLED})
+            ERROR_DO_NOT_DISTURB_MODE_ENABLED,
+            ERROR_CAMERA_REMOVED})
     @Retention(RetentionPolicy.SOURCE)
     @interface ErrorCode {
     }
@@ -251,7 +274,8 @@ public abstract class CameraState {
      * {@link #ERROR_OTHER_RECOVERABLE_ERROR}. The rest of the errors are critical, and require
      * the intervention of the developer or user to restore camera function. These errors include
      * {@link #ERROR_STREAM_CONFIG}, {@link #ERROR_CAMERA_DISABLED},
-     * {@link #ERROR_CAMERA_FATAL_ERROR} and {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED}.
+     * {@link #ERROR_CAMERA_FATAL_ERROR}, {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED} and
+     * {@link #ERROR_CAMERA_REMOVED}.
      */
     public enum ErrorType {
         /**
@@ -267,8 +291,8 @@ public abstract class CameraState {
          *
          * <p>A critical error is one that requires the intervention of the developer or user to
          * restore camera function, and includes {@link #ERROR_STREAM_CONFIG},
-         * {@link #ERROR_CAMERA_DISABLED}, {@link #ERROR_CAMERA_FATAL_ERROR} and
-         * {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED}.
+         * {@link #ERROR_CAMERA_DISABLED}, {@link #ERROR_CAMERA_FATAL_ERROR},
+         * {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED} and {@link #ERROR_CAMERA_REMOVED}.
          */
         CRITICAL
     }
@@ -347,7 +371,9 @@ public abstract class CameraState {
          *
          * <p>Developers can rely on this state to be aware of when the camera device is actually
          * in the process of closing. this allows them to communicate it to their users through
-         * the UI.
+         * the UI. Please note that this state is optional. If the camera is closed quickly after
+         * the closing state, it's possible that the CLOSING state is skipped when you observe the
+         * {@link CameraState}'s {@link LiveData}.
          */
         CLOSING,
 
@@ -433,6 +459,13 @@ public abstract class CameraState {
      *     <td>No</td>
      *     <td>Ask the user to disable "Do Not Disturb" mode, then open the camera again.</td>
      * </tr>
+     * <tr>
+     *     <td>{@link Type#CLOSED}</td>
+     *     <td>{@linkplain #ERROR_CAMERA_REMOVED ERROR_CAMERA_REMOVED}</td>
+     *     <td>No</td>
+     *     <td>The camera is offline. To use it again, the user must reconnect the device.
+     *     The application should listen for the {@code onCameraAdded} event.</td>
+     * </tr>
      * </table>
      */
     @AutoValue
@@ -462,7 +495,8 @@ public abstract class CameraState {
          * <p>The error's code is one of the following: {@link #ERROR_CAMERA_IN_USE},
          * {@link #ERROR_MAX_CAMERAS_IN_USE}, {@link #ERROR_OTHER_RECOVERABLE_ERROR},
          * {@link #ERROR_STREAM_CONFIG}, {@link #ERROR_CAMERA_DISABLED},
-         * {@link #ERROR_CAMERA_FATAL_ERROR} and {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED}.
+         * {@link #ERROR_CAMERA_FATAL_ERROR}, {@link #ERROR_DO_NOT_DISTURB_MODE_ENABLED} and
+         * {@link #ERROR_CAMERA_REMOVED}.
          *
          * @return The code of this error.
          */

@@ -59,7 +59,7 @@ class SingleColorPowerBenchmark {
                         PowerMetric.Power(
                             mapOf(PowerCategory.DISPLAY to PowerCategoryDisplayLevel.BREAKDOWN)
                         )
-                    ),
+                    )
                 ),
             compilationMode = CompilationMode.None(),
             startupMode = StartupMode.COLD,
@@ -71,7 +71,7 @@ class SingleColorPowerBenchmark {
                 intent.action = ACTION
                 intent.putExtras(bundle)
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             Thread.sleep(DURATION_MS.toLong())
         }

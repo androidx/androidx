@@ -54,7 +54,7 @@ fun EmojiCompatDemo() {
         TextField(
             value = textFieldValue.value,
             modifier = Modifier.padding(16.dp),
-            onValueChange = { textFieldValue.value = it }
+            onValueChange = { textFieldValue.value = it },
         )
     }
 }

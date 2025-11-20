@@ -37,7 +37,7 @@ internal interface Camera2MetadataProvider {
      */
     suspend fun getCameraExtensionMetadata(
         cameraId: CameraId,
-        extension: Int
+        extension: Int,
     ): CameraExtensionMetadata
 
     /**

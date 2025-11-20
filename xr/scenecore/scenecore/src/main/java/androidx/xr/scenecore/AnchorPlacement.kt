@@ -17,45 +17,70 @@
 package androidx.xr.scenecore
 
 /**
- * Creates an AnchorPlacement for a MovableComponent.
+ * AnchorPlacement for setting how an [Entity] should be anchored in a [MovableComponent].
  *
- * <p> This will enable the MovableComponent to automatically anchor the attached entity to a new
- * entity
+ * When an AnchorPlacement is added to a MovableComponent, the attached Entity may be automatically
+ * anchored and reparented to a new Entity at the end of the movement.
  */
-public class AnchorPlacement() {
-    internal val planeTypeFilter: MutableSet<@PlaneTypeValue Int> = HashSet<@PlaneTypeValue Int>()
-    internal val planeSemanticFilter: MutableSet<@PlaneSemanticValue Int> =
-        HashSet<@PlaneSemanticValue Int>()
+public class AnchorPlacement
+private constructor(
+    public val anchorablePlaneOrientations: Set<@PlaneOrientationValue Int>,
+    public val anchorablePlaneSemanticTypes: Set<@PlaneSemanticTypeValue Int>,
+) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnchorPlacement) return false
+
+        if (anchorablePlaneOrientations != other.anchorablePlaneOrientations) return false
+        if (anchorablePlaneSemanticTypes != other.anchorablePlaneSemanticTypes) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = anchorablePlaneOrientations.hashCode()
+        result = 31 * result + anchorablePlaneSemanticTypes.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "AnchorPlacement(anchorablePlaneOrientations=${anchorablePlaneOrientations}, anchorablePlaneSemanticTypes=${anchorablePlaneSemanticTypes})"
+    }
 
     public companion object {
         /**
          * Creates an anchor placement for anchoring to planes.
          *
-         * Setting a [PlaneType] or [PlaneSemantic] filter means that the [Entity] with a
+         * Setting a [PlaneOrientation] or [PlaneSemanticType] filter means that the [Entity] with a
          * [MovableComponent] will be anchored to a plane of that matches at least one of the
-         * specified [PlaneType] filters and at least one specified [PlaneSemantic] filters if it is
-         * released nearby. If no [PlaneType] or no [PlaneSemantic] is set the [Entity] will not be
-         * anchored.
+         * specified PlaneOrientation filters and at least one specified PlaneSemanticType filters
+         * if it is released nearby. By default this the Entity will be anchored to any plane. If no
+         * PlaneOrientation or no PlaneSemanticType is set the Entity will not be anchored. This
+         * setting requires [androidx.xr.runtime.Session.configure] to be called with
+         * [androidx.xr.runtime.Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] in order to be
+         * able to discover planes.
          *
-         * <p> When an entity is anchored to the plane the pose will be rotated so that it's
-         * Z-vector will be pointing our of the plane (i.e. if it is a panel it will be flat along
-         * the plane. The onMoveEnd callback can be used to listen for the [Entity] being anchored,
-         * reanchored, or unanchored. When anchored the parent will be updated to a new anchor
-         * entity. When unanchored the parent will be set to the [ActivitySpace].
+         * When an Entity is anchored to the plane the pose will be rotated so that it's Z-vector
+         * will be pointing out of the plane (i.e. if it is a panel it will be flat along the
+         * plane). The [EntityMoveListener.onMoveEnd] callback can be used to listen for the Entity
+         * being anchored, reanchored, or unanchored. When anchored the parent will be updated to a
+         * new anchor Entity. When unanchored the parent will be set to the [ActivitySpace].
          *
-         * @param planeTypeFilter The set of plane types to filter by.
-         * @param planeSemanticFilter The set of plane semantics to filter by.
+         * @param anchorablePlaneOrientations The set of plane types to filter by.
+         * @param anchorablePlaneSemanticTypes The set of plane semantics to filter by.
          */
         @JvmStatic
         @JvmOverloads
         public fun createForPlanes(
-            planeTypeFilter: Set<@PlaneTypeValue Int> = setOf(PlaneType.ANY),
-            planeSemanticFilter: Set<@PlaneSemanticValue Int> = setOf(PlaneSemantic.ANY),
+            anchorablePlaneOrientations: Set<@PlaneOrientationValue Int> =
+                setOf(PlaneOrientation.ANY),
+            anchorablePlaneSemanticTypes: Set<@PlaneSemanticTypeValue Int> =
+                setOf(PlaneSemanticType.ANY),
         ): AnchorPlacement {
-            val placement = AnchorPlacement()
-            placement.planeTypeFilter.addAll(planeTypeFilter)
-            placement.planeSemanticFilter.addAll(planeSemanticFilter)
-            return placement
+            return AnchorPlacement(
+                anchorablePlaneOrientations = anchorablePlaneOrientations.toSet(),
+                anchorablePlaneSemanticTypes = anchorablePlaneSemanticTypes.toSet(),
+            )
         }
     }
 }

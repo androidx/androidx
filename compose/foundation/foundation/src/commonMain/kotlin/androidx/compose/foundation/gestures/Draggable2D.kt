@@ -27,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
@@ -53,7 +53,7 @@ interface Draggable2DState {
      */
     suspend fun drag(
         dragPriority: MutatePriority = MutatePriority.Default,
-        block: suspend Drag2DScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit,
     )
 
     /**
@@ -143,7 +143,7 @@ fun Modifier.draggable2D(
     startDragImmediately: Boolean = false,
     onDragStarted: (startedPosition: Offset) -> Unit = NoOpOnDragStart,
     onDragStopped: (velocity: Velocity) -> Unit = NoOpOnDragStop,
-    reverseDirection: Boolean = false
+    reverseDirection: Boolean = false,
 ): Modifier =
     this then
         Draggable2DElement(
@@ -153,7 +153,7 @@ fun Modifier.draggable2D(
             startDragImmediately = startDragImmediately,
             onDragStarted = onDragStarted,
             onDragStopped = onDragStopped,
-            reverseDirection = reverseDirection
+            reverseDirection = reverseDirection,
         )
 
 internal class Draggable2DElement(
@@ -163,7 +163,7 @@ internal class Draggable2DElement(
     private val startDragImmediately: Boolean,
     private val onDragStarted: (startedPosition: Offset) -> Unit,
     private val onDragStopped: (velocity: Velocity) -> Unit,
-    private val reverseDirection: Boolean
+    private val reverseDirection: Boolean,
 ) : ModifierNodeElement<Draggable2DNode>() {
     override fun create(): Draggable2DNode =
         Draggable2DNode(
@@ -231,13 +231,13 @@ internal class Draggable2DElement(
     }
 
     companion object {
-        val CanDrag: (PointerInputChange) -> Boolean = { true }
+        val CanDrag: (PointerType) -> Boolean = { true }
     }
 }
 
 internal class Draggable2DNode(
     private var state: Draggable2DState,
-    canDrag: (PointerInputChange) -> Boolean,
+    canDrag: (PointerType) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
     private var startDragImmediately: Boolean,
@@ -249,7 +249,7 @@ internal class Draggable2DNode(
         canDrag = canDrag,
         enabled = enabled,
         interactionSource = interactionSource,
-        orientationLock = null
+        orientationLock = null,
     ) {
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
@@ -262,15 +262,15 @@ internal class Draggable2DNode(
         onDragStarted.invoke(startedPosition)
     }
 
-    override fun onDragStopped(velocity: Velocity) {
-        onDragStopped.invoke(velocity)
+    override fun onDragStopped(event: DragEvent.DragStopped) {
+        onDragStopped.invoke(event.velocity)
     }
 
     override fun startDragImmediately(): Boolean = startDragImmediately
 
     fun update(
         state: Draggable2DState,
-        canDrag: (PointerInputChange) -> Boolean,
+        canDrag: (PointerType) -> Boolean,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
         startDragImmediately: Boolean,
@@ -298,7 +298,7 @@ internal class Draggable2DNode(
             enabled = enabled,
             interactionSource = interactionSource,
             orientationLock = null,
-            shouldResetPointerInputHandling = resetPointerInputHandling
+            shouldResetPointerInputHandling = resetPointerInputHandling,
         )
     }
 
@@ -316,7 +316,7 @@ private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable
 
     override suspend fun drag(
         dragPriority: MutatePriority,
-        block: suspend Drag2DScope.() -> Unit
+        block: suspend Drag2DScope.() -> Unit,
     ): Unit = coroutineScope { drag2DMutex.mutateWith(drag2DScope, dragPriority, block) }
 
     override fun dispatchRawDelta(delta: Offset) {

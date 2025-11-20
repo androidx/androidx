@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+TypeParameterName: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(Class<VM>, androidx.lifecycle.ViewModelStoreOwner, String, androidx.lifecycle.ViewModelProvider.Factory, androidx.lifecycle.viewmodel.CreationExtras):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(androidx.lifecycle.ViewModelStoreOwner, String, androidx.lifecycle.ViewModelProvider.Factory, androidx.lifecycle.viewmodel.CreationExtras):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(androidx.lifecycle.ViewModelStoreOwner, String, kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.lifecycle.viewmodel.compose.ViewModelKt#viewModel(kotlin.reflect.KClass<VM>, androidx.lifecycle.ViewModelStoreOwner, String, androidx.lifecycle.ViewModelProvider.Factory, androidx.lifecycle.viewmodel.CreationExtras):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

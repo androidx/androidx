@@ -1,1 +1,111 @@
 // Signature format: 4.0
+package androidx.text.vertical {
+
+  public final class EmphasisSpan extends android.text.style.MetricAffectingSpan {
+    ctor public EmphasisSpan();
+    ctor public EmphasisSpan(optional int style, optional boolean isFilled, optional float scale);
+    ctor @BytecodeOnly public EmphasisSpan(int, boolean, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getScale();
+    method @InaccessibleFromKotlin public int getStyle();
+    method @InaccessibleFromKotlin public boolean isFilled();
+    method public void updateDrawState(android.text.TextPaint? p0);
+    method public void updateMeasureState(android.text.TextPaint p0);
+    property public boolean isFilled;
+    property public float scale;
+    property public int style;
+    field public static final androidx.text.vertical.EmphasisSpan.Companion Companion;
+    field public static final boolean DEFAULT_EMPHASIS_FILL = true;
+    field public static final int DEFAULT_EMPHASIS_STYLE = 0; // 0x0
+    field public static final float DEFAULT_SCALE = 0.5f;
+    field public static final int STYLE_CIRCLE = 1; // 0x1
+    field public static final int STYLE_DOT = 0; // 0x0
+    field public static final int STYLE_DOUBLE_CIRCLE = 2; // 0x2
+    field public static final int STYLE_SESAME = 4; // 0x4
+    field public static final int STYLE_TRIANGLE = 3; // 0x3
+  }
+
+  public static final class EmphasisSpan.Companion {
+    property public static boolean DEFAULT_EMPHASIS_FILL;
+    property public static int DEFAULT_EMPHASIS_STYLE;
+    property public static float DEFAULT_SCALE;
+    property public static int STYLE_CIRCLE;
+    property public static int STYLE_DOT;
+    property public static int STYLE_DOUBLE_CIRCLE;
+    property public static int STYLE_SESAME;
+    property public static int STYLE_TRIANGLE;
+  }
+
+  public final class FontShearSpan extends android.text.style.MetricAffectingSpan {
+    ctor public FontShearSpan();
+    ctor public FontShearSpan(optional float fontShear);
+    ctor @BytecodeOnly public FontShearSpan(float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getFontShear();
+    method public void updateDrawState(android.text.TextPaint? p0);
+    method public void updateMeasureState(android.text.TextPaint p0);
+    property public float fontShear;
+    field public static final androidx.text.vertical.FontShearSpan.Companion Companion;
+    field public static final float DEFAULT_FONT_SHEAR = 0.2679492f;
+  }
+
+  public static final class FontShearSpan.Companion {
+    property public static float DEFAULT_FONT_SHEAR;
+  }
+
+  public final class RubySpan {
+    method @InaccessibleFromKotlin public int getOrientation();
+    method @InaccessibleFromKotlin public CharSequence getText();
+    method @InaccessibleFromKotlin public float getTextScale();
+    property public int orientation;
+    property public CharSequence text;
+    property public float textScale;
+  }
+
+  public static final class RubySpan.Builder {
+    ctor public RubySpan.Builder(CharSequence text);
+    method public androidx.text.vertical.RubySpan build();
+    method public androidx.text.vertical.RubySpan.Builder setOrientation(int orientation);
+    method public androidx.text.vertical.RubySpan.Builder setTextScale(float textScale);
+  }
+
+  public final class TextOrientation {
+    property public static int MIXED;
+    property public static int SIDEWAYS;
+    property public static int UPRIGHT;
+    field public static final androidx.text.vertical.TextOrientation INSTANCE;
+    field public static final int MIXED = 0; // 0x0
+    field public static final int SIDEWAYS = 2; // 0x2
+    field public static final int UPRIGHT = 1; // 0x1
+  }
+
+  public sealed exhaustive interface TextOrientationSpan {
+  }
+
+  public static final class TextOrientationSpan.Sideways implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.Sideways();
+  }
+
+  public static final class TextOrientationSpan.TextCombineUpright implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.TextCombineUpright();
+  }
+
+  public static final class TextOrientationSpan.Upright implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.Upright();
+  }
+
+  public final class VerticalTextLayout {
+    ctor public VerticalTextLayout();
+    ctor public VerticalTextLayout(optional CharSequence text);
+    ctor public VerticalTextLayout(optional CharSequence text, optional int start);
+    ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end);
+    ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint);
+    ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint, optional @Px float height);
+    ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint, optional @Px float height, optional int orientation);
+    ctor @BytecodeOnly public VerticalTextLayout(CharSequence!, int, int, android.text.TextPaint!, float, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void draw(android.graphics.Canvas canvas, @Px float x, @Px float y);
+    method @InaccessibleFromKotlin @Px public float getWidth();
+    method public boolean isVerticalTextSupported();
+    property @Px public float width;
+  }
+
+}
+

@@ -22,13 +22,12 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -41,7 +40,6 @@ android {
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
     api(libs.rxjava2)
@@ -71,5 +69,4 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains wrappers for using DataStore using RxJava2"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

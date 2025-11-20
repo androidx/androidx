@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowAlarmManager;
 
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(TilesTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class UpdateSchedulerTest {
     private static final int TILE_ID = 42;

@@ -110,6 +110,8 @@ public class UiDeviceTest {
             assertEquals(expectedSizeDp, mDevice.getDisplaySizeDp());
         } finally {
             mDevice.executeShellCommand("wm size reset");
+            // b/417796596: Ensure display size setting is deleted, rather than just reset to "".
+            mDevice.executeShellCommand("settings delete global display_size_forced");
         }
     }
 
@@ -208,6 +210,15 @@ public class UiDeviceTest {
 
     @Test
     public void testTakeScreenshot() throws Exception {
+        // Verify that a valid screenshot was generated with default scale.
+        Bitmap screenshot = mDevice.takeScreenshot();
+        assertNotNull(screenshot);
+        assertEquals(mDevice.getDisplayWidth(), screenshot.getWidth());
+        assertEquals(mDevice.getDisplayHeight(), screenshot.getHeight());
+    }
+
+    @Test
+    public void testTakeScreenshotFile() throws Exception {
         File outFile = mTmpDir.newFile();
         assertTrue(mDevice.takeScreenshot(outFile));
         // Verify that a valid screenshot was generated with default scale.

@@ -46,7 +46,7 @@ internal data class AndroidFontResolveInterceptor(private val fontWeightAdjustme
         val finalFontWeight =
             (fontWeight.weight + fontWeightAdjustment).coerceIn(
                 FontStyle.FONT_WEIGHT_MIN,
-                FontStyle.FONT_WEIGHT_MAX
+                FontStyle.FONT_WEIGHT_MAX,
             )
         return FontWeight(finalFontWeight)
     }

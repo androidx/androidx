@@ -57,7 +57,7 @@ public fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
     motionScheme: MotionScheme = MaterialTheme.motionScheme,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val rippleIndication = ripple()
     val selectionColors = rememberTextSelectionColors(colorScheme)
@@ -69,7 +69,7 @@ public fun MaterialTheme(
         LocalIndication provides rippleIndication,
         LocalTextSelectionColors provides selectionColors,
         LocalSwipeToDismissBackgroundScrimColor provides colorScheme.background,
-        LocalSwipeToDismissContentScrimColor provides colorScheme.background
+        LocalSwipeToDismissContentScrimColor provides colorScheme.background,
     ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }

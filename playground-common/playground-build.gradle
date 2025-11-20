@@ -33,7 +33,7 @@ buildscript {
         google()
         mavenCentral()
         maven {
-            url metalavaRepo
+            url = metalavaRepo
             metadataSources {
                 mavenPom()
                 artifact()

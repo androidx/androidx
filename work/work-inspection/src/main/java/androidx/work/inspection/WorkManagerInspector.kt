@@ -69,7 +69,7 @@ class WorkManagerInspector(connection: Connection, environment: InspectorEnviron
 
         environment.artTooling().registerEntryHook(
             WorkContinuationImpl::class.java,
-            "enqueue()Landroidx/work/Operation;"
+            "enqueue()Landroidx/work/Operation;",
         ) { obj, _ ->
             val stackTrace = Throwable().stackTrace
             executor.execute {
@@ -94,7 +94,7 @@ class WorkManagerInspector(connection: Connection, environment: InspectorEnviron
                 @Suppress("UNCHECKED_CAST")
                 (allWorkSpecIdsLiveData as LiveData<List<String>?>).safeObserveWhileNotNull(
                     this,
-                    executor
+                    executor,
                 ) { oldList, newList ->
                     updateWorkIdList(oldList ?: listOf(), newList)
                 }
@@ -131,7 +131,7 @@ class WorkManagerInspector(connection: Connection, environment: InspectorEnviron
     private fun <T : Any> LiveData<T?>.safeObserveWhileNotNull(
         owner: LifecycleOwner,
         executor: Executor,
-        listener: (oldValue: T?, newValue: T) -> Unit
+        listener: (oldValue: T?, newValue: T) -> Unit,
     ) {
         mainHandler.post {
             observe(
@@ -149,7 +149,7 @@ class WorkManagerInspector(connection: Connection, environment: InspectorEnviron
                             }
                         }
                     }
-                }
+                },
             )
         }
     }

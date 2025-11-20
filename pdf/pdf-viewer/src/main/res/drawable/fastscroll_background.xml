@@ -14,8 +14,15 @@
   limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
 
-    <solid android:color="?attr/colorSurfaceContainerHigh" />
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="48dp"
+    android:viewportHeight="48"
+    android:viewportWidth="36">
+
+    <!-- Clipped Circle Path (36 dp width instead of 48 dp) -->
+    <path
+        android:fillColor="?attr/colorSurfaceContainerHigh"
+        android:pathData="M24,24 m -24,0 a 24,24 0 1,0 48,0 a 24,24 0 1,0 -48,0" />
+</vector>

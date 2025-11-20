@@ -19,7 +19,6 @@ package androidx.build.testConfiguration
 import androidx.build.getDistributionDirectory
 import androidx.build.getSupportRootFolder
 import com.google.gson.GsonBuilder
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -39,16 +38,7 @@ abstract class ModuleInfoGenerator : DefaultTask() {
     @Input
     fun getSerialized(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        // media service/client tests are created from multiple projects, so we get multiple
-        // entries with the same TestModule.name. This code merges all the TestModule.path entries
-        // across the test modules with the same name.
-        val data =
-            testModules
-                .groupBy { it.name }
-                .map {
-                    TestModule(name = it.key, path = it.value.flatMap { module -> module.path })
-                }
-                .associateBy { it.name }
+        val data = testModules.associateBy { it.name }
         return gson.toJson(data)
     }
 
@@ -74,11 +64,12 @@ internal fun Project.registerOwnersServiceTasks() {
         task.exclude("buildSrc/.gradle/**")
         task.exclude(".gradle/**")
         task.exclude("build/reports/**")
+        task.exclude("kotlin-js-store/**")
         task.includeEmptyDirs = false
     }
 
-    tasks.register(CREATE_MODULE_INFO, ModuleInfoGenerator::class.java) { task ->
-        task.outputFile.set(File(getDistributionDirectory(), "module-info.json"))
+    tasks.register(CREATE_MODULE_INFO, ModuleInfoGenerator::class.java) {
+        it.outputFile.set(getDistributionDirectory().file("module-info.json"))
     }
 }
 
@@ -89,7 +80,7 @@ internal fun Project.addToModuleInfo(testName: String, projectIsolationEnabled: 
             it.testModules.add(
                 TestModule(
                     name = testName,
-                    path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+                    path = listOf(projectDir.toRelativeString(getSupportRootFolder())),
                 )
             )
         }

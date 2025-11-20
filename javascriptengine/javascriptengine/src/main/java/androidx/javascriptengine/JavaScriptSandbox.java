@@ -27,8 +27,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.webkit.WebView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.annotation.VisibleForTesting;
@@ -42,6 +40,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxService;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -151,6 +151,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
                     JS_FEATURE_CONSOLE_MESSAGING,
                     JS_FEATURE_ISOLATE_CLIENT,
                     JS_FEATURE_EVALUATE_FROM_FD,
+                    JS_FEATURE_MESSAGE_PORTS,
             })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -249,13 +250,23 @@ public final class JavaScriptSandbox implements AutoCloseable {
     public static final String JS_FEATURE_EVALUATE_FROM_FD =
             "JS_FEATURE_EVALUATE_FROM_FD";
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}
+     * <p>
+     * When this feature is present,
+     * {@link MessagePort#postMessage(androidx.javascriptengine.common.Message)}
+     * can be used to send messages between the embedder and the sandboxed
+     * JavaScript isolate, through Binder or AssetFileDescriptors.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String JS_FEATURE_MESSAGE_PORTS = "JS_FEATURE_MESSAGE_PORTS";
+
     // This set must not be modified after JavaScriptSandbox construction.
     @NonNull
     private final HashSet<String> mClientSideFeatureSet;
 
     static class ConnectionSetup implements ServiceConnection {
-        @Nullable
-        private CallbackToFutureAdapter.Completer<JavaScriptSandbox> mCompleter;
+        private CallbackToFutureAdapter.@Nullable Completer<JavaScriptSandbox> mCompleter;
         @Nullable
         private JavaScriptSandbox mJsSandbox;
         @NonNull
@@ -322,7 +333,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
 
         ConnectionSetup(@NonNull Context context,
-                @NonNull CallbackToFutureAdapter.Completer<JavaScriptSandbox> completer) {
+                CallbackToFutureAdapter.@NonNull Completer<JavaScriptSandbox> completer) {
             mContext = context;
             mCompleter = completer;
         }
@@ -549,6 +560,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
         if (features.contains(IJsSandboxService.EVALUATE_FROM_FD)) {
             featureSet.add(JS_FEATURE_EVALUATE_FROM_FD);
+        }
+        if (features.contains(IJsSandboxService.MESSAGE_PORTS)) {
+            featureSet.add(JS_FEATURE_MESSAGE_PORTS);
         }
         return featureSet;
     }

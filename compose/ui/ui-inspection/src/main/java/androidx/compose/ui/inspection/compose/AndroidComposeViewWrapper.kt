@@ -63,13 +63,13 @@ private fun View.isSystemView(): Boolean {
 class AndroidComposeViewWrapper(
     val rootView: View,
     val composeView: ViewGroup,
-    skipSystemComposables: Boolean
+    skipSystemComposables: Boolean,
 ) {
     companion object {
         fun tryCreateFor(
             rootView: View,
             composeView: View,
-            skipSystemComposables: Boolean
+            skipSystemComposables: Boolean,
         ): AndroidComposeViewWrapper? {
             return if (composeView.isAndroidComposeView()) {
                 AndroidComposeViewWrapper(rootView, composeView as ViewGroup, skipSystemComposables)

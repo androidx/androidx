@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.datastore.core.okio.OkioSerializer#getDefaultValue():
+    Source breaking change: method androidx.datastore.core.okio.OkioSerializer.getDefaultValue() can no longer be resolved from Kotlin source

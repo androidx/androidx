@@ -19,6 +19,8 @@ package androidx.car.app.model.constraints;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.dialer.InCallTemplate;
+import androidx.car.app.dialer.TelephoneKeypadTemplate;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.GridTemplate;
 import androidx.car.app.model.ListTemplate;
@@ -77,10 +79,12 @@ public class TabContentsConstraints {
                     MessageTemplate.class,
                     SearchTemplate.class,
                     NavigationTemplate.class,
-                    SectionedItemTemplate.class
+                    SectionedItemTemplate.class,
+                    InCallTemplate.class,
+                    TelephoneKeypadTemplate.class
             ));
 
-    private HashSet<Class<? extends Template>> mAllowedTemplateTypes;
+    private final HashSet<Class<? extends Template>> mAllowedTemplateTypes;
 
     /**
      * Returns {@code true} if the {@link CarText} meets the constraints' requirement.

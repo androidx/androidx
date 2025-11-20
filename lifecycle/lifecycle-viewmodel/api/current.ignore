@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.lifecycle.ViewModelProviderGetKt#get(androidx.lifecycle.ViewModelProvider):
+    Binary breaking change: method androidx.lifecycle.ViewModelProviderGetKt.get(androidx.lifecycle.ViewModelProvider) has been removed from bytecode
+RemovedFromBytecode: androidx.lifecycle.viewmodel.CreationExtras.Companion#Key():
+    Binary breaking change: method androidx.lifecycle.viewmodel.CreationExtras.Companion.Key() has been removed from bytecode
+RemovedFromBytecode: androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt#initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM>):
+    Binary breaking change: method androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt.initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>) has been removed from bytecode
+
+
+RemovedFromJava: androidx.lifecycle.ViewModel#ViewModel(java.io.Closeable...):
+    Source breaking change: constructor androidx.lifecycle.ViewModel(java.io.Closeable...) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.ViewModel#addCloseable(java.io.Closeable):
+    Source breaking change: method androidx.lifecycle.ViewModel.addCloseable(java.io.Closeable) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.ViewModelProviderGetKt#get(androidx.lifecycle.ViewModelProvider):
+    Source breaking change: method androidx.lifecycle.ViewModelProviderGetKt.get(androidx.lifecycle.ViewModelProvider) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.ViewTreeViewModelKt#findViewTreeViewModelStoreOwner(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelKt.findViewTreeViewModelStoreOwner(android.view.View) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.viewmodel.CreationExtras.Companion#Key():
+    Source breaking change: method androidx.lifecycle.viewmodel.CreationExtras.Companion.Key() can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt#initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM>):
+    Source breaking change: method androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt.initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.lifecycle.AndroidViewModel_androidKt#getApplication(androidx.lifecycle.AndroidViewModel):
+    Source breaking change: method androidx.lifecycle.AndroidViewModel_androidKt.getApplication(androidx.lifecycle.AndroidViewModel) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.HasDefaultViewModelProviderFactory#getDefaultViewModelCreationExtras():
+    Source breaking change: method androidx.lifecycle.HasDefaultViewModelProviderFactory.getDefaultViewModelCreationExtras() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.HasDefaultViewModelProviderFactory#getDefaultViewModelProviderFactory():
+    Source breaking change: method androidx.lifecycle.HasDefaultViewModelProviderFactory.getDefaultViewModelProviderFactory() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModel#ViewModel(java.io.Closeable...):
+    Source breaking change: constructor androidx.lifecycle.ViewModel(java.io.Closeable...) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModel#addCloseable(java.io.Closeable):
+    Source breaking change: method androidx.lifecycle.ViewModel.addCloseable(java.io.Closeable) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelKt#getViewModelScope(androidx.lifecycle.ViewModel):
+    Source breaking change: method androidx.lifecycle.ViewModelKt.getViewModelScope(androidx.lifecycle.ViewModel) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelLazy#getValue():
+    Source breaking change: method androidx.lifecycle.ViewModelLazy.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelStoreOwner#getViewModelStore():
+    Source breaking change: method androidx.lifecycle.ViewModelStoreOwner.getViewModelStore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelKt#findViewTreeViewModelStoreOwner(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelKt.findViewTreeViewModelStoreOwner(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelStoreOwner#get(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelStoreOwner.get(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelStoreOwner#set(android.view.View, androidx.lifecycle.ViewModelStoreOwner):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelStoreOwner.set(android.view.View,androidx.lifecycle.ViewModelStoreOwner) can no longer be resolved from Kotlin source

@@ -53,6 +53,42 @@ package androidx.camera.video {
     method public androidx.camera.video.FileOutputOptions.Builder setLocation(android.location.Location?);
   }
 
+  public final class GroupableFeatures {
+    property public androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
+    property public androidx.camera.core.featuregroup.GroupableFeature VIDEO_STABILIZATION;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature FHD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature HD_RECORDING;
+    field public static final androidx.camera.video.GroupableFeatures INSTANCE;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature SD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature UHD_RECORDING;
+    field public static final androidx.camera.core.featuregroup.GroupableFeature VIDEO_STABILIZATION;
+  }
+
+  public final class HighSpeedVideoSessionConfig extends androidx.camera.core.SessionConfig {
+    ctor @BytecodeOnly public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture!, androidx.camera.core.Preview!, android.util.Range!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
+    ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview);
+    ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange);
+    ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange, optional boolean isSlowMotionEnabled);
+    method @InaccessibleFromKotlin public androidx.camera.core.Preview? getPreview();
+    method @InaccessibleFromKotlin public androidx.camera.video.VideoCapture<? extends java.lang.Object?> getVideoCapture();
+    method @InaccessibleFromKotlin public boolean isSlowMotionEnabled();
+    property public boolean isSlowMotionEnabled;
+    property public androidx.camera.core.Preview? preview;
+    property public androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture;
+  }
+
+  public static final class HighSpeedVideoSessionConfig.Builder {
+    ctor public HighSpeedVideoSessionConfig.Builder(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
+    method public androidx.camera.video.HighSpeedVideoSessionConfig build();
+    method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
+    method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setPreview(androidx.camera.core.Preview? preview);
+    method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setSlowMotionEnabled(boolean enabled);
+  }
+
   public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
     method public android.net.Uri getCollectionUri();
     method public android.content.ContentResolver getContentResolver();
@@ -87,6 +123,7 @@ package androidx.camera.video {
     method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor listenerExecutor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent> listener);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled(optional boolean initialMuted);
+    method @BytecodeOnly @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public static androidx.camera.video.PendingRecording! withAudioEnabled$default(androidx.camera.video.PendingRecording!, boolean, int, Object!);
   }
 
   public class Quality {
@@ -111,6 +148,7 @@ package androidx.camera.video {
   public final class Recorder implements androidx.camera.video.VideoOutput {
     method public int getAspectRatio();
     method public java.util.concurrent.Executor? getExecutor();
+    method public static androidx.camera.video.VideoCapabilities? getHighSpeedVideoCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
     method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);

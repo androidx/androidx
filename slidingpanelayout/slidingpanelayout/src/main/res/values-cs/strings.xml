@@ -18,6 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="draggable_divider_handler" msgid="6322493056848795789">"Úchyt přetahovacího oddělovače"</string>
-    <string name="draggable_divider_handler_state_left_edge" msgid="6751784207652492919">"Na levém okraji"</string>
-    <string name="draggable_divider_handler_state_right_edge" msgid="4219347123520652878">"Na pravém okraji"</string>
+    <string name="draggable_divider_handler_state_left_edge" msgid="7959832333955573682">"Pravý panel je rozbalený"</string>
+    <string name="draggable_divider_handler_state_right_edge" msgid="1679161196839751773">"Levý panel je rozbalený"</string>
 </resources>

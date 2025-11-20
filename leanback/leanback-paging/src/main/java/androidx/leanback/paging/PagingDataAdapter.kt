@@ -78,7 +78,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
     constructor(
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-        workerDispatcher: CoroutineDispatcher = Dispatchers.Default
+        workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     ) : super() {
 
         this.diffCallback = diffCallback
@@ -89,7 +89,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
                 diffCallback = diffCallback,
                 updateCallback = listUpdateCallback,
                 mainDispatcher = mainDispatcher,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
     }
 
@@ -106,7 +106,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         presenter: Presenter,
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-        workerDispatcher: CoroutineDispatcher = Dispatchers.Default
+        workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     ) : super(presenter) {
 
         this.diffCallback = diffCallback
@@ -117,7 +117,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
                 diffCallback = diffCallback,
                 updateCallback = listUpdateCallback,
                 mainDispatcher = mainDispatcher,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
     }
 
@@ -134,7 +134,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         presenterSelector: PresenterSelector,
         diffCallback: DiffUtil.ItemCallback<T>,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
-        workerDispatcher: CoroutineDispatcher = Dispatchers.Default
+        workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     ) : super(presenterSelector) {
 
         this.diffCallback = diffCallback
@@ -145,7 +145,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
                 diffCallback = diffCallback,
                 updateCallback = listUpdateCallback,
                 mainDispatcher = mainDispatcher,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
     }
 

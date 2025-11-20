@@ -26,23 +26,24 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.annotation:annotation-experimental:1.4.1")
-    implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.atomicFu)
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
 
-    annotationProcessor(libs.autoValue)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+    testImplementation("org.robolectric:shadowapi:4.14")
+    testImplementation(libs.junit)
 }
 
 android {
@@ -56,5 +57,5 @@ androidx {
     inceptionYear = "2023"
     description = "Core dependencies for Viewfinder"
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":camera:viewfinder:viewfinder-core:viewfinder-core-samples"))
+    enableRobolectric()
 }

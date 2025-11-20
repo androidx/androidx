@@ -43,8 +43,8 @@ fun TextStyleSample() {
                 fontStyle = FontStyle.Italic,
                 letterSpacing = 0.5.em,
                 background = Color.LightGray,
-                textDecoration = TextDecoration.Underline
-            )
+                textDecoration = TextDecoration.Underline,
+            ),
     )
 }
 
@@ -62,7 +62,7 @@ fun TextStyleBrushSample() {
                 fontWeight = FontWeight.W800,
                 fontStyle = FontStyle.Italic,
                 letterSpacing = 0.5.em,
-                textDecoration = TextDecoration.Underline
-            )
+                textDecoration = TextDecoration.Underline,
+            ),
     )
 }

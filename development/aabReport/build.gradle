@@ -1,0 +1,38 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.2.0'
+    id 'com.squareup.wire' version '5.3.5'
+    id 'application'
+    id 'com.gradleup.shadow' version '9.0.1'
+}
+
+group = 'androidx.aab'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+wire {
+    kotlin {}
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0'
+    implementation 'com.squareup.wire:wire-runtime-jvm:5.3.5'
+    implementation 'org.smali:dexlib2:2.5.2'
+    implementation 'com.android.tools:r8:8.11.18'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+application {
+    mainClass = 'androidx.aab.cli.MainKt'
+}
+
+test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(11)
+}

@@ -24,11 +24,9 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -224,15 +222,7 @@ public class TintTypedArray {
     }
 
     public int getType(int index) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.getType(mWrapped, index);
-        } else {
-            if (mTypedValue == null) {
-                mTypedValue = new TypedValue();
-            }
-            mWrapped.getValue(index, mTypedValue);
-            return mTypedValue.type;
-        }
+        return mWrapped.getType(index);
     }
 
     public boolean hasValue(int index) {
@@ -251,23 +241,7 @@ public class TintTypedArray {
         mWrapped.recycle();
     }
 
-    @RequiresApi(21)
     public int getChangingConfigurations() {
-        return Api21Impl.getChangingConfigurations(mWrapped);
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static int getType(TypedArray typedArray, int index) {
-            return typedArray.getType(index);
-        }
-
-        static int getChangingConfigurations(TypedArray typedArray) {
-            return typedArray.getChangingConfigurations();
-        }
+        return mWrapped.getChangingConfigurations();
     }
 }

@@ -66,7 +66,7 @@ class LambdaStructuralEqualityDetector : Detector(), SourceCodeScanner {
                                 .text(op.text)
                                 .with(replacement)
                                 .autoFix()
-                                .build()
+                                .build(),
                         )
                     }
                 }
@@ -108,8 +108,8 @@ class LambdaStructuralEqualityDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     LambdaStructuralEqualityDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

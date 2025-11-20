@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation {
 
   @androidx.navigation.NavOptionsDsl public final class AnimBuilder {
@@ -75,8 +75,8 @@ package androidx.navigation {
   }
 
   public final class NavGraphBuilderKt {
-    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavGraphKt {

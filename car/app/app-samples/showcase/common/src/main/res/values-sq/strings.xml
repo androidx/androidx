@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="back_caps_action_title" msgid="6392829425035919422">"PRAPA"</string>
-    <string name="home_caps_action_title" msgid="4853167242566949502">"Faqja kryesore"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"EKRANI BAZË"</string>
     <string name="exit_action_title" msgid="9086586388884500731">"Dil"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"Rifresko"</string>
     <string name="close_action_title" msgid="2661907510124308560">"Mbyll"</string>
@@ -231,6 +231,19 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demonstrimi i shabllonit të mesazhit"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Mesazhi shkruhet këtu.\nMë shumë tekst në rreshtin e dytë."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstrimi i shabllonit të mesazheve të shkurtra"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Shembulli i demonstrimit të artikujve me seksione"</string>
+    <!-- no translation found for sectioned_item_alpha_jump_demo_title (1923794280863081616) -->
+    <skip />
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Seksioni i butonit të radios"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Aktivizo/çaktivizo seksionin"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Seksioni me shumë rreshta"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Seksioni i artikujve në rrjetë"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrimi i listës me artikuj me seksione"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Nënteksti poshtë çdo liste"</string>
+    <!-- no translation found for end_image_and_action_demo_title (6451955718459316414) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrimi i shabllonit të panelit"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrimi i shabllonit të listës së vendeve"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Shfleto vendet"</string>
@@ -325,10 +338,6 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Rreshti mund të zgjidhet gjithashtu"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"U zgjodh veprimi dytësor"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"U zgjodh veprimi kryesor i rreshtit"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"Demonstrimi i listës me artikuj me seksione"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Nënteksti poshtë çdo liste"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boshatis listën e demonstrimit"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Lista është bosh"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrime shabllonesh të ndryshme"</string>

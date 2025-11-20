@@ -76,7 +76,7 @@ private constructor(
      * In the future, we should just always pass a "default" config object, which can reference
      * default values from Arguments, but that's a deeper change.
      */
-    @Suppress("UNUSED_PARAMETER") ignored: Boolean = true
+    @Suppress("UNUSED_PARAMETER") ignored: Boolean = true,
 ) : TestRule {
     constructor() : this(config = null, ignored = true)
 
@@ -181,7 +181,7 @@ private constructor(
         if (Arguments.skipBenchmarksOnEmulator) {
             assumeFalse(
                 "Skipping test because it's running on emulator and `skipOnEmulator` is enabled",
-                DeviceInfo.isEmulator
+                DeviceInfo.isEmulator,
             )
         }
 
@@ -211,7 +211,7 @@ private constructor(
                                 } else {
                                     emptyList()
                                 },
-                            useStackSamplingConfig = false
+                            useStackSamplingConfig = false,
                         ),
                     // TODO(290918736): add support for Perfetto SDK Tracing in
                     //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
@@ -222,7 +222,7 @@ private constructor(
                         ) {
                             PerfettoCapture.PerfettoSdkConfig(
                                 getInstrumentation().context.packageName,
-                                PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive
+                                PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive,
                             )
                         } else {
                             null
@@ -233,7 +233,7 @@ private constructor(
                     // desired
                     // Additionally, skip on misconfigured devices to still enable benchmarking.
                     enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
-                    inMemoryTracingLabel = "Microbenchmark"
+                    inMemoryTracingLabel = "Microbenchmark",
                 ) {
                     trace(description.displayName) { base.evaluate() }
                 }
@@ -244,7 +244,7 @@ private constructor(
                         UiState(
                             timelineStart = null,
                             timelineEnd = null,
-                            highlightPackage = getInstrumentation().context.packageName
+                            highlightPackage = getInstrumentation().context.packageName,
                         )
                     )
                 }
@@ -253,7 +253,7 @@ private constructor(
             fullClassName = description.className,
             simpleClassName = description.testClass.simpleName,
             methodName = invokeMethodName,
-            perfettoTracePath = tracePath
+            perfettoTracePath = tracePath,
         )
     }
 

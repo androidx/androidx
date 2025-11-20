@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName")
+
 package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
@@ -39,7 +41,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val notifyDispatcher: CoroutineDispatcher,
-    private val fetchDispatcher: CoroutineDispatcher
+    private val fetchDispatcher: CoroutineDispatcher,
 ) :
     LiveData<PagedList<Value>>(
         InitialPagedList(
@@ -47,7 +49,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
             notifyDispatcher = notifyDispatcher,
             backgroundDispatcher = fetchDispatcher,
             config = config,
-            initialLastKey = initialKey
+            initialLastKey = initialKey,
         )
     ) {
     private var currentData: PagedList<Value>
@@ -104,7 +106,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
                                 fetchDispatcher,
                                 boundaryCallback,
                                 config,
-                                lastKey
+                                lastKey,
                             )
                         onItemUpdate(currentData, pagedList)
                         currentData = pagedList
@@ -152,14 +154,14 @@ internal class LivePagedList<Key : Any, Value : Any>(
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
             "androidx.paging.liveData",
-            "kotlinx.coroutines.asCoroutineDispatcher"
-        )
+            "kotlinx.coroutines.asCoroutineDispatcher",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor(),
 ): LiveData<PagedList<Value>> {
     return LivePagedListBuilder(this, config)
         .setInitialLoadKey(initialLoadKey)
@@ -194,14 +196,14 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
             "androidx.paging.liveData",
-            "kotlinx.coroutines.asCoroutineDispatcher"
-        )
+            "kotlinx.coroutines.asCoroutineDispatcher",
+        ),
 )
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor(),
 ): LiveData<PagedList<Value>> {
     return LivePagedListBuilder(this, Config(pageSize))
         .setInitialLoadKey(initialLoadKey)
@@ -248,8 +250,8 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
         ).liveData""",
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
-            "androidx.paging.liveData"
-        )
+            "androidx.paging.liveData",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     config: PagedList.Config,
@@ -257,7 +259,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
     fetchDispatcher: CoroutineDispatcher =
-        ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher()
+        ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher(),
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -266,7 +268,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         boundaryCallback,
         this,
         ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
-        fetchDispatcher
+        fetchDispatcher,
     )
 }
 
@@ -302,8 +304,8 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         ).liveData""",
             "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
-            "androidx.paging.liveData"
-        )
+            "androidx.paging.liveData",
+        ),
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     pageSize: Int,
@@ -311,7 +313,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     coroutineScope: CoroutineScope = GlobalScope,
     fetchDispatcher: CoroutineDispatcher =
-        ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher()
+        ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher(),
 ): LiveData<PagedList<Value>> {
     return LivePagedList(
         coroutineScope,
@@ -320,6 +322,6 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toLiveData(
         boundaryCallback,
         this,
         ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
-        fetchDispatcher
+        fetchDispatcher,
     )
 }

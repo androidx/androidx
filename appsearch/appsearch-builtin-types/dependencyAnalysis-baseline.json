@@ -1,0 +1,60 @@
+{
+  "projectPath": ":appsearch:appsearch-builtin-types",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation-experimental",
+        "resolvedVersion": "1.3.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appsearch:appsearch-compiler",
+        "resolvedVersion": "1.1.0-beta01"
+      },
+      "toConfiguration": "annotationProcessor"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:guava",
+        "resolvedVersion": "28.1-android"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":appsearch:appsearch"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

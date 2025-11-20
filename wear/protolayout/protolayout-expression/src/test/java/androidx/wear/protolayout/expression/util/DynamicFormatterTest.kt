@@ -243,7 +243,7 @@ class DynamicFormatterFormatTest(private val case: Case) {
                         override fun onInvalidated() {
                             throw IllegalStateException("onInvalidated")
                         }
-                    }
+                    },
                 )
             )
             .startEvaluation()

@@ -39,7 +39,7 @@ fun stateMapSample() {
             mutableStateMapOf(
                 "Caesar" to "Et tu, Brute?",
                 "Hamlet" to "To be or not to be",
-                "Richard III" to "My kingdom for a horse"
+                "Richard III" to "My kingdom for a horse",
             )
         }
 

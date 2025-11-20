@@ -18,6 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="draggable_divider_handler" msgid="6322493056848795789">"ଡ୍ରାଗ କରିହେଉଥିବା ଡିଭାଇଡର ହେଣ୍ଡଲର"</string>
-    <string name="draggable_divider_handler_state_left_edge" msgid="6751784207652492919">"ବାମ ଧାରରେ"</string>
-    <string name="draggable_divider_handler_state_right_edge" msgid="4219347123520652878">"ଡାହାଣ ଧାରରେ"</string>
+    <string name="draggable_divider_handler_state_left_edge" msgid="7959832333955573682">"ଡାହାଣ ପେନକୁ ବିସ୍ତାର କରାଯାଇଛି"</string>
+    <string name="draggable_divider_handler_state_right_edge" msgid="1679161196839751773">"ବାମ ପେନକୁ ବିସ୍ତାର କରାଯାଇଛି"</string>
 </resources>

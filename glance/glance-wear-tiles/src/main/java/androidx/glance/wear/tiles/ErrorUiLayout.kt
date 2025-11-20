@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
 @Suppress("deprecation") // For backwards compatibility.
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 internal fun errorUiLayout(): androidx.wear.tiles.LayoutElementBuilders.LayoutElement =
     androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
         .setWidth(androidx.wear.tiles.DimensionBuilders.expand())

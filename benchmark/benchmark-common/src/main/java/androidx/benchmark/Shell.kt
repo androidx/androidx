@@ -72,7 +72,7 @@ object Shell {
      */
     internal fun fullProcessNameMatchesProcess(
         fullProcessName: String,
-        processName: String
+        processName: String,
     ): Boolean {
         return fullProcessName == processName || // exact match
             fullProcessName.startsWith("$processName:") || // app subprocess
@@ -134,7 +134,7 @@ object Shell {
         maxInitialFlushWaitIterations: Int,
         maxStableFlushWaitIterations: Int,
         pollDurationMs: Long,
-        triggerFileFlush: () -> Unit
+        triggerFileFlush: () -> Unit,
     ) {
         var lastKnownSize = getFileSizeUnsafe(path)
 
@@ -252,7 +252,7 @@ object Shell {
             File.createTempFile(
                 /* prefix */ "temporary_$name",
                 /* suffix */ null,
-                /* directory */ Outputs.dirUsableByAppAndShell
+                /* directory */ Outputs.dirUsableByAppAndShell,
             )
         val runnableExecutablePath = "/data/local/tmp/$name"
 
@@ -265,7 +265,7 @@ object Shell {
             }
             moveToTmpAndMakeExecutable(
                 src = writableExecutableFile.absolutePath,
-                dst = runnableExecutablePath
+                dst = runnableExecutablePath,
             )
         } finally {
             writableExecutableFile.delete()
@@ -500,7 +500,14 @@ object Shell {
     fun pgrepLF(pattern: String): List<ProcessPid> {
         // Note: we use the unsafe variant for performance, since this is a
         // common operation, and pgrep is stable after API 23 see [ShellBehaviorTest#pgrep]
-        return ShellImpl.executeCommandUnsafe("pgrep -l -f $pattern")
+        val apiSpecificArgs =
+            setOfNotNull(
+                    // aosp/3507001 -> needed to print full command line (so full package name)
+                    if (Build.VERSION.SDK_INT >= 36) "-a" else null
+                )
+                .joinToString(" ")
+
+        return ShellImpl.executeCommandUnsafe("pgrep -l -f $apiSpecificArgs $pattern")
             .split(Regex("\r?\n"))
             .filter { it.isNotEmpty() }
             .map {
@@ -580,13 +587,17 @@ object Shell {
             getPidsForProcess(processName).map { pid ->
                 ProcessPid(pid = pid, processName = processName)
             }
-        killProcessesAndWait(
-            processes,
-            waitPollPeriodMs = waitPollPeriodMs,
-            waitPollMaxCount = waitPollMaxCount,
-            onFailure,
-            processKiller
-        )
+        if (!processes.isEmpty()) {
+            killProcessesAndWait(
+                processes,
+                waitPollPeriodMs = waitPollPeriodMs,
+                waitPollMaxCount = waitPollMaxCount,
+                onFailure,
+                processKiller,
+            )
+        } else {
+            Log.d(BenchmarkState.TAG, "No processes for name $processName, skipping kill")
+        }
     }
 
     fun killProcessesAndWait(
@@ -636,13 +647,21 @@ object Shell {
             """
                     .trimIndent()
             }
-        executeScriptCaptureStdoutStderr(command)
+
+        val output = executeScriptCaptureStdoutStderr(command)
+        if (output.stderr.isNotBlank()) {
+            Log.d(BenchmarkState.TAG, "disabling packages failed, stderr: ${output.stderr}")
+        }
     }
 
     fun enablePackages(appPackages: List<String>) {
         val command =
             appPackages.joinToString(separator = "\n") { appPackage -> "pm enable $appPackage" }
-        executeScriptCaptureStdoutStderr(command)
+
+        val output = executeScriptCaptureStdoutStderr(command)
+        if (output.stderr.isNotBlank()) {
+            Log.d(BenchmarkState.TAG, "enabling packages failed, stderr: ${output.stderr}")
+        }
     }
 
     @RequiresApi(24)
@@ -797,14 +816,14 @@ private object ShellImpl {
                         ShellFile.inTempDir(scriptName).apply { writeText(script) },
                         stdin?.let {
                             ShellFile.inTempDir("${scriptName}_stdin").apply { writeText(it) }
-                        }
+                        },
                     )
                 } else {
                     Pair(
                         UserFile.inOutputsDir(scriptName).apply { writeText(script) },
                         stdin?.let { input ->
                             UserFile.inOutputsDir("${scriptName}_stdin").apply { writeText(input) }
-                        }
+                        },
                     )
                 }
 
@@ -817,7 +836,7 @@ private object ShellImpl {
                 return@trace ShellScript(
                     stdinFile = stdInFile,
                     scriptContentFile = scriptContentFile,
-                    stderrPath = stderrPath
+                    stderrPath = stderrPath,
                 )
             } catch (e: Exception) {
                 throw Exception("Can't create shell script", e)
@@ -830,7 +849,7 @@ class ShellScript
 internal constructor(
     private val stdinFile: VirtualFile?,
     private val scriptContentFile: VirtualFile,
-    private val stderrPath: String
+    private val stderrPath: String,
 ) {
     private var cleanedUp: Boolean = false
 
@@ -846,7 +865,7 @@ internal constructor(
                     scriptWrapperCommand(
                         scriptContentPath = scriptContentFile.absolutePath,
                         stderrPath = stderrPath,
-                        stdinPath = stdinFile?.absolutePath
+                        stdinPath = stdinFile?.absolutePath,
                     )
                 )
             val stderrDescriptorFn =
@@ -855,7 +874,7 @@ internal constructor(
             return@trace StartedShellScript(
                 stdoutDescriptor = stdoutDescriptor,
                 stderrDescriptorFn = stderrDescriptorFn,
-                cleanUpBlock = ::cleanUp
+                cleanUpBlock = ::cleanUp,
             )
         }
 
@@ -876,7 +895,7 @@ internal constructor(
                     listOfNotNull(
                             stderrPath,
                             scriptContentFile.absolutePath,
-                            stdinFile?.absolutePath
+                            stdinFile?.absolutePath,
                         )
                         .joinToString(" ")
             )
@@ -901,13 +920,13 @@ internal constructor(
                 fi
             """
                     .trimIndent()
-                    .byteInputStream()
+                    .byteInputStream(),
             )
 
         fun scriptWrapperCommand(
             scriptContentPath: String,
             stderrPath: String,
-            stdinPath: String?
+            stdinPath: String?,
         ): String =
             listOfNotNull(scriptWrapperPath, scriptContentPath, stderrPath, stdinPath)
                 .joinToString(" ")
@@ -919,7 +938,7 @@ class StartedShellScript
 internal constructor(
     private val stdoutDescriptor: ParcelFileDescriptor,
     private val stderrDescriptorFn: (() -> (String)),
-    private val cleanUpBlock: () -> Unit
+    private val cleanUpBlock: () -> Unit,
 ) : Closeable {
 
     /** Returns a [Sequence] of [String] containing the lines written by the process to stdOut. */
@@ -934,7 +953,7 @@ internal constructor(
         val output =
             Shell.Output(
                 stdout = stdoutDescriptor.fullyReadInputStream(),
-                stderr = stderrDescriptorFn.invoke()
+                stderr = stderrDescriptorFn.invoke(),
             )
         close()
         return output

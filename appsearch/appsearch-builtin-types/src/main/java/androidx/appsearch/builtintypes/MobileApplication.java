@@ -18,6 +18,7 @@ package androidx.appsearch.builtintypes;
 
 import android.net.Uri;
 
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Represents an installed app to enable searching using names, nicknames, and package names. */
@@ -87,7 +89,11 @@ public class MobileApplication extends Thing {
                 alternateNames, description, image, url, potentialActions);
         mPackageName = Preconditions.checkNotNull(packageName);
         mDisplayName = displayName;
-        mAlternateNames = Preconditions.checkNotNull(alternateNames);
+        if (alternateNames == null) {
+            mAlternateNames = Collections.emptyList();
+        } else {
+            mAlternateNames = Collections.unmodifiableList(alternateNames);
+        }
         mIconUri = iconUri;
         mSha256Certificate = Preconditions.checkNotNull(sha256Certificate);
         mUpdatedTimestampMillis = updatedTimestampMillis;
@@ -160,14 +166,14 @@ public class MobileApplication extends Thing {
         /**
          * Constructor for {@link Builder}.
          *
-         * @param id The id of the document.
          * @param namespace The namespace of the document.
+         * @param id The id of the document.
          * @param packageName The package name of the application.
          * @param sha256Certificate The SHA-256 certificate of the application.
          */
-        public Builder(@NonNull String id, @NonNull String namespace, @NonNull String packageName,
+        public Builder(@NonNull String namespace, @NonNull String id, @NonNull String packageName,
                 byte @NonNull [] sha256Certificate) {
-            super(Preconditions.checkNotNull(id), Preconditions.checkNotNull(namespace),
+            super(Preconditions.checkNotNull(namespace), Preconditions.checkNotNull(id),
                     Preconditions.checkNotNull(packageName),
                     Preconditions.checkNotNull(sha256Certificate));
         }
@@ -183,15 +189,15 @@ public class MobileApplication extends Thing {
 
     @SuppressWarnings("unchecked")
     static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        private final String mPackageName;
-        private String mDisplayName;
-        private Uri mIconUri;
-        private final byte[] mSha256Certificate;
-        private long mUpdatedTimestampMillis;
-        private String mClassName;
+        protected final String mPackageName;
+        protected String mDisplayName;
+        protected Uri mIconUri;
+        protected final byte[] mSha256Certificate;
+        protected long mUpdatedTimestampMillis;
+        protected String mClassName;
         private boolean mBuilt = false;
 
-        BuilderImpl(@NonNull String id, @NonNull String namespace, @NonNull String packageName,
+        BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String packageName,
                 byte @NonNull [] sha256Certificate) {
             super(namespace, id);
             mPackageName = Preconditions.checkNotNull(packageName);
@@ -210,6 +216,7 @@ public class MobileApplication extends Thing {
         }
 
         /** Sets the display name. */
+        @CanIgnoreReturnValue
         public @NonNull T setDisplayName(@NonNull String displayName) {
             resetIfBuilt();
             mDisplayName = Preconditions.checkNotNull(displayName);
@@ -217,6 +224,7 @@ public class MobileApplication extends Thing {
         }
 
         /** Sets the icon uri. */
+        @CanIgnoreReturnValue
         public @NonNull T setIconUri(@NonNull Uri iconUri) {
             resetIfBuilt();
             mIconUri = Preconditions.checkNotNull(iconUri);
@@ -224,6 +232,7 @@ public class MobileApplication extends Thing {
         }
 
         /** Sets the last time the app was installed or updated on the device. */
+        @CanIgnoreReturnValue
         public @NonNull T setUpdatedTimestampMillis(
                 @CurrentTimeMillisLong long updatedTimestampMillis) {
             resetIfBuilt();
@@ -232,6 +241,7 @@ public class MobileApplication extends Thing {
         }
 
         /** Sets the class name. */
+        @CanIgnoreReturnValue
         public @NonNull T setClassName(@NonNull String className) {
             resetIfBuilt();
             mClassName = Preconditions.checkNotNull(className);

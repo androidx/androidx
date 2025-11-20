@@ -73,7 +73,7 @@ object MessageFactory {
         databaseId: Int,
         query: String,
         queryParams: List<String?>? = null,
-        responseSizeLimitHint: Long? = null
+        responseSizeLimitHint: Long? = null,
     ): Command =
         Command.newBuilder()
             .setQuery(

@@ -84,7 +84,7 @@ internal class InlineSliderTestCase : LayeredComposeTestCase() {
             valueRange = 1f..4f,
             increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-            steps = 2
+            steps = 2,
         )
     }
 

@@ -844,7 +844,7 @@ class SeekTransitionTest : BaseTest() {
                 startForward = 1,
                 endForward = 1,
                 startReverse = 1,
-                endReverse = 1
+                endReverse = 1,
             )
         }
     }
@@ -897,7 +897,7 @@ class SeekTransitionTest : BaseTest() {
                 startForward = 1,
                 endForward = 1,
                 startReverse = 1,
-                endReverse = 1
+                endReverse = 1,
             )
             seekController.currentPlayTimeMillis = 0
             verifyCallCounts(
@@ -905,21 +905,21 @@ class SeekTransitionTest : BaseTest() {
                 startForward = 1,
                 endForward = 1,
                 startReverse = 1,
-                endReverse = 1
+                endReverse = 1,
             )
             verifyCallCounts(
                 outListener,
                 startForward = 1,
                 endForward = 1,
                 startReverse = 1,
-                endReverse = 1
+                endReverse = 1,
             )
             verifyCallCounts(
                 inListener,
                 startForward = 1,
                 endForward = 1,
                 startReverse = 1,
-                endReverse = 1
+                endReverse = 1,
             )
         }
     }
@@ -929,7 +929,7 @@ class SeekTransitionTest : BaseTest() {
         startForward: Int = 0,
         endForward: Int = 0,
         startReverse: Int = 0,
-        endReverse: Int = 0
+        endReverse: Int = 0,
     ) {
         verify(listener, times(startForward)).onTransitionStart(any(), eq(false))
         verify(listener, times(endForward)).onTransitionEnd(any(), eq(false))
@@ -1174,7 +1174,7 @@ class SeekTransitionTest : BaseTest() {
                     mutableListOf(
                         "animateToStartLambda",
                         "onTransitionEnd(true)",
-                        "onTransitionEnd()"
+                        "onTransitionEnd()",
                     )
                 )
         }

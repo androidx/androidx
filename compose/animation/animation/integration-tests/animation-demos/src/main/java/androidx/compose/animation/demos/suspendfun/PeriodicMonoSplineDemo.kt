@@ -68,23 +68,23 @@ import kotlin.math.roundToLong
 fun PeriodicMonoSplineDemo() {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
     ) {
         MonoSplineCurve(
             periodicBias = Float.NaN,
-            modifier = Modifier.height(300.dp).background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray),
         )
         MonoSplineCurve(
             periodicBias = 0f,
-            modifier = Modifier.height(300.dp).background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray),
         )
         MonoSplineCurve(
             periodicBias = 0.5f,
-            modifier = Modifier.height(300.dp).background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray),
         )
         MonoSplineCurve(
             periodicBias = 1f,
-            modifier = Modifier.height(300.dp).background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray),
         )
     }
 }
@@ -117,7 +117,7 @@ private fun MonoSplineCurve(periodicBias: Float, modifier: Modifier = Modifier) 
             targetValue = Offset(1f, 0f),
             typeConverter = Offset.VectorConverter,
             animationSpec =
-                InfiniteRepeatableSpec(animation = keyframesSpec, repeatMode = RepeatMode.Restart)
+                InfiniteRepeatableSpec(animation = keyframesSpec, repeatMode = RepeatMode.Restart),
         )
 
     val text =
@@ -163,7 +163,7 @@ private fun MonoSplineCurve(periodicBias: Float, modifier: Modifier = Modifier) 
                                     drawPath(
                                         path = pointsPath,
                                         color = pathColor,
-                                        style = Stroke(width = pathWidthPx)
+                                        style = Stroke(width = pathWidthPx),
                                     )
                                 }
                             }
@@ -188,7 +188,7 @@ private fun MonoSplineCurve(periodicBias: Float, modifier: Modifier = Modifier) 
                         color = Color.Red,
                         radius = size.width * 0.5f,
                         center =
-                            Offset(x = size.width * 0.5f, y = size.height * animatedValue.value.y)
+                            Offset(x = size.width * 0.5f, y = size.height * animatedValue.value.y),
                     )
                 }
             }
@@ -207,7 +207,7 @@ private fun MonoSplineCurve(periodicBias: Float, modifier: Modifier = Modifier) 
                     playTimeNanos = timeMillis.roundToLong() * 1_000_000,
                     initialValue = zeroVector,
                     targetValue = zeroVector,
-                    initialVelocity = zeroVector
+                    initialVelocity = zeroVector,
                 )
             points[count] = vectorValue.v2
             timeMillis += step

@@ -19,8 +19,11 @@ package androidx.compose.ui.focus
 import androidx.collection.MutableObjectList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
+
+internal const val FocusWarning = "FocusRelatedWarning"
 
 /** The focus owner provides some internal APIs that are not exposed by focus manager. */
 internal interface FocusOwner : FocusManager {
@@ -32,14 +35,6 @@ internal interface FocusOwner : FocusManager {
     val modifier: Modifier
 
     /**
-     * This manager provides a way to ensure that only one focus transaction is running at a time.
-     * We use this to prevent re-entrant focus operations. Starting a new transaction automatically
-     * cancels the previous transaction and reverts any focus state changes made during that
-     * transaction.
-     */
-    val focusTransactionManager: FocusTransactionManager
-
-    /**
      * This function is called to ask the owner to request focus from the framework. eg. If a
      * composable calls requestFocus and the root view does not have focus, this function can be
      * used to request focus for the view.
@@ -49,7 +44,7 @@ internal interface FocusOwner : FocusManager {
      * @param previouslyFocusedRect The bounds of the currently focused item.
      * @return true if the owner successfully requested focus from the framework. False otherwise.
      */
-    fun requestFocusForOwner(focusDirection: FocusDirection?, previouslyFocusedRect: Rect?): Boolean
+    fun requestOwnerFocus(focusDirection: FocusDirection?, previouslyFocusedRect: Rect?): Boolean
 
     /**
      * This function searches the compose hierarchy for the next focus target based on the supplied
@@ -64,8 +59,21 @@ internal interface FocusOwner : FocusManager {
     fun focusSearch(
         focusDirection: FocusDirection,
         focusedRect: Rect?,
-        onFound: (FocusTargetNode) -> Boolean
+        onFound: (FocusTargetNode) -> Boolean,
     ): Boolean?
+
+    /**
+     * Moves focus in the specified [direction][FocusDirection].
+     *
+     * @param focusDirection the direction to search for the next focus target.
+     * @param wrapAroundForOneDimensionalFocus Whether we should wrap focus around while performing
+     *   a one-dimensional focus search.
+     * @return true if focus was moved successfully. false if the focused item is unchanged.
+     */
+    fun moveFocus(
+        focusDirection: FocusDirection,
+        wrapAroundForOneDimensionalFocus: Boolean,
+    ): Boolean
 
     /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it gains focus. This
@@ -107,11 +115,36 @@ internal interface FocusOwner : FocusManager {
         force: Boolean,
         refreshFocusEvents: Boolean,
         clearOwnerFocus: Boolean,
-        focusDirection: FocusDirection
+        focusDirection: FocusDirection,
     ): Boolean
+
+    /** Reset focus to the default focused item based on the focus direction. */
+    fun resetFocus(focusDirection: FocusDirection): Boolean
+
+    /**
+     * Clear focus from the owner.
+     *
+     * When we are in keyboard mode and clear focus from the owner, the system automatically assigns
+     * focus to the default item. In cases where we want to delay default focus assignment until the
+     * new content is ready, we can call [clearFocus] with clearOwnerFocus = false, and then call
+     * this function when the content is ready to receive focus.
+     */
+    fun clearOwnerFocus()
 
     /** Searches for the currently focused item, and returns its coordinates as a rect. */
     fun getFocusRect(): Rect?
+
+    /**
+     * Searches the hierarchy and returns true if we have focusable content. (Includes embedded
+     * views that are focusable).
+     */
+    fun hasFocusableContent(): Boolean
+
+    /**
+     * Searches the hierarchy and returns true if we have focusable compose content (Ignores
+     * embedded views tha are focusable).
+     */
+    fun hasNonInteropFocusableContent(): Boolean
 
     /**
      * Dispatches a key event through the compose hierarchy.
@@ -133,17 +166,23 @@ internal interface FocusOwner : FocusManager {
     /** Dispatches a rotary scroll event through the compose hierarchy. */
     fun dispatchRotaryEvent(
         event: RotaryScrollEvent,
-        onFocusedItem: () -> Boolean = { false }
+        onFocusedItem: () -> Boolean = { false },
     ): Boolean
+
+    /** Dispatches an indirect pointer event through the compose hierarchy. */
+    fun dispatchIndirectPointerEvent(event: IndirectPointerEvent): Boolean
+
+    /** Dispatches an indirect pointer cancel event through the compose hierarchy. */
+    fun dispatchIndirectPointerCancel()
+
+    /** Lets the FocusOwner know that a focus target is placed. */
+    fun focusTargetAvailable()
 
     /** Schedule a FocusTarget node to be invalidated after onApplyChanges. */
     fun scheduleInvalidation(node: FocusTargetNode)
 
     /** Schedule a FocusEvent node to be invalidated after onApplyChanges. */
     fun scheduleInvalidation(node: FocusEventModifierNode)
-
-    /** Schedule a FocusProperties node to be invalidated after onApplyChanges. */
-    fun scheduleInvalidation(node: FocusPropertiesModifierNode)
 
     /** Schedule the owner to be invalidated after onApplyChanges. */
     fun scheduleInvalidationForOwner()

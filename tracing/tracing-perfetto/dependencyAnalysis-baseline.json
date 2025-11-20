@@ -1,0 +1,28 @@
+{
+  "projectPath": ":tracing:tracing-perfetto",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":tracing:tracing-perfetto-binary"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

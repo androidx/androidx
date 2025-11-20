@@ -31,7 +31,7 @@ data class Component(
     val guidelinesUrl: String,
     val docsUrl: String,
     val sourceUrl: String,
-    val examples: List<Example>
+    val examples: List<Example>,
 )
 
 private val AppBarsBottom =
@@ -45,7 +45,7 @@ private val AppBarsBottom =
         guidelinesUrl = "$ComponentGuidelinesUrl/app-bars-bottom",
         docsUrl = "$DocsUrl#bottomappbar",
         sourceUrl = "$MaterialSourceUrl/AppBar.kt",
-        examples = AppBarsBottomExamples
+        examples = AppBarsBottomExamples,
     )
 
 private val AppBarsTop =
@@ -58,7 +58,7 @@ private val AppBarsTop =
         guidelinesUrl = "$ComponentGuidelinesUrl/app-bars-top",
         docsUrl = "$DocsUrl#topappbar",
         sourceUrl = "$MaterialSourceUrl/AppBar.kt",
-        examples = AppBarsTopExamples
+        examples = AppBarsTopExamples,
     )
 
 private val Backdrop =
@@ -73,7 +73,7 @@ private val Backdrop =
         guidelinesUrl = "$ComponentGuidelinesUrl/backdrop",
         docsUrl = "$DocsUrl#backdropscaffold",
         sourceUrl = "$MaterialSourceUrl/BackdropScaffold.kt",
-        examples = BackdropExamples
+        examples = BackdropExamples,
     )
 
 private val Badge =
@@ -89,7 +89,7 @@ private val Badge =
         guidelinesUrl = "$ComponentGuidelinesUrl/bottom-navigation#behavior",
         docsUrl = "$DocsUrl#badgebox",
         sourceUrl = "$MaterialSourceUrl/Badge.kt",
-        examples = BadgeExamples
+        examples = BadgeExamples,
     )
 
 private val NavigationRail =
@@ -103,7 +103,7 @@ private val NavigationRail =
         guidelinesUrl = "$ComponentGuidelinesUrl/navigation-rail",
         docsUrl = "$DocsUrl#navigationrail",
         sourceUrl = "$MaterialSourceUrl/NavigationRail.kt",
-        examples = NavigationRailExamples
+        examples = NavigationRailExamples,
     )
 
 private val BottomNavigation =
@@ -116,7 +116,7 @@ private val BottomNavigation =
         guidelinesUrl = "$ComponentGuidelinesUrl/bottom-navigation",
         docsUrl = "$DocsUrl#bottomnavigation",
         sourceUrl = "$MaterialSourceUrl/BottomNavigation.kt",
-        examples = BottomNavigationExamples
+        examples = BottomNavigationExamples,
     )
 
 private val Buttons =
@@ -128,7 +128,7 @@ private val Buttons =
         guidelinesUrl = "$ComponentGuidelinesUrl/buttons",
         docsUrl = "$DocsUrl#backdropscaffold",
         sourceUrl = "$MaterialSourceUrl/BackdropScaffold.kt",
-        examples = ButtonsExamples
+        examples = ButtonsExamples,
     )
 
 private val ButtonsFloatingActionButton =
@@ -140,7 +140,7 @@ private val ButtonsFloatingActionButton =
         guidelinesUrl = "$ComponentGuidelinesUrl/buttons-floating-action-button",
         docsUrl = "$DocsUrl#floatingactionbutton",
         sourceUrl = "$MaterialSourceUrl/FloatingActionButton.kt",
-        examples = ButtonsFloatingActionButtonExamples
+        examples = ButtonsFloatingActionButtonExamples,
     )
 
 private val Cards =
@@ -152,7 +152,7 @@ private val Cards =
         guidelinesUrl = "$ComponentGuidelinesUrl/cards",
         docsUrl = "$DocsUrl#card",
         sourceUrl = "$MaterialSourceUrl/Card.kt",
-        examples = CardsExamples
+        examples = CardsExamples,
     )
 
 private val Checkboxes =
@@ -166,7 +166,7 @@ private val Checkboxes =
         guidelinesUrl = "$ComponentGuidelinesUrl/checkboxes",
         docsUrl = "$DocsUrl#checkbox",
         sourceUrl = "$MaterialSourceUrl/Checkbox.kt",
-        examples = CheckboxesExamples
+        examples = CheckboxesExamples,
     )
 
 private val Chips =
@@ -180,7 +180,7 @@ private val Chips =
         guidelinesUrl = "$ComponentGuidelinesUrl/chips",
         docsUrl = "$DocsUrl#chip",
         sourceUrl = "$MaterialSourceUrl/Chip.kt",
-        examples = ChipsExamples
+        examples = ChipsExamples,
     )
 
 private val Dialogs =
@@ -194,7 +194,7 @@ private val Dialogs =
         guidelinesUrl = "$ComponentGuidelinesUrl/dialogs",
         docsUrl = "$DocsUrl#alertdialog",
         sourceUrl = "$MaterialSourceUrl/AlertDialog.kt",
-        examples = DialogsExamples
+        examples = DialogsExamples,
     )
 
 private val Dividers =
@@ -207,7 +207,7 @@ private val Dividers =
         guidelinesUrl = "$ComponentGuidelinesUrl/dividers",
         docsUrl = "$DocsUrl#divider",
         sourceUrl = "$MaterialSourceUrl/Divider.kt",
-        examples = DividersExamples
+        examples = DividersExamples,
     )
 
 private val Lists =
@@ -219,7 +219,7 @@ private val Lists =
         guidelinesUrl = "$ComponentGuidelinesUrl/lists",
         docsUrl = "$DocsUrl#listitem",
         sourceUrl = "$MaterialSourceUrl/ListItem.kt",
-        examples = ListsExamples
+        examples = ListsExamples,
     )
 
 private val Menus =
@@ -231,7 +231,7 @@ private val Menus =
         guidelinesUrl = "$ComponentGuidelinesUrl/menus",
         docsUrl = "$DocsUrl#dropdownmenu",
         sourceUrl = "$MaterialSourceUrl/Menu.kt",
-        examples = MenusExamples
+        examples = MenusExamples,
     )
 
 private val NavigationDrawer =
@@ -243,7 +243,7 @@ private val NavigationDrawer =
         guidelinesUrl = "$ComponentGuidelinesUrl/navigation-drawer",
         docsUrl = "$DocsUrl#modaldrawer",
         sourceUrl = "$MaterialSourceUrl/Drawer.kt",
-        examples = NavigationDrawerExamples
+        examples = NavigationDrawerExamples,
     )
 
 private val ProgressIndicators =
@@ -257,7 +257,7 @@ private val ProgressIndicators =
         guidelinesUrl = "$ComponentGuidelinesUrl/progress-indicators",
         docsUrl = "$DocsUrl#circularprogressindicator",
         sourceUrl = "$MaterialSourceUrl/ProgressIndicator.kt",
-        examples = ProgressIndicatorsExamples
+        examples = ProgressIndicatorsExamples,
     )
 
 private val RadioButtons =
@@ -269,7 +269,7 @@ private val RadioButtons =
         guidelinesUrl = "$ComponentGuidelinesUrl/radio-buttons",
         docsUrl = "$DocsUrl#radiobutton",
         sourceUrl = "$MaterialSourceUrl/RadioButton.kt",
-        examples = RadioButtonsExamples
+        examples = RadioButtonsExamples,
     )
 
 private val SheetsBottom =
@@ -283,7 +283,7 @@ private val SheetsBottom =
         guidelinesUrl = "$ComponentGuidelinesUrl/sheets-bottom",
         docsUrl = "$DocsUrl#bottomsheetscaffold",
         sourceUrl = "$MaterialSourceUrl/BottomSheetScaffold.kt",
-        examples = SheetsBottomExamples
+        examples = SheetsBottomExamples,
     )
 
 private val Sliders =
@@ -295,7 +295,7 @@ private val Sliders =
         guidelinesUrl = "$ComponentGuidelinesUrl/sliders",
         docsUrl = "$DocsUrl#slider",
         sourceUrl = "$MaterialSourceUrl/Slider.kt",
-        examples = SlidersExamples
+        examples = SlidersExamples,
     )
 
 private val Snackbars =
@@ -309,7 +309,7 @@ private val Snackbars =
         guidelinesUrl = "$ComponentGuidelinesUrl/snackbars",
         docsUrl = "$DocsUrl#snackbar",
         sourceUrl = "$MaterialSourceUrl/Snackbar.kt",
-        examples = SnackbarsExamples
+        examples = SnackbarsExamples,
     )
 
 private val Switches =
@@ -321,7 +321,7 @@ private val Switches =
         guidelinesUrl = "$ComponentGuidelinesUrl/switches",
         docsUrl = "$DocsUrl#switch",
         sourceUrl = "$MaterialSourceUrl/Switch.kt",
-        examples = SwitchesExamples
+        examples = SwitchesExamples,
     )
 
 private val Tabs =
@@ -335,7 +335,7 @@ private val Tabs =
         guidelinesUrl = "$ComponentGuidelinesUrl/tabs",
         docsUrl = "$DocsUrl#tab",
         sourceUrl = "$MaterialSourceUrl/Tab.kt",
-        examples = TabsExamples
+        examples = TabsExamples,
     )
 
 private val TextFields =
@@ -347,7 +347,7 @@ private val TextFields =
         guidelinesUrl = "$ComponentGuidelinesUrl/text-fields",
         docsUrl = "$DocsUrl#textfield",
         sourceUrl = "$MaterialSourceUrl/TextField.kt",
-        examples = TextFieldsExamples
+        examples = TextFieldsExamples,
     )
 
 // Next id = 25
@@ -377,5 +377,5 @@ val Components =
         Snackbars,
         Switches,
         Tabs,
-        TextFields
+        TextFields,
     )

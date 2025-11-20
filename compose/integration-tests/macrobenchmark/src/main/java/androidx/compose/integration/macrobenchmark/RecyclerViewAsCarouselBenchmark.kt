@@ -45,7 +45,7 @@ class RecyclerViewAsCarouselBenchmark(private val compilationMode: CompilationMo
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             val pager = device.findObject(By.res(PackageName, ResourceId))

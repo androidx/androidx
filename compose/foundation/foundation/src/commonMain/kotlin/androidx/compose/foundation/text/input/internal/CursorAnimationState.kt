@@ -85,7 +85,7 @@ internal class CursorAnimationState(val animate: Boolean) {
                         // Hide cursor when the animation is cancelled.
                         cursorAlpha = 0f
                     }
-                }
+                },
             )
         }
     }

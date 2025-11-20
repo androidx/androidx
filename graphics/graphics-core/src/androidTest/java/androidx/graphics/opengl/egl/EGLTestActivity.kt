@@ -44,7 +44,7 @@ class EGLTestActivity : Activity() {
                 config: EGLConfig,
                 surface: Surface,
                 width: Int,
-                height: Int
+                height: Int,
             ): EGLSurface {
                 val attrs = EGLConfigAttributes {
                     EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER

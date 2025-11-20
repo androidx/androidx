@@ -19,10 +19,10 @@ package androidx.xr.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
-import androidx.xr.compose.spatial.EdgeOffset
+import androidx.compose.ui.unit.Dp
+import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterEdge
-import androidx.xr.compose.spatial.OrbiterSettings
+import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 /**
@@ -36,10 +36,10 @@ import androidx.xr.compose.subspace.layout.SpatialShape
 @ExperimentalMaterial3XrApi
 @Immutable
 public class HorizontalOrbiterProperties(
-    public val offset: EdgeOffset,
-    public val position: OrbiterEdge.Horizontal,
+    public val offset: Dp,
+    public val offsetType: OrbiterOffsetType,
+    public val position: ContentEdge.Horizontal,
     public val alignment: Alignment.Horizontal,
-    public val settings: OrbiterSettings,
     public val shape: SpatialShape,
 ) {
     /**
@@ -48,17 +48,17 @@ public class HorizontalOrbiterProperties(
      * If `null` is provided for any value, the existing value will be used.
      */
     public fun copy(
-        offset: EdgeOffset? = null,
-        position: OrbiterEdge.Horizontal? = null,
+        offset: Dp? = null,
+        offsetType: OrbiterOffsetType? = null,
+        position: ContentEdge.Horizontal? = null,
         alignment: Alignment.Horizontal? = null,
-        settings: OrbiterSettings? = null,
         shape: SpatialShape? = null,
     ): HorizontalOrbiterProperties =
         HorizontalOrbiterProperties(
             offset = offset ?: this.offset,
+            offsetType = offsetType ?: this.offsetType,
             position = position ?: this.position,
             alignment = alignment ?: this.alignment,
-            settings = settings ?: this.settings,
             shape = shape ?: this.shape,
         )
 
@@ -67,9 +67,9 @@ public class HorizontalOrbiterProperties(
         if (other !is HorizontalOrbiterProperties) return false
 
         if (offset != other.offset) return false
+        if (offsetType != other.offsetType) return false
         if (position != other.position) return false
         if (alignment != other.alignment) return false
-        if (settings != other.settings) return false
         if (shape != other.shape) return false
 
         return true
@@ -77,9 +77,9 @@ public class HorizontalOrbiterProperties(
 
     override fun hashCode(): Int {
         var result = offset.hashCode()
+        result = 31 * result + offsetType.hashCode()
         result = 31 * result + position.hashCode()
         result = 31 * result + alignment.hashCode()
-        result = 31 * result + settings.hashCode()
         result = 31 * result + shape.hashCode()
         return result
     }
@@ -87,9 +87,9 @@ public class HorizontalOrbiterProperties(
     override fun toString(): String {
         return "HorizontalOrbiterProperties(" +
             "offset=$offset, " +
+            "offsetType=$offsetType, " +
             "position=$position, " +
             "alignment=$alignment, " +
-            "settings=$settings, " +
             "shape=$shape" +
             ")"
     }
@@ -106,10 +106,10 @@ public class HorizontalOrbiterProperties(
 @ExperimentalMaterial3XrApi
 @Immutable
 public class VerticalOrbiterProperties(
-    public val offset: EdgeOffset,
-    public val position: OrbiterEdge.Vertical,
+    public val offset: Dp,
+    public val offsetType: OrbiterOffsetType,
+    public val position: ContentEdge.Vertical,
     public val alignment: Alignment.Vertical,
-    public val settings: OrbiterSettings,
     public val shape: SpatialShape,
 ) {
     /**
@@ -118,17 +118,17 @@ public class VerticalOrbiterProperties(
      * If `null` is provided for any value, the existing value will be used.
      */
     public fun copy(
-        offset: EdgeOffset? = null,
-        position: OrbiterEdge.Vertical? = null,
+        offset: Dp? = null,
+        offsetType: OrbiterOffsetType? = null,
+        position: ContentEdge.Vertical? = null,
         alignment: Alignment.Vertical? = null,
-        settings: OrbiterSettings? = null,
         shape: SpatialShape? = null,
     ): VerticalOrbiterProperties =
         VerticalOrbiterProperties(
             offset = offset ?: this.offset,
+            offsetType = offsetType ?: this.offsetType,
             position = position ?: this.position,
             alignment = alignment ?: this.alignment,
-            settings = settings ?: this.settings,
             shape = shape ?: this.shape,
         )
 
@@ -137,9 +137,9 @@ public class VerticalOrbiterProperties(
         if (other !is VerticalOrbiterProperties) return false
 
         if (offset != other.offset) return false
+        if (offsetType != other.offsetType) return false
         if (position != other.position) return false
         if (alignment != other.alignment) return false
-        if (settings != other.settings) return false
         if (shape != other.shape) return false
 
         return true
@@ -147,9 +147,9 @@ public class VerticalOrbiterProperties(
 
     override fun hashCode(): Int {
         var result = offset.hashCode()
+        result = 31 * result + offsetType.hashCode()
         result = 31 * result + position.hashCode()
         result = 31 * result + alignment.hashCode()
-        result = 31 * result + settings.hashCode()
         result = 31 * result + shape.hashCode()
         return result
     }
@@ -159,7 +159,6 @@ public class VerticalOrbiterProperties(
             "offset=$offset, " +
             "position=$position, " +
             "alignment=$alignment, " +
-            "settings=$settings, " +
             "shape=$shape" +
             ")"
     }
@@ -169,13 +168,13 @@ public class VerticalOrbiterProperties(
 @Composable
 internal fun VerticalOrbiter(
     properties: VerticalOrbiterProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Orbiter(
         position = properties.position,
         offset = properties.offset,
+        offsetType = properties.offsetType,
         alignment = properties.alignment,
-        settings = properties.settings,
         shape = properties.shape,
         content = content,
     )
@@ -185,13 +184,13 @@ internal fun VerticalOrbiter(
 @Composable
 internal fun HorizontalOrbiter(
     properties: HorizontalOrbiterProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Orbiter(
         position = properties.position,
         offset = properties.offset,
+        offsetType = properties.offsetType,
         alignment = properties.alignment,
-        settings = properties.settings,
         shape = properties.shape,
         content = content,
     )

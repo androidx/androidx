@@ -68,8 +68,13 @@ value class Dp(val value: Float) : Comparable<Dp> {
     @Stable inline operator fun times(other: Int): Dp = Dp(value * other)
 
     /** Support comparing Dimensions with comparison operators. */
+    @OptIn(ExperimentalUnitApi::class)
     @Stable
-    override /* TODO: inline */  operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    override /* TODO: inline */  operator fun compareTo(other: Dp) =
+        // Unspecified values should compare false against all other values. This always sets
+        // them as comparing == 0, but the equality check fails, so Unspecified < 1.dp == false
+        // and 1.dp < Unspecified == false
+        if (value.isNaN() || other.value.isNaN()) 0 else value.compareTo(other.value)
 
     @Stable override fun toString() = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
 
@@ -279,7 +284,7 @@ fun lerp(start: DpOffset, stop: DpOffset, fraction: Float): DpOffset =
     DpOffset(
         packFloats(
             lerp(start.x.value, stop.x.value, fraction),
-            lerp(start.y.value, stop.y.value, fraction)
+            lerp(start.y.value, stop.y.value, fraction),
         )
     )
 
@@ -396,22 +401,23 @@ fun lerp(start: DpSize, stop: DpSize, fraction: Float): DpSize =
     DpSize(
         packFloats(
             lerp(start.width, stop.width, fraction).value,
-            lerp(start.height, stop.height, fraction).value
+            lerp(start.height, stop.height, fraction).value,
         )
     )
 
 /** A four dimensional bounds using [Dp] for units */
 @Immutable
+@Suppress("DataClassDefinition")
 data class DpRect(
     @Stable val left: Dp,
     @Stable val top: Dp,
     @Stable val right: Dp,
-    @Stable val bottom: Dp
+    @Stable val bottom: Dp,
 ) {
     /** Constructs a [DpRect] from the top-left [origin] and the width and height in [size]. */
     constructor(
         origin: DpOffset,
-        size: DpSize
+        size: DpSize,
     ) : this(origin.x, origin.y, origin.x + size.width, origin.y + size.height)
 
     companion object

@@ -22,7 +22,6 @@ import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -32,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi21")
 @RestrictTo(LIBRARY)
-@RequiresApi(21)
 public class AudioAttributesImplApi21 implements AudioAttributesImpl {
 
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
@@ -120,7 +118,6 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         return "AudioAttributesCompat: audioattributes=" + mAudioAttributes;
     }
 
-    @RequiresApi(21)
     static class Builder implements AudioAttributesImpl.Builder {
         final AudioAttributes.Builder mFwkBuilder;
 

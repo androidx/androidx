@@ -22,11 +22,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class GridSectionTest {
     private val testItemList =
         listOf(
             GridItem.Builder().setImage(CarIcon.COMPOSE_MESSAGE).build(),
-            GridItem.Builder().setText("Test").setImage(CarIcon.ERROR).build()
+            GridItem.Builder().setText("Test").setImage(CarIcon.ERROR).build(),
         )
     private val testHeader = CarText.Builder("Test header text").build()
 
@@ -97,7 +98,7 @@ class GridSectionTest {
                     .build(),
                 GridSection.Builder().setItems(testItemList).build(),
                 GridSection.Builder().setTitle(testHeader).build(),
-                GridSection.Builder().setNoItemsMessage("Example").build()
+                GridSection.Builder().setNoItemsMessage("Example").build(),
             )
 
         // Test all different sections against each other

@@ -71,18 +71,17 @@ class JankStats private constructor(window: Window, private val frameListener: O
      *
      * Because of this platform version limitation, most of the functionality of JankStats is in the
      * impl class, which is instantiated when necessary based on the runtime OS version. The
-     * JankStats API is basically a think wrapper around the implementations in these classes.
+     * JankStats API is basically a thin wrapper around the implementations in these classes.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) internal val implementation: JankStatsBaseImpl
 
     init {
-        val decorView: View? = window.peekDecorView()
-        if (decorView == null) {
-            throw IllegalStateException(
-                "window.peekDecorView() is null: " +
-                    "JankStats can only be created with a Window that has a non-null DecorView"
-            )
-        }
+        val decorView: View =
+            window.peekDecorView()
+                ?: throw IllegalStateException(
+                    "window.peekDecorView() is null: " +
+                        "JankStats can only be created with a Window that has a non-null DecorView"
+                )
         holder = PerformanceMetricsState.create(decorView)
         implementation =
             when {

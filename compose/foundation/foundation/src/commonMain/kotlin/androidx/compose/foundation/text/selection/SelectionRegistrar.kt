@@ -78,7 +78,7 @@ internal interface SelectionRegistrar {
         layoutCoordinates: LayoutCoordinates,
         startPosition: Offset,
         adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
+        isInTouchMode: Boolean,
     )
 
     /**
@@ -117,7 +117,7 @@ internal interface SelectionRegistrar {
         previousPosition: Offset,
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
-        isInTouchMode: Boolean
+        isInTouchMode: Boolean,
     ): Boolean
 
     /**

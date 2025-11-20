@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha03)" variant="all" version="9.0.0-alpha03">
+
+    <issue
+        id="BanLoopMainThreadForAtLeast"
+        message="Uses loopMainThreadForAtLeast()"
+        errorLine1="                uiController.loopMainThreadForAtLeast(10)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/viewpager2/integration/testapp/test/util/ViewPagerActions.kt"/>
+    </issue>
+
+</issues>

@@ -158,7 +158,7 @@ class HostFragmentBackStackTest : BaseTest() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             return ViewPager2(inflater.context).apply {
                 id = R.id.view_pager

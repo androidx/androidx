@@ -108,6 +108,6 @@ class MeshTest {
         assertThat(string).contains("Mesh")
         assertThat(string).contains("bounds")
         assertThat(string).contains("vertexCount")
-        assertThat(string).contains("nativeAddress")
+        assertThat(string).contains("nativePointer")
     }
 }

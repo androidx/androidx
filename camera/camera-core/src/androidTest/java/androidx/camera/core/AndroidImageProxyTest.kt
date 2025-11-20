@@ -20,7 +20,6 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.media.Image
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
@@ -34,7 +33,6 @@ import org.mockito.Mockito.`when`
 /** Unit tests for {@link AndroidImageProxy}. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class AndroidImageProxyTest {
     private val INITIAL_TIMESTAMP = 138990020L
 

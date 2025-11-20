@@ -50,7 +50,7 @@ import java.util.Optional;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(
-        sdk = {Build.VERSION_CODES.LOLLIPOP, Build.VERSION_CODES.P},
+        sdk = {23, Build.VERSION_CODES.P},
         // sets the display size for the tests (http://robolectric.org/device-configuration/)
         qualifiers = "w2048dp-h4096dp"
 )

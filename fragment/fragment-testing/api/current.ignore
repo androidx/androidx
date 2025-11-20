@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Binary breaking change: Removed deprecated method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.fragment.app.FragmentFactory)
+RemovedDeprecatedMethod: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
+    Binary breaking change: Removed deprecated method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,kotlin.jvm.functions.Function0<? extends F>)
+RemovedDeprecatedMethod: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Binary breaking change: Removed deprecated method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.fragment.app.FragmentFactory)
+RemovedDeprecatedMethod: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
+    Binary breaking change: Removed deprecated method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,kotlin.jvm.functions.Function0<? extends F>)
+
+
+RemovedFromBytecode: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
+    Binary breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,androidx.fragment.app.FragmentFactory) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
+    Binary breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,kotlin.jvm.functions.Function0<F>) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
+    Binary breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,androidx.fragment.app.FragmentFactory) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
+    Binary breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,kotlin.jvm.functions.Function0<F>) has been removed from bytecode
+RemovedFromBytecode: androidx.fragment.app.testing.FragmentScenarioKt#withFragment(androidx.fragment.app.testing.FragmentScenario<F>, kotlin.jvm.functions.Function1<? super F,? extends T>):
+    Binary breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.withFragment(androidx.fragment.app.testing.FragmentScenario<F>,kotlin.jvm.functions.Function1<F,T>) has been removed from bytecode
+
+
+RemovedFromJava: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
+    Source breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,androidx.fragment.app.FragmentFactory) can no longer be resolved from Java source
+RemovedFromJava: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
+    Source breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragment(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,kotlin.jvm.functions.Function0<F>) can no longer be resolved from Java source
+RemovedFromJava: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
+    Source breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,androidx.fragment.app.FragmentFactory) can no longer be resolved from Java source
+RemovedFromJava: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
+    Source breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.launchFragmentInContainer(android.os.Bundle,int,androidx.lifecycle.Lifecycle.State,kotlin.jvm.functions.Function0<F>) can no longer be resolved from Java source
+RemovedFromJava: androidx.fragment.app.testing.FragmentScenarioKt#withFragment(androidx.fragment.app.testing.FragmentScenario<F>, kotlin.jvm.functions.Function1<? super F,? extends T>):
+    Source breaking change: method androidx.fragment.app.testing.FragmentScenarioKt.withFragment(androidx.fragment.app.testing.FragmentScenario<F>,kotlin.jvm.functions.Function1<F,T>) can no longer be resolved from Java source

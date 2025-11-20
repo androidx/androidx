@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="draggable_divider_handler" msgid="6322493056848795789">"کنترل‌گر جداکننده کشیدنی"</string>
-    <string name="draggable_divider_handler_state_left_edge" msgid="6751784207652492919">"در لبه سمت چپ"</string>
-    <string name="draggable_divider_handler_state_right_edge" msgid="4219347123520652878">"در لبه سمت راست"</string>
+    <string name="draggable_divider_handler" msgid="6322493056848795789">"مدیریت‌كننده جداکننده کشیدنی"</string>
+    <string name="draggable_divider_handler_state_left_edge" msgid="7959832333955573682">"قاب راست ازهم باز شده است"</string>
+    <string name="draggable_divider_handler_state_right_edge" msgid="1679161196839751773">"قاب چپ ازهم باز شده است"</string>
 </resources>

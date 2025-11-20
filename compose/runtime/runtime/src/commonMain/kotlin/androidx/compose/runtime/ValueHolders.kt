@@ -34,7 +34,7 @@ internal data class StaticValueHolder<T>(val value: T) : ValueHolder<T> {
             mutationPolicy = null,
             state = null,
             compute = null,
-            isDynamic = false
+            isDynamic = false,
         )
 }
 
@@ -63,7 +63,7 @@ internal data class ComputedValueHolder<T>(val compute: CompositionLocalAccessor
             mutationPolicy = null,
             state = null,
             compute = compute,
-            isDynamic = false
+            isDynamic = false,
         )
 }
 
@@ -78,6 +78,6 @@ internal data class DynamicValueHolder<T>(val state: MutableState<T>) : ValueHol
             mutationPolicy = null,
             state = state,
             compute = null,
-            isDynamic = true
+            isDynamic = true,
         )
 }

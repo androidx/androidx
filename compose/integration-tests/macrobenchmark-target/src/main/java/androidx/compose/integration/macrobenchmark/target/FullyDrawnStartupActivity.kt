@@ -45,9 +45,7 @@ class FullyDrawnStartupActivity : ComponentActivity() {
     }
 
     @Composable
-    fun TextBlock(
-        text: String,
-    ) {
+    fun TextBlock(text: String) {
         Text(text)
         ReportFullyDrawn(text)
     }

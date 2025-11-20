@@ -44,6 +44,7 @@ public class CookieManagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_cookie_info);
         setTitle(R.string.cookie_manager_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.GET_COOKIE_INFO)) {

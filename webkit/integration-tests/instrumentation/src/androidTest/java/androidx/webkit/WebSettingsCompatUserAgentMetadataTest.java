@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import android.webkit.CookieManager;
@@ -51,7 +52,7 @@ public class WebSettingsCompatUserAgentMetadataTest {
     private static final String[] USER_AGENT_CLIENT_HINTS = {"sec-ch-ua", "sec-ch-ua-arch",
             "sec-ch-ua-platform", "sec-ch-ua-model", "sec-ch-ua-mobile", "sec-ch-ua-full-version",
             "sec-ch-ua-platform-version", "sec-ch-ua-bitness", "sec-ch-ua-full-version-list",
-            "sec-ch-ua-wow64"};
+            "sec-ch-ua-wow64", "sec-ch-ua-form-factors"};
 
     private static final String FIRST_URL = "/first.html";
     private static final String SECOND_URL = "/second.html";
@@ -235,7 +236,7 @@ public class WebSettingsCompatUserAgentMetadataTest {
 
     @Test
     public void testSetUserAgentMetadataFullOverrides() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA);
+        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS);
 
         WebSettings settings = mWebViewOnUiThread.getSettings();
         // Overrides user-agent metadata.
@@ -246,7 +247,8 @@ public class WebSettingsCompatUserAgentMetadataTest {
                 .setFullVersion("1.1.1.1")
                 .setPlatform("myPlatform").setPlatformVersion("2.2.2.2").setArchitecture("myArch")
                 .setMobile(true).setModel("myModel").setBitness(32)
-                .setWow64(false).build();
+                .setFormFactors(Collections.singletonList(UserAgentMetadata.FORM_FACTOR_XR))
+                .build();
 
         WebSettingsCompat.setUserAgentMetadata(settings, overrideSetting);
         assertEquals(
@@ -461,5 +463,70 @@ public class WebSettingsCompatUserAgentMetadataTest {
         } catch (IllegalArgumentException e) {
             Assert.assertEquals("Platform should not be blank.", e.getMessage());
         }
+    }
+
+    @Test
+    public void testSetUserAgentMetadataEmptyFormFactors() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS);
+
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        UserAgentMetadata uaMetadata = new UserAgentMetadata.Builder()
+                .setFormFactors(new ArrayList<>()).build();
+        WebSettingsCompat.setUserAgentMetadata(settings, uaMetadata);
+        UserAgentMetadata result = WebSettingsCompat.getUserAgentMetadata(settings);
+        // Check form factors.
+        List<String> formFactors = result.getFormFactors();
+        assertEquals(1, formFactors.size());
+        assertTrue("Default form factor should be Desktop or Mobile, actual: " + formFactors.get(0),
+                formFactors.get(0).equals(UserAgentMetadata.FORM_FACTOR_DESKTOP)
+                        || formFactors.get(0).equals(UserAgentMetadata.FORM_FACTOR_MOBILE));
+    }
+
+    @Test
+    public void testSetUserAgentMetadataInvalidFormFactors() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS);
+
+        Assert.assertThrows(IllegalArgumentException.class,
+                () -> new UserAgentMetadata.Builder()
+                .setFormFactors(Collections.singletonList("InvalidFormFactor")));
+
+    }
+
+    @Test
+    public void testSetUserAgentMetadataFormFactorsHttpHeader() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.USER_AGENT_METADATA_FORM_FACTORS);
+
+        mWebViewOnUiThread.setWebViewClient(mTestHttpsWebViewClient);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        settings.setJavaScriptEnabled(true);
+
+        // Overrides user-agent form factors.
+        List<String> formFactors = new ArrayList<>();
+        formFactors.add(UserAgentMetadata.FORM_FACTOR_XR);
+        formFactors.add(UserAgentMetadata.FORM_FACTOR_DESKTOP);
+        UserAgentMetadata overrideSetting = new UserAgentMetadata.Builder()
+                .setFormFactors(formFactors).build();
+        WebSettingsCompat.setUserAgentMetadata(settings, overrideSetting);
+
+        // As WebViewOnUiThread clear cache doesn't work well, using different origin to avoid
+        // client hints cache impacts other tests.
+        String baseUrl = "https://example4.com";
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(baseUrl + FIRST_URL);
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(FIRST_URL);
+        List<WebResourceRequest> requests = mTestHttpsWebViewClient.getInterceptedRequests();
+        Assert.assertEquals(2, requests.size());
+
+        // Make sure the first request is empty.
+        WebResourceRequest recordedRequest = requests.get(0);
+        Assert.assertEquals(baseUrl + FIRST_URL, recordedRequest.getUrl().toString());
+        Map<String, String> requestHeaders = recordedRequest.getRequestHeaders();
+        Assert.assertNull(requestHeaders.get("sec-ch-ua-form-factors"));
+
+        // Verify form factors on the second request.
+        recordedRequest = requests.get(1);
+        Assert.assertEquals(baseUrl + SECOND_URL, recordedRequest.getUrl().toString());
+        requestHeaders = recordedRequest.getRequestHeaders();
+        Assert.assertEquals("\"" + String.join("\", \"", formFactors) + "\"",
+                            requestHeaders.get("sec-ch-ua-form-factors"));
     }
 }

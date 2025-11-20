@@ -109,6 +109,7 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_force_dark_strategy);
         setTitle(R.string.force_dark_strategy_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {

@@ -35,6 +35,7 @@ import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
+import androidx.wear.protolayout.ModifiersBuilders;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Corner;
@@ -209,10 +210,12 @@ public class Button implements LayoutElement {
                                                             checkNotNull(TYPE_TO_TAG.get(mType))))
                                             .build());
 
+            Semantics.Builder semantics =
+                    new Semantics.Builder().setRole(ModifiersBuilders.SEMANTICS_ROLE_BUTTON);
             if (mContentDescription != null) {
-                modifiers.setSemantics(
-                        new Semantics.Builder().setContentDescription(mContentDescription).build());
+                semantics.setContentDescription(mContentDescription);
             }
+            modifiers.setSemantics(semantics.build());
 
             Box.Builder element =
                     new Box.Builder()
@@ -240,11 +243,13 @@ public class Button implements LayoutElement {
 
     /** Returns content description for this Button. */
     public @Nullable StringProp getContentDescription() {
-        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
-        if (semantics == null) {
-            return null;
-        }
-        return semantics.getContentDescription();
+        return getSemantics().getContentDescription();
+    }
+
+    /** Returns semantics for this Button. */
+    @NonNull
+    Semantics getSemantics() {
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics());
     }
 
     /** Returns size for this Button. */

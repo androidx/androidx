@@ -33,7 +33,7 @@ public class MyCustomView : View {
         context: Context?,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0,
-        defStyleRes: Int = 0
+        defStyleRes: Int = 0,
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     override fun onDraw(canvas: Canvas) {

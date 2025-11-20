@@ -49,8 +49,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Density
 
 /**
- * <a href="https://m3.material.io/components/text-fields/overview" class="external"
- * target="_blank">Material Design filled text field for secure content</a>.
+ * [Material Design filled text field for secure
+ * content](https://m3.material.io/components/text-fields/overview)
  *
  * Text fields allow users to enter text into a UI. [SecureTextField] is specifically designed for
  * password entry fields. It only supports a single line of content and comes with default settings
@@ -172,7 +172,7 @@ fun SecureTextField(
                     .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                     .defaultMinSize(
                         minWidth = TextFieldDefaults.MinWidth,
-                        minHeight = TextFieldDefaults.MinHeight
+                        minHeight = TextFieldDefaults.MinHeight,
                     ),
             enabled = enabled,
             textStyle = mergedTextStyle,
@@ -210,15 +210,15 @@ fun SecureTextField(
                             colors = colors,
                             shape = shape,
                         )
-                    }
-                )
+                    },
+                ),
         )
     }
 }
 
 /**
- * <a href="https://m3.material.io/components/text-fields/overview" class="external"
- * target="_blank">Material Design outlined text field for secure content</a>.
+ * [Material Design outlined text field for secure
+ * content](https://m3.material.io/components/text-fields/overview)
  *
  * Text fields allow users to enter text into a UI. [OutlinedSecureTextField] is specifically
  * designed for password entry fields. It only supports a single line of content and comes with
@@ -343,7 +343,7 @@ fun OutlinedSecureTextField(
                     .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                     .defaultMinSize(
                         minWidth = OutlinedTextFieldDefaults.MinWidth,
-                        minHeight = OutlinedTextFieldDefaults.MinHeight
+                        minHeight = OutlinedTextFieldDefaults.MinHeight,
                     ),
             enabled = enabled,
             textStyle = mergedTextStyle,
@@ -381,8 +381,8 @@ fun OutlinedSecureTextField(
                             colors = colors,
                             shape = shape,
                         )
-                    }
-                )
+                    },
+                ),
         )
     }
 }

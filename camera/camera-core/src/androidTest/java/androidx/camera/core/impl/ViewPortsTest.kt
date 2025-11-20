@@ -26,7 +26,6 @@ import androidx.camera.core.ViewPort
 import androidx.camera.core.internal.ViewPorts
 import androidx.camera.testing.impl.ConstraintEnclosedTestRunner
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -37,7 +36,6 @@ import org.junit.runners.Parameterized
 @SmallTest
 @SuppressLint("UnsupportedTestRunner")
 @RunWith(ConstraintEnclosedTestRunner::class)
-@SdkSuppress(minSdkVersion = 21)
 object ViewPortsTest {
     // Rotation degrees.
     private const val R0 = 0
@@ -63,7 +61,7 @@ object ViewPortsTest {
         @ViewPort.ScaleType private val scaleType: Int,
         private val expectedLeft: Int,
         private val expectedTop: Int,
-        private val expectedSize: Size
+        private val expectedSize: Size,
     ) {
 
         @Test
@@ -75,7 +73,7 @@ object ViewPortsTest {
                     scaleType,
                     false,
                     layoutDirection,
-                    rotationDegrees
+                    rotationDegrees,
                 )
                 .round(rect)
             Truth.assertThat(intArrayOf(rect.left, rect.top, rect.width(), rect.height()))
@@ -114,7 +112,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -125,7 +123,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -136,7 +134,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -147,7 +145,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -158,7 +156,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -169,7 +167,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -180,7 +178,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -191,7 +189,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             10,
                             25,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     // Wide viewport & FILL_START. Parameter index 7~15.
@@ -203,7 +201,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -214,7 +212,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -225,7 +223,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -236,7 +234,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -247,7 +245,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -258,7 +256,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -269,7 +267,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -280,7 +278,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     // Wide viewport & FILL_END. Parameter index 16~23.
@@ -295,7 +293,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -306,7 +304,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -317,7 +315,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -331,7 +329,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             30,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -342,7 +340,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     result.add(
@@ -353,7 +351,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            WIDE_FILL
+                            WIDE_FILL,
                         )
                     )
                     // Narrow viewport & FILL_CENTER. Parameter index 24~31.
@@ -365,7 +363,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -376,7 +374,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -387,7 +385,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -398,7 +396,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -409,7 +407,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -420,7 +418,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -431,7 +429,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -442,7 +440,7 @@ object ViewPortsTest {
                             ViewPort.FILL_CENTER,
                             30,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     // Narrow viewport & FILL_START. Parameter index 32~39.
@@ -454,7 +452,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -465,7 +463,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -476,7 +474,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -487,7 +485,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -498,7 +496,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -509,7 +507,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -520,7 +518,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -531,7 +529,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     // Narrow viewport & FILL_END. Parameter index 40~47.
@@ -543,7 +541,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -554,7 +552,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -565,7 +563,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -576,7 +574,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -587,7 +585,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -598,7 +596,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -609,7 +607,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             50,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
                     result.add(
@@ -620,7 +618,7 @@ object ViewPortsTest {
                             ViewPort.FILL_END,
                             10,
                             20,
-                            NARROW_FILL
+                            NARROW_FILL,
                         )
                     )
 
@@ -636,7 +634,7 @@ object ViewPortsTest {
                                         ViewPort.FIT,
                                         10,
                                         20,
-                                        FIT_SIZE
+                                        FIT_SIZE,
                                     )
                                 )
                             }
@@ -657,7 +655,7 @@ object ViewPortsTest {
         @ViewPort.ScaleType private val scaleType: Int,
         @ViewPort.LayoutDirection private val layoutDirection: Int,
         private val surfaceSizes: Array<Size>,
-        private val expectedCropRects: Array<Rect>
+        private val expectedCropRects: Array<Rect>,
     ) {
 
         @Test
@@ -683,7 +681,7 @@ object ViewPortsTest {
                     rotationDegrees,
                     scaleType,
                     layoutDirection,
-                    useCaseStreamSpecMap
+                    useCaseStreamSpecMap,
                 )
 
             // Assert.
@@ -742,7 +740,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2)),
                         )
                     )
                     result.add(
@@ -754,7 +752,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4)),
                         )
                     )
                     result.add(
@@ -766,7 +764,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4)),
                         )
                     )
                     result.add(
@@ -778,7 +776,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4)),
                         )
                     )
 
@@ -792,7 +790,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4)),
                         )
                     )
                     result.add(
@@ -804,7 +802,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2)),
                         )
                     )
                     result.add(
@@ -816,7 +814,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4)),
                         )
                     )
                     result.add(
@@ -828,7 +826,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4)),
                         )
                     )
 
@@ -842,7 +840,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4)),
                         )
                     )
                     result.add(
@@ -854,7 +852,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2)),
                         )
                     )
                     result.add(
@@ -866,7 +864,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4)),
                         )
                     )
                     result.add(
@@ -878,7 +876,7 @@ object ViewPortsTest {
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
                             arrayOf(SURFACE_NARROW, SURFACE_WIDE),
-                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4)),
                         )
                     )
                     return result

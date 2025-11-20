@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +52,7 @@ interface ScrollableState {
      */
     suspend fun scroll(
         scrollPriority: MutatePriority = MutatePriority.Default,
-        block: suspend ScrollScope.() -> Unit
+        block: suspend ScrollScope.() -> Unit,
     )
 
     /**
@@ -122,6 +123,15 @@ interface ScrollableState {
     @get:Suppress("GetterSetterNames")
     val lastScrolledBackward: Boolean
         get() = false
+
+    /**
+     * [ScrollIndicatorState] used for drawing a scroll indicator (e.g., a scrollbar).
+     *
+     * This property may be `null` if scroll indicators are not applicable or if the underlying
+     * scrollable component does not support or provide this state.
+     */
+    val scrollIndicatorState: ScrollIndicatorState?
+        get() = null
 }
 
 /**
@@ -193,7 +203,7 @@ private class DefaultScrollableState(val onDelta: (Float) -> Float) : Scrollable
 
     override suspend fun scroll(
         scrollPriority: MutatePriority,
-        block: suspend ScrollScope.() -> Unit
+        block: suspend ScrollScope.() -> Unit,
     ): Unit = coroutineScope {
         scrollMutex.mutateWith(scrollScope, scrollPriority) {
             isScrollingState.value = true

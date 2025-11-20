@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE", "FacadeClassJvmName")
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -59,12 +60,7 @@ public fun <K> objectFloatMapOf(key1: K, value1: Float): ObjectFloatMap<K> =
  * Returns a new [ObjectFloatMap] with only [key1] and [key2] associated with [value1] and [value2],
  * respectively.
  */
-public fun <K> objectFloatMapOf(
-    key1: K,
-    value1: Float,
-    key2: K,
-    value2: Float,
-): ObjectFloatMap<K> =
+public fun <K> objectFloatMapOf(key1: K, value1: Float, key2: K, value2: Float): ObjectFloatMap<K> =
     MutableObjectFloatMap<K>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -137,10 +133,8 @@ public fun <K> objectFloatMapOf(
 public fun <K> mutableObjectFloatMapOf(): MutableObjectFloatMap<K> = MutableObjectFloatMap()
 
 /** Returns a new [MutableObjectFloatMap] with only [key1] associated with [value1]. */
-public fun <K> mutableObjectFloatMapOf(
-    key1: K,
-    value1: Float,
-): MutableObjectFloatMap<K> = MutableObjectFloatMap<K>().also { map -> map[key1] = value1 }
+public fun <K> mutableObjectFloatMapOf(key1: K, value1: Float): MutableObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map -> map[key1] = value1 }
 
 /**
  * Returns a new [MutableObjectFloatMap] with only [key1] and [key2] associated with [value1] and
@@ -230,7 +224,7 @@ public fun <K> mutableObjectFloatMapOf(
  * @param builderAction Lambda in which the [MutableObjectFloatMap] can be populated.
  */
 public inline fun <K> buildObjectFloatMap(
-    builderAction: MutableObjectFloatMap<K>.() -> Unit,
+    builderAction: MutableObjectFloatMap<K>.() -> Unit
 ): ObjectFloatMap<K> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableObjectFloatMap<K>().apply(builderAction)
@@ -463,19 +457,21 @@ public sealed class ObjectFloatMap<K> {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@ObjectFloatMap.forEach { key, value ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@ObjectFloatMap.forEach { key, value ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(key)
+                append('=')
+                append(value)
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(key)
-            append('=')
-            append(value)
-            index++
         }
         append(postfix)
     }
@@ -495,20 +491,22 @@ public sealed class ObjectFloatMap<K> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: K, value: Float) -> CharSequence
+        crossinline transform: (key: K, value: Float) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@ObjectFloatMap.forEach { key, value ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@ObjectFloatMap.forEach { key, value ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(key, value))
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(key, value))
-            index++
         }
         append(postfix)
     }

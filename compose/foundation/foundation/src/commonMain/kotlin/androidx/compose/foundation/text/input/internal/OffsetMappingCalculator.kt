@@ -306,7 +306,7 @@ internal class OffsetMappingCalculator {
                     opOffset = opOffset,
                     untransformedLen = opSrcLen,
                     transformedLen = opDestLen,
-                    fromSource = fromSource
+                    fromSource = fromSource,
                 )
             val newEnd =
                 mapStep(
@@ -314,7 +314,7 @@ internal class OffsetMappingCalculator {
                     opOffset = opOffset,
                     untransformedLen = opSrcLen,
                     transformedLen = opDestLen,
-                    fromSource = fromSource
+                    fromSource = fromSource,
                 )
             // range = newStart ∪ newEnd
             // Note we don't read TextRange.min/max here because the above code always returns
@@ -332,7 +332,7 @@ internal class OffsetMappingCalculator {
         opOffset: Int,
         untransformedLen: Int,
         transformedLen: Int,
-        fromSource: Boolean
+        fromSource: Boolean,
     ): TextRange {
         val srcLen = if (fromSource) untransformedLen else transformedLen
         val destLen = if (fromSource) transformedLen else untransformedLen
@@ -390,7 +390,7 @@ private value class OpArray private constructor(private val values: IntArray) {
     inline fun forEach(
         max: Int,
         reversed: Boolean = false,
-        block: (offset: Int, srcLen: Int, destLen: Int) -> Unit
+        block: (offset: Int, srcLen: Int, destLen: Int) -> Unit,
     ) {
         if (max < 0) return
         // Note: This stamps out block twice at the callsite, which is normally bad for an inline

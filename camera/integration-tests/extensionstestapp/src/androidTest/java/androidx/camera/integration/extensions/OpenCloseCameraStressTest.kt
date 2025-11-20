@@ -39,7 +39,6 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -57,7 +56,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 21)
 class OpenCloseCameraStressTest(private val config: CameraXExtensionTestParams) {
     @get:Rule
     val cameraPipeConfigTestRule =
@@ -84,9 +82,7 @@ class OpenCloseCameraStressTest(private val config: CameraXExtensionTestParams) 
         val (_, cameraXConfig, cameraId, extensionMode) = config
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
@@ -149,7 +145,7 @@ class OpenCloseCameraStressTest(private val config: CameraXExtensionTestParams) 
      */
     private fun bindUseCase_unbindAll_toCheckCameraState_repeatedly(
         vararg useCases: UseCase,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         repeat(repeatCount) {
             val openCameraLatch = CountDownLatch(1)

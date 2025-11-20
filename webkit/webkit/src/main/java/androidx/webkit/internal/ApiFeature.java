@@ -132,7 +132,7 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
 
         @Override
         public final boolean isSupportedByFramework() {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+            return true;
         }
     }
 

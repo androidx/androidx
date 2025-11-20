@@ -1468,10 +1468,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
 
     @Override
     public void drawableHotspotChanged(float x, float y) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            super.drawableHotspotChanged(x, y);
-        }
-
+        super.drawableHotspotChanged(x, y);
         if (mThumbDrawable != null) {
             DrawableCompat.setHotspot(mThumbDrawable, x, y);
         }

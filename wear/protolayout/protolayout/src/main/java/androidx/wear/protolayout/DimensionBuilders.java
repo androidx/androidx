@@ -1392,7 +1392,7 @@ public final class DimensionBuilders {
          * Gets the ratio proportional to the bounding box width/height. Value 0 represents the
          * location at the top / start of the bounding box, value 1 represents the location at the
          * bottom / end of the bounding box, and value 0.5 represents the middle of the bounding
-         *  box. Values outside [0, 1] are also valid. Dynamic value is supported.
+         * box. Values outside [0, 1] are also valid. Dynamic value is supported.
          */
         public @NonNull FloatProp getRatio() {
             return FloatProp.fromProto(mImpl.getRatio());

@@ -18,18 +18,22 @@ package androidx.webkit.internal;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.UiThread;
+import androidx.webkit.NavigationListener;
 import androidx.webkit.PrerenderException;
 import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
+import androidx.webkit.WebNavigationClient;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
@@ -155,11 +159,10 @@ public class WebViewProviderAdapter {
     // https://issuetracker.google.com/issues/139770271.
     @SuppressLint("LambdaLast")
     public void setWebViewRenderProcessClient(@Nullable Executor executor,
-            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
-        InvocationHandler handler = webViewRenderProcessClient != null
+            @Nullable WebViewRenderProcessClient client) {
+        InvocationHandler handler = client != null
                 ? BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                        new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient))
-                : null;
+                    new WebViewRenderProcessClientAdapter(executor, client)) : null;
         mImpl.setWebViewRendererClient(handler);
     }
 
@@ -225,6 +228,7 @@ public class WebViewProviderAdapter {
      * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
      * SpeculativeLoadingParameters, PrerenderOperationCallback)}.
      */
+    @Profile.ExperimentalUrlPrefetch
     public void prerenderUrlAsync(
             @NonNull String url,
             @Nullable CancellationSignal cancellationSignal,
@@ -250,4 +254,70 @@ public class WebViewProviderAdapter {
                 activationCallback,
                 errorCallback);
     }
+
+    /**
+     * Adapter method for {@link WebViewCompat#saveState(WebView, Bundle, int, boolean)}.
+     */
+    @UiThread
+    public void saveState(
+            @NonNull Bundle outState,
+            int maxSizeBytes,
+            boolean includeForwardState) {
+        mImpl.saveState(outState, maxSizeBytes, includeForwardState);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#setWebNavigationClient(WebView, WebNavigationClient)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public void setWebNavigationClient(
+            @NonNull WebNavigationClient client) {
+        InvocationHandler clientBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebNavigationClientAdapter(client));
+        mImpl.setWebViewNavigationClient(clientBoundaryInterface);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getWebNavigationClient(WebView)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public @NonNull WebNavigationClient getWebNavigationClient() {
+        InvocationHandler client = mImpl.getWebViewNavigationClient();
+        if (client == null) return null;
+        return ((WebNavigationClientAdapter)
+                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(
+                        client)).getWebNavigationClient();
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addNavigationListener(WebView, Executor, NavigationListener)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public void addNavigationListener(@NonNull Executor executor,
+            @NonNull NavigationListener listener) {
+        InvocationHandler listenerBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new NavigationListenerAdapter(listener));
+        mImpl.addWebViewNavigationListener(executor, listenerBoundaryInterface);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#removeNavigationListener(WebView, NavigationListener)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public void removeNavigationListener(@NonNull NavigationListener listener) {
+        InvocationHandler listenerBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new NavigationListenerAdapter(listener));
+        mImpl.removeWebViewNavigationListener(listenerBoundaryInterface);
+    }
+
 }

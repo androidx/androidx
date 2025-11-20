@@ -112,7 +112,7 @@ class PreviewProcessorTest {
             Camera2Util.openCaptureSession(
                 cameraDevice.unwrap(),
                 arrayListOf(imageReaderYuv.surface),
-                backgroundHandler
+                backgroundHandler,
             )
     }
 
@@ -166,7 +166,7 @@ class PreviewProcessorTest {
                     previewProcessor.notifyImage(createImageReference(image))
                 }
             },
-            backgroundHandler
+            backgroundHandler,
         )
 
         val previewUpdateDeferred = CompletableDeferred<Boolean>()
@@ -175,7 +175,7 @@ class PreviewProcessorTest {
         Camera2Util.startRepeating(
             cameraDevice.unwrap(),
             cameraCaptureSession,
-            arrayListOf(imageReaderYuv.surface)
+            arrayListOf(imageReaderYuv.surface),
         ) {
             if (!captureResultFetched) {
                 captureResultFetched = true
@@ -236,7 +236,7 @@ class PreviewProcessorTest {
             image: Image,
             result: TotalCaptureResult,
             resultCallback: ProcessResultImpl,
-            executor: Executor?
+            executor: Executor?,
         ) {
             val blankImage = imageWriter!!.dequeueInputImage()
             imageWriter!!.queueInputImage(blankImage)

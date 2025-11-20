@@ -38,7 +38,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * their lambda target to [UnmanagedSessionReceiver]. This is also used by
  * [GlanceRemoteViewsService] to provide list items for unmanaged sessions.
  */
-open class UnmanagedSessionReceiver : BroadcastReceiver() {
+public open class UnmanagedSessionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent != null && intent.action == LambdaActionBroadcasts.ActionTriggerLambda) {
             val actionKey =
@@ -52,7 +52,7 @@ open class UnmanagedSessionReceiver : BroadcastReceiver() {
                 ?: Log.e(
                     GlanceAppWidgetTag,
                     "A lambda created by an unmanaged glance session cannot be serviced" +
-                        "because that session is no longer running."
+                        "because that session is no longer running.",
                 )
         }
     }
@@ -63,7 +63,7 @@ open class UnmanagedSessionReceiver : BroadcastReceiver() {
 
         private class Registration(
             val session: AppWidgetSession,
-            val coroutine: CancellableContinuation<Nothing>
+            val coroutine: CancellableContinuation<Nothing>,
         )
 
         /**

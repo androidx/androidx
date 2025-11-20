@@ -58,6 +58,8 @@ public final class StubDynamicMediaRouteProviderService extends MediaRouteProvid
     public static final List<IntentFilter> CONTROL_FILTERS_TEST = new ArrayList<>();
     public static final String SEND_CONTROL_REQUEST_KEY = "send_control_request_key";
     public static final String SEND_CONTROL_REQUEST_VALUE = "send_control_request_value";
+    public static final int NEW_CLIENT_MIN_VERSION = 2;
+    public static final int OLD_CLIENT_MAX_VERSION = 1;
     public static final Bundle SEND_CONTROL_REQUEST_RESULT = new Bundle();
 
     static {
@@ -94,12 +96,16 @@ public final class StubDynamicMediaRouteProviderService extends MediaRouteProvid
                             .addControlFilters(CONTROL_FILTERS_TEST)
                             .setVolumeMax(VOLUME_MAX)
                             .setVolume(VOLUME_INITIAL_VALUE)
+                            .setMinClientVersion(NEW_CLIENT_MIN_VERSION)
+                            .setMaxClientVersion(Integer.MAX_VALUE)
                             .build();
             MediaRouteDescriptor route2 =
                     new MediaRouteDescriptor.Builder(ROUTE_ID_2, ROUTE_NAME_2)
                             .addControlFilters(CONTROL_FILTERS_TEST)
                             .setVolumeMax(VOLUME_MAX)
                             .setVolume(VOLUME_INITIAL_VALUE)
+                            .setMinClientVersion(NEW_CLIENT_MIN_VERSION)
+                            .setMaxClientVersion(Integer.MAX_VALUE)
                             .build();
             MediaRouteDescriptor route3 =
                     new MediaRouteDescriptor.Builder(ROUTE_ID_3, ROUTE_NAME_3)
@@ -166,8 +172,33 @@ public final class StubDynamicMediaRouteProviderService extends MediaRouteProvid
         private void publishProviderState() {
             MediaRouteProviderDescriptor.Builder providerDescriptor =
                     new MediaRouteProviderDescriptor.Builder().setSupportsDynamicGroupRoute(true);
+
+            List<MediaRouteDescriptor> publishedRoutes = new ArrayList<>();
+            for (String key : mRoutes.keySet()) {
+                MediaRouteDescriptor route = mRoutes.get(key);
+                if (route == null) {
+                    continue;
+                }
+                MediaRouteDescriptor routeForOldClient =
+                        new MediaRouteDescriptor.Builder(route)
+                                .setMinClientVersion(0)
+                                .setMaxClientVersion(OLD_CLIENT_MAX_VERSION)
+                                .build();
+                if (ROUTE_ID_1.equals(route.getId())) {
+                    // We first add the route for new client and then the route for old client.
+                    publishedRoutes.add(route);
+                    publishedRoutes.add(routeForOldClient);
+                } else if (ROUTE_ID_2.equals(route.getId())) {
+                    // We first add the route for old client and then the route for new client.
+                    publishedRoutes.add(routeForOldClient);
+                    publishedRoutes.add(route);
+                } else {
+                    publishedRoutes.add(route);
+                }
+            }
+
             if (mCurrentlyScanning) {
-                providerDescriptor.addRoutes(mRoutes.values());
+                providerDescriptor.addRoutes(publishedRoutes);
             }
             setDescriptor(providerDescriptor.build());
         }

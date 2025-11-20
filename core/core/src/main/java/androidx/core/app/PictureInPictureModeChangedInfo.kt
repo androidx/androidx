@@ -45,7 +45,7 @@ public class PictureInPictureModeChangedInfo(
     @RequiresApi(26)
     public constructor(
         isInPictureInPictureMode: Boolean,
-        newConfig: Configuration
+        newConfig: Configuration,
     ) : this(isInPictureInPictureMode) {
         this.newConfiguration = newConfig
     }

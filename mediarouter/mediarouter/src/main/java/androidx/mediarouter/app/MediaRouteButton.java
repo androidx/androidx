@@ -555,8 +555,8 @@ public class MediaRouteButton extends View {
             case MeasureSpec.AT_MOST:
                 measuredWidth = Math.min(widthSize, width);
                 break;
-            default:
             case MeasureSpec.UNSPECIFIED:
+            default:
                 measuredWidth = width;
                 break;
         }
@@ -569,8 +569,8 @@ public class MediaRouteButton extends View {
             case MeasureSpec.AT_MOST:
                 measuredHeight = Math.min(heightSize, height);
                 break;
-            default:
             case MeasureSpec.UNSPECIFIED:
+            default:
                 measuredHeight = height;
                 break;
         }
@@ -695,13 +695,14 @@ public class MediaRouteButton extends View {
 
         @Override
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
+                @NonNull MediaRouter.RouteInfo selectedRoute, int reason,
+                @NonNull MediaRouter.RouteInfo requestedRoute) {
             refreshRoute();
         }
 
         @Override
         public void onRouteUnselected(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo info) {
+                @NonNull MediaRouter.RouteInfo route, int reason) {
             refreshRoute();
         }
 

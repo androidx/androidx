@@ -39,4 +39,5 @@
     <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"رنگ‌مایه پوست ملایم"</string>
     <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"رنگ‌مایه پوست ملایم تیره"</string>
     <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"رنگ‌مایه پوست تیره"</string>
+    <string name="emoji_content_desc" msgid="655318124835479020">"اموجی <xliff:g id="EMOJI">%1$s</xliff:g>"</string>
 </resources>

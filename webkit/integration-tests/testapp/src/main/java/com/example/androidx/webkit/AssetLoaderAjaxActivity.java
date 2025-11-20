@@ -95,6 +95,7 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_asset_loader);
         setTitle(R.string.asset_loader_ajax_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         // The "https://example.com" domain with the virtual path "/androidx_webkit/example/

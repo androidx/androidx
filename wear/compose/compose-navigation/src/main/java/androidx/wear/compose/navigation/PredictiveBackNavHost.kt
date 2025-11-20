@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi
 import androidx.collection.mutableObjectFloatMapOf
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Spring
@@ -44,6 +43,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,17 +55,22 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
 import androidx.navigation.compose.LocalOwnersProvider
 import androidx.navigation.get
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
+import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -98,6 +103,8 @@ internal fun PredictiveBackNavHost(
     val backStack by wearNavigator.backStack.collectAsState()
 
     val navigateBack: () -> Unit = { navController.popBackStack() }
+
+    val transitionsInProgress by wearNavigator.transitionsInProgress.collectAsState()
 
     DisposableEffect(lifecycleOwner) {
         // Setup the navController with proper owners
@@ -139,15 +146,14 @@ internal fun PredictiveBackNavHost(
     // Use PredictiveBackHandler instead of BackHandler on API >= 35
     var progress by remember { mutableFloatStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
+    var isAnimationRunning by remember { mutableStateOf(false) }
     val transitionState = remember { SeekableTransitionState(current) }
     PredictiveBackHandler(userSwipeEnabled && backStack.size > 1) { backEvent ->
         inPredictiveBack = true
         progress = 0f
         try {
             backEvent.collect { progress = it.progress }
-            Animatable(progress).animateTo(1f, TRANSITION_ANIMATION_SPEC) { progress = value }
-            inPredictiveBack = false
-            navigateBack()
+            isAnimationRunning = true
         } catch (e: CancellationException) {
             inPredictiveBack = false
         }
@@ -157,7 +163,18 @@ internal fun PredictiveBackNavHost(
     val transition = rememberTransition(transitionState, label = "entry")
 
     if (inPredictiveBack && previous != null) {
-        LaunchedEffect(progress) { transitionState.seekTo(progress, previous) }
+        if (!isAnimationRunning) {
+            // When user is still swiping, progress will be reported by PredictiveBackHandler
+            LaunchedEffect(progress) { transitionState.seekTo(progress, previous) }
+        } else {
+            // Run animation after backHandler is processed
+            LaunchedEffect(Unit) {
+                transitionState.animateTo(previous, TRANSITION_ANIMATION_SPEC)
+                navigateBack()
+                isAnimationRunning = false
+                inPredictiveBack = false
+            }
+        }
     } else {
         LaunchedEffect(current) {
             if (transitionState.currentState != current) {
@@ -201,11 +218,11 @@ internal fun PredictiveBackNavHost(
                     if (wearNavigator.isPop.value || inPredictiveBack) POP_EXIT_TRANSITION
                     else EXIT_TRANSITION,
                 targetContentZIndex = targetZIndex,
-                sizeTransform = null
+                sizeTransform = null,
             )
         },
         contentAlignment = Alignment.Center,
-        contentKey = { it.id }
+        contentKey = { it.id },
     ) {
         // In some specific cases, such as popping your back stack or changing your
         // start destination, AnimatedContent can contain an entry that is no longer
@@ -220,47 +237,63 @@ internal fun PredictiveBackNavHost(
             }
 
         if (currentEntry != null) {
-            Box(
-                modifier =
-                    Modifier.background(
-                            scrimColor,
-                            if (isRoundDevice) CircleShape else RectangleShape
-                        )
-                        .fillMaxSize()
+            val parentScreenActive = LocalScreenIsActive.current
+            CompositionLocalProvider(
+                LocalScreenIsActive provides (currentEntry == current && parentScreenActive)
             ) {
-                // while in the scope of the composable, we provide the navBackStackEntry as the
-                // ViewModelStoreOwner and LifecycleOwner
-                if (currentEntry.lifecycle.currentState != Lifecycle.State.DESTROYED) {
-                    currentEntry.LocalOwnersProvider(stateHolder) {
-                        (currentEntry.destination as WearNavigator.Destination).content(
-                            currentEntry
+                Box(
+                    modifier =
+                        Modifier.clip(if (isRoundDevice) CircleShape else RectangleShape)
+                            .background(scrimColor)
+                            .fillMaxSize()
+                            .hierarchicalFocusGroup(currentEntry == current)
+                ) {
+                    // while in the scope of the composable, we provide the navBackStackEntry as the
+                    // ViewModelStoreOwner and LifecycleOwner
+                    if (
+                        currentEntry.lifecycle.currentStateAsState().value !=
+                            Lifecycle.State.DESTROYED
+                    ) {
+                        currentEntry.LocalOwnersProvider(stateHolder) {
+                            DestinationContent(backStackEntry = currentEntry)
+                        }
+                    }
+                    if (currentEntry != current) {
+                        Box(
+                            modifier =
+                                Modifier.clickable(
+                                        enabled = false,
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                    ) {
+                                        // Ignore taps on previous backstack entries
+                                    }
+                                    .fillMaxSize()
                         )
                     }
-                }
-                if (currentEntry != current) {
-                    Box(
-                        modifier =
-                            Modifier.clickable(
-                                    enabled = false,
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() }
-                                ) {
-                                    // Ignore taps on previous backstack entries
-                                }
-                                .fillMaxSize()
-                    )
                 }
             }
         }
     }
-    LaunchedEffect(transition.currentState, transition.targetState) {
-        if (transition.currentState == transition.targetState) {
-            backStack.forEach { entry -> wearNavigator.onTransitionComplete(entry) }
+    if (transition.currentState == transition.targetState && !isAnimationRunning) {
+        LaunchedEffect(transition.currentState, transition.targetState, isAnimationRunning) {
+            transitionsInProgress.forEach { entry -> wearNavigator.onTransitionComplete(entry) }
             zIndices.forEach { key, _ ->
                 if (key != transition.targetState.id) zIndices.remove(key)
             }
         }
     }
+}
+
+// Using this @Composable function instead of an inline lambda in `NavGraphBuilder.composable` helps
+// prevent unnecessary continuous recomposition of the lambda block during predictive back swipe
+// animations. Once strong skipping is enabled in the Compose compiler, inline composable lambdas
+// are expected to be automatically memoized, providing similar behavior to this explicit function.
+// This change ensures the optimization is in place regardless of the current compiler
+// configuration. This approach may be reverted once strong skipping becomes a standard feature.
+@Composable
+private fun DestinationContent(backStackEntry: NavBackStackEntry) {
+    (backStackEntry.destination as WearNavigator.Destination).content(backStackEntry)
 }
 
 private val ENTER_TRANSITION =
@@ -275,7 +308,7 @@ private val POP_ENTER_TRANSITION =
     scaleIn(initialScale = 0.8f, animationSpec = tween(easing = LinearEasing)) +
         slideInHorizontally(
             initialOffsetX = { -it / 2 },
-            animationSpec = tween(easing = LinearEasing)
+            animationSpec = tween(easing = LinearEasing),
         ) +
         fadeIn(initialAlpha = 0.5f, animationSpec = tween(easing = LinearEasing))
 private val POP_EXIT_TRANSITION =

@@ -40,7 +40,7 @@ public fun SessionConfig.Builder.setupHDRnet(resolution: Size) {
         Camera2ImplConfig.Builder().apply {
             setCaptureRequestOption<Int>(
                 CaptureRequest.TONEMAP_MODE,
-                CaptureRequest.TONEMAP_MODE_HIGH_QUALITY
+                CaptureRequest.TONEMAP_MODE_HIGH_QUALITY,
             )
         }
 

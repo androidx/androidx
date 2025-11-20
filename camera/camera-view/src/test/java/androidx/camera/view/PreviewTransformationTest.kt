@@ -19,7 +19,6 @@ package androidx.camera.view
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.RectF
-import android.os.Build
 import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
@@ -69,7 +68,7 @@ private const val ARBITRARY_ROTATION = Surface.ROTATION_0
 /** Instrument tests for [PreviewTransformation]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class PreviewTransformationTest {
 
     private lateinit var mPreviewTransform: PreviewTransformation
@@ -110,10 +109,10 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             SURFACE_SIZE,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
         return mPreviewTransform.isViewportAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
     }
@@ -137,7 +136,7 @@ class PreviewTransformationTest {
             getRectToRect(
                 RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
                 RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat()),
-                /*rotationDegrees=*/ 0
+                /*rotationDegrees=*/ 0,
             )
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
@@ -146,17 +145,17 @@ class PreviewTransformationTest {
                 ROTATION_0,
                 /*hasCameraTransform=*/ true,
                 sensorToBuffer,
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             surfaceSize,
-            isFrontCamera
+            isFrontCamera,
         )
 
         // Act: apply the PreviewView size
         val sensorToView =
             mPreviewTransform.getSensorToViewTransform(
                 Size(viewSize.width, viewSize.height),
-                LayoutDirection.LTR
+                LayoutDirection.LTR,
             )
 
         // Assert: the overall transformation is sensor -> view
@@ -165,7 +164,7 @@ class PreviewTransformationTest {
                 RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
                 RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat()),
                 /*rotationDegrees=*/ 0,
-                /*mirroring=*/ isFrontCamera
+                /*mirroring=*/ isFrontCamera,
             )
         assertThat(sensorToView).isEqualTo(expected)
     }
@@ -182,10 +181,10 @@ class PreviewTransformationTest {
                 ROTATION_NOT_SPECIFIED,
                 /*hasCameraTransform=*/ false,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             croppedSize,
-            /*isFrontCamera=*/ false
+            /*isFrontCamera=*/ false,
         )
 
         // Act.
@@ -216,7 +215,7 @@ class PreviewTransformationTest {
                     SURFACE_SIZE.width,
                     SURFACE_SIZE.height,
                     0,
-                    SURFACE_SIZE.height
+                    SURFACE_SIZE.height,
                 )
             )
     }
@@ -233,7 +232,7 @@ class PreviewTransformationTest {
                     SURFACE_SIZE.width,
                     0,
                     SURFACE_SIZE.width,
-                    SURFACE_SIZE.height
+                    SURFACE_SIZE.height,
                 )
             )
     }
@@ -250,7 +249,7 @@ class PreviewTransformationTest {
                     0,
                     0,
                     SURFACE_SIZE.width,
-                    0
+                    0,
                 )
             )
     }
@@ -267,7 +266,7 @@ class PreviewTransformationTest {
                     0,
                     SURFACE_SIZE.height,
                     0,
-                    0
+                    0,
                 )
             )
     }
@@ -279,7 +278,7 @@ class PreviewTransformationTest {
     /** Corrects TextureView based on target rotation and return the corrected vertices. */
     private fun getTextureViewCorrection(
         @RotationValue rotation: Int,
-        isFrontCamera: Boolean
+        isFrontCamera: Boolean,
     ): IntArray {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
@@ -289,10 +288,10 @@ class PreviewTransformationTest {
                 rotation,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             SURFACE_SIZE,
-            isFrontCamera
+            isFrontCamera,
         )
 
         // Act.
@@ -321,10 +320,10 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             SURFACE_SIZE,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
 
         // Act.
@@ -353,7 +352,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             0f,
             0f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -365,7 +364,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             100f,
             0f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -377,7 +376,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             200f,
             0f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -389,7 +388,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             0f,
             0f,
-            FRONT_CAMERA
+            FRONT_CAMERA,
         )
     }
 
@@ -401,7 +400,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
             0f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -413,7 +412,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
             -100f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -425,7 +424,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
             -200f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -437,7 +436,7 @@ class PreviewTransformationTest {
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             200f,
             0f,
-            BACK_CAMERA
+            BACK_CAMERA,
         )
     }
 
@@ -447,7 +446,7 @@ class PreviewTransformationTest {
         scale: Float,
         translationX: Float,
         translationY: Float,
-        isFrontCamera: Boolean
+        isFrontCamera: Boolean,
     ) {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
@@ -457,10 +456,10 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             FIT_SURFACE_SIZE,
-            isFrontCamera
+            isFrontCamera,
         )
         mPreviewTransform.scaleType = scaleType
 
@@ -533,7 +532,7 @@ class PreviewTransformationTest {
         isFrontCamera: Boolean,
         cropRect: Rect,
         previewViewSize: Size,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ) {
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
@@ -542,10 +541,10 @@ class PreviewTransformationTest {
                 ARBITRARY_ROTATION,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
             SURFACE_SIZE,
-            isFrontCamera
+            isFrontCamera,
         )
         mPreviewTransform.transformView(previewViewSize, LayoutDirection.LTR, mView)
     }

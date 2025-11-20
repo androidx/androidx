@@ -35,7 +35,7 @@ class SinglePdfFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
@@ -62,7 +62,7 @@ class SinglePdfFragment : Fragment() {
             .replace(
                 R.id.single_pdf_fragment_container_view,
                 basicPdfFragment,
-                SINGLE_PDF_FRAGMENT_TAG
+                SINGLE_PDF_FRAGMENT_TAG,
             )
             .commit()
 

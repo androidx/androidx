@@ -33,17 +33,14 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SquadViewTopPlayers(
-    viewTopPlayersUiModel: SquadViewTopPlayersUiModel,
-    onClicked: () -> Unit,
-) {
+fun SquadViewTopPlayers(viewTopPlayersUiModel: SquadViewTopPlayersUiModel, onClicked: () -> Unit) {
     Surface(shape = SquadTheme.shapes.allRounded, modifier = Modifier.padding(horizontal = 12.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
                 Modifier.fillMaxWidth()
                     .clickable(onClick = onClicked)
-                    .padding(horizontal = 12.dp, vertical = 14.dp)
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
         ) {
             CupIcon()
             Title(title = viewTopPlayersUiModel.title)
@@ -65,6 +62,6 @@ private fun Title(title: String) {
         text = title.uppercase(),
         style = SquadTheme.typography.medium.s12,
         color = SquadTheme.colors.secondaryText,
-        modifier = Modifier.padding(start = 12.dp)
+        modifier = Modifier.padding(start = 12.dp),
     )
 }

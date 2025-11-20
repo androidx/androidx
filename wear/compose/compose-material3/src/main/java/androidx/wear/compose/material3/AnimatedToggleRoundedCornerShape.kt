@@ -67,7 +67,7 @@ private class AnimatedToggleRoundedCornerShape(
                 RoundRect(
                     rect = size.toRect(),
                     radiusX = animatedCornerSizePx,
-                    radiusY = animatedCornerSizePx
+                    radiusY = animatedCornerSizePx,
                 )
         )
     }

@@ -25,10 +25,8 @@ import com.google.common.truth.Truth.assertAbout
 
 /** Truth extension for [FakeVibrator]. */
 internal class FakeVibratorSubject
-private constructor(
-    metadata: FailureMetadata?,
-    private val actual: FakeVibrator,
-) : Subject(metadata, actual) {
+private constructor(metadata: FailureMetadata?, private val actual: FakeVibrator) :
+    Subject(metadata, actual) {
 
     companion object {
         private val SUBJECT_FACTORY: Factory<FakeVibratorSubject?, FakeVibrator> =

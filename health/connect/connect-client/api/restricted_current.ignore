@@ -1,0 +1,825 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.health.connect.client.feature:
+    Removed package androidx.health.connect.client.feature from compatibility checked API surface
+
+
+RemovedFromBytecode: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Binary breaking change: method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,androidx.health.connect.client.time.TimeRangeFilter,kotlin.coroutines.Continuation<? super java.lang.Void>) has been removed from bytecode
+RemovedFromBytecode: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String>, java.util.List<java.lang.String>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Binary breaking change: method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,java.util.List<java.lang.String>,java.util.List<java.lang.String>,kotlin.coroutines.Continuation<? super java.lang.Void>) has been removed from bytecode
+RemovedFromBytecode: androidx.health.connect.client.HealthConnectClientExt#readRecord(androidx.health.connect.client.HealthConnectClient, String, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>):
+    Binary breaking change: method androidx.health.connect.client.HealthConnectClientExt.readRecord(androidx.health.connect.client.HealthConnectClient,String,kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>) has been removed from bytecode
+RemovedFromBytecode: androidx.health.connect.client.permission.HealthPermission.Companion#getReadPermission():
+    Binary breaking change: method androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission() has been removed from bytecode
+RemovedFromBytecode: androidx.health.connect.client.permission.HealthPermission.Companion#getWritePermission():
+    Binary breaking change: method androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission() has been removed from bytecode
+RemovedFromBytecode: androidx.health.connect.client.request.ReadRecordsRequestKt#ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter, java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin>, boolean, int, String):
+    Binary breaking change: method androidx.health.connect.client.request.ReadRecordsRequestKt.ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter,java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin>,boolean,int,String) has been removed from bytecode
+
+
+RemovedFromJava: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Source breaking change: method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,androidx.health.connect.client.time.TimeRangeFilter,kotlin.coroutines.Continuation<? super java.lang.Void>) can no longer be resolved from Java source
+RemovedFromJava: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String>, java.util.List<java.lang.String>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Source breaking change: method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,java.util.List<java.lang.String>,java.util.List<java.lang.String>,kotlin.coroutines.Continuation<? super java.lang.Void>) can no longer be resolved from Java source
+RemovedFromJava: androidx.health.connect.client.HealthConnectClientExt#readRecord(androidx.health.connect.client.HealthConnectClient, String, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>):
+    Source breaking change: method androidx.health.connect.client.HealthConnectClientExt.readRecord(androidx.health.connect.client.HealthConnectClient,String,kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordResponse<T>>) can no longer be resolved from Java source
+RemovedFromJava: androidx.health.connect.client.permission.HealthPermission.Companion#getReadPermission():
+    Source breaking change: method androidx.health.connect.client.permission.HealthPermission.Companion.getReadPermission() can no longer be resolved from Java source
+RemovedFromJava: androidx.health.connect.client.permission.HealthPermission.Companion#getWritePermission():
+    Source breaking change: method androidx.health.connect.client.permission.HealthPermission.Companion.getWritePermission() can no longer be resolved from Java source
+RemovedFromJava: androidx.health.connect.client.request.ReadRecordsRequestKt#ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter, java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin>, boolean, int, String):
+    Source breaking change: method androidx.health.connect.client.request.ReadRecordsRequestKt.ReadRecordsRequest(androidx.health.connect.client.time.TimeRangeFilter,java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin>,boolean,int,String) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.health.connect.client.HealthConnectClient#getFeatures():
+    Source breaking change: method androidx.health.connect.client.HealthConnectClient.getFeatures() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.HealthConnectClient#getHealthConnectSettingsAction():
+    Source breaking change: method androidx.health.connect.client.HealthConnectClient.getHealthConnectSettingsAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.HealthConnectClient#getPermissionController():
+    Source breaking change: method androidx.health.connect.client.HealthConnectClient.getPermissionController() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.HealthConnectClient.Companion#getHealthConnectSettingsAction():
+    Source breaking change: method androidx.health.connect.client.HealthConnectClient.Companion.getHealthConnectSettingsAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResult#getDataOrigins():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResult.getDataOrigins() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration#getEndTime():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration#getResult():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration.getResult() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration#getStartTime():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod#getEndTime():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod#getResult():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod.getResult() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod#getStartTime():
+    Source breaking change: method androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.changes.DeletionChange#getRecordId():
+    Source breaking change: method androidx.health.connect.client.changes.DeletionChange.getRecordId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.changes.UpsertionChange#getRecord():
+    Source breaking change: method androidx.health.connect.client.changes.UpsertionChange.getRecord() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getEnergy():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getEnergy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ActiveCaloriesBurnedRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ActiveCaloriesBurnedRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalBodyTemperatureRecord#getMeasurementLocation():
+    Source breaking change: method androidx.health.connect.client.records.BasalBodyTemperatureRecord.getMeasurementLocation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalBodyTemperatureRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BasalBodyTemperatureRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalBodyTemperatureRecord#getTemperature():
+    Source breaking change: method androidx.health.connect.client.records.BasalBodyTemperatureRecord.getTemperature() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalBodyTemperatureRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BasalBodyTemperatureRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalBodyTemperatureRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BasalBodyTemperatureRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalMetabolicRateRecord#getBasalMetabolicRate():
+    Source breaking change: method androidx.health.connect.client.records.BasalMetabolicRateRecord.getBasalMetabolicRate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalMetabolicRateRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BasalMetabolicRateRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalMetabolicRateRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BasalMetabolicRateRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BasalMetabolicRateRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BasalMetabolicRateRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getLevel():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getLevel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getMealType():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getMealType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getRelationToMeal():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getRelationToMeal() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getSpecimenSource():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getSpecimenSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodGlucoseRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BloodGlucoseRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getBodyPosition():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getBodyPosition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getDiastolic():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getDiastolic() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getMeasurementLocation():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getMeasurementLocation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getSystolic():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getSystolic() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BloodPressureRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BloodPressureRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyFatRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BodyFatRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyFatRecord#getPercentage():
+    Source breaking change: method androidx.health.connect.client.records.BodyFatRecord.getPercentage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyFatRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BodyFatRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyFatRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BodyFatRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyTemperatureRecord#getMeasurementLocation():
+    Source breaking change: method androidx.health.connect.client.records.BodyTemperatureRecord.getMeasurementLocation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyTemperatureRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BodyTemperatureRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyTemperatureRecord#getTemperature():
+    Source breaking change: method androidx.health.connect.client.records.BodyTemperatureRecord.getTemperature() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyTemperatureRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BodyTemperatureRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyTemperatureRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BodyTemperatureRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyWaterMassRecord#getMass():
+    Source breaking change: method androidx.health.connect.client.records.BodyWaterMassRecord.getMass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyWaterMassRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BodyWaterMassRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyWaterMassRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BodyWaterMassRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BodyWaterMassRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BodyWaterMassRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BoneMassRecord#getMass():
+    Source breaking change: method androidx.health.connect.client.records.BoneMassRecord.getMass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BoneMassRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.BoneMassRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BoneMassRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.BoneMassRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.BoneMassRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.BoneMassRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CervicalMucusRecord#getAppearance():
+    Source breaking change: method androidx.health.connect.client.records.CervicalMucusRecord.getAppearance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CervicalMucusRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.CervicalMucusRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CervicalMucusRecord#getSensation():
+    Source breaking change: method androidx.health.connect.client.records.CervicalMucusRecord.getSensation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CervicalMucusRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.CervicalMucusRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CervicalMucusRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.CervicalMucusRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample#getRevolutionsPerMinute():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample.getRevolutionsPerMinute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample#getTime():
+    Source breaking change: method androidx.health.connect.client.records.CyclingPedalingCadenceRecord.Sample.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getDistance():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getDistance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.DistanceRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.DistanceRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getElevation():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getElevation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ElevationGainedRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ElevationGainedRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.ActiveCaloriesBurnedGoal#getActiveCalories():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.ActiveCaloriesBurnedGoal.getActiveCalories() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceAndDurationGoal#getDistance():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceAndDurationGoal.getDistance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceAndDurationGoal#getDuration():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceAndDurationGoal.getDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceGoal#getDistance():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.DistanceGoal.getDistance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.DurationGoal#getDuration():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.DurationGoal.getDuration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.RepetitionsGoal#getRepetitions():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.RepetitionsGoal.getRepetitions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.StepsGoal#getSteps():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.StepsGoal.getSteps() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseCompletionGoal.TotalCaloriesBurnedGoal#getTotalCalories():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseCompletionGoal.TotalCaloriesBurnedGoal.getTotalCalories() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseLap#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseLap.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseLap#getLength():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseLap.getLength() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseLap#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseLap.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.CadenceTarget#getMaxCadence():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.CadenceTarget.getMaxCadence() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.CadenceTarget#getMinCadence():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.CadenceTarget.getMinCadence() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.HeartRateTarget#getMaxHeartRate():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.HeartRateTarget.getMaxHeartRate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.HeartRateTarget#getMinHeartRate():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.HeartRateTarget.getMinHeartRate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.PowerTarget#getMaxPower():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.PowerTarget.getMaxPower() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.PowerTarget#getMinPower():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.PowerTarget.getMinPower() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.RateOfPerceivedExertionTarget#getRpe():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.RateOfPerceivedExertionTarget.getRpe() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.SpeedTarget#getMaxSpeed():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.SpeedTarget.getMaxSpeed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.SpeedTarget#getMinSpeed():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.SpeedTarget.getMinSpeed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExercisePerformanceTarget.WeightTarget#getMass():
+    Source breaking change: method androidx.health.connect.client.records.ExercisePerformanceTarget.WeightTarget.getMass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute#getRoute():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.getRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getAltitude():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getAltitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getHorizontalAccuracy():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getHorizontalAccuracy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getLatitude():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getLatitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getLongitude():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getLongitude() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRoute.Location#getVerticalAccuracy():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRoute.Location.getVerticalAccuracy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseRouteResult.Data#getExerciseRoute():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseRouteResult.Data.getExerciseRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSegment#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSegment.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSegment#getRepetitions():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSegment.getRepetitions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSegment#getSegmentType():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSegment.getSegmentType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSegment#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSegment.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getExerciseRouteResult():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getExerciseRouteResult() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getExerciseType():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getExerciseType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getLaps():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getLaps() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getNotes():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getNotes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getPlannedExerciseSessionId():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getPlannedExerciseSessionId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getSegments():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getSegments() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.ExerciseSessionRecord#getTitle():
+    Source breaking change: method androidx.health.connect.client.records.ExerciseSessionRecord.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getFloors():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getFloors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.FloorsClimbedRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.FloorsClimbedRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord.Sample#getBeatsPerMinute():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.Sample.getBeatsPerMinute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateRecord.Sample#getTime():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateRecord.Sample.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord#getHeartRateVariabilityMillis():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord.getHeartRateVariabilityMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeightRecord#getHeight():
+    Source breaking change: method androidx.health.connect.client.records.HeightRecord.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeightRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.HeightRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeightRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.HeightRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HeightRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HeightRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.HydrationRecord#getVolume():
+    Source breaking change: method androidx.health.connect.client.records.HydrationRecord.getVolume() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.InstantaneousRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.InstantaneousRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.InstantaneousRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.InstantaneousRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntermenstrualBleedingRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.IntermenstrualBleedingRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntermenstrualBleedingRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.IntermenstrualBleedingRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntermenstrualBleedingRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.IntermenstrualBleedingRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntervalRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.IntervalRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntervalRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.IntervalRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntervalRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.IntervalRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.IntervalRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.IntervalRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.LeanBodyMassRecord#getMass():
+    Source breaking change: method androidx.health.connect.client.records.LeanBodyMassRecord.getMass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.LeanBodyMassRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.LeanBodyMassRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.LeanBodyMassRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.LeanBodyMassRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.LeanBodyMassRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.LeanBodyMassRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationFlowRecord#getFlow():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationFlowRecord.getFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationFlowRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationFlowRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationFlowRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationFlowRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationFlowRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationFlowRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationPeriodRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationPeriodRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationPeriodRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationPeriodRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationPeriodRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationPeriodRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationPeriodRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationPeriodRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.MenstruationPeriodRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.MenstruationPeriodRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getBiotin():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getBiotin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getCaffeine():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getCaffeine() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getCalcium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getCalcium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getChloride():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getChloride() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getCholesterol():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getCholesterol() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getChromium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getChromium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getCopper():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getCopper() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getDietaryFiber():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getDietaryFiber() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getEnergy():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getEnergy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getEnergyFromFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getEnergyFromFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getFolate():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getFolate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getFolicAcid():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getFolicAcid() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getIodine():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getIodine() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getIron():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getIron() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getMagnesium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getMagnesium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getManganese():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getManganese() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getMealType():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getMealType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getMolybdenum():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getMolybdenum() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getMonounsaturatedFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getMonounsaturatedFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getName():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getNiacin():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getNiacin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getPantothenicAcid():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getPantothenicAcid() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getPhosphorus():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getPhosphorus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getPolyunsaturatedFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getPolyunsaturatedFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getPotassium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getPotassium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getProtein():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getProtein() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getRiboflavin():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getRiboflavin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getSaturatedFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getSaturatedFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getSelenium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getSelenium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getSodium():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getSodium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getSugar():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getSugar() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getThiamin():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getThiamin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getTotalCarbohydrate():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getTotalCarbohydrate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getTotalFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getTotalFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getTransFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getTransFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getUnsaturatedFat():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getUnsaturatedFat() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminA():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminA() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminB12():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminB12() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminB6():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminB6() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminC():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminC() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminD():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminD() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminE():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminE() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getVitaminK():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getVitaminK() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.NutritionRecord#getZinc():
+    Source breaking change: method androidx.health.connect.client.records.NutritionRecord.getZinc() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OvulationTestRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.OvulationTestRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OvulationTestRecord#getResult():
+    Source breaking change: method androidx.health.connect.client.records.OvulationTestRecord.getResult() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OvulationTestRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.OvulationTestRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OvulationTestRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.OvulationTestRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OxygenSaturationRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.OxygenSaturationRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OxygenSaturationRecord#getPercentage():
+    Source breaking change: method androidx.health.connect.client.records.OxygenSaturationRecord.getPercentage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OxygenSaturationRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.OxygenSaturationRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.OxygenSaturationRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.OxygenSaturationRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseBlock#getDescription():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseBlock.getDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseBlock#getRepetitions():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseBlock.getRepetitions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseBlock#getSteps():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseBlock.getSteps() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getBlocks():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getBlocks() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getCompletedExerciseSessionId():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getCompletedExerciseSessionId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getExerciseType():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getExerciseType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getNotes():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getNotes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#getTitle():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseSessionRecord#hasExplicitTime():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseSessionRecord.hasExplicitTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseStep#getCompletionGoal():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseStep.getCompletionGoal() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseStep#getDescription():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseStep.getDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseStep#getExercisePhase():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseStep.getExercisePhase() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseStep#getExerciseType():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseStep.getExerciseType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PlannedExerciseStep#getPerformanceTargets():
+    Source breaking change: method androidx.health.connect.client.records.PlannedExerciseStep.getPerformanceTargets() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord.Sample#getPower():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.Sample.getPower() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.PowerRecord.Sample#getTime():
+    Source breaking change: method androidx.health.connect.client.records.PowerRecord.Sample.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Record#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.Record.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RespiratoryRateRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.RespiratoryRateRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RespiratoryRateRecord#getRate():
+    Source breaking change: method androidx.health.connect.client.records.RespiratoryRateRecord.getRate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RespiratoryRateRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.RespiratoryRateRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RespiratoryRateRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.RespiratoryRateRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RestingHeartRateRecord#getBeatsPerMinute():
+    Source breaking change: method androidx.health.connect.client.records.RestingHeartRateRecord.getBeatsPerMinute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RestingHeartRateRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.RestingHeartRateRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RestingHeartRateRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.RestingHeartRateRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.RestingHeartRateRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.RestingHeartRateRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SeriesRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.SeriesRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SexualActivityRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.SexualActivityRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SexualActivityRecord#getProtectionUsed():
+    Source breaking change: method androidx.health.connect.client.records.SexualActivityRecord.getProtectionUsed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SexualActivityRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.SexualActivityRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SexualActivityRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SexualActivityRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getBaseline():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getDeltas():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getDeltas() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getMeasurementLocation():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getMeasurementLocation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord.Delta#getDelta():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.Delta.getDelta() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SkinTemperatureRecord.Delta#getTime():
+    Source breaking change: method androidx.health.connect.client.records.SkinTemperatureRecord.Delta.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getNotes():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getNotes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getStages():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getStages() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord#getTitle():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.getTitle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord.Stage#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.Stage.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord.Stage#getStage():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.Stage.getStage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SleepSessionRecord.Stage#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.SleepSessionRecord.Stage.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord.Sample#getSpeed():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.Sample.getSpeed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.SpeedRecord.Sample#getTime():
+    Source breaking change: method androidx.health.connect.client.records.SpeedRecord.Sample.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getSamples():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getSamples() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord.Sample#getRate():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.Sample.getRate() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsCadenceRecord.Sample#getTime():
+    Source breaking change: method androidx.health.connect.client.records.StepsCadenceRecord.Sample.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getCount():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.StepsRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.StepsRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getEnergy():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getEnergy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.TotalCaloriesBurnedRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.TotalCaloriesBurnedRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Vo2MaxRecord#getMeasurementMethod():
+    Source breaking change: method androidx.health.connect.client.records.Vo2MaxRecord.getMeasurementMethod() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Vo2MaxRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.Vo2MaxRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Vo2MaxRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.Vo2MaxRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Vo2MaxRecord#getVo2MillilitersPerMinuteKilogram():
+    Source breaking change: method androidx.health.connect.client.records.Vo2MaxRecord.getVo2MillilitersPerMinuteKilogram() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.Vo2MaxRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.Vo2MaxRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WeightRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.WeightRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WeightRecord#getTime():
+    Source breaking change: method androidx.health.connect.client.records.WeightRecord.getTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WeightRecord#getWeight():
+    Source breaking change: method androidx.health.connect.client.records.WeightRecord.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WeightRecord#getZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.WeightRecord.getZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getCount():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getEndTime():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getEndTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getEndZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getEndZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getMetadata():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getMetadata() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getStartTime():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getStartTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.WheelchairPushesRecord#getStartZoneOffset():
+    Source breaking change: method androidx.health.connect.client.records.WheelchairPushesRecord.getStartZoneOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.DataOrigin#getPackageName():
+    Source breaking change: method androidx.health.connect.client.records.metadata.DataOrigin.getPackageName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Device#getManufacturer():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Device.getManufacturer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Device#getModel():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Device.getModel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Device#getType():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Device.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getClientRecordId():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getClientRecordId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getClientRecordVersion():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getClientRecordVersion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getDataOrigin():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getDataOrigin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getDevice():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getDevice() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getId():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getLastModifiedTime():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getLastModifiedTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.records.metadata.Metadata#getRecordingMethod():
+    Source breaking change: method androidx.health.connect.client.records.metadata.Metadata.getRecordingMethod() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ChangesResponse#getChanges():
+    Source breaking change: method androidx.health.connect.client.response.ChangesResponse.getChanges() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ChangesResponse#getChangesTokenExpired():
+    Source breaking change: method androidx.health.connect.client.response.ChangesResponse.getChangesTokenExpired() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ChangesResponse#getNextChangesToken():
+    Source breaking change: method androidx.health.connect.client.response.ChangesResponse.getNextChangesToken() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ChangesResponse#hasMore():
+    Source breaking change: method androidx.health.connect.client.response.ChangesResponse.hasMore() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.InsertRecordsResponse#getRecordIdsList():
+    Source breaking change: method androidx.health.connect.client.response.InsertRecordsResponse.getRecordIdsList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ReadRecordResponse#getRecord():
+    Source breaking change: method androidx.health.connect.client.response.ReadRecordResponse.getRecord() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ReadRecordsResponse#getPageToken():
+    Source breaking change: method androidx.health.connect.client.response.ReadRecordsResponse.getPageToken() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.response.ReadRecordsResponse#getRecords():
+    Source breaking change: method androidx.health.connect.client.response.ReadRecordsResponse.getRecords() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.BloodGlucose#getMilligramsPerDeciliter():
+    Source breaking change: method androidx.health.connect.client.units.BloodGlucose.getMilligramsPerDeciliter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.BloodGlucose#getMillimolesPerLiter():
+    Source breaking change: method androidx.health.connect.client.units.BloodGlucose.getMillimolesPerLiter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Energy#getCalories():
+    Source breaking change: method androidx.health.connect.client.units.Energy.getCalories() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Energy#getJoules():
+    Source breaking change: method androidx.health.connect.client.units.Energy.getJoules() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Energy#getKilocalories():
+    Source breaking change: method androidx.health.connect.client.units.Energy.getKilocalories() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Energy#getKilojoules():
+    Source breaking change: method androidx.health.connect.client.units.Energy.getKilojoules() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Length#getFeet():
+    Source breaking change: method androidx.health.connect.client.units.Length.getFeet() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Length#getInches():
+    Source breaking change: method androidx.health.connect.client.units.Length.getInches() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Length#getKilometers():
+    Source breaking change: method androidx.health.connect.client.units.Length.getKilometers() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Length#getMeters():
+    Source breaking change: method androidx.health.connect.client.units.Length.getMeters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Length#getMiles():
+    Source breaking change: method androidx.health.connect.client.units.Length.getMiles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getGrams():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getGrams() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getKilograms():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getKilograms() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getMicrograms():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getMicrograms() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getMilligrams():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getMilligrams() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getOunces():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getOunces() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Mass#getPounds():
+    Source breaking change: method androidx.health.connect.client.units.Mass.getPounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Percentage#getValue():
+    Source breaking change: method androidx.health.connect.client.units.Percentage.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Power#getKilocaloriesPerDay():
+    Source breaking change: method androidx.health.connect.client.units.Power.getKilocaloriesPerDay() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Power#getWatts():
+    Source breaking change: method androidx.health.connect.client.units.Power.getWatts() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Pressure#getMillimetersOfMercury():
+    Source breaking change: method androidx.health.connect.client.units.Pressure.getMillimetersOfMercury() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Temperature#getCelsius():
+    Source breaking change: method androidx.health.connect.client.units.Temperature.getCelsius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Temperature#getFahrenheit():
+    Source breaking change: method androidx.health.connect.client.units.Temperature.getFahrenheit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.TemperatureDelta#getCelsius():
+    Source breaking change: method androidx.health.connect.client.units.TemperatureDelta.getCelsius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.TemperatureDelta#getFahrenheit():
+    Source breaking change: method androidx.health.connect.client.units.TemperatureDelta.getFahrenheit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Velocity#getKilometersPerHour():
+    Source breaking change: method androidx.health.connect.client.units.Velocity.getKilometersPerHour() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Velocity#getMetersPerSecond():
+    Source breaking change: method androidx.health.connect.client.units.Velocity.getMetersPerSecond() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Velocity#getMilesPerHour():
+    Source breaking change: method androidx.health.connect.client.units.Velocity.getMilesPerHour() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Volume#getFluidOuncesUs():
+    Source breaking change: method androidx.health.connect.client.units.Volume.getFluidOuncesUs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Volume#getLiters():
+    Source breaking change: method androidx.health.connect.client.units.Volume.getLiters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.health.connect.client.units.Volume#getMilliliters():
+    Source breaking change: method androidx.health.connect.client.units.Volume.getMilliliters() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, androidx.health.connect.client.time.TimeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Binary breaking change: Removed method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,androidx.health.connect.client.time.TimeRangeFilter,kotlin.coroutines.Continuation<? super kotlin.Unit>)
+RemovedMethod: androidx.health.connect.client.HealthConnectClientExt#deleteRecords(androidx.health.connect.client.HealthConnectClient, java.util.List<java.lang.String>, java.util.List<java.lang.String>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Binary breaking change: Removed method androidx.health.connect.client.HealthConnectClientExt.deleteRecords(androidx.health.connect.client.HealthConnectClient,java.util.List<java.lang.String>,java.util.List<java.lang.String>,kotlin.coroutines.Continuation<? super kotlin.Unit>)
+RemovedMethod: androidx.health.connect.client.time.TimeRangeFilter#TimeRangeFilter():
+    Binary breaking change: Removed constructor androidx.health.connect.client.time.TimeRangeFilter()

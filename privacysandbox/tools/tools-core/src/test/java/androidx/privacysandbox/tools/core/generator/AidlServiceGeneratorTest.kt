@@ -52,7 +52,7 @@ class AidlServiceGeneratorTest {
                                                 Parameter("d", Types.float),
                                                 Parameter("e", Types.double),
                                                 Parameter("f", Types.char),
-                                                Parameter("g", Types.int)
+                                                Parameter("g", Types.int),
                                             ),
                                         returnType = Types.string,
                                         isSuspend = true,
@@ -82,7 +82,7 @@ class AidlServiceGeneratorTest {
                                         returnType = Types.unit,
                                         isSuspend = false,
                                     ),
-                                )
+                                ),
                         )
                     )
             )

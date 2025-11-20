@@ -37,7 +37,7 @@ fun initializeEmojiCompatWithBundledForTest(replaceAll: Boolean = true) {
                 super.onInitialized()
                 latch.countDown()
             }
-        }
+        },
     )
     EmojiCompat.reset(config).load()
     latch.await(2, TimeUnit.SECONDS)

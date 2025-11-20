@@ -16,26 +16,23 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -43,9 +40,9 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ToggleButtonScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -246,10 +243,7 @@ class ToggleButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleCheckboxButton(
-        enabled: Boolean = true,
-        checked: Boolean = true,
-    ) {
+    private fun sampleCheckboxButton(enabled: Boolean = true, checked: Boolean = true) {
         CheckboxButton(
             icon = { TestIcon() },
             label = { Text("ToggleButton") },
@@ -281,10 +275,7 @@ class ToggleButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleSwitchButton(
-        enabled: Boolean = true,
-        checked: Boolean = true,
-    ) {
+    private fun sampleSwitchButton(enabled: Boolean = true, checked: Boolean = true) {
         SwitchButton(
             icon = { TestIcon() },
             label = { Text("ToggleButton") },
@@ -300,7 +291,7 @@ class ToggleButtonScreenshotTest {
     private fun sampleSplitSwitchButton(
         checked: Boolean = true,
         enabled: Boolean = true,
-        contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding
+        contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding,
     ) {
         SplitSwitchButton(
             label = { Text("SplitToggleButton") },
@@ -311,13 +302,13 @@ class ToggleButtonScreenshotTest {
             onContainerClick = {},
             toggleContentDescription = "",
             modifier = Modifier.testTag(TEST_TAG),
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
         )
     }
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
@@ -325,9 +316,6 @@ class ToggleButtonScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }

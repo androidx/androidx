@@ -26,16 +26,16 @@ import org.jspecify.annotations.NonNull;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileUpdateRequestData extends ProtoParcelable {
-    public static final int VERSION_PLACEHOLDER = 1;
+    public static final int VERSION_1 = 1;
 
     public static final Creator<TileUpdateRequestData> CREATOR =
             newCreator(TileUpdateRequestData.class, TileUpdateRequestData::new);
 
-    private TileUpdateRequestData(byte @NonNull [] params, int version) {
+    public TileUpdateRequestData(byte @NonNull [] params, int version) {
         super(params, version);
     }
 
     public TileUpdateRequestData() {
-        this(new byte[] {}, VERSION_PLACEHOLDER);
+        this(new byte[] {}, VERSION_1);
     }
 }

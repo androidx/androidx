@@ -33,7 +33,7 @@ actual fun DropdownMenuItem(
     enabled: Boolean,
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource?,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
@@ -44,7 +44,7 @@ actual fun DropdownMenu(
     offset: DpOffset,
     scrollState: ScrollState,
     properties: PopupProperties,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 internal actual val DefaultMenuProperties: PopupProperties = implementedInJetBrainsFork()

@@ -1,0 +1,36 @@
+{
+  "projectPath": ":privacysandbox:ui:ui-provider",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.hamcrest:hamcrest-core",
+        "resolvedVersion": "1.3"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":internal-testutils-truth"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

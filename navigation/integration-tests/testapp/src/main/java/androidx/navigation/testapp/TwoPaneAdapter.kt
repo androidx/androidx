@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class TwoPaneAdapter(
     private val dataSet: Array<String>,
-    private val onClick: (CharSequence) -> Unit
+    private val onClick: (CharSequence) -> Unit,
 ) : RecyclerView.Adapter<TwoPaneAdapter.ViewHolder>() {
 
     class ViewHolder(view: View, val onClick: (CharSequence) -> Unit) :

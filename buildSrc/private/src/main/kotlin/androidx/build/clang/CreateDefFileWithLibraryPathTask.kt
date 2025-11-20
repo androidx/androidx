@@ -67,7 +67,7 @@ abstract class CreateDefFileWithLibraryPathTask : DefaultTask() {
             listOf(
                     original.asFile.get().readText(Charsets.UTF_8),
                     "libraryPaths=\"$objectFileParentDir\"",
-                    "staticLibraries=" + objectFile.asFile.get().name
+                    "staticLibraries=" + objectFile.asFile.get().name,
                 )
                 .joinToString(System.lineSeparator())
         target.writeText(outputContents, Charsets.UTF_8)

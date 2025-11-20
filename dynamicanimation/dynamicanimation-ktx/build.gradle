@@ -26,11 +26,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":dynamicanimation:dynamicanimation"))
 
     androidTestImplementation(libs.testExtJunit)
@@ -46,7 +45,6 @@ dependencies {
 androidx {
     name = "Dynamic animation Kotlin Extensions"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    mavenVersion = LibraryVersions.DYNAMICANIMATION_KTX
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
     legacyDisableKotlinStrictApiMode = true

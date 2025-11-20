@@ -25,16 +25,21 @@ import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.mock.view
+import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.resume
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Stable
 class PausableCompositionTests {
     @Test
@@ -79,12 +84,11 @@ class PausableCompositionTests {
             recording,
             "+A, ^z, ^Y, *B, +B, *Linear, +A:1, *C, +C, ^x, *Text, -C, *D, +D, +D:1, *C, +C, " +
                 "^x, *Text, -C, *C, +C, ^x, *Text, -C, *C, +C, ^x, *Text, -C, -D:1, -D, -A:1, " +
-                "-B, -A"
+                "-B, -A",
         )
     }
 
     @Test
-    @Ignore // Requires compiler support
     fun canPauseContent() = compositionTest {
         val awaiter = Awaiter()
         var receivedIteration = 0
@@ -102,7 +106,7 @@ class PausableCompositionTests {
             awaiter.await()
         }
         validate { this.PausableContent { this.A() } }
-        assertEquals(10, receivedIteration)
+        assertEquals(9, receivedIteration)
 
         // Same Legend as canRecordAComposition
         // Here we expect all functions to exit before the content of the function is executed
@@ -112,12 +116,11 @@ class PausableCompositionTests {
             recording,
             "+A, ^z, ^Y, *B, -A, +B, *Linear, -B, +A:1, *C, *D, -A:1, +C, " +
                 "^x, *Text, -C, +D, -D, +D:1, *C, *C, *C, -D:1, +C, ^x, *Text, -C, +C, ^x, *Text, " +
-                "-C, +C, ^x, *Text, -C"
+                "-C, +C, ^x, *Text, -C",
         )
     }
 
     @Test
-    @Ignore // Requires compiler support
     fun canPauseReusableContent() = compositionTest {
         val awaiter = Awaiter()
         var receivedIteration = 0
@@ -135,7 +138,7 @@ class PausableCompositionTests {
             awaiter.await()
         }
         validate { this.PausableContent { this.A() } }
-        assertEquals(10, receivedIteration)
+        assertEquals(9, receivedIteration)
         // Same Legend as canRecordAComposition
         // Here we expect the result to be the same as if we were inserting new content as in
         // canPauseContent
@@ -143,12 +146,11 @@ class PausableCompositionTests {
             "+A, ^z, ^Y, *B, -A, +B, *Linear, -B, +A:1, *C, *D, -A:1, +C, " +
                 "^x, *Text, -C, +D, -D, +D:1, *C, *C, *C, -D:1, +C, ^x, *Text, -C, +C, ^x, *Text, " +
                 "-C, +C, ^x, *Text, -C",
-            recording
+            recording,
         )
     }
 
     @Test
-    @Ignore // Requires compiler support
     fun canPauseReusingContent() = compositionTest {
         val awaiter = Awaiter()
         var recording = ""
@@ -177,7 +179,7 @@ class PausableCompositionTests {
                     "^x, *Text, -C, +D, -D, +D:1, *C, *C, *C, -D:1, +C, ^x, *Text, -C, +C, ^x, *Text, " +
                     "-C, +C, ^x, *Text, -C")
                 .splitRecording(),
-            recording.splitRecording()
+            recording.splitRecording(),
         )
     }
 
@@ -209,7 +211,6 @@ class PausableCompositionTests {
     }
 
     @Test
-    @Ignore // Requires compiler support
     fun rememberOnlyCalledInApply() = compositionTest {
         val awaiter = Awaiter()
         var onRememberCalled = false
@@ -278,7 +279,7 @@ class PausableCompositionTests {
             "C(a), +B, *Linear, -B, C(b), +B, *Linear, -B, C(c), C(d), +C, ^x, *Text, -C, +D, " +
                 "-D, +D:1, *C, *C, *C, -D:1, +C, ^x, *Text, -C, +C, ^x, *Text, -C, +C, ^x, *Text, " +
                 "-C, +a, +b, +c, +d",
-            recording
+            recording,
         )
     }
 
@@ -356,37 +357,449 @@ class PausableCompositionTests {
         )
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun pausableComposition_throwInResume() = runTest {
+    @Test // b/404058957
+    fun pausableComposition_reuseDeactivateOrder_100() = compositionTest {
+        val awaiter = Awaiter()
+        var active by mutableStateOf(true)
+        var text by mutableStateOf("Value")
+        val workFlow = workflow {
+            setContent()
+
+            resumeTillComplete { true }
+
+            repeat(100) {
+                active = false
+                advance()
+
+                resumeTillComplete { true }
+
+                active = true
+                advance()
+
+                resumeTillComplete { true }
+            }
+
+            apply()
+
+            text = "Changed Value"
+            advance()
+
+            awaiter.done()
+        }
+
+        compose { PausableContent(workFlow) { ReusableContentHost(active) { Text(text) } } }
+
+        awaiter.await()
+    }
+
+    @Test // b/404058957
+    fun pausableComposition_reuseDeactivateOrder() = compositionTest {
+        val awaiter = Awaiter()
+        var active by mutableStateOf(true)
+        var text by mutableStateOf("Value")
+        val workFlow = workflow {
+            setContent()
+
+            resumeTillComplete { true }
+
+            active = false
+            advance()
+
+            resumeTillComplete { true }
+
+            active = true
+            advance()
+
+            resumeTillComplete { true }
+
+            apply()
+
+            text = "Changed Value"
+            advance()
+
+            awaiter.done()
+        }
+
+        compose { PausableContent(workFlow) { ReusableContentHost(active) { Text(text) } } }
+
+        awaiter.await()
+    }
+
+    @Test
+    fun pausableComposition_throwInResume() =
+        runTest(expected = IllegalStateException::class) {
+            val recomposer = Recomposer(coroutineContext)
+            val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
+
+            try {
+                val handle = pausableComposition.setPausableContent { error("Test error") }
+                handle.resume { false }
+                handle.apply()
+            } finally {
+                recomposer.cancel()
+                recomposer.close()
+            }
+        }
+
+    @Test
+    fun pausableComposition_throwInApply() =
+        runTest(expected = IllegalStateException::class) {
+            val recomposer = Recomposer(coroutineContext)
+            val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
+
+            try {
+                val handle =
+                    pausableComposition.setPausableContent {
+                        DisposableEffect(Unit) { throw IllegalStateException("test") }
+                    }
+                handle.resume { false }
+                handle.apply()
+            } finally {
+                recomposer.cancel()
+                recomposer.close()
+            }
+        }
+
+    @Test
+    fun pausableComposition_throwIfReusedAfterCancel() =
+        runTest(expected = IllegalStateException::class) {
+            val recomposer = Recomposer(coroutineContext)
+            val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
+
+            try {
+                val handle = pausableComposition.setPausableContent { Text("Some text") }
+                handle.cancel()
+                val handle2 = pausableComposition.setPausableContent { Text("Some other text") }
+                handle2.resume { false }
+                handle2.apply()
+            } finally {
+                pausableComposition.dispose()
+                recomposer.cancel()
+                recomposer.close()
+            }
+        }
+
+    @Test
+    fun pausableComposition_isAppliedReturnsCorrectValue() = runTest {
         val recomposer = Recomposer(coroutineContext)
         val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
 
         try {
-            val handle = pausableComposition.setPausableContent { error("Test error") }
+            val handle =
+                pausableComposition.setPausableContent { DisposableEffect(Unit) { onDispose {} } }
+            assertFalse(handle.isApplied)
             handle.resume { false }
+            assertFalse(handle.isApplied)
             handle.apply()
+            assertTrue(handle.isApplied)
         } finally {
             recomposer.cancel()
             recomposer.close()
         }
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun pausableComposition_throwInApply() = runTest {
+    @Test
+    fun pausableComposition_isCancelledReturnsCorrectValue() = runTest {
         val recomposer = Recomposer(coroutineContext)
         val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
 
         try {
             val handle =
-                pausableComposition.setPausableContent {
-                    DisposableEffect(Unit) { throw IllegalStateException("test") }
-                }
+                pausableComposition.setPausableContent { DisposableEffect(Unit) { onDispose {} } }
+            assertFalse(handle.isCancelled)
             handle.resume { false }
-            handle.apply()
+            assertFalse(handle.isCancelled)
+            handle.cancel()
+            assertTrue(handle.isCancelled)
         } finally {
             recomposer.cancel()
             recomposer.close()
         }
+    }
+
+    @Test
+    fun pausableComposition_diagnosticExceptionInApply() = compositionTest {
+        val awaiter = Awaiter()
+
+        var applyException: Exception? = null
+        val w = workflow {
+            setContent()
+            resumeTillComplete { false }
+
+            try {
+                apply()
+            } catch (e: Exception) {
+                applyException = e
+            }
+            awaiter.done()
+        }
+
+        compose {
+            PausableContent(w) {
+                ComposeNode<View, ViewApplier>(
+                    factory = { View().also { it.name = "Crash" } },
+                    update = { init { error("Test") } },
+                    content = {},
+                )
+            }
+        }
+
+        awaiter.await()
+        assertEquals("ComposePausableCompositionException", applyException!!::class.simpleName)
+    }
+
+    @Test // b/424797313
+    fun rememberObserverCount() = compositionTest {
+        val awaiter = Awaiter()
+        val workFlow = workflow {
+            setContent()
+
+            resumeTillComplete { false }
+
+            cancel()
+
+            composition.dispose()
+
+            awaiter.done()
+        }
+
+        val rememberObserver =
+            object : RememberObserver {
+                var rememberCount = 0
+                var forgottenCount = 0
+                var abandonedCount = 0
+
+                override fun onRemembered() {
+                    rememberCount++
+                }
+
+                override fun onForgotten() {
+                    forgottenCount++
+                }
+
+                override fun onAbandoned() {
+                    abandonedCount++
+                }
+            }
+
+        compose { PausableContent(workFlow) { remember<RememberObserver> { rememberObserver } } }
+
+        awaiter.await()
+
+        assertEquals(0, rememberObserver.rememberCount)
+        assertEquals(0, rememberObserver.forgottenCount)
+        assertEquals(1, rememberObserver.abandonedCount)
+    }
+
+    @Test
+    fun deactivateAnotherComposition() = compositionTest {
+        val awaiter = Awaiter()
+        var state by mutableStateOf(false)
+        var composition: ReusableComposition? = null
+
+        val workflow = workflow {
+            composition = this.composition
+
+            setContent()
+            resumeTillComplete { false }
+            apply()
+
+            state = true
+            Snapshot.sendApplyNotifications()
+            advance()
+
+            setContent()
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            Text("$state")
+            SideEffect {
+                if (state) {
+                    composition?.deactivate()
+                }
+            }
+
+            PausableContent(workflow) { Text("$state") }
+        }
+
+        awaiter.await()
+    }
+
+    @Test
+    fun markInvalidFromBackgroundThread() = compositionTest {
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+
+            repeat(1000) {
+                val job = launch(Dispatchers.Default) { repeat(10) { launch { invalidate() } } }
+                job.join()
+
+                resumeTillComplete { false }
+            }
+            apply()
+            awaiter.done()
+        }
+
+        compose { PausableContent(workflow) { Text("Some composable") } }
+
+        awaiter.await()
+    }
+
+    @Test
+    fun tryPausingTheSameScopeTwice() = compositionTest {
+        val awaiter = Awaiter()
+        var textComposed = false
+        var text by mutableStateOf("blah")
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+            apply()
+            composition.deactivate()
+
+            setContent()
+            resumeOnce { textComposed }
+
+            text = "text"
+            advance()
+
+            resumeOnce { true }
+
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            PausableContent(workflow) {
+                textComposed = true
+                DefaultText(text)
+            }
+        }
+
+        awaiter.await()
+    }
+
+    @Test
+    fun resumeOnBackgroundThread() = compositionTest {
+        val awaiter = Awaiter()
+        var text by mutableStateOf("Some text")
+        var running by mutableStateOf(false)
+        var counter = 0
+        val mutatorJob =
+            launch(Dispatchers.Default) {
+                while (running) {
+                    text = "Some text $counter"
+                    counter++
+                    yield()
+                }
+            }
+
+        val workflow = workflow {
+            setContent()
+
+            val resumeJob =
+                launch(Dispatchers.Default) {
+                    while (!isComplete) {
+                        resumeOnce { true }
+                    }
+                }
+
+            resumeJob.join()
+            resumeTillComplete { false }
+            apply()
+            awaiter.done()
+        }
+
+        compose {
+            W { Text(text) }
+
+            PausableContent(workflow) { W { repeat(1000) { W { Text(text) } } } }
+            W { Text(text) }
+        }
+
+        repeat(100) {
+            advance(ignorePendingWork = true)
+            delay(1)
+        }
+
+        running = false
+        mutatorJob.join()
+        awaiter.await()
+    }
+
+    @Test
+    fun rememberObserverThrashing() = compositionTest {
+        val events = mutableListOf<String>()
+        var enable by mutableStateOf(true)
+        var key by mutableStateOf("A")
+
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+
+            enable = false
+            advance()
+            resumeTillComplete { false }
+
+            enable = true
+            advance()
+            resumeTillComplete { false }
+
+            key = "B"
+            advance()
+            resumeTillComplete { false }
+
+            enable = false
+            advance()
+            resumeTillComplete { false }
+
+            enable = true
+            advance()
+            resumeTillComplete { false }
+
+            apply()
+            awaiter.done()
+        }
+
+        compose {
+            PausableContent(workflow) {
+                if (enable) {
+                    use(
+                        remember(key) {
+                            object : RememberObserver {
+                                val name = key
+
+                                override fun onRemembered() {
+                                    events += "Remember($name)"
+                                }
+
+                                override fun onForgotten() {
+                                    events += "Forget($name)"
+                                }
+
+                                override fun onAbandoned() {
+                                    events += "Abandon($name)"
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        awaiter.await()
+        assertEquals(events.size, 4)
+        assertEquals("Remember(B)", events[0])
+        assertEquals(2, events.count { it == "Abandon(A)" })
+        assertEquals(1, events.count { it == "Abandon(B)" })
     }
 }
 
@@ -529,13 +942,20 @@ private fun D() {
     }
 }
 
+@Composable
+private fun W(content: @Composable () -> Unit) {
+    Linear(content)
+}
+
 private fun MockViewValidator.D() {
     this.Linear { repeat(3) { this.C() } }
 }
 
 interface PausableContentWorkflowScope {
     val iteration: Int
+    val isComplete: Boolean
     val applied: Boolean
+    val composition: PausableComposition
 
     fun setContent(): PausedComposition
 
@@ -543,7 +963,13 @@ interface PausableContentWorkflowScope {
 
     fun resumeTillComplete(shouldPause: () -> Boolean)
 
+    fun resumeOnce(shouldPause: () -> Boolean)
+
     fun apply()
+
+    fun cancel()
+
+    fun invalidate()
 }
 
 fun PausableContentWorkflowScope.run(shouldPause: () -> Boolean = { true }) {
@@ -553,15 +979,18 @@ fun PausableContentWorkflowScope.run(shouldPause: () -> Boolean = { true }) {
 }
 
 class PausableContentWorkflowDriver(
-    private val composition: PausableComposition,
+    override val composition: PausableComposition,
     private val content: @Composable () -> Unit,
     private var host: View?,
-    private var contentView: View?
+    private var contentView: View?,
 ) : PausableContentWorkflowScope {
     private var pausedComposition: PausedComposition? = null
     override var iteration = 0
     override val applied: Boolean
         get() = host == null && pausedComposition == null
+
+    override val isComplete: Boolean
+        get() = host == null || pausedComposition?.isComplete == true
 
     override fun setContent(): PausedComposition {
         checkPrecondition(pausedComposition == null)
@@ -582,6 +1011,12 @@ class PausableContentWorkflowDriver(
         }
     }
 
+    override fun resumeOnce(shouldPause: () -> Boolean) {
+        val pausedComposition = pausedComposition
+        checkPrecondition(pausedComposition != null)
+        pausedComposition.resume(shouldPause)
+    }
+
     override fun apply() {
         val pausedComposition = pausedComposition
         checkPrecondition(pausedComposition != null && pausedComposition.isComplete)
@@ -595,13 +1030,23 @@ class PausableContentWorkflowDriver(
             this.contentView = null
         }
     }
+
+    override fun cancel() {
+        val pausedComposition = pausedComposition
+        checkPrecondition(pausedComposition != null)
+        pausedComposition.cancel()
+    }
+
+    override fun invalidate() {
+        (pausedComposition as? PausedCompositionImpl)?.markIncomplete()
+    }
 }
 
 @Composable
 private fun PausableContent(
     workflow: suspend PausableContentWorkflowScope.() -> Unit = { run() },
     createApplier: (view: View) -> Applier<View> = { ViewApplier(it) },
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val host = View().also { it.name = "PausableContentHost" }
     val pausableContent = View().also { it.name = "PausableContent" }
@@ -636,4 +1081,19 @@ private class Awaiter {
         done = true
         resume()
     }
+}
+
+val LocalColor = compositionLocalOf { -1 }
+
+@Composable
+fun DefaultText(
+    text: String,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE,
+    color: Int = LocalColor.current,
+) {
+    assertEquals(1, minLines)
+    assertEquals(Int.MAX_VALUE, maxLines)
+    assertEquals(-1, color)
+    Text(text)
 }

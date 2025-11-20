@@ -22,14 +22,17 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.util.SchemaUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -87,10 +90,10 @@ import java.util.Set;
  * @see AppSearchSession#setSchemaAsync
  * @see Migrator
  */
-// TODO(b/384721898): Switch to JSpecify annotations
+// TODO(b/384721898): Switching to JSpecify annotations changes APIs once synced to platform.
+//  Do not switch unless you've checked that no APIs are affected.
 @SuppressWarnings("JSpecifyNullness")
 public final class SetSchemaRequest {
-
     /**
      * List of Android Permission are supported in
      * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}
@@ -233,6 +236,7 @@ public final class SetSchemaRequest {
     private final Map<String, Set<Set<Integer>>> mSchemasVisibleToPermissions;
     private final Map<String, PackageIdentifier> mPubliclyVisibleSchemas;
     private final Map<String, Set<SchemaVisibilityConfig>> mSchemasVisibleToConfigs;
+    private final Map<String, Set<String>> mSchemasWipeoutAccountPropertyPaths;
     private final Map<String, Migrator> mMigrators;
     private final boolean mForceOverride;
     private final int mVersion;
@@ -243,6 +247,7 @@ public final class SetSchemaRequest {
             @NonNull Map<String, Set<Set<Integer>>> schemasVisibleToPermissions,
             @NonNull Map<String, PackageIdentifier> publiclyVisibleSchemas,
             @NonNull Map<String, Set<SchemaVisibilityConfig>> schemasVisibleToConfigs,
+            @NonNull Map<String, Set<String>> schemasWipeoutAccountPropertyPaths,
             @NonNull Map<String, Migrator> migrators,
             boolean forceOverride,
             int version) {
@@ -252,6 +257,8 @@ public final class SetSchemaRequest {
         mSchemasVisibleToPermissions = Preconditions.checkNotNull(schemasVisibleToPermissions);
         mPubliclyVisibleSchemas = Preconditions.checkNotNull(publiclyVisibleSchemas);
         mSchemasVisibleToConfigs = Preconditions.checkNotNull(schemasVisibleToConfigs);
+        mSchemasWipeoutAccountPropertyPaths = Preconditions.checkNotNull(
+                schemasWipeoutAccountPropertyPaths);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
         mVersion = version;
@@ -347,6 +354,27 @@ public final class SetSchemaRequest {
     }
 
     /**
+     * Returns a map containing all schema types that have been configured for account wipeout,
+     * mapped to the specific property paths within those schemas that hold the account identifiers.
+     *
+     * <p>This method performs a deep copy to ensure the returned map and its contained sets are
+     * immutable from external modifications.
+     *
+     * @return A map where keys are schema type names, and values are sets of {@link PropertyPath}
+     * strings configured for account wipeout for that schema type.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+    @ExperimentalAppSearchApi
+    public @NonNull Map<String, Set<String>> getSchemasWipeoutAccountPropertyPaths() {
+        Map<String, Set<String>> copy = new ArrayMap<>();
+        for (Map.Entry<String, Set<String>> entry :
+                mSchemasWipeoutAccountPropertyPaths.entrySet()) {
+            copy.put(entry.getKey(), new ArraySet<>(entry.getValue()));
+        }
+        return copy;
+    }
+
+    /**
      * Returns the map of {@link Migrator}, the key will be the schema type of the
      * {@link Migrator} associated with.
      */
@@ -380,16 +408,45 @@ public final class SetSchemaRequest {
         return mVersion;
     }
 
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof SetSchemaRequest)) {
+            return false;
+        }
+        SetSchemaRequest otherRequest = (SetSchemaRequest) other;
+        return mSchemas.equals(otherRequest.mSchemas)
+                && mSchemasNotDisplayedBySystem.equals(otherRequest.mSchemasNotDisplayedBySystem)
+                && mSchemasVisibleToPackages.equals(otherRequest.mSchemasVisibleToPackages)
+                && mSchemasVisibleToPermissions.equals(otherRequest.mSchemasVisibleToPermissions)
+                && mPubliclyVisibleSchemas.equals(otherRequest.mPubliclyVisibleSchemas)
+                && mSchemasVisibleToConfigs.equals(otherRequest.mSchemasVisibleToConfigs)
+                && mMigrators.equals(otherRequest.mMigrators)
+                && mForceOverride == otherRequest.mForceOverride
+                && mVersion == otherRequest.mVersion;
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectsCompat.hash(mSchemas, mSchemasNotDisplayedBySystem, mSchemasVisibleToPackages,
+        mSchemasVisibleToPermissions, mPubliclyVisibleSchemas, mSchemasVisibleToConfigs, mMigrators,
+                mForceOverride, mVersion);
+    }
+
     /** Builder for {@link SetSchemaRequest} objects. */
     public static final class Builder {
         private static final int DEFAULT_VERSION = 1;
-        private ArraySet<AppSearchSchema> mSchemas = new ArraySet<>();
+        private ArrayMap<String, AppSearchSchema> mSchemas = new ArrayMap<>();
         private ArraySet<String> mSchemasNotDisplayedBySystem = new ArraySet<>();
         private ArrayMap<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private ArrayMap<String, Set<Set<Integer>>> mSchemasVisibleToPermissions = new ArrayMap<>();
         private ArrayMap<String, PackageIdentifier> mPubliclyVisibleSchemas = new ArrayMap<>();
         private ArrayMap<String, Set<SchemaVisibilityConfig>> mSchemaVisibleToConfigs =
+                new ArrayMap<>();
+        private ArrayMap<String, Set<String>> mSchemasWipeoutAccountPropertyPaths =
                 new ArrayMap<>();
         private ArrayMap<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
@@ -406,7 +463,9 @@ public final class SetSchemaRequest {
         @ExperimentalAppSearchApi
         @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
         public Builder(@NonNull SetSchemaRequest request) {
-            mSchemas.addAll(request.mSchemas);
+            for (AppSearchSchema schema : request.mSchemas) {
+                mSchemas.put(schema.getSchemaType(), schema);
+            }
             mSchemasNotDisplayedBySystem.addAll(request.mSchemasNotDisplayedBySystem);
             for (Map.Entry<String, Set<PackageIdentifier>> entry
                     : request.mSchemasVisibleToPackages.entrySet()) {
@@ -446,7 +505,9 @@ public final class SetSchemaRequest {
         public @NonNull Builder addSchemas(@NonNull Collection<AppSearchSchema> schemas) {
             Preconditions.checkNotNull(schemas);
             resetIfBuilt();
-            mSchemas.addAll(schemas);
+            for (AppSearchSchema schema : schemas) {
+                mSchemas.put(schema.getSchemaType(), schema);
+            }
             return this;
         }
 
@@ -539,6 +600,15 @@ public final class SetSchemaRequest {
          *
          * <p>The default behavior, if this method is not called, is to allow types to be
          * displayed on system UI surfaces.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>You can use {@link Features#isFeatureSupported} with the
+         * {@link Features#SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM} Feature to see if
+         * this visibility mode is supported on this backend / API level combination. If not
+         * supported, this function is still safe to call and the configuration will be saved in
+         * the schema, but it will not have any effect and documents will not be visible through
+         * this mechanism on that backend / API level.
+         * <!--@exportToFramework:else() -->
          *
          * @param schemaType The name of an {@link AppSearchSchema} within the same
          *                   {@link SetSchemaRequest}, which will be configured.
@@ -832,6 +902,121 @@ public final class SetSchemaRequest {
         }
 
         /**
+         * Configures the property paths within a specific schema type that are associated with a
+         * account, enabling AppSearch to automatically wipe out {@link GenericDocument}s when that
+         * account is removed.
+         *
+         * <p>To enable AppSearch to automatically wipe out documents when an account is removed,
+         * you must use this API to configure the account property paths for the relevant schema
+         * type. If this configuration is not set for a schema type, AppSearch will not
+         * automatically delete any {@link GenericDocument}s of that type, even if the account
+         * associated with the document is removed from the system. Documents will only be deleted
+         * if the app explicitly calls  for their removal.
+         *
+         * <p>The property path must point to a
+         * {@link androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig} which is AppSearch
+         * built-in account. The property path could point to the nested document.
+         *
+         * <p>When putting a {@link GenericDocument} into AppSearch, all accounts identified
+         * by the given {@code accountPropertyPaths} within that document must already exist.
+         * AppSearch will reject the document if any account specified by these paths is not
+         * recognized.
+         *
+         * @param schemaType The name of the schema type being configured (e.g., "Email").
+         * @param accountPropertyPaths A collection of property paths (e.g., "sender.account") point
+         *                             to the field containing the account identifier.
+         * @param autoWipeout If {@code true}, enables automatic account wipeout for the given
+         *                    paths. If {@code false}, disables it.
+         * @return This {@code Builder} instance.
+         * @throws NullPointerException if {@code schemaType} or {@code accountPropertyPaths} is
+         * null.
+         */
+        // Merged list available from getSchemasWipeoutAccountPropertyPaths
+        // TODO(b/413089233) improve the java doc to explain the use cases if a documents were
+        //  previously indexed, then the schema is re-set with this call being the only change.
+        @CanIgnoreReturnValue
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT)
+        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+        @ExperimentalAppSearchApi
+        public @NonNull Builder setSchemaTypeWipeoutAccountPropertyPaths(
+                @NonNull String schemaType, @NonNull Collection<PropertyPath> accountPropertyPaths,
+                boolean autoWipeout) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(accountPropertyPaths);
+            resetIfBuilt();
+            List<String> propertyPathsList = new ArrayList<>(accountPropertyPaths.size());
+            for (PropertyPath propertyPath : accountPropertyPaths) {
+                propertyPathsList.add(propertyPath.toString());
+            }
+
+            if (autoWipeout) {
+                Set<String> accountProperties = mSchemasWipeoutAccountPropertyPaths.get(schemaType);
+                if (accountProperties == null) {
+                    accountProperties = new ArraySet<>();
+                    mSchemasWipeoutAccountPropertyPaths.put(schemaType, accountProperties);
+                }
+                accountProperties.addAll(propertyPathsList);
+            } else {
+                Set<String> accountProperties = mSchemasWipeoutAccountPropertyPaths.get(schemaType);
+                if (accountProperties != null) {
+                    accountProperties.removeAll(propertyPathsList);
+                    if (accountProperties.isEmpty()) {
+                        mSchemasWipeoutAccountPropertyPaths.remove(schemaType);
+                    }
+                }
+            }
+            return this;
+        }
+
+// @exportToFramework:startStrip()
+        /**
+         * Configures the property paths within a specific schema type that are associated with a
+         * account, enabling AppSearch to automatically wipe out {@link GenericDocument}s when that
+         * account is removed.
+         *
+         * <p>The property path must point to a
+         * {@link androidx.appsearch.app.AppSearchSchema.DocumentPropertyConfig} which is AppSearch
+         * built-in account.
+         *
+         * <p>When putting a {@link GenericDocument} into AppSearch, all accounts identified
+         * by the given {@code accountPropertyPaths} within that document must already exist.
+         * AppSearch will reject the document if any account specified by these paths is not
+         * recognized.
+         *
+         *
+         * @param documentClass the {@link androidx.appsearch.annotation.Document} annotated class
+         *                      of the schema type being configured (e.g., "Email").
+         * @param accountPropertyPaths A collection of property paths (e.g., "sender.account") point
+         *                             to the field containing the account identifier.
+         * @param autoWipeOut If {@code true}, enables automatic account wipeout for the given
+         *                    paths. If {@code false}, disables it.
+         * @return This {@code Builder} instance.
+         * @throws NullPointerException if {@code schemaType} or {@code accountPropertyPaths} is
+         * null.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT)
+        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
+        @ExperimentalAppSearchApi
+        public @NonNull Builder setDocumentClassWipeoutAccountPropertyPaths(
+                @NonNull Class<?> documentClass,
+                @NonNull Collection<PropertyPath> accountPropertyPaths,
+                boolean autoWipeOut) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setSchemaTypeWipeoutAccountPropertyPaths(factory.getSchemaName(),
+                    accountPropertyPaths, autoWipeOut);
+        }
+// @exportToFramework:endStrip()
+
+        /**
          * Sets the {@link Migrator} associated with the given SchemaType.
          *
          * <p>The {@link Migrator} migrates all {@link GenericDocument}s under given schema type
@@ -923,6 +1108,13 @@ public final class SetSchemaRequest {
          *
          * <p>The default behavior, if this method is not called, is to allow types to be
          * displayed on system UI surfaces.
+         *
+         * <p>You can use {@link Features#isFeatureSupported} with the
+         * {@link Features#SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM} Feature to see if
+         * this visibility mode is supported on this backend / API level combination. If not
+         * supported, this function is still safe to call and the configuration will be saved in
+         * the schema, but it will not have any effect and documents will not be visible through
+         * this mechanism on that backend / API level.
          *
          * <p> Merged list available from {@link #getSchemasNotDisplayedBySystem()}.
          *
@@ -1168,6 +1360,7 @@ public final class SetSchemaRequest {
          *                                  corresponding {@link AppSearchSchema} type was never
          *                                  added.
          */
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public @NonNull SetSchemaRequest build() {
             // Verify that any schema types with display or visibility settings refer to a real
             // schema.
@@ -1177,9 +1370,10 @@ public final class SetSchemaRequest {
             referencedSchemas.addAll(mSchemasVisibleToPermissions.keySet());
             referencedSchemas.addAll(mPubliclyVisibleSchemas.keySet());
             referencedSchemas.addAll(mSchemaVisibleToConfigs.keySet());
+            referencedSchemas.addAll(mSchemasWipeoutAccountPropertyPaths.keySet());
 
-            for (AppSearchSchema schema : mSchemas) {
-                referencedSchemas.remove(schema.getSchemaType());
+            for (String schemaType : mSchemas.keySet()) {
+                referencedSchemas.remove(schemaType);
             }
             if (!referencedSchemas.isEmpty()) {
                 // We still have schema types that weren't seen in our mSchemas set. This means
@@ -1191,14 +1385,18 @@ public final class SetSchemaRequest {
                 throw new IllegalArgumentException(
                         "Cannot set version to the request if schema is empty.");
             }
+
+            SchemaUtil.verifyPropertyPathSchemaTypes(mSchemas, mSchemasWipeoutAccountPropertyPaths,
+                    AppSearchAccount.SCHEMA_TYPE);
             mBuilt = true;
             return new SetSchemaRequest(
-                    mSchemas,
+                    new ArraySet<>(mSchemas.values()),
                     mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages,
                     mSchemasVisibleToPermissions,
                     mPubliclyVisibleSchemas,
                     mSchemaVisibleToConfigs,
+                    mSchemasWipeoutAccountPropertyPaths,
                     mMigrators,
                     mForceOverride,
                     mVersion);
@@ -1226,8 +1424,18 @@ public final class SetSchemaRequest {
                 }
                 mSchemaVisibleToConfigs = schemaVisibleToConfigs;
 
-                mSchemas = new ArraySet<>(mSchemas);
+                mSchemas = new ArrayMap<>(mSchemas);
                 mSchemasNotDisplayedBySystem = new ArraySet<>(mSchemasNotDisplayedBySystem);
+
+                ArrayMap<String, Set<String>> schemasWipeoutAccountPropertyPaths =
+                        new ArrayMap<>(mSchemasWipeoutAccountPropertyPaths.size());
+                for (Map.Entry<String, Set<String>> entry :
+                        mSchemasWipeoutAccountPropertyPaths.entrySet()) {
+                    schemasWipeoutAccountPropertyPaths
+                            .put(entry.getKey(), new ArraySet<>(entry.getValue()));
+                }
+                mSchemasWipeoutAccountPropertyPaths = schemasWipeoutAccountPropertyPaths;
+
                 mMigrators = new ArrayMap<>(mMigrators);
                 mBuilt = false;
             }

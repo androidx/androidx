@@ -25,11 +25,8 @@ package androidx.health.connect.client.units
  * - ounces - see [Mass.ounces], [Double.ounces]
  * - pounds - see [Mass.pounds], [Double.pounds]
  */
-class Mass
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Mass> {
+class Mass private constructor(private val value: Double, private val type: Type) :
+    Comparable<Mass> {
 
     /** Returns the mass in grams. */
     @get:JvmName("getGrams")

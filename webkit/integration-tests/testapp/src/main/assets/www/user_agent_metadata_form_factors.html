@@ -1,0 +1,87 @@
+<html>
+<!-- Copyright 2025 The Android Open Source Project
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<head>
+    <style>
+        pre.input {
+          color: hsl(300, 24%, 40%);
+          font-style: italic;
+          font-weight: 400;
+          padding-bottom: 0;
+        }
+
+        pre.input::before {
+          content: "> ";
+          color: hsl(300, 24%, 70%);
+        }
+    </style>
+
+    <script type="text/javascript">
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+          if (this.readyState === 4 && this.status === 200) {
+            <!-- Low-entropy client hints -->
+            const brandsText = document.querySelector(".brands");
+            brandsText.textContent = JSON.stringify(navigator.userAgentData.brands, null, "  ");
+            const platform = document.querySelector(".platform");
+            platform.textContent = navigator.userAgentData.platform;
+            const mobileText = document.querySelector(".mobile");
+            mobileText.textContent = navigator.userAgentData.mobile ? "true" : "false";
+
+            <!-- High-entropy client hints -->
+            const highEntropyText = document.querySelector(".high-entropy");
+            navigator.userAgentData
+              .getHighEntropyValues([
+                "architecture",
+                "bitness",
+                "brands",
+                "mobile",
+                "model",
+                "platform",
+                "platformVersion",
+                "uaFullVersion",
+                "fullVersionList",
+                "formFactors"
+              ]).then((ua) => {
+                highEntropyText.textContent = JSON.stringify(ua, null, "  ");
+              });
+
+            document.querySelector(".user-agent").textContent = navigator.userAgent;
+          }
+        };
+
+        xhr.open("GET", "https://example.com/androidx_webkit/example/assets/www/some_text.html", true);
+        xhr.send();
+    </script>
+</head>
+
+<body>
+    <pre class="input">console.log(navigator.userAgentData.brands);</pre>
+    <pre class="brands" disabled>[…]</pre>
+    <pre class="input">console.log(navigator.userAgentData.mobile);</pre>
+    <pre class="mobile" disabled>[…]</pre>
+    <pre class="input">console.log(navigator.userAgentData.platform);</pre>
+    <pre class="platform" disabled>[…]</pre>
+    <pre class="input">
+    navigator.userAgentData
+    .getHighEntropyValues(["architecture", "bitness", "model", "platform", "platformVersion", "uaFullVersion", "fullVersionList", "formFactors"])
+    .then(ua =&gt; { console.log(ua) });</pre
+    >
+    <pre class="high-entropy" disabled></pre>
+    <pre class="input">console.log(navigator.userAgent);</pre>
+    <pre class="user-agent" disabled>[…]</pre>
+</body>
+</html>

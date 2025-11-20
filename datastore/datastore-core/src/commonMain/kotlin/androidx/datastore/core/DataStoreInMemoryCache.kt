@@ -69,6 +69,7 @@ internal class DataStoreInMemoryCache<T> {
                         // no going back from final state
                         cached
                     }
+                    is NoValueDataState -> error(DataStoreImpl.BUG_MESSAGE)
                 }
             }
         return updated

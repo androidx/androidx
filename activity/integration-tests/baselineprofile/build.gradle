@@ -26,14 +26,11 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     testOptions.managedDevices.allDevices {
         pixel6Api31(ManagedVirtualDevice) {
             device = "Pixel 6"
@@ -46,8 +43,8 @@ android {
 }
 
 dependencies {
-    implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    implementation(projectOrArtifact(":benchmark:benchmark-macro-junit4"))
+    implementation("androidx.benchmark:benchmark-junit4:1.4.1")
+    implementation("androidx.benchmark:benchmark-macro-junit4:1.4.1")
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

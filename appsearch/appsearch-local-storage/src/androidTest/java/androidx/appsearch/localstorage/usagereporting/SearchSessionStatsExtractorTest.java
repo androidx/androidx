@@ -109,7 +109,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -141,6 +145,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
         assertThat(searchIntentStats0.getClicksStats().get(1).isGoodClick()).isFalse();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -171,6 +176,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getClicksStats().get(2).getTimeStayOnResultMillis())
                 .isEqualTo(2048);
         assertThat(searchIntentStats1.getClicksStats().get(2).isGoodClick()).isTrue();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -200,7 +206,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
         assertThat(result).isEmpty();
     }
 
@@ -238,7 +248,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -266,6 +280,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
         assertThat(searchIntentStats0.getClicksStats().get(0).isGoodClick()).isFalse();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
     }
 
 // @exportToFramework:startStrip()
@@ -330,8 +345,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE,
-                                putDocumentsRequest.getTakenActionGenericDocuments());
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                putDocumentsRequest.getTakenActionGenericDocuments(),
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -339,6 +357,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchSessionStats0.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(searchSessionStats0.getDatabase()).isEqualTo(TEST_DATABASE);
         assertThat(searchSessionStats0.getSearchIntentsStats()).hasSize(2);
+        assertThat(searchSessionStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 0
         SearchIntentStats searchIntentStats0 = searchSessionStats0.getSearchIntentsStats().get(0);
@@ -350,6 +369,8 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getNumResultsFetched()).isEqualTo(20);
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
+
         assertThat(searchIntentStats0.getClicksStats()).hasSize(2);
         assertThat(searchIntentStats0.getClicksStats().get(0).getTimestampMillis()).isEqualTo(2000);
         assertThat(searchIntentStats0.getClicksStats().get(0).getResultRankInBlock()).isEqualTo(1);
@@ -357,12 +378,15 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
         assertThat(searchIntentStats0.getClicksStats().get(0).isGoodClick()).isFalse();
+        assertThat(searchIntentStats0.getClicksStats().get(0).getEnabledFeatures()).isEqualTo(1);
+
         assertThat(searchIntentStats0.getClicksStats().get(1).getTimestampMillis()).isEqualTo(3000);
         assertThat(searchIntentStats0.getClicksStats().get(1).getResultRankInBlock()).isEqualTo(3);
         assertThat(searchIntentStats0.getClicksStats().get(1).getResultRankGlobal()).isEqualTo(6);
         assertThat(searchIntentStats0.getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
         assertThat(searchIntentStats0.getClicksStats().get(1).isGoodClick()).isFalse();
+        assertThat(searchIntentStats0.getClicksStats().get(1).getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -374,6 +398,8 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getNumResultsFetched()).isEqualTo(10);
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
+
         assertThat(searchIntentStats1.getClicksStats()).hasSize(3);
         assertThat(searchIntentStats1.getClicksStats().get(0).getTimestampMillis()).isEqualTo(6000);
         assertThat(searchIntentStats1.getClicksStats().get(0).getResultRankInBlock()).isEqualTo(2);
@@ -381,18 +407,23 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
         assertThat(searchIntentStats1.getClicksStats().get(0).isGoodClick()).isFalse();
+        assertThat(searchIntentStats1.getClicksStats().get(0).getEnabledFeatures()).isEqualTo(1);
+
         assertThat(searchIntentStats1.getClicksStats().get(1).getTimestampMillis()).isEqualTo(7000);
         assertThat(searchIntentStats1.getClicksStats().get(1).getResultRankInBlock()).isEqualTo(4);
         assertThat(searchIntentStats1.getClicksStats().get(1).getResultRankGlobal()).isEqualTo(8);
         assertThat(searchIntentStats1.getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(256);
         assertThat(searchIntentStats1.getClicksStats().get(1).isGoodClick()).isFalse();
+        assertThat(searchIntentStats1.getClicksStats().get(1).getEnabledFeatures()).isEqualTo(1);
+
         assertThat(searchIntentStats1.getClicksStats().get(2).getTimestampMillis()).isEqualTo(8000);
         assertThat(searchIntentStats1.getClicksStats().get(2).getResultRankInBlock()).isEqualTo(6);
         assertThat(searchIntentStats1.getClicksStats().get(2).getResultRankGlobal()).isEqualTo(12);
         assertThat(searchIntentStats1.getClicksStats().get(2).getTimeStayOnResultMillis())
                 .isEqualTo(2048);
         assertThat(searchIntentStats1.getClicksStats().get(2).isGoodClick()).isTrue();
+        assertThat(searchIntentStats1.getClicksStats().get(2).getEnabledFeatures()).isEqualTo(1);
     }
 // @exportToFramework:endStrip()
 
@@ -440,7 +471,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -463,6 +498,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -475,6 +511,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 2
         SearchIntentStats searchIntentStats2 = searchSessionStats0.getSearchIntentsStats().get(2);
@@ -487,6 +524,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -533,7 +571,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -556,6 +598,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -568,6 +611,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 2
         SearchIntentStats searchIntentStats2 = searchSessionStats0.getSearchIntentsStats().get(2);
@@ -580,6 +624,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -611,7 +656,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -633,6 +682,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -645,6 +695,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 2
         SearchIntentStats searchIntentStats2 = searchSessionStats0.getSearchIntentsStats().get(2);
@@ -657,6 +708,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -695,7 +747,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -718,6 +774,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -730,6 +787,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 2
         SearchIntentStats searchIntentStats2 = searchSessionStats0.getSearchIntentsStats().get(2);
@@ -742,6 +800,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 3
         SearchIntentStats searchIntentStats3 = searchSessionStats0.getSearchIntentsStats().get(3);
@@ -754,6 +813,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats3.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT);
         assertThat(searchIntentStats3.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats3.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -778,7 +838,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -844,7 +908,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         // searchAction2 should not be considered as noise:
         // - searchAction3 is independent from searchAction2 and therefore forms an independent
@@ -857,11 +925,13 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchSessionStats0.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(searchSessionStats0.getDatabase()).isEqualTo(TEST_DATABASE);
         assertThat(searchSessionStats0.getSearchIntentsStats()).hasSize(2);
+        assertThat(searchSessionStats0.getEnabledFeatures()).isEqualTo(1);
 
         SearchSessionStats searchSessionStats1 = result.get(1);
         assertThat(searchSessionStats1.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(searchSessionStats1.getDatabase()).isEqualTo(TEST_DATABASE);
         assertThat(searchSessionStats1.getSearchIntentsStats()).hasSize(1);
+        assertThat(searchSessionStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 0
         SearchIntentStats searchIntentStats0 = searchSessionStats0.getSearchIntentsStats().get(0);
@@ -874,6 +944,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -886,6 +957,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 1, search intent 0
         SearchIntentStats searchIntentStats2 = searchSessionStats1.getSearchIntentsStats().get(0);
@@ -898,6 +970,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -938,7 +1011,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -946,6 +1023,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchSessionStats0.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(searchSessionStats0.getDatabase()).isEqualTo(TEST_DATABASE);
         assertThat(searchSessionStats0.getSearchIntentsStats()).hasSize(3);
+        assertThat(searchSessionStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Even though searchAction2 is an intermediate search action, it should not be considered
         // as noise since there is at least 1 valid click action associated with it.
@@ -961,6 +1039,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 1
         SearchIntentStats searchIntentStats1 = searchSessionStats0.getSearchIntentsStats().get(1);
@@ -973,6 +1052,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats1.getClicksStats()).hasSize(1);
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 0, search intent 2
         SearchIntentStats searchIntentStats2 = searchSessionStats0.getSearchIntentsStats().get(2);
@@ -985,6 +1065,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats2.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_REFINEMENT);
         assertThat(searchIntentStats2.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats2.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -1009,7 +1090,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         // Since time difference between searchAction1 and searchAction2 exceeds the threshold,
         // searchAction2 should be considered as an independent search intent and therefore a new
@@ -1031,6 +1116,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats0.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats0.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats0.getEnabledFeatures()).isEqualTo(1);
 
         // Search session 1
         SearchSessionStats searchSessionStats1 = result.get(1);
@@ -1047,6 +1133,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats1.getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(searchIntentStats1.getClicksStats()).isEmpty();
+        assertThat(searchIntentStats1.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -1085,7 +1172,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -1112,6 +1203,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats.getClicksStats().get(3).getTimeStayOnResultMillis())
                 .isEqualTo(2000);
         assertThat(searchIntentStats.getClicksStats().get(3).isGoodClick()).isTrue();
+        assertThat(searchIntentStats.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -1133,7 +1225,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -1151,6 +1247,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats.getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(0);
         assertThat(searchIntentStats.getClicksStats().get(0).isGoodClick()).isTrue();
+        assertThat(searchIntentStats.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test
@@ -1178,7 +1275,11 @@ public class SearchSessionStatsExtractorTest {
 
         List<SearchSessionStats> result =
                 new SearchSessionStatsExtractor()
-                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+                        .extract(
+                                TEST_PACKAGE_NAME,
+                                TEST_DATABASE,
+                                takenActionGenericDocuments,
+                                /* isVMEnabled= */ true);
 
         assertThat(result).hasSize(1);
 
@@ -1197,6 +1298,7 @@ public class SearchSessionStatsExtractorTest {
         assertThat(searchIntentStats.getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(0);
         assertThat(searchIntentStats.getClicksStats().get(1).isGoodClick()).isTrue();
+        assertThat(searchIntentStats.getEnabledFeatures()).isEqualTo(1);
     }
 
     @Test

@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress(
+    "INVISIBLE_MEMBER",
+    "INVISIBLE_REFERENCE",
+    "INFERRED_INVISIBLE_RETURN_TYPE_WARNING",
+) // b/407931696
 
 package androidx.compose.ui.benchmark.spatial
 
@@ -45,15 +49,7 @@ class RectListBenchmark {
             val qt = construct()
             for (i in testData.indices) {
                 val rect = testData[i]
-                qt.insert(
-                    i,
-                    rect[0],
-                    rect[1],
-                    rect[2],
-                    rect[3],
-                    -1,
-                    false,
-                )
+                qt.insert(i, rect[0], rect[1], rect[2], rect[3], -1, false)
             }
         }
     }
@@ -154,12 +150,7 @@ class RectListBenchmark {
             for (i in queries.indices) {
                 val list = runWithMeasurementDisabled { mutableIntListOf() }
                 val bounds = queries[i]
-                qt.forEachIntersection(
-                    bounds[0],
-                    bounds[1],
-                    bounds[2],
-                    bounds[3],
-                ) {
+                qt.forEachIntersection(bounds[0], bounds[1], bounds[2], bounds[3]) {
                     runWithMeasurementDisabled { list.add(it) }
                 }
             }
@@ -234,10 +225,7 @@ class RectListBenchmark {
             for (i in queries.indices) {
                 val list = runWithMeasurementDisabled { mutableIntListOf() }
                 val bounds = queries[i]
-                qt.forEachIntersection(
-                    bounds[0],
-                    bounds[1],
-                ) {
+                qt.forEachIntersection(bounds[0], bounds[1]) {
                     runWithMeasurementDisabled { list.add(it) }
                 }
             }

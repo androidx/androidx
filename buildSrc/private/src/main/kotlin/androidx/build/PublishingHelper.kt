@@ -29,3 +29,13 @@ internal fun Project.registerAsComponentForPublishing(gradleVariant: Configurati
             it.addVariantsFromConfiguration(gradleVariant) {}
         }
     }
+
+internal fun Project.registerAsComponentForKmpPublishing(gradleVariant: Configuration) =
+    components.configureEach {
+        // Multiplatform library 'adhocKotlin' component
+        // https://github.com/JetBrains/kotlin/blob/bf6cb00fa8db7879c323bad863f58a0545c3d655/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/dsl/KotlinMultiplatformPublishing.kt#L20
+        if (it.name == "adhocKotlin") {
+            it as AdhocComponentWithVariants
+            it.addVariantsFromConfiguration(gradleVariant) {}
+        }
+    }

@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.os.Looper;
 
-import androidx.annotation.RequiresApi;
 import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
@@ -49,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class CredentialManagerJavaTest {
 

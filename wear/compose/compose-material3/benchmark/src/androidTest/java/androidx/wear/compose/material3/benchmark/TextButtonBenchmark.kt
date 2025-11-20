@@ -62,7 +62,7 @@ internal class TextButtonTestCase(private val textButtonType: TextButtonType) :
             TextButtonType.FilledTonalTextButton ->
                 TextButton(
                     onClick = {},
-                    colors = TextButtonDefaults.filledTonalTextButtonColors()
+                    colors = TextButtonDefaults.filledTonalTextButtonColors(),
                 ) {
                     Text("ABC")
                 }
@@ -87,5 +87,5 @@ enum class TextButtonType {
     FilledTextButton,
     FilledTonalTextButton,
     OutlinedTextButton,
-    TextButton
+    TextButton,
 }

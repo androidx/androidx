@@ -45,7 +45,7 @@ import org.junit.runners.model.Statement
  * <li>A fold in the middle and has horizontal orientation.</li>
  * </ul>
  */
-class WindowLayoutInfoPublisherRule : TestRule {
+public class WindowLayoutInfoPublisherRule : TestRule {
 
     private val flow =
         MutableSharedFlow<WindowLayoutInfo>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
@@ -68,7 +68,7 @@ class WindowLayoutInfoPublisherRule : TestRule {
      * Send an arbitrary [WindowLayoutInfo] through
      * [androidx.window.layout.WindowInfoTracker.windowLayoutInfo]. Each event is sent only once.
      */
-    fun overrideWindowLayoutInfo(info: WindowLayoutInfo) {
+    public fun overrideWindowLayoutInfo(info: WindowLayoutInfo) {
         flow.tryEmit(info)
     }
 }

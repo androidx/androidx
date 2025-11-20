@@ -109,7 +109,7 @@ class FragmentLifecycleTest : BaseTest() {
                     7 to false,
                     9 to true,
                     5 to true,
-                    0 to true
+                    0 to true,
                 )
 
             steps.forEach { (target, isSmoothScroll) ->
@@ -139,7 +139,7 @@ class FragmentLifecycleTest : BaseTest() {
                             val ix = 9
                             items.removeAt(ix)
                             adapter.notifyItemRemoved(ix)
-                        }
+                        },
                     ),
                     DataChangeTestStep(
                         description = "Remove current; current=lastIx; dataSetChanged",
@@ -149,7 +149,7 @@ class FragmentLifecycleTest : BaseTest() {
                         dataChangeAction = {
                             items.removeAt(8)
                             adapter.notifyDataSetChanged()
-                        }
+                        },
                     ),
                     DataChangeTestStep(
                         description = "Remove after current",
@@ -160,7 +160,7 @@ class FragmentLifecycleTest : BaseTest() {
                             val ix = items.lastIndex
                             items.removeAt(ix)
                             adapter.notifyItemRemoved(ix)
-                        }
+                        },
                     ),
                     DataChangeTestStep(
                         description = "Move current",
@@ -173,7 +173,7 @@ class FragmentLifecycleTest : BaseTest() {
                             items.add(4, "5")
                             assertThat(items[4], equalTo("5")) // quick check
                             adapter.notifyItemMoved(5, 4)
-                        }
+                        },
                     ),
                     DataChangeTestStep(
                         description = "Add before current",
@@ -184,8 +184,8 @@ class FragmentLifecycleTest : BaseTest() {
                             val ix = 0
                             items.add(ix, "999")
                             adapter.notifyItemInserted(ix)
-                        }
-                    )
+                        },
+                    ),
                 )
 
             steps.forEach {
@@ -214,7 +214,7 @@ class FragmentLifecycleTest : BaseTest() {
         val startPageIx: Int,
         val expectedPageIx: Int,
         val expectedPageText: String,
-        val dataChangeAction: (() -> Unit)
+        val dataChangeAction: (() -> Unit),
     )
 
     /**
@@ -231,7 +231,7 @@ class FragmentLifecycleTest : BaseTest() {
     private fun Context.performAssertions(
         expectedValues: MutableList<String>,
         ix: Int,
-        text: String = expectedValues[ix]
+        text: String = expectedValues[ix],
     ) {
         val fragmentInfo: List<FragmentInfo> =
             activity.supportFragmentManager.fragments.map {
@@ -257,7 +257,7 @@ class FragmentLifecycleTest : BaseTest() {
         assertBasicState(
             ix,
             text,
-            performSelfCheck = viewPager.offscreenPageLimit == OFFSCREEN_PAGE_LIMIT_DEFAULT
+            performSelfCheck = viewPager.offscreenPageLimit == OFFSCREEN_PAGE_LIMIT_DEFAULT,
         )
     }
 }
@@ -266,7 +266,7 @@ private data class FragmentInfo(
     val tag: String,
     val state: String,
     val isResumed: Boolean,
-    val isMenuVisible: Boolean
+    val isMenuVisible: Boolean,
 )
 
 private fun fragmentStateToString(state: Int): String =
@@ -282,5 +282,6 @@ private fun <T> getFragmentFieldValue(methodName: String, target: Fragment?): T 
     val field = Fragment::class.java.declaredFields.first { it.name.contains(methodName) }
     field.isAccessible = true
     val result = field.get(target)
-    @Suppress("UNCHECKED_CAST") return result as T
+    @Suppress("UNCHECKED_CAST")
+    return result as T
 }

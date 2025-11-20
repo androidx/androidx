@@ -59,8 +59,7 @@ public final class CodecUtil {
      * @throws InvalidConfigException if it fails to find or create the codec info.
      */
     public static @NonNull MediaCodecInfo findCodecAndGetCodecInfo(
-            @NonNull EncoderConfig encoderConfig) throws InvalidConfigException {
-        String mimeType = encoderConfig.getMimeType();
+            @NonNull String mimeType) throws InvalidConfigException {
         MediaCodecInfo codecInfo;
         synchronized (sCodecInfoCache) {
             codecInfo = sCodecInfoCache.get(mimeType);

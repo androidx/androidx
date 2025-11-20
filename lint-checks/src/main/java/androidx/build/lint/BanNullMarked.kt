@@ -58,7 +58,7 @@ class BanNullMarked : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanNullMarked::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanNullMarked::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

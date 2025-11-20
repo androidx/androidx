@@ -171,10 +171,7 @@ internal object Icons {
                     return _keyboardArrowRight!!
                 }
                 _keyboardArrowRight =
-                    materialIcon(
-                        name = "AutoMirrored.KeyboardArrowRight",
-                        autoMirror = true,
-                    ) {
+                    materialIcon(name = "AutoMirrored.KeyboardArrowRight", autoMirror = true) {
                         materialPath {
                             moveTo(496.35f, 480f)
                             lineTo(344.17f, 327.83f)
@@ -206,7 +203,7 @@ internal object Icons {
 private inline fun materialIcon(
     name: String,
     autoMirror: Boolean = false,
-    block: ImageVector.Builder.() -> ImageVector.Builder
+    block: ImageVector.Builder.() -> ImageVector.Builder,
 ): ImageVector =
     ImageVector.Builder(
             name = name,
@@ -214,7 +211,7 @@ private inline fun materialIcon(
             defaultHeight = MaterialIconDimension,
             viewportWidth = MaterialIconViewPortDimension,
             viewportHeight = MaterialIconViewPortDimension,
-            autoMirror = autoMirror
+            autoMirror = autoMirror,
         )
         .block()
         .build()

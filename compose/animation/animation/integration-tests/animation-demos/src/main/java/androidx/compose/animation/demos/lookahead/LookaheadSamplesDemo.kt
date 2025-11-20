@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.foundation.background
@@ -49,7 +48,7 @@ fun LookaheadSamplesDemo() {
     }
 }
 
-@OptIn(ExperimentalAnimatableApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalAnimatableApi::class)
 @Composable
 public fun ApproachLayoutSample0() {
     var fullWidth by remember { mutableStateOf(false) }
@@ -62,9 +61,7 @@ public fun ApproachLayoutSample0() {
                 .animateBounds(this@LookaheadScope)
                 .clickable { fullWidth = !fullWidth }
         ) {
-            Box(
-                Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)),
-            )
+            Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)))
             Box(Modifier.weight(2f).fillMaxHeight().background(Color(0xffffcc5c)))
         }
     }

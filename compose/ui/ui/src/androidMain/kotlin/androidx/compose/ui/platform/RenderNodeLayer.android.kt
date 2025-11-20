@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.IntSize
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
     drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-    invalidateParentLayer: () -> Unit
+    invalidateParentLayer: () -> Unit,
 ) : OwnedLayer, GraphicLayerInfo {
     private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
@@ -222,7 +222,7 @@ internal class RenderNodeLayer(
                 renderNode.left,
                 renderNode.top,
                 renderNode.left + width,
-                renderNode.top + height
+                renderNode.top + height,
             )
         ) {
             renderNode.setOutline(outlineResolver.androidOutline)
@@ -347,6 +347,10 @@ internal class RenderNodeLayer(
     override val underlyingMatrix: Matrix
         get() = matrixCache.calculateMatrix(renderNode)
 
+    override var frameRate: Float = 0f
+
+    override var isFrameRateFromParent = false
+
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
             matrixCache.mapInverse(renderNode, point)
@@ -365,7 +369,7 @@ internal class RenderNodeLayer(
 
     override fun reuseLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
     ) {
         matrixCache.reset()
         isDirty = false

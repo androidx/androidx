@@ -49,7 +49,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
         val title: String,
         @ViewPager2.Orientation val orientation: Int,
         val scrollMethod: ScrollMethod,
-        val pageList: List<Int>
+        val pageList: List<Int>,
     )
 
     companion object {
@@ -160,7 +160,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     private fun Context.scrollToPage(
         scrollMethod: ScrollMethod,
         currentPage: Int,
-        targetPage: Int
+        targetPage: Int,
     ) {
         when (scrollMethod) {
             ScrollMethod.PROGRAMMATIC_SCROLL -> programmaticScrollToPage(targetPage)
@@ -192,7 +192,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
     }
 
@@ -245,7 +245,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -272,7 +272,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
                     "transformPage() call must be snapped at page $snappedPage",
                     // event.page - event.offset resolves to the currently visible page index
                     it.page - it.offset.toDouble(),
-                    equalTo(snappedPage.toDouble())
+                    equalTo(snappedPage.toDouble()),
                 )
             }
     }
@@ -333,7 +333,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
                             // Then, zip the events of the two lists together by frame
                             Pair(
                                 pageBEvents.find { it.index == pageAEvent.index }!!.event,
-                                pageAEvent.event
+                                pageAEvent.event,
                             )
                         }
                         .fold(0) { prevRelation, pair ->
@@ -361,14 +361,14 @@ private fun createTestSet(): List<TestConfig> {
                 title = "swiping",
                 orientation = orientation,
                 scrollMethod = ScrollMethod.SWIPE,
-                pageList = listOf(1, 2, 1, 2, 3, 2, 1, 0, 1, 0)
+                pageList = listOf(1, 2, 1, 2, 3, 2, 1, 0, 1, 0),
             ),
             TestConfig(
                 title = "programmatic_scroll",
                 orientation = orientation,
                 scrollMethod = ScrollMethod.PROGRAMMATIC_SCROLL,
-                pageList = listOf(1, 3, 6, 10, 15, 99, 0)
-            )
+                pageList = listOf(1, 3, 6, 10, 15, 99, 0),
+            ),
         )
     }
 }

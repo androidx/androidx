@@ -144,7 +144,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         item: Int,
         expectedLabel: String,
         numberOfMoves: Int,
-        enableHistory: Boolean = false
+        enableHistory: Boolean = false,
     ) {
         val initialTimeForFirstEvent = 0
         val initialXForFirstEvent = 0f
@@ -190,7 +190,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                         ),
                     rootView = rootView,
                     numberOfMoveEvents = numberOfMoves,
-                    enableFlingStyleHistory = enableHistory
+                    enableFlingStyleHistory = enableHistory,
                 )
 
             val lastMotionEvent =
@@ -209,7 +209,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                         arrayOf(
                             BenchmarkSimplifiedPointerInputPointer(id = 0, x = upEventX, y = y)
                         ),
-                    rootView = rootView
+                    rootView = rootView,
                 )
 
             assertThat(ups.size).isEqualTo(1)
@@ -296,7 +296,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                             }
                         }
                         .fillMaxWidth()
-                        .requiredHeight(itemHeightDp!!)
+                        .requiredHeight(itemHeightDp!!),
             )
         }
     }

@@ -886,7 +886,7 @@ internal val Mantissa64 =
         0x91d28b7416cdd27eUL,
         0xb6472e511c81471dUL,
         0xe3d8f9e563a198e5UL,
-        0x8e679c2f5e44ff8fUL
+        0x8e679c2f5e44ff8fUL,
     )
 
 internal inline val Char.isDigit

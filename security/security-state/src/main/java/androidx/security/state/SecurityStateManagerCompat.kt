@@ -97,7 +97,7 @@ public open class SecurityStateManagerCompat(private val context: Context) {
                 if (moduleMetadataProviderPackageName.isNotEmpty()) {
                     putString(
                         moduleMetadataProviderPackageName,
-                        getPackageVersion(moduleMetadataProviderPackageName)
+                        getPackageVersion(moduleMetadataProviderPackageName),
                     )
                 }
             }

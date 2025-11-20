@@ -118,7 +118,7 @@ Autofix for src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt li
                 }
             """
                 ),
-                Stubs.JvmDefaultWithCompatibility
+                Stubs.JvmDefaultWithCompatibility,
             )
 
         val expected =
@@ -156,7 +156,7 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 }
             """
                 ),
-                Stubs.JvmDefaultWithCompatibility
+                Stubs.JvmDefaultWithCompatibility,
             )
 
         check(*input).expectClean()
@@ -176,7 +176,7 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 }
             """
                 ),
-                Stubs.OptIn
+                Stubs.OptIn,
             )
 
         check(*input).expectClean()
@@ -196,7 +196,7 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 }
             """
                 ),
-                Stubs.OptIn
+                Stubs.OptIn,
             )
 
         check(*input).expectClean()
@@ -217,7 +217,7 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 }
             """
                 ),
-                Stubs.OptIn
+                Stubs.OptIn,
             )
 
         val expected =

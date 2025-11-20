@@ -65,7 +65,7 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
 internal data class DistanceVertex(
     val distance: Float,
     val f1: ProgressableFeature,
-    val f2: ProgressableFeature
+    val f2: ProgressableFeature,
 )
 
 /**
@@ -83,7 +83,7 @@ internal data class DistanceVertex(
  */
 internal fun doMapping(
     features1: List<ProgressableFeature>,
-    features2: List<ProgressableFeature>
+    features2: List<ProgressableFeature>,
 ): List<Pair<Float, Float>> {
     debugLog(LOG_TAG) { "Shape1 progresses: " + features1.map { it.progress }.joinToString() }
     debugLog(LOG_TAG) { "Shape2 progresses: " + features2.map { it.progress }.joinToString() }

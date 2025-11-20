@@ -94,7 +94,7 @@ internal class ToggleChipTestCase : LayeredComposeTestCase() {
             toggleControl = {
                 Icon(
                     imageVector = ToggleChipDefaults.checkboxIcon(checked = true),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             },
             onClick = {},

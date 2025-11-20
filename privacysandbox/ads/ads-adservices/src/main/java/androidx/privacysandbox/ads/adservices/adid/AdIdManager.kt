@@ -30,7 +30,7 @@ import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
  * provides developers with a simple, standard system to continue to monetize their apps via
  * personalized ads (formerly known as interest-based ads).
  */
-abstract class AdIdManager internal constructor() {
+public abstract class AdIdManager internal constructor() {
     /**
      * Return the AdId.
      *
@@ -39,9 +39,9 @@ abstract class AdIdManager internal constructor() {
      * @throws LimitExceededException if rate limit was reached.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
-    abstract suspend fun getAdId(): AdId
+    public abstract suspend fun getAdId(): AdId
 
-    companion object {
+    public companion object {
         /**
          * Creates [AdIdManager].
          *
@@ -50,7 +50,7 @@ abstract class AdIdManager internal constructor() {
          */
         @JvmStatic
         @SuppressLint("NewApi")
-        fun obtain(context: Context): AdIdManager? {
+        public fun obtain(context: Context): AdIdManager? {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AdIdManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersionS() >= 9) {

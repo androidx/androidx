@@ -21,10 +21,12 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
+import androidx.appsearch.localstorage.stats.PersistToDiskStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
-import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.stats.BaseStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
 import org.junit.Test;
@@ -37,11 +39,12 @@ public class SimpleTestLoggerTest {
         assertThat(logger.mCallStats).isNull();
         assertThat(logger.mPutDocumentStats).isNull();
         assertThat(logger.mInitializeStats).isNull();
-        assertThat(logger.mSearchStats).isNull();
+        assertThat(logger.mQueryStats).isNull();
         assertThat(logger.mRemoveStats).isNull();
         assertThat(logger.mOptimizeStats).isNull();
         assertThat(logger.mSetSchemaStats).isEmpty();
         assertThat(logger.mSchemaMigrationStats).isNull();
+        assertThat(logger.mPersistToDiskStats).isNull();
     }
 
     @Test
@@ -52,19 +55,22 @@ public class SimpleTestLoggerTest {
         logger.logStats(new PutDocumentStats.Builder("package", "db").build());
         logger.logStats(new InitializeStats.Builder().build());
         logger.logStats(
-                new SearchStats.Builder(SearchStats.VISIBILITY_SCOPE_UNKNOWN, "package").build());
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_UNKNOWN, "package").build());
         logger.logStats(new RemoveStats.Builder("package", "db").build());
         logger.logStats(new OptimizeStats.Builder().build());
         logger.logStats(new SetSchemaStats.Builder("package", "db").build());
         logger.logStats(new SchemaMigrationStats.Builder("package", "db").build());
+        logger.logStats(new PersistToDiskStats.Builder(
+                "package", BaseStats.CALL_TYPE_PUT_DOCUMENTS).build());
 
         assertThat(logger.mCallStats).isNotNull();
         assertThat(logger.mPutDocumentStats).isNotNull();
         assertThat(logger.mInitializeStats).isNotNull();
-        assertThat(logger.mSearchStats).isNotNull();
+        assertThat(logger.mQueryStats).isNotNull();
         assertThat(logger.mRemoveStats).isNotNull();
         assertThat(logger.mOptimizeStats).isNotNull();
         assertThat(logger.mSetSchemaStats).isNotNull();
         assertThat(logger.mSchemaMigrationStats).isNotNull();
+        assertThat(logger.mPersistToDiskStats).isNotNull();
     }
 }

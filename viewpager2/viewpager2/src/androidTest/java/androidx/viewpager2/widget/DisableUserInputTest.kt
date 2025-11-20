@@ -42,7 +42,7 @@ import org.junit.runners.Parameterized
 class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
-        val childViewConsumesTouches: Boolean
+        val childViewConsumesTouches: Boolean,
     )
 
     companion object {
@@ -162,7 +162,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -185,7 +185,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             synchronized(events) {
                 events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
@@ -204,7 +204,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
     private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
-        pageSize: Int
+        pageSize: Int,
     ) = forEach {
         assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))

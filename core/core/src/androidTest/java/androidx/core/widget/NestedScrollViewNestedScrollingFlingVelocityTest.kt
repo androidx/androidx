@@ -44,7 +44,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
     private val fingerDirectionUp: Boolean,
     private val parentIntercepts: Boolean,
     private val preScrollConsumption: Int,
-    private val postScrollConsumption: Int
+    private val postScrollConsumption: Int,
 ) {
 
     private lateinit var mNestedScrollingParent: NestedScrollingParent
@@ -108,7 +108,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
                 MotionEvent.ACTION_MOVE,
                 500f,
                 (500 + halfDirectionalDistance).toFloat(),
-                0
+                0,
             )
         val move2 =
             MotionEvent.obtain(
@@ -117,7 +117,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
                 MotionEvent.ACTION_MOVE,
                 500f,
                 (500 + directionalDistance).toFloat(),
-                0
+                0,
             )
         val up =
             MotionEvent.obtain(
@@ -126,7 +126,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
                 MotionEvent.ACTION_UP,
                 500f,
                 (500 + directionalDistance).toFloat(),
-                0
+                0,
             )
 
         mActivityRule.runOnUiThread {
@@ -138,7 +138,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
 
         assertThat(
             mNestedScrollView.flungVelocity.toDouble(),
-            closeTo(expectedVelocity.toDouble(), 1.0)
+            closeTo(expectedVelocity.toDouble(), 1.0),
         )
     }
 
@@ -153,7 +153,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         constructor(
             context: Context,
             attrs: AttributeSet?,
-            defStyleAttr: Int
+            defStyleAttr: Int,
         ) : super(context, attrs, defStyleAttr)
 
         override fun fling(velocityY: Int) {
@@ -181,7 +181,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int,
-            type: Int
+            type: Int,
         ) {}
 
         override fun onNestedPreScroll(
@@ -189,7 +189,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dx: Int,
             dy: Int,
             consumed: IntArray,
-            type: Int
+            type: Int,
         ) {
 
             val toScrollY = amountOfScrollToConsume(dy, preScrollY)
@@ -206,7 +206,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dxUnconsumed: Int,
             dyUnconsumed: Int,
             type: Int,
-            consumed: IntArray
+            consumed: IntArray,
         ) {
 
             val toScrollY = amountOfScrollToConsume(dyUnconsumed, postScrollY)
@@ -237,7 +237,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int,
-            offsetInWindow: IntArray?
+            offsetInWindow: IntArray?,
         ): Boolean {
             return false
         }
@@ -246,7 +246,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dx: Int,
             dy: Int,
             consumed: IntArray?,
-            offsetInWindow: IntArray?
+            offsetInWindow: IntArray?,
         ): Boolean {
             return false
         }
@@ -254,7 +254,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         override fun dispatchNestedFling(
             velocityX: Float,
             velocityY: Float,
-            consumed: Boolean
+            consumed: Boolean,
         ): Boolean {
             return false
         }
@@ -276,7 +276,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dxConsumed: Int,
             dyConsumed: Int,
             dxUnconsumed: Int,
-            dyUnconsumed: Int
+            dyUnconsumed: Int,
         ) {}
 
         override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {}
@@ -285,7 +285,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             target: View,
             velocityX: Float,
             velocityY: Float,
-            consumed: Boolean
+            consumed: Boolean,
         ): Boolean {
             return false
         }
@@ -334,7 +334,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
                             arrayOf(fingerDirectionUp, parentIntercepts, 0, 100),
                             arrayOf(fingerDirectionUp, parentIntercepts, 12, 13),
                             arrayOf(fingerDirectionUp, parentIntercepts, 25, 25),
-                            arrayOf(fingerDirectionUp, parentIntercepts, 50, 50)
+                            arrayOf(fingerDirectionUp, parentIntercepts, 50, 50),
                         )
                     )
                 }

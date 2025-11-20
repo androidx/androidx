@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.hardware.camera2.CaptureResult
-import android.media.ImageReader
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -33,7 +32,6 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.media.ImageSource
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope
 
@@ -44,14 +42,6 @@ import kotlinx.coroutines.test.TestScope
  * must be created with a coroutine scope by invoking [CameraGraphSimulator.create] and passing the
  * coroutine scope. This ensures that the created objects, dispatchers, and scopes correctly inherit
  * from the parent [TestScope].
- *
- * The simulator does not make (many) assumptions about how the simulator will be used, and for this
- * reason it does not automatically put the underlying graph into a "started" state. In most cases,
- * the test will need start the [CameraGraph], [simulateCameraStarted], and either configure
- * surfaces for the [CameraGraph] or call [initializeSurfaces] to put the graph into a state where
- * it is able to send and simulate interactions with the camera. This mirrors the normal lifecycle
- * of a [CameraGraph]. Tests using CameraGraphSimulators should also close them after they've
- * completed their use of the simulator.
  */
 public class CameraGraphSimulator
 internal constructor(
@@ -61,7 +51,7 @@ internal constructor(
     private val fakeImageSources: FakeImageSources,
     private val realCameraGraph: CameraGraph,
     public val config: CameraGraph.Config,
-) : CameraGraph by realCameraGraph, AutoCloseable {
+) : CameraGraph by realCameraGraph, AutoCloseable, CameraSimulator {
 
     @Deprecated("CameraGraphSimulator directly implements CameraGraph")
     public val cameraGraph: CameraGraph
@@ -69,7 +59,7 @@ internal constructor(
 
     public companion object {
         /**
-         * Create a CameraGraphSimulator using the current [TestScope] provided by a Kotlin
+         * Create a [CameraGraphSimulator] using the current [TestScope] provided by a Kotlin
          * `runTest` block. This will create the [CameraPipe] and [CameraGraph] using the parent
          * test scope, which helps ensure all long running operations are wrapped up by the time the
          * test completes and allows the test to provide more fine grained control over the
@@ -79,10 +69,32 @@ internal constructor(
             testScope: TestScope,
             testContext: Context,
             cameraMetadata: CameraMetadata,
-            graphConfig: CameraGraph.Config
+            graphConfig: CameraGraph.Config,
         ): CameraGraphSimulator {
+
             val cameraPipeSimulator =
                 CameraPipeSimulator.create(testScope, testContext, listOf(cameraMetadata))
+            return cameraPipeSimulator.createCameraGraphSimulator(graphConfig)
+        }
+
+        /**
+         * Create a single [CameraGraphSimulator] instance using the provided [Context] and
+         * [CameraPipe.ThreadConfig]. This creates a unique [CameraGraph] and [CameraPipe] instance
+         * for each test, while allowing all executors/dispatchers to be controlled from outside the
+         * simulator instances.
+         */
+        public fun create(
+            testContext: Context,
+            testThreads: CameraPipe.ThreadConfig,
+            testCamera: CameraMetadata,
+            graphConfig: CameraGraph.Config,
+        ): CameraGraphSimulator {
+            val cameraPipeSimulator =
+                CameraPipeSimulator.create(
+                    testContext = testContext,
+                    testThreads = testThreads,
+                    testCameras = listOf(testCamera),
+                )
             return cameraPipeSimulator.createCameraGraphSimulator(graphConfig)
         }
     }
@@ -102,8 +114,7 @@ internal constructor(
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()
     private val fakeSurfaces = FakeSurfaces()
 
-    /** Return true if this [CameraGraphSimulator] has been closed. */
-    public val isClosed: Boolean
+    override val isClosed: Boolean
         get() = closed.value
 
     override fun close() {
@@ -113,31 +124,27 @@ internal constructor(
         }
     }
 
-    public fun simulateCameraStarted() {
+    override fun simulateCameraStarted() {
         check(!closed.value) { "Cannot call simulateCameraStarted on $this after close." }
         cameraController.simulateCameraStarted()
     }
 
-    public fun simulateCameraStopped() {
+    override fun simulateCameraStopped() {
         check(!closed.value) { "Cannot call simulateCameraStopped on $this after close." }
         cameraController.simulateCameraStopped()
     }
 
-    public fun simulateCameraModified() {
+    override fun simulateCameraModified() {
         check(!closed.value) { "Cannot call simulateCameraModified on $this after close." }
         cameraController.simulateCameraModified()
     }
 
-    public fun simulateCameraError(graphStateError: GraphStateError) {
+    override fun simulateCameraError(graphStateError: GraphStateError) {
         check(!closed.value) { "Cannot call simulateCameraError on $this after close." }
         cameraController.simulateCameraError(graphStateError)
     }
 
-    /**
-     * Configure all streams in the CameraGraph with fake surfaces that match the size of the first
-     * output stream.
-     */
-    public fun initializeSurfaces() {
+    override fun initializeSurfaces() {
         check(!closed.value) {
             "Cannot call simulateFakeSurfaceConfiguration on $this after close."
         }
@@ -164,9 +171,7 @@ internal constructor(
         }
     }
 
-    public fun simulateNextFrame(
-        advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
-    ): FrameSimulator =
+    override fun simulateNextFrame(advanceClockByNanos: Long): FrameSimulator =
         generateNextFrame().also {
             val clockNanos = frameClockNanos.addAndGet(advanceClockByNanos)
             it.simulateStarted(clockNanos)
@@ -196,27 +201,16 @@ internal constructor(
         return pendingFrameQueue.removeAt(0)
     }
 
-    /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
-    public fun simulateImage(
-        streamId: StreamId,
-        imageTimestamp: Long,
-        outputId: OutputId? = null,
-    ) {
+    override fun simulateImage(streamId: StreamId, imageTimestamp: Long, outputId: OutputId?) {
         check(simulateImageInternal(streamId, outputId, imageTimestamp)) {
             "Failed to simulate image for $streamId on $this!"
         }
     }
 
-    /**
-     * Utility function to simulate the production of [FakeImage]s for all outputs on a specific
-     * [request]. Use [simulateImage] to directly control simulation of individual outputs.
-     * [physicalCameraId] should be used to select the correct output id when simulating images from
-     * multi-resolution [ImageReader]s and [ImageSource]s
-     */
-    public fun simulateImages(
+    override fun simulateImages(
         request: Request,
         imageTimestamp: Long,
-        physicalCameraId: CameraId? = null
+        physicalCameraId: CameraId?,
     ) {
         var imageSimulated = false
         for (streamId in request.streams) {
@@ -239,7 +233,7 @@ internal constructor(
     private fun simulateImageInternal(
         streamId: StreamId,
         outputId: OutputId?,
-        imageTimestamp: Long
+        imageTimestamp: Long,
     ): Boolean {
         val stream = streams[streamId]
         checkNotNull(stream) { "Cannot simulate an image for invalid $streamId on $this!" }
@@ -291,13 +285,13 @@ internal constructor(
         public fun simulatePartialCaptureResult(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-            extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
+            extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -309,19 +303,19 @@ internal constructor(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
-            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap()
+            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
             val frameInfo =
                 FakeFrameInfo(
                     metadata = metadata,
                     requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata)
+                    createFakePhysicalMetadata(physicalResultMetadata),
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -333,19 +327,19 @@ internal constructor(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
-            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap()
+            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
             val frameInfo =
                 FakeFrameInfo(
                     metadata = metadata,
                     requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata)
+                    createFakePhysicalMetadata(physicalResultMetadata),
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -388,7 +382,7 @@ internal constructor(
          */
         public fun simulateImages(
             imageTimestamp: Long? = null,
-            physicalCameraId: CameraId? = null
+            physicalCameraId: CameraId? = null,
         ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
@@ -418,7 +412,7 @@ internal constructor(
                 frameNumber = frameNumber,
                 resultMetadata = resultMetadata.toMap(),
                 extraResultMetadata = extraResultMetadata.toMap(),
-                extraMetadata = extraMetadata.toMap()
+                extraMetadata = extraMetadata.toMap(),
             )
     }
 }

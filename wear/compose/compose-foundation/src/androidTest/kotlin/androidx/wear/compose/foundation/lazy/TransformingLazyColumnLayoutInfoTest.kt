@@ -35,6 +35,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +44,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnLayoutInfoTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     private var itemSizePx: Int = 50
     private var itemSizeDp: Dp = Dp.Infinity
@@ -63,7 +64,7 @@ class TransformingLazyColumnLayoutInfoTest {
                 // Viewport take 4 items, item 0 is exactly above the center and there is space for
                 // two more items below the center line.
                 modifier = Modifier.requiredSize(itemSizeDp * 5f),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -71,9 +72,7 @@ class TransformingLazyColumnLayoutInfoTest {
 
         rule.runOnIdle {
             assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 5)
-            // Start offset compensates for the layout where the first item is exactly above the
-            // center line.
-            state.layoutInfo.assertVisibleItems(count = 3, startOffset = itemSizePx * 2)
+            state.layoutInfo.assertVisibleItems(count = 5)
         }
     }
 
@@ -97,18 +96,14 @@ class TransformingLazyColumnLayoutInfoTest {
             assertThat(state.layoutInfo.viewportSize.height).isEqualTo(itemSizePx * 5)
             // Start offset compensates for the layout where the first item is exactly above the
             // center line.
-            state.layoutInfo.assertVisibleItems(
-                count = 2,
-                spacing = itemSizePx,
-                startOffset = itemSizePx * 2,
-            )
+            state.layoutInfo.assertVisibleItems(count = 3, spacing = itemSizePx)
         }
     }
 
     @Composable
     fun ObservingFun(
         state: TransformingLazyColumnState,
-        currentInfo: StableRef<TransformingLazyColumnLayoutInfo?>
+        currentInfo: StableRef<TransformingLazyColumnLayoutInfo?>,
     ) {
         currentInfo.value = state.layoutInfo
     }
@@ -121,7 +116,7 @@ class TransformingLazyColumnLayoutInfoTest {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
                 verticalArrangement = Arrangement.spacedBy(0.dp),
-                modifier = Modifier.requiredSize(itemSizeDp * 3f)
+                modifier = Modifier.requiredSize(itemSizeDp * 3f),
             ) {
                 items((0..5).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -152,7 +147,7 @@ class TransformingLazyColumnLayoutInfoTest {
         rule.setContent {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
-                modifier = Modifier.requiredSize(itemSizeDp * 4f)
+                modifier = Modifier.requiredSize(itemSizeDp * 4f),
             ) {
                 item { Box(Modifier.requiredSize(size)) }
             }
@@ -161,22 +156,14 @@ class TransformingLazyColumnLayoutInfoTest {
 
         rule.runOnIdle {
             assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(
-                count = 1,
-                expectedSize = itemSizePx * 2,
-                startOffset = itemSizePx,
-            )
+            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx * 2)
             currentInfo = null
             size = itemSizeDp
         }
 
         rule.runOnIdle {
             assertThat(currentInfo).isNotNull()
-            currentInfo!!.assertVisibleItems(
-                count = 1,
-                expectedSize = itemSizePx,
-                startOffset = itemSizePx * 3 / 2,
-            )
+            currentInfo!!.assertVisibleItems(count = 1, expectedSize = itemSizePx)
         }
     }
 
@@ -208,7 +195,7 @@ class TransformingLazyColumnLayoutInfoTest {
         rule.setContent {
             TransformingLazyColumn(
                 Modifier.height(sizeDp).width(sizeDp * 2),
-                state = rememberTransformingLazyColumnState().also { state = it }
+                state = rememberTransformingLazyColumnState().also { state = it },
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(sizeDp)) }
             }
@@ -266,16 +253,38 @@ class TransformingLazyColumnLayoutInfoTest {
             TransformingLazyColumn(
                 state = rememberTransformingLazyColumnState().also { state = it },
                 modifier = Modifier.requiredSize(itemSizeDp * 3f),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 items((0..6).toList()) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
         }
 
-        rule.runOnIdle { runBlocking { state.scrollToItem(2, scrollOffset = -10) } }
+        rule.runOnIdle { runBlocking { state.scrollToItem(2, scrollOffset = 10) } }
         rule.runOnIdle {
             state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1, startOffset = -10)
         }
+    }
+
+    @Test
+    fun reverseLayout_isReportedCorrectly() {
+        lateinit var state: TransformingLazyColumnState
+        var reverseLayout by mutableStateOf(false)
+
+        rule.setContent {
+            TransformingLazyColumn(
+                state = rememberTransformingLazyColumnState().also { state = it },
+                reverseLayout = reverseLayout,
+            ) {
+                items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(state.layoutInfo.reverseLayout).isFalse()
+            reverseLayout = true
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.reverseLayout).isTrue() }
     }
 
     private fun TransformingLazyColumnLayoutInfo.assertVisibleItems(

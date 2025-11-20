@@ -54,7 +54,7 @@ public class CoroutineMutex {
  */
 public fun <T> CoroutineMutex.withLockAsync(
     scope: CoroutineScope,
-    block: suspend CoroutineScope.() -> T
+    block: suspend CoroutineScope.() -> T,
 ): Deferred<T> {
     // Using CoroutineStart.UNDISPATCHED ensures that the mutex.lock call is invoked synchronously
     // on the current thread. This prevents two operations from being mis-ordered since the lock
@@ -76,7 +76,7 @@ public fun <T> CoroutineMutex.withLockAsync(
  */
 public fun CoroutineMutex.withLockLaunch(
     scope: CoroutineScope,
-    block: suspend CoroutineScope.() -> Unit
+    block: suspend CoroutineScope.() -> Unit,
 ): Job {
     // Using CoroutineStart.UNDISPATCHED ensures that the mutex.lock call is invoked synchronously
     // on the current thread. This prevents two operations from being mis-ordered since the lock

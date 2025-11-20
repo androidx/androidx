@@ -38,7 +38,7 @@ class OnClickXmlDetector : LayoutDetector() {
                 Category.CORRECTNESS,
                 1,
                 Severity.WARNING,
-                Implementation(OnClickXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+                Implementation(OnClickXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
             )
     }
 

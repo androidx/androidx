@@ -64,14 +64,14 @@ abstract class LayoutGeneratorTask : DefaultTask() {
                 .generateAllFiles(
                     checkNotNull(containerLayoutDirectory.get().asFile.listFiles()).asList(),
                     checkNotNull(childLayoutDirectory.get().asFile.listFiles()).asList(),
-                    outputResourcesDir.get().asFile
+                    outputResourcesDir.get().asFile,
                 )
         generateRegistry(
             packageName = outputModule,
             layouts = generatedLayouts.generatedContainers,
             boxChildLayouts = generatedLayouts.generatedBoxChildren,
             rowColumnChildLayouts = generatedLayouts.generatedRowColumnChildren,
-            outputSourceDir = outputSourceDir.get().asFile
+            outputSourceDir = outputSourceDir.get().asFile,
         )
         cleanResources(outputResourcesDir.get().asFile, generatedLayouts.extractGeneratedFiles())
     }
@@ -114,11 +114,11 @@ abstract class LayoutGeneratorTask : DefaultTask() {
                 variant ->
                 variant.sources.java?.addGeneratedSourceDirectory(
                     task,
-                    LayoutGeneratorTask::outputSourceDir
+                    LayoutGeneratorTask::outputSourceDir,
                 )
                 variant.sources.res?.addGeneratedSourceDirectory(
                     task,
-                    LayoutGeneratorTask::outputResourcesDir
+                    LayoutGeneratorTask::outputResourcesDir,
                 )
             }
         }

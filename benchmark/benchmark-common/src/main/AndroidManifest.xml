@@ -21,8 +21,7 @@
      machine after the tests are done running. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- usesCleartextTraffic is required for perfetto trace shell processor http server -->
-    <application android:networkSecurityConfig="@xml/network_security_config" >
+    <application>
         <!-- Activity used to block background content while benchmarks are running -->
         <activity
             android:name="androidx.benchmark.IsolationActivity"
@@ -30,8 +29,4 @@
             android:exported="true" >
         </activity>
     </application>
-
-    <!-- Internet permission is required for perfetto trace shell processor http server but
-        it's used to reach localhost only-->
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

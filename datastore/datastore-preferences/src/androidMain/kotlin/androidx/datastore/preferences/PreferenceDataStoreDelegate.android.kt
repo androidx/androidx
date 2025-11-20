@@ -67,7 +67,7 @@ public fun preferencesDataStore(
     name: String,
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
     produceMigrations: (Context) -> List<DataMigration<Preferences>> = { listOf() },
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
 ): ReadOnlyProperty<Context, DataStore<Preferences>> {
     return PreferenceDataStoreSingletonDelegate(name, corruptionHandler, produceMigrations, scope)
 }
@@ -78,7 +78,7 @@ internal constructor(
     private val name: String,
     private val corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
     private val produceMigrations: (Context) -> List<DataMigration<Preferences>>,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
 ) : ReadOnlyProperty<Context, DataStore<Preferences>> {
 
     private val lock = Any()
@@ -101,7 +101,7 @@ internal constructor(
                         PreferenceDataStoreFactory.create(
                             corruptionHandler = corruptionHandler,
                             migrations = produceMigrations(applicationContext),
-                            scope = scope
+                            scope = scope,
                         ) {
                             applicationContext.preferencesDataStoreFile(name)
                         }

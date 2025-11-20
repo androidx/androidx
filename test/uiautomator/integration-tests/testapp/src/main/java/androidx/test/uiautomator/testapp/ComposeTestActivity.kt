@@ -49,6 +49,9 @@ class ComposeTestActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { TestView() }
+
+        // Add margins for system bars in edge-to-edge mode.
+        EdgeToEdge.applyMargins(this)
     }
 }
 

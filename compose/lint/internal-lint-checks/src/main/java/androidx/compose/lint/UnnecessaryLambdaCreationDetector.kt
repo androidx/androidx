@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtParenthesizedExpression
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
@@ -132,6 +133,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
             val resolvedLambdaSource =
                 sourcePsi.calleeExpression
+                    ?.let { (it as? KtParenthesizedExpression)?.expression ?: it }
                     ?.toUElement()
                     ?.tryResolve()
                     ?.toUElement()
@@ -181,7 +183,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 ISSUE,
                 node,
                 context.getNameLocation(expression as UElement),
-                "Creating an unnecessary lambda to emit a captured lambda"
+                "Creating an unnecessary lambda to emit a captured lambda",
             )
         }
     }
@@ -201,7 +203,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 Category.PERFORMANCE,
                 5,
                 Severity.ERROR,
-                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

@@ -53,7 +53,7 @@ internal interface HealthDataAsyncClient {
 
     fun deleteData(
         uidsCollection: List<RequestProto.DataTypeIdPair>,
-        clientIdsCollection: List<RequestProto.DataTypeIdPair>
+        clientIdsCollection: List<RequestProto.DataTypeIdPair>,
     ): ListenableFuture<Unit>
 
     fun deleteDataRange(dataCollection: RequestProto.DeleteDataRangeRequest): ListenableFuture<Unit>
@@ -79,10 +79,10 @@ internal interface HealthDataAsyncClient {
     ): ListenableFuture<ResponseProto.GetChangesResponse>
 
     fun registerForDataNotifications(
-        request: RequestProto.RegisterForDataNotificationsRequest,
+        request: RequestProto.RegisterForDataNotificationsRequest
     ): ListenableFuture<Void>
 
     fun unregisterFromDataNotifications(
-        request: RequestProto.UnregisterFromDataNotificationsRequest,
+        request: RequestProto.UnregisterFromDataNotificationsRequest
     ): ListenableFuture<Void>
 }

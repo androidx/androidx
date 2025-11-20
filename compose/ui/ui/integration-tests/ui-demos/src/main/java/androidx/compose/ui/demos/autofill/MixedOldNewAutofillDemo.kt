@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos.autofill
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -49,12 +48,15 @@ import androidx.compose.ui.unit.dp
 import kotlin.collections.set
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun MixedOldNewAutofillDemo() {
     Column(modifier = Modifier.background(color = Color.Black)) {
-        Text(text = "Enter your username and password below.", color = Color.White)
+        Text(
+            text =
+                "This demo mixes the new (username) and old (password) autofill systems. Enter your username and password below.",
+            color = Color.White,
+        )
 
         // Text field using new autofill API.
         BasicTextField(
@@ -64,7 +66,7 @@ fun MixedOldNewAutofillDemo() {
                     contentType = ContentType.Username
                 },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
-            cursorBrush = SolidColor(Color.White)
+            cursorBrush = SolidColor(Color.White),
         )
 
         // Text field using old autofill API.
@@ -92,14 +94,14 @@ fun MixedOldNewAutofillDemo() {
                         }
                     },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
-            cursorBrush = SolidColor(Color.White)
+            cursorBrush = SolidColor(Color.White),
         )
         DisposableEffect(autofillNode) {
             autofillTree.children[autofillNode.id] = autofillNode
             onDispose { autofillTree.children.remove(autofillNode.id) }
         }
 
-        // Submit button (Only available using the new autofill APIs.
+        // Submit button (only available using the new autofill APIs).
         val autofillManager = LocalAutofillManager.current
         Button(onClick = { autofillManager?.commit() }) { Text("Submit credentials") }
     }

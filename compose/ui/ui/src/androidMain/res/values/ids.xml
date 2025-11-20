@@ -54,4 +54,5 @@
     <item name="compose_view_saveable_id_tag" type="id" />
     <item name="hide_in_inspector_tag" type="id" />
     <item name="consume_window_insets_tag" type="id" />
+    <item name="auto_clear_focus_behavior_tag" type="id" />
 </resources>

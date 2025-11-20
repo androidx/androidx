@@ -52,8 +52,8 @@ class SqliteInspectorTestEnvironment(val ioExecutorOverride: Executor? = null) :
                 environment =
                     DefaultTestInspectorEnvironment(
                         TestInspectorExecutors(job, ioExecutorOverride),
-                        artTooling
-                    )
+                        artTooling,
+                    ),
             )
         }
     }
@@ -106,7 +106,7 @@ class SqliteInspectorTestEnvironment(val ioExecutorOverride: Executor? = null) :
 suspend fun SqliteInspectorTestEnvironment.issueQuery(
     databaseId: Int,
     command: String,
-    queryParams: List<String?>? = null
+    queryParams: List<String?>? = null,
 ): SqliteInspectorProtocol.QueryResponse =
     sendCommand(MessageFactory.createQueryCommand(databaseId, command, queryParams)).query
 
@@ -142,7 +142,7 @@ private class FakeArtTooling : ArtTooling {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtTooling.EntryHook
+        entryHook: ArtTooling.EntryHook,
     ) {
         // TODO: implement actual registerEntryHook behaviour
         registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
@@ -151,7 +151,7 @@ private class FakeArtTooling : ArtTooling {
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtTooling.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>,
     ) {
         // TODO: implement actual registerExitHook behaviour
         registeredHooks.add(Hook.ExitHook(originClass, originMethod, exitHook))
@@ -165,13 +165,13 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     class ExitHook(
         originClass: Class<*>,
         originMethod: String,
-        val exitHook: ArtTooling.ExitHook<*>
+        val exitHook: ArtTooling.ExitHook<*>,
     ) : Hook(originClass, originMethod)
 
     class EntryHook(
         originClass: Class<*>,
         originMethod: String,
-        @Suppress("unused") val entryHook: ArtTooling.EntryHook
+        @Suppress("unused") val entryHook: ArtTooling.EntryHook,
     ) : Hook(originClass, originMethod)
 }
 

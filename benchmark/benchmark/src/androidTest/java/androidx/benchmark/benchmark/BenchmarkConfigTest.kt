@@ -44,7 +44,7 @@ class BenchmarkConfigTest {
         assertNotEquals(
             illegal = "true",
             actual = arguments.getString("coverage"),
-            message = "Coverage must not be enabled in microbench instrumentation args"
+            message = "Coverage must not be enabled in microbench instrumentation args",
         )
     }
 
@@ -56,7 +56,7 @@ class BenchmarkConfigTest {
             message =
                 "Microbenchmark must be self-instrumenting," +
                     " test pkg=${contextTest.packageName}," +
-                    " target pkg=${contextTarget.packageName}"
+                    " target pkg=${contextTarget.packageName}",
         )
     }
 

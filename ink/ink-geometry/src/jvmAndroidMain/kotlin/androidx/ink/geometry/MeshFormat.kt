@@ -24,20 +24,18 @@ import androidx.ink.nativeloader.UsedByNative
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public class MeshFormat
-/** Only for use within the ink library. Constructs a [MeshFormat] from native pointer. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(private var nativeAddress: Long) {
-
+private constructor(
     /**
      * Only for use within the ink library. Returns the native address held by this [MeshFormat].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getNativeAddress(): Long = nativeAddress
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long
+) {
 
     /** Returns whether this format and [other] mesh format have the same packed representation. */
     public fun isPackedEquivalent(other: MeshFormat): Boolean {
         return this === other ||
-            this.nativeAddress == other.nativeAddress ||
-            nativeIsPackedEquivalent(this.nativeAddress, other.nativeAddress)
+            this.nativePointer == other.nativePointer ||
+            MeshFormatNative.isPackedEquivalent(this.nativePointer, other.nativePointer)
     }
 
     /**
@@ -45,31 +43,53 @@ public constructor(private var nativeAddress: Long) {
      */
     public fun isUnpackedEquivalent(other: MeshFormat): Boolean {
         return this === other ||
-            this.nativeAddress == other.nativeAddress ||
-            nativeIsUnpackedEquivalent(this.nativeAddress, other.nativeAddress)
+            this.nativePointer == other.nativePointer ||
+            MeshFormatNative.isUnpackedEquivalent(this.nativePointer, other.nativePointer)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun attributeCount(): Int = MeshFormatNative.attributeCount(nativePointer)
+
+    // NOMUTANTS--Not tested post garbage collection.
     protected fun finalize() {
-        nativeFree(nativeAddress)
+        // Note that the instance becomes finalizable at the conclusion of the Object constructor,
+        // which
+        // in Kotlin is always before any non-default field initialization has been done by a
+        // derived
+        // class constructor.
+        if (nativePointer == 0L) return
+        MeshFormatNative.free(nativePointer)
     }
-
-    @UsedByNative
-    private external fun nativeIsPackedEquivalent(
-        firstNativeAddress: Long,
-        secondNativeAddress: Long,
-    ): Boolean
-
-    @UsedByNative
-    private external fun nativeIsUnpackedEquivalent(
-        firstNativeAddress: Long,
-        secondNativeAddress: Long,
-    ): Boolean
-
-    @UsedByNative private external fun nativeFree(nativeAddress: Long)
 
     public companion object {
         init {
             NativeLoader.load()
         }
+
+        /**
+         * Construct a [MeshFormat] from an unowned heap-allocated native pointer to a C++
+         * `MeshFormat`.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): MeshFormat =
+            MeshFormat(unownedNativePointer)
     }
+}
+
+/** Singleton wrapper around native JNI calls. */
+@UsedByNative
+private object MeshFormatNative {
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative
+    external fun isPackedEquivalent(nativePointer: Long, otherNativePointer: Long): Boolean
+
+    @UsedByNative
+    external fun isUnpackedEquivalent(nativePointer: Long, otherNativePointer: Long): Boolean
+
+    @UsedByNative external fun attributeCount(nativePointer: Long): Int
+
+    @UsedByNative external fun free(nativePointer: Long)
 }

@@ -69,7 +69,7 @@ public class DatePickerTest {
     public void initActivity(Intent intent) throws Throwable {
         mActivity = mActivityTestRule.launchActivity(intent);
         mDatePickerView = mActivity.findViewById(R.id.date_picker);
-        mDatePickerInnerView = mDatePickerView.findViewById(R.id.picker);
+        mDatePickerInnerView = mDatePickerView.findViewById(androidx.leanback.R.id.picker);
         mDatePickerView.setActivatedVisibleItemCount(3);
         mDatePickerView.setOnClickListener(new View.OnClickListener() {
             @Override

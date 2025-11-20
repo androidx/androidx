@@ -1,0 +1,84 @@
+{
+  "projectPath": ":viewpager2:viewpager2",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.3.1"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.3.1"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.viewpager:viewpager",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.linkedin.dexmaker:dexmaker-mockito",
+        "resolvedVersion": "2.28.4"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.hamcrest:hamcrest-core",
+        "resolvedVersion": "1.3"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.hamcrest:hamcrest-library",
+        "resolvedVersion": "1.3"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.mockito:mockito-core",
+        "resolvedVersion": "2.28.2"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":internal-testutils-runtime"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

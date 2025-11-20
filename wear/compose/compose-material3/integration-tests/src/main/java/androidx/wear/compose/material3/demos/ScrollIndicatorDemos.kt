@@ -27,5 +27,5 @@ val ScrollIndicatorDemos =
         ComposableDemo("With TransformingLazyColumn") { ScrollIndicatorWithTLCSample() },
         ComposableDemo("With ScalingLazyColumn") { ScrollIndicatorWithSLCSample() },
         ComposableDemo("With LazyColumn") { ScrollIndicatorWithLCSample() },
-        ComposableDemo("With Column") { ScrollIndicatorWithColumnSample() }
+        ComposableDemo("With Column") { ScrollIndicatorWithColumnSample() },
     )

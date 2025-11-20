@@ -16,7 +16,6 @@
 
 package androidx.core.widget;
 
-import android.os.Build;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
@@ -33,8 +32,7 @@ public final class ListPopupWindowCompat {
     }
 
     /**
-     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
-     * an {@link OnTouchListener} that can be added to the source view to
+     * Returns an {@link OnTouchListener} that can be added to the source view to
      * implement drag-to-open behavior. Generally, the source view should be the
      * same view that was passed to ListPopupWindow.setAnchorView(View).
      * <p>
@@ -67,8 +65,7 @@ public final class ListPopupWindowCompat {
     }
 
     /**
-     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
-     * an {@link OnTouchListener} that can be added to the source view to
+     * Returns an {@link OnTouchListener} that can be added to the source view to
      * implement drag-to-open behavior. Generally, the source view should be the
      * same view that was passed to ListPopupWindow.setAnchorView(View).
      * <p>

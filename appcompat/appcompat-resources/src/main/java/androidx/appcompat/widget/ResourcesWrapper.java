@@ -28,7 +28,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -148,7 +147,6 @@ class ResourcesWrapper extends Resources {
         return super.getDrawable(id);
     }
 
-    @RequiresApi(21)
     @Override
     public Drawable getDrawable(int id, Theme theme) throws NotFoundException {
         return ResourcesCompat.getDrawable(mResources, id, theme);
@@ -163,7 +161,6 @@ class ResourcesWrapper extends Resources {
         return ResourcesCompat.getDrawableForDensity(mResources, id, density, null);
     }
 
-    @RequiresApi(21)
     @Override
     public Drawable getDrawableForDensity(int id, int density, Theme theme) {
         return ResourcesCompat.getDrawableForDensity(mResources, id, density, theme);

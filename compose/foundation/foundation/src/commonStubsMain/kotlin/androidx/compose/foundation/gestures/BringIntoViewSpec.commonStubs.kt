@@ -19,6 +19,5 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.runtime.ProvidableCompositionLocal
 
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     implementedInJetBrainsFork()

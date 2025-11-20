@@ -22,20 +22,18 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":paging:paging-common"))
     api("androidx.arch.core:core-runtime:2.2.0")
     api(libs.rxjava2)
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesRx2)
 
     testImplementation(project(":internal-testutils-common"))
@@ -58,7 +56,6 @@ androidx {
     inceptionYear = "2018"
     description = "Android Paging-RXJava2"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     samples(project(":paging:paging-samples"))
 }
 

@@ -26,7 +26,6 @@ import androidx.pdf.viewer.PageViewFactory.PageView;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.widget.MosaicView.BitmapSource;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -36,12 +35,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.List;
 
 /** Tests for {@link PaginatedView}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class PaginatedViewTest {
 
     PaginatedView mPaginatedView;
@@ -73,7 +73,6 @@ public class PaginatedViewTest {
         mContext = ApplicationProvider.getApplicationContext();
         mDimensions = new Dimensions(100, 200);
 
-        PdfViewer.setScreenForTest(mContext);
         // Setting uninitialized model.
         mPaginatedView = new PaginatedView(mContext);
         mPaginationModel = new PaginationModel(mContext);

@@ -188,7 +188,7 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
                             minLines = random.nextInt(),
                             maxLines = random.nextInt(),
                         )
-                    }
+                    },
                 )
             }
             update { seed++ }
@@ -219,7 +219,7 @@ class SlotTableIntegrationBenchmark : ComposeBenchmarkBase() {
                                     } else {
                                         NonRenderingText("foo")
                                     }
-                                }
+                                },
                             )
                         }
                     }
@@ -299,7 +299,7 @@ private fun NonRenderingText(
     textSize: Dp = Dp.Unspecified,
     ellipsize: Boolean = false,
     minLines: Int = 1,
-    maxLines: Int = Int.MAX_VALUE
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     use(text)
     use(textColor.value.toInt())
@@ -325,7 +325,7 @@ private fun MatryoshkaLayout(depth: Int, content: @Composable (depth: Int) -> Un
                 content(depth)
                 MatryoshkaLayout(depth - 1, content)
             },
-            measurePolicy = MinimalBoxMeasurePolicy
+            measurePolicy = MinimalBoxMeasurePolicy,
         )
     }
 }
@@ -336,7 +336,7 @@ private val MinimalBoxMeasurePolicy = MeasurePolicy { measurables, constraints -
         placeables.fold(initial = IntOffset(0, 0)) { (maxWidth, maxHeight), placeable ->
             IntOffset(
                 maxOf(maxWidth, placeable.measuredWidth),
-                maxOf(maxHeight, placeable.measuredHeight)
+                maxOf(maxHeight, placeable.measuredHeight),
             )
         }
 

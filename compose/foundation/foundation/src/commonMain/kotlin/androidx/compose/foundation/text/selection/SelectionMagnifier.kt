@@ -46,7 +46,7 @@ internal val UnspecifiedSafeOffsetVectorConverter =
                 UnspecifiedAnimationVector2D
             }
         },
-        convertFromVector = { Offset(it.v1, it.v2) }
+        convertFromVector = { Offset(it.v1, it.v2) },
     )
 
 internal val OffsetDisplacementThreshold =
@@ -60,7 +60,7 @@ internal val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDispla
  */
 internal fun Modifier.animatedSelectionMagnifier(
     magnifierCenter: () -> Offset,
-    platformMagnifier: (animatedCenter: () -> Offset) -> Modifier
+    platformMagnifier: (animatedCenter: () -> Offset) -> Modifier,
 ): Modifier = composed {
     val animatedCenter by rememberAnimatedMagnifierPosition(targetCalculation = magnifierCenter)
     return@composed platformMagnifier { animatedCenter }
@@ -71,9 +71,7 @@ internal fun Modifier.animatedSelectionMagnifier(
  * any time the result of [targetCalculation] changes due to any state values it reads change.
  */
 @Composable
-private fun rememberAnimatedMagnifierPosition(
-    targetCalculation: () -> Offset,
-): State<Offset> {
+private fun rememberAnimatedMagnifierPosition(targetCalculation: () -> Offset): State<Offset> {
     val targetValue by remember { derivedStateOf(targetCalculation) }
     val animatable = remember {
         // Can't use Offset.VectorConverter because we need to handle Unspecified specially.

@@ -26,6 +26,7 @@ import java.util.jar.JarFile
 import org.apache.tools.zip.ZipEntry
 import org.apache.tools.zip.ZipOutputStream
 import org.gradle.api.Project
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileTreeElement
@@ -34,10 +35,10 @@ import org.gradle.api.tasks.TaskProvider
 
 fun Project.registerShadowDependenciesTask(
     variant: Variant,
-    jarName: String?,
-    zipTask: TaskProvider<Copy>
+    extension: InspectionExtension,
+    zipTask: TaskProvider<Copy>,
 ): TaskProvider<ShadowJar> {
-    val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
+    val versionTask = registerGenerateInspectionPlatformVersionTask(variant)
     return tasks.register(variant.taskName("inspectionShadowDependencies"), ShadowJar::class.java) {
         it.dependsOn(versionTask)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
@@ -51,32 +52,64 @@ fun Project.registerShadowDependenciesTask(
             }
         }
         it.transform(RenameServicesTransformer::class.java)
-        it.from(versionTask.get().outputDir)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
-        it.archiveBaseName.set("${jarName ?: project.name}-nondexed")
+        it.archiveBaseName.set("${extension.name ?: project.name}-nondexed")
         it.archiveVersion.set("")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
-        val runtimeDeps =
-            variant.runtimeConfiguration.incoming
-                .artifactView {
-                    it.attributes.attribute(
-                        Attribute.of("artifactType", String::class.java),
-                        ArtifactTypeDefinition.JAR_TYPE
-                    )
+
+        val filteredRuntimeDepsProvider = provider {
+            val runtimeArtifacts =
+                variant.runtimeConfiguration.incoming
+                    .artifactView {
+                        it.attributes.attribute(
+                            Attribute.of("artifactType", String::class.java),
+                            ArtifactTypeDefinition.JAR_TYPE,
+                        )
+                    }
+                    .artifacts
+
+            val userExcludes = extension.excludedModules.orNull ?: emptySet()
+            val userAllows = extension.allowedModules.orNull ?: emptySet()
+
+            if (userExcludes.isEmpty() && userAllows.isEmpty()) {
+                return@provider files(
+                    runtimeArtifacts.map { it.file }.filter { it.name.endsWith("jar") }
+                )
+            }
+
+            fun matches(id: ModuleComponentIdentifier, patterns: Set<String>): Boolean {
+                val groupModule = "${id.group}:${id.module}"
+                return groupModule in patterns || "${id.group}:*" in patterns
+            }
+
+            val filteredArtifacts =
+                runtimeArtifacts.filterNot { artifact ->
+                    val id = artifact.id.componentIdentifier
+                    if (id is ModuleComponentIdentifier) {
+                        val excluded = matches(id, userExcludes)
+                        val allowed = matches(id, userAllows)
+                        excluded && !allowed
+                    } else {
+                        false
+                    }
                 }
-                .files
-                .filter { it.name.endsWith("jar") }
+            files(filteredArtifacts.map { it.file }.filter { it.name.endsWith("jar") })
+        }
+
         it.exclude("**/module-info.class")
         it.exclude("google/**/*.proto")
         it.exclude("META-INF/versions/9/**/*.class")
-        it.from({ runtimeDeps.files })
+
+        it.from(filteredRuntimeDepsProvider)
+
         it.doFirst {
-            val task = it as ShadowJar
-            runtimeDeps.files
-                .flatMap { it.extractPackageNames() }
+            val shadow = it as ShadowJar
+            filteredRuntimeDepsProvider
+                .get()
+                .flatMap { file -> file.extractPackageNames() }
                 .toSet()
-                .forEach { packageName -> task.relocate(packageName, "$prefix.$packageName") }
+                .forEach { pkg -> shadow.relocate(pkg, "$prefix.$pkg") }
         }
     }
 }

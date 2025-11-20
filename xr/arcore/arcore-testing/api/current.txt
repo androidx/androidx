@@ -1,0 +1,233 @@
+// Signature format: 4.0
+package androidx.xr.arcore.testing {
+
+  public final class FakeLifecycleManager {
+    ctor public FakeLifecycleManager();
+    ctor public FakeLifecycleManager(optional boolean hasCreatePermission);
+    ctor @BytecodeOnly public FakeLifecycleManager(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void allowOneMoreCallToUpdate();
+    method public void configure(androidx.xr.runtime.Config config);
+    method public void create();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.testing.FakeLifecycleManager.State getState();
+    method @InaccessibleFromKotlin public kotlin.time.TestTimeSource getTimeSource();
+    method @InaccessibleFromKotlin public boolean hasCreatePermission();
+    method @InaccessibleFromKotlin public boolean hasMissingPermission();
+    method public void pause();
+    method public void resume();
+    method @InaccessibleFromKotlin public void setConfig(androidx.xr.runtime.Config);
+    method @InaccessibleFromKotlin public void setHasCreatePermission(boolean);
+    method @InaccessibleFromKotlin public void setHasMissingPermission(boolean);
+    method @InaccessibleFromKotlin public void setShouldSupportPlaneTracking(boolean);
+    method @InaccessibleFromKotlin public boolean shouldSupportPlaneTracking();
+    method public void stop();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
+    property public androidx.xr.runtime.Config config;
+    property public boolean hasCreatePermission;
+    property public boolean hasMissingPermission;
+    property public boolean shouldSupportPlaneTracking;
+    property public androidx.xr.arcore.testing.FakeLifecycleManager.State state;
+    property public kotlin.time.TestTimeSource timeSource;
+    field public static final androidx.xr.arcore.testing.FakeLifecycleManager.Companion Companion;
+    field public static final java.util.List<java.lang.String> TestPermissions;
+  }
+
+  public static final class FakeLifecycleManager.Companion {
+    property public java.util.List<java.lang.String> TestPermissions;
+  }
+
+  public enum FakeLifecycleManager.State {
+    enum_constant public static final androidx.xr.arcore.testing.FakeLifecycleManager.State DESTROYED;
+    enum_constant public static final androidx.xr.arcore.testing.FakeLifecycleManager.State INITIALIZED;
+    enum_constant public static final androidx.xr.arcore.testing.FakeLifecycleManager.State NOT_INITIALIZED;
+    enum_constant public static final androidx.xr.arcore.testing.FakeLifecycleManager.State PAUSED;
+    enum_constant public static final androidx.xr.arcore.testing.FakeLifecycleManager.State RESUMED;
+  }
+
+  public final class FakePerceptionManager {
+    ctor public FakePerceptionManager();
+    method public void addHitResult(androidx.xr.arcore.runtime.HitResult hitResult);
+    method public void addTrackable(androidx.xr.arcore.runtime.Trackable trackable);
+    method public void clearHitResults();
+    method public void clearTrackables();
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.runtime.Anchor> getAnchors();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.DepthMap? getLeftDepthMap();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Hand? getLeftHand();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.DepthMap? getMonoDepthMap();
+    method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.DepthMap? getRightDepthMap();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Hand? getRightHand();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.arcore.runtime.Trackable> getTrackables();
+    method public java.util.List<androidx.xr.arcore.runtime.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
+    method @InaccessibleFromKotlin public boolean isTrackingAvailable();
+    method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
+    method @InaccessibleFromKotlin public void setTrackingAvailable(boolean);
+    method public void unpersistAnchor(java.util.UUID uuid);
+    property public java.util.List<androidx.xr.arcore.runtime.Anchor> anchors;
+    property public boolean isTrackingAvailable;
+    property public androidx.xr.arcore.runtime.DepthMap? leftDepthMap;
+    property public androidx.xr.arcore.runtime.Hand? leftHand;
+    property public androidx.xr.arcore.runtime.DepthMap? monoDepthMap;
+    property public androidx.xr.arcore.runtime.DepthMap? rightDepthMap;
+    property public androidx.xr.arcore.runtime.Hand? rightHand;
+    property public java.util.List<androidx.xr.arcore.runtime.Trackable> trackables;
+  }
+
+  public final class FakeRuntimeAnchor {
+    method public void detach();
+    method @InaccessibleFromKotlin public static int getAnchorsCreatedCount();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Anchor.PersistenceState getPersistenceState();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public java.util.UUID? getUuid();
+    method @InaccessibleFromKotlin public boolean isAttached();
+    method @InaccessibleFromKotlin public boolean isTrackingAvailable();
+    method public void persist();
+    method @InaccessibleFromKotlin public static void setAnchorsCreatedCount(int);
+    method @InaccessibleFromKotlin public void setPersistenceState(androidx.xr.arcore.runtime.Anchor.PersistenceState);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    method @InaccessibleFromKotlin public void setUuid(java.util.UUID?);
+    property public boolean isAttached;
+    property public boolean isTrackingAvailable;
+    property public androidx.xr.arcore.runtime.Anchor.PersistenceState persistenceState;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    property public java.util.UUID? uuid;
+    field public static final int ANCHOR_RESOURCE_LIMIT = 6; // 0x6
+    field public static final androidx.xr.arcore.testing.FakeRuntimeAnchor.Companion Companion;
+  }
+
+  public static final class FakeRuntimeAnchor.Companion {
+    method @InaccessibleFromKotlin public int getAnchorsCreatedCount();
+    method @InaccessibleFromKotlin public void setAnchorsCreatedCount(int);
+    property public static int ANCHOR_RESOURCE_LIMIT;
+    property public static int anchorsCreatedCount;
+  }
+
+  public final class FakeRuntimeAugmentedObject {
+    ctor public FakeRuntimeAugmentedObject();
+    ctor @BytecodeOnly public FakeRuntimeAugmentedObject(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize3d!, androidx.xr.runtime.AugmentedObjectCategory!, androidx.xr.runtime.TrackingState!, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeRuntimeAugmentedObject(optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize3d extents, optional androidx.xr.runtime.AugmentedObjectCategory category, optional androidx.xr.runtime.TrackingState trackingState, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);
+    method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.runtime.Anchor> getAnchors();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedObjectCategory getCategory();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getExtents();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public void setCategory(androidx.xr.runtime.AugmentedObjectCategory);
+    method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setExtents(androidx.xr.runtime.math.FloatSize3d);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    property public java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors;
+    property public androidx.xr.runtime.AugmentedObjectCategory category;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.FloatSize3d extents;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class FakeRuntimeDepthMap {
+    ctor public FakeRuntimeDepthMap();
+    ctor public FakeRuntimeDepthMap(optional int width, optional int height, optional java.nio.FloatBuffer? rawDepthMap, optional java.nio.ByteBuffer? rawConfidenceMap, optional java.nio.FloatBuffer? smoothDepthMap, optional java.nio.ByteBuffer? smoothConfidenceMap);
+    ctor @BytecodeOnly public FakeRuntimeDepthMap(int, int, java.nio.FloatBuffer!, java.nio.ByteBuffer!, java.nio.FloatBuffer!, java.nio.ByteBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer? getSmoothConfidenceMap();
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer? getSmoothDepthMap();
+    method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin public void setHeight(int);
+    method @InaccessibleFromKotlin public void setRawConfidenceMap(java.nio.ByteBuffer?);
+    method @InaccessibleFromKotlin public void setRawDepthMap(java.nio.FloatBuffer?);
+    method @InaccessibleFromKotlin public void setSmoothConfidenceMap(java.nio.ByteBuffer?);
+    method @InaccessibleFromKotlin public void setSmoothDepthMap(java.nio.FloatBuffer?);
+    method @InaccessibleFromKotlin public void setWidth(int);
+    property public int height;
+    property public java.nio.ByteBuffer? rawConfidenceMap;
+    property public java.nio.FloatBuffer? rawDepthMap;
+    property public java.nio.ByteBuffer? smoothConfidenceMap;
+    property public java.nio.FloatBuffer? smoothDepthMap;
+    property public int width;
+  }
+
+  public final class FakeRuntimeEye {
+    ctor public FakeRuntimeEye();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isOpen();
+    method @InaccessibleFromKotlin public void setOpen(boolean);
+    method @InaccessibleFromKotlin public void setPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    property public boolean isOpen;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class FakeRuntimeFace {
+    ctor public FakeRuntimeFace();
+    ctor public FakeRuntimeFace(optional androidx.xr.runtime.TrackingState trackingState, optional boolean isValid, optional float[] blendShapeValues, optional float[] confidenceValues);
+    ctor @BytecodeOnly public FakeRuntimeFace(androidx.xr.runtime.TrackingState!, boolean, float[]!, float[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float[] getBlendShapeValues();
+    method @InaccessibleFromKotlin public float[] getConfidenceValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public boolean isValid();
+    method @InaccessibleFromKotlin public void setBlendShapeValues(float[]);
+    method @InaccessibleFromKotlin public void setConfidenceValues(float[]);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    method @InaccessibleFromKotlin public void setValid(boolean);
+    property public float[] blendShapeValues;
+    property public float[] confidenceValues;
+    property public boolean isValid;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class FakeRuntimeHand {
+    ctor public FakeRuntimeHand();
+    ctor public FakeRuntimeHand(optional androidx.xr.runtime.TrackingState trackingState, optional java.nio.FloatBuffer handJointsBuffer);
+    ctor @BytecodeOnly public FakeRuntimeHand(androidx.xr.runtime.TrackingState!, java.nio.FloatBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public java.nio.FloatBuffer getHandJointsBuffer();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public void setHandJointsBuffer(java.nio.FloatBuffer);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    property public java.nio.FloatBuffer handJointsBuffer;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    field public static final androidx.xr.arcore.testing.FakeRuntimeHand.Companion Companion;
+  }
+
+  public static final class FakeRuntimeHand.Companion {
+  }
+
+  public final class FakeRuntimePlane {
+    ctor public FakeRuntimePlane();
+    ctor @BytecodeOnly public FakeRuntimePlane(androidx.xr.arcore.runtime.Plane.Type!, androidx.xr.arcore.runtime.Plane.Label!, androidx.xr.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize2d!, java.util.List!, androidx.xr.arcore.runtime.Plane!, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeRuntimePlane(optional androidx.xr.arcore.runtime.Plane.Type type, optional androidx.xr.arcore.runtime.Plane.Label label, optional androidx.xr.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize2d extents, optional java.util.List<androidx.xr.runtime.math.Vector2> vertices, optional androidx.xr.arcore.runtime.Plane? subsumedBy, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);
+    method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.runtime.Anchor> getAnchors();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Plane.Label getLabel();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Plane? getSubsumedBy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Plane.Type getType();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
+    method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setExtents(androidx.xr.runtime.math.FloatSize2d);
+    method @InaccessibleFromKotlin public void setSubsumedBy(androidx.xr.arcore.runtime.Plane?);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
+    method @InaccessibleFromKotlin public void setVertices(java.util.List<androidx.xr.runtime.math.Vector2>);
+    property public java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.FloatSize2d extents;
+    property public androidx.xr.arcore.runtime.Plane.Label label;
+    property public androidx.xr.arcore.runtime.Plane? subsumedBy;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    property public androidx.xr.arcore.runtime.Plane.Type type;
+    property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
+  }
+
+}
+

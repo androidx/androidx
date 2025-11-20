@@ -42,25 +42,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class MonthActivity(
-    val month: String,
-    val activities: List<String>,
-)
+data class MonthActivity(val month: String, val activities: List<String>)
 
 val monthActivities =
     listOf(
-        MonthActivity(
-            month = "October 2022",
-            activities = buildActivities(),
-        ),
-        MonthActivity(
-            month = "September 2022",
-            activities = buildActivities(),
-        ),
-        MonthActivity(
-            month = "August 2022",
-            activities = buildActivities(),
-        ),
+        MonthActivity(month = "October 2022", activities = buildActivities()),
+        MonthActivity(month = "September 2022", activities = buildActivities()),
+        MonthActivity(month = "August 2022", activities = buildActivities()),
     )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -112,7 +100,7 @@ private fun MonthActivityComponent(boxScope: BoxScope, activity: String) {
                         shape = RoundedCornerShape(10.dp),
                     )
                     .focusable(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(text = activity, color = Color.White)
         }
@@ -121,11 +109,7 @@ private fun MonthActivityComponent(boxScope: BoxScope, activity: String) {
 
 @Composable
 private fun MonthHeader(month: String) {
-    Text(
-        text = month,
-        fontSize = 20.sp,
-        color = Color.White,
-    )
+    Text(text = month, fontSize = 20.sp, color = Color.White)
 }
 
 @Composable
@@ -138,5 +122,5 @@ private fun MonthDivider() {
 
 private fun buildActivities(
     count: Int = 10,
-    buildActivity: (index: Int) -> String = { "Activity $it" }
+    buildActivity: (index: Int) -> String = { "Activity $it" },
 ): List<String> = (0..count).map(buildActivity)

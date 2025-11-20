@@ -52,7 +52,7 @@ public interface Camera2CameraControlCompat : Request.Listener {
 
     public fun applyAsync(
         requestControl: UseCaseCameraRequestControl?,
-        cancelPreviousTask: Boolean = true
+        cancelPreviousTask: Boolean = true,
     ): Deferred<Void?>
 
     @Module
@@ -82,7 +82,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                 configBuilder.mutableConfig.insertOption(
                     objectOpt,
                     Config.OptionPriority.ALWAYS_OVERRIDE,
-                    bundle.retrieveOption(objectOpt)
+                    bundle.retrieveOption(objectOpt),
                 )
             }
         }
@@ -107,7 +107,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
 
     override fun applyAsync(
         requestControl: UseCaseCameraRequestControl?,
-        cancelPreviousTask: Boolean
+        cancelPreviousTask: Boolean,
     ): Deferred<Void?> {
         val signal: CompletableDeferred<Void?> = CompletableDeferred()
         val config = synchronized(lock) { configBuilder.build() }
@@ -124,10 +124,9 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                 }
 
                 updateSignal = signal
-                requestControl.setConfigAsync(
-                    type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
+                requestControl.updateCamera2ConfigAsync(
                     config = config,
-                    tags = mapOf(TAG_KEY to signal.hashCode())
+                    tags = mapOf(TAG_KEY to signal.hashCode()),
                 )
             } else {
                 // If there is no camera for the parameter update, the signal would be treated as a
@@ -151,7 +150,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        result: FrameInfo
+        result: FrameInfo,
     ): Unit =
         synchronized(updateSignalLock) {
             updateSignal?.apply {

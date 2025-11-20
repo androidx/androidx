@@ -40,12 +40,12 @@ class SemanticsNodeInteraction
 constructor(
     internal val testContext: TestContext,
     internal val useUnmergedTree: Boolean,
-    internal val selector: SemanticsSelector
+    internal val selector: SemanticsSelector,
 ) {
     constructor(
         testContext: TestContext,
         useUnmergedTree: Boolean,
-        matcher: SemanticsMatcher
+        matcher: SemanticsMatcher,
     ) : this(testContext, useUnmergedTree, SemanticsSelector(matcher))
 
     /**
@@ -59,12 +59,12 @@ constructor(
     internal fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean,
         errorMessageOnFail: String? = null,
-        skipDeactivatedNodes: Boolean = true
+        skipDeactivatedNodes: Boolean = true,
     ): SelectionResult =
         testContext.testOwner.getAllSemanticsNodes(
             atLeastOneRootRequired = atLeastOneRootRequired,
             useUnmergedTree = useUnmergedTree,
-            skipDeactivatedNodes = skipDeactivatedNodes
+            skipDeactivatedNodes = skipDeactivatedNodes,
         ) {
             selector.map(it, errorMessageOnFail.orEmpty())
         }
@@ -95,7 +95,7 @@ constructor(
         val result =
             fetchSemanticsNodes(
                 atLeastOneRootRequired = false,
-                errorMessageOnFail = "Failed: assertDoesNotExist."
+                errorMessageOnFail = "Failed: assertDoesNotExist.",
             )
         if (result.selectedNodes.isNotEmpty()) {
             throw AssertionError(
@@ -103,7 +103,7 @@ constructor(
                     errorMessage = "Failed: assertDoesNotExist.",
                     selector = selector,
                     foundNodes = result.selectedNodes,
-                    expectedCount = 0
+                    expectedCount = 0,
                 )
             )
         }
@@ -141,7 +141,7 @@ constructor(
                 buildGeneralErrorMessage(
                     errorMessage = errorMessageOnFail ?: "Failed: assertDeactivated",
                     selector = selector,
-                    node = node
+                    node = node,
                 )
             )
         }
@@ -149,7 +149,7 @@ constructor(
 
     private fun fetchOneOrThrow(
         errorMessageOnFail: String? = null,
-        skipDeactivatedNodes: Boolean = true
+        skipDeactivatedNodes: Boolean = true,
     ): SemanticsNode {
         val finalErrorMessage = errorMessageOnFail ?: "Failed: assertExists."
 
@@ -157,7 +157,7 @@ constructor(
             fetchSemanticsNodes(
                 atLeastOneRootRequired = true,
                 errorMessageOnFail = finalErrorMessage,
-                skipDeactivatedNodes = skipDeactivatedNodes
+                skipDeactivatedNodes = skipDeactivatedNodes,
             )
         if (result.selectedNodes.count() != 1) {
             if (result.selectedNodes.isEmpty() && lastSeenSemantics != null) {
@@ -166,7 +166,7 @@ constructor(
                     buildErrorMessageForNodeMissingInTree(
                         errorMessage = finalErrorMessage,
                         selector = selector,
-                        lastSeenSemantics = lastSeenSemantics!!
+                        lastSeenSemantics = lastSeenSemantics!!,
                     )
                 )
             }
@@ -181,7 +181,7 @@ constructor(
                     foundNodes = result.selectedNodes,
                     expectedCount = 1,
                     selector = selector,
-                    foundNodesUnmerged = getNodesInUnmergedTree(errorMessageOnFail)
+                    foundNodesUnmerged = getNodesInUnmergedTree(errorMessageOnFail),
                 )
             )
         }
@@ -195,7 +195,7 @@ constructor(
         return if (!useUnmergedTree) {
             testContext.testOwner.getAllSemanticsNodes(
                 atLeastOneRootRequired = true,
-                useUnmergedTree = true
+                useUnmergedTree = true,
             ) {
                 selector.map(it, errorMessageOnFail.orEmpty()).selectedNodes
             }
@@ -222,12 +222,12 @@ class SemanticsNodeInteractionCollection
 constructor(
     internal val testContext: TestContext,
     internal val useUnmergedTree: Boolean,
-    internal val selector: SemanticsSelector
+    internal val selector: SemanticsSelector,
 ) {
     constructor(
         testContext: TestContext,
         useUnmergedTree: Boolean,
-        matcher: SemanticsMatcher
+        matcher: SemanticsMatcher,
     ) : this(testContext, useUnmergedTree, SemanticsSelector(matcher))
 
     /**
@@ -244,7 +244,7 @@ constructor(
      */
     fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean = true,
-        errorMessageOnFail: String? = null
+        errorMessageOnFail: String? = null,
     ): List<SemanticsNode> {
         return testContext.testOwner.getAllSemanticsNodes(atLeastOneRootRequired, useUnmergedTree) {
             selector.map(it, errorMessageOnFail.orEmpty()).selectedNodes
@@ -262,7 +262,7 @@ constructor(
         return SemanticsNodeInteraction(
             testContext,
             useUnmergedTree,
-            selector.addIndexSelector(index)
+            selector.addIndexSelector(index),
         )
     }
 }

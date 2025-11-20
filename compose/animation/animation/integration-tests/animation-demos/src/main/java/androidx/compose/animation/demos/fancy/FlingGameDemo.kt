@@ -67,7 +67,7 @@ fun FlingGameDemo() {
                             val (x, y) = velocityTracker.calculateVelocity()
                             anim.updateBounds(
                                 Offset(100f, 100f),
-                                Offset(size.width.toFloat() - 100f, size.height.toFloat() - 100f)
+                                Offset(size.width.toFloat() - 100f, size.height.toFloat() - 100f),
                             )
                             launch {
                                 var startVelocity = Offset(x, y)

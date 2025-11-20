@@ -88,7 +88,7 @@ internal sealed class ViewportHint(
         presentedItemsBefore: Int,
         presentedItemsAfter: Int,
         originalPageOffsetFirst: Int,
-        originalPageOffsetLast: Int
+        originalPageOffsetLast: Int,
     ) :
         ViewportHint(
             presentedItemsBefore = presentedItemsBefore,
@@ -127,7 +127,7 @@ internal sealed class ViewportHint(
         presentedItemsBefore: Int,
         presentedItemsAfter: Int,
         originalPageOffsetFirst: Int,
-        originalPageOffsetLast: Int
+        originalPageOffsetLast: Int,
     ) :
         ViewportHint(
             presentedItemsBefore = presentedItemsBefore,

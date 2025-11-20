@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
@@ -37,7 +37,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
 }
 
@@ -49,8 +48,6 @@ android {
             testProguardFiles "proguard-rules.pro"
         }
     }
-    // TODO(b/345531033)
-    experimentalProperties["android.lint.useK2Uast"] = false 
 }
 
 androidx {

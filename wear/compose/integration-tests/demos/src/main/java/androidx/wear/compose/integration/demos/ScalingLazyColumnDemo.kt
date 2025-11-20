@@ -48,10 +48,10 @@ fun GuideLines() {
                 drawLine(
                     Color.Magenta,
                     Offset(0f, (size.height / 10f) * i),
-                    Offset(size.width - 1, (size.height / 10f) * i)
+                    Offset(size.width - 1, (size.height / 10f) * i),
                 )
             }
-        }
+        },
     )
 }
 
@@ -65,7 +65,7 @@ fun ScalingLazyColumnDetail() {
         item {
             Text(
                 text = "Screen height: ${screenHeightPx}px",
-                style = MaterialTheme.typography.caption1
+                style = MaterialTheme.typography.caption1,
             )
         }
         items(20, key = { ix -> ix }) { ix ->
@@ -88,9 +88,9 @@ fun ScalingLazyColumnDetail() {
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         text = description,
-                        style = MaterialTheme.typography.caption3
+                        style = MaterialTheme.typography.caption3,
                     )
-                }
+                },
             )
         }
     }
@@ -108,7 +108,7 @@ fun ScalingLazyColumnMixedTypes() {
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item {
@@ -117,8 +117,8 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
-                        size = CardDefaults.AppImageSize
+                        resourceId = R.drawable.icon_maps_icon,
+                        size = CardDefaults.AppImageSize,
                     )
                 },
                 title = { Text("AppCard") },
@@ -137,7 +137,7 @@ fun ScalingLazyColumnMixedTypes() {
                 secondaryLabel = "Defaults",
                 colors = ChipDefaults.secondaryChipColors(),
             ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
+                DemoImage(resourceId = R.drawable.icon_maps_icon)
             }
         }
         item { ListHeader { Text("Activity") } }
@@ -147,8 +147,8 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
-                        size = CardDefaults.AppImageSize
+                        resourceId = R.drawable.icon_maps_icon,
+                        size = CardDefaults.AppImageSize,
                     )
                 },
                 title = { Text("AppCard") },
@@ -172,8 +172,8 @@ fun ScalingLazyColumnMixedTypes() {
                 appName = { Text("AppName") },
                 appImage = {
                     DemoImage(
-                        resourceId = R.drawable.ic_maps_icon,
-                        size = CardDefaults.AppImageSize
+                        resourceId = R.drawable.icon_maps_icon,
+                        size = CardDefaults.AppImageSize,
                     )
                 },
                 title = { Text("AppCard") },

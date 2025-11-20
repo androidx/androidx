@@ -600,7 +600,7 @@ class FragmentAnimationTest {
                 R.anim.long_fade_in,
                 R.anim.long_fade_out,
                 R.anim.long_fade_in,
-                R.anim.long_fade_out
+                R.anim.long_fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
@@ -728,7 +728,7 @@ class FragmentAnimationTest {
                 android.R.anim.fade_in,
                 android.R.anim.fade_out,
                 android.R.anim.fade_in,
-                android.R.anim.fade_out
+                android.R.anim.fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2)
             .addToBackStack(null)
@@ -781,7 +781,7 @@ class FragmentAnimationTest {
                         android.R.anim.fade_in,
                         android.R.anim.fade_out,
                         android.R.anim.fade_in,
-                        android.R.anim.fade_out
+                        android.R.anim.fade_out,
                     )
                     .replace(R.id.fragmentContainer, fragment2)
                     .addToBackStack(null)
@@ -1138,7 +1138,7 @@ class FragmentAnimationTest {
         fragment: AnimationFragment,
         numAnimators: Int,
         isEnter: Boolean,
-        animatorResourceId: Int
+        animatorResourceId: Int,
     ) {
         assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.enter).isEqualTo(isEnter)
@@ -1262,7 +1262,7 @@ class FragmentAnimationTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState)?.apply {
                 if (forceRunOnHwLayer) {

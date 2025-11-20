@@ -62,7 +62,7 @@ fun Row_sample() {
 
                 constrain(a, b, c, d, e) { width = Dimension.fillToConstraints }
             },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         repeat(5) {
             Text(text = "item$it", modifier = Modifier.layoutId(it).background(Color.LightGray))
@@ -94,7 +94,7 @@ fun Column_sample() {
 
                 constrain(a, b, c, d, e) { height = Dimension.fillToConstraints }
             },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         repeat(5) {
             Text(text = "item$it", modifier = Modifier.layoutId(it).background(Color.LightGray))
@@ -129,7 +129,7 @@ fun Grid_calculator_sample() {
             // The '0' will span two columns, note that it's on the 24th position in the grid
             "0",
             ".",
-            "="
+            "=",
         )
     ConstraintLayout(
         constraintSet =
@@ -148,8 +148,8 @@ fun Grid_calculator_sample() {
                                 // textBox
                                 Span(position = 0, rows = 2, columns = 4),
                                 // '0' key
-                                Span(position = 24, rows = 1, columns = 2)
-                            )
+                                Span(position = 24, rows = 1, columns = 2),
+                            ),
                     )
 
                 constrain(g1) {
@@ -164,7 +164,7 @@ fun Grid_calculator_sample() {
                     height = Dimension.fillToConstraints
                 }
             },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         ids.forEach { id ->
             when (id) {
@@ -174,7 +174,7 @@ fun Grid_calculator_sample() {
                             Modifier.background(Color.Gray)
                                 // As usual, IDs should only be assigned on top-level children
                                 .layoutId(id),
-                        contentAlignment = Alignment.BottomEnd
+                        contentAlignment = Alignment.BottomEnd,
                     ) {
                         Text(text = "100", fontSize = 80.sp)
                     }
@@ -214,8 +214,8 @@ fun Grid_navigationPad_sample() {
                                 //   - 14 is bottom-right (5 rows x 3 columns - 1)
                                 Skip(position = 6, rows = 1, columns = 3),
                                 Skip(position = 9, rows = 1, columns = 1),
-                                Skip(position = 11, rows = 1, columns = 1)
-                            )
+                                Skip(position = 11, rows = 1, columns = 1),
+                            ),
                     )
                 constrain(g1) {
                     width = Dimension.matchParent
@@ -227,18 +227,18 @@ fun Grid_navigationPad_sample() {
                     height = Dimension.fillToConstraints.atMost(100.dp)
                 }
             },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         keys.forEachIndexed { index, key ->
             Box(
                 modifier = Modifier.layoutId(key).background(Color.LightGray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = key,
                     textAlign = TextAlign.Center,
                     // Make fontSize bigger for the arrow keys
-                    fontSize = if (index >= 6) 24.sp else TextUnit.Unspecified
+                    fontSize = if (index >= 6) 24.sp else TextUnit.Unspecified,
                 )
             }
         }

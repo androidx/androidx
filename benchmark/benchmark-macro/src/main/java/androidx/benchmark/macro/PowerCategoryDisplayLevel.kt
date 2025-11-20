@@ -19,5 +19,5 @@ package androidx.benchmark.macro
 @ExperimentalMetricApi
 enum class PowerCategoryDisplayLevel {
     BREAKDOWN,
-    TOTAL
+    TOTAL,
 }

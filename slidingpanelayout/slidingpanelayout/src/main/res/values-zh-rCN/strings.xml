@@ -18,6 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="draggable_divider_handler" msgid="6322493056848795789">"可拖动的分隔线处理程序"</string>
-    <string name="draggable_divider_handler_state_left_edge" msgid="6751784207652492919">"在左侧边缘"</string>
-    <string name="draggable_divider_handler_state_right_edge" msgid="4219347123520652878">"在右侧边缘"</string>
+    <string name="draggable_divider_handler_state_left_edge" msgid="7959832333955573682">"右侧窗格已展开"</string>
+    <string name="draggable_divider_handler_state_right_edge" msgid="1679161196839751773">"左侧窗格已展开"</string>
 </resources>

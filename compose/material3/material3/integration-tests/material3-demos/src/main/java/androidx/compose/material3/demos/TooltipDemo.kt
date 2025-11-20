@@ -34,6 +34,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipState
@@ -56,7 +57,7 @@ fun TooltipDemo() {
 
     Column(
         modifier = Modifier.padding(horizontal = 1.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text("Add items to the list")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -65,14 +66,15 @@ fun TooltipDemo() {
             val textFieldTooltipState = rememberTooltipState()
             val scope = rememberCoroutineScope()
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                 tooltip = { PlainTooltip { Text(textFieldTooltipText) } },
-                state = textFieldTooltipState
+                state = textFieldTooltipState,
             ) {
                 OutlinedTextField(
                     value = textFieldValue,
                     placeholder = { Text("Item Name") },
-                    onValueChange = { newVal -> textFieldValue = newVal }
+                    onValueChange = { newVal -> textFieldValue = newVal },
                 )
             }
 
@@ -96,9 +98,12 @@ fun TooltipDemo() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(listData) { item ->
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
                     tooltip = { PlainTooltip { Text("${item.itemName} added to list") } },
-                    state = item.addedTooltipState
+                    state = item.addedTooltipState,
                 ) {
                     ListItemCard(itemName = item.itemName, onDelete = { listData.remove(item) })
                 }
@@ -115,19 +120,22 @@ fun ListItemCard(itemName: String, onDelete: () -> Unit) {
             headlineContent = { Text(itemName) },
             trailingContent = {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
                     tooltip = { PlainTooltip { Text("Delete $itemName") } },
                     state = rememberTooltipState(),
-                    enableUserInput = true
+                    enableUserInput = true,
                 ) {
                     IconButton(onClick = onDelete) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
-                            contentDescription = "Delete $itemName from list."
+                            contentDescription = "Delete $itemName from list.",
                         )
                     }
                 }
-            }
+            },
         )
     }
 }

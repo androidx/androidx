@@ -27,8 +27,6 @@ import androidx.build.metalava.MetalavaRunnerKt
 import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.SourceKind
 import com.google.common.io.Files
 import org.apache.commons.io.FileUtils
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -41,7 +39,7 @@ buildscript {
         // This dependency means that tasks in this project might become out-of-date whenever
         // certain classes in buildSrc change, and should generally be avoided.
         // See b/140265324 for more information
-        classpath(project.files("${project.rootProject.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
+        classpath(project.files("${project.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
     }
 }
 
@@ -49,7 +47,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -60,25 +58,20 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
-    implementation ("androidx.media:media:1.6.0")
+    implementation("androidx.media:media:1.6.0")
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     api("androidx.annotation:annotation-experimental:1.4.1")
 
-    api(libs.kotlinStdlib)
-    implementation(libs.kotlinStdlibCommon)
 
     annotationProcessor(libs.nullaway)
 
-    // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
-    // it is ever upgraded.
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(project(":car:app:app-testing"))
 }
@@ -101,8 +94,6 @@ android {
             version = 1
         }
     }
-
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.car.app"
 }
 
@@ -112,6 +103,7 @@ androidx {
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }
 
 // Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc
@@ -397,90 +389,61 @@ class ProtocolLocation {
     }
 }
 
-def getLibraryExtension() {
-    return project.extensions.findByType(LibraryExtension.class)
-}
-
-def getLibraryVariant() {
-    LibraryExtension extension = getLibraryExtension()
-    return extension.libraryVariants.find({
-        it.name == Release.DEFAULT_PUBLISH_CONFIG
-    })
-}
-
-public FileCollection getSourceCollection() {
-    def taskDependencies = new ArrayList<Object>()
-    def sourceFiles = project.provider {
-        getLibraryVariant().getSourceFolders(SourceKind.JAVA).collect { folder ->
-            for (builtBy in folder.builtBy) {
-                taskDependencies.add(builtBy)
-            }
-            folder.dir
-        }
-    }
-    def sourceCollection = project.files(sourceFiles)
-    for (dep in taskDependencies) {
-        sourceCollection.builtBy(dep)
-    }
-    return sourceCollection
-}
-
 def writeCarApiLevel = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask)
 
 androidComponents {
-    onVariants(selector().all(), { variant ->
-        variant.sources.resources.addGeneratedSourceDirectory(writeCarApiLevel, { it.outputDir })
-    })
-}
+    onVariants(selector().withBuildType(Release.DEFAULT_PUBLISH_CONFIG)) { variant ->
+        variant.sources.resources.addGeneratedSourceDirectory(writeCarApiLevel) { it.outputDir }
 
-// afterEvaluate required to read extension properties
-afterEvaluate {
-    FileCollection sourceCollection = getSourceCollection()
-    FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
-    FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
-    FileCollection bootClasspath = project.files(getLibraryExtension().bootClasspath)
-    Provider<KotlinVersion> kotlinSourceLevel = androidx.kotlinApiVersion
+        FileCollection kotlinCollection = project.files(variant.sources.kotlin?.all)
+        FileCollection javaCollection   = project.files(variant.sources.java?.all)
+        FileCollection sourceCollection = kotlinCollection + javaCollection
+        FileCollection dependencyClasspath = variant.compileClasspath
+        FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
+        FileCollection bootClasspath = project.files(sdkComponents.bootClasspath)
+        Provider<KotlinVersion> kotlinSourceLevel = androidx.kotlinApiVersion
 
-    ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
-    tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
-        task.description = "Generate an API signature file for the classes annotated with @CarProtocol"
-        task.generatedApi = projectProtocolLocation.generatedApi
-        task.dependsOn(assemble)
-        task.sourceDirs = sourceCollection
-        task.dependencyClasspath = dependencyClasspath
-        task.metalavaClasspath = metalavaClasspath
-        task.bootClasspath = bootClasspath
-        task.kotlinSourceLevel.set(kotlinSourceLevel)
-    }
-    tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
-        task.description = "Check for BREAKING changes to the protocol API"
-        task.previousApi = projectProtocolLocation.previousApi
-        task.generatedApi = projectProtocolLocation.generatedApi
-        task.dependsOn(generateProtocolApi)
-        task.sourceDirs = sourceCollection
-        task.dependencyClasspath = dependencyClasspath
-        task.metalavaClasspath = metalavaClasspath
-        task.bootClasspath = bootClasspath
-        task.kotlinSourceLevel.set(kotlinSourceLevel)
-    }
-    tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->
-        task.description = "Check for changes to the protocol API"
-        task.generatedApi = projectProtocolLocation.generatedApi
-        task.previousApi = projectProtocolLocation.previousApi
-        task.currentApi = projectProtocolLocation.currentApi
-        task.dependsOn(checkProtocolApiCompat)
-    }
-    tasks.register("updateProtocolApi", UpdateProtocolApiTask) { task ->
-        task.description = "Update protocol API signature file for current Car API level to reflect" +
-                "the current state of the protocol API in the source tree."
-        task.protocolDir = projectProtocolLocation.protocolDir
-        task.generatedApi = projectProtocolLocation.generatedApi
-        task.currentApi = projectProtocolLocation.currentApi
-        task.dependsOn(checkProtocolApiCompat)
-    }
-    EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
-    EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
-    afterEvaluate {
-        checkApi.dependsOn(checkProtocolApi)
+        ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
+        tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
+            task.description = "Generate an API signature file for the classes annotated with @CarProtocol"
+            task.dependsOn(assemble)
+            task.generatedApi = projectProtocolLocation.generatedApi
+            task.sourceDirs = sourceCollection
+            task.dependencyClasspath = dependencyClasspath
+            task.metalavaClasspath = metalavaClasspath
+            task.bootClasspath = bootClasspath
+            task.kotlinSourceLevel.set(kotlinSourceLevel)
+        }
+        tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
+            task.description = "Check for BREAKING changes to the protocol API"
+            task.previousApi = projectProtocolLocation.previousApi
+            task.generatedApi = projectProtocolLocation.generatedApi
+            task.dependsOn(generateProtocolApi)
+            task.sourceDirs = sourceCollection
+            task.dependencyClasspath = dependencyClasspath
+            task.metalavaClasspath = metalavaClasspath
+            task.bootClasspath = bootClasspath
+            task.kotlinSourceLevel.set(kotlinSourceLevel)
+        }
+        tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->
+            task.description = "Check for changes to the protocol API"
+            task.generatedApi = projectProtocolLocation.generatedApi
+            task.previousApi = projectProtocolLocation.previousApi
+            task.currentApi = projectProtocolLocation.currentApi
+            task.dependsOn(checkProtocolApiCompat)
+        }
+        tasks.register("updateProtocolApi", UpdateProtocolApiTask) { task ->
+            task.description = "Update protocol API signature file for current Car API level to reflect" +
+                    "the current state of the protocol API in the source tree."
+            task.protocolDir = projectProtocolLocation.protocolDir
+            task.generatedApi = projectProtocolLocation.generatedApi
+            task.currentApi = projectProtocolLocation.currentApi
+            task.dependsOn(checkProtocolApiCompat)
+        }
+        EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
+        EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
+        afterEvaluate {
+            checkApi.dependsOn(checkProtocolApi)
+        }
     }
 }

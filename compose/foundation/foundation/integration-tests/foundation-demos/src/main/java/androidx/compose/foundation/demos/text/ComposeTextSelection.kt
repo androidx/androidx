@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -112,9 +114,28 @@ fun TextSelectionDemo() {
                     modifier =
                         Modifier.fillMaxWidth()
                             .border(BorderStroke(1.dp, color = Color.Black))
-                            .height(80.dp)
+                            .height(80.dp),
                 )
             }
+        }
+        item {
+            TagLine(tag = "smart selection demo(Android only)")
+            OutlinedSelectionContainer {
+                Text(
+                    text =
+                        "This is a demo for smart selection. " +
+                            "Try long press selection on following text. \n" +
+                            "address: 1600 Amphitheatre Pkwy, Mountain View, CA 94043 \n" +
+                            "phone number: 123-456-0000\n" +
+                            "email: example_email@email.com\n",
+                    modifier =
+                        Modifier.fillMaxWidth().border(BorderStroke(1.dp, color = Color.Black)),
+                )
+            }
+        }
+        item {
+            TagLine(tag = "Clickable children")
+            TextDemoClickableChildrenSelection()
         }
     }
 }
@@ -141,7 +162,7 @@ fun TextDemoMultiTextSelection() {
                 BasicText(
                     style = TextStyle(fontSize = fontSize8),
                     text = it,
-                    modifier = textBorderModifier.fillMaxWidth()
+                    modifier = textBorderModifier.fillMaxWidth(),
                 )
             }
         }
@@ -161,7 +182,7 @@ fun TextDemoSelection() {
                     color = Color(0xFFFF0000),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.W200,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 ),
             text =
                 buildAnnotatedString {
@@ -174,7 +195,7 @@ fun TextDemoSelection() {
                             color = Color(0xFF0000FF),
                             fontSize = fontSize10,
                             fontWeight = FontWeight.W800,
-                            fontStyle = FontStyle.Normal
+                            fontStyle = FontStyle.Normal,
                         )
                     ) {
                         append(displayTextHindi)
@@ -189,7 +210,7 @@ fun TextDemoSelection() {
                     withStyle(SpanStyle(localeList = LocaleList("ja-JP"))) {
                         append("\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。")
                     }
-                }
+                },
         )
     }
 }
@@ -227,7 +248,7 @@ fun TextDemoSelection2DArrayVertical() {
             Color(0xFFFFFF00),
             Color(0xFF0000FF),
             Color(0xFF00FF00),
-            Color(0xFFFF0000)
+            Color(0xFFFF0000),
         )
 
     OutlinedSelectionContainer {
@@ -238,7 +259,7 @@ fun TextDemoSelection2DArrayVertical() {
                         Text(
                             text = text,
                             modifier = textBorderModifier,
-                            style = TextStyle(color = colorList[i * 3 + j], fontSize = fontSize6)
+                            style = TextStyle(color = colorList[i * 3 + j], fontSize = fontSize6),
                         )
                     }
                 }
@@ -260,25 +281,25 @@ fun TextDemoSelectionEnableAndDisable() {
             Text(
                 text = textSelectable,
                 modifier = textBorderModifier,
-                style = TextStyle(fontSize = fontSize8)
+                style = TextStyle(fontSize = fontSize8),
             )
             OutlinedDisableSelection {
                 Text(
                     text = textNotSelectable,
                     modifier = textBorderModifier,
-                    style = TextStyle(fontSize = fontSize8)
+                    style = TextStyle(fontSize = fontSize8),
                 )
             }
             Text(
                 text = textSelectable,
                 modifier = textBorderModifier,
-                style = TextStyle(fontSize = fontSize8)
+                style = TextStyle(fontSize = fontSize8),
             )
             TextField(
                 value = textEditable,
                 onValueChange = { textEditable = it },
                 modifier = textBorderModifier,
-                textStyle = TextStyle(fontSize = fontSize8)
+                textStyle = TextStyle(fontSize = fontSize8),
             )
             Row {
                 OutlinedDisableSelection {
@@ -289,24 +310,24 @@ fun TextDemoSelectionEnableAndDisable() {
             Text(
                 text = textSelectable + "\n" + textSelectable,
                 modifier = textBorderModifier,
-                style = TextStyle(fontSize = fontSize8)
+                style = TextStyle(fontSize = fontSize8),
             )
             OutlinedDisableSelection {
                 Text(
                     text = textNotSelectable,
                     modifier = textBorderModifier,
-                    style = TextStyle(fontSize = fontSize8)
+                    style = TextStyle(fontSize = fontSize8),
                 )
                 Text(
                     text = textNotSelectable,
                     modifier = textBorderModifier,
-                    style = TextStyle(fontSize = fontSize8)
+                    style = TextStyle(fontSize = fontSize8),
                 )
             }
             Text(
                 text = textSelectable,
                 modifier = textBorderModifier,
-                style = TextStyle(fontSize = fontSize8)
+                style = TextStyle(fontSize = fontSize8),
             )
         }
     }
@@ -316,13 +337,24 @@ fun TextDemoSelectionEnableAndDisable() {
 fun OutlinedSelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     SelectionContainer(
         modifier = modifier.border(1.dp, Color.Green).padding(1.dp),
-        content = content
+        content = content,
     )
 }
 
 @Composable
 fun OutlinedDisableSelection(content: @Composable () -> Unit) {
     Box(Modifier.border(1.dp, Color.Red).padding(1.dp)) { DisableSelection(content) }
+}
+
+@Preview
+@Composable
+fun TextDemoClickableChildrenSelection() {
+    SelectionContainer {
+        BasicText(
+            "This text has a click handler. ".repeat(5),
+            modifier = Modifier.pointerInput(Unit) { detectTapGestures(onTap = {}) },
+        )
+    }
 }
 
 internal fun AnnotatedString.Builder.appendWithColor(color: Color, text: String) {

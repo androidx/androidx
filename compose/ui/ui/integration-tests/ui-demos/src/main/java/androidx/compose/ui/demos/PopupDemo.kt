@@ -65,7 +65,7 @@ fun PopupDemo() {
     Column {
         Row(
             Modifier.fillMaxWidth().align(Alignment.CenterHorizontally),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             ClickableTextWithBackground(
                 text = "Prev",
@@ -77,7 +77,7 @@ fun PopupDemo() {
 
                     exampleIndex = (exampleIndex - 1) % totalExamples
                 },
-                padding = 20.dp
+                padding = 20.dp,
             )
 
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -114,7 +114,7 @@ fun PopupDemo() {
                 text = "Next",
                 color = Color.Cyan,
                 onClick = { exampleIndex = (exampleIndex + 1) % totalExamples },
-                padding = 20.dp
+                padding = 20.dp,
             )
         }
 
@@ -191,7 +191,7 @@ private fun ColumnScope.PopupToggle() {
                 Popup(alignment = Alignment.Center) {
                     Box(
                         Modifier.size(70.dp).background(Color.Green, CircleShape),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(text = "This is a popup!", textAlign = TextAlign.Center)
                     }
@@ -202,7 +202,7 @@ private fun ColumnScope.PopupToggle() {
         ClickableTextWithBackground(
             text = "Toggle Popup",
             color = Color.Cyan,
-            onClick = { showPopup.value = !showPopup.value }
+            onClick = { showPopup.value = !showPopup.value },
         )
     }
 }
@@ -223,7 +223,7 @@ private fun ColumnScope.PopupWithChangingContent() {
                         ClickableTextWithBackground(
                             text = "Counter : $popupCounter",
                             color = Color.Green,
-                            onClick = { popupCounter += 1 }
+                            onClick = { popupCounter += 1 },
                         )
                     1 -> Box(Modifier.size(60.dp, 40.dp).background(Color.Blue, CircleShape))
                 }
@@ -234,7 +234,7 @@ private fun ColumnScope.PopupWithChangingContent() {
         ClickableTextWithBackground(
             text = "Change content",
             color = Color.Cyan,
-            onClick = { popupContentState++ }
+            onClick = { popupContentState++ },
         )
     }
 }
@@ -251,7 +251,7 @@ private fun ColumnScope.PopupWithChangingParent() {
     Column(Modifier.align(Alignment.CenterHorizontally)) {
         Box(
             Modifier.size(containerWidth, containerHeight),
-            contentAlignment = parentAlignment.value
+            contentAlignment = parentAlignment.value,
         ) {
             Box(Modifier.size(parentWidth.value, parentHeight.value).background(Color.Blue)) {
                 Popup(Alignment.BottomCenter) {
@@ -267,7 +267,7 @@ private fun ColumnScope.PopupWithChangingParent() {
                 parentAlignment.value =
                     if (parentAlignment.value == Alignment.TopStart) Alignment.TopEnd
                     else Alignment.TopStart
-            }
+            },
         )
         Spacer(Modifier.height(10.dp))
         ClickableTextWithBackground(
@@ -282,7 +282,7 @@ private fun ColumnScope.PopupWithChangingParent() {
                     parentHeight.value = 120.dp
                 }
                 parentSizeChanged.value = !parentSizeChanged.value
-            }
+            },
         )
     }
 }
@@ -296,7 +296,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
         val popupAlignment = remember { mutableStateOf(Alignment.TopStart) }
         Box(
             modifier = Modifier.size(widthSize, heightSize).background(Color.Red),
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.BottomCenter,
         ) {
             Popup(popupAlignment.value) {
                 ClickableTextWithBackground(
@@ -315,7 +315,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
                             7 -> popupAlignment.value = Alignment.CenterStart
                             8 -> popupAlignment.value = Alignment.Center
                         }
-                    }
+                    },
                 )
             }
         }
@@ -323,7 +323,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
         Spacer(Modifier.height(10.dp))
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally).background(color = Color.White),
-            text = "Alignment : " + popupAlignment.value.toString()
+            text = "Alignment : " + popupAlignment.value.toString(),
         )
     }
 }
@@ -355,13 +355,13 @@ private fun ColumnScope.PopupWithEditText() {
                     onDismissRequest = {
                         showEmail.value = "You entered: " + email.value
                         showPopup.value = false
-                    }
+                    },
                 ) {
                     EditLine(
                         modifier = Modifier.width(editLineSize),
                         initialText = "",
                         color = Color.White,
-                        onValueChange = { email.value = it }
+                        onValueChange = { email.value = it },
                     )
                 }
             }
@@ -396,7 +396,7 @@ private fun ColumnScope.PopupWithChangingSize() {
         ClickableTextWithBackground(
             text = "Change size",
             color = Color.Cyan,
-            onClick = { rectangleState++ }
+            onClick = { rectangleState++ },
         )
     }
 }
@@ -450,7 +450,7 @@ private fun ClickableTextWithBackground(
     text: String,
     color: Color,
     onClick: (() -> Unit)? = null,
-    padding: Dp = 0.dp
+    padding: Dp = 0.dp,
 ) {
     Box(
         Modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)
@@ -468,7 +468,7 @@ private fun EditLine(
     imeAction: ImeAction = ImeAction.Default,
     onValueChange: (String) -> Unit = {},
     initialText: String = "",
-    color: Color = Color.White
+    color: Color = Color.White,
 ) {
     val state = remember { mutableStateOf(initialText) }
     BasicTextField(
@@ -478,6 +478,6 @@ private fun EditLine(
         onValueChange = {
             state.value = it
             onValueChange(it)
-        }
+        },
     )
 }

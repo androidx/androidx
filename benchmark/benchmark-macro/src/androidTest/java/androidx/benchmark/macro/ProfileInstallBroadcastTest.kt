@@ -90,7 +90,7 @@ class ProfileInstallBroadcastTest {
         // validate extra instructions
         assertContains(
             errorString,
-            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated"
+            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated",
         )
     }
 
@@ -102,7 +102,7 @@ class ProfileInstallBroadcastTest {
 
         assertEquals(
             ProfileInstallBroadcast.SaveProfileResult(1, null),
-            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET)
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
         )
     }
 
@@ -120,7 +120,7 @@ class ProfileInstallBroadcastTest {
     fun saveProfilesForAllProcesses_missing() {
         assertEquals(
             ProfileInstallBroadcast.SaveProfileResult(0, null),
-            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING)
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING),
         )
     }
 

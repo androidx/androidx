@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.activity.result
 
 import android.annotation.SuppressLint
@@ -32,14 +35,14 @@ class ActivityResult(
     val resultCode: Int,
 
     /** The intent that carries the result data */
-    val data: Intent?
+    val data: Intent?,
 ) : Parcelable {
 
     internal constructor(
         parcel: Parcel
     ) : this(
         parcel.readInt(),
-        if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel)
+        if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel),
     )
 
     override fun toString(): String {

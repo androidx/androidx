@@ -43,7 +43,7 @@ class FakeCamera2CameraControlCompat : Camera2CameraControlCompat {
 
     override fun applyAsync(
         requestControl: UseCaseCameraRequestControl?,
-        cancelPreviousTask: Boolean
+        cancelPreviousTask: Boolean,
     ): Deferred<Void?> {
         return CompletableDeferred<Void?>(null).apply { complete(null) }
     }

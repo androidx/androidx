@@ -300,7 +300,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    @RequiresApi(21)
     class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl {
         final List<Bundle> mRootExtrasList = new ArrayList<>();
         MediaBrowserService mServiceFwk;
@@ -506,7 +505,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
             return mCurConnection.browserInfo;
         }
 
-        @RequiresApi(21)
         class MediaBrowserServiceApi21 extends MediaBrowserService {
             MediaBrowserServiceApi21(Context context) {
                 attachBaseContext(context);
@@ -1202,7 +1200,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    @RequiresApi(21)
     @SuppressWarnings({"rawtypes", "unchecked"})
     static class ResultWrapper<T> {
         MediaBrowserService.Result mResultFwk;
@@ -1266,10 +1263,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
             mImpl = new MediaBrowserServiceImplApi26();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaBrowserServiceImplApi21();
         } else {
-            mImpl = new MediaBrowserServiceImplBase();
+            mImpl = new MediaBrowserServiceImplApi21();
         }
         mImpl.onCreate();
     }

@@ -24,3 +24,7 @@ internal actual fun isCopyKeyEvent(keyEvent: KeyEvent): Boolean = implementedInJ
 
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier =
     implementedInJetBrainsFork()
+
+internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
+    selectionManager: SelectionManager
+): Modifier = implementedInJetBrainsFork()

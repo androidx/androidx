@@ -44,7 +44,7 @@ fun AnimatedDotsDemo() {
             initialValue = 1f,
             targetValue = totalDotCount.toFloat(),
             animationSpec =
-                infiniteRepeatable(animation = tween(2000), repeatMode = RepeatMode.Reverse)
+                infiniteRepeatable(animation = tween(2000), repeatMode = RepeatMode.Reverse),
         )
     Dots(position)
 }
@@ -68,7 +68,7 @@ private fun Dots(position: Float) {
                 val nextPositionDelta =
                     -min(
                         1f,
-                        abs(position - if (shouldFlip) nextDotPosition else currentDotPosition)
+                        abs(position - if (shouldFlip) nextDotPosition else currentDotPosition),
                     )
                 // Calculate the top-most and the bottom-most coordinates of current dot
                 val leftX = (currentDotPosition * dotSpacing).dp.toPx()
@@ -96,7 +96,7 @@ private fun Dots(position: Float) {
                             midX,
                             bezierYTop,
                             bezierYBottom,
-                            centerY.dp.toPx()
+                            centerY.dp.toPx(),
                         )
                     } else {
                         // Calculate control point Y coordinates a bit inside the next dot
@@ -113,7 +113,7 @@ private fun Dots(position: Float) {
                             midX,
                             bezierYTop,
                             bezierYBottom,
-                            centerY.dp.toPx()
+                            centerY.dp.toPx(),
                         )
                     }
                 drawPath(path, Color(0xff8eb4e6))
@@ -122,7 +122,7 @@ private fun Dots(position: Float) {
             drawCircle(
                 getDotColor(position, currentDotPosition),
                 radius = dotSize.dp.toPx(),
-                center = Offset((currentDotPosition * dotSpacing).dp.toPx(), 100.dp.toPx())
+                center = Offset((currentDotPosition * dotSpacing).dp.toPx(), 100.dp.toPx()),
             )
         }
     }
@@ -147,7 +147,7 @@ private fun getBridgePath(
     bezierX: Float,
     bezierYTop: Float,
     bezierYBottom: Float,
-    midY: Float
+    midY: Float,
 ): Path {
     return Path().apply {
         moveTo(startX, startYTop)

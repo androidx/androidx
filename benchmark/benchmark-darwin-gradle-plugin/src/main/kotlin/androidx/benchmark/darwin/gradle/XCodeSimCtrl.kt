@@ -57,7 +57,7 @@ class XCodeSimCtrl(private val execOperations: ExecOperations, private val desti
             /* The full device descriptor. */
             val destinationDesc: String,
             /* The unique device UUID if we end up booting the device. */
-            val deviceId: String? = null
+            val deviceId: String? = null,
         )
 
         internal fun boot(destination: String, execOperations: ExecOperations): SimulatorInstance {
@@ -74,7 +74,7 @@ class XCodeSimCtrl(private val execOperations: ExecOperations, private val desti
             val json =
                 executeCommand(
                     execOperations,
-                    listOf("xcrun", "simctl", "list", "runtimes", "--json")
+                    listOf("xcrun", "simctl", "list", "runtimes", "--json"),
                 )
             val simulatorRuntimes = GsonHelpers.gson().fromJson(json, SimulatorRuntimes::class.java)
             // There is usually one version of the simulator runtime available per xcode version
@@ -91,7 +91,7 @@ class XCodeSimCtrl(private val execOperations: ExecOperations, private val desti
         private fun bootSimulator(
             destination: String,
             parsed: Map<String, String>,
-            execOperations: ExecOperations
+            execOperations: ExecOperations,
         ): SimulatorInstance {
             val deviceName = deviceName(parsed)
             val supported = discoverSimulatorRuntimeVersion(execOperations)
@@ -109,8 +109,8 @@ class XCodeSimCtrl(private val execOperations: ExecOperations, private val desti
                         "create",
                         deviceName, // Use the deviceName as the name
                         deviceName,
-                        "iOS$runtimeVersion"
-                    )
+                        "iOS$runtimeVersion",
+                    ),
                 )
             check(deviceId.isNotBlank()) {
                 "Invalid device id for simulator: $deviceId (Destination: $destination)"

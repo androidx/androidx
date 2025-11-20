@@ -102,7 +102,7 @@ internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean
                     globalRootRect.left.toFloat(),
                     globalRootRect.top.toFloat(),
                     globalRootRect.right.toFloat(),
-                    globalRootRect.bottom.toFloat()
+                    globalRootRect.bottom.toFloat(),
                 )
             )
             .isEmpty

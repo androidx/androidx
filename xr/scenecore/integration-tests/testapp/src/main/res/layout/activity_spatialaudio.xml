@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".spatialaudio.SpatialAudioActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar_spatial_audio_test"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="@color/white"
+        android:background="@color/google_blue"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardViewSoundPool"
+        app:titleCentered="true"
+        app:title="@string/cuj_spatial_audio_test" />
+
+    <!-- First Card: SoundPool -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewSoundPool"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_spatial_audio_test">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SoundPool"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/button_soundpool_play_point_sound"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/test_button"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:text="Play Point Sound"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/button_soundpool_play_sound_field"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/test_button"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:text="Play Sound Field"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Second Card: AudioTrack -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewAudioTrack"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewSoundPool">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AudioTrack"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/button_audiotrack_play_default"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Play Default"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/button_audiotrack_default_set_params"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Default Set Params"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/button_audiotrack_play_point_sound"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Play Point Sound"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/button_audiotrack_point_set_params"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Point Set Params"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/button_audiotrack_play_sound_field"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Play Sound Field"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/button_audiotrack_set_params_log_error"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:text="Set Params Log Error"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Third Card: MediaPlayer -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewMediaPlayer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewAudioTrack">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="MediaPlayer"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/button_mediaplayer_play_point_sound"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/test_button"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:text="Play Point Sound"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/button_mediaplayer_play_sound_field_wav"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/test_button"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:text="Play Sound Field: WAV"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/button_mediaplayer_play_sound_field_opus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/test_button"
+                    android:layout_weight="1"
+                    android:textSize="18sp"
+                    android:text="Play Sound Field: OPUS"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottomCenterFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="Restart Activity"
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:backgroundTint="@color/google_blue"
+        android:src="@drawable/recreate"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

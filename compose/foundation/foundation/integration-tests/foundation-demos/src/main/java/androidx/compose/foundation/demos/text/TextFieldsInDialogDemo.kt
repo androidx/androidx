@@ -54,7 +54,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true)
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true),
             ) {
                 SingleTextFieldDialog()
             }
@@ -63,7 +63,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)
+                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true),
             ) {
                 SingleTextFieldDialog()
             }
@@ -72,7 +72,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false)
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false),
             ) {
                 SingleTextFieldDialog()
             }
@@ -83,15 +83,15 @@ private val dialogDemos =
                 properties =
                     DialogProperties(
                         usePlatformDefaultWidth = false,
-                        decorFitsSystemWindows = false
-                    )
+                        decorFitsSystemWindows = false,
+                    ),
             ) {
                 SingleTextFieldDialog()
             }
         },
         ComposableDemo("Show keyboard automatically") { onNavigateUp ->
             Dialog(onDismissRequest = onNavigateUp) { AutoFocusTextFieldDialog() }
-        }
+        },
     )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -111,7 +111,7 @@ fun TextFieldsInDialogDemo() {
         Text(
             currentDemo.title,
             modifier = Modifier.fillMaxSize().wrapContentSize(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Layout(content = { currentDemo.content { setDemoIndex(-1) } }) { measurables, _ ->
             check(measurables.isEmpty()) { "Dialog demo must only emit a Dialog composable." }
@@ -136,6 +136,6 @@ private fun AutoFocusTextFieldDialog() {
     TextField(
         text,
         onValueChange = { text = it },
-        modifier = Modifier.focusRequester(focusRequester)
+        modifier = Modifier.focusRequester(focusRequester),
     )
 }

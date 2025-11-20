@@ -144,6 +144,7 @@ class EmojiPickerViewTest {
         assertSelectedHeaderIndex(7)
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427259390
     @Test
     fun testHeader_clickingIconWillScrollToCategory() {
         onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ -> assertNull(view) }

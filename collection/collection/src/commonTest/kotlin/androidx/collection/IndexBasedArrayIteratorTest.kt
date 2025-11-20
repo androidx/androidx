@@ -57,7 +57,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c"),
             toBeRemoved = setOf("c"),
-            expected = setOf("a", "b")
+            expected = setOf("a", "b"),
         )
     }
 
@@ -66,7 +66,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c"),
             toBeRemoved = setOf("a"),
-            expected = setOf("b", "c")
+            expected = setOf("b", "c"),
         )
     }
 
@@ -75,7 +75,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c"),
             toBeRemoved = setOf("b"),
-            expected = setOf("a", "c")
+            expected = setOf("a", "c"),
         )
     }
 
@@ -84,7 +84,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c", "d"),
             toBeRemoved = setOf("b", "c"),
-            expected = setOf("a", "d")
+            expected = setOf("a", "d"),
         )
     }
 
@@ -93,7 +93,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c", "d"),
             toBeRemoved = setOf("c", "d"),
-            expected = setOf("a", "b")
+            expected = setOf("a", "b"),
         )
     }
 
@@ -102,7 +102,7 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c", "d"),
             toBeRemoved = setOf("a", "b"),
-            expected = setOf("c", "d")
+            expected = setOf("c", "d"),
         )
     }
 
@@ -111,14 +111,14 @@ internal class IndexBasedArrayIteratorTest {
         removeViaIterator(
             original = setOf("a", "b", "c", "d"),
             toBeRemoved = setOf("a", "c"),
-            expected = setOf("b", "d")
+            expected = setOf("b", "d"),
         )
     }
 
     private fun removeViaIterator(
         original: Set<String>,
         toBeRemoved: Set<String>,
-        expected: Set<String>
+        expected: Set<String>,
     ) {
         val subject = ArraySet(original)
         val iterator = subject.iterator()

@@ -42,7 +42,7 @@ public class HealthEvent(
         public val id: Int,
 
         /** Returns a human readable name to represent this [Type]. */
-        public val name: String
+        public val name: String,
     ) {
 
         override fun equals(other: Any?): Boolean {
@@ -92,7 +92,7 @@ public class HealthEvent(
     ) : this(
         Type.fromProto(proto.healthEventTypeId),
         Instant.ofEpochMilli(proto.eventTimeEpochMs),
-        fromHealthEventProto(proto)
+        fromHealthEventProto(proto),
     )
 
     internal val proto: DataProto.HealthEvent =

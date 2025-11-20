@@ -57,4 +57,6 @@ actual sealed interface ContentType {
         actual val BirthDateYear: ContentType = implementedInJetBrainsFork()
         actual val SmsOtpCode: ContentType = implementedInJetBrainsFork()
     }
+
+    actual operator fun plus(other: ContentType): ContentType
 }

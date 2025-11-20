@@ -19,7 +19,6 @@
 package androidx.appcompat.app
 
 import android.os.LocaleList
-import androidx.annotation.RequiresApi
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
@@ -44,14 +43,13 @@ class LocalesSetUsingFrameworkApiTestCase {
     private var systemLocales = LocaleListCompat.getEmptyLocaleList()
     private var expectedLocales = LocaleListCompat.getEmptyLocaleList()
 
-    @RequiresApi(33)
     @Before
     fun setUp() {
 
         // setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
-            LocaleList.getEmptyLocaleList()
+            LocaleList.getEmptyLocaleList(),
         )
         // Since no locales are applied as of now, current configuration will have system
         // locales.
@@ -60,7 +58,7 @@ class LocalesSetUsingFrameworkApiTestCase {
         expectedLocales =
             LocalesUpdateActivity.overlayCustomAndSystemLocales(
                 LocalesUtils.CUSTOM_LOCALE_LIST,
-                systemLocales
+                systemLocales,
             )
     }
 
@@ -69,14 +67,13 @@ class LocalesSetUsingFrameworkApiTestCase {
      * redirected to the framework API and the locales are applied successfully.
      */
     @Test
-    @RequiresApi(33)
     fun testSetApplicationLocales_postT_frameworkApiCalled() {
         val firstActivity = rule.activity
         assertConfigurationLocalesEquals(systemLocales, firstActivity)
 
         assertEquals(
             LocaleListCompat.getEmptyLocaleList(),
-            AppCompatDelegate.getApplicationLocales()
+            AppCompatDelegate.getApplicationLocales(),
         )
         assertNull(AppCompatDelegate.getRequestedAppLocales())
 
@@ -91,7 +88,7 @@ class LocalesSetUsingFrameworkApiTestCase {
             AppCompatDelegate.Api33Impl.localeManagerGetApplicationLocales(
                     AppCompatDelegate.getLocaleManagerForApplication()
                 )
-                .toLanguageTags()
+                .toLanguageTags(),
         )
         // check locales are applied successfully
         assertConfigurationLocalesEquals(expectedLocales, recreatedFirst)
@@ -99,13 +96,12 @@ class LocalesSetUsingFrameworkApiTestCase {
         assertNull(AppCompatDelegate.getRequestedAppLocales())
     }
 
-    @RequiresApi(33)
     @After
     fun teardown() {
         // clearing locales from framework. setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
-            LocaleList.getEmptyLocaleList()
+            LocaleList.getEmptyLocaleList(),
         )
     }
 }

@@ -79,7 +79,7 @@ class ButtonsWidget() : GlanceAppWidget() {
                         onClick = {},
                         modifier = GlanceModifier,
                         colors = colors,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 },
                 {
@@ -117,7 +117,7 @@ class ButtonsWidget() : GlanceAppWidget() {
                     )
                 },
                 { LongTextButtons(GlanceModifier, colors) },
-                { IconButtons() }
+                { IconButtons() },
             )
         }
 
@@ -183,7 +183,7 @@ private fun LongTextButtons(modifier: GlanceModifier, colors: ButtonColors) {
             colors = colors,
             modifier = GlanceModifier,
             onClick = {},
-            maxLines = 2
+            maxLines = 2,
         )
     }
 }
@@ -192,12 +192,12 @@ private fun LongTextButtons(modifier: GlanceModifier, colors: ButtonColors) {
 private fun IconButtons() {
     Row(
         modifier = GlanceModifier.height(80.dp).padding(vertical = 8.dp),
-        verticalAlignment = Alignment.Vertical.CenterVertically
+        verticalAlignment = Alignment.Vertical.CenterVertically,
     ) {
         SquareIconButton(
             imageProvider = ImageProvider(R.drawable.baseline_add_24),
             contentDescription = "Add Button",
-            onClick = {}
+            onClick = {},
         )
         Space()
 
@@ -206,7 +206,7 @@ private fun IconButtons() {
             contentDescription = "Call Button",
             backgroundColor = GlanceTheme.colors.surfaceVariant,
             contentColor = GlanceTheme.colors.onSurfaceVariant,
-            onClick = {}
+            onClick = {},
         )
         Space()
 
@@ -215,7 +215,7 @@ private fun IconButtons() {
             contentDescription = "Call Button",
             backgroundColor = null, // empty background
             contentColor = GlanceTheme.colors.primary,
-            onClick = {}
+            onClick = {},
         )
     }
 }

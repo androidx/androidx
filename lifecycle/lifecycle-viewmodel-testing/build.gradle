@@ -23,7 +23,6 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -36,20 +35,16 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.viewmodel.testing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-            it.compilationName = "unitTest"
-        }
     }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -57,7 +52,6 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":lifecycle:lifecycle-viewmodel"))
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 implementation(project(":lifecycle:lifecycle-runtime"))
                 implementation(project(":lifecycle:lifecycle-runtime-testing"))
@@ -86,15 +80,14 @@ androidXMultiplatform {
             dependsOn(jvmMain)
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(commonTest)
             dependsOn(jvmTest)
             dependencies {
-                implementation(libs.robolectric)
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependsOn(jvmTest)
             dependencies {
@@ -149,28 +142,44 @@ androidXMultiplatform {
             dependsOn(nativeTest)
         }
 
+        mingwMain {
+            dependsOn(nativeMain)
+        }
+
+        mingwTest {
+            dependsOn(nativeTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            }
+        }
+
         targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
+                } else if (target.konanTarget.family == Family.MINGW) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
                 }
-                target.compilations["test"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
-                        dependsOn(darwinTest)
-                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                        dependsOn(linuxTest)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
-                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -181,6 +190,5 @@ androidx {
     type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Testing utilities for 'lifecycle-viewmodel' artifact"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    enableRobolectric()
 }
-

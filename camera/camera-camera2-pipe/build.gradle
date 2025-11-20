@@ -21,22 +21,25 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    // Remove when b/442128557 is fixed
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation(libs.atomicFu)
     implementation(libs.dagger)
+    implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+
 
     ksp(libs.daggerCompiler)
 
@@ -44,27 +47,27 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(libs.kotlinCoroutinesCore)
 
     kspTest(libs.daggerCompiler)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
 }
 
 android {
+    compileSdk = 36
+
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.camera2.pipe"
 }
 
@@ -80,4 +83,5 @@ androidx {
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
     doNotDocumentReason = "Not shipped externally"
+    enableRobolectric()
 }

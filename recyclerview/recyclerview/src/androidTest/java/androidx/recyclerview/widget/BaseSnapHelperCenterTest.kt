@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import java.util.ArrayList
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -49,7 +48,7 @@ abstract class BaseSnapHelperCenterTest(
     private val vertical: Boolean,
     startPadded: Boolean,
     endPadded: Boolean,
-    private val clipToPadding: Boolean
+    private val clipToPadding: Boolean,
 ) {
     abstract val snapHelper: SnapHelper
 
@@ -107,7 +106,7 @@ abstract class BaseSnapHelperCenterTest(
             val actualResult =
                 snapHelper.calculateDistanceToFinalSnap(
                     recyclerView.layoutManager!!,
-                    recyclerView.getChildAt(i)
+                    recyclerView.getChildAt(i),
                 )
 
             assertThat(actualResult, `is`(intArrayOf(xOffset, yOffset)))
@@ -151,7 +150,7 @@ private class TestAdapter(
     private val context: Context,
     private val orientationItemSize: Int,
     private val itemCount: Int,
-    private val orientationVertical: Boolean
+    private val orientationVertical: Boolean,
 ) : RecyclerView.Adapter<TestViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TestViewHolder {

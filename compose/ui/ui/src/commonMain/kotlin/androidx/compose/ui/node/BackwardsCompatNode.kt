@@ -163,30 +163,28 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         if (element is RemeasurementModifier) {
             element.onRemeasurementAvailable(requireLayoutNode())
         }
-        if (isKind(Nodes.LayoutAware)) {
-            if (element is OnRemeasuredModifier) {
-                // if the modifier was added but layout has already happened and might not change,
-                // we want to call remeasured in case layout doesn't happen again
-                val isChainUpdate = isChainUpdate()
-                if (isChainUpdate) {
-                    requireLayoutNode().invalidateMeasurements()
-                }
+        if (isKind(Nodes.OnRemeasured) && element is OnRemeasuredModifier) {
+            // if the modifier was added but layout has already happened and might not change,
+            // we want to call remeasured in case layout doesn't happen again
+            val isChainUpdate = isChainUpdate()
+            if (isChainUpdate) {
+                requireLayoutNode().invalidateMeasurements()
             }
-            if (element is OnPlacedModifier) {
-                lastOnPlacedCoordinates = null
-                val isChainUpdate = isChainUpdate()
-                if (isChainUpdate) {
-                    requireOwner()
-                        .registerOnLayoutCompletedListener(
-                            object : Owner.OnLayoutCompletedListener {
-                                override fun onLayoutComplete() {
-                                    if (lastOnPlacedCoordinates == null) {
-                                        onPlaced(requireCoordinator(Nodes.LayoutAware))
-                                    }
+        }
+        if (isKind(Nodes.OnPlaced) && element is OnPlacedModifier) {
+            lastOnPlacedCoordinates = null
+            val isChainUpdate = isChainUpdate()
+            if (isChainUpdate) {
+                requireOwner()
+                    .registerOnLayoutCompletedListener(
+                        object : Owner.OnLayoutCompletedListener {
+                            override fun onLayoutComplete() {
+                                if (lastOnPlacedCoordinates == null) {
+                                    onPlaced(requireCoordinator(Nodes.OnPlaced))
                                 }
                             }
-                        )
-                }
+                        }
+                    )
             }
         }
         if (isKind(Nodes.GlobalPositionAware)) {
@@ -221,7 +219,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override val size: Size
         get() {
-            return requireCoordinator(Nodes.LayoutAware).size.toSize()
+            return requireCoordinator(Nodes.OnRemeasured).size.toSize()
         }
 
     // Flag to determine if the cache should be re-built
@@ -258,7 +256,8 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             readValues.add(key)
             visitAncestors(Nodes.Locals) {
                 if (it.providedValues.contains(key)) {
-                    @Suppress("UNCHECKED_CAST") return it.providedValues[key] as T
+                    @Suppress("UNCHECKED_CAST")
+                    return it.providedValues[key] as T
                 }
             }
             return key.defaultFactory()
@@ -299,29 +298,29 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return with(element as LayoutModifier) { measure(measurable, constraints) }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = with(element as LayoutModifier) { minIntrinsicWidth(measurable, height) }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = with(element as LayoutModifier) { minIntrinsicHeight(measurable, width) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = with(element as LayoutModifier) { maxIntrinsicWidth(measurable, height) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = with(element as LayoutModifier) { maxIntrinsicHeight(measurable, width) }
 
     override fun ContentDrawScope.draw() {
@@ -343,7 +342,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         with(element as PointerInputModifier) {
             pointerInputFilter.onPointerEvent(pointerEvent, pass, bounds)

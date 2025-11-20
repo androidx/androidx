@@ -31,10 +31,7 @@ data class IdeSummaryPair(val summaryV2: String, val summaryV3: String = summary
     constructor(
         v2lines: List<String>,
         v3lines: List<String> = v2lines,
-    ) : this(
-        summaryV2 = v2lines.joinToString("\n"),
-        summaryV3 = v3lines.joinToString("\n"),
-    )
+    ) : this(summaryV2 = v2lines.joinToString("\n"), summaryV3 = v3lines.joinToString("\n"))
 
     /** Fallback for very old versions of Studio */
     val summaryV1: String
@@ -80,7 +77,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList(),
         insightSummaries: List<InsightSummary> = emptyList(),
-        useTreeDisplayFormat: Boolean = false
+        useTreeDisplayFormat: Boolean = false,
     ) {
         if (warningMessage != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(warningMessage)
@@ -93,7 +90,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
                 iterationTracePaths = iterationTracePaths,
                 profilerResults = profilerResults,
                 insightSummaries = insightSummaries,
-                useTreeDisplayFormat = useTreeDisplayFormat
+                useTreeDisplayFormat = useTreeDisplayFormat,
             )
         reportIdeSummary(summaryV2 = summaryPair.summaryV2, summaryV3 = summaryPair.summaryV3)
     }
@@ -242,7 +239,7 @@ object InstrumentationResults {
                         min: String,
                         median: String,
                         max: String,
-                        metricResult: MetricResult
+                        metricResult: MetricResult,
                     ) -> String
             ) =
                 measurements.singleMetrics.map {
@@ -251,7 +248,7 @@ object InstrumentationResults {
                         it.min.toDisplayString().padStart(maxValueLength),
                         it.median.toDisplayString().padStart(maxValueLength),
                         it.max.toDisplayString().padStart(maxValueLength),
-                        it
+                        it,
                     )
                 } +
                     measurements.sampledMetrics.map {
@@ -336,11 +333,11 @@ object InstrumentationResults {
                                     linkableIterTraces
                                         .mapIndexed { ix, trace -> createFileLink("$ix", trace) }
                                         .joinToString(prefix = "Iteration ", separator = " "),
-                                    1
+                                    1,
                                 )
                             for (line in profilerResults) tree.append(
                                 createFileLink(line.label, line.outputRelativePath),
-                                1
+                                1,
                             )
                         }
                         addAll(tree.build())
@@ -349,7 +346,7 @@ object InstrumentationResults {
                 }
             return IdeSummaryPair(
                 v2lines = formatLines[LinkFormat.V2]!!,
-                v3lines = formatLines[LinkFormat.V3]!!
+                v3lines = formatLines[LinkFormat.V3]!!,
             )
         }
     }
@@ -371,7 +368,7 @@ object InstrumentationResults {
     public fun reportAdditionalFileToCopy(
         key: String,
         absoluteFilePath: String,
-        reportOnRunEndOnly: Boolean = false
+        reportOnRunEndOnly: Boolean = false,
     ) {
         require(!key.contains('=')) {
             "Key must not contain '=', which breaks instrumentation result string parsing"

@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 internal class DataPointTest {
     fun Int.duration() = Duration.ofSeconds(toLong())
 
@@ -42,7 +43,7 @@ internal class DataPointTest {
                         putInt("int", 5)
                         putString("string", "value")
                     },
-                    accuracy = null // No interval DataPoints have an accuracy component
+                    accuracy = null, // No interval DataPoints have an accuracy component
                 )
                 .proto
 
@@ -68,7 +69,7 @@ internal class DataPointTest {
                         putInt("int", 5)
                         putString("string", "value")
                     },
-                    HeartRateAccuracy(HeartRateAccuracy.SensorStatus.ACCURACY_HIGH)
+                    HeartRateAccuracy(HeartRateAccuracy.SensorStatus.ACCURACY_HIGH),
                 )
                 .proto
 
@@ -214,7 +215,7 @@ internal class DataPointTest {
             DataPoints.elevationGain(
                 1000000.1,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeElevationGain).isNotNull()
@@ -237,7 +238,7 @@ internal class DataPointTest {
             DataPoints.elevationLoss(
                 1000000.1,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeElevationLoss).isNotNull()
@@ -273,7 +274,7 @@ internal class DataPointTest {
                 240.0,
                 120.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
 
         Truth.assertThat(absoluteElevationStats).isNotNull()
@@ -287,7 +288,7 @@ internal class DataPointTest {
                 240.0,
                 120.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
         val negativeOutOfRangeMaxAbsoluteElevationStats =
             DataPoints.absoluteElevationStats(
@@ -295,7 +296,7 @@ internal class DataPointTest {
                 -1000000.1,
                 120.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
         val negativeOutOfRangeAvgAbsoluteElevationStats =
             DataPoints.absoluteElevationStats(
@@ -303,7 +304,7 @@ internal class DataPointTest {
                 240.0,
                 -1000000.1,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
         val positiveOutOfRangeMinAbsoluteElevationStats =
             DataPoints.absoluteElevationStats(
@@ -311,7 +312,7 @@ internal class DataPointTest {
                 240.0,
                 120.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
         val positiveOutOfRangeMaxAbsoluteElevationStats =
             DataPoints.absoluteElevationStats(
@@ -319,7 +320,7 @@ internal class DataPointTest {
                 1000001.0,
                 120.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
         val positiveOutOfRangeAvgAbsoluteElevationStats =
             DataPoints.absoluteElevationStats(
@@ -327,7 +328,7 @@ internal class DataPointTest {
                 240.0,
                 1000001.0,
                 getStartInstant(),
-                getEndInstant()
+                getEndInstant(),
             )
 
         Truth.assertThat(negativeOutOfRangeMinAbsoluteElevationStats).isNotNull()
@@ -409,7 +410,7 @@ internal class DataPointTest {
             DataPoints.swimmingStrokes(
                 1000001,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeSwimmingStrokes).isNotNull()
@@ -581,7 +582,7 @@ internal class DataPointTest {
             DataPoints.dailyCalories(
                 1000000.1,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeDailyCalories).isNotNull()
@@ -604,7 +605,7 @@ internal class DataPointTest {
             DataPoints.dailyDistance(
                 1000000.1,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeDailyDistance).isNotNull()
@@ -627,7 +628,7 @@ internal class DataPointTest {
             DataPoints.dailyElevationGain(
                 1000000.1,
                 getStartDurationFromBoot(),
-                getEndDurationFromBoot()
+                getEndDurationFromBoot(),
             )
 
         Truth.assertThat(negativeOutOfRangeDailyElevationGain).isNotNull()

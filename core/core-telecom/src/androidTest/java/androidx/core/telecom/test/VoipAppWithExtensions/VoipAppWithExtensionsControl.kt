@@ -40,6 +40,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
@@ -53,11 +54,16 @@ open class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null
     private var mScope: CoroutineScope? = null
     private var mCallback: ITestAppControlCallback? = null
-    private var participantsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
+    private var participantsFlow: MutableStateFlow<List<Participant>> =
+        MutableStateFlow(emptyList())
     private var activeParticipantFlow: MutableStateFlow<Participant?> = MutableStateFlow(null)
     private var raisedHandsFlow: MutableStateFlow<List<Participant>> = MutableStateFlow(emptyList())
     // TODO:: b/364316364 should be Pair(callId:String, value: Boolean)
-    private var isLocallySilencedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var isLocallySilencedFlow: MutableSharedFlow<Boolean> =
+        MutableSharedFlow<Boolean>(
+            replay = 1, // Replay 1 to keep the *current* state
+            extraBufferCapacity = 1, // Buffer for new emissions
+        )
     private var callIconFlow: MutableStateFlow<Uri> = MutableStateFlow(Uri.EMPTY)
 
     companion object {
@@ -89,23 +95,24 @@ open class VoipAppWithExtensionsControl : Service() {
             override fun addCall(
                 requestId: Int,
                 capabilities: List<Capability>,
-                isOutgoing: Boolean
+                isOutgoing: Boolean,
+                initLcsValue: Boolean,
             ) {
                 Log.i(TAG, "VoipAppWithExtensionsControl: addCall: request")
                 runBlocking {
-                    val call = VoipCall(mCallsManager!!, mCallback, capabilities)
+                    val call = VoipCall(mCallsManager!!, mCallback, capabilities, initLcsValue)
                     mScope?.launch {
                         with(call) {
                             addCall(
                                 CallAttributesCompat(
                                     "displayName" /* TODO:: make helper */,
                                     Uri.parse("tel:123") /* TODO:: make helper */,
-                                    if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING
+                                    if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING,
                                 ),
                                 mOnAnswerLambda,
                                 mOnDisconnectLambda,
                                 mOnSetActiveLambda,
-                                mOnSetInActiveLambda
+                                mOnSetInActiveLambda,
                             ) {
                                 launch { setActive() }
                                 isMuted
@@ -131,10 +138,8 @@ open class VoipAppWithExtensionsControl : Service() {
                                     }
                                     .launchIn(this)
                                 isLocallySilencedFlow
-                                    .drop(1) // ignore the first value from the voip app
-                                    // since only values from the test should be sent!
                                     .onEach {
-                                        Log.i(TAG, "VoIP isLocallySilenced=[$it]")
+                                        Log.d(TAG, "adCall block: VoIP isLocallySilenced=[$it]")
                                         // TODO:: b/364316364 gate on callId
                                         localCallSilenceUpdater?.updateIsLocallySilenced(it)
                                     }
@@ -155,7 +160,7 @@ open class VoipAppWithExtensionsControl : Service() {
             }
 
             override fun updateParticipants(setOfParticipants: List<ParticipantParcelable>) {
-                participantsFlow.value = setOfParticipants.map { it.toParticipant() }.toSet()
+                participantsFlow.value = setOfParticipants.map { it.toParticipant() }
             }
 
             override fun updateActiveParticipant(participant: ParticipantParcelable?) {
@@ -168,7 +173,8 @@ open class VoipAppWithExtensionsControl : Service() {
 
             // TODO:: b/364316364 add CallId arg.  Should be changing on a per call basis
             override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
-                isLocallySilencedFlow.value = isLocallySilenced
+                Log.d(TAG, "Voip: updateIsLocallySilenced: [$isLocallySilenced]")
+                isLocallySilencedFlow.tryEmit(isLocallySilenced)
             }
 
             override fun updateCallIcon(uri: Uri) {
@@ -189,7 +195,7 @@ open class VoipAppWithExtensionsControl : Service() {
         mScope?.cancel(CancellationException("Control interface is unbinding"))
         mScope = null
         mCallback = null
-        participantsFlow.value = emptySet()
+        participantsFlow.value = emptyList()
         activeParticipantFlow.value = null
         raisedHandsFlow.value = emptyList()
         return false

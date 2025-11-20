@@ -23,6 +23,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.SurfaceOrderQuirk;
+import androidx.camera.core.streamsharing.StreamSharing;
 
 import org.jspecify.annotations.NonNull;
 
@@ -30,8 +31,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Workaround that put {@link Preview} surface in front of the list and {@link MediaCodec}
- * surface in the end of list.
+ * Workaround that put preview surface (includes {@link Preview} and {@link StreamSharing}) in
+ * front of the list and {@link MediaCodec} surface in the end of list.
  *
  * @see SurfaceOrderQuirk
  */
@@ -62,7 +63,8 @@ public class SurfaceSorter {
     private int getSurfacePriority(@NonNull DeferrableSurface surface) {
         if (surface.getContainerClass() == MediaCodec.class) {
             return PRIORITY_MEDIA_CODEC_SURFACE;
-        } else if (surface.getContainerClass() == Preview.class) {
+        } else if (surface.getContainerClass() == Preview.class
+                || surface.getContainerClass() == StreamSharing.class) {
             return PRIORITY_PREVIEW_SURFACE;
         }
         return PRIORITY_OTHERS;

@@ -2,6 +2,7 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
+import androidx.appsearch.app.DocumentClassMappingContext;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Class;
@@ -31,7 +32,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public List<Class<?>> getNestedDocumentClasses() throws AppSearchException {
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
     List<Class<?>> classSet = new ArrayList<Class<?>>();
     classSet.add(Letter.class);
     return classSet;
@@ -50,13 +51,14 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
+  public Gift fromGenericDocument(GenericDocument genericDoc,
+      DocumentClassMappingContext documentClassMappingContext) throws AppSearchException {
     String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
     GenericDocument letterCopy = genericDoc.getPropertyDocument("letter");
     Letter letterConv = null;
     if (letterCopy != null) {
-      letterConv = letterCopy.toDocumentClass(Letter.class);
+      letterConv = letterCopy.toDocumentClass(Letter.class, documentClassMappingContext);
     }
     Gift document = new Gift();
     document.id = idConv;

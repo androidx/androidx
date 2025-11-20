@@ -16,17 +16,21 @@
 
 package androidx.test.uiautomator;
 
+import android.annotation.SuppressLint;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
 /** The Searchable interface represents an object that can be searched for matching UI elements. */
-interface Searchable {
+public interface Searchable {
 
     /** Returns whether there is a match for the given {@code selector} criteria. */
     boolean hasObject(@NonNull BySelector selector);
 
     /** Returns the first object to match the {@code selector} criteria. */
+    @SuppressLint("UnknownNullness")
+    @SuppressWarnings("MissingNullability") // Avoid breakages for existing users.
     UiObject2 findObject(@NonNull BySelector selector);
 
     /** Returns all objects that match the {@code selector} criteria. */

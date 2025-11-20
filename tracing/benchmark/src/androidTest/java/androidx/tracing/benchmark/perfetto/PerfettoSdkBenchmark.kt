@@ -65,7 +65,7 @@ class PerfettoSdkBenchmark {
             .let { (resultCode, _) ->
                 assertTrue(
                     "Ensuring Perfetto SDK is enabled",
-                    resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                    resultCode in arrayOf(1, 2), // 1 = success, 2 = already enabled
                 )
             }
     }

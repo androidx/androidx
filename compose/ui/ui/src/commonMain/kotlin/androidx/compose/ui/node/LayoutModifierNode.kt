@@ -71,7 +71,7 @@ interface LayoutModifierNode : DelegatableNode {
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
             measurable,
-            height
+            height,
         )
 
     /** The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight]. */
@@ -80,7 +80,7 @@ interface LayoutModifierNode : DelegatableNode {
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
             measurable,
-            width
+            width,
         )
 
     /** The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth]. */
@@ -89,7 +89,7 @@ interface LayoutModifierNode : DelegatableNode {
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
             measurable,
-            height
+            height,
         )
     }
 
@@ -99,7 +99,7 @@ interface LayoutModifierNode : DelegatableNode {
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
             measurable,
-            width
+            width,
         )
 }
 
@@ -139,7 +139,7 @@ internal object NodeMeasuringIntrinsics {
     internal fun interface ApproachMeasureBlock {
         fun ApproachMeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult
     }
 
@@ -147,20 +147,20 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: ApproachMeasureBlock,
         intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
             with(measureBlock) {
                 ApproachIntrinsicsMeasureScope(
                         intrinsicMeasureScope,
-                        intrinsicMeasureScope.layoutDirection
+                        intrinsicMeasureScope.layoutDirection,
                     )
                     .measure(measurable, constraints)
             }
@@ -171,20 +171,20 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: ApproachMeasureBlock,
         intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
             with(measureBlock) {
                 ApproachIntrinsicsMeasureScope(
                         intrinsicMeasureScope,
-                        intrinsicMeasureScope.layoutDirection
+                        intrinsicMeasureScope.layoutDirection,
                     )
                     .measure(measurable, constraints)
             }
@@ -195,20 +195,20 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: ApproachMeasureBlock,
         intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
             with(measureBlock) {
                 ApproachIntrinsicsMeasureScope(
                         intrinsicMeasureScope,
-                        intrinsicMeasureScope.layoutDirection
+                        intrinsicMeasureScope.layoutDirection,
                     )
                     .measure(measurable, constraints)
             }
@@ -219,20 +219,20 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: ApproachMeasureBlock,
         intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
             with(measureBlock) {
                 ApproachIntrinsicsMeasureScope(
                         intrinsicMeasureScope,
-                        intrinsicMeasureScope.layoutDirection
+                        intrinsicMeasureScope.layoutDirection,
                     )
                     .measure(measurable, constraints)
             }
@@ -243,13 +243,13 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: MeasureBlock,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
@@ -265,13 +265,13 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: MeasureBlock,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Min,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
@@ -286,13 +286,13 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: MeasureBlock,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        h: Int
+        h: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Width
+                IntrinsicWidthHeight.Width,
             )
         val constraints = Constraints(maxHeight = h)
         val layoutResult =
@@ -307,13 +307,13 @@ internal object NodeMeasuringIntrinsics {
         measureBlock: MeasureBlock,
         intrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
-        w: Int
+        w: Int,
     ): Int {
         val measurable =
             DefaultIntrinsicMeasurable(
                 intrinsicMeasurable,
                 IntrinsicMinMax.Max,
-                IntrinsicWidthHeight.Height
+                IntrinsicWidthHeight.Height,
             )
         val constraints = Constraints(maxWidth = w)
         val layoutResult =
@@ -327,7 +327,7 @@ internal object NodeMeasuringIntrinsics {
     private class DefaultIntrinsicMeasurable(
         val measurable: IntrinsicMeasurable,
         val minMax: IntrinsicMinMax,
-        val widthHeight: IntrinsicWidthHeight
+        val widthHeight: IntrinsicWidthHeight,
     ) : Measurable {
         override val parentData: Any?
             get() = measurable.parentData
@@ -381,17 +381,37 @@ internal object NodeMeasuringIntrinsics {
         override fun placeAt(
             position: IntOffset,
             zIndex: Float,
-            layerBlock: (GraphicsLayerScope.() -> Unit)?
+            layerBlock: (GraphicsLayerScope.() -> Unit)?,
         ) {}
     }
 
     private enum class IntrinsicMinMax {
         Min,
-        Max
+        Max,
     }
 
     private enum class IntrinsicWidthHeight {
         Width,
-        Height
+        Height,
     }
+}
+
+/**
+ * Updates the layer block of the [LayoutModifierNode]. This will mark the layer as invalidated and
+ * schedule a refresh of the layer.
+ *
+ * Updating the layer lambda using this method is cheaper than invalidating placement and placing
+ * the layout with a new layer block. This API is expected to be used alongside [Placeable.placeAt]
+ * with a `layerBlock` parameter passed. This will override/update the layerBlock passed in that
+ * API. Whichever one was called last should "win".
+ *
+ * @param layerBlock the snapshot-observed lambda used to set properties on the layer. if `null`, is
+ *   provided it will remove the layer.
+ * @see [Placeable.placeAt]
+ */
+fun LayoutModifierNode.updateLayerBlock(layerBlock: (GraphicsLayerScope.() -> Unit)?) {
+    if (!node.isAttached) return
+    requireCoordinator(Nodes.Layout)
+        .wrapped
+        ?.updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
 }

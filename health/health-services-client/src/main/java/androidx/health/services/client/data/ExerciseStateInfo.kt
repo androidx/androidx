@@ -19,7 +19,7 @@ package androidx.health.services.client.data
 /** Wrapper class for accessing [ExerciseState] and [ExerciseEndReason]. */
 public class ExerciseStateInfo(
     exerciseState: ExerciseState,
-    @ExerciseEndReason exerciseEndReason: Int
+    @ExerciseEndReason exerciseEndReason: Int,
 ) {
 
     /**

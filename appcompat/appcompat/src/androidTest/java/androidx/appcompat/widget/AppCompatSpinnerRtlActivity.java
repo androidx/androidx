@@ -29,7 +29,7 @@ public class AppCompatSpinnerRtlActivity extends AppCompatSpinnerActivity {
         overrideConfig.locale = new Locale("ar", "sa");
 
         ContextThemeWrapper wrappedBase = new ContextThemeWrapper(
-                newBase, androidx.appcompat.test.R.style.Theme_AppCompat_Empty);
+                newBase, androidx.appcompat.R.style.Theme_AppCompat_Empty);
         wrappedBase.applyOverrideConfiguration(overrideConfig);
 
         newBase = wrappedBase;

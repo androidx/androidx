@@ -27,11 +27,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesTest)
     api(project(":glance:glance-testing"))
     api(project(":glance:glance-appwidget"))
@@ -41,26 +40,16 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
 }
 
 android {
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
     defaultConfig {
-        minSdk = 23
         compileSdk = 35
     }
     namespace = "androidx.glance.appwidget.testing"
-    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+ in glance-appwidget
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
@@ -68,6 +57,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "This library provides APIs for developers to use for testing their appWidget specific Glance composables."
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
+    enableRobolectric()
 }

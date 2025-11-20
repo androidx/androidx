@@ -72,7 +72,7 @@ internal fun NavType.addBundleGetStatement(
     builder: FunSpec.Builder,
     arg: Argument,
     lValue: String,
-    bundle: String
+    bundle: String,
 ): FunSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -83,7 +83,7 @@ internal fun NavType.addBundleGetStatement(
                     PARCELABLE_CLASSNAME,
                     arg.type.typeName(),
                     SERIALIZABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L = %L.%L(%S)·as·%T",
@@ -91,14 +91,14 @@ internal fun NavType.addBundleGetStatement(
                     bundle,
                     "get",
                     arg.name,
-                    arg.type.typeName().copy(nullable = true)
+                    arg.type.typeName().copy(nullable = true),
                 )
                 nextControlFlow("else")
                 addStatement(
                     "throw·%T(%T::class.java.name + %S)",
                     UnsupportedOperationException::class.asTypeName(),
                     arg.type.typeName(),
-                    " must implement Parcelable or Serializable or must be an Enum."
+                    " must implement Parcelable or Serializable or must be an Enum.",
                 )
                 endControlFlow()
             }
@@ -111,7 +111,7 @@ internal fun NavType.addBundleGetStatement(
                     bundle,
                     bundleGetMethod(),
                     arg.name,
-                    baseType
+                    baseType,
                 )
             }
         else -> builder.addStatement("%L = %L.%L(%S)", lValue, bundle, bundleGetMethod(), arg.name)
@@ -121,7 +121,7 @@ internal fun NavType.addBundlePutStatement(
     builder: FunSpec.Builder,
     arg: Argument,
     bundle: String,
-    argValue: String
+    argValue: String,
 ): FunSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -129,7 +129,7 @@ internal fun NavType.addBundlePutStatement(
                 beginControlFlow(
                     "if (%T::class.java.isAssignableFrom(%T::class.java))",
                     PARCELABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L.%L(%S, %L as %T)",
@@ -137,12 +137,12 @@ internal fun NavType.addBundlePutStatement(
                     "putParcelable",
                     arg.name,
                     argValue,
-                    PARCELABLE_CLASSNAME.copy(nullable = arg.isNullable)
+                    PARCELABLE_CLASSNAME.copy(nullable = arg.isNullable),
                 )
                 nextControlFlow(
                     "else if (%T::class.java.isAssignableFrom(%T::class.java))",
                     SERIALIZABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L.%L(%S, %L as %T)",
@@ -150,7 +150,7 @@ internal fun NavType.addBundlePutStatement(
                     "putSerializable",
                     arg.name,
                     argValue,
-                    SERIALIZABLE_CLASSNAME.copy(nullable = arg.isNullable)
+                    SERIALIZABLE_CLASSNAME.copy(nullable = arg.isNullable),
                 )
                 if (!arg.isOptional()) {
                     nextControlFlow("else")
@@ -158,7 +158,7 @@ internal fun NavType.addBundlePutStatement(
                         "throw·%T(%T::class.java.name + %S)",
                         UnsupportedOperationException::class.asTypeName(),
                         arg.type.typeName(),
-                        " must implement Parcelable or Serializable or must be an Enum."
+                        " must implement Parcelable or Serializable or must be an Enum.",
                     )
                 }
                 endControlFlow()
@@ -170,7 +170,7 @@ internal fun NavType.addSavedStateGetStatement(
     builder: FunSpec.Builder,
     arg: Argument,
     lValue: String,
-    savedStateHandle: String
+    savedStateHandle: String,
 ): FunSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -181,21 +181,21 @@ internal fun NavType.addSavedStateGetStatement(
                     PARCELABLE_CLASSNAME,
                     arg.type.typeName(),
                     SERIALIZABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L = %L.get<%T>(%S)",
                     lValue,
                     savedStateHandle,
                     arg.type.typeName().copy(nullable = true),
-                    arg.name
+                    arg.name,
                 )
                 nextControlFlow("else")
                 addStatement(
                     "throw·%T(%T::class.java.name + %S)",
                     UnsupportedOperationException::class.asTypeName(),
                     arg.type.typeName(),
-                    " must implement Parcelable or Serializable or must be an Enum."
+                    " must implement Parcelable or Serializable or must be an Enum.",
                 )
                 endControlFlow()
             }
@@ -208,7 +208,7 @@ internal fun NavType.addSavedStateGetStatement(
                     savedStateHandle,
                     PARCELABLE_CLASSNAME,
                     arg.name,
-                    baseType
+                    baseType,
                 )
             }
         else -> builder.addStatement("%L = %L[%S]", lValue, savedStateHandle, arg.name)
@@ -218,7 +218,7 @@ internal fun NavType.addSavedStateSetStatement(
     builder: FunSpec.Builder,
     arg: Argument,
     savedStateHandle: String,
-    argValue: String
+    argValue: String,
 ): FunSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -226,26 +226,26 @@ internal fun NavType.addSavedStateSetStatement(
                 beginControlFlow(
                     "if (%T::class.java.isAssignableFrom(%T::class.java))",
                     PARCELABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L.set(%S, %L as %T)",
                     savedStateHandle,
                     arg.name,
                     argValue,
-                    PARCELABLE_CLASSNAME.copy(nullable = arg.isNullable)
+                    PARCELABLE_CLASSNAME.copy(nullable = arg.isNullable),
                 )
                 nextControlFlow(
                     "else if (%T::class.java.isAssignableFrom(%T::class.java))",
                     SERIALIZABLE_CLASSNAME,
-                    arg.type.typeName()
+                    arg.type.typeName(),
                 )
                 addStatement(
                     "%L.set(%S, %L as %T)",
                     savedStateHandle,
                     arg.name,
                     argValue,
-                    SERIALIZABLE_CLASSNAME.copy(nullable = arg.isNullable)
+                    SERIALIZABLE_CLASSNAME.copy(nullable = arg.isNullable),
                 )
                 if (!arg.isOptional()) {
                     nextControlFlow("else")
@@ -253,7 +253,7 @@ internal fun NavType.addSavedStateSetStatement(
                         "throw·%T(%T::class.java.name + %S)",
                         UnsupportedOperationException::class.asTypeName(),
                         arg.type.typeName(),
-                        " must implement Parcelable or Serializable or must be an Enum."
+                        " must implement Parcelable or Serializable or must be an Enum.",
                     )
                 }
                 endControlFlow()

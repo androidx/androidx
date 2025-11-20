@@ -55,7 +55,7 @@ internal object MemoryCountersQuery {
         // Memory Compaction Events
         val memoryCompactionEvents: Double,
         // Memory Reclaim Events
-        val memoryReclaimEvents: Double
+        val memoryReclaimEvents: Double,
     )
 
     fun getMemoryCounters(session: TraceProcessor.Session, targetPackageName: String): SubMetrics? {
@@ -75,7 +75,7 @@ internal object MemoryCountersQuery {
                     summations[PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT] ?: 0.0,
                 pageFaultsBackedByReadIO = summations[PAGE_FAULTS_BACKED_BY_READ_IO_COUNT] ?: 0.0,
                 memoryCompactionEvents = summations[MEMORY_COMPACTION_EVENTS_COUNT] ?: 0.0,
-                memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0
+                memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0,
             )
         }
     }

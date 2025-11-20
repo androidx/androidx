@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.9.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.0-beta01)" variant="all" version="8.9.0-beta01">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+
+    <issue
+        id="CheckResult"
+        message="The result of `intersect` is not used. If the rectangles do not intersect, no change is made and the original rectangle is not modified. These methods return false to indicate that this has happened."
+        errorLine1="    nodeBounds.intersect(screenBounds)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/test/uiautomator/internal/Utils.kt"/>
+    </issue>
 
     <issue
         id="BanUncheckedReflection"
@@ -13,8 +22,8 @@
     <issue
         id="BanUncheckedReflection"
         message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
-        errorLine1="                return (boolean) mXrUiAutomation_injectMotionEventToWindow.invoke("
-        errorLine2="                                 ^">
+        errorLine1="                        mInjectMotionEventToWindow.invoke(mXrUiAutomation, event, windowId, sync);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/GestureController.java"/>
     </issue>

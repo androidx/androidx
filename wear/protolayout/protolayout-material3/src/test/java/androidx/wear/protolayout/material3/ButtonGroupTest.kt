@@ -37,7 +37,7 @@ class ButtonGroupTest {
         val buttonGroup =
             materialScope(
                 context = ApplicationProvider.getApplicationContext(),
-                deviceConfiguration = DEVICE_PARAMETERS
+                deviceConfiguration = DEVICE_PARAMETERS,
             ) {
                 buttonGroup {
                     buttonGroupItem { element1 }

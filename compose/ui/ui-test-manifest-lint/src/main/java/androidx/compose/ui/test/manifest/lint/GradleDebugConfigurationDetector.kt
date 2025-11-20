@@ -61,13 +61,14 @@ class GradleDebugConfigurationDetector : Detector(), GradleScanner {
                     implementation =
                         Implementation(
                             GradleDebugConfigurationDetector::class.java,
-                            Scope.GRADLE_SCOPE
+                            Scope.GRADLE_SCOPE,
                         ),
-                    androidSpecific = true
+                    androidSpecific = true,
                 )
                 .addMoreInfo("https://developer.android.com/jetpack/compose/testing#setup")
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407491706
     override fun checkDslPropertyAssignment(
         context: GradleContext,
         property: String,
@@ -75,7 +76,7 @@ class GradleDebugConfigurationDetector : Detector(), GradleScanner {
         parent: String,
         parentParent: String?,
         valueCookie: Any,
-        statementCookie: Any
+        statementCookie: Any,
     ) {
         // 1) Check if library is correct
         val library = getStringLiteralValue(value)

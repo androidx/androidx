@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.ParentCapturingModifierNodeElement
 import androidx.compose.foundation.lazy.list.PlacementComparator
 import androidx.compose.foundation.lazy.list.TrackPlacedElement
 import androidx.compose.runtime.CompositionLocalProvider
@@ -36,8 +37,6 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -157,13 +156,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         lateinit var beyondBoundsLayoutRef: BeyondBoundsLayout
         rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
             if (addItems) {
-                item {
-                    Box(
-                        Modifier.modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                    )
-                }
+                item { Box(Modifier.capturingBeyondBoundsLayout()) }
             }
         }
 
@@ -195,13 +188,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         // Arrange.
         rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
-            }
+            item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
         }
 
@@ -246,13 +233,7 @@ class LazyStaggeredGridBeyondBoundsTest {
             // item | local | x1
             // item | item  | x5
             items(11) { index -> Box(Modifier.size(itemSizeDp).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(itemSizeDp).trackPlaced(11).modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
-            }
+            item { Box(Modifier.size(itemSizeDp).trackPlaced(11).capturingBeyondBoundsLayout()) }
             items(10) { index -> Box(Modifier.size(itemSizeDp).trackPlaced(index + 12)) }
         }
 
@@ -308,11 +289,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                 Box(Modifier.size(itemSizeDp * if (index % 2 == 0) 2f else 1f).trackPlaced(index))
             }
             item(span = StaggeredGridItemSpan.FullLine) {
-                Box(
-                    Modifier.size(itemSizeDp).trackPlaced(4).modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
+                Box(Modifier.size(itemSizeDp).trackPlaced(4).capturingBeyondBoundsLayout())
             }
             items(4) { index ->
                 Box(
@@ -356,13 +333,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         // Arrange.
         rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
-            }
+            item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
         }
 
@@ -407,15 +378,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         // Arrange.
         rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(10.toDp())
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                        .trackPlaced(5)
-                )
-            }
+            item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
         }
 
@@ -459,13 +422,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         // Arrange.
         rule.setLazyContentInPerpendicularDirection(size = 30.toDp(), firstVisibleItem = 5) {
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
-            }
+            item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
         }
         with(rule) {
@@ -534,15 +491,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         // Arrange.
         rule.setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-            item {
-                Box(
-                    Modifier.size(10.toDp())
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                        .trackPlaced(5)
-                )
-            }
+            item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
             items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
         }
 
@@ -570,11 +519,15 @@ class LazyStaggeredGridBeyondBoundsTest {
         }
     }
 
+    private fun Modifier.capturingBeyondBoundsLayout(): Modifier {
+        return this then ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
+    }
+
     private fun ParameterizedComposeTestRule<Param>.setLazyContent(
         size: Dp,
         firstVisibleItem: Int,
         cells: Int = 1,
-        content: LazyStaggeredGridScope.() -> Unit
+        content: LazyStaggeredGridScope.() -> Unit,
     ) {
         setContent {
             key(it) {
@@ -590,7 +543,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         Above,
                         Below ->
@@ -599,7 +552,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         else -> unsupportedDirection()
                     }
@@ -611,7 +564,7 @@ class LazyStaggeredGridBeyondBoundsTest {
     private fun ParameterizedComposeTestRule<Param>.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyStaggeredGridScope.() -> Unit
+        content: LazyStaggeredGridScope.() -> Unit,
     ) {
         setContent {
             key(it) {
@@ -627,7 +580,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         Above,
                         Below ->
@@ -636,7 +589,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         else -> unsupportedDirection()
                     }

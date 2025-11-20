@@ -47,7 +47,7 @@ internal interface PlatformMagnifierFactory {
         elevation: Dp,
         clippingEnabled: Boolean,
         density: Density,
-        initialZoom: Float
+        initialZoom: Float,
     ): PlatformMagnifier
 
     companion object {
@@ -97,7 +97,7 @@ internal object PlatformMagnifierFactoryApi28Impl : PlatformMagnifierFactory {
         elevation: Dp,
         clippingEnabled: Boolean,
         density: Density,
-        initialZoom: Float
+        initialZoom: Float,
     ): PlatformMagnifierImpl = PlatformMagnifierImpl(Magnifier(view))
 
     @RequiresApi(28)
@@ -132,14 +132,15 @@ internal object PlatformMagnifierFactoryApi29Impl : PlatformMagnifierFactory {
         elevation: Dp,
         clippingEnabled: Boolean,
         density: Density,
-        initialZoom: Float
+        initialZoom: Float,
     ): PlatformMagnifierImpl {
         with(density) {
             // TODO write test for this branch
             if (useTextDefault) {
                 // This deprecated constructor is the only public API to create a Magnifier that
                 // uses the system text magnifier defaults.
-                @Suppress("DEPRECATION") return PlatformMagnifierImpl(Magnifier(view))
+                @Suppress("DEPRECATION")
+                return PlatformMagnifierImpl(Magnifier(view))
             }
 
             val pixelSize = size.toSize()

@@ -60,7 +60,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TextAccessibilityBenchmark(
     private val accessibilityEnabled: Boolean,
-    private val invalidateSemanticsOnEachRun: Boolean
+    private val invalidateSemanticsOnEachRun: Boolean,
 ) {
 
     @OptIn(ExperimentalBenchmarkConfigApi::class)
@@ -77,9 +77,12 @@ class TextAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = { Text("Text Composable", Modifier.testTag("tag")) },
             benchmark = {
+                runWithMeasurementDisabled {
+                    nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
+                }
                 val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
-            }
+            },
         )
     }
 
@@ -95,9 +98,12 @@ class TextAccessibilityBenchmark(
                 }
             },
             benchmark = {
+                runWithMeasurementDisabled {
+                    nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
+                }
                 val semanticsId = runWithMeasurementDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
-            }
+            },
         )
     }
 
@@ -111,7 +117,7 @@ class TextAccessibilityBenchmark(
 
         measureRepeatedOnUiThread(
             content = { Text("Text Composable", Modifier.testTag("text")) },
-            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
         )
     }
 
@@ -130,7 +136,7 @@ class TextAccessibilityBenchmark(
                     repeat(9) { Text("Text Composable") }
                 }
             },
-            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
         )
     }
 
@@ -339,7 +345,7 @@ class TextAccessibilityBenchmark(
 
     private fun measureRepeatedOnUiThread(
         content: @Composable () -> Unit,
-        @UiThread benchmark: BenchmarkRule.Scope.() -> Unit
+        @UiThread benchmark: BenchmarkRule.Scope.() -> Unit,
     ) {
         benchmarkRule.runBenchmarkFor(
             givenTestCase = {

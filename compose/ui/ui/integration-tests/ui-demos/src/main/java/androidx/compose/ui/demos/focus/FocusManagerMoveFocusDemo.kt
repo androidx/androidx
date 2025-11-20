@@ -60,7 +60,7 @@ fun FocusManagerMoveFocusDemo() {
     Column {
         Text(
             text = "Use the buttons to move focus",
-            modifier = Modifier.align(CenterHorizontally).padding(vertical = 10.dp)
+            modifier = Modifier.align(CenterHorizontally).padding(vertical = 10.dp),
         )
         Row(Modifier.fillMaxWidth(), SpaceEvenly) {
             Button(onClick = { focusManager.moveFocus(Up) }) { Text("Up") }
@@ -87,7 +87,7 @@ fun FocusManagerMoveFocusDemo() {
                             next = item2
                             right = item2
                             down = item3
-                        }
+                        },
                 )
                 FocusableText(
                     text = "2",
@@ -97,7 +97,7 @@ fun FocusManagerMoveFocusDemo() {
                             next = item3
                             left = item1
                             down = item4
-                        }
+                        },
                 )
             }
             Row(Modifier.fillMaxWidth(), SpaceEvenly) {
@@ -109,7 +109,7 @@ fun FocusManagerMoveFocusDemo() {
                             next = item4
                             right = item4
                             up = item1
-                        }
+                        },
                 )
                 FocusableText(
                     text = "4",
@@ -119,7 +119,7 @@ fun FocusManagerMoveFocusDemo() {
                             next = item1
                             left = item3
                             up = item2
-                        }
+                        },
                 )
             }
             DisposableEffect(Unit) {
@@ -146,6 +146,6 @@ private fun FocusableText(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 40.sp,
         textAlign = TextAlign.Center,
-        color = color
+        color = color,
     )
 }

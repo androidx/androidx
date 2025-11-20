@@ -76,6 +76,7 @@ internal object TestedApksAgp83 {
         // Note that retrieving the BuildArtifactsLoader from within the lambda causes an issue
         // with serialization (see b/325886853#comment13).
         val buildArtifactLoader = variant.artifacts.getBuiltArtifactsLoader()
+        @Suppress("DEPRECATION") // TODO(b/450563792): Use new allTestedApks API.
         return variant.testedApks.map { buildArtifactLoader.load(it)?.applicationId ?: "" }
     }
 }

@@ -51,7 +51,7 @@ internal interface ComposeInputMethodManager {
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     )
 
     fun updateCursorAnchorInfo(info: CursorAnchorInfo)
@@ -132,7 +132,7 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     ) {
         requireImm()
             .updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)

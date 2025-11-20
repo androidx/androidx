@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <dimen name="highlight_stroke_width">2dp</dimen>
-  <dimen name="highlight_extra_radius">1px</dimen>
-</resources>

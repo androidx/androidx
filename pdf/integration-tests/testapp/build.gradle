@@ -1,7 +1,8 @@
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -10,8 +11,8 @@ android {
     defaultConfig {
         applicationId = "androidx.pdf.testapp"
         minSdk = 31
-        compileSdk = 35
-        targetSdk = 31
+        compileSdk = 36
+        compileSdkExtension = 19
     }
 
     sourceSets {
@@ -31,6 +32,10 @@ android {
 dependencies {
     api("com.google.android.material:material:1.11.0")
     implementation(project(":pdf:pdf-viewer-fragment"))
+    implementation(project(":pdf:pdf-compose"))
+    implementation(project(":pdf:pdf-ink"))
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation(libs.constraintLayout)
     implementation(libs.testCore)
 
@@ -43,9 +48,10 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
-    androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
     androidTestImplementation('androidx.test.espresso:espresso-intents:3.6.1')
 
     debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.1")

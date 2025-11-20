@@ -23,7 +23,7 @@ import androidx.compose.runtime.snapshots.SnapshotMutableState
 
 internal actual fun <T> createSnapshotMutableState(
     value: T,
-    policy: SnapshotMutationPolicy<T>
+    policy: SnapshotMutationPolicy<T>,
 ): SnapshotMutableState<T> = ParcelableSnapshotMutableState(value, policy)
 
 @SuppressLint("BanParcelableUsage")
@@ -60,7 +60,7 @@ private class ParcelableSnapshotMutableState<T>(value: T, policy: SnapshotMutati
             object : Parcelable.ClassLoaderCreator<ParcelableSnapshotMutableState<Any?>> {
                 override fun createFromParcel(
                     parcel: Parcel,
-                    loader: ClassLoader?
+                    loader: ClassLoader?,
                 ): ParcelableSnapshotMutableState<Any?> {
                     val value = parcel.readValue(loader ?: javaClass.classLoader)
                     val policyIndex = parcel.readInt()
@@ -74,7 +74,7 @@ private class ParcelableSnapshotMutableState<T>(value: T, policy: SnapshotMutati
                                 throw IllegalStateException(
                                     "Unsupported MutableState policy $policyIndex was restored"
                                 )
-                        }
+                        },
                     )
                 }
 

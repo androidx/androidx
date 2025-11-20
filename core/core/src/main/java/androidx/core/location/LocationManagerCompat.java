@@ -18,8 +18,6 @@ package androidx.core.location;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.provider.Settings.Secure.LOCATION_MODE;
-import static android.provider.Settings.Secure.LOCATION_MODE_OFF;
 
 import static androidx.core.location.LocationCompat.getElapsedRealtimeMillis;
 
@@ -27,7 +25,6 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.location.GpsStatus;
@@ -42,9 +39,6 @@ import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.provider.Settings;
-import android.provider.Settings.Secure;
-import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RequiresApi;
@@ -89,46 +83,11 @@ public final class LocationManagerCompat {
     /**
      * Returns the current enabled/disabled state of location.
      *
-     * <p>NOTE: Calling this method on API levels prior to 20 <i>may</i> require the
-     * {@link android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION} or
-     * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION ACCESS_COARSE_LOCATION}
-     * permission if run on non-standard Android devices. The vast majority of devices should not
-     * require either permission to be present for this method.
-     *
      * @return {@code true} if location is enabled or {@code false} if location is disabled
      */
-    @SuppressWarnings("JavaReflectionMemberAccess")
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {
         if (VERSION.SDK_INT >= 28) {
             return Api28Impl.isLocationEnabled(locationManager);
-        }
-
-        if (VERSION.SDK_INT <= 19) {
-            // KitKat and below have pointless location permission requirements when using
-            // isProviderEnabled(). Instead, we attempt to reflect a context so that we can query
-            // the underlying setting. If this fails, we fallback to isProviderEnabled() which may
-            // require the caller to hold location permissions.
-            try {
-                if (sContextField == null) {
-                    sContextField = LocationManager.class.getDeclaredField("mContext");
-                    sContextField.setAccessible(true);
-                }
-                Context context = (Context) sContextField.get(locationManager);
-
-                if (context != null) {
-                    if (VERSION.SDK_INT == 19) {
-                        return Secure.getInt(context.getContentResolver(), LOCATION_MODE,
-                                LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
-                    } else {
-                        return !TextUtils.isEmpty(
-                                Settings.Secure.getString(context.getContentResolver(),
-                                        Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
-                    }
-                }
-            } catch (ClassCastException | SecurityException | NoSuchFieldException
-                    | IllegalAccessException e) {
-                // oh well, fallback to isProviderEnabled()
-            }
         }
 
         return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)

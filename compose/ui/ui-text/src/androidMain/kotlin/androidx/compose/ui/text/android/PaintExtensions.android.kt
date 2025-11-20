@@ -30,7 +30,7 @@ import kotlin.math.min
 internal fun TextPaint.getCharSequenceBounds(
     text: CharSequence,
     startInclusive: Int,
-    endExclusive: Int
+    endExclusive: Int,
 ): Rect {
     val metricSpanClass = MetricAffectingSpan::class.java
     if (text !is Spanned || !text.hasSpan(metricSpanClass, startInclusive, endExclusive)) {

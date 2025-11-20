@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -41,7 +41,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.runtime:runtime-tracing:1.7.3")
 

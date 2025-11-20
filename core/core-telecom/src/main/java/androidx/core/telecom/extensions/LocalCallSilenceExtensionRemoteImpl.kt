@@ -28,10 +28,6 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.resume
 import kotlin.properties.Delegates
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -39,7 +35,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @OptIn(ExperimentalAppActions::class)
 internal class LocalCallSilenceExtensionRemoteImpl(
     private val callScope: CoroutineScope,
-    private val onLocalSilenceStateUpdated: suspend (Boolean) -> Unit
+    private val onLocalSilenceStateUpdated: suspend (Boolean) -> Unit,
 ) : LocalCallSilenceExtensionRemote {
 
     companion object {
@@ -47,7 +43,6 @@ internal class LocalCallSilenceExtensionRemoteImpl(
     }
 
     override var isSupported: Boolean by Delegates.notNull()
-    private val isLocallySilenced = MutableStateFlow(false)
     private var remoteActions: ILocalSilenceActions? = null
 
     /**
@@ -73,7 +68,7 @@ internal class LocalCallSilenceExtensionRemoteImpl(
 
     internal suspend fun onExchangeComplete(
         negotiatedCapability: Capability?,
-        remote: CapabilityExchangeListenerRemote?
+        remote: CapabilityExchangeListenerRemote?,
     ) {
         if (negotiatedCapability == null || remote == null) {
             Log.i(TAG, "onNegotiated: remote is not capable")
@@ -82,21 +77,12 @@ internal class LocalCallSilenceExtensionRemoteImpl(
         }
         isSupported = true
         Log.i(TAG, "onExchangeComplete: isSupported=[true]")
-        isLocallySilenced
-            .drop(1) // ignore the first default value
-            .onEach {
-                // This updates external extension block that the InCallService implements.
-                // see [CallExtensionScopeImpl#addLocalCallSilenceExtension] for more.
-                onLocalSilenceStateUpdated(it)
-            }
-            .launchIn(callScope)
-
         remoteActions = connectToRemote(negotiatedCapability, remote)
     }
 
     private suspend fun connectToRemote(
         negotiatedCapability: Capability,
-        remote: CapabilityExchangeListenerRemote
+        remote: CapabilityExchangeListenerRemote,
     ): LocalCallSilenceActionsRemote? = suspendCancellableCoroutine { continuation ->
         val stateListener =
             LocalCallSilenceStateListener(
@@ -110,17 +96,17 @@ internal class LocalCallSilenceExtensionRemoteImpl(
                         // This updates external extension block that the InCallService implements.
                         // see [CallExtensionScopeImpl#addLocalCallSilenceExtension] for more.
                         Log.i(TAG, "LCS_SL: updateLocalCallSilence: isSilenced=[$it]")
-                        isLocallySilenced.emit(it)
+                        onLocalSilenceStateUpdated(it)
                     }
                 },
                 finishSync = { remoteBinder ->
                     callScope.launch { continuation.resume(remoteBinder) }
-                }
+                },
             )
         remote.onCreateLocalCallSilenceExtension(
             negotiatedCapability.featureVersion,
             negotiatedCapability.supportedActions,
-            stateListener
+            stateListener,
         )
     }
 }

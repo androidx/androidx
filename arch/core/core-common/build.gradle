@@ -32,8 +32,8 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
 
+    testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
 }
 
 androidx {

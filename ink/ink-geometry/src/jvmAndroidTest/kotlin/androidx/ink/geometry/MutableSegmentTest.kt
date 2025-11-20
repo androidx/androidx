@@ -92,11 +92,11 @@ class MutableSegmentTest {
     }
 
     @Test
-    fun asImmutable_returnsImmutableCopy() {
+    fun toImmutable_returnsImmutableCopy() {
         val start = MutableVec(10f, 20f)
         val end = MutableVec(1f, 2f)
         val segment = MutableSegment(start, end)
-        val output = segment.asImmutable()
+        val output = segment.toImmutable()
 
         assertThat(output.start).isEqualTo(start)
         assertThat(output.end).isEqualTo(end)

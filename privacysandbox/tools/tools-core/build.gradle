@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
@@ -45,8 +44,7 @@ repackage {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.kotlinPoet)
+    api("com.squareup:kotlinpoet:2.0.0")
     api(project(":privacysandbox:tools:tools-core-external-protobuf"))
     // Must be compileOnly to not bring in protobufLite in runtime
     // Repackaged protobufLite brought in by
@@ -59,7 +57,8 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     // Include android jar for compilation of generated sources.
     testImplementation(SdkHelperKt.getSdkDependency(project))
 }
@@ -86,5 +85,4 @@ androidx {
     type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

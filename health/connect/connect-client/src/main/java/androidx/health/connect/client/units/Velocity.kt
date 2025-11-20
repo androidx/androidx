@@ -22,11 +22,8 @@ package androidx.health.connect.client.units
  * - kilometersPerHour - see [Velocity.kilometersPerHour], [Double.kilometersPerHour]
  * - milesPerHour - see [Velocity.milesPerHour], [Double.milesPerHour]
  */
-class Velocity
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Velocity> {
+class Velocity private constructor(private val value: Double, private val type: Type) :
+    Comparable<Velocity> {
 
     /** Returns the velocity in meters per second. */
     @get:JvmName("getMetersPerSecond")

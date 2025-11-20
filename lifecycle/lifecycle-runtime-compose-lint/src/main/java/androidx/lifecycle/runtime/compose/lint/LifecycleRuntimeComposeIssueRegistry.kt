@@ -26,10 +26,7 @@ class LifecycleRuntimeComposeIssueRegistry : IssueRegistry() {
     override val api = 16
     override val minApi = CURRENT_API
     override val issues
-        get() =
-            listOf(
-                ComposableLifecycleCurrentStateDetector.LifecycleCurrentStateInComposition,
-            )
+        get() = listOf(ComposableLifecycleCurrentStateDetector.LifecycleCurrentStateInComposition)
 
     override val vendor =
         Vendor(

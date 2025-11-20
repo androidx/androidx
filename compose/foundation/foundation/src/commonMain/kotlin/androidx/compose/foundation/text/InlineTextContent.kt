@@ -47,7 +47,7 @@ private const val REPLACEMENT_CHAR = "\uFFFD"
  */
 fun AnnotatedString.Builder.appendInlineContent(
     id: String,
-    alternateText: String = REPLACEMENT_CHAR
+    alternateText: String = REPLACEMENT_CHAR,
 ) {
     requirePrecondition(alternateText.isNotEmpty()) { "alternateText can't be an empty string." }
     pushStringAnnotation(INLINE_CONTENT_TAG, id)
@@ -81,5 +81,5 @@ class InlineTextContent(
      * The composable to be inserted into the text layout. The string parameter passed to it will
      * the alternateText given to [appendInlineContent].
      */
-    val children: @Composable (String) -> Unit
+    val children: @Composable (String) -> Unit,
 )

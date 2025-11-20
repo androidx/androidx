@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.util.Range;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * VideoEncoderInfo provides video encoder related information and capabilities.
@@ -87,4 +88,12 @@ public interface VideoEncoderInfo extends EncoderInfo {
      * Returns the video encoder's bitrate range.
      */
     @NonNull Range<Integer> getSupportedBitrateRange();
+
+    /** A finder that can find a {@link VideoEncoderInfo}. */
+    interface Finder {
+
+        /** Finds a {@link VideoEncoderInfo} for the given MIME type. */
+        @Nullable
+        VideoEncoderInfo find(@NonNull String mimeType);
+    }
 }

@@ -93,7 +93,8 @@ public class Helper {
      * given String and its length is of the given base array.
      */
     public static boolean checkTag(
-            @Nullable Modifiers modifiers, @NonNull String validPrefix,
+            @Nullable Modifiers modifiers,
+            @NonNull String validPrefix,
             byte @NonNull [] validBase) {
         if (modifiers == null || modifiers.getMetadata() == null) {
             return false;

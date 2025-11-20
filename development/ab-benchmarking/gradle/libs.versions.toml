@@ -1,0 +1,24 @@
+[versions]
+commons-math3 = "3.6.1"
+kotlin = "2.2.10"
+kotlinx-cli-jvm = "0.3.6"
+kotlinx-serialization-json = "1.9.0"
+lets-plot-kotlin-jvm = "4.11.0"
+lets-plot-image-export = "4.7.0"
+junit5="5.13.4"
+truth="1.4.4"
+
+[libraries]
+kotlinx-cli = { module = "org.jetbrains.kotlinx:kotlinx-cli-jvm", version.ref = "kotlinx-cli-jvm" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commons-math3" }
+lets-plot-kotlin-jvm = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-jvm", version.ref = "lets-plot-kotlin-jvm" }
+lets-plot-image-export = { module = "org.jetbrains.lets-plot:lets-plot-image-export", version.ref = "lets-plot-image-export" }
+junit5-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit5-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
+
+[plugins]
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

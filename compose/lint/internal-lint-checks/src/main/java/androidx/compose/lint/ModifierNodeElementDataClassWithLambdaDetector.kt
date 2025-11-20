@@ -54,7 +54,7 @@ class ModifierNodeElementDataClassWithLambdaDetector : Detector(), SourceCodeSca
                 ISSUE,
                 lambdaParameter,
                 context.getLocation(lambdaParameter),
-                BriefDescription
+                BriefDescription,
             )
         }
     }
@@ -83,8 +83,8 @@ class ModifierNodeElementDataClassWithLambdaDetector : Detector(), SourceCodeSca
                 Implementation(
                     ModifierNodeElementDataClassWithLambdaDetector::class.java,
                     // Too noisy for tests, and unlikely to cause issues
-                    EnumSet.of(Scope.JAVA_FILE)
-                )
+                    EnumSet.of(Scope.JAVA_FILE),
+                ),
             )
     }
 }

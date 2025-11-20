@@ -60,7 +60,7 @@ fun HapticsDemos() {
             Pair(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE, "Gesture Threshold Activate"),
             Pair(
                 HapticFeedbackConstants.GESTURE_THRESHOLD_DEACTIVATE,
-                "Gesture Threshold Deactivate"
+                "Gesture Threshold Deactivate",
             ),
             Pair(HapticFeedbackConstants.KEYBOARD_PRESS, "Keyboard Press"),
             Pair(HapticFeedbackConstants.KEYBOARD_RELEASE, "Keyboard Release"),
@@ -86,13 +86,13 @@ fun HapticsDemos() {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector =
                         if (premiumVibratorEnabled) Icons.Filled.Check else Icons.Filled.Close,
                     contentDescription = "Premium Haptics Status",
-                    tint = if (premiumVibratorEnabled) Color.Green else Color.Red
+                    tint = if (premiumVibratorEnabled) Color.Green else Color.Red,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(if (premiumVibratorEnabled) "Enabled" else "Disabled")
@@ -110,14 +110,14 @@ fun HapticsDemos() {
 private fun HapticsDemo(
     hapticFeedbackProvider: HapticFeedbackProvider,
     feedbackConstant: Int,
-    demoName: String
+    demoName: String,
 ) {
     Button(
         onClick = { hapticFeedbackProvider.performHapticFeedback(feedbackConstant) },
         label = {
             Text(demoName, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
@@ -138,7 +138,7 @@ private fun isPremiumVibratorEnabled(context: Context): Boolean {
             vibrator.areAllPrimitivesSupported(
                 VibrationEffect.Composition.PRIMITIVE_CLICK,
                 VibrationEffect.Composition.PRIMITIVE_TICK,
-                VibrationEffect.Composition.PRIMITIVE_THUD
+                VibrationEffect.Composition.PRIMITIVE_THUD,
             )
         ) {
             return true

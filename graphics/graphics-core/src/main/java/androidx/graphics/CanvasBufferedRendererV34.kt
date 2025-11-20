@@ -41,12 +41,12 @@ internal class CanvasBufferedRendererV34(
     private val mFormat: Int,
     private val mUsage: Long,
     maxBuffers: Int,
-    private val mFdMonitor: SharedFileDescriptorMonitor? = obtainSharedFdMonitor()
+    private val mFdMonitor: SharedFileDescriptorMonitor? = obtainSharedFdMonitor(),
 ) : CanvasBufferedRenderer.Impl {
 
     private data class HardwareBufferProvider(
         private val buffer: HardwareBuffer,
-        val renderer: HardwareBufferRenderer
+        val renderer: HardwareBufferRenderer,
     ) : BufferPool.BufferProvider {
         override val hardwareBuffer: HardwareBuffer
             get() = buffer
@@ -97,7 +97,7 @@ internal class CanvasBufferedRendererV34(
     override fun draw(
         request: CanvasBufferedRenderer.RenderRequest,
         executor: Executor,
-        callback: Consumer<CanvasBufferedRenderer.RenderResult>
+        callback: Consumer<CanvasBufferedRenderer.RenderResult>,
     ) {
         val contentNode = mContentNode
         val shouldDraw =
@@ -141,7 +141,7 @@ internal class CanvasBufferedRendererV34(
                                     CanvasBufferedRenderer.RenderResult(
                                         hardwareBuffer,
                                         SyncFenceCompat(result.fence),
-                                        result.status
+                                        result.status,
                                     )
                                 )
                             }
@@ -169,7 +169,7 @@ internal class CanvasBufferedRendererV34(
         lightX: Float,
         lightY: Float,
         lightZ: Float,
-        lightRadius: Float
+        lightRadius: Float,
     ) {
         mLightX = lightX
         mLightY = lightY

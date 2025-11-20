@@ -128,11 +128,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     private static final int TYPE_ON_TOUCH = 1;
 
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            TOP_SORTED_CHILDREN_COMPARATOR = new ViewElevationComparator();
-        } else {
-            TOP_SORTED_CHILDREN_COMPARATOR = null;
-        }
+        TOP_SORTED_CHILDREN_COMPARATOR = new ViewElevationComparator();
     }
 
     static final Class<?>[] CONSTRUCTOR_PARAMS = new Class<?>[] {

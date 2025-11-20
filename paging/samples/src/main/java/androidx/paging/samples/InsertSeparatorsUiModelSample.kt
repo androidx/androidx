@@ -153,10 +153,10 @@ fun insertSeparatorsUiModelFutureSample() {
                                 null
                             }
                         },
-                        executor
+                        executor,
                     )
                 },
-                executor
+                executor,
             )
     }
 }

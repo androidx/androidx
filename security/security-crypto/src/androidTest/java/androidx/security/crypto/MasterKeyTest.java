@@ -20,14 +20,12 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +38,6 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(AndroidJUnit4.class)
 @SuppressWarnings("deprecation")
 public class MasterKeyTest {

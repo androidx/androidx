@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalPagingApi::class)
 internal class V3RemoteMediator(
     private val database: SampleDatabase,
-    private val networkSourceFactory: () -> NetworkCustomerPagingSource
+    private val networkSourceFactory: () -> NetworkCustomerPagingSource,
 ) : RemoteMediator<Int, Customer>() {
 
     private var networkSource: NetworkCustomerPagingSource
@@ -44,7 +44,7 @@ internal class V3RemoteMediator(
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Customer>
+        state: PagingState<Int, Customer>,
     ): MediatorResult {
         if (loadType == LoadType.PREPEND) {
             return MediatorResult.Success(endOfPaginationReached = true)
@@ -66,14 +66,14 @@ internal class V3RemoteMediator(
                     PagingSource.LoadParams.Refresh(
                         key = 0,
                         loadSize = 10,
-                        placeholdersEnabled = false
+                        placeholdersEnabled = false,
                     )
                 LoadType.PREPEND -> throw IllegalStateException()
                 LoadType.APPEND ->
                     PagingSource.LoadParams.Append(
                         key = remoteKey.nextKey,
                         loadSize = 10,
-                        placeholdersEnabled = false
+                        placeholdersEnabled = false,
                     )
             }
 

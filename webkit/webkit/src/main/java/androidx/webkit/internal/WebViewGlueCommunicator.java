@@ -57,6 +57,8 @@ public class WebViewGlueCommunicator {
                 WebViewGlueCommunicator.getFactory().getWebkitToCompatConverter());
     }
 
+    // Reflection has been approved by the Jetpack working group.
+    @SuppressWarnings("BanUncheckedReflection")
     private static InvocationHandler fetchGlueProviderFactoryImpl() throws IllegalAccessException,
             InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
         Class<?> glueFactoryProviderFetcherClass = Class.forName(
@@ -96,7 +98,8 @@ public class WebViewGlueCommunicator {
         }
     }
 
-    @SuppressWarnings({"JavaReflectionMemberAccess", "PrivateApi"})
+    // Reflection has been approved by the Jetpack working group.
+    @SuppressWarnings({"JavaReflectionMemberAccess", "PrivateApi", "BanUncheckedReflection"})
     private static Object getWebViewProviderFactory() {
         try {
             Method getFactoryMethod = WebView.class.getDeclaredMethod("getFactory");

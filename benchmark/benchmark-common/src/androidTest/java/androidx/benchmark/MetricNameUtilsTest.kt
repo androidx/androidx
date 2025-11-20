@@ -42,7 +42,7 @@ class MetricNameUtilsTest {
         assertEquals("a_ba_ba_b", "aBaBaB".toOutputMetricName())
         assertEquals(
             "frame_time_90th_percentile_millis",
-            "frameTime90thPercentileMs".toOutputMetricName()
+            "frameTime90thPercentileMs".toOutputMetricName(),
         )
     }
 }

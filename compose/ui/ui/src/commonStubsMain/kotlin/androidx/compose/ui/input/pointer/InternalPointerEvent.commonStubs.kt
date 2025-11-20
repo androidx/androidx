@@ -22,7 +22,7 @@ import androidx.compose.ui.implementedInJetBrainsFork
 internal actual class InternalPointerEvent
 actual constructor(
     actual val changes: LongSparseArray<PointerInputChange>,
-    pointerInputEvent: PointerInputEvent
+    pointerInputEvent: PointerInputEvent,
 ) {
     actual var suppressMovementConsumption: Boolean = implementedInJetBrainsFork()
 

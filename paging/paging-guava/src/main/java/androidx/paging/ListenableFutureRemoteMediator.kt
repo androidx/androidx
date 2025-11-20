@@ -57,7 +57,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
     @Suppress("AsyncSuffixFuture")
     abstract fun loadFuture(
         loadType: LoadType,
-        state: PagingState<Key, Value>
+        state: PagingState<Key, Value>,
     ): ListenableFuture<MediatorResult>
 
     /**
@@ -80,7 +80,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
 
     final override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Key, Value>
+        state: PagingState<Key, Value>,
     ): MediatorResult {
         return loadFuture(loadType, state).await()
     }

@@ -94,7 +94,8 @@ public class SearchView_CursorTest {
         }
 
         private boolean enoughToFilter() {
-            final View searchSrcText = mSearchView.findViewById(R.id.search_src_text);
+            final View searchSrcText = mSearchView.findViewById(
+                    androidx.appcompat.R.id.search_src_text);
             return searchSrcText instanceof AutoCompleteTextView
                     && ((AutoCompleteTextView) searchSrcText).enoughToFilter();
         }

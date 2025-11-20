@@ -51,8 +51,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
- * Material Design implementation of an
- * [action Chip](https://material.io/components/chips#action-chips).
+ * [Material Design action chip](https://material.io/components/chips#action-chips).
  *
  * Action chips offer actions related to primary content. They should appear dynamically and
  * contextually in a UI.
@@ -97,7 +96,7 @@ fun Chip(
     border: BorderStroke? = null,
     colors: ChipColors = ChipDefaults.chipColors(),
     leadingIcon: @Composable (() -> Unit)? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     val contentColor by colors.contentColor(enabled)
     Surface(
@@ -122,7 +121,7 @@ fun Chip(
                             end = HorizontalPadding,
                         ),
                     horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (leadingIcon != null) {
                         Spacer(Modifier.width(LeadingIconStartSpacing))
@@ -130,7 +129,7 @@ fun Chip(
                         CompositionLocalProvider(
                             LocalContentColor provides leadingIconContentColor,
                             LocalContentAlpha provides leadingIconContentColor.alpha,
-                            content = leadingIcon
+                            content = leadingIcon,
                         )
                         Spacer(Modifier.width(LeadingIconEndSpacing))
                     }
@@ -142,8 +141,7 @@ fun Chip(
 }
 
 /**
- * <a href="https://material.io/components/chips#filter-chips" class="external"
- * target="_blank">Material Design filter chip</a>.
+ * [Material Design filter chip](https://material.io/components/chips#filter-chips)
  *
  * Filter chips use tags or descriptive words to filter a collection. They are a good alternative to
  * toggle buttons or checkboxes.
@@ -193,7 +191,7 @@ fun FilterChip(
     leadingIcon: @Composable (() -> Unit)? = null,
     selectedIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     // TODO(b/113855296): Animate transition between unselected and selected
     val contentColor = colors.contentColor(enabled, selected)
@@ -225,10 +223,10 @@ fun FilterChip(
                                     HorizontalPadding
                                 } else {
                                     0.dp
-                                }
+                                },
                         ),
                     horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (leadingIcon != null || (selected && selectedIcon != null)) {
                         Spacer(Modifier.width(LeadingIconStartSpacing))
@@ -238,7 +236,7 @@ fun FilterChip(
                                 CompositionLocalProvider(
                                     LocalContentColor provides leadingIconColor.value,
                                     LocalContentAlpha provides leadingIconColor.value.alpha,
-                                    content = leadingIcon
+                                    content = leadingIcon,
                                 )
                             }
                             if (selected && selectedIcon != null) {
@@ -249,7 +247,7 @@ fun FilterChip(
                                         Modifier.requiredSize(SelectedIconContainerSize)
                                             .background(
                                                 color = contentColor.value,
-                                                shape = CircleShape
+                                                shape = CircleShape,
                                             )
                                             .clip(CircleShape)
 
@@ -257,11 +255,11 @@ fun FilterChip(
                                 }
                                 Box(
                                     modifier = overlayModifier,
-                                    contentAlignment = Alignment.Center
+                                    contentAlignment = Alignment.Center,
                                 ) {
                                     CompositionLocalProvider(
                                         LocalContentColor provides iconColor,
-                                        content = selectedIcon
+                                        content = selectedIcon,
                                     )
                                 }
                             }
@@ -428,7 +426,7 @@ object ChipDefaults {
             leadingIconContentColor = leadingIconContentColor,
             disabledBackgroundColor = disabledBackgroundColor,
             disabledContentColor = disabledContentColor,
-            disabledLeadingIconContentColor = disabledLeadingIconContentColor
+            disabledLeadingIconContentColor = disabledLeadingIconContentColor,
         )
 
     /**
@@ -472,7 +470,7 @@ object ChipDefaults {
         selectedLeadingIconColor: Color =
             MaterialTheme.colors.onSurface
                 .copy(alpha = SelectedOverlayOpacity)
-                .compositeOver(leadingIconColor)
+                .compositeOver(leadingIconColor),
     ): SelectableChipColors =
         DefaultSelectableChipColors(
             backgroundColor = backgroundColor,
@@ -483,7 +481,7 @@ object ChipDefaults {
             disabledLeadingIconColor = disabledLeadingIconColor,
             selectedBackgroundColor = selectedBackgroundColor,
             selectedContentColor = selectedContentColor,
-            selectedLeadingIconColor = selectedLeadingIconColor
+            selectedLeadingIconColor = selectedLeadingIconColor,
         )
 
     /**
@@ -521,7 +519,7 @@ object ChipDefaults {
         selectedLeadingIconColor: Color =
             MaterialTheme.colors.onSurface
                 .copy(alpha = SelectedOverlayOpacity)
-                .compositeOver(leadingIconColor)
+                .compositeOver(leadingIconColor),
     ): SelectableChipColors =
         DefaultSelectableChipColors(
             backgroundColor = backgroundColor,
@@ -532,7 +530,7 @@ object ChipDefaults {
             disabledLeadingIconColor = disabledLeadingIconColor,
             selectedBackgroundColor = selectedBackgroundColor,
             selectedContentColor = selectedContentColor,
-            selectedLeadingIconColor = selectedLeadingIconColor
+            selectedLeadingIconColor = selectedLeadingIconColor,
         )
 
     /** The border used by all types of outlined chips */
@@ -541,7 +539,7 @@ object ChipDefaults {
         get() =
             BorderStroke(
                 OutlinedBorderSize,
-                MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
+                MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity),
             )
 
     /** The color opacity used for chip's leading icon color */
@@ -572,7 +570,7 @@ private class DefaultChipColors(
     private val leadingIconContentColor: Color,
     private val disabledBackgroundColor: Color,
     private val disabledContentColor: Color,
-    private val disabledLeadingIconContentColor: Color
+    private val disabledLeadingIconContentColor: Color,
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) : ChipColors {
     @Composable
@@ -632,7 +630,7 @@ private class DefaultSelectableChipColors(
     private val disabledLeadingIconColor: Color,
     private val selectedBackgroundColor: Color,
     private val selectedContentColor: Color,
-    private val selectedLeadingIconColor: Color
+    private val selectedLeadingIconColor: Color,
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) : SelectableChipColors {
     @Composable

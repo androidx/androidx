@@ -42,7 +42,7 @@ public fun getTransformationMatrix(
     scaledPageWidth: Float,
     scaledPageHeight: Float,
     pageWidth: Int,
-    pageHeight: Int
+    pageHeight: Int,
 ): Matrix {
     require(pageWidth > 0) { "Page width must be greater than 0" }
     require(pageHeight > 0) { "Page height must be greater than 0" }

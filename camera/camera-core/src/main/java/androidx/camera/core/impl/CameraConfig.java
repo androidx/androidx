@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
+
 import androidx.annotation.IntDef;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
@@ -25,6 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * Configuration for a {@link androidx.camera.core.Camera}.
@@ -53,6 +56,9 @@ public interface CameraConfig extends ReadableConfig {
     Option<Boolean> OPTION_POSTVIEW_SUPPORTED =
             Option.create("camerax.core.camera.isPostviewSupported", Boolean.class);
 
+    Option<PostviewFormatSelector> OPTION_POSTVIEW_FORMAT_SELECTOR = Option.create(
+            "camerax.core.camera.PostviewFormatSelector", PostviewFormatSelector.class);
+
     Option<Boolean> OPTION_CAPTURE_PROCESS_PROGRESS_SUPPORTED =
             Option.create("camerax.core.camera.isCaptureProcessProgressSupported", Boolean.class);
 
@@ -74,6 +80,18 @@ public interface CameraConfig extends ReadableConfig {
     @Retention(RetentionPolicy.SOURCE)
     @interface RequiredRule {
     }
+
+    PostviewFormatSelector DEFAULT_POSTVIEW_FORMAT_SELECTOR =
+            (stillImageFormat, supportedPostviewFormats) -> {
+                if (supportedPostviewFormats.contains(ImageFormat.YUV_420_888)) {
+                    return ImageFormat.YUV_420_888;
+                } else if (supportedPostviewFormats.contains(ImageFormat.JPEG)) {
+                    return ImageFormat.JPEG;
+                } else if (supportedPostviewFormats.contains(ImageFormat.JPEG_R)) {
+                    return ImageFormat.JPEG_R;
+                }
+                return ImageFormat.UNKNOWN;
+            };
 
     /**
      * Retrieves the use case config factory instance.
@@ -117,6 +135,13 @@ public interface CameraConfig extends ReadableConfig {
      */
     default boolean isPostviewSupported() {
         return retrieveOption(OPTION_POSTVIEW_SUPPORTED, false);
+    }
+
+    /**
+     * Returns the postview format selector when the camera is opened by the camera config.
+     */
+    default @NonNull PostviewFormatSelector getPostviewFormatSelector() {
+        return retrieveOption(OPTION_POSTVIEW_FORMAT_SELECTOR, DEFAULT_POSTVIEW_FORMAT_SELECTOR);
     }
 
     /**
@@ -179,8 +204,27 @@ public interface CameraConfig extends ReadableConfig {
         B setPostviewSupported(boolean postviewSupported);
 
         /**
+         * Sets the postview format selector for the camera config.
+         */
+        B setPostviewFormatSelector(@NonNull PostviewFormatSelector postviewFormatSelector);
+
+        /**
          * Sets if the capture process progress is supported.
          */
         B setCaptureProcessProgressSupported(boolean supported);
+    }
+
+    /**
+     * The interface for selecting the suitable format for the postview.
+     */
+    interface PostviewFormatSelector {
+        /**
+         * Returns the suitable format for the postview.
+         *
+         * @param stillImageFormat         the still image format to capture
+         * @param supportedPostviewFormats the supported postview formats
+         * @return the image format for the postview, or {@link ImageFormat#UNKNOWN} if not found.
+         */
+        int select(int stillImageFormat, @NonNull List<Integer> supportedPostviewFormats);
     }
 }

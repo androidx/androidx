@@ -52,18 +52,18 @@ class TimeRangeFilterTest {
         assertFailsWith<IllegalArgumentException> {
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T02:00:00"),
-                endTime = LocalDateTime.parse("2021-02-01T01:00:00")
+                endTime = LocalDateTime.parse("2021-02-01T01:00:00"),
             )
         }
         assertFailsWith<IllegalArgumentException> {
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T02:00:00"),
-                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
             )
         }
         TimeRangeFilter.between(
             startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
-            endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+            endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
         )
     }
 
@@ -77,17 +77,17 @@ class TimeRangeFilterTest {
             TimeRangeFilter.between(
                 startTime = Instant.ofEpochMilli(1234L),
                 endTime = Instant.ofEpochMilli(5679L),
-            )
+            ),
         )
         assertEquals(
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
-                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
             ),
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
-                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
-            )
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
+            ),
         )
 
         assertNotEquals(
@@ -98,17 +98,17 @@ class TimeRangeFilterTest {
             TimeRangeFilter.between(
                 startTime = Instant.ofEpochMilli(1234L),
                 endTime = Instant.ofEpochMilli(5679L),
-            )
+            ),
         )
         assertNotEquals(
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T01:00:00"),
-                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
             ),
             TimeRangeFilter.between(
                 startTime = LocalDateTime.parse("2021-02-01T01:30:00"),
-                endTime = LocalDateTime.parse("2021-02-01T02:00:00")
-            )
+                endTime = LocalDateTime.parse("2021-02-01T02:00:00"),
+            ),
         )
     }
 }

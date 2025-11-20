@@ -40,8 +40,10 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor
 import androidx.camera.camera2.pipe.internal.CameraStatusMonitor.CameraStatus
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -70,12 +72,14 @@ constructor(
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val camera2Quirks: Camera2Quirks,
     private val timeSource: TimeSource,
-    override val cameraGraphId: CameraGraphId
+    override val cameraGraphId: CameraGraphId,
+    private val shutdownListener: ShutdownListener,
+    concurrentSessionSequencers: ConcurrentSessionSequencers,
 ) : CameraController {
+    private val lock = Any()
+
     override val cameraId: CameraId
         get() = graphConfig.camera
-
-    private val lock = Any()
 
     override var isForeground: Boolean
         get() = synchronized(lock) { _isForeground }
@@ -94,6 +98,13 @@ constructor(
     @GuardedBy("lock") private var lastCameraPrioritiesChangedTs: TimestampNs? = null
 
     @GuardedBy("lock") private var restartJob: Job? = null
+
+    private val concurrentSessionSequencer =
+        graphConfig.concurrentCameraGraphs?.let {
+            concurrentSessionSequencers.getSequencer(cameraGraphId, it)
+        }
+
+    private val closedDeferred = CompletableDeferred<Unit>()
 
     private var currentCamera: VirtualCamera? = null
     private var currentSession: CaptureSessionState? = null
@@ -166,11 +177,11 @@ constructor(
                 delay(delayMs)
                 synchronized(lock) {
                     if (
-                        controllerState != ControllerState.CLOSED &&
+                        !isClosed() &&
                             controllerState != ControllerState.STOPPING &&
                             controllerState != ControllerState.STOPPED
                     ) {
-                        Log.debug { "Restarting $this..." }
+                        Log.debug { "Restarting ${this@Camera2CameraController}..." }
                         surfaceTracker.registerAllSurfaces()
                         stopLocked()
                         startLocked()
@@ -181,7 +192,7 @@ constructor(
 
     @GuardedBy("lock")
     private fun startLocked() {
-        if (controllerState == ControllerState.CLOSED) {
+        if (isClosed()) {
             Log.info { "Ignoring start(): $this is already closed" }
             return
         } else if (controllerState == ControllerState.STARTED) {
@@ -189,10 +200,12 @@ constructor(
             return
         }
         lastCameraError = null
+        val cameraId = graphConfig.camera
+        val allCameraIds = graphConfig.concurrentCameraGraphs?.cameraIds ?: setOf(cameraId)
         val camera =
             camera2DeviceManager.open(
-                cameraId = graphConfig.camera,
-                sharedCameraIds = graphConfig.sharedCameraIds,
+                cameraId = cameraId,
+                sharedCameraIds = (allCameraIds - cameraId).toList(),
                 graphListener = graphListener,
                 isPrewarm = false,
             ) { _ ->
@@ -215,9 +228,9 @@ constructor(
                 cameraSurfaceManager,
                 timeSource,
                 graphConfig.flags,
-                threads.blockingDispatcher,
-                threads.backgroundDispatcher,
-                scope
+                concurrentSessionSequencer,
+                threads,
+                scope,
             )
         currentSession = session
 
@@ -234,7 +247,7 @@ constructor(
 
     @GuardedBy("lock")
     private fun stopLocked() {
-        if (controllerState == ControllerState.CLOSED) {
+        if (isClosed()) {
             Log.warn { "Ignoring stop(): $this is already closed" }
             return
         } else if (
@@ -259,7 +272,7 @@ constructor(
     private fun onCameraStatusChanged(cameraStatus: CameraStatus) {
         Log.debug { "$this ($cameraId) camera status changed: $cameraStatus" }
         synchronized(lock) {
-            if (controllerState == ControllerState.CLOSED) {
+            if (isClosed()) {
                 return
             }
             when (cameraStatus) {
@@ -274,10 +287,10 @@ constructor(
 
     override fun close(): Unit =
         synchronized(lock) {
-            if (controllerState == ControllerState.CLOSED) {
+            if (isClosed()) {
                 return
             }
-            controllerState = ControllerState.CLOSED
+            controllerState = ControllerState.CLOSING
             Log.debug { "Closed $this" }
 
             val camera = currentCamera
@@ -305,10 +318,27 @@ constructor(
             }
         }
 
+    override suspend fun awaitClosed(): Boolean {
+        Log.debug { "$this#awaitClosed" }
+        synchronized(lock) {
+            if (controllerState == ControllerState.CLOSED) {
+                Log.debug { "$this#awaitClosed: Controller is already closed." }
+                return true
+            }
+
+            if (controllerState != ControllerState.CLOSING) {
+                Log.warn { "$this#awaitClosed: Controller isn't closing!" }
+                return false
+            }
+        }
+        closedDeferred.await()
+        return true
+    }
+
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
         // TODO: Add logic to decide if / when to re-configure the Camera2 CaptureSession.
         synchronized(lock) {
-                if (controllerState == ControllerState.CLOSED) {
+                if (isClosed()) {
                     return
                 }
                 currentSurfaceMap = surfaceMap
@@ -363,7 +393,7 @@ constructor(
 
     private fun onStateClosed(cameraState: CameraStateClosed) {
         synchronized(lock) {
-            if (controllerState == ControllerState.CLOSED) {
+            if (isClosed()) {
                 return
             }
             if (cameraState.cameraErrorCode != null) {
@@ -384,11 +414,37 @@ constructor(
         }
     }
 
+    @GuardedBy("lock")
     private fun detachSessionAndCamera(session: CaptureSessionState?, camera: VirtualCamera?) {
-        scope.launch {
-            session?.shutdown()
-            camera?.disconnect()
+        val job =
+            scope.launch {
+                session?.shutdown()
+                camera?.disconnect()
+            }
+        if (controllerState == ControllerState.CLOSING) {
+            job.invokeOnCompletion {
+                synchronized(lock) {
+                    controllerState = ControllerState.CLOSED
+                    Log.debug { "$this is closed" }
+                }
+
+                shutdownListener.onControllerClosed(this)
+                closedDeferred.complete(Unit)
+                scope.cancel()
+            }
         }
+    }
+
+    @GuardedBy("lock")
+    private fun isClosed() =
+        controllerState == ControllerState.CLOSING || controllerState == ControllerState.CLOSED
+
+    internal interface ShutdownListener {
+        /**
+         * Internally invoked by Camera2CameraController to indicate that it has completed close
+         * (i.e., completed its shutdown, notably closing the Surface tokens).
+         */
+        fun onControllerClosed(cameraController: CameraController)
     }
 
     companion object {
@@ -430,9 +486,13 @@ constructor(
                     }
                 ControllerState.ERROR ->
                     // If the camera is available, we should restart, provided that we didn't get
-                    // an error during graph (session) configuration, since restarting here would
-                    // likely not help if it's a problem with graph configuration settings.
-                    if (cameraAvailable && lastCameraError != CameraError.ERROR_GRAPH_CONFIG) {
+                    // an error during graph (session) configuration or the user lacks camera
+                    // permission, since we'd be unlikely to succeed under these scenarios.
+                    if (
+                        cameraAvailable &&
+                            lastCameraError != CameraError.ERROR_GRAPH_CONFIG &&
+                            lastCameraError != CameraError.ERROR_SECURITY_EXCEPTION
+                    ) {
                         return true
                     }
             }

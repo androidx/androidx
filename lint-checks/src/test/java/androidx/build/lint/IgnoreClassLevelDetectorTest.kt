@@ -49,7 +49,7 @@ class IgnoreClassLevelDetectorTest :
             """
                 ),
                 Stubs.IgnoreAnnotation,
-                Stubs.TestAnnotation
+                Stubs.TestAnnotation,
             )
 
         val expected =
@@ -86,7 +86,7 @@ src/java/androidx/TestClass.kt:7: Error: @Ignore should not be used at the class
                 """
                 ),
                 Stubs.IgnoreAnnotation,
-                Stubs.TestAnnotation
+                Stubs.TestAnnotation,
             )
 
         val expected =
@@ -122,7 +122,7 @@ src/java/androidx/TestClass.java:7: Error: @Ignore should not be used at the cla
                 """
                 ),
                 Stubs.IgnoreAnnotation,
-                Stubs.TestAnnotation
+                Stubs.TestAnnotation,
             )
 
         check(*input).expectClean()
@@ -150,7 +150,7 @@ src/java/androidx/TestClass.java:7: Error: @Ignore should not be used at the cla
             """
                 ),
                 Stubs.IgnoreAnnotation,
-                Stubs.TestAnnotation
+                Stubs.TestAnnotation,
             )
 
         check(*input).expectClean()

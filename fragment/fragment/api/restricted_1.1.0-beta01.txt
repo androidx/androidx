@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.fragment.app {
 
   public class DialogFragment extends androidx.fragment.app.Fragment implements android.content.DialogInterface.OnCancelListener android.content.DialogInterface.OnDismissListener {
@@ -80,8 +80,8 @@ package androidx.fragment.app {
     method public final boolean isVisible();
     method @CallSuper public void onActivityCreated(android.os.Bundle?);
     method public void onActivityResult(int, int, android.content.Intent?);
-    method @CallSuper public void onAttach(android.content.Context);
     method @Deprecated @CallSuper public void onAttach(android.app.Activity);
+    method @CallSuper public void onAttach(android.content.Context);
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method @CallSuper public void onConfigurationChanged(android.content.res.Configuration);
     method public boolean onContextItemSelected(android.view.MenuItem);
@@ -97,8 +97,8 @@ package androidx.fragment.app {
     method @CallSuper public void onDetach();
     method public android.view.LayoutInflater onGetLayoutInflater(android.os.Bundle?);
     method public void onHiddenChanged(boolean);
-    method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle?);
     method @Deprecated @CallSuper public void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle?);
+    method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle?);
     method @CallSuper public void onLowMemory();
     method public void onMultiWindowModeChanged(boolean);
     method public boolean onOptionsItemSelected(android.view.MenuItem);
@@ -227,8 +227,8 @@ package androidx.fragment.app {
     method public void noteStateNotSaved();
     method public android.view.View? onCreateView(android.view.View?, String, android.content.Context, android.util.AttributeSet);
     method @Deprecated public void reportLoaderStart();
-    method @Deprecated public void restoreAllState(android.os.Parcelable?, java.util.List<androidx.fragment.app.Fragment!>?);
     method @Deprecated public void restoreAllState(android.os.Parcelable?, androidx.fragment.app.FragmentManagerNonConfig?);
+    method @Deprecated public void restoreAllState(android.os.Parcelable?, java.util.List<androidx.fragment.app.Fragment!>?);
     method @Deprecated public void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>!);
     method public void restoreSaveState(android.os.Parcelable?);
     method @Deprecated public androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>? retainLoaderNonConfig();
@@ -280,11 +280,11 @@ package androidx.fragment.app {
     method public abstract boolean isStateSaved();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.fragment.app.FragmentTransaction openTransaction();
     method public abstract void popBackStack();
-    method public abstract void popBackStack(String?, int);
     method public abstract void popBackStack(int, int);
+    method public abstract void popBackStack(String?, int);
     method public abstract boolean popBackStackImmediate();
-    method public abstract boolean popBackStackImmediate(String?, int);
     method public abstract boolean popBackStackImmediate(int, int);
+    method public abstract boolean popBackStackImmediate(String?, int);
     method public abstract void putFragment(android.os.Bundle, String, androidx.fragment.app.Fragment);
     method public abstract void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
     method public abstract void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
@@ -415,8 +415,8 @@ package androidx.fragment.app {
     method public abstract void replaceTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
     method public abstract void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!);
-    method public abstract void setEpicenter(Object!, android.view.View!);
     method public abstract void setEpicenter(Object!, android.graphics.Rect!);
+    method public abstract void setEpicenter(Object!, android.view.View!);
     method public abstract void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
     method public abstract void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract Object! wrapTransitionInSet(Object!);

@@ -27,7 +27,7 @@ data class GraphDataHolderValueImpl(
      */
     private val absoluteMin: Number,
     private val absoluteMax: Number,
-    override var graphData: GraphDataSortedRingBuffer
+    override var graphData: GraphDataSortedRingBuffer,
 ) : GraphDataHolder {
 
     private val absoluteRange: Number

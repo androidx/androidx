@@ -37,12 +37,12 @@ import kotlin.jvm.JvmName
  * @sample androidx.compose.runtime.samples.counterSample
  */
 @JvmDefaultWithCompatibility
-interface SnapshotMutationPolicy<T> {
+public interface SnapshotMutationPolicy<T> {
     /**
      * Determine if setting a state value's are equivalent and should be treated as equal. If
      * [equivalent] returns `true` the new value is not considered a change.
      */
-    fun equivalent(a: T, b: T): Boolean
+    public fun equivalent(a: T, b: T): Boolean
 
     /**
      * Merge conflicting changes in snapshots. This is only called if [current] and [applied] are
@@ -55,7 +55,7 @@ interface SnapshotMutationPolicy<T> {
      *
      * @sample androidx.compose.runtime.samples.counterSample
      */
-    fun merge(previous: T, current: T, applied: T): T? = null
+    public fun merge(previous: T, current: T, applied: T): T? = null
 }
 
 /**
@@ -66,7 +66,7 @@ interface SnapshotMutationPolicy<T> {
  * value the parent snapshot has is not considered a conflict.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> referentialEqualityPolicy(): SnapshotMutationPolicy<T> =
+public fun <T> referentialEqualityPolicy(): SnapshotMutationPolicy<T> =
     ReferentialEqualityPolicy as SnapshotMutationPolicy<T>
 
 private object ReferentialEqualityPolicy : SnapshotMutationPolicy<Any?> {
@@ -83,7 +83,7 @@ private object ReferentialEqualityPolicy : SnapshotMutationPolicy<Any?> {
  * value the parent snapshot has is not considered a conflict.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> structuralEqualityPolicy(): SnapshotMutationPolicy<T> =
+public fun <T> structuralEqualityPolicy(): SnapshotMutationPolicy<T> =
     StructuralEqualityPolicy as SnapshotMutationPolicy<T>
 
 private object StructuralEqualityPolicy : SnapshotMutationPolicy<Any?> {
@@ -100,7 +100,7 @@ private object StructuralEqualityPolicy : SnapshotMutationPolicy<Any?> {
  * the same state.
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> neverEqualPolicy(): SnapshotMutationPolicy<T> =
+public fun <T> neverEqualPolicy(): SnapshotMutationPolicy<T> =
     NeverEqualPolicy as SnapshotMutationPolicy<T>
 
 private object NeverEqualPolicy : SnapshotMutationPolicy<Any?> {

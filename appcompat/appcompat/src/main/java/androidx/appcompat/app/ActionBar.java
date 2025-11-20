@@ -831,9 +831,8 @@ public abstract class ActionBar {
      * is the application home/up affordance on the action bar, not the system wide home
      * button.)
      *
-     * <p>This defaults to true for packages targeting &lt; API 14. For packages targeting
-     * API 14 or greater, the application should call this method to enable interaction
-     * with the home/up affordance.
+     * <p>The application should call this method to enable interaction  with the home/up
+     * affordance.
      *
      * <p>Setting the {@link #DISPLAY_HOME_AS_UP} display option will automatically enable
      * the home button.

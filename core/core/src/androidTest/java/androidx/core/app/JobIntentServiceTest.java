@@ -30,10 +30,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.Before;
@@ -444,7 +444,7 @@ public class JobIntentServiceTest {
     @MediumTest
     @Test
     @Ignore("JobIntentService is deprecated and no longer maintained")
-    @RequiresApi(26)
+    @SdkSuppress(minSdkVersion = 26)
     public void testStopWhileWorking() throws Throwable {
         if (Build.VERSION.SDK_INT < 26) {
             // This test only makes sense when running on top of JobScheduler.

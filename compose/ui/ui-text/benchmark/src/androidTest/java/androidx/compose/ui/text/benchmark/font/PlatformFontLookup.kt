@@ -46,9 +46,9 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
                     FontFamily.SansSerif,
                     FontFamily.Serif,
                     FontFamily.Cursive,
-                    FontFamily.Monospace
+                    FontFamily.Monospace,
                 ),
-                arrayOf(100, 400, 700).map { FontWeight(it) }.toTypedArray()
+                arrayOf(100, 400, 700).map { FontWeight(it) }.toTypedArray(),
             )
     }
 

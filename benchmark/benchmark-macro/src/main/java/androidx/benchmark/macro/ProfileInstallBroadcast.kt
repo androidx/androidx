@@ -115,7 +115,7 @@ object ProfileInstallBroadcast {
      */
     fun skipFileOperation(
         packageName: String,
-        @Suppress("SameParameterValue") operation: String
+        @Suppress("SameParameterValue") operation: String,
     ): String? {
         Log.d(TAG, "Profile Installer - Skip File Operation: $operation")
         // Redefining constants here, because these are only defined in the latest alpha for
@@ -161,10 +161,7 @@ object ProfileInstallBroadcast {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast. This can be because the package name specified is
                 // incorrect or an old version of profile installer was used.
-                nullResultErrorMessage(
-                    broadcastLabel = "save profile",
-                    versionAdded = "1.3.1",
-                )
+                nullResultErrorMessage(broadcastLabel = "save profile", versionAdded = "1.3.1")
             }
             12 -> { // RESULT_SAVE_PROFILE_SIGNALLED
                 // While this is observed to be fast for simple/sample apps,
@@ -185,19 +182,19 @@ object ProfileInstallBroadcast {
         DropShaderCache(
             extraValue = "DROP_SHADER_CACHE",
             minimumVersion = "1.3.0-alpha02",
-            successCode = ProfileInstaller.RESULT_BENCHMARK_OPERATION_SUCCESS
+            successCode = ProfileInstaller.RESULT_BENCHMARK_OPERATION_SUCCESS,
         ),
         SaveProfile(
             extraValue = "SAVE_PROFILE",
             minimumVersion = "1.5.0-alpha01",
-            successCode = ProfileInstaller.RESULT_SAVE_PROFILE_SIGNALLED
+            successCode = ProfileInstaller.RESULT_SAVE_PROFILE_SIGNALLED,
         ),
     }
 
     private fun benchmarkOperation(
         packageName: String,
         operation: Operation,
-        pid: Int = -1
+        pid: Int = -1,
     ): String? {
         Log.d(TAG, "Profile Installer - Benchmark Operation: ${operation.extraValue}")
         // Redefining constants here, because these are only defined in the latest alpha for
@@ -254,7 +251,14 @@ object ProfileInstallBroadcast {
     fun dropShaderCache(packageName: String): String? =
         benchmarkOperation(packageName, Operation.DropShaderCache)
 
-    data class SaveProfileResult(val processCount: Int, val error: String?)
+    data class SaveProfileResult(val processCount: Int, val error: String?) {
+        init {
+            require(error == null || processCount > 0) {
+                "Error only valid if processes are found running," +
+                    " error = $error, processCount = $processCount"
+            }
+        }
+    }
 
     @SuppressLint("BanThreadSleep")
     @RequiresApi(24)
@@ -275,7 +279,7 @@ object ProfileInstallBroadcast {
                         benchmarkOperation(
                             packageName = packageName,
                             operation = Operation.SaveProfile,
-                            pid = runningProcess.pid
+                            pid = runningProcess.pid,
                         )
                     if (error != null) return SaveProfileResult(processes.size, error)
                     Thread.sleep(Arguments.saveProfileWaitMillis)

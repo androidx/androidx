@@ -17,12 +17,10 @@
 package androidx.core.util
 
 import android.util.Range
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class RangeTest {
     @Test

@@ -29,7 +29,7 @@ import androidx.ink.authoring.InProgressStrokeId
  * flicker-free handoff from front buffer rendering to HWUI-based multi-buffer rendering.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-internal class FrontBufferToHwuiHandoffV29(
+internal class FrontBufferToHwuiHandoffV29<CompletedShapeT : Any>(
     private val mainView: ViewGroup,
     private val surfaceView: SurfaceView,
     /**
@@ -38,7 +38,8 @@ internal class FrontBufferToHwuiHandoffV29(
      *
      * @see InProgressStrokesRenderHelper.Callback.onStrokeCohortHandoffToHwui
      */
-    @UiThread private val onCohortHandoff: (Map<InProgressStrokeId, FinishedStroke>) -> Unit,
+    @UiThread
+    private val onCohortHandoff: (Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>) -> Unit,
 
     /**
      * Called after [onCohortHandoff] when it is safe for higher level code to start drawing again.
@@ -53,7 +54,7 @@ internal class FrontBufferToHwuiHandoffV29(
      * [android.view.View.postOnAnimation].
      */
     private val postOnAnimation: (Runnable) -> Unit = mainView::postOnAnimation,
-) : FrontBufferToHwuiHandoff {
+) : FrontBufferToHwuiHandoff<CompletedShapeT> {
 
     private var afterHandoffFrameCount = 0
 
@@ -62,7 +63,9 @@ internal class FrontBufferToHwuiHandoffV29(
     override fun cleanup() = Unit
 
     @UiThread
-    override fun requestCohortHandoff(handingOff: Map<InProgressStrokeId, FinishedStroke>) {
+    override fun requestCohortHandoff(
+        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
+    ) {
         onCohortHandoff(handingOff)
         hideThenWaitThenShow()
     }

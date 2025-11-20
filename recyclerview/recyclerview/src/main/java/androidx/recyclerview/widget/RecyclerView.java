@@ -179,7 +179,7 @@ import java.util.Set;
  * {@code adapter.notify*} methods when content changes, or you can use one of the easier solutions
  * RecyclerView provides:
  * <p>
- * <h4>List diffing with DiffUtil</h4>
+ * <h3>List diffing with DiffUtil</h3>
  * If your RecyclerView is displaying a list that is re-fetched from scratch for each update (e.g.
  * from the network, or from a database), {@link DiffUtil} can calculate the difference between
  * versions of the list. {@code DiffUtil} takes both lists as input and computes the difference,
@@ -201,7 +201,7 @@ import java.util.Set;
  * API you can use to compute the diffs yourself. Each approach allows you to specify how diffs
  * should be computed based on item data.
  * <p>
- * <h4>List mutation with SortedList</h4>
+ * <h3>List mutation with SortedList</h3>
  * If your RecyclerView receives updates incrementally, e.g. item X is inserted, or item Y is
  * removed, you can use {@link SortedList} to manage your list. You define how to order items,
  * and it will automatically trigger update signals that RecyclerView can use. SortedList works
@@ -210,7 +210,7 @@ import java.util.Set;
  * {@link SortedList#replaceAll(Object[])}, but this method is more limited than the list diffing
  * behavior above.
  * <p>
- * <h4>Paging Library</h4>
+ * <h3>Paging Library</h3>
  * The <a href="https://developer.android.com/topic/libraries/architecture/paging/">Paging
  * library</a> extends the diff-based approach to additionally support paged loading. It provides
  * the {@link androidx.paging.PagedList} class that operates as a self-loading list, provided a
@@ -219,8 +219,6 @@ import java.util.Set;
  * information about the Paging library, see the
  * <a href="https://developer.android.com/topic/libraries/architecture/paging/">library
  * documentation</a>.
- *
- * {@link androidx.recyclerview.R.attr#layoutManager}
  */
 public class RecyclerView extends ViewGroup implements ScrollingView,
         NestedScrollingChild2, NestedScrollingChild3 {
@@ -263,7 +261,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * On L+, with RenderThread, the UI thread has idle time after it has passed a frame off to
      * RenderThread but before the next frame begins. We schedule prefetch work in this window.
      */
-    static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;
+    static final boolean ALLOW_THREAD_GAP_WORK = true;
 
     /**
      * When flinging the stretch towards scrolling content, it should destretch quicker than the
@@ -501,6 +499,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     boolean mAdapterUpdateDuringMeasure;
 
     private final AccessibilityManager mAccessibilityManager;
+    private List<OnAdapterChangeListener> mOnAdapterChangeListeners;
     private List<OnChildAttachStateChangeListener> mOnChildAttachStateListeners;
 
     /**
@@ -848,15 +847,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         // Create the layoutManager if specified.
         createLayoutManager(context, layoutManagerName, attrs, defStyleAttr, 0);
 
-        boolean nestedScrollingEnabled = true;
-        if (Build.VERSION.SDK_INT >= 21) {
-            a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
-                    defStyleAttr, 0);
-            ViewCompat.saveAttributeDataForStyleable(this,
-                    context, NESTED_SCROLLING_ATTRS, attrs, a, defStyleAttr, 0);
-            nestedScrollingEnabled = a.getBoolean(0, true);
-            a.recycle();
-        }
+        a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
+                defStyleAttr, 0);
+        ViewCompat.saveAttributeDataForStyleable(this,
+                context, NESTED_SCROLLING_ATTRS, attrs, a, defStyleAttr, 0);
+        boolean nestedScrollingEnabled = a.getBoolean(0, true);
+        a.recycle();
         // Re-set whether nested scrolling is enabled so that it is set on all API levels
         setNestedScrollingEnabled(nestedScrollingEnabled);
         PoolingContainer.setPoolingContainer(this, true);
@@ -1362,6 +1358,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             mLayout.onAdapterChanged(oldAdapter, mAdapter);
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
+        if (mOnAdapterChangeListeners != null) {
+            final int cnt = mOnAdapterChangeListeners.size();
+            for (int i = cnt - 1; i >= 0; i--) {
+                mOnAdapterChangeListeners.get(i).onAdapterChanged(oldAdapter, mAdapter);
+            }
+        }
         mState.mStructureChanged = true;
     }
 
@@ -1431,6 +1433,46 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return mLayout.getBaseline();
         } else {
             return super.getBaseline();
+        }
+    }
+
+    /**
+     * Register a listener that will be notified whenever the current adapter is replaced.
+     *
+     * <p>This listener will be called during {@link #setAdapter(Adapter)} and
+     * {@link #swapAdapter(Adapter, boolean)}. Do not call {@link #setAdapter(Adapter)} or
+     * {@link #swapAdapter(Adapter, boolean)} from
+     * {@link OnAdapterChangeListener#onAdapterChanged(Adapter, Adapter)} since that can lead to
+     * infinite recursion.</p>
+     *
+     * @param listener Listener to register
+     */
+    public void addOnAdapterChangeListener(@NonNull OnAdapterChangeListener listener) {
+        if (mOnAdapterChangeListeners == null) {
+            mOnAdapterChangeListeners = new ArrayList<>();
+        }
+        mOnAdapterChangeListeners.add(listener);
+    }
+
+    /**
+     * Removes the provided listener from adapter listeners list.
+     *
+     * @param listener Listener to unregister
+     */
+    public void removeOnAdapterChangeListener(@NonNull OnAdapterChangeListener listener) {
+        if (mOnAdapterChangeListeners == null) {
+            return;
+        }
+        mOnAdapterChangeListeners.remove(listener);
+    }
+
+    /**
+     * Removes all listeners that were added via
+     * {@link #addOnAdapterChangeListener(OnAdapterChangeListener)}.
+     */
+    public void clearOnAdapterChangeListeners() {
+        if (mOnAdapterChangeListeners != null) {
+            mOnAdapterChangeListeners.clear();
         }
     }
 
@@ -1664,6 +1706,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @return The pool used to store recycled item views for reuse.
      * @see #setRecycledViewPool(RecycledViewPool)
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @NonNull RecycledViewPool getRecycledViewPool() {
         return mRecycler.getRecycledViewPool();
     }
@@ -11955,6 +11998,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * @param holder The ViewHolder containing the view that was recycled
          */
         void onViewRecycled(@NonNull ViewHolder holder);
+    }
+
+    /**
+     * A Listener interface that can be attached to a RecyclerView to get notified
+     * whenever the current adapter is replaced.
+     */
+    public interface OnAdapterChangeListener {
+
+        /**
+         * Called when the current adapter is replaced.
+         *
+         * @param oldAdapter The old adapter or {@code null} if no adapter was set
+         * @param newAdapter The new adapter or {@code null} if no adapter is set
+         */
+        void onAdapterChanged(@Nullable Adapter<?> oldAdapter, @Nullable Adapter<?> newAdapter);
     }
 
     /**

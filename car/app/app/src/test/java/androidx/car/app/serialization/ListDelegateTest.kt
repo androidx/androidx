@@ -28,6 +28,7 @@ import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ListDelegateTest {
     private val testList = (100..199).toList()
     private val listDelegate = ListDelegateImpl(testList)
@@ -84,7 +85,8 @@ class ListDelegateTest {
 
         verify(onDoneCallback, atLeastOnce()).onSuccess(resultCaptor.capture())
 
-        @Suppress("UNCHECKED_CAST") return resultCaptor.lastValue.get() as List<Int>
+        @Suppress("UNCHECKED_CAST")
+        return resultCaptor.lastValue.get() as List<Int>
     }
 
     private fun <T : Any> assertEqual(a: T, b: T) {

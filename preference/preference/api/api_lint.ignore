@@ -49,8 +49,6 @@ ExecutorRegistration: androidx.preference.PreferenceManager#setPreferenceCompari
     Registration methods should have overload that accepts delivery Executor: `setPreferenceComparisonCallback`
 
 
-GetterSetterNames: androidx.preference.Preference#setKey(String):
-    Symmetric method for `hasKey` must be named `setHasKey`; was `setKey`
 GetterSetterNames: androidx.preference.SeekBarPreference#getShowSeekBarValue():
     Symmetric method for `setShowSeekBarValue` must be named `isShowSeekBarValue`; was `getShowSeekBarValue`
 GetterSetterNames: androidx.preference.SeekBarPreference#getUpdatesContinuously():
@@ -64,9 +62,9 @@ InternalField: androidx.preference.TwoStatePreference#mChecked:
 
 
 InvalidNullabilityOverride: androidx.preference.DropDownPreference#setEntries(CharSequence[]) parameter #0:
-    Invalid nullability on parameter `entries` in method `setEntries`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type java.lang.CharSequence[] in parameter `entries` in method `setEntries`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.preference.PreferenceDialogFragmentCompat#onClick(android.content.DialogInterface, int) parameter #0:
-    Invalid nullability on parameter `dialog` in method `onClick`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.DialogInterface in parameter `dialog` in method `onClick`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingNullability: androidx.preference.EditTextPreference#onGetDefaultValue(android.content.res.TypedArray, int):
@@ -166,7 +164,7 @@ MutableBareField: androidx.preference.TwoStatePreference#mChecked:
 
 
 NullableCollection: androidx.preference.PreferenceDataStore#getStringSet(String, java.util.Set<java.lang.String>):
-    Return type of method androidx.preference.PreferenceDataStore.getStringSet(String,java.util.Set<java.lang.String>) is a nullable collection (`java.util.Set`); must be non-null
+    Return type of method androidx.preference.PreferenceDataStore.getStringSet(String,java.util.Set<java.lang.String>) uses a nullable collection (`java.util.Set`); must be non-null
 
 
 ParcelConstructor: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel):

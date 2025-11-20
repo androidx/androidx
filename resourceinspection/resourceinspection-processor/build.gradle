@@ -21,6 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 
@@ -36,7 +37,6 @@ dependencies {
     implementation(libs.gradleIncapHelper)
     implementation(libs.guava)
     implementation(libs.javapoet)
-    implementation(libs.kotlinStdlib)
 
     kapt(libs.gradleIncapHelperProcessor)
     kapt(libs.autoService)

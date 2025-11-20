@@ -57,7 +57,6 @@ class ConstraintsTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     fun testEqualityWithNetworkRequest() {
         val request1 =

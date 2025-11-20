@@ -39,6 +39,7 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -81,7 +82,7 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
     }
 
     @Before
-    fun setup() {
+    fun setup(): Unit = runBlocking {
         assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
@@ -97,22 +98,18 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
-        extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeExtensionModeSupported(extensionsManager, config.cameraId, config.extensionMode)
     }
 
     @After
-    fun tearDown() {
+    fun tearDown(): Unit = runBlocking {
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         cameraProvider.shutdownAsync()
 
-        val extensionsManager =
-            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
-                    10000, TimeUnit.MILLISECONDS]
+        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         extensionsManager.shutdown()
 
         // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
@@ -139,11 +136,11 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
                 ApplicationProvider.getApplicationContext(),
                 extensionsManager,
                 cameraId,
-                config.extensionMode
+                config.extensionMode,
             )
         assumeTrue(
             "Cannot find next camera id that supports extensions mode($extensionsMode)",
-            nextCameraId != null
+            nextCameraId != null,
         )
     }
 

@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowAlarmManager;
 import org.robolectric.shadows.ShadowAlarmManager.ScheduledAlarm;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 @RunWith(TilesTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TilesTimelineManagerTest {
     private static final int TOKEN = 5;

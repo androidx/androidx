@@ -54,7 +54,7 @@ enum class EasingItemDemo(val description: String, val function: Easing) {
     EaseOutElastic("EaseOutElastic", function = androidx.compose.animation.core.EaseOutElastic),
     EaseInOutElastic(
         "EaseInOutElastic",
-        function = androidx.compose.animation.core.EaseInOutElastic
+        function = androidx.compose.animation.core.EaseInOutElastic,
     ),
     EaseOutBounce("EaseOutBounce", function = androidx.compose.animation.core.EaseOutBounce),
     EaseInBounce("EaseInBounce", function = androidx.compose.animation.core.EaseInBounce),

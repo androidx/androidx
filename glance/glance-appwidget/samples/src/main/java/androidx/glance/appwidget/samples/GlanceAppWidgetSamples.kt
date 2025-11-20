@@ -82,7 +82,7 @@ fun provideGlanceSample() {
                                     it.toMutablePreferences().apply { set(Name, "Changed") }
                                 }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -142,10 +142,10 @@ fun provideGlancePeriodicWorkSample() {
                         ExistingPeriodicWorkPolicy.KEEP,
                         PeriodicWorkRequest.Builder(
                                 WeatherWidgetWorker::class.java,
-                                15.minutes.toJavaDuration()
+                                15.minutes.toJavaDuration(),
                             )
                             .setInitialDelay(15.minutes.toJavaDuration())
-                            .build()
+                            .build(),
                     )
 
                 // Note: you can also set `android:updatePeriodMillis` to control how often the
@@ -192,10 +192,7 @@ fun providePreviewSample() {
         }
 
         @Composable
-        fun Content(
-            isPreview: Boolean,
-            widgetCategory: Int,
-        ) {
+        fun Content(isPreview: Boolean, widgetCategory: Int) {
             val text = if (isPreview) "preview" else "bound widget"
             Text("This is a $text.")
             // Avoid showing personal information if this preview or widget is showing on the

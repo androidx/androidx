@@ -17,6 +17,7 @@
 package androidx.xr.arcore
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,7 @@ class HitResultTest {
         override val state: StateFlow<Trackable.State> =
             MutableStateFlow(
                 object : Trackable.State {
-                    override val trackingState = TrackingState.Stopped
+                    override val trackingState = TrackingState.STOPPED
                 }
             )
     }

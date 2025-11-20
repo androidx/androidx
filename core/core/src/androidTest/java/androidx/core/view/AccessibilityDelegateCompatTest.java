@@ -428,7 +428,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionPropagatesToNodeInfo() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final CharSequence label = "Asad's action";
@@ -439,7 +438,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testAddDuplicateAccessibilityAction() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final CharSequence label = "Asad's action";
@@ -468,7 +466,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionPerformIsCalled() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final int id = ViewCompat.addAccessibilityAction(mView, "Asad's action", action);
@@ -477,7 +474,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionIdsAreReusedIfActionIdIsRemoved() {
         int actionIdToBeRemoved = -1;
         for (int i = 0; i < 32; i++) {
@@ -497,7 +493,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalled() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
 
@@ -509,7 +504,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalledWithTwoReplacements() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final AccessibilityViewCommand action2 = mock(AccessibilityViewCommand.class);
@@ -527,7 +521,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testActionRemovedAfterNullReplacement() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
 
@@ -541,7 +534,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalledWithArguments() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
 
@@ -570,7 +562,6 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testSetAccessibilityDelegate_viewAutoImportant_makesViewImportant() {
         mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         assertThat(mView.getImportantForAccessibility()).isEqualTo(
@@ -580,7 +571,6 @@ public class AccessibilityDelegateCompatTest extends
                 View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testSetAccessibilityDelegate_viewUnimportant_doesNotMakeViewImportant() {
         mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -742,25 +732,23 @@ public class AccessibilityDelegateCompatTest extends
         mView.requestSendAccessibilityEvent(childView, event);
         verify(bridgedCompat).onRequestSendAccessibilityEvent(mView, childView, event);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            final AccessibilityNodeProviderCompat providerCompat =
-                    new AccessibilityNodeProviderCompat() {
-                        @Override
-                        public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(
-                                int virtualViewId) {
-                            return AccessibilityNodeInfoCompat.wrap(info);
-                        }
-                    };
-            when(bridgedCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
-            AccessibilityNodeProvider provider = mView.getAccessibilityNodeProvider();
-            assertEquals(info, provider.createAccessibilityNodeInfo(0));
+        final AccessibilityNodeProviderCompat providerCompat =
+                new AccessibilityNodeProviderCompat() {
+                    @Override
+                    public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(
+                            int virtualViewId) {
+                        return AccessibilityNodeInfoCompat.wrap(info);
+                    }
+                };
+        when(bridgedCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
+        AccessibilityNodeProvider provider = mView.getAccessibilityNodeProvider();
+        assertEquals(info, provider.createAccessibilityNodeInfo(0));
 
-            final Bundle bundle = new Bundle();
-            mView.performAccessibilityAction(
-                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-            verify(bridgedCompat).performAccessibilityAction(
-                    mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-        }
+        final Bundle bundle = new Bundle();
+        mView.performAccessibilityAction(
+                AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+        verify(bridgedCompat).performAccessibilityAction(
+                mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
     }
 
     private AccessibilityNodeInfoCompat getNodeCompatForView(View view) {

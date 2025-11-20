@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.graph
 
-import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -31,11 +30,10 @@ import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class CaptureLimiterTest {
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-    private val graphState3A = GraphState3A()
 
     private val fakeRequestMetadata = FakeRequestMetadata()
     private val fakeFrameInfo = FakeFrameInfo()
@@ -48,8 +46,7 @@ class CaptureLimiterTest {
             cameraGraphId = cameraGraphId,
             defaultParameters = emptyMap<Any, Any?>(),
             requiredParameters = emptyMap<Any, Any?>(),
-            graphListeners = listOf(),
-            graphState3A = graphState3A,
+            requiredListeners = listOf(),
             listeners = listOf(captureLimiter),
             shutdownScope = testScope,
             dispatcher = testDispatcher,

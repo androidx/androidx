@@ -22,15 +22,15 @@ import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.inspection.InspectorEnvironment
 
 class RootsDetector(environment: InspectorEnvironment) {
-    private val alternateViewHelper = AlternateViewHelper(environment)
+    private val xrHelper = XrHelper(environment)
 
     fun getRoots(): List<View> {
-        val alternateViews = alternateViewHelper.getAlternateViews()
-        return alternateViews.ifEmpty { getAndroidViews() }
+        val xrViews = xrHelper.getXrViews()
+        return xrViews.ifEmpty { getAndroidViews() }
     }
 
     fun getAllRoots(): List<View> {
-        return alternateViewHelper.getAlternateViews() + getAndroidViews()
+        return xrHelper.getXrViews() + getAndroidViews()
     }
 
     private fun getAndroidViews(): List<View> {

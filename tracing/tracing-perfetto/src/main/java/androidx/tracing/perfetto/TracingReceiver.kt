@@ -42,14 +42,14 @@ import java.util.concurrent.TimeUnit
 
 /** Allows for enabling tracing in an app using a broadcast. @see [ACTION_ENABLE_TRACING] */
 @RestrictTo(LIBRARY)
-class TracingReceiver : BroadcastReceiver() {
+public class TracingReceiver : BroadcastReceiver() {
     private val executor by lazy {
         ThreadPoolExecutor(
             /* corePoolSize = */ 0,
             /* maximumPoolSize = */ 1,
             /* keepAliveTime = */ 10, // gives time for tooling to side-load the .so file
             /* unit = */ TimeUnit.SECONDS,
-            /* workQueue = */ LinkedBlockingQueue()
+            /* workQueue = */ LinkedBlockingQueue(),
         )
     }
 
@@ -60,7 +60,7 @@ class TracingReceiver : BroadcastReceiver() {
                     listOf(
                         ACTION_ENABLE_TRACING,
                         ACTION_ENABLE_TRACING_COLD_START,
-                        ACTION_DISABLE_TRACING_COLD_START
+                        ACTION_DISABLE_TRACING_COLD_START,
                     )
         )
             return
@@ -79,7 +79,7 @@ class TracingReceiver : BroadcastReceiver() {
                             enableTracingColdStart(
                                 context,
                                 srcPath,
-                                intent.extras?.getString(KEY_PERSISTENT).toBoolean()
+                                intent.extras?.getString(KEY_PERSISTENT).toBoolean(),
                             )
                         ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
                         else -> throw IllegalStateException() // supported actions checked earlier
@@ -99,7 +99,7 @@ class TracingReceiver : BroadcastReceiver() {
                 // TODO(234351579): Support API < 30
                 Response(
                     RESULT_CODE_ERROR_OTHER,
-                    "SDK version not supported. Current minimum SDK = ${Build.VERSION_CODES.R}"
+                    "SDK version not supported. Current minimum SDK = ${Build.VERSION_CODES.R}",
                 )
             }
             srcPath != null && context != null -> {
@@ -112,7 +112,7 @@ class TracingReceiver : BroadcastReceiver() {
             srcPath != null && context == null -> {
                 Response(
                     RESULT_CODE_ERROR_OTHER,
-                    "Cannot copy source file: $srcPath without access to a Context instance."
+                    "Cannot copy source file: $srcPath without access to a Context instance.",
                 )
             }
             else -> {
@@ -129,7 +129,7 @@ class TracingReceiver : BroadcastReceiver() {
     private fun enableTracingColdStart(
         context: Context?,
         srcPath: String?,
-        isPersistent: Boolean
+        isPersistent: Boolean,
     ): Response =
         enableTracingImmediate(srcPath, context).also {
             if (it.resultCode == RESULT_CODE_SUCCESS) {
@@ -138,7 +138,7 @@ class TracingReceiver : BroadcastReceiver() {
                 if (context == null)
                     return Response(
                         RESULT_CODE_ERROR_OTHER,
-                        "Cannot set up cold start tracing without a Context instance."
+                        "Cannot set up cold start tracing without a Context instance.",
                     )
                 config.store(context)
             }
@@ -154,7 +154,7 @@ class TracingReceiver : BroadcastReceiver() {
                 Response(
                     RESULT_CODE_ERROR_OTHER,
                     "Cannot ensure we can disable cold start tracing without access to an app Context" +
-                        " instance"
+                        " instance",
                 )
         }
 

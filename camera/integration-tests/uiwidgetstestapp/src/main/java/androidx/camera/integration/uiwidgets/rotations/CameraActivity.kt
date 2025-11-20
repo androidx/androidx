@@ -42,6 +42,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.uiwidgets.databinding.ActivityRotationsMainBinding
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -63,6 +64,7 @@ open class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mBinding = ActivityRotationsMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+        EdgeToEdgeUtil.enableEdgeToEdge(this)
         mAnalysisExecutor = Executors.newSingleThreadExecutor()
         if (shouldRequestPermissionsAtRuntime() && !hasPermissions()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -79,7 +81,7 @@ open class CameraActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
@@ -121,7 +123,7 @@ open class CameraActivity : AppCompatActivity() {
                 throw IllegalStateException(
                     "WARNING: CameraX is currently configured to a different implementation " +
                         "this would have resulted in unexpected behavior.",
-                    e
+                    e,
                 )
             }
         }
@@ -145,7 +147,7 @@ open class CameraActivity : AppCompatActivity() {
                     Log.d(TAG, "Skip camera setup since activity is closed")
                 }
             },
-            ContextCompat.getMainExecutor(this)
+            ContextCompat.getMainExecutor(this),
         )
     }
 
@@ -165,7 +167,7 @@ open class CameraActivity : AppCompatActivity() {
                 getCameraSelector(),
                 preview,
                 mImageAnalysis,
-                mImageCapture
+                mImageCapture,
             )
     }
 
@@ -211,7 +213,7 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "InMemory image capture failed", exception)
                 }
-            }
+            },
         )
     }
 
@@ -232,7 +234,7 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "File image capture failed", exception)
                 }
-            }
+            },
         )
     }
 
@@ -254,7 +256,7 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "OutputStream image capture failed", exception)
                 }
-            }
+            },
         )
     }
 
@@ -268,7 +270,7 @@ open class CameraActivity : AppCompatActivity() {
             ImageCapture.OutputFileOptions.Builder(
                     contentResolver,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
+                    contentValues,
                 )
                 .build()
         takePicture(
@@ -286,7 +288,7 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "MediaStore image capture failed", exception)
                 }
-            }
+            },
         )
     }
 

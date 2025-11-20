@@ -92,7 +92,7 @@ private object Api35Impl {
             object :
                 OutcomeReceiver<
                     android.credentials.GetCredentialResponse,
-                    android.credentials.GetCredentialException
+                    android.credentials.GetCredentialException,
                 > {
                 override fun onResult(response: android.credentials.GetCredentialResponse) {
                     callback.invoke(FrameworkImplHelper.convertGetResponseToJetpackClass(response))

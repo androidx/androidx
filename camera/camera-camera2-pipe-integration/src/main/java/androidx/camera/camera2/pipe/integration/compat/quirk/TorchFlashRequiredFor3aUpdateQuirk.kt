@@ -60,7 +60,7 @@ public class TorchFlashRequiredFor3aUpdateQuirk(private val cameraMetadata: Came
                 "PIXEL 7A",
                 "PIXEL 7 PRO",
                 "PIXEL 8",
-                "PIXEL 8 PRO"
+                "PIXEL 8 PRO",
             )
 
         public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =

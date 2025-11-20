@@ -69,7 +69,7 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
     private fun addProtoEntryToPreferences(
         name: String,
         value: Value,
-        mutablePreferences: MutablePreferences
+        mutablePreferences: MutablePreferences,
     ) {
         if (value.boolean != null) {
             mutablePreferences[booleanPreferencesKey(name)] = value.boolean
@@ -159,7 +159,4 @@ internal data class Value(
     }
 }
 
-@Serializable
-internal data class StringSet(
-    val strings: List<String> = emptyList(),
-)
+@Serializable internal data class StringSet(val strings: List<String> = emptyList())

@@ -97,7 +97,7 @@ class PartitionedMeshTest {
         assertThat(string).contains("PartitionedMesh")
         assertThat(string).contains("bounds")
         assertThat(string).contains("meshes")
-        assertThat(string).contains("nativeAddress")
+        assertThat(string).contains("nativePointer")
     }
 
     @Test
@@ -206,12 +206,12 @@ class PartitionedMeshTest {
                 height = 9f,
             )
         val externalParallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 center = ImmutableVec(100f, 200f),
                 width = 3f,
                 height = 4f,
-                rotation = Angle.QUARTER_TURN_RADIANS,
-                shearFactor = 2f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
             )
 
         assertThat(partitionedMesh.computeCoverage(intersectingParallelogram)).isGreaterThan(0f)
@@ -230,13 +230,13 @@ class PartitionedMeshTest {
         val intersectingShape =
             Stroke(
                     TEST_BRUSH,
-                    buildStrokeInputBatchFromPoints(floatArrayOf(15f, 3f, 15f, 5f)).asImmutable(),
+                    buildStrokeInputBatchFromPoints(floatArrayOf(15f, 3f, 15f, 5f)).toImmutable(),
                 )
                 .shape
         val externalShape =
             Stroke(
                     TEST_BRUSH,
-                    buildStrokeInputBatchFromPoints(floatArrayOf(100f, 3f, 200f, 5f)).asImmutable(),
+                    buildStrokeInputBatchFromPoints(floatArrayOf(100f, 3f, 200f, 5f)).toImmutable(),
                 )
                 .shape
 
@@ -311,12 +311,12 @@ class PartitionedMeshTest {
                 height = 9f,
             )
         val externalParallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 center = ImmutableVec(100f, 200f),
                 width = 3f,
                 height = 4f,
-                rotation = Angle.QUARTER_TURN_RADIANS,
-                shearFactor = 2f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 2f,
             )
 
         assertThat(partitionedMesh.computeCoverageIsGreaterThan(intersectingParallelogram, 0f))
@@ -327,7 +327,7 @@ class PartitionedMeshTest {
                 partitionedMesh.computeCoverageIsGreaterThan(
                     externalParallelogram,
                     0f,
-                    SCALE_TRANSFORM
+                    SCALE_TRANSFORM,
                 )
             )
             .isFalse()
@@ -350,13 +350,13 @@ class PartitionedMeshTest {
         val intersectingShape =
             Stroke(
                     TEST_BRUSH,
-                    buildStrokeInputBatchFromPoints(floatArrayOf(15f, 3f, 15f, 5f)).asImmutable(),
+                    buildStrokeInputBatchFromPoints(floatArrayOf(15f, 3f, 15f, 5f)).toImmutable(),
                 )
                 .shape
         val externalShape =
             Stroke(
                     TEST_BRUSH,
-                    buildStrokeInputBatchFromPoints(floatArrayOf(100f, 3f, 200f, 5f)).asImmutable(),
+                    buildStrokeInputBatchFromPoints(floatArrayOf(100f, 3f, 200f, 5f)).toImmutable(),
                 )
                 .shape
 
@@ -395,7 +395,7 @@ class PartitionedMeshTest {
     private fun buildTestStrokeShape(): PartitionedMesh {
         return Stroke(
                 TEST_BRUSH,
-                buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).asImmutable(),
+                buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).toImmutable(),
             )
             .shape
     }
@@ -403,7 +403,6 @@ class PartitionedMeshTest {
     companion object {
         private val SCALE_TRANSFORM = ImmutableAffineTransform(1.2f, 0f, 0f, 0f, 0.4f, 0f)
 
-        private val TEST_BRUSH =
-            Brush(family = StockBrushes.markerLatest, size = 10f, epsilon = 0.1f)
+        private val TEST_BRUSH = Brush(family = StockBrushes.marker(), size = 10f, epsilon = 0.1f)
     }
 }

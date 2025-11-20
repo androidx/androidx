@@ -35,8 +35,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Implementation class for {@link OnItemVisibilityChangedDelegate}.
- *
+ * Implementation class for {@link OnItemVisibilityChangedDelegate} that uses the {@link
+ * IOnItemVisibilityChangedListener} binder interface.
  */
 @RestrictTo(LIBRARY)
 @CarProtocol

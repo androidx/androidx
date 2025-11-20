@@ -18,9 +18,12 @@ package androidx.datastore.guava
 
 import android.content.Context
 import androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture
+import androidx.core.util.Function
 import androidx.datastore.core.CurrentDataProviderStore
 import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.MultiProcessDataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStoreFile
@@ -28,7 +31,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
-import java.util.function.Function
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -51,19 +53,27 @@ internal constructor(
      * ongoing updates.
      */
     public fun getDataAsync(): ListenableFuture<T> {
-        return launchFuture(coroutineContext) { dataStore.currentData() }
+        return launchFuture(context = coroutineContext, launchUndispatched = false) {
+            dataStore.currentData()
+        }
     }
 
     /**
-     * Returns a [ListenableFuture] to update the data using the provided [transform]. The
-     * [transform] is given the latest persisted data to produce its output, which is then persisted
-     * and returned. Concurrent updates are serialized (at most one update running at a time).
+     * Returns a [ListenableFuture] to update the data using the provided [dataTransform]. The
+     * [dataTransform] is given the latest persisted data to produce its output, which is then
+     * persisted and returned. Concurrent updates are serialized (at most one update running at a
+     * time).
+     *
+     * Ideally the shape of the [Function] param would have been a `T -> R` but we choose to keep it
+     * as `T -> T` to match [DataStore.updateData].
      */
-    public fun updateDataAsync(transform: (input: T) -> T): ListenableFuture<T> {
-        return launchFuture(coroutineContext) { dataStore.updateData { transform(it) } }
+    public fun updateDataAsync(dataTransform: Function<T, T>): ListenableFuture<T> {
+        return launchFuture(context = coroutineContext, launchUndispatched = false) {
+            dataStore.updateData { dataTransform.apply(it) }
+        }
     }
 
-    /** Builder class for a [GuavaDataStore] that works on a single process. */
+    /** Builder class for a [GuavaDataStore]. */
     public class Builder<T : Any>(
         /**
          * Create a [GuavaDataStoreBuilder] with the [Callable] which returns the File that
@@ -97,13 +107,14 @@ internal constructor(
         public constructor(
             context: Context,
             fileName: String,
-            serializer: Serializer<T>
+            serializer: Serializer<T>,
         ) : this(serializer, produceFile = { context.dataStoreFile(fileName) })
 
         // Optional
         private var corruptionHandler: ReplaceFileCorruptionHandler<T>? = null
         private val dataMigrations: MutableList<DataMigration<T>> = mutableListOf()
         private var coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+        private var enableMultiProcess: Boolean = false
 
         /**
          * Sets the corruption handler to install into the DataStore.
@@ -143,23 +154,91 @@ internal constructor(
         }
 
         /**
+         * Flag used to signal the creation of a multi-process DataStore using a
+         * [MultiProcessCoordinator].
+         *
+         * By default, the builder sets up a [DataStore] intended for single-application use. It
+         * prioritizes speed and is created using [DataStoreFactory]. However, if you anticipate any
+         * scenario where different parts of your system (even if they are just reading data) might
+         * access the [DataStore] at the same time from separate processes, the [enableMultiProcess]
+         * flag must be set to `true`. This ensures a [MultiProcessDataStoreFactory] is used,
+         * providing the necessary safeguards for concurrent access across multiple processes.
+         *
+         * @return this
+         */
+        @Suppress("BuilderSetStyle")
+        public fun enableMultiProcess(): Builder<T> = apply { this.enableMultiProcess = true }
+
+        /**
          * Build the DataStore.
          *
          * @return the DataStore with the provided parameters
          */
         public fun build(): GuavaDataStore<T> =
             GuavaDataStore(
-                DataStoreFactory.create(
-                    produceFile = produceFile::call,
-                    serializer = serializer,
-                    corruptionHandler = corruptionHandler,
-                    migrations = dataMigrations,
-                    scope = CoroutineScope(coroutineDispatcher),
-                ) as? CurrentDataProviderStore
+                if (this.enableMultiProcess) {
+                    MultiProcessDataStoreFactory.create(
+                        produceFile = produceFile::call,
+                        serializer = serializer,
+                        corruptionHandler = corruptionHandler,
+                        migrations = dataMigrations,
+                        scope = CoroutineScope(coroutineDispatcher),
+                    )
+                } else {
+                    DataStoreFactory.create(
+                        produceFile = produceFile::call,
+                        serializer = serializer,
+                        corruptionHandler = corruptionHandler,
+                        migrations = dataMigrations,
+                        scope = CoroutineScope(coroutineDispatcher),
+                    )
+                }
+                    as? CurrentDataProviderStore
                     ?: error(
                         "Unexpected DataStore object that does not implement CurrentDataStore"
                     ),
                 coroutineDispatcher,
             )
+    }
+
+    public companion object {
+        /**
+         * Wraps a [GuavaDataStore] around a [DataStore]. This method does not create a new
+         * [DataStore], so all [getDataAsync] and [updateDataAsync] called from the resulting
+         * [GuavaDataStore] will be sequenced by the underlying [DataStore]. It is thread-safe.
+         *
+         * @param dataStore the DataStore used to create GuavaDataStore
+         * @param executor the Executor used to launch the calls to DataStore.
+         * @return the GuavaDataStore created with the provided parameters
+         */
+        @JvmStatic
+        public fun <T : Any> from(dataStore: DataStore<T>, executor: Executor): GuavaDataStore<T> {
+            return from(dataStore, executor.asCoroutineDispatcher())
+        }
+
+        /**
+         * Wraps a [GuavaDataStore] around a [DataStore]. This method does not create a new
+         * [DataStore], so all [getDataAsync] and [updateDataAsync] called from the resulting
+         * [GuavaDataStore] will be sequenced by the underlying [DataStore]. It is thread-safe.
+         *
+         * @param dataStore the DataStore used to create GuavaDataStore
+         * @param coroutineContext the CoroutineContext used to launch the calls to DataStore. The
+         *   default value is [Dispatchers.IO]
+         * @return the GuavaDataStore created with the provided parameters
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun <T : Any> from(
+            dataStore: DataStore<T>,
+            coroutineContext: CoroutineContext = Dispatchers.IO,
+        ): GuavaDataStore<T> {
+            return GuavaDataStore(
+                dataStore as? CurrentDataProviderStore
+                    ?: error(
+                        "Unexpected DataStore object that does not implement CurrentDataProviderStore"
+                    ),
+                coroutineContext,
+            )
+        }
     }
 }

@@ -20,7 +20,6 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
@@ -37,18 +36,9 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
 
 fun Project.configureJavaFormat() {
-    val javaFormatClasspath = getJavaFormatConfiguration()
     tasks.register("javaFormat", JavaFormatTask::class.java) { task ->
-        task.javaFormatClasspath.from(javaFormatClasspath)
+        task.javaFormatClasspath.from(getLibraryClasspath("googlejavaformat"))
     }
-}
-
-private fun Project.getJavaFormatConfiguration(): FileCollection {
-    val config =
-        configurations.detachedConfiguration(
-            dependencies.create(getLibraryByName("googlejavaformat"))
-        )
-    return files(config)
 }
 
 @CacheableTask
@@ -104,11 +94,7 @@ abstract class JavaFormatTask : DefaultTask() {
     }
 
     companion object {
-        private val excludedDirectories =
-            listOf(
-                "test-data",
-                "external",
-            )
+        private val excludedDirectories = listOf("test-data", "external")
 
         private val excludedDirectoryGlobs = excludedDirectories.map { "**/$it/**/*.java" }
         private const val MAIN_CLASS = "com.google.googlejavaformat.java.Main"

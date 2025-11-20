@@ -46,7 +46,7 @@ class AppCompatIssueRegistry : IssueRegistry() {
                 SwitchUsageXmlDetector.USING_CORE_SWITCH_XML,
                 TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
                 TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
-                OnClickXmlDetector.USING_ON_CLICK_IN_XML
+                OnClickXmlDetector.USING_ON_CLICK_IN_XML,
             )
 
     override val vendor =

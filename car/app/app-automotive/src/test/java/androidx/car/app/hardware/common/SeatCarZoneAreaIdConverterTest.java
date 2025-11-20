@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SeatCarZoneAreaIdConverterTest {
 
     private SeatCarZoneAreaIdConverter mSeatCarZoneAreaIdConverter;

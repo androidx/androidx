@@ -49,48 +49,48 @@ class WindowDemosActivity : EdgeToEdgeActivity() {
                 DemoItem(
                     buttonTitle = getString(display_features_config_change),
                     description = getString(show_all_display_features_config_change_description),
-                    clazz = DisplayFeaturesActivity::class.java
+                    clazz = DisplayFeaturesActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(display_features_no_config_change),
                     description = getString(show_all_display_features_no_config_change_description),
-                    clazz = DisplayFeaturesNoConfigChangeActivity::class.java
+                    clazz = DisplayFeaturesNoConfigChangeActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(display_features_slim_portrait),
                     description = getString(show_all_display_features_portrait_slim),
-                    clazz = DisplayFeaturesLetterboxPortraitSlimActivity::class.java
+                    clazz = DisplayFeaturesLetterboxPortraitSlimActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(display_features_slim_landscape),
                     description = getString(show_all_display_features_landscape_slim),
-                    clazz = DisplayFeaturesLetterboxLandscapeSlimActivity::class.java
+                    clazz = DisplayFeaturesLetterboxLandscapeSlimActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(R.string.window_metrics),
                     description = getString(R.string.window_metrics_description),
-                    clazz = WindowMetricsActivity::class.java
+                    clazz = WindowMetricsActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(R.string.split_layout),
                     description = getString(R.string.split_layout_demo_description),
-                    clazz = SplitLayoutActivity::class.java
+                    clazz = SplitLayoutActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(R.string.presentation),
                     description = getString(R.string.presentation_demo_description),
-                    clazz = PresentationActivity::class.java
+                    clazz = PresentationActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(R.string.ime),
                     description = getString(R.string.ime_demo_description),
-                    clazz = ImeActivity::class.java
+                    clazz = ImeActivity::class.java,
                 ),
                 DemoItem(
                     buttonTitle = getString(R.string.dual_display),
                     description = getString(R.string.dual_display_description),
-                    clazz = RearDisplayPresentationActivity::class.java
-                )
+                    clazz = RearDisplayPresentationActivity::class.java,
+                ),
             )
         val recyclerView = findViewById<RecyclerView>(R.id.demo_recycler_view)
 

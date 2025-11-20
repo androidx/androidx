@@ -16,13 +16,9 @@
 
 package androidx.core.os;
 
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Looper;
 import android.os.Message;
 import android.view.View;
-
-import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 
@@ -30,17 +26,6 @@ import org.jspecify.annotations.NonNull;
  * Helper for accessing features in {@link Message}.
  */
 public final class MessageCompat {
-    /**
-     * False when linking of the hidden setAsynchronous method on pre-22 has previously failed.
-     * Not volatile because we don't care if multiple threads make an attempt.
-     */
-    private static boolean sTrySetAsynchronous = true;
-    /**
-     * False when linking of the hidden isAsynchronous method on pre-22 has previously failed.
-     * Not volatile because we don't care if multiple threads make an attempt.
-     */
-    private static boolean sTryIsAsynchronous = true;
-
     /**
      * Sets whether the message is asynchronous, meaning that it is not
      * subject to {@link Looper} synchronization barriers.
@@ -68,21 +53,8 @@ public final class MessageCompat {
      * @see #isAsynchronous(Message)
      * @see Message#setAsynchronous(boolean)
      */
-    @SuppressLint("NewApi")
     public static void setAsynchronous(@NonNull Message message, boolean async) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            Api22Impl.setAsynchronous(message, async);
-            return;
-        }
-        if (sTrySetAsynchronous) {
-            // Since this was an @hide method made public, we can link directly against it with a
-            // try/catch for its absence instead of doing the same dance through reflection.
-            try {
-                Api22Impl.setAsynchronous(message, async);
-            } catch (NoSuchMethodError e) {
-                sTrySetAsynchronous = false;
-            }
-        }
+        message.setAsynchronous(async);
     }
 
     /**
@@ -94,38 +66,10 @@ public final class MessageCompat {
      * @see #setAsynchronous(Message, boolean)
      * @see Message#isAsynchronous()
      */
-    @SuppressLint("NewApi")
     public static boolean isAsynchronous(@NonNull Message message) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            return Api22Impl.isAsynchronous(message);
-        }
-        if (sTryIsAsynchronous) {
-            // Since this was an @hide method made public, we can link directly against it with a
-            // try/catch for its absence instead of doing the same dance through reflection.
-            try {
-                return Api22Impl.isAsynchronous(message);
-            } catch (NoSuchMethodError e) {
-                sTryIsAsynchronous = false;
-            }
-        }
-        return false;
+        return message.isAsynchronous();
     }
 
     private MessageCompat() {
-    }
-
-    @RequiresApi(22)
-    static class Api22Impl {
-        private Api22Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean isAsynchronous(Message message) {
-            return message.isAsynchronous();
-        }
-
-        static void setAsynchronous(Message message, boolean async) {
-            message.setAsynchronous(async);
-        }
     }
 }

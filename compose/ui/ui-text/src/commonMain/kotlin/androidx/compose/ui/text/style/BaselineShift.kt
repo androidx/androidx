@@ -18,6 +18,7 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.util.lerp
 
 /**
@@ -40,7 +41,26 @@ value class BaselineShift(val multiplier: Float) {
 
         /** Constant for no baseline shift. */
         @Stable val None = BaselineShift(0.0f)
+
+        /** Constant for an unset baseline shift. */
+        @Stable val Unspecified = BaselineShift(Float.NaN)
     }
+}
+
+/**
+ * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
+ *
+ * @see BaselineShift.Unspecified
+ */
+inline val BaselineShift.isSpecified: Boolean
+    get() = !multiplier.isNaN()
+
+/**
+ * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
+ * returned.
+ */
+inline fun BaselineShift.takeOrElse(block: () -> BaselineShift): BaselineShift {
+    return if (multiplier.isNaN()) block() else this
 }
 
 /** Linearly interpolate two [BaselineShift]s. */

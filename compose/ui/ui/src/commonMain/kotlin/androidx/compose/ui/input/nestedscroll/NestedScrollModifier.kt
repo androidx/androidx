@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.ui.ComposeUiFlags.NewNestedScrollFlingDispatchingEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -181,7 +180,7 @@ class NestedScrollDispatcher {
     fun dispatchPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset {
         return parent?.onPostScroll(consumed, available, source) ?: Offset.Zero
     }
@@ -219,7 +218,7 @@ class NestedScrollDispatcher {
         // methods because the problem with parity in this API comes from a node that detaches
         // during a fling. By the time a node detaches it already sent the onPreFling event and
         // consumers of Nested Scroll might expect an onPostFling event to close the cycle.
-        return if (parent == null && NewNestedScrollFlingDispatchingEnabled) {
+        return if (parent == null) {
             lastKnownParentNode?.onPostFling(consumed, available) ?: Velocity.Zero
         } else {
             parent?.onPostFling(consumed, available) ?: Velocity.Zero
@@ -261,8 +260,8 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                 ReplaceWith(
                     "NestedScrollSource.UserInput",
                     "import androidx.compose.ui.input.nestedscroll." +
-                        "NestedScrollSource.Companion.UserInput"
-                )
+                        "NestedScrollSource.Companion.UserInput",
+                ),
         )
         val Drag: NestedScrollSource = UserInput
 
@@ -273,13 +272,12 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                 ReplaceWith(
                     "NestedScrollSource.SideEffect",
                     "import androidx.compose.ui.input.nestedscroll." +
-                        "NestedScrollSource.Companion.SideEffect"
-                )
+                        "NestedScrollSource.Companion.SideEffect",
+                ),
         )
         val Fling: NestedScrollSource = SideEffect
 
         /** Relocating when a component asks parents to scroll to bring it into view. */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         @Deprecated("Do not use. Will be removed in the future.")
         val Relocate: NestedScrollSource = NestedScrollSource(3)
 
@@ -290,8 +288,8 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                 ReplaceWith(
                     "NestedScrollSource.UserInput",
                     "import androidx.compose.ui.input.nestedscroll." +
-                        "NestedScrollSource.Companion.UserInput"
-                )
+                        "NestedScrollSource.Companion.UserInput",
+                ),
         )
         val Wheel: NestedScrollSource = UserInput
     }
@@ -364,12 +362,12 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
  */
 fun Modifier.nestedScroll(
     connection: NestedScrollConnection,
-    dispatcher: NestedScrollDispatcher? = null
+    dispatcher: NestedScrollDispatcher? = null,
 ): Modifier = this then NestedScrollElement(connection, dispatcher)
 
 private class NestedScrollElement(
     val connection: NestedScrollConnection,
-    val dispatcher: NestedScrollDispatcher?
+    val dispatcher: NestedScrollDispatcher?,
 ) : ModifierNodeElement<NestedScrollNode>() {
     override fun create(): NestedScrollNode {
         return NestedScrollNode(connection, dispatcher)

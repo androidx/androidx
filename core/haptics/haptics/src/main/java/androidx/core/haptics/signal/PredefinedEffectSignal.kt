@@ -45,12 +45,7 @@ private constructor(
     /** Typedef for the [type] attribute. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        TICK,
-        CLICK,
-        HEAVY_CLICK,
-        DOUBLE_CLICK,
-    )
+    @IntDef(TICK, CLICK, HEAVY_CLICK, DOUBLE_CLICK)
     public annotation class Type
 
     public companion object {

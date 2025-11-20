@@ -36,7 +36,7 @@ import java.util.Objects
 class BiometricPromptResult
 internal constructor(
     val authenticationResult: AuthenticationResult? = null,
-    val authenticationError: AuthenticationError? = null
+    val authenticationError: AuthenticationError? = null,
 ) {
     val isSuccessful: Boolean = authenticationResult != null
 

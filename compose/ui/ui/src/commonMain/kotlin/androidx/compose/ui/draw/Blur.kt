@@ -143,5 +143,5 @@ fun Modifier.blur(
 @Stable
 fun Modifier.blur(
     radius: Dp,
-    edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle
+    edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle,
 ) = blur(radius, radius, edgeTreatment)

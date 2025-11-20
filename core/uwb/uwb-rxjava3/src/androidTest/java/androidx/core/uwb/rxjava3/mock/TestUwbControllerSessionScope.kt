@@ -29,7 +29,7 @@ class TestUwbControllerSessionScope(
     private val uwbClient: TestUwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
-    override val uwbComplexChannel: UwbComplexChannel
+    override val uwbComplexChannel: UwbComplexChannel,
 ) : UwbControllerSessionScope {
     private val uwbClientSessionScope =
         TestUwbClientSessionScope(uwbClient, rangingCapabilities, localAddress)
@@ -59,12 +59,12 @@ class TestUwbControllerSessionScope(
     override suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     ) {
         return uwbClientSessionScope.reconfigureRangeDataNtf(
             configType,
             proximityNear,
-            proximityFar
+            proximityFar,
         )
     }
 }

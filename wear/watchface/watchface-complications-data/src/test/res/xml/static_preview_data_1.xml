@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<complications>
+    <complication type="SHORT_TEXT" monochromaticImage="@drawable/ic_test" smallImage="@drawable/ic_test" smallImageType="icon">
+        <text>
+            <plain value="@string/short_text" valueType="string"/>
+        </text>
+        <title>
+            <plain value="@string/title_text" valueType="string"/>
+        </title>
+    </complication>
+    <complication type="LONG_TEXT" monochromaticImage="@drawable/ic_test" smallImage="@drawable/ic_test" smallImageType="photo">
+        <text>
+            <plain value="@string/long_text" valueType="string"/>
+        </text>
+        <title>
+            <plain value="@string/long_title_text" valueType="string"/>
+        </title>
+    </complication>
+    <complication
+        type="RANGED_VALUE"
+        value="75"
+        min="0"
+        max="100"
+        monochromaticImage="@drawable/ic_test"
+        colorRamp="@array/ramp_colors"
+        colorRampInterpolated="true">
+        <text>
+            <plain value="75" valueType="integer"/>
+        </text>
+        <title>
+            <plain value="Level" valueType="string"/>
+        </title>
+    </complication>
+    <complication
+        type="GOAL_PROGRESS"
+        value="1200"
+        targetValue="10000"
+        monochromaticImage="@drawable/ic_test"
+        colorRamp="@array/goal_ramp_colors"
+        colorRampInterpolated="false">
+        <text>
+            <plain value="1.2k" valueType="string"/>
+        </text>
+        <title>
+            <plain value="Steps" valueType="string"/>
+        </title>
+    </complication>
+    <complication type="MONOCHROMATIC_IMAGE" monochromaticImage="@drawable/ic_test"/>
+    <complication type="SMALL_IMAGE" smallImage="@drawable/ic_test" smallImageType="photo"/>
+</complications>

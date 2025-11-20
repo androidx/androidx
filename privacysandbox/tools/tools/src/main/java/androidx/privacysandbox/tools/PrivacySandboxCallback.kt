@@ -36,6 +36,7 @@ package androidx.privacysandbox.tools
  * }
  * ```
  */
+@Deprecated("This library is no longer supported.")
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS)
 public annotation class PrivacySandboxCallback

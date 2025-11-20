@@ -42,7 +42,18 @@ actual fun DropdownMenu(
     tonalElevation: Dp,
     shadowElevation: Dp,
     border: BorderStroke?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
+): Unit = implementedInJetBrainsFork()
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+actual fun DropdownMenuPopup(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
+    content: @Composable ColumnScope.() -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable

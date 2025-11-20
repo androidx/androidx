@@ -22,3 +22,10 @@
     static java.lang.Void throw*Exception(...);
     static java.lang.Void throw*ExceptionForNullCheck(...);
 }
+-keepclassmembers class androidx.compose.ui.graphics.layer.view.ViewLayerContainer {
+    protected void dispatchGetDisplayList();
+}
+-keepclassmembers class androidx.compose.ui.graphics.layer.view.PlaceholderHardwareCanvas {
+    public int drawRenderNode(...);
+    public boolean isHardwareAccelerated();
+}

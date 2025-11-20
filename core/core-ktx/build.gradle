@@ -10,7 +10,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -19,17 +19,25 @@ dependencies {
         implementation(project(":core:core"))
     }
 
-    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":core:core"))
 
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":internal-testutils-truth"))
+
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
@@ -39,9 +47,11 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
     legacyDisableKotlinStrictApiMode = true
+
+    enableRobolectric()
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.core.ktx"
 }

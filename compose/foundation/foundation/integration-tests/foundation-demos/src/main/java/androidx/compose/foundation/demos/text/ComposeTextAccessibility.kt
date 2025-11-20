@@ -55,7 +55,7 @@ fun TextAccessibilityDemo() {
                     append("你好!")
                     pop()
                 },
-            style = TextStyle(fontSize = fontSize8)
+            style = TextStyle(fontSize = fontSize8),
         )
 
         TagLine("VerbatimTtsAnnotation ")
@@ -68,7 +68,7 @@ fun TextAccessibilityDemo() {
                     pop()
                     append("This word is read normally: hello")
                 },
-            style = TextStyle(fontSize = fontSize8)
+            style = TextStyle(fontSize = fontSize8),
         )
 
         TagLine("LinkAnnotation")
@@ -79,7 +79,7 @@ fun TextAccessibilityDemo() {
                     withLink(LinkAnnotation.Url("https://google.com")) { append("Google") }
                     append("\nThis word is not a link: google.com")
                 },
-            style = TextStyle(fontSize = fontSize8)
+            style = TextStyle(fontSize = fontSize8),
         )
     }
 }

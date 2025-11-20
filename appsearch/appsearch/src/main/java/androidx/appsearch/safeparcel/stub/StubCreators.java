@@ -32,7 +32,10 @@ import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResult.EmbeddingMatchInfo;
 import androidx.appsearch.app.SearchResult.MatchInfo;
+import androidx.appsearch.app.SearchResult.MatchRange;
+import androidx.appsearch.app.SearchResult.TextMatchInfo;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SearchSuggestionResult;
@@ -174,8 +177,20 @@ public class StubCreators {
     public static class SearchResultCreator extends AbstractCreator<SearchResult> {
     }
 
-    /** Stub creator for {@link androidx.appsearch.app.MatchInfo}. */
+    /** Stub creator for {@link androidx.appsearch.app.SearchResult.MatchInfo}. */
     public static class MatchInfoCreator extends AbstractCreator<MatchInfo> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchResult.TextMatchInfo}. */
+    public static class TextMatchInfoCreator extends AbstractCreator<TextMatchInfo> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchResult.EmbeddingMatchInfo}. */
+    public static class EmbeddingMatchInfoCreator extends AbstractCreator<EmbeddingMatchInfo> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SearchResult.MatchRange}. */
+    public static class MatchRangeCreator extends AbstractCreator<MatchRange> {
     }
 
     /** Stub creator for {@link androidx.appsearch.app.SearchResultPage}. */

@@ -2,18 +2,25 @@
 package androidx.core.telecom {
 
   public final class CallAttributesCompat {
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction);
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType);
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
     ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint);
-    method public android.net.Uri getAddress();
-    method public int getCallCapabilities();
-    method public int getCallType();
-    method public int getDirection();
-    method public CharSequence getDisplayName();
-    method public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint, optional Boolean? isLogExcluded);
+    ctor @BytecodeOnly public CallAttributesCompat(CharSequence!, android.net.Uri!, int, int, int, androidx.core.telecom.CallEndpointCompat!, Boolean!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public android.net.Uri getAddress();
+    method @InaccessibleFromKotlin public int getCallCapabilities();
+    method @InaccessibleFromKotlin public int getCallType();
+    method @InaccessibleFromKotlin public int getDirection();
+    method @InaccessibleFromKotlin public CharSequence getDisplayName();
+    method @InaccessibleFromKotlin public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
+    method @InaccessibleFromKotlin public Boolean? isLogExcluded();
     property public android.net.Uri address;
     property public int callCapabilities;
     property public int callType;
     property public int direction;
     property public CharSequence displayName;
+    property public Boolean? isLogExcluded;
     property public androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint;
     field public static final int CALL_TYPE_AUDIO_CALL = 1; // 0x1
     field public static final int CALL_TYPE_VIDEO_CALL = 2; // 0x2
@@ -35,12 +42,12 @@ package androidx.core.telecom {
     property public static int SUPPORTS_TRANSFER;
   }
 
-  public abstract sealed class CallControlResult {
+  public abstract sealed exhaustive class CallControlResult {
   }
 
   public static final class CallControlResult.Error extends androidx.core.telecom.CallControlResult {
     ctor public CallControlResult.Error(int errorCode);
-    method public int getErrorCode();
+    method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
   }
 
@@ -50,11 +57,13 @@ package androidx.core.telecom {
 
   public interface CallControlScope extends kotlinx.coroutines.CoroutineScope {
     method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
+    method public default kotlinx.coroutines.flow.Flow<java.lang.Integer> callTypeFlow();
     method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
-    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableEndpoints();
     method public android.os.ParcelUuid getCallId();
-    method public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> getCurrentCallEndpoint();
-    method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.core.telecom.CallEndpointCompat> getCurrentCallEndpoint();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
+    method public default suspend Object? requestCallType(int callType, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     method public suspend Object? requestEndpointChange(androidx.core.telecom.CallEndpointCompat endpoint, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     method public suspend Object? setActive(kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
     method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
@@ -66,9 +75,9 @@ package androidx.core.telecom {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpointCompat implements java.lang.Comparable<androidx.core.telecom.CallEndpointCompat> {
     ctor public CallEndpointCompat(CharSequence name, int type, android.os.ParcelUuid identifier);
     method public int compareTo(androidx.core.telecom.CallEndpointCompat other);
-    method public android.os.ParcelUuid getIdentifier();
-    method public CharSequence getName();
-    method public int getType();
+    method @InaccessibleFromKotlin public android.os.ParcelUuid getIdentifier();
+    method @InaccessibleFromKotlin public CharSequence getName();
+    method @InaccessibleFromKotlin public int getType();
     property public android.os.ParcelUuid identifier;
     property public CharSequence name;
     property public int type;
@@ -93,7 +102,8 @@ package androidx.core.telecom {
   public final class CallException extends java.lang.RuntimeException {
     ctor public CallException();
     ctor public CallException(optional int code);
-    method public int getCode();
+    ctor @BytecodeOnly public CallException(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getCode();
     property public int code;
     field public static final androidx.core.telecom.CallException.Companion Companion;
     field public static final int ERROR_BLUETOOTH_DEVICE_IS_NULL = 8; // 0x8
@@ -123,6 +133,8 @@ package androidx.core.telecom {
     method @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public suspend Object? addCallWithExtensions(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onAnswer, kotlin.jvm.functions.Function2<? super android.telecom.DisconnectCause,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onDisconnect, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onSetActive, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onSetInactive, kotlin.jvm.functions.Function2<? super androidx.core.telecom.extensions.ExtensionInitializationScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> init, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableStartingCallEndpoints();
     method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities, optional int backwardsCompatSdkLevel);
+    method @BytecodeOnly @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public static void registerAppWithTelecom$default(androidx.core.telecom.CallsManager!, int, int, int, Object!);
     field public static final int CAPABILITY_BASELINE = 1; // 0x1
     field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4
     field public static final int CAPABILITY_SUPPORTS_VIDEO_CALLING = 2; // 0x2
@@ -138,7 +150,7 @@ package androidx.core.telecom {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public class InCallServiceCompat extends android.telecom.InCallService implements androidx.core.telecom.extensions.CallExtensions androidx.lifecycle.LifecycleOwner {
     ctor public InCallServiceCompat();
     method @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public suspend Object? connectExtensions(android.telecom.Call call, kotlin.jvm.functions.Function1<? super androidx.core.telecom.extensions.CallExtensionScope,kotlin.Unit> init, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle getLifecycle();
     property public androidx.lifecycle.Lifecycle lifecycle;
   }
 
@@ -149,6 +161,7 @@ package androidx.core.telecom.extensions {
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface CallExtensionScope {
     method public androidx.core.telecom.extensions.CallIconExtensionRemote addCallIconSupport(kotlin.jvm.functions.Function2<? super android.net.Uri,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onCallIconChanged);
     method public androidx.core.telecom.extensions.LocalCallSilenceExtensionRemote addLocalCallSilenceExtension(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onIsLocallySilencedUpdated);
+    method public androidx.core.telecom.extensions.MeetingSummaryRemote addMeetingSummaryExtension(kotlin.jvm.functions.Function2<? super java.lang.CharSequence?,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onCurrentSpeakerChanged, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onParticipantCountChanged);
     method public androidx.core.telecom.extensions.ParticipantExtensionRemote addParticipantExtension(kotlin.jvm.functions.Function2<? super androidx.core.telecom.extensions.Participant?,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onActiveParticipantChanged, kotlin.jvm.functions.Function2<? super java.util.Set<? extends androidx.core.telecom.extensions.Participant>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onParticipantsUpdated);
     method public void onConnected(kotlin.jvm.functions.Function2<? super android.telecom.Call,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
   }
@@ -162,7 +175,7 @@ package androidx.core.telecom.extensions {
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface CallIconExtensionRemote {
-    method public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
     property public abstract boolean isSupported;
   }
 
@@ -173,14 +186,15 @@ package androidx.core.telecom.extensions {
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface ExtensionInitializationScope {
     method public androidx.core.telecom.extensions.CallIconExtension addCallIconExtension(android.net.Uri initialCallIconUri);
     method public androidx.core.telecom.extensions.LocalCallSilenceExtension addLocalCallSilenceExtension(boolean initialCallSilenceState, kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onLocalSilenceUpdate);
-    method public androidx.core.telecom.extensions.ParticipantExtension addParticipantExtension(optional java.util.Set<androidx.core.telecom.extensions.Participant> initialParticipants, optional androidx.core.telecom.extensions.Participant? initialActiveParticipant);
+    method public androidx.core.telecom.extensions.ParticipantExtension addParticipantExtension(optional java.util.List<androidx.core.telecom.extensions.Participant> initialParticipants, optional androidx.core.telecom.extensions.Participant? initialActiveParticipant);
+    method @BytecodeOnly public static androidx.core.telecom.extensions.ParticipantExtension! addParticipantExtension$default(androidx.core.telecom.extensions.ExtensionInitializationScope!, java.util.List!, androidx.core.telecom.extensions.Participant!, int, Object!);
     method public void onCall(kotlin.jvm.functions.Function2<? super androidx.core.telecom.CallControlScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onCall);
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface KickParticipantAction {
-    method public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
     method public suspend Object? requestKickParticipant(androidx.core.telecom.extensions.Participant participant, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
-    method public void setSupported(boolean);
+    method @InaccessibleFromKotlin public void setSupported(boolean);
     property public abstract boolean isSupported;
   }
 
@@ -189,15 +203,20 @@ package androidx.core.telecom.extensions {
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface LocalCallSilenceExtensionRemote {
-    method public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
     method public suspend Object? requestLocalCallSilenceUpdate(boolean isSilenced, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
+    property public abstract boolean isSupported;
+  }
+
+  @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface MeetingSummaryRemote {
+    method @InaccessibleFromKotlin public boolean isSupported();
     property public abstract boolean isSupported;
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public final class Participant {
     ctor public Participant(String id, CharSequence name);
-    method public String getId();
-    method public CharSequence getName();
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public CharSequence getName();
     property public String id;
     property public CharSequence name;
   }
@@ -205,21 +224,22 @@ package androidx.core.telecom.extensions {
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface ParticipantExtension {
     method public void addKickParticipantSupport(kotlin.jvm.functions.Function2<? super androidx.core.telecom.extensions.Participant,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onKickParticipant);
     method public androidx.core.telecom.extensions.RaiseHandState addRaiseHandSupport(optional java.util.List<androidx.core.telecom.extensions.Participant> initialRaisedHands, kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onHandRaisedChanged);
+    method @BytecodeOnly public static androidx.core.telecom.extensions.RaiseHandState! addRaiseHandSupport$default(androidx.core.telecom.extensions.ParticipantExtension!, java.util.List!, kotlin.jvm.functions.Function2!, int, Object!);
     method public suspend Object? updateActiveParticipant(androidx.core.telecom.extensions.Participant? participant, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? updateParticipants(java.util.Set<androidx.core.telecom.extensions.Participant> newParticipants, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? updateParticipants(java.util.List<androidx.core.telecom.extensions.Participant> newParticipants, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface ParticipantExtensionRemote {
     method public androidx.core.telecom.extensions.KickParticipantAction addKickParticipantAction();
     method public androidx.core.telecom.extensions.RaiseHandAction addRaiseHandAction(kotlin.jvm.functions.Function2<? super java.util.List<? extends androidx.core.telecom.extensions.Participant>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onRaisedHandsChanged);
-    method public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
     property public abstract boolean isSupported;
   }
 
   @SuppressCompatibility @androidx.core.telecom.util.ExperimentalAppActions public interface RaiseHandAction {
-    method public boolean isSupported();
+    method @InaccessibleFromKotlin public boolean isSupported();
     method public suspend Object? requestRaisedHandStateChange(boolean isRaised, kotlin.coroutines.Continuation<? super androidx.core.telecom.CallControlResult>);
-    method public void setSupported(boolean);
+    method @InaccessibleFromKotlin public void setSupported(boolean);
     property public abstract boolean isSupported;
   }
 
@@ -229,7 +249,7 @@ package androidx.core.telecom.extensions {
 
 }
 
-package androidx.core.telecom.util {
+package @SuppressCompatibility androidx.core.telecom.util {
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAppActions {
   }

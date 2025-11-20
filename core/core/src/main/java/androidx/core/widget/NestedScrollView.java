@@ -2414,13 +2414,9 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int height = getHeight();
             int xTranslation = 0;
             int yTranslation = Math.min(0, scrollY);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
-                    || Api21Impl.getClipToPadding(this)) {
+            if (getClipToPadding()) {
                 width -= getPaddingLeft() + getPaddingRight();
                 xTranslation += getPaddingLeft();
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && Api21Impl.getClipToPadding(this)) {
                 height -= getPaddingTop() + getPaddingBottom();
                 yTranslation += getPaddingTop();
             }
@@ -2437,13 +2433,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             int height = getHeight();
             int xTranslation = 0;
             int yTranslation = Math.max(getScrollRange(), scrollY) + height;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
-                    || Api21Impl.getClipToPadding(this)) {
+            if (getClipToPadding()) {
                 width -= getPaddingLeft() + getPaddingRight();
                 xTranslation += getPaddingLeft();
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && Api21Impl.getClipToPadding(this)) {
+            if (getClipToPadding()) {
                 height -= getPaddingTop() + getPaddingBottom();
                 yTranslation -= getPaddingBottom();
             }
@@ -2657,17 +2651,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         @Override
         public float getScaledScrollFactor() {
             return -getVerticalScrollFactorCompat();
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean getClipToPadding(ViewGroup viewGroup) {
-            return viewGroup.getClipToPadding();
         }
     }
 

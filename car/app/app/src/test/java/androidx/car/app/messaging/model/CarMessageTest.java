@@ -25,10 +25,12 @@ import androidx.car.app.model.CarText;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link CarMessage}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarMessageTest {
     /** Ensure the builder does not fail for the minimum set of required fields. */

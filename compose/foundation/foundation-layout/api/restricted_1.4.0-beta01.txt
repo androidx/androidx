@@ -74,8 +74,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class BoxKt {
-    method @androidx.compose.runtime.Composable public static inline void Box(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional boolean propagateMinConstraints, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Box(androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable public static inline void Box(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional boolean propagateMinConstraints, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rememberBoxMeasurePolicy(androidx.compose.ui.Alignment alignment, boolean propagateMinConstraints);
   }
 
@@ -122,8 +122,6 @@ package androidx.compose.foundation.layout {
   }
 
   public enum IntrinsicSize {
-    method public static androidx.compose.foundation.layout.IntrinsicSize valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.compose.foundation.layout.IntrinsicSize[] values();
     enum_constant public static final androidx.compose.foundation.layout.IntrinsicSize Max;
     enum_constant public static final androidx.compose.foundation.layout.IntrinsicSize Min;
   }
@@ -145,10 +143,10 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absolutePadding(androidx.compose.ui.Modifier, optional float left, optional float top, optional float right, optional float bottom);
     method @androidx.compose.runtime.Stable public static float calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @androidx.compose.runtime.Stable public static float calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional float start, optional float top, optional float end, optional float bottom);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional float horizontal, optional float vertical);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, float all);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, float all);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional float horizontal, optional float vertical);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional float start, optional float top, optional float end, optional float bottom);
   }
 
   @androidx.compose.runtime.Stable public interface PaddingValues {
@@ -222,8 +220,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class WindowInsetsKt {
-    method public static androidx.compose.foundation.layout.WindowInsets WindowInsets(optional int left, optional int top, optional int right, optional int bottom);
     method public static androidx.compose.foundation.layout.WindowInsets WindowInsets(optional float left, optional float top, optional float right, optional float bottom);
+    method public static androidx.compose.foundation.layout.WindowInsets WindowInsets(optional int left, optional int top, optional int right, optional int bottom);
     method public static androidx.compose.foundation.layout.WindowInsets add(androidx.compose.foundation.layout.WindowInsets, androidx.compose.foundation.layout.WindowInsets insets);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.foundation.layout.PaddingValues asPaddingValues(androidx.compose.foundation.layout.WindowInsets);
     method public static androidx.compose.foundation.layout.PaddingValues asPaddingValues(androidx.compose.foundation.layout.WindowInsets, androidx.compose.ui.unit.Density density);

@@ -93,7 +93,9 @@ import androidx.wear.compose.foundation.sizeIn
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
  *   needs to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
  *   [curvedRow] or [CurvedLayout] See [CurvedDirection.Angular].
- * @param overflow How visual overflow should be handled.
+ * @param overflow How visual overflow should be handled. Note that this takes into account only
+ *   explicit size curved modifiers in this element, to size this element matching the parent's, add
+ *   a CurvedModifier.weight here.
  */
 public fun CurvedScope.curvedText(
     text: String,
@@ -116,7 +118,7 @@ public fun CurvedScope.curvedText(
         text = text,
         modifier = modifier.sizeIn(maxSweepDegrees = maxSweepAngle),
         angularDirection = angularDirection,
-        overflow = overflow
+        overflow = overflow,
     ) {
         val baseStyle = style ?: MaterialTheme.typography.arcMedium
         val textColor =
@@ -131,7 +133,7 @@ public fun CurvedScope.curvedText(
                 fontSynthesis = fontSynthesis,
                 background = background,
                 letterSpacing = letterSpacing,
-                letterSpacingCounterClockwise = letterSpacingCounterClockwise
+                letterSpacingCounterClockwise = letterSpacingCounterClockwise,
             )
         )
     }
@@ -145,13 +147,13 @@ public object CurvedTextDefaults {
      * This is calculated by keeping the length of the corresponding chord on the circle to be
      * approximately 57% of the screen width.
      */
-    public const val ScrollableContentMaxSweepAngle: Float = 70f
+    public val ScrollableContentMaxSweepAngle: Float = 70f
 
     /**
      * The recommended maximum sweep angle in degrees used by [curvedText] for screens without
      * scrollable content.
      */
-    public const val StaticContentMaxSweepAngle: Float = 120f
+    public val StaticContentMaxSweepAngle: Float = 120f
 
     /**
      * The recommended background color to use when displaying curved text so it is visible on top

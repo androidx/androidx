@@ -100,7 +100,7 @@ import java.time.temporal.TemporalAdjusters
 public fun TimePicker(
     onTimeConfirm: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
-    time: LocalTime = LocalTime.now()
+    time: LocalTime = LocalTime.now(),
 ) {
     val fullyDrawn = remember { Animatable(0f) }
 
@@ -158,7 +158,7 @@ public fun TimePicker(
         Box(modifier = modifier.fillMaxSize().alpha(fullyDrawn.value)) {
             Column(
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -187,11 +187,11 @@ public fun TimePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.HOURS,
-                                    FocusableElementsTimePicker.MINUTES
+                                    FocusableElementsTimePicker.MINUTES,
                                 )
                             },
                             contentDescription = hourContentDescription,
-                            option = pickerOption
+                            option = pickerOption,
                         ),
                         PickerGroupItem(
                             pickerState = minuteState,
@@ -199,11 +199,11 @@ public fun TimePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.MINUTES,
-                                    FocusableElementsTimePicker.SECONDS
+                                    FocusableElementsTimePicker.SECONDS,
                                 )
                             },
                             contentDescription = minuteContentDescription,
-                            option = pickerOption
+                            option = pickerOption,
                         ),
                         PickerGroupItem(
                             pickerState = secondState,
@@ -211,16 +211,16 @@ public fun TimePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.SECONDS,
-                                    FocusableElementsTimePicker.CONFIRM_BUTTON
+                                    FocusableElementsTimePicker.CONFIRM_BUTTON,
                                 )
                             },
                             contentDescription = secondContentDescription,
-                            option = pickerOption
+                            option = pickerOption,
                         ),
                         pickerGroupState = pickerGroupState,
                         separator = { Separator(6.dp, textStyle) },
                         autoCenter = false,
-                        touchExplorationStateProvider = touchExplorationStateProvider
+                        touchExplorationStateProvider = touchExplorationStateProvider,
                     )
                 }
                 Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
@@ -230,7 +230,7 @@ public fun TimePicker(
                             LocalTime.of(
                                 hourState.selectedOption,
                                 minuteState.selectedOption,
-                                secondState.selectedOption
+                                secondState.selectedOption,
                             )
                         onTimeConfirm(confirmedTime)
                     },
@@ -241,7 +241,7 @@ public fun TimePicker(
                                         FocusableElementsTimePicker.CONFIRM_BUTTON.index
                             }
                             .focusRequester(focusRequesterConfirmButton)
-                            .focusable()
+                            .focusable(),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
@@ -273,7 +273,7 @@ public fun TimePicker(
 public fun TimePickerWith12HourClock(
     onTimeConfirm: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
-    time: LocalTime = LocalTime.now()
+    time: LocalTime = LocalTime.now(),
 ) {
     val fullyDrawn = remember { Animatable(0f) }
 
@@ -288,7 +288,7 @@ public fun TimePickerWith12HourClock(
     val hourState =
         rememberPickerState(
             initialNumberOfOptions = 12,
-            initiallySelectedOption = time[ChronoField.CLOCK_HOUR_OF_AMPM] - 1
+            initiallySelectedOption = time[ChronoField.CLOCK_HOUR_OF_AMPM] - 1,
         )
     val minuteState =
         rememberPickerState(initialNumberOfOptions = 60, initiallySelectedOption = time.minute)
@@ -296,7 +296,7 @@ public fun TimePickerWith12HourClock(
         rememberPickerState(
             initialNumberOfOptions = 2,
             initiallySelectedOption = time[ChronoField.AMPM_OF_DAY],
-            repeatItems = false
+            repeatItems = false,
         )
 
     val touchExplorationStateProvider = remember { DefaultTouchExplorationStateProvider() }
@@ -337,7 +337,7 @@ public fun TimePickerWith12HourClock(
             Column(
                 modifier = modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(12.dp))
                 Text(
@@ -349,14 +349,14 @@ public fun TimePickerWith12HourClock(
                         },
                     color = MaterialTheme.colors.secondary,
                     style = MaterialTheme.typography.button,
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 val weightsToCenterVertically = 0.5f
                 Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     val doubleTapToNext =
                         { current: FocusableElement12Hour, next: FocusableElement12Hour ->
@@ -379,11 +379,11 @@ public fun TimePickerWith12HourClock(
                             onSelected = {
                                 doubleTapToNext(
                                     FocusableElement12Hour.HOURS,
-                                    FocusableElement12Hour.MINUTES
+                                    FocusableElement12Hour.MINUTES,
                                 )
                             },
                             contentDescription = hoursContentDescription,
-                            option = pickerTextOption(textStyle) { "%02d".format(it + 1) }
+                            option = pickerTextOption(textStyle) { "%02d".format(it + 1) },
                         ),
                         PickerGroupItem(
                             pickerState = minuteState,
@@ -391,11 +391,11 @@ public fun TimePickerWith12HourClock(
                             onSelected = {
                                 doubleTapToNext(
                                     FocusableElement12Hour.MINUTES,
-                                    FocusableElement12Hour.PERIOD
+                                    FocusableElement12Hour.PERIOD,
                                 )
                             },
                             contentDescription = minutesContentDescription,
-                            option = pickerTextOption(textStyle) { "%02d".format(it) }
+                            option = pickerTextOption(textStyle) { "%02d".format(it) },
                         ),
                         PickerGroupItem(
                             pickerState = periodState,
@@ -404,11 +404,11 @@ public fun TimePickerWith12HourClock(
                             onSelected = {
                                 doubleTapToNext(
                                     FocusableElement12Hour.PERIOD,
-                                    FocusableElement12Hour.CONFIRM_BUTTON
+                                    FocusableElement12Hour.CONFIRM_BUTTON,
                                 )
                             },
                             option =
-                                pickerTextOption(textStyle) { if (it == 0) amString else pmString }
+                                pickerTextOption(textStyle) { if (it == 0) amString else pmString },
                         ),
                         autoCenter = false,
                         pickerGroupState = pickerGroupState,
@@ -417,7 +417,7 @@ public fun TimePickerWith12HourClock(
                                 Separator(2.dp, textStyle)
                             } else Spacer(Modifier.width(12.dp))
                         },
-                        touchExplorationStateProvider = touchExplorationStateProvider
+                        touchExplorationStateProvider = touchExplorationStateProvider,
                     )
                 }
                 Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
@@ -427,7 +427,7 @@ public fun TimePickerWith12HourClock(
                             LocalTime.of(
                                     hourState.selectedOption + 1,
                                     minuteState.selectedOption,
-                                    0
+                                    0,
                                 )
                                 .with(ChronoField.AMPM_OF_DAY, periodState.selectedOption.toLong())
                         onTimeConfirm(confirmedTime)
@@ -439,12 +439,12 @@ public fun TimePickerWith12HourClock(
                                         FocusableElement12Hour.CONFIRM_BUTTON.index
                             }
                             .focusRequester(focusRequesterConfirmButton)
-                            .focusable()
+                            .focusable(),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "confirm",
-                        modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center)
+                        modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                     )
                 }
                 Spacer(Modifier.height(8.dp))
@@ -475,7 +475,7 @@ public fun DatePicker(
     modifier: Modifier = Modifier,
     date: LocalDate = LocalDate.now(),
     fromDate: LocalDate? = null,
-    toDate: LocalDate? = null
+    toDate: LocalDate? = null,
 ) {
     val fullyDrawn = remember { Animatable(0f) }
 
@@ -524,7 +524,7 @@ public fun DatePicker(
 
         LaunchedEffect(
             datePickerState.yearState.selectedOption,
-            datePickerState.monthState.selectedOption
+            datePickerState.monthState.selectedOption,
         ) {
             if (datePickerState.numOfMonths != datePickerState.monthState.numberOfOptions) {
                 datePickerState.monthState.numberOfOptions = datePickerState.numOfMonths
@@ -544,7 +544,7 @@ public fun DatePicker(
                     createDescriptionDatePicker(
                         pickerGroupState,
                         datePickerState.currentYear(),
-                        yearString
+                        yearString,
                     )
                 }
             }
@@ -564,7 +564,7 @@ public fun DatePicker(
                     createDescriptionDatePicker(
                         pickerGroupState,
                         datePickerState.currentDay(),
-                        dayString
+                        dayString,
                     )
                 }
             }
@@ -572,7 +572,7 @@ public fun DatePicker(
             val boxConstraints = this
             Column(
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -585,7 +585,7 @@ public fun DatePicker(
                         },
                     color = optionColor,
                     style = MaterialTheme.typography.button,
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 val weightsToCenterVertically = 0.5f
                 Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
@@ -618,11 +618,11 @@ public fun DatePicker(
                                     spacerWidth,
                                     numberOfSpacers,
                                     touchExplorationServicesEnabled,
-                                    pickerGroupState
+                                    pickerGroupState,
                                 )
                             ),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     PickerGroup(
                         PickerGroupItem(
@@ -632,13 +632,13 @@ public fun DatePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementDatePicker.DAY,
-                                    FocusableElementDatePicker.MONTH
+                                    FocusableElementDatePicker.MONTH,
                                 )
                             },
                             option =
                                 pickerTextOption(textStyle) {
                                     "%d".format(datePickerState.currentDay(it))
-                                }
+                                },
                         ),
                         PickerGroupItem(
                             pickerState = datePickerState.monthState,
@@ -646,14 +646,14 @@ public fun DatePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementDatePicker.MONTH,
-                                    FocusableElementDatePicker.YEAR
+                                    FocusableElementDatePicker.YEAR,
                                 )
                             },
                             contentDescription = monthContentDescription,
                             option =
                                 pickerTextOption(textStyle) {
                                     shortMonthNames[(datePickerState.currentMonth(it) - 1) % 12]
-                                }
+                                },
                         ),
                         PickerGroupItem(
                             pickerState = datePickerState.yearState,
@@ -661,19 +661,19 @@ public fun DatePicker(
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementDatePicker.YEAR,
-                                    FocusableElementDatePicker.CONFIRM_BUTTON
+                                    FocusableElementDatePicker.CONFIRM_BUTTON,
                                 )
                             },
                             contentDescription = yearContentDescription,
                             option =
                                 pickerTextOption(textStyle) {
                                     "%4d".format(datePickerState.currentYear(it))
-                                }
+                                },
                         ),
                         pickerGroupState = pickerGroupState,
                         autoCenter = true,
                         separator = { Spacer(modifier = Modifier.width(spacerWidth)) },
-                        touchExplorationStateProvider = touchExplorationStateProvider
+                        touchExplorationStateProvider = touchExplorationStateProvider,
                     )
                 }
                 Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
@@ -691,14 +691,14 @@ public fun DatePicker(
                         ) {
                             onPickerSelected(
                                 FocusableElementDatePicker.DAY,
-                                FocusableElementDatePicker.MONTH
+                                FocusableElementDatePicker.MONTH,
                             )
                         } else if (
                             pickerGroupState.selectedIndex == FocusableElementDatePicker.MONTH.index
                         ) {
                             onPickerSelected(
                                 FocusableElementDatePicker.MONTH,
-                                FocusableElementDatePicker.YEAR
+                                FocusableElementDatePicker.YEAR,
                             )
                         }
                     },
@@ -709,7 +709,7 @@ public fun DatePicker(
                                         FocusableElementDatePicker.CONFIRM_BUTTON.index
                             }
                             .focusRequester(focusRequesterConfirmButton)
-                            .focusable()
+                            .focusable(),
                 ) {
                     Icon(
                         imageVector =
@@ -718,7 +718,7 @@ public fun DatePicker(
                             else Icons.Filled.Check,
                         contentDescription =
                             if (pickerGroupState.selectedIndex < 2) "next" else "confirm",
-                        modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center)
+                        modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                     )
                 }
                 Spacer(Modifier.height(12.dp))
@@ -740,7 +740,7 @@ private fun getPickerGroupRowOffset(
     spacerWidth: Dp,
     numberOfSpacers: Int,
     touchExplorationServicesEnabled: Boolean,
-    pickerGroupState: PickerGroupState
+    pickerGroupState: PickerGroupState,
 ): Dp {
     // Calculates the extra offset named currentOffset because the total content width is more than
     // the screen width
@@ -777,7 +777,7 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         text = ":",
         style = textStyle,
         color = MaterialTheme.colors.onBackground,
-        modifier = Modifier.clearAndSetSemantics {}
+        modifier = Modifier.clearAndSetSemantics {},
     )
     Spacer(Modifier.width(width))
 }
@@ -793,7 +793,7 @@ fun PickerWithoutGradient() {
             modifier = Modifier.size(100.dp, 100.dp),
             gradientRatio = 0.0f,
             contentDescription = contentDescription,
-            state = state
+            state = state,
         ) {
             Text(items[it])
         }
@@ -802,7 +802,7 @@ fun PickerWithoutGradient() {
 
 private fun pickerTextOption(
     textStyle: TextStyle,
-    indexToText: (Int) -> String
+    indexToText: (Int) -> String,
 ): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) =
     { value: Int, pickerSelected: Boolean ->
         Box(modifier = Modifier.fillMaxSize()) {
@@ -813,7 +813,7 @@ private fun pickerTextOption(
                 color =
                     if (pickerSelected) MaterialTheme.colors.secondary
                     else MaterialTheme.colors.onBackground,
-                modifier = Modifier.align(Alignment.Center).wrapContentSize()
+                modifier = Modifier.align(Alignment.Center).wrapContentSize(),
             )
         }
     }
@@ -821,7 +821,7 @@ private fun pickerTextOption(
 private fun createDescription(
     pickerGroupState: PickerGroupState,
     selectedValue: Int,
-    label: String
+    label: String,
 ): String {
     return when (pickerGroupState.selectedIndex) {
         FocusableElementsTimePicker.NONE.index -> label
@@ -837,7 +837,7 @@ private fun createDescription(
 private fun createDescription12Hour(
     pickerGroupState: PickerGroupState,
     selectedValue: Int,
-    label: String
+    label: String,
 ): String {
     return when (pickerGroupState.selectedIndex) {
         FocusableElement12Hour.NONE.index -> label
@@ -853,7 +853,7 @@ private fun createDescription12Hour(
 private fun createDescriptionDatePicker(
     pickerGroupState: PickerGroupState,
     selectedValue: Int,
-    label: String
+    label: String,
 ): String {
     return when (pickerGroupState.selectedIndex) {
         FocusableElementDatePicker.NONE.index -> label
@@ -879,14 +879,14 @@ internal class DatePickerState
 constructor(
     private val date: LocalDate,
     private val fromDate: LocalDate?,
-    private val toDate: LocalDate?
+    private val toDate: LocalDate?,
 ) {
     private val yearOffset = fromDate?.year ?: 1
     val numOfYears = (toDate?.year ?: 3000) - (yearOffset - 1)
     val yearState =
         PickerState(
             initialNumberOfOptions = numOfYears,
-            initiallySelectedOption = date.year - yearOffset
+            initiallySelectedOption = date.year - yearOffset,
         )
     val selectedYearEqualsFromYear: Boolean
         get() = (yearState.selectedOption == 0)
@@ -906,7 +906,7 @@ constructor(
     val monthState =
         PickerState(
             initialNumberOfOptions = numOfMonths,
-            initiallySelectedOption = date.monthValue - monthOffset
+            initiallySelectedOption = date.monthValue - monthOffset,
         )
     val selectedMonthEqualsFromMonth: Boolean
         get() = (selectedYearEqualsFromYear && monthState.selectedOption == 0)
@@ -936,7 +936,7 @@ constructor(
     val dayState =
         PickerState(
             initialNumberOfOptions = numOfDays,
-            initiallySelectedOption = date.dayOfMonth - dayOffset
+            initiallySelectedOption = date.dayOfMonth - dayOffset,
         )
 
     fun currentYear(year: Int = yearState.selectedOption): Int {
@@ -973,7 +973,7 @@ private class DefaultTouchExplorationStateProvider : TouchExplorationStateProvid
                     listener.register(accessibilityManager)
                 }
             },
-            onDispose = { listener.unregister(accessibilityManager) }
+            onDispose = { listener.unregister(accessibilityManager) },
         )
 
         return remember { derivedStateOf { listener.isEnabled() } }
@@ -982,7 +982,7 @@ private class DefaultTouchExplorationStateProvider : TouchExplorationStateProvid
     @Composable
     private fun Lifecycle.ObserveState(
         handleEvent: (Lifecycle.Event) -> Unit = {},
-        onDispose: () -> Unit = {}
+        onDispose: () -> Unit = {},
     ) {
         DisposableEffect(this) {
             val observer = LifecycleEventObserver { _, event -> handleEvent(event) }

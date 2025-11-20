@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.concurrent.futures {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
@@ -6,8 +6,8 @@ package androidx.concurrent.futures {
     method public final void addListener(Runnable!, java.util.concurrent.Executor!);
     method protected void afterDone();
     method public final boolean cancel(boolean);
-    method public final V! get(long, java.util.concurrent.TimeUnit!) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
     method public final V! get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
+    method public final V! get(long, java.util.concurrent.TimeUnit!) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
     method protected void interruptTask();
     method public final boolean isCancelled();
     method public final boolean isDone();

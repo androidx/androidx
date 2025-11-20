@@ -56,7 +56,7 @@ import androidx.compose.ui.spatial.RelativeLayoutBounds
 fun DelegatableNode.registerOnGlobalLayoutListener(
     throttleMillis: Long,
     debounceMillis: Long,
-    callback: (RelativeLayoutBounds) -> Unit
+    callback: (RelativeLayoutBounds) -> Unit,
 ): RegistrationHandle {
     val layoutNode = requireLayoutNode()
     val id = layoutNode.semanticsId
@@ -66,6 +66,6 @@ fun DelegatableNode.registerOnGlobalLayoutListener(
         throttleMillis = throttleMillis,
         debounceMillis = debounceMillis,
         node = node,
-        callback = callback
+        callback = callback,
     )
 }

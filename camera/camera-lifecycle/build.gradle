@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -37,9 +37,11 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.tracing:tracing-ktx:1.2.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("androidx.arch.core:core-common:2.2.0")
+    implementation(libs.androidx.annotation)
 
     annotationProcessor(libs.autoValue)
 
@@ -52,22 +54,50 @@ dependencies {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
+    androidTestImplementation(project(":camera:camera-camera2"))
+    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
+    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(project(":camera:camera-video"))
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
+    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+        // Ensure camera-camera2 is not pulled in as it may lead to manifest merge conflict
+        exclude(module:"camera-camera2")
+    }
+    testImplementation("org.robolectric:annotations:4.14")
+    testImplementation("org.robolectric:shadowapi:4.14")
+    testImplementation("org.robolectric:shadows-framework:4.14")
+    testImplementation(libs.guavaAndroid)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesCore)
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.lifecycle"
 }
 
@@ -79,5 +109,5 @@ androidx {
     description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-    samples(project(":camera:camera-lifecycle:camera-lifecycle-samples"))
+    enableRobolectric()
 }

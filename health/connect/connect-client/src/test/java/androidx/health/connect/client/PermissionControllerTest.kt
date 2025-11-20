@@ -48,7 +48,7 @@ class PermissionControllerTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED)
+                setOf(HealthPermission.READ_ACTIVE_CALORIES_BURNED),
             )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -63,7 +63,7 @@ class PermissionControllerTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE)
+                setOf(HealthPermission.WRITE_STEPS, HealthPermission.READ_DISTANCE),
             )
 
         assertThat(intent.action).isEqualTo(RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS)

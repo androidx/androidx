@@ -129,7 +129,7 @@ class ChildInflatedFragmentActivity : FragmentActivity() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             ComposeView(requireContext()).apply {
                 setContent { AndroidViewBinding(TestFragmentLayoutBinding::inflate) }

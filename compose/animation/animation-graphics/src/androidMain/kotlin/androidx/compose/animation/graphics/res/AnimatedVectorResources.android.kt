@@ -49,7 +49,7 @@ public fun AnimatedImageVector.Companion.animatedVectorResource(
 internal fun loadAnimatedVectorResource(
     theme: Resources.Theme? = null,
     res: Resources,
-    resId: Int
+    resId: Int,
 ): AnimatedImageVector {
     val parser = res.getXml(resId).seekToStartTag()
     val attrs = Xml.asAttributeSet(parser)

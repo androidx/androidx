@@ -43,7 +43,7 @@ interface TraversableNode : DelegatableNode {
         enum class TraverseDescendantsAction {
             ContinueTraversal,
             SkipSubtreeAndContinueTraversal,
-            CancelTraversal
+            CancelTraversal,
         }
     }
 }
@@ -63,7 +63,8 @@ fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
 fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
     visitAncestors(Nodes.Traversable) {
         if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
-            @Suppress("UNCHECKED_CAST") return it as T
+            @Suppress("UNCHECKED_CAST")
+            return it as T
         }
     }
     return null
@@ -169,7 +170,7 @@ fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
  */
 fun DelegatableNode.traverseDescendants(
     key: Any?,
-    block: (TraversableNode) -> TraverseDescendantsAction
+    block: (TraversableNode) -> TraverseDescendantsAction,
 ) {
     visitSubtreeIf(Nodes.Traversable) {
         val action =

@@ -43,9 +43,7 @@ import androidx.ink.nativeloader.UsedByNative
  */
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class PartitionedMesh
-/** Only for use within the ink library. Constructs a [PartitionedMesh] from native pointer. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
+private constructor(
     /**
      * This is the raw pointer address of an `ink::PartitionedMesh` that has been heap allocated to
      * be owned solely by this JVM [PartitionedMesh] object. Although the `ink::PartitionedMesh` is
@@ -54,14 +52,8 @@ public constructor(
      * ownership of the more heavyweight `ink::Mesh` objects. This class is responsible for freeing
      * the `ink::PartitionedMesh` through its [finalize] method.
      */
-    private var nativeAddress: Long
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long
 ) {
-
-    /**
-     * Only for use within the ink library. Returns the native pointer held by this
-     * [PartitionedMesh].
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getNativeAddress(): Long = nativeAddress
 
     private val scratchIntArray by threadLocal { IntArray(2) }
 
@@ -69,7 +61,7 @@ public constructor(
      * Only for tests - creates a new empty [PartitionedMesh]. Since a [PartitionedMesh] is
      * immutable, this serves no practical purpose outside of tests.
      */
-    @VisibleForTesting internal constructor() : this(PartitionedMeshNative.alloc())
+    @VisibleForTesting internal constructor() : this(PartitionedMeshNative.create())
 
     /**
      * Returns the number of render groups in this mesh. Each outline in the [PartitionedMesh]
@@ -78,41 +70,35 @@ public constructor(
      */
     @IntRange(from = 0)
     public fun getRenderGroupCount(): Int =
-        PartitionedMeshNative.getRenderGroupCount(nativeAddress).also { check(it >= 0) }
+        PartitionedMeshNative.getRenderGroupCount(nativePointer).also { check(it >= 0) }
 
     /** The [Mesh] objects that make up this shape. */
-    private val meshesByGroup: List<List<Mesh>> = buildList {
-        for (groupIndex in 0 until getRenderGroupCount()) {
-            val nativeAddressesOfMeshes =
-                PartitionedMeshNative.getNativeAddressesOfMeshes(nativeAddress, groupIndex)
-            add(nativeAddressesOfMeshes.map(::Mesh))
+    private val meshesByGroup: List<List<Mesh>> =
+        (0 until getRenderGroupCount()).map { groupIndex ->
+            PartitionedMeshNative.newCopiesOfMeshes(nativePointer, groupIndex).map(Mesh::wrapNative)
+        }
+
+    private val bounds: Box? by lazy {
+        if (meshesByGroup.isEmpty()) {
+            null
+        } else {
+            BoxAccumulator()
+                .apply {
+                    for (meshes in meshesByGroup) {
+                        for (mesh in meshes) {
+                            add(mesh.bounds)
+                        }
+                    }
+                }
+                .box
         }
     }
-
-    private var _bounds: Box? = null
 
     /**
      * Returns the minimum bounding box of the [PartitionedMesh]. This will be null if the
      * [PartitionedMesh] is empty.
      */
-    public fun computeBoundingBox(): Box? {
-        // If we've already computed the bounding box, re-use it -- it won't change over the
-        // lifetime of
-        // this object.
-        if (_bounds != null) return _bounds
-
-        // If we have no meshes, then the bounding box is null.
-        if (meshesByGroup.isEmpty()) return null
-
-        val envelope = BoxAccumulator()
-        for (meshes in meshesByGroup) {
-            for (mesh in meshes) {
-                envelope.add(mesh.bounds)
-            }
-        }
-        _bounds = envelope.box
-        return envelope.box
-    }
+    public fun computeBoundingBox(): Box? = bounds
 
     /** Returns the [MeshFormat] used for each [Mesh] in the specified render group. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
@@ -120,7 +106,9 @@ public constructor(
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
             "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
         }
-        return MeshFormat(PartitionedMeshNative.getRenderGroupFormat(nativeAddress, groupIndex))
+        return MeshFormat.wrapNative(
+            PartitionedMeshNative.getRenderGroupFormat(nativePointer, groupIndex)
+        )
     }
 
     /**
@@ -147,7 +135,7 @@ public constructor(
         require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
             "groupIndex=$groupIndex must be between 0 and getRenderGroupCount()=${getRenderGroupCount()}"
         }
-        return PartitionedMeshNative.getOutlineCount(nativeAddress, groupIndex).also {
+        return PartitionedMeshNative.getOutlineCount(nativePointer, groupIndex).also {
             check(it >= 0)
         }
     }
@@ -164,7 +152,7 @@ public constructor(
         require(outlineIndex >= 0 && outlineIndex < getOutlineCount(groupIndex)) {
             "outlineIndex=$outlineIndex must be between 0 and getOutlineCount=${getOutlineCount(groupIndex)}"
         }
-        return PartitionedMeshNative.getOutlineVertexCount(nativeAddress, groupIndex, outlineIndex)
+        return PartitionedMeshNative.getOutlineVertexCount(nativePointer, groupIndex, outlineIndex)
             .also { check(it >= 0) }
     }
 
@@ -187,7 +175,7 @@ public constructor(
                 "outlineVertexCount($outlineVertexIndex)=$outlineVertexCount"
         }
         PartitionedMeshNative.fillOutlineMeshIndexAndMeshVertexIndex(
-            nativeAddress,
+            nativePointer,
             groupIndex,
             outlineIndex,
             outlineVertexIndex,
@@ -222,7 +210,7 @@ public constructor(
         triangleToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         PartitionedMeshNative.partitionedMeshTriangleCoverage(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             triangleP0X = triangle.p0.x,
             triangleP0Y = triangle.p0.y,
             triangleP1X = triangle.p1.x,
@@ -259,7 +247,7 @@ public constructor(
         boxToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         PartitionedMeshNative.partitionedMeshBoxCoverage(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             boxXMin = box.xMin,
             boxYMin = box.yMin,
             boxXMax = box.xMax,
@@ -295,13 +283,13 @@ public constructor(
         parallelogramToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         PartitionedMeshNative.partitionedMeshParallelogramCoverage(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             parallelogramCenterX = parallelogram.center.x,
             parallelogramCenterY = parallelogram.center.y,
             parallelogramWidth = parallelogram.width,
             parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
+            parallelogramAngleInRadian = parallelogram.rotationDegrees,
+            parallelogramShearFactor = parallelogram.skew,
             parallelogramToThisTransformA = parallelogramToThis.m00,
             parallelogramToThisTransformB = parallelogramToThis.m10,
             parallelogramToThisTransformC = parallelogramToThis.m20,
@@ -333,8 +321,8 @@ public constructor(
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         PartitionedMeshNative.partitionedMeshPartitionedMeshCoverage(
-            thisShapeNativeAddress = nativeAddress,
-            otherShapeNativeAddress = other.nativeAddress,
+            nativePointer = nativePointer,
+            otherShapeNativePointer = other.nativePointer,
             otherShapeToThisTransformA = otherShapeToThis.m00,
             otherShapeToThisTransformB = otherShapeToThis.m10,
             otherShapeToThisTransformC = otherShapeToThis.m20,
@@ -367,7 +355,7 @@ public constructor(
         triangleToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Boolean =
         PartitionedMeshNative.partitionedMeshTriangleCoverageIsGreaterThan(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             triangleP0X = triangle.p0.x,
             triangleP0Y = triangle.p0.y,
             triangleP1X = triangle.p1.x,
@@ -406,7 +394,7 @@ public constructor(
         boxToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Boolean =
         PartitionedMeshNative.partitionedMeshBoxCoverageIsGreaterThan(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             boxXMin = box.xMin,
             boxYMin = box.yMin,
             boxXMax = box.xMax,
@@ -444,13 +432,13 @@ public constructor(
         parallelogramToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Boolean =
         PartitionedMeshNative.partitionedMeshParallelogramCoverageIsGreaterThan(
-            nativeAddress = nativeAddress,
+            nativePointer = nativePointer,
             parallelogramCenterX = parallelogram.center.x,
             parallelogramCenterY = parallelogram.center.y,
             parallelogramWidth = parallelogram.width,
             parallelogramHeight = parallelogram.height,
-            parallelogramAngleInRadian = parallelogram.rotation,
-            parallelogramShearFactor = parallelogram.shearFactor,
+            parallelogramAngleInRadian = parallelogram.rotationDegrees,
+            parallelogramShearFactor = parallelogram.skew,
             coverageThreshold = coverageThreshold,
             parallelogramToThisTransformA = parallelogramToThis.m00,
             parallelogramToThisTransformB = parallelogramToThis.m10,
@@ -484,8 +472,8 @@ public constructor(
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Boolean =
         PartitionedMeshNative.partitionedMeshPartitionedMeshCoverageIsGreaterThan(
-            thisShapeNativeAddress = nativeAddress,
-            otherShapeNativeAddress = other.nativeAddress,
+            nativePointer = nativePointer,
+            otherShapeNativePointer = other.nativePointer,
             coverageThreshold = coverageThreshold,
             otherShapeToThisTransformA = otherShapeToThis.m00,
             otherShapeToThisTransformB = otherShapeToThis.m10,
@@ -501,59 +489,68 @@ public constructor(
      * initialized in real time to satisfy that query.
      */
     public fun initializeSpatialIndex(): Unit =
-        PartitionedMeshNative.initializeSpatialIndex(nativeAddress)
+        PartitionedMeshNative.initializeSpatialIndex(nativePointer)
 
     /** Returns true if this MutableEnvelope's spatial index has been initialized. */
     @VisibleForTesting
     internal fun isSpatialIndexInitialized(): Boolean =
-        PartitionedMeshNative.isSpatialIndexInitialized(nativeAddress)
+        PartitionedMeshNative.isSpatialIndexInitialized(nativePointer)
 
     override fun toString(): String {
-        val address = java.lang.Long.toHexString(nativeAddress)
-        return "PartitionedMesh(bounds=${computeBoundingBox()}, meshesByGroup=$meshesByGroup, nativeAddress=$address)"
+        val address = java.lang.Long.toHexString(nativePointer)
+        return "PartitionedMesh(bounds=${computeBoundingBox()}, meshesByGroup=$meshesByGroup, " +
+            "nativePointer=$address)"
     }
 
+    // NOMUTANTS -- Not tested post garbage collection.
     protected fun finalize() {
-        // NOMUTANTS--Not tested post garbage collection.
-        if (nativeAddress == 0L) return
-        PartitionedMeshNative.free(nativeAddress)
-        nativeAddress = 0L
+        // Note that the instance becomes finalizable at the conclusion of the Object constructor,
+        // which
+        // in Kotlin is always before any non-default field initialization has been done by a
+        // derived
+        // class constructor.
+        if (nativePointer == 0L) return
+        PartitionedMeshNative.free(nativePointer)
     }
 
     /** Declared as a target for extension functions. */
-    public companion object
+    public companion object {
+        /**
+         * Construct a [PartitionedMesh] from an unowned heap-allocated native pointer to a C++
+         * `PartitionedMesh`.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): PartitionedMesh =
+            PartitionedMesh(unownedNativePointer)
+    }
 }
 
-/**
- * Helper object to contain native JNI calls. The alternative to this is putting the methods in
- * [PartitionedMesh] itself (passes down an unused `jobject`, and doesn't work for native calls used
- * by constructors), or in [PartitionedMesh.Companion] (makes the `JNI_METHOD` naming less clear).
- */
+/** Helper object to contain native JNI calls. */
+@UsedByNative
 private object PartitionedMeshNative {
 
     init {
         NativeLoader.load()
     }
 
-    @UsedByNative external fun alloc(): Long
+    @UsedByNative external fun create(): Long
 
-    @UsedByNative external fun free(nativeAddress: Long)
+    @UsedByNative external fun free(nativePointer: Long)
+
+    @UsedByNative external fun newCopiesOfMeshes(nativePointer: Long, groupIndex: Int): LongArray
+
+    @UsedByNative external fun getRenderGroupCount(nativePointer: Long): Int
+
+    @UsedByNative external fun getRenderGroupFormat(nativePointer: Long, groupIndex: Int): Long
+
+    @UsedByNative external fun getOutlineCount(nativePointer: Long, groupIndex: Int): Int
 
     @UsedByNative
-    external fun getNativeAddressesOfMeshes(nativeAddress: Long, groupIndex: Int): LongArray
-
-    @UsedByNative external fun getRenderGroupCount(nativeAddress: Long): Int
-
-    @UsedByNative external fun getRenderGroupFormat(nativeAddress: Long, groupIndex: Int): Long
-
-    @UsedByNative external fun getOutlineCount(nativeAddress: Long, groupIndex: Int): Int
-
-    @UsedByNative
-    external fun getOutlineVertexCount(nativeAddress: Long, groupIndex: Int, outlineIndex: Int): Int
+    external fun getOutlineVertexCount(nativePointer: Long, groupIndex: Int, outlineIndex: Int): Int
 
     @UsedByNative
     external fun fillOutlineMeshIndexAndMeshVertexIndex(
-        nativeAddress: Long,
+        nativePointer: Long,
         groupIndex: Int,
         outlineIndex: Int,
         outlineVertexIndex: Int,
@@ -566,7 +563,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshTriangleCoverage(
-        nativeAddress: Long,
+        nativePointer: Long,
         triangleP0X: Float,
         triangleP0Y: Float,
         triangleP1X: Float,
@@ -587,7 +584,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshBoxCoverage(
-        nativeAddress: Long,
+        nativePointer: Long,
         boxXMin: Float,
         boxYMin: Float,
         boxXMax: Float,
@@ -606,7 +603,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshParallelogramCoverage(
-        nativeAddress: Long,
+        nativePointer: Long,
         parallelogramCenterX: Float,
         parallelogramCenterY: Float,
         parallelogramWidth: Float,
@@ -626,8 +623,8 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshPartitionedMeshCoverage(
-        thisShapeNativeAddress: Long,
-        otherShapeNativeAddress: Long,
+        nativePointer: Long,
+        otherShapeNativePointer: Long,
         otherShapeToThisTransformA: Float,
         otherShapeToThisTransformB: Float,
         otherShapeToThisTransformC: Float,
@@ -642,7 +639,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshTriangleCoverageIsGreaterThan(
-        nativeAddress: Long,
+        nativePointer: Long,
         triangleP0X: Float,
         triangleP0Y: Float,
         triangleP1X: Float,
@@ -664,7 +661,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshBoxCoverageIsGreaterThan(
-        nativeAddress: Long,
+        nativePointer: Long,
         boxXMin: Float,
         boxYMin: Float,
         boxXMax: Float,
@@ -684,7 +681,7 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshParallelogramCoverageIsGreaterThan(
-        nativeAddress: Long,
+        nativePointer: Long,
         parallelogramCenterX: Float,
         parallelogramCenterY: Float,
         parallelogramWidth: Float,
@@ -706,8 +703,8 @@ private object PartitionedMeshNative {
      */
     @UsedByNative
     external fun partitionedMeshPartitionedMeshCoverageIsGreaterThan(
-        thisShapeNativeAddress: Long,
-        otherShapeNativeAddress: Long,
+        nativePointer: Long,
+        otherShapeNativePointer: Long,
         coverageThreshold: Float,
         otherShapeToThisTransformA: Float,
         otherShapeToThisTransformB: Float,
@@ -717,7 +714,7 @@ private object PartitionedMeshNative {
         otherShapeToThisTransformF: Float,
     ): Boolean
 
-    @UsedByNative external fun initializeSpatialIndex(nativeAddress: Long)
+    @UsedByNative external fun initializeSpatialIndex(nativePointer: Long)
 
-    @UsedByNative external fun isSpatialIndexInitialized(nativeAddress: Long): Boolean
+    @UsedByNative external fun isSpatialIndexInitialized(nativePointer: Long): Boolean
 }

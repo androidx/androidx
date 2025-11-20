@@ -1,0 +1,66 @@
+// Signature format: 4.0
+package androidx.car.app.testing {
+
+  public class FakeHost {
+    method public void performNotificationActionClick(android.app.PendingIntent);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void setMicrophoneInputData(java.io.InputStream);
+  }
+
+  public class ScreenController {
+    ctor public ScreenController(androidx.car.app.Screen);
+    method public androidx.car.app.Screen getScreen();
+    method public Object? getScreenResult();
+    method public java.util.List<androidx.car.app.model.Template!> getTemplatesReturned();
+    method public androidx.car.app.testing.ScreenController moveToState(androidx.lifecycle.Lifecycle.State);
+    method public void reset();
+  }
+
+  public class SessionController {
+    ctor public SessionController(androidx.car.app.Session, androidx.car.app.testing.TestCarContext, android.content.Intent);
+    method public androidx.car.app.Session getSession();
+    method public androidx.car.app.testing.SessionController moveToState(androidx.lifecycle.Lifecycle.State);
+  }
+
+  public class TestAppManager extends androidx.car.app.AppManager {
+    method public androidx.car.app.SurfaceCallback? getSurfaceCallback();
+    method public java.util.List<android.util.Pair<androidx.car.app.Screen!,androidx.car.app.model.Template!>!> getTemplatesReturned();
+    method public java.util.List<java.lang.CharSequence!> getToastsShown();
+    method public void reset();
+  }
+
+  public class TestCarContext extends androidx.car.app.CarContext {
+    method public static androidx.car.app.testing.TestCarContext createCarContext(android.content.Context);
+    method public androidx.car.app.testing.FakeHost getFakeHost();
+    method public androidx.car.app.testing.TestCarContext.PermissionRequestInfo? getLastPermissionRequestInfo();
+    method public java.util.List<android.content.Intent!> getStartCarAppIntents();
+    method public boolean hasCalledFinishCarApp();
+    method public void reset();
+  }
+
+  public static class TestCarContext.PermissionRequestInfo {
+    method public androidx.car.app.OnRequestPermissionsListener getListener();
+    method public java.util.List<java.lang.String!> getPermissionsRequested();
+  }
+
+  public class TestScreenManager extends androidx.car.app.ScreenManager {
+    method public java.util.List<androidx.car.app.Screen!> getScreensPushed();
+    method public java.util.List<androidx.car.app.Screen!> getScreensRemoved();
+    method public boolean hasScreens();
+    method public void reset();
+  }
+
+}
+
+package androidx.car.app.testing.navigation {
+
+  public class TestNavigationManager extends androidx.car.app.navigation.NavigationManager {
+    ctor public TestNavigationManager(androidx.car.app.testing.TestCarContext, androidx.car.app.HostDispatcher);
+    method public int getNavigationEndedCount();
+    method public androidx.car.app.navigation.NavigationManagerCallback? getNavigationManagerCallback();
+    method public int getNavigationStartedCount();
+    method public java.util.List<androidx.car.app.navigation.model.Trip!> getTripsSent();
+    method public void reset();
+  }
+
+}
+

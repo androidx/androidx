@@ -51,7 +51,7 @@ class RemoteMediatorAccessorTest {
             pages = listOf(),
             anchorPosition = anchorPosition,
             config = PagingConfig(10),
-            leadingPlaceholderCount = COUNT_UNDEFINED
+            leadingPlaceholderCount = COUNT_UNDEFINED,
         )
     }
 
@@ -138,7 +138,7 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.Loading,
                         prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete
+                        append = LoadState.NotLoading.Incomplete,
                     )
                 )
 
@@ -151,7 +151,7 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.Loading,
                         prepend = LoadState.Loading,
-                        append = LoadState.Loading
+                        append = LoadState.Loading,
                     )
                 )
 
@@ -164,23 +164,20 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.Loading,
                         prepend = LoadState.Loading,
-                        append = LoadState.Loading
+                        append = LoadState.Loading,
                     )
                 )
 
             // Now wait until all queued requests finish running
             advanceUntilIdle()
             assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(PREPEND, secondState),
-                    LoadEvent(APPEND, secondState),
-                )
+                .containsExactly(LoadEvent(PREPEND, secondState), LoadEvent(APPEND, secondState))
             assertThat(remoteMediatorAccessor.state.value)
                 .isEqualTo(
                     LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete
+                        append = LoadState.NotLoading.Incomplete,
                     )
                 )
         }
@@ -200,10 +197,7 @@ class RemoteMediatorAccessorTest {
             // Single runner should prevent append from triggering, but it should still be queued.
             remoteMediatorAccessor.requestLoad(APPEND, firstState)
             advanceTimeBy(50)
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(PREPEND, firstState),
-                )
+            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(PREPEND, firstState))
 
             // Launch refresh, which should cancel running boundary calls
             remoteMediatorAccessor.requestLoad(REFRESH, firstState)
@@ -213,10 +207,7 @@ class RemoteMediatorAccessorTest {
             // Let refresh finish, retrying cancelled boundary calls
             advanceUntilIdle()
             assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(PREPEND, firstState),
-                    LoadEvent(APPEND, firstState),
-                )
+                .containsExactly(LoadEvent(PREPEND, firstState), LoadEvent(APPEND, firstState))
         }
 
     @Test
@@ -247,10 +238,7 @@ class RemoteMediatorAccessorTest {
             remoteMediatorAccessor.requestLoad(REFRESH, firstState)
             advanceUntilIdle()
             // Boundary calls should be queued, but not started.
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(REFRESH, firstState),
-                )
+            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
             // Although boundary calls are queued, they should not trigger or update LoadState since
             // they are waiting for refresh to succeed.
             assertThat(remoteMediatorAccessor.state.value)
@@ -258,7 +246,7 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.Error(LOAD_ERROR),
                         prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete
+                        append = LoadState.NotLoading.Incomplete,
                     )
                 )
 
@@ -276,7 +264,7 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete
+                        append = LoadState.NotLoading.Incomplete,
                     )
                 )
         }
@@ -313,7 +301,7 @@ class RemoteMediatorAccessorTest {
                     LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete
+                        append = LoadState.NotLoading.Complete,
                     )
                 )
         }
@@ -333,10 +321,7 @@ class RemoteMediatorAccessorTest {
             )
 
             // Start a PREPEND load.
-            remoteMediatorAccessor.requestLoad(
-                loadType = PREPEND,
-                pagingState = emptyState,
-            )
+            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
 
             // Assert state is immediately set to Loading.
             assertEquals(
@@ -357,10 +342,7 @@ class RemoteMediatorAccessorTest {
             remoteMediator.loadCallback = { _, _ ->
                 RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
             }
-            remoteMediatorAccessor.requestLoad(
-                loadType = PREPEND,
-                pagingState = emptyState,
-            )
+            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
 
             // Wait for load to finish.
             advanceUntilIdle()
@@ -387,10 +369,7 @@ class RemoteMediatorAccessorTest {
             )
 
             // Start a APPEND load.
-            remoteMediatorAccessor.requestLoad(
-                loadType = APPEND,
-                pagingState = emptyState,
-            )
+            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
 
             // Assert state is immediately set to Loading.
             assertEquals(
@@ -411,10 +390,7 @@ class RemoteMediatorAccessorTest {
             remoteMediator.loadCallback = { _, _ ->
                 RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
             }
-            remoteMediatorAccessor.requestLoad(
-                loadType = APPEND,
-                pagingState = emptyState,
-            )
+            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
 
             // Wait for load to finish.
             advanceUntilIdle()
@@ -434,12 +410,12 @@ class RemoteMediatorAccessorTest {
 
             remoteMediatorAccessor.requestLoad(
                 loadType = PREPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             remoteMediatorAccessor.requestLoad(
                 loadType = PREPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             // Assert that exactly one load request was started.
@@ -461,12 +437,12 @@ class RemoteMediatorAccessorTest {
 
             remoteMediatorAccessor.requestLoad(
                 loadType = APPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             remoteMediatorAccessor.requestLoad(
                 loadType = APPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             // Assert that exactly one load request was started.
@@ -488,12 +464,12 @@ class RemoteMediatorAccessorTest {
 
             remoteMediatorAccessor.requestLoad(
                 loadType = REFRESH,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             remoteMediatorAccessor.requestLoad(
                 loadType = REFRESH,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
             )
 
             // Assert that exactly one load request was started.
@@ -518,7 +494,7 @@ class RemoteMediatorAccessorTest {
 
                     override suspend fun load(
                         loadType: LoadType,
-                        state: PagingState<Int, Int>
+                        state: PagingState<Int, Int>,
                     ): MediatorResult {
                         if (!loading.compareAndSet(false, true)) fail("Concurrent load")
 
@@ -555,9 +531,9 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 ),
-                remoteMediatorAccessor.state.value
+                remoteMediatorAccessor.state.value,
             )
 
             // Wait for all outstanding / queued jobs to finish.
@@ -568,17 +544,14 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     append = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.NotLoading.Incomplete
+                    prepend = LoadState.NotLoading.Incomplete,
                 ),
-                remoteMediatorAccessor.state.value
+                remoteMediatorAccessor.state.value,
             )
 
             // Queued boundary requests should be triggered, even though they are out-of-date.
             assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(PREPEND, emptyState),
-                    LoadEvent(APPEND, emptyState),
-                )
+                .containsExactly(LoadEvent(PREPEND, emptyState), LoadEvent(APPEND, emptyState))
         }
 
     @Test
@@ -592,7 +565,7 @@ class RemoteMediatorAccessorTest {
 
                     override suspend fun load(
                         loadType: LoadType,
-                        state: PagingState<Int, Int>
+                        state: PagingState<Int, Int>,
                     ): MediatorResult {
                         if (!loading.compareAndSet(false, true)) fail("Concurrent load")
 
@@ -688,10 +661,7 @@ class RemoteMediatorAccessorTest {
         testScope.advanceUntilIdle()
         // queued append/prepend should be executed afterwards.
         assertThat(remoteMediatorMock.newLoadEvents)
-            .containsExactly(
-                LoadEvent(APPEND, appendState),
-                LoadEvent(PREPEND, prependState),
-            )
+            .containsExactly(LoadEvent(APPEND, appendState), LoadEvent(PREPEND, prependState))
 
         val otherPrependState = createMockState()
         val otherAppendState = createMockState()
@@ -761,7 +731,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.NotLoading.Incomplete,
-                    append = LoadState.Loading
+                    append = LoadState.Loading,
                 )
             )
         assertThat(remoteMediatorMock.newLoadEvents)
@@ -776,7 +746,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     prepend = LoadState.NotLoading.Incomplete,
-                    append = LoadState.Loading
+                    append = LoadState.Loading,
                 )
             )
         // advance enough to complete refresh
@@ -792,7 +762,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.NotLoading.Incomplete,
-                    append = LoadState.NotLoading.Incomplete
+                    append = LoadState.NotLoading.Incomplete,
                 )
             )
 
@@ -807,7 +777,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.Loading,
-                    append = LoadState.Loading
+                    append = LoadState.Loading,
                 )
             )
         assertThat(remoteMediatorMock.newLoadEvents).containsExactly(LoadEvent(APPEND, appendState))
@@ -818,7 +788,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.Loading,
-                    append = LoadState.NotLoading.Incomplete
+                    append = LoadState.NotLoading.Incomplete,
                 )
             )
         assertThat(remoteMediatorMock.newLoadEvents)
@@ -840,7 +810,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.Error(exception),
-                    append = LoadState.NotLoading.Incomplete
+                    append = LoadState.NotLoading.Incomplete,
                 )
             )
         // now complete append, a.k.a. endOfPaginationReached
@@ -858,7 +828,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.Error(exception),
-                    append = LoadState.NotLoading.Complete
+                    append = LoadState.NotLoading.Complete,
                 )
             )
         // clear events
@@ -872,7 +842,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.Error(exception),
-                    append = LoadState.NotLoading.Complete
+                    append = LoadState.NotLoading.Complete,
                 )
             )
         val refreshState = createMockState()
@@ -884,7 +854,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     prepend = LoadState.Error(exception),
-                    append = LoadState.NotLoading.Complete
+                    append = LoadState.NotLoading.Complete,
                 )
             )
         testScope.advanceUntilIdle()
@@ -972,7 +942,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         testScope.advanceUntilIdle()
@@ -981,14 +951,14 @@ class RemoteMediatorAccessorTest {
             .containsExactly(
                 LoadEvent(REFRESH, initialState),
                 LoadEvent(PREPEND, initialState),
-                LoadEvent(APPEND, initialState)
+                LoadEvent(APPEND, initialState),
             )
         assertThat(accessor.state.value)
             .isEqualTo(
                 LoadStates(
                     refresh = LoadState.Error(exception),
                     append = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.Error(exception)
+                    prepend = LoadState.Error(exception),
                 )
             )
     }
@@ -1019,7 +989,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         testScope.advanceUntilIdle()
@@ -1032,7 +1002,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
                     append = LoadState.Error(exception),
-                    prepend = LoadState.Error(exception)
+                    prepend = LoadState.Error(exception),
                 )
             )
     }
@@ -1060,7 +1030,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         // let refresh start but don't let it finish
@@ -1071,7 +1041,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Error(exception),
                     append = LoadState.Error(exception),
-                    prepend = LoadState.Error(exception)
+                    prepend = LoadState.Error(exception),
                 )
             )
         // let requests succeed
@@ -1083,7 +1053,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.NotLoading.Incomplete
+                    prepend = LoadState.NotLoading.Incomplete,
                 )
             )
     }
@@ -1115,7 +1085,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         // let refresh start but don't let it finish
@@ -1126,7 +1096,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Loading,
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         // let refresh fail, it should retry append prepend
@@ -1136,7 +1106,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Error(exception),
                     append = LoadState.Loading,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         // let the prepend retry start
@@ -1146,7 +1116,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Error(exception),
                     append = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.Loading
+                    prepend = LoadState.Loading,
                 )
             )
         testScope.advanceUntilIdle()
@@ -1155,7 +1125,7 @@ class RemoteMediatorAccessorTest {
                 LoadStates(
                     refresh = LoadState.Error(exception),
                     append = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.NotLoading.Incomplete
+                    prepend = LoadState.NotLoading.Incomplete,
                 )
             )
     }

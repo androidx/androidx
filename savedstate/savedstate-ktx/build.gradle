@@ -22,18 +22,16 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":savedstate:savedstate"))
-    api(libs.kotlinStdlib)
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
@@ -46,7 +44,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

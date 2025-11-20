@@ -26,17 +26,15 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
     implementation(project(":core:core-performance"))
 
 
     testImplementation(libs.testCore)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

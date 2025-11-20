@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager: FragmentManager) {
     private class FragmentLifecycleCallbacksHolder(
         val callback: FragmentManager.FragmentLifecycleCallbacks,
-        val recursive: Boolean
+        val recursive: Boolean,
     )
 
     private val lifecycleCallbacks = CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>()
@@ -38,7 +38,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
      */
     fun registerFragmentLifecycleCallbacks(
         cb: FragmentManager.FragmentLifecycleCallbacks,
-        recursive: Boolean
+        recursive: Boolean,
     ) {
         lifecycleCallbacks.add(FragmentLifecycleCallbacksHolder(cb, recursive))
     }
@@ -95,7 +95,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
     fun dispatchOnFragmentPreCreated(
         f: Fragment,
         savedInstanceState: Bundle?,
-        onlyRecursive: Boolean
+        onlyRecursive: Boolean,
     ) {
         val parent = fragmentManager.parent
         if (parent != null) {
@@ -103,7 +103,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
             parentManager.lifecycleCallbacksDispatcher.dispatchOnFragmentPreCreated(
                 f,
                 savedInstanceState,
-                true
+                true,
             )
         }
         for (holder in lifecycleCallbacks) {
@@ -116,7 +116,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
     fun dispatchOnFragmentCreated(
         f: Fragment,
         savedInstanceState: Bundle?,
-        onlyRecursive: Boolean
+        onlyRecursive: Boolean,
     ) {
         val parent = fragmentManager.parent
         if (parent != null) {
@@ -124,7 +124,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
             parentManager.lifecycleCallbacksDispatcher.dispatchOnFragmentCreated(
                 f,
                 savedInstanceState,
-                true
+                true,
             )
         }
         for (holder in lifecycleCallbacks) {
@@ -138,7 +138,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
     fun dispatchOnFragmentActivityCreated(
         f: Fragment,
         savedInstanceState: Bundle?,
-        onlyRecursive: Boolean
+        onlyRecursive: Boolean,
     ) {
         val parent = fragmentManager.parent
         if (parent != null) {
@@ -146,7 +146,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
             parentManager.lifecycleCallbacksDispatcher.dispatchOnFragmentActivityCreated(
                 f,
                 savedInstanceState,
-                true
+                true,
             )
         }
         for (holder in lifecycleCallbacks) {
@@ -160,7 +160,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
         f: Fragment,
         v: View,
         savedInstanceState: Bundle?,
-        onlyRecursive: Boolean
+        onlyRecursive: Boolean,
     ) {
         val parent = fragmentManager.parent
         if (parent != null) {
@@ -169,7 +169,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
                 f,
                 v,
                 savedInstanceState,
-                true
+                true,
             )
         }
         for (holder in lifecycleCallbacks) {
@@ -238,7 +238,7 @@ internal class FragmentLifecycleCallbacksDispatcher(private val fragmentManager:
             parentManager.lifecycleCallbacksDispatcher.dispatchOnFragmentSaveInstanceState(
                 f,
                 outState,
-                true
+                true,
             )
         }
         for (holder in lifecycleCallbacks) {

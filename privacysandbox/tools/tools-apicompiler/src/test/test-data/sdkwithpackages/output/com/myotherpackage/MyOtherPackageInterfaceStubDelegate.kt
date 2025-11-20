@@ -21,8 +21,7 @@ public class MyOtherPackageInterfaceStubDelegate internal constructor(
     }
   }
 
-  public override fun useDataClass(x: ParcelableMyOtherPackageDataClass,
-      transactionCallback: IUnitTransactionCallback) {
+  public override fun useDataClass(x: ParcelableMyOtherPackageDataClass, transactionCallback: IUnitTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))

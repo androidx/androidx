@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -33,7 +33,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout, { transitive = true })
     implementation(project(":arch:core:core-runtime"))
     implementation(project(":appcompat:appcompat"))

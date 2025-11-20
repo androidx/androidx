@@ -16,13 +16,16 @@
 
 package androidx.xr.compose.subspace.node
 
+import androidx.xr.compose.subspace.layout.DelegatableSubspaceNode
 import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
 
 /**
- * A [SubspaceModifier.Node] whose [onLayoutCoordinates] callback is invoked when the layout
+ * A [DelegatableSubspaceNode] whose [onLayoutCoordinates] callback is invoked when the layout
  * coordinates of the layout node may have changed.
+ *
+ * @see [androidx.xr.compose.subspace.layout.onGloballyPositioned]
  */
-public interface LayoutCoordinatesAwareModifierNode {
+public interface LayoutCoordinatesAwareModifierNode : DelegatableSubspaceNode {
     /**
      * Called with the final [SubspaceLayoutCoordinates] of the layout node after placement. The
      * coordinates value may or may not have changed since the last callback.

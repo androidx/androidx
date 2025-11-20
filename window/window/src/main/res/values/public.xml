@@ -44,4 +44,5 @@
     <public name="embeddingDividerColor" type="attr" />
     <public name="dragRangeMinRatio" type="attr" />
     <public name="dragRangeMaxRatio" type="attr" />
+    <public name="isDraggingToFullscreenAllowed" type="attr" />
 </resources>

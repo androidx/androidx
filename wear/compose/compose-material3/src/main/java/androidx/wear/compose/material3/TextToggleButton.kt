@@ -47,12 +47,11 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  *
  * Set the size of the [TextToggleButton] with Modifier.[touchTargetAwareSize] to ensure that the
  * background padding will correctly reach the edge of the minimum touch target. The recommended
- * [TextToggleButton] sizes are [TextToggleButtonDefaults.DefaultButtonSize],
- * [TextToggleButtonDefaults.LargeButtonSize] and [TextToggleButtonDefaults.ExtraLargeButtonSize].
- * The recommended text styles for each corresponding button size are
- * [TextToggleButtonDefaults.defaultButtonTextStyle],
- * [TextToggleButtonDefaults.largeButtonTextStyle] and
- * [TextToggleButtonDefaults.extraLargeButtonTextStyle].
+ * [TextToggleButton] sizes are [TextToggleButtonDefaults.Size],
+ * [TextToggleButtonDefaults.LargeSize] and [TextToggleButtonDefaults.ExtraLargeSize]. The
+ * recommended text styles for each corresponding button size are
+ * [TextToggleButtonDefaults.textStyle], [TextToggleButtonDefaults.largeTextStyle] and
+ * [TextToggleButtonDefaults.extraLargeTextStyle].
  *
  * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to click
  * events. When enabled, the checked and unchecked events are propagated by [onCheckedChange].
@@ -92,7 +91,7 @@ public fun TextToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: TextToggleButtonColors = TextToggleButtonDefaults.textToggleButtonColors(),
+    colors: TextToggleButtonColors = TextToggleButtonDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
     shapes: TextToggleButtonShapes = TextToggleButtonDefaults.shapes(),
     border: BorderStroke? = null,
@@ -107,7 +106,7 @@ public fun TextToggleButton(
             onPressAnimationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
             onReleaseAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
             checked = checked,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
 
     ToggleButton(
@@ -119,7 +118,7 @@ public fun TextToggleButton(
             colors.containerColor(enabled = isEnabled, checked = isChecked)
         },
         border = { _, _ -> border },
-        toggleButtonSize = TextToggleButtonDefaults.DefaultButtonSize,
+        toggleButtonSize = TextToggleButtonDefaults.Size,
         interactionSource = finalInteractionSource,
         shape = finalShape,
         ripple = ripple(),
@@ -127,8 +126,8 @@ public fun TextToggleButton(
             provideScopeContent(
                 colors.contentColor(enabled = enabled, checked = checked),
                 TextToggleButtonTokens.ContentDefaultFont.value,
-                content
-            )
+                content,
+            ),
     )
 }
 
@@ -151,77 +150,84 @@ public object TextToggleButtonDefaults {
      * The default size applied for text toggle buttons. It is recommended to apply this size using
      * [Modifier.touchTargetAwareSize].
      */
-    public val DefaultButtonSize: Dp = TextToggleButtonTokens.ContainerDefaultSize
+    public val Size: Dp = TextToggleButtonTokens.ContainerDefaultSize
 
     /**
      * The recommended size for a large text toggle button. It is recommended to apply this size
      * using [Modifier.touchTargetAwareSize].
      */
-    public val LargeButtonSize: Dp = TextToggleButtonTokens.ContainerLargeSize
+    public val LargeSize: Dp = TextToggleButtonTokens.ContainerLargeSize
 
     /**
      * The recommended size for an extra large text toggle button. It is recommended to apply this
      * size using [Modifier.touchTargetAwareSize].
      */
-    public val ExtraLargeButtonSize: Dp = TextToggleButtonTokens.ContainerExtraLargeSize
+    public val ExtraLargeSize: Dp = TextToggleButtonTokens.ContainerExtraLargeSize
 
     /** The default text style applied for text toggle buttons. */
-    public val defaultButtonTextStyle: TextStyle
+    public val textStyle: TextStyle
         @ReadOnlyComposable @Composable get() = TextToggleButtonTokens.ContentDefaultFont.value
 
     /** The recommended text style for a large text toggle button. */
-    public val largeButtonTextStyle: TextStyle
+    public val largeTextStyle: TextStyle
         @ReadOnlyComposable @Composable get() = TextToggleButtonTokens.ContentLargeFont.value
 
     /** The recommended text style for an extra large text toggle button. */
-    public val extraLargeButtonTextStyle: TextStyle
+    public val extraLargeTextStyle: TextStyle
         @ReadOnlyComposable @Composable get() = TextToggleButtonTokens.ContentExtraLargeFont.value
 
-    /** Creates a [TextToggleButtonShapes] with a static [shape]. */
-    @Composable public fun shapes(): TextToggleButtonShapes = MaterialTheme.shapes.defaultShapes
+    /**
+     * Returns the default [TextToggleButtonShapes] for a [TextToggleButton] with a static shape.
+     */
+    @Composable
+    public fun shapes(): TextToggleButtonShapes = MaterialTheme.shapes.defaultTextToggleButtonShapes
 
     /**
-     * Creates a [TextToggleButtonShapes] with a static [shape].
+     * Returns a [TextToggleButtonShapes] for a [TextToggleButton] with a static shape.
      *
      * @param shape The normal shape of the TextToggleButton.
      */
     @Composable
-    public fun shapes(
-        shape: Shape? = null,
-    ): TextToggleButtonShapes = MaterialTheme.shapes.defaultShapes.copy(uncheckedShape = shape)
+    public fun shapes(shape: Shape): TextToggleButtonShapes =
+        MaterialTheme.shapes.defaultTextToggleButtonShapes.copy(uncheckedShape = shape)
 
     /**
-     * Creates a [Shape] with a animation between two CornerBasedShapes.
+     * Returns the default [TextToggleButtonShapes] with an animation between two CornerBasedShapes
+     * when pressed.
      *
      * A simple text toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
      */
     @Composable
-    public fun animatedShapes(): TextToggleButtonShapes = MaterialTheme.shapes.defaultAnimatedShapes
+    public fun animatedShapes(): TextToggleButtonShapes =
+        MaterialTheme.shapes.defaultTextToggleButtonAnimatedShapes
 
     /**
-     * Creates a [Shape] with a animation between two CornerBasedShapes.
+     * Returns a [TextToggleButtonShapes] with an animation between two CornerBasedShapes when
+     * pressed.
      *
      * A simple text toggle button using the default colors, animated when pressed.
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonSample
-     * @param shape The normal shape of the TextToggleButton.
-     * @param pressedShape The pressed shape of the TextToggleButton.
+     * @param shape The normal shape of the TextToggleButton - if null, the default
+     *   [TextToggleButtonDefaults.shape] is used.
+     * @param pressedShape The pressed shape of the TextToggleButton if null, the default
+     *   [TextToggleButtonDefaults.pressedShape] is used.
      */
     @Composable
     public fun animatedShapes(
         shape: CornerBasedShape? = null,
         pressedShape: CornerBasedShape? = null,
     ): TextToggleButtonShapes =
-        MaterialTheme.shapes.defaultAnimatedShapes.copy(
+        MaterialTheme.shapes.defaultTextToggleButtonAnimatedShapes.copy(
             uncheckedShape = shape,
-            uncheckedPressedShape = pressedShape
+            uncheckedPressedShape = pressedShape,
         )
 
     /**
-     * Creates a [Shape] with an animation between three [CornerSize]s based on the pressed state
-     * and checked/unchecked.
+     * Returns the default [TextToggleButtonShapes] with an animation between three [CornerSize]s
+     * based on the pressed state and checked/unchecked.
      *
      * A simple text toggle button using the default colors, animated on Press and Check/Uncheck:
      *
@@ -229,44 +235,46 @@ public object TextToggleButtonDefaults {
      */
     @Composable
     public fun variantAnimatedShapes(): TextToggleButtonShapes =
-        MaterialTheme.shapes.defaultVariantAnimatedShapes
+        MaterialTheme.shapes.defaultTextToggleButtonVariantAnimatedShapes
 
     /**
-     * Creates a [Shape] with an animation between three [CornerSize]s based on the pressed state
-     * and checked/unchecked.
+     * Returns a [TextToggleButtonShapes] with an animation between three [CornerSize]s based on the
+     * pressed state and checked/unchecked.
      *
      * A simple text toggle button using the default colors, animated on Press and Check/Uncheck:
      *
      * @sample androidx.wear.compose.material3.samples.TextToggleButtonVariantSample
-     * @param uncheckedShape the unchecked shape.
-     * @param checkedShape the checked shape.
+     * @param uncheckedShape the unchecked shape - if null, the default
+     *   [TextToggleButtonDefaults.shape] is used.
+     * @param checkedShape the checked shape - if null, the default
+     *   [TextToggleButtonDefaults.checkedShape] is used.
      */
     @Composable
     public fun variantAnimatedShapes(
         uncheckedShape: CornerBasedShape? = null,
-        checkedShape: CornerBasedShape? = null
+        checkedShape: CornerBasedShape? = null,
     ): TextToggleButtonShapes =
-        MaterialTheme.shapes.defaultVariantAnimatedShapes.copy(
+        MaterialTheme.shapes.defaultTextToggleButtonVariantAnimatedShapes.copy(
             uncheckedShape = uncheckedShape,
             checkedShape = checkedShape,
             uncheckedPressedShape =
                 uncheckedShape?.fractionalRoundedCornerShape(PressedShapeCornerSizeFraction),
             checkedPressedShape =
-                checkedShape?.fractionalRoundedCornerShape(PressedShapeCornerSizeFraction)
+                checkedShape?.fractionalRoundedCornerShape(PressedShapeCornerSizeFraction),
         )
 
     /**
-     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
+     * Returns a [TextToggleButtonColors] for a [TextToggleButton]
      * - by default, a colored background with a contrasting content color. If the button is
      *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
      *   [DisabledContentAlpha]) value applied.
      */
     @Composable
-    public fun textToggleButtonColors(): TextToggleButtonColors =
+    public fun colors(): TextToggleButtonColors =
         MaterialTheme.colorScheme.defaultTextToggleButtonColors
 
     /**
-     * Creates a [TextToggleButtonColors] for a [TextToggleButton]
+     * Returns a [TextToggleButtonColors] for a [TextToggleButton]
      * - by default, a colored background with a contrasting content color. If the button is
      *   disabled, then the colors will have an alpha ([DisabledContainerAlpha] or
      *   [DisabledContentAlpha]) value applied.
@@ -289,7 +297,7 @@ public object TextToggleButtonDefaults {
      *   unchecked and not enabled
      */
     @Composable
-    public fun textToggleButtonColors(
+    public fun colors(
         checkedContainerColor: Color = Color.Unspecified,
         checkedContentColor: Color = Color.Unspecified,
         uncheckedContainerColor: Color = Color.Unspecified,
@@ -310,7 +318,7 @@ public object TextToggleButtonDefaults {
             disabledUncheckedContentColor = disabledUncheckedContentColor,
         )
 
-    internal val Shapes.defaultShapes: TextToggleButtonShapes
+    internal val Shapes.defaultTextToggleButtonShapes: TextToggleButtonShapes
         @Composable
         get() {
             return defaultTextToggleButtonShapesCached
@@ -319,18 +327,18 @@ public object TextToggleButtonDefaults {
                 }
         }
 
-    internal val Shapes.defaultAnimatedShapes: TextToggleButtonShapes
+    internal val Shapes.defaultTextToggleButtonAnimatedShapes: TextToggleButtonShapes
         @Composable
         get() {
             return defaultTextToggleButtonAnimatedShapesCached
                 ?: TextToggleButtonShapes(
                         uncheckedShape = shape,
-                        uncheckedPressedShape = pressedShape
+                        uncheckedPressedShape = pressedShape,
                     )
                     .also { defaultTextToggleButtonAnimatedShapesCached = it }
         }
 
-    internal val Shapes.defaultVariantAnimatedShapes: TextToggleButtonShapes
+    internal val Shapes.defaultTextToggleButtonVariantAnimatedShapes: TextToggleButtonShapes
         @Composable
         get() {
             return defaultTextToggleButtonVariantAnimatedShapesCached
@@ -342,7 +350,7 @@ public object TextToggleButtonDefaults {
                         checkedPressedShape =
                             checkedShape.fractionalRoundedCornerShape(
                                 PressedShapeCornerSizeFraction
-                            )
+                            ),
                     )
                     .also { defaultTextToggleButtonVariantAnimatedShapesCached = it }
         }
@@ -482,7 +490,7 @@ public class TextToggleButtonColors(
             uncheckedColor = uncheckedContainerColor,
             disabledCheckedColor = disabledCheckedContainerColor,
             disabledUncheckedColor = disabledUncheckedContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -500,7 +508,7 @@ public class TextToggleButtonColors(
             uncheckedColor = uncheckedContentColor,
             disabledCheckedColor = disabledCheckedContentColor,
             disabledUncheckedColor = disabledUncheckedContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -551,9 +559,9 @@ public class TextToggleButtonColors(
  */
 public class TextToggleButtonShapes(
     public val uncheckedShape: Shape,
-    public val checkedShape: Shape? = null,
-    public val uncheckedPressedShape: Shape? = null,
-    public val checkedPressedShape: Shape? = uncheckedPressedShape
+    public val checkedShape: Shape = uncheckedShape,
+    public val uncheckedPressedShape: Shape = uncheckedShape,
+    public val checkedPressedShape: Shape = uncheckedPressedShape,
 ) {
     public fun copy(
         uncheckedShape: Shape? = this.uncheckedShape,
@@ -565,7 +573,7 @@ public class TextToggleButtonShapes(
             uncheckedShape = uncheckedShape ?: this.uncheckedShape,
             checkedShape = checkedShape ?: this.checkedShape,
             uncheckedPressedShape = uncheckedPressedShape ?: this.uncheckedPressedShape,
-            checkedPressedShape = checkedPressedShape ?: this.checkedPressedShape
+            checkedPressedShape = checkedPressedShape ?: this.checkedPressedShape,
         )
 
     override fun equals(other: Any?): Boolean {

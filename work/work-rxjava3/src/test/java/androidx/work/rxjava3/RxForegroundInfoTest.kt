@@ -85,7 +85,7 @@ private class WorkerSetForeground(appContext: Context, workerParams: WorkerParam
 private fun createWorkerParams(
     executor: Executor = SynchronousExecutor(),
     progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
-    foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
+    foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java),
 ) =
     WorkerParameters(
         UUID.randomUUID(),
@@ -99,5 +99,5 @@ private fun createWorkerParams(
         RxWorkerTest.InstantWorkTaskExecutor(),
         DefaultWorkerFactory,
         progressUpdater,
-        foregroundUpdater
+        foregroundUpdater,
     )

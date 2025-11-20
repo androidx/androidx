@@ -40,6 +40,7 @@ public class SearchSpecInternalTest {
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
                 .setMaxSnippetSize(15)
+                .setRetrieveEmbeddingMatchInfos(true)
                 .setResultCountPerPage(42)
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
@@ -59,6 +60,7 @@ public class SearchSpecInternalTest {
         assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
         assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
         assertThat(searchSpec.getMaxSnippetSize()).isEqualTo(15);
+        assertThat(searchSpec.shouldRetrieveEmbeddingMatchInfos()).isTrue();
         assertThat(searchSpec.getResultCountPerPage()).isEqualTo(42);
         assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
         assertThat(searchSpec.getRankingStrategy())

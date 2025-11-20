@@ -50,7 +50,7 @@ class MultiProcessTestRule : TestWatcher() {
     private val availableServiceClasses =
         mutableListOf<Class<out TwoWayIpcService>>(
             TwoWayIpcService::class.java,
-            TwoWayIpcService2::class.java
+            TwoWayIpcService2::class.java,
         )
 
     fun runTest(block: suspend CoroutineScope.() -> Unit) {

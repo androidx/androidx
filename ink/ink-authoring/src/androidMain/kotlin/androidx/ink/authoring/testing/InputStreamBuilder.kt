@@ -148,7 +148,7 @@ public class InputStreamBuilder(
             )
             .apply {
                 addBatch(
-                    (streamDownTime + moveCount * timeIncrement).toLong(),
+                    (streamDownTime + moveCount * timeIncrement),
                     arrayOf(
                         PointerCoords().apply {
                             x = startX + xIncrement * moveCount

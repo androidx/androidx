@@ -15,7 +15,7 @@
  */
 package androidx.wear.compose.material
 
-import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -24,9 +24,8 @@ import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -35,6 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -42,10 +42,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class VignetteScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -54,60 +54,61 @@ class VignetteScreenshotTest {
     private val screenSize = 340.dp
 
     @Test
-    fun vignette_circular_top() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
-            sampleVignette(
+    fun vignette_circular_top() =
+        verifyScreenshot(isRound = true) {
+            SampleVignette(
                 VignettePosition.Top,
-                modifier = Modifier.size(screenSize).clip(CircleShape)
+                modifier = Modifier.size(screenSize).clip(CircleShape),
             )
         }
-    }
 
     @Test
-    fun vignette_circular_bottom() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
-            sampleVignette(
+    fun vignette_circular_bottom() =
+        verifyScreenshot(isRound = true) {
+            SampleVignette(
                 VignettePosition.Bottom,
-                modifier = Modifier.size(screenSize).clip(CircleShape)
+                modifier = Modifier.size(screenSize).clip(CircleShape),
             )
         }
-    }
 
     @Test
-    fun vignette_circular_top_and_bottom() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
-            sampleVignette(
+    fun vignette_circular_top_and_bottom() =
+        verifyScreenshot(isRound = true) {
+            SampleVignette(
                 VignettePosition.TopAndBottom,
-                modifier = Modifier.size(screenSize).clip(CircleShape)
+                modifier = Modifier.size(screenSize).clip(CircleShape),
             )
         }
-    }
-
-    @Test fun vignette_square_top() = verifyScreenshot { sampleVignette(VignettePosition.Top) }
 
     @Test
-    fun vignette_square_bottom() = verifyScreenshot { sampleVignette(VignettePosition.Bottom) }
+    fun vignette_square_top() =
+        verifyScreenshot(isRound = false) { SampleVignette(VignettePosition.Top) }
 
     @Test
-    fun vignette_square_top_and_bottom() = verifyScreenshot {
-        sampleVignette(VignettePosition.TopAndBottom)
-    }
+    fun vignette_square_bottom() =
+        verifyScreenshot(isRound = false) { SampleVignette(VignettePosition.Bottom) }
+
+    @Test
+    fun vignette_square_top_and_bottom() =
+        verifyScreenshot(isRound = false) { SampleVignette(VignettePosition.TopAndBottom) }
 
     @Composable
-    fun sampleVignette(
+    fun SampleVignette(
         vignettePosition: VignettePosition,
-        modifier: Modifier = Modifier.size(screenSize)
+        modifier: Modifier = Modifier.size(screenSize),
     ) {
         Scaffold(
             vignette = { Vignette(vignettePosition = vignettePosition) },
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {
-            Box(modifier = modifier, contentAlignment = Alignment.Center) {}
+            Box(modifier = modifier.background(Color.White), contentAlignment = Alignment.Center) {}
         }
     }
 
-    private fun verifyScreenshot(content: @Composable () -> Unit) {
-        rule.setContentWithTheme { content() }
+    private fun verifyScreenshot(isRound: Boolean, content: @Composable () -> Unit) {
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_LARGE, isRound = isRound) { content() }
+        }
 
         rule
             .onNodeWithTag(TEST_TAG)

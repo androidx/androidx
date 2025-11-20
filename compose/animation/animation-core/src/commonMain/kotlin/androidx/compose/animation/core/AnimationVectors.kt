@@ -74,7 +74,8 @@ public fun AnimationVector(v1: Float, v2: Float, v3: Float, v4: Float): Animatio
     AnimationVector4D(v1, v2, v3, v4)
 
 internal fun <T : AnimationVector> T.newInstance(): T {
-    @Suppress("UNCHECKED_CAST") return this.newVector() as T
+    @Suppress("UNCHECKED_CAST")
+    return this.newVector() as T
 }
 
 internal fun <T : AnimationVector> T.copy(): T {

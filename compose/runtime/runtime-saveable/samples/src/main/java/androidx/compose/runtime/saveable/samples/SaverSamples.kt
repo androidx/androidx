@@ -53,7 +53,7 @@ fun MapSaverSample() {
         val ageKey = "Age"
         mapSaver(
             save = { mapOf(nameKey to it.name, ageKey to it.age) },
-            restore = { User(it[nameKey] as String, it[ageKey] as Int) }
+            restore = { User(it[nameKey] as String, it[ageKey] as Int) },
         )
     }
 }

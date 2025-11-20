@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Rule
@@ -119,7 +120,7 @@ class NavigationRailBenchmark {
                 NavigationRailTestCase(
                     isWideNavRail = true,
                     initialStateValue = WideNavigationRailValue.Expanded,
-                    changeSelectionToggleTestCase = false
+                    changeSelectionToggleTestCase = false,
                 )
             },
             assertOneRecomposition = false,
@@ -144,6 +145,7 @@ class NavigationRailBenchmark {
         benchmarkRule.benchmarkToFirstPixel(dismissibleModalWideRailTestCaseFactory)
     }
 
+    @SdkSuppress(minSdkVersion = 24) // fails in API 23 emulator
     @Test
     fun modalWideNavigationRail_dismissible_stateChange() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
@@ -176,14 +178,14 @@ internal class NavigationRailTestCase(
                     onClick = {},
                     icon = { Spacer(Modifier.size(24.dp)) },
                     railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
-                    label = { Spacer(Modifier.size(24.dp)) }
+                    label = { Spacer(Modifier.size(24.dp)) },
                 )
                 WideNavigationRailItem(
                     selected = selectedIndexState.value == 1,
                     onClick = {},
                     icon = { Spacer(Modifier.size(24.dp)) },
                     railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
-                    label = { Spacer(Modifier.size(24.dp)) }
+                    label = { Spacer(Modifier.size(24.dp)) },
                 )
             }
         } else {
@@ -235,17 +237,14 @@ internal class ModalWideNavigationRailTestCase(
         state = rememberWideNavigationRailState(initialStateValue)
         scope = rememberCoroutineScope()
 
-        ModalWideNavigationRail(
-            state = state,
-            hideOnCollapse = isDismissible,
-        ) {
+        ModalWideNavigationRail(state = state, hideOnCollapse = isDismissible) {
             WideNavigationRailItem(
                 selected = true,
                 onClick = {},
                 icon = { Spacer(Modifier.size(24.dp)) },
                 railExpanded =
                     isDismissible || state.targetValue == WideNavigationRailValue.Expanded,
-                label = { Spacer(Modifier.size(24.dp)) }
+                label = { Spacer(Modifier.size(24.dp)) },
             )
             WideNavigationRailItem(
                 selected = false,
@@ -253,7 +252,7 @@ internal class ModalWideNavigationRailTestCase(
                 icon = { Spacer(Modifier.size(24.dp)) },
                 railExpanded =
                     isDismissible || state.targetValue == WideNavigationRailValue.Expanded,
-                label = { Spacer(Modifier.size(24.dp)) }
+                label = { Spacer(Modifier.size(24.dp)) },
             )
         }
     }

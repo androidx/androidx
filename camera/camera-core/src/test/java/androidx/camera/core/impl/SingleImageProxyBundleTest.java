@@ -18,8 +18,6 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.testing.impl.fakes.FakeCaptureStage;
 import androidx.camera.testing.impl.fakes.FakeImageInfo;
 import androidx.camera.testing.impl.fakes.FakeImageProxy;
@@ -32,7 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public final class SingleImageProxyBundleTest {
     @Test
     public void successfulCreationFromImageProxy() {

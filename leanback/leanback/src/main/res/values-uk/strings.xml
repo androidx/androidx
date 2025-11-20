@@ -39,8 +39,8 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Не вибирати оцінку \"Не подобається\""</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"Вибрати оцінку \"Не подобається\""</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"Не повторювати"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"Повторити все"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"Повторити один елемент"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"Повторювати все"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"Повторювати один медіафайл"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="5151681938752704485">"Увімкнути перемішування"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="6793109999253893369">"Вимкнути перемішування"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="3057698527166674705">"Увімкнути високу якість"</string>

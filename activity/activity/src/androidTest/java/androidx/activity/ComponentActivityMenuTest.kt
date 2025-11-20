@@ -278,7 +278,7 @@ class ContextMenuComponentActivity : ComponentActivity() {
     override fun onCreateContextMenu(
         menu: ContextMenu,
         v: View,
-        menuInfo: ContextMenu.ContextMenuInfo?
+        menuInfo: ContextMenu.ContextMenuInfo?,
     ) {
         super.onCreateContextMenu(menu, v, menuInfo)
         val inflater: MenuInflater = menuInflater

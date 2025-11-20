@@ -56,7 +56,7 @@ class LocalesSyncToFrameworkTestCase {
         // setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
-            LocaleList.getEmptyLocaleList()
+            LocaleList.getEmptyLocaleList(),
         )
 
         // Since no locales are applied as of now, current configuration will have system
@@ -69,7 +69,7 @@ class LocalesSyncToFrameworkTestCase {
         appLocalesComponent =
             ComponentName(
                 instrumentation.context,
-                AppCompatDelegate.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME
+                AppCompatDelegate.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME,
             )
     }
 
@@ -98,7 +98,7 @@ class LocalesSyncToFrameworkTestCase {
         context.packageManager.setComponentEnabledSetting(
             appLocalesComponent,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            /* flags= */ PackageManager.DONT_KILL_APP
+            /* flags= */ PackageManager.DONT_KILL_APP,
         )
 
         // resetting static storage represents a fresh app start up.
@@ -122,7 +122,7 @@ class LocalesSyncToFrameworkTestCase {
             AppCompatDelegate.Api33Impl.localeManagerGetApplicationLocales(
                     AppCompatDelegate.getLocaleManagerForApplication()
                 )
-                .toLanguageTags()
+                .toLanguageTags(),
         )
         // check that the activity has the app specific locales
         assertConfigurationLocalesEquals(expectedLocales, secondActivity)
@@ -131,7 +131,7 @@ class LocalesSyncToFrameworkTestCase {
         // check that the synced marker was set to true
         assertEquals(
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            context.packageManager.getComponentEnabledSetting(appLocalesComponent)
+            context.packageManager.getComponentEnabledSetting(appLocalesComponent),
         )
 
         AppCompatDelegate.setIsAutoStoreLocalesOptedIn(false)
@@ -150,14 +150,14 @@ class LocalesSyncToFrameworkTestCase {
         // setting the app to follow system.
         AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
             AppCompatDelegate.getLocaleManagerForApplication(),
-            LocaleList.getEmptyLocaleList()
+            LocaleList.getEmptyLocaleList(),
         )
 
         // disabling component enabled setting for app_locales sync marker.
         context.packageManager.setComponentEnabledSetting(
             appLocalesComponent,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            /* flags= */ PackageManager.DONT_KILL_APP
+            /* flags= */ PackageManager.DONT_KILL_APP,
         )
     }
 }

@@ -72,7 +72,7 @@ fun IconButton(
     colors: ButtonColors = IconButtonDefaults.colors(),
     border: ButtonBorder = IconButtonDefaults.border(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Surface(
         modifier =
@@ -85,12 +85,12 @@ fun IconButton(
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
-            content = content
+            content = content,
         )
     }
 }
@@ -138,7 +138,7 @@ fun OutlinedIconButton(
     colors: ButtonColors = OutlinedIconButtonDefaults.colors(),
     border: ButtonBorder = OutlinedIconButtonDefaults.border(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Surface(
         modifier =
@@ -153,12 +153,12 @@ fun OutlinedIconButton(
         scale = scale.toClickableSurfaceScale(),
         border = border.toClickableSurfaceBorder(),
         glow = glow.toClickableSurfaceGlow(),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
-            content = content
+            content = content,
         )
     }
 }

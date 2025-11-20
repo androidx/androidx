@@ -65,7 +65,7 @@ public class PlaybackTransportRowPresenterTest {
     public void setUp() {
         mContext = new ContextThemeWrapper(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                androidx.leanback.test.R.style.Theme_Leanback);
+                androidx.leanback.R.style.Theme_Leanback);
         mHost = new PlaybackGlueHostImplWithViewHolder(mContext);
         mImpl = Mockito.mock(PlayerAdapter.class);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {

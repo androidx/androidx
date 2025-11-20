@@ -38,7 +38,7 @@ class GraphDataHolderStateImplTest {
         val graphDataHolderStateImpl =
             GraphDataHolderStateImpl(
                 hashMapOf(1 to "one", 2 to "two", 3 to "three"),
-                GraphDataSortedRingBuffer()
+                GraphDataSortedRingBuffer(),
             )
 
         Truth.assertThat(graphDataHolderStateImpl.getNumStates()).isEqualTo(3)
@@ -49,7 +49,7 @@ class GraphDataHolderStateImplTest {
         val graphDataHolderStateImpl =
             GraphDataHolderStateImpl(
                 hashMapOf(1 to "one", 2 to "two", 3 to "three"),
-                GraphDataSortedRingBuffer()
+                GraphDataSortedRingBuffer(),
             )
 
         Truth.assertThat(graphDataHolderStateImpl.getStrings())

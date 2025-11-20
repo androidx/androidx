@@ -1,7 +1,5 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.biometric {
-
-
 
   public class BiometricManager {
     method public int canAuthenticate();
@@ -13,10 +11,10 @@ package androidx.biometric {
   }
 
   public class BiometricPrompt implements androidx.biometric.BiometricConstants {
-    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     ctor public BiometricPrompt(androidx.fragment.app.Fragment, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
-    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
+    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
+    method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void cancelAuthentication();
   }
 
@@ -59,10 +57,6 @@ package androidx.biometric {
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);
   }
-
-
-
-
 
 }
 

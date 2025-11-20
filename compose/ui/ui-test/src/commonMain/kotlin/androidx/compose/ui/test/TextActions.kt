@@ -108,7 +108,7 @@ fun SemanticsNodeInteraction.performImeAction() {
                     buildGeneralErrorMessage(
                         "Failed to perform IME action, handler returned false.",
                         selector,
-                        node
+                        node,
                     )
                 )
             }
@@ -118,7 +118,7 @@ fun SemanticsNodeInteraction.performImeAction() {
 
 private fun SemanticsNodeInteraction.getNodeAndFocus(
     errorOnFail: String = "Failed to perform text input.",
-    requireEditable: Boolean = true
+    requireEditable: Boolean = true,
 ): SemanticsNode {
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode(errorOnFail)
@@ -140,5 +140,5 @@ private fun SemanticsNodeInteraction.getNodeAndFocus(
 internal expect inline fun <R> wrapAssertionErrorsWithNodeInfo(
     selector: SemanticsSelector,
     node: SemanticsNode,
-    block: () -> R
+    block: () -> R,
 ): R

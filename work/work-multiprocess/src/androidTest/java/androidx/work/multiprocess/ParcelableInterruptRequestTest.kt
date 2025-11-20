@@ -35,7 +35,7 @@ class ParcelableInterruptRequestTest {
         val parcelled =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(request),
-                ParcelableInterruptRequest.CREATOR
+                ParcelableInterruptRequest.CREATOR,
             )
         Truth.assertThat(parcelled).isEqualTo(request)
     }

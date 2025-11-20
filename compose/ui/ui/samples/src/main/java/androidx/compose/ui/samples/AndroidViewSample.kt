@@ -87,7 +87,7 @@ fun AndroidViewWithReleaseSample() {
         onRelease = { view ->
             // Need to release the lifecycle to prevent a memory leak
             view.lifecycle = null
-        }
+        },
     )
 }
 
@@ -120,7 +120,7 @@ fun ReusableAndroidViewInLazyColumnSample() {
                     webView.stopLoading()
                     webView.loadUrl("about:blank")
                     webView.clearHistory()
-                }
+                },
             )
         }
     }

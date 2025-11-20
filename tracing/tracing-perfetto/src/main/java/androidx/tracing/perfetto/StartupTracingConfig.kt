@@ -48,7 +48,7 @@ private abstract class StartupTracingConfigStoreIsEnabledGate : BroadcastReceive
             context.packageManager.setComponentEnabledSetting(
                 context.componentName,
                 if (enabled) COMPONENT_ENABLED_STATE_ENABLED else COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
+                PackageManager.DONT_KILL_APP,
             )
         }
 
@@ -81,7 +81,7 @@ internal object StartupTracingConfigStore {
         propertiesFile.reader().use { properties.load(it) }
         return StartupTracingConfig(
             properties.getProperty(KEY_LIB_FILE_PATH),
-            properties.getProperty(KEY_IS_PERSISTENT).toBoolean()
+            properties.getProperty(KEY_IS_PERSISTENT).toBoolean(),
         )
     }
 

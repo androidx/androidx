@@ -29,6 +29,7 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.List;
 
 /** Tests for {@link ListTemplate}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ListTemplateTest {
     @Test
@@ -274,6 +276,30 @@ public class ListTemplateTest {
                         .addAction(customAction)
                         .build();
         assertThat(template.getActions()).containsExactly(customAction);
+    }
+
+    @Test
+    public void createInstance_addMediaPlaybackActionAsFAB() {
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(Action.MEDIA_PLAYBACK)
+                        .build();
+        assertThat(template.getActions()).containsExactly(Action.MEDIA_PLAYBACK);
+    }
+
+    @Test
+    public void createInstance_addMediaPlaybackActionAsRowSecondaryAction() {
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(
+                                new ItemList.Builder()
+                                .addItem(createRowWithMediaAction())
+                                .build())
+                        .build();
+
+        Row row  = (Row) template.getSingleList().getItems().get(0);
+        assertThat(row.getActions().get(0)).isEqualTo(Action.MEDIA_PLAYBACK);
     }
 
     @Test
@@ -691,6 +717,10 @@ public class ListTemplateTest {
                         .build())
                 .addAction(TestUtils.createAction(icon, CarColor.BLUE))
                 .build();
+    }
+
+    private static Row createRowWithMediaAction() {
+        return new Row.Builder().setTitle("Bananas").addAction(Action.MEDIA_PLAYBACK).build();
     }
 
     private static ItemList getList() {

@@ -63,7 +63,7 @@ class ObsoleteCompatDetector : Detector(), SourceCodeScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(ObsoleteCompatDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(ObsoleteCompatDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }
@@ -145,7 +145,7 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
                         source = "androidx.annotation.ReplaceWith(expression = \"$replacement\")",
                         context = context,
                         element = node,
-                        replace = false
+                        replace = false,
                     )
                     .autoFix()
                     .build()
@@ -160,7 +160,7 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
                         source = "java.lang.Deprecated",
                         context = context,
                         element = node,
-                        replace = false
+                        replace = false,
                     )
                     .autoFix()
                     .build()
@@ -181,7 +181,7 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
 fun buildInsertJavadocFix(
     context: JavaContext,
     node: UMethod,
-    docText: String
+    docText: String,
 ): LintFix.ReplaceStringBuilder {
     val javadocNode = node.comments.lastOrNull { it.text.startsWith("/**") }
     val javadocFix = LintFix.create().name("Add @deprecated Javadoc annotation").replace()

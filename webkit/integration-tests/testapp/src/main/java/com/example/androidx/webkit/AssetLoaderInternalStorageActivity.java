@@ -86,6 +86,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_asset_loader);
         setTitle(R.string.asset_loader_internal_storage_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         mWebView = findViewById(R.id.webview_asset_loader_webview);

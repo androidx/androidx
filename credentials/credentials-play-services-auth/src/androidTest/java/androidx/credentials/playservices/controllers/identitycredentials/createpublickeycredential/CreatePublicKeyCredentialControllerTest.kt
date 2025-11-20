@@ -16,15 +16,25 @@
 
 package androidx.credentials.playservices.controllers.identitycredentials.createpublickeycredential
 
+import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.ExperimentalDigitalCredentialApi
+import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialInterruptedException
+import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.playservices.TestCredentialsActivity
 import androidx.credentials.playservices.TestUtils
 import androidx.credentials.playservices.controllers.utils.CreatePublicKeyCredentialControllerTestUtils
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import com.google.android.gms.common.Feature
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.common.api.UnsupportedApiCallException
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,8 +42,107 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @OptIn(ExperimentalDigitalCredentialApi::class)
-@SdkSuppress(minSdkVersion = 23)
 class CreatePublicKeyCredentialControllerTest {
+
+    @Test
+    fun fromGmsException_unsupportedApiException_returnsUnsupportedException() {
+        val gmsException = ApiException(Status(CommonStatusCodes.API_NOT_CONNECTED))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(gmsException)
+
+            Truth.assertThat(result is CreateCredentialUnsupportedException)
+        }
+    }
+
+    @Test
+    fun fromGmsException_apiExceptionCancelled_returnsCancellationException() {
+        val msg = "Operation cancelled"
+        val apiException = ApiException(Status(CommonStatusCodes.CANCELED, msg))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(apiException)
+
+            Truth.assertThat(result is CreateCredentialCancellationException).isTrue()
+            Truth.assertThat(result.message).contains(msg)
+        }
+    }
+
+    @Test
+    fun fromGmsException_apiExceptionRetryable_returnsInterruptedException() {
+        val msg = "Network error"
+        val apiException = ApiException(Status(CommonStatusCodes.NETWORK_ERROR, msg))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(apiException)
+
+            Truth.assertThat(result is CreateCredentialInterruptedException).isTrue()
+            Truth.assertThat(result.message).contains(msg)
+        }
+    }
+
+    @Test
+    fun fromGmsException_apiExceptionOther_returnsUnknownException() {
+        val msg = "Some other error"
+        val apiException = ApiException(Status(CommonStatusCodes.ERROR, msg))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(apiException)
+
+            Truth.assertThat(result is CreateCredentialUnknownException).isTrue()
+            Truth.assertThat(result.message).contains(msg)
+        }
+    }
+
+    @Test
+    fun fromGmsException_apiExceptionInternal_returnsUnknownException() {
+        val msg = "Some internal error"
+        val apiException = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR, msg))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(apiException)
+
+            Truth.assertThat(result is CreateCredentialNoCreateOptionException).isTrue()
+            Truth.assertThat(result.message).contains(msg)
+        }
+    }
+
+    @Test
+    fun fromGmsException_unsupportedApiCallException_returnsUnsupportedException() {
+        val unsupportedException = UnsupportedApiCallException(Feature("sample", 12))
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(unsupportedException)
+
+            Truth.assertThat(result is CreateCredentialUnsupportedException).isTrue()
+        }
+    }
+
+    @Test
+    fun fromGmsException_otherException_returnsUnknownException() {
+        val exception = Exception("Some other exception")
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
+
+        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val controller = CreatePublicKeyCredentialController(activity!!)
+            val result = controller.fromGmsException(exception)
+
+            Truth.assertThat(result is CreateCredentialUnknownException).isTrue()
+        }
+    }
+
     @Test
     fun convertRequestToPlayServices_success() {
         val request =
@@ -41,7 +150,7 @@ class CreatePublicKeyCredentialControllerTest {
                 requestJson =
                     CreatePublicKeyCredentialControllerTestUtils
                         .MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT,
-                isConditionalCreateRequest = true
+                isConditional = true,
             )
         val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
 
@@ -55,18 +164,20 @@ class CreatePublicKeyCredentialControllerTest {
             Truth.assertThat(convertedRequest.type).isEqualTo(request.type)
             TestUtils.Companion.equals(
                 convertedRequest.candidateQueryData,
-                request.candidateQueryData
+                request.candidateQueryData,
             )
             TestUtils.Companion.equals(convertedRequest.credentialData, request.credentialData)
-            // TODO(b/359049355): Replace with API in CreateCredentialRequest while exposing
-            // Companion
-            // object in that class
-            Truth.assertThat(
-                    convertedRequest.candidateQueryData.getBoolean(
-                        "androidx.credentials.BUNDLE_KEY_IS_CONDITIONAL_REQUEST"
-                    )
+            val jetpackRequestFromConvertedRequest =
+                CreateCredentialRequest.createFrom(
+                    convertedRequest.type,
+                    convertedRequest.candidateQueryData,
+                    convertedRequest.credentialData,
+                    false,
                 )
-                .isTrue()
+            Truth.assertThat(jetpackRequestFromConvertedRequest is CreatePublicKeyCredentialRequest)
+            val createPublicKeyReq =
+                jetpackRequestFromConvertedRequest as CreatePublicKeyCredentialRequest
+            Truth.assertThat(createPublicKeyReq.isConditional)
         }
     }
 }

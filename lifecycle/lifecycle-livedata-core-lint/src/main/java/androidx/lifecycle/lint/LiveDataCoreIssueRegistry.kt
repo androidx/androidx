@@ -23,7 +23,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 @Suppress("UnstableApiUsage")
 class LiveDataCoreIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 14
+    override val api = 16
     override val issues
         get() = listOf(NonNullableMutableLiveDataDetector.ISSUE)
 

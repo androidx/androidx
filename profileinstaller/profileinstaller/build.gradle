@@ -37,6 +37,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.testRunner)
 }
 
 androidx {
@@ -49,4 +50,5 @@ androidx {
 
 android {
     namespace = "androidx.profileinstaller"
+    testOptions.unitTests.returnDefaultValues = true
 }

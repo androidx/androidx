@@ -60,7 +60,7 @@ internal data class IterationResult(
     val tracePath: String,
     val profilerResultFiles: List<Profiler.ResultFile>,
     val measurements: List<Metric.Measurement>,
-    val insights: List<Insight>
+    val insights: List<Insight>,
 )
 
 /** Run a Macrobenchmark Phase and collect a list of [IterationResult]. */
@@ -77,7 +77,7 @@ internal fun TraceProcessor.runPhase(
     experimentalConfig: ExperimentalConfig?,
     perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
-    measureBlock: MacrobenchmarkScope.() -> Unit
+    measureBlock: MacrobenchmarkScope.() -> Unit,
 ): List<IterationResult> {
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
@@ -85,7 +85,7 @@ internal fun TraceProcessor.runPhase(
     val captureInfo =
         Metric.CaptureInfo.forLocalCapture(
             targetPackageName = packageName,
-            startupMode = startupMode
+            startupMode = startupMode,
         )
     try {
         // Configure metrics in the Phase.
@@ -126,7 +126,7 @@ internal fun TraceProcessor.runPhase(
                                     } else {
                                         listOf(packageName)
                                     },
-                                useStackSamplingConfig = true
+                                useStackSamplingConfig = true,
                             ),
                     perfettoSdkConfig = perfettoSdkConfig,
                     // Macrobench avoids in-memory tracing, as it doesn't want to either the parsing
@@ -134,7 +134,7 @@ internal fun TraceProcessor.runPhase(
                     // during
                     // trace analysis. If in-memory tracing would be useful, this full ordering cost
                     // should be evaluated.
-                    inMemoryTracingLabel = null
+                    inMemoryTracingLabel = null,
                 ) {
                     try {
                         trace("start metrics") { metrics.forEach { it.start() } }
@@ -178,11 +178,11 @@ internal fun TraceProcessor.runPhase(
                                     session = this,
                                     packageName = packageName,
                                     traceLinkTitle = "$iteration",
-                                    traceLinkPath = Outputs.relativePathFor(tracePath)
+                                    traceLinkPath = Outputs.relativePathFor(tracePath),
                                 )
                         } else {
                             emptyList()
-                        }
+                        },
                 )
             }
         }

@@ -18,5 +18,5 @@ apply from: "../../shared.gradle"
 
 sourceSets {
     main.java.srcDirs += "${supportRootFolder}/binarycompatibilityvalidator/" +
-            "binarycompatibilityvalidator/src/main/java"
+            "binarycompatibilityvalidator/src/jvmMain/kotlin"
 }

@@ -18,7 +18,6 @@ package androidx.constraintlayout.motion.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -452,9 +451,7 @@ public class KeyAttributes extends Key {
                         c.mTranslationY = a.getDimension(attr, c.mTranslationY);
                         break;
                     case ANDROID_TRANSLATION_Z:
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);
-                        }
+                        c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);
                         break;
                     case PROGRESS:
                         c.mProgress = a.getFloat(attr, c.mProgress);

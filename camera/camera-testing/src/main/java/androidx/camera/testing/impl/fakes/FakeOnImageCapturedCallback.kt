@@ -24,11 +24,11 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.testing.impl.CountdownDeferred
 import com.google.common.truth.Truth
 import java.io.ByteArrayInputStream
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -41,7 +41,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  */
 public class FakeOnImageCapturedCallback(
     captureCount: Int = 1,
-    private val closeImageOnSuccess: Boolean = true
+    private val closeImageOnSuccess: Boolean = true,
 ) : ImageCapture.OnImageCapturedCallback() {
     public data class CapturedImage(val image: ImageProxy, val properties: ImageProperties)
 
@@ -78,7 +78,7 @@ public class FakeOnImageCapturedCallback(
                         rotationDegrees = image.imageInfo.rotationDegrees,
                         cropRect = image.cropRect,
                         exif = getExif(image),
-                    )
+                    ),
             )
         )
         if (closeImageOnSuccess) {
@@ -116,32 +116,11 @@ public class FakeOnImageCapturedCallback(
     public suspend fun awaitCapturesAndAssert(
         timeout: Duration = CAPTURE_TIMEOUT,
         capturedImagesCount: Int = 0,
-        errorsCount: Int = 0
+        errorsCount: Int = 0,
     ) {
         Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
         Truth.assertThat(results.size).isEqualTo(capturedImagesCount)
         Truth.assertThat(errors.size).isEqualTo(errorsCount)
-    }
-
-    private class CountdownDeferred(val count: Int) {
-
-        private val deferredItems =
-            mutableListOf<CompletableDeferred<Unit>>().apply {
-                repeat(count) { add(CompletableDeferred()) }
-            }
-        private var index = 0
-
-        fun countDown() {
-            if (index < count) {
-                deferredItems[index++].complete(Unit)
-            } else {
-                throw IllegalStateException("Countdown already finished")
-            }
-        }
-
-        suspend fun await() {
-            deferredItems.forEach { it.await() }
-        }
     }
 
     public companion object {

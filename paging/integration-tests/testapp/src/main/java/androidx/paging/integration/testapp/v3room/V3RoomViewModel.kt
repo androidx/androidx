@@ -64,7 +64,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     val flow =
         Pager(
                 PagingConfig(10),
-                remoteMediator = V3RemoteMediator(database, NetworkCustomerPagingSource.FACTORY)
+                remoteMediator = V3RemoteMediator(database, NetworkCustomerPagingSource.FACTORY),
             ) {
                 database.customerDao.loadPagedAgeOrderPagingSource()
             }

@@ -20,7 +20,6 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
@@ -31,6 +30,7 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +52,7 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
 
                 val contentList = device.findObject(By.res("snack_list"))
                 scrollActions(contentList, idleMethod = { device.waitForComposeIdle() })
-            }
+            },
         )
 
     @Test
@@ -67,14 +67,14 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
 
                 val contentList = device.findObject(By.res(resPkg, "snackFeedRecyclerView"))
                 scrollActions(contentList, idleMethod = { device.waitForIdle() })
-            }
+            },
         )
 
     @OptIn(ExperimentalMetricApi::class)
     private fun benchmarkScroll(action: String, measureBlock: MacrobenchmarkScope.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = JETSNACK_TARGET_PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
+            metrics = defaultComposeScrollingMetrics() + FrameTimingGfxInfoMetric(),
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             measureBlock = {
@@ -83,7 +83,7 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
                 startActivityAndWait(intent)
 
                 measureBlock()
-            }
+            },
         )
 
     private fun MacrobenchmarkScope.scrollActions(contentList: UiObject2, idleMethod: () -> Unit) {

@@ -52,7 +52,7 @@ import androidx.lifecycle.LifecycleOwner
 public fun LifecycleEventEffect(
     event: Lifecycle.Event,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    onEvent: () -> Unit
+    onEvent: () -> Unit,
 ) {
     if (event == Lifecycle.Event.ON_DESTROY) {
         throw IllegalArgumentException(
@@ -126,7 +126,7 @@ public fun LifecycleEventEffect(
 public fun LifecycleStartEffect(
     key1: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ) {
     val lifecycleStartStopEffectScope =
         remember(key1, lifecycleOwner) { LifecycleStartStopEffectScope(lifecycleOwner.lifecycle) }
@@ -184,7 +184,7 @@ public fun LifecycleStartEffect(
     key1: Any?,
     key2: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ) {
     val lifecycleStartStopEffectScope =
         remember(key1, key2, lifecycleOwner) {
@@ -247,7 +247,7 @@ public fun LifecycleStartEffect(
     key2: Any?,
     key3: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ) {
     val lifecycleStartStopEffectScope =
         remember(key1, key2, key3, lifecycleOwner) {
@@ -305,7 +305,7 @@ public fun LifecycleStartEffect(
 public fun LifecycleStartEffect(
     vararg keys: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ) {
     val lifecycleStartStopEffectScope =
         remember(*keys, lifecycleOwner) { LifecycleStartStopEffectScope(lifecycleOwner.lifecycle) }
@@ -330,14 +330,14 @@ private const val LifecycleStartEffectNoParamError =
 @Suppress("UNUSED_PARAMETER")
 public fun LifecycleStartEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ): Unit = error(LifecycleStartEffectNoParamError)
 
 @Composable
 private fun LifecycleStartEffectImpl(
     lifecycleOwner: LifecycleOwner,
     scope: LifecycleStartStopEffectScope,
-    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult
+    effects: LifecycleStartStopEffectScope.() -> LifecycleStopOrDisposeEffectResult,
 ) {
     DisposableEffect(lifecycleOwner, scope) {
         var effectResult: LifecycleStopOrDisposeEffectResult? = null
@@ -444,7 +444,7 @@ public class LifecycleStartStopEffectScope(override val lifecycle: Lifecycle) : 
 public fun LifecycleResumeEffect(
     key1: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ) {
     val lifecycleResumePauseEffectScope =
         remember(key1, lifecycleOwner) { LifecycleResumePauseEffectScope(lifecycleOwner.lifecycle) }
@@ -503,7 +503,7 @@ public fun LifecycleResumeEffect(
     key1: Any?,
     key2: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ) {
     val lifecycleResumePauseEffectScope =
         remember(key1, key2, lifecycleOwner) {
@@ -567,7 +567,7 @@ public fun LifecycleResumeEffect(
     key2: Any?,
     key3: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ) {
     val lifecycleResumePauseEffectScope =
         remember(key1, key2, key3, lifecycleOwner) {
@@ -626,7 +626,7 @@ public fun LifecycleResumeEffect(
 public fun LifecycleResumeEffect(
     vararg keys: Any?,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ) {
     val lifecycleResumePauseEffectScope =
         remember(*keys, lifecycleOwner) {
@@ -653,14 +653,14 @@ private const val LifecycleResumeEffectNoParamError =
 @Suppress("UNUSED_PARAMETER")
 public fun LifecycleResumeEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ): Unit = error(LifecycleResumeEffectNoParamError)
 
 @Composable
 private fun LifecycleResumeEffectImpl(
     lifecycleOwner: LifecycleOwner,
     scope: LifecycleResumePauseEffectScope,
-    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult
+    effects: LifecycleResumePauseEffectScope.() -> LifecyclePauseOrDisposeEffectResult,
 ) {
     DisposableEffect(lifecycleOwner, scope) {
         var effectResult: LifecyclePauseOrDisposeEffectResult? = null

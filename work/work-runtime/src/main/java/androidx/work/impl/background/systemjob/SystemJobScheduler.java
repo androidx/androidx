@@ -18,7 +18,6 @@ package androidx.work.impl.background.systemjob;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 import static androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
-import static androidx.work.impl.WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL;
 import static androidx.work.impl.background.systemjob.JobSchedulerExtKt.createErrorMessage;
 import static androidx.work.impl.background.systemjob.JobSchedulerExtKt.getSafePendingJobs;
 import static androidx.work.impl.background.systemjob.JobSchedulerExtKt.getWmJobScheduler;
@@ -35,7 +34,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Consumer;
@@ -63,7 +61,6 @@ import java.util.Set;
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobScheduler implements Scheduler {
 
     private static final String TAG = Logger.tagWithPrefix("SystemJobScheduler");

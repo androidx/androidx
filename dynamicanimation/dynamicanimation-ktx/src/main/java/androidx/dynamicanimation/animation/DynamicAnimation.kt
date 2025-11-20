@@ -42,7 +42,7 @@ public fun flingAnimationOf(setter: (Float) -> Unit, getter: () -> Float): Fling
 public fun springAnimationOf(
     setter: (Float) -> Unit,
     getter: () -> Float,
-    finalPosition: Float = Float.NaN
+    finalPosition: Float = Float.NaN,
 ): SpringAnimation {
     val valueHolder = createFloatValueHolder(setter, getter)
     return if (finalPosition.isNaN()) {

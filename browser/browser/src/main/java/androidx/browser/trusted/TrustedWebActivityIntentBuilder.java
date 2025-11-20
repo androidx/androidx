@@ -70,12 +70,36 @@ public class TrustedWebActivityIntentBuilder {
     /** Extra for the share data, see {@link #setShareParams}. */
     public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
 
+    /** Extra for the opened files data, see {@link #setHandledFiles}. */
+    public static final String EXTRA_FILE_HANDLING_DATA =
+            "androidx.browser.trusted.extra.FILE_HANDLING_DATA";
+
     /** Extra for the {@link TrustedWebActivityDisplayMode}, see {@link #setDisplayMode}. */
     public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
+
+    /** Extra for the display override list, see {@link #setDisplayOverrideList} */
+    public static final String EXTRA_DISPLAY_OVERRIDE =
+            "androidx.browser.trusted.extra.DISPLAY_OVERRIDE";
 
     /** Extra for the screenOrientation, see {@link #setScreenOrientation}. */
     public static final String EXTRA_SCREEN_ORIENTATION =
             "androidx.browser.trusted.extra.SCREEN_ORIENTATION";
+
+    /**
+     * If the TWA is being launched using a Protocol Handler, the original URL (with the custom
+     * scheme) is provided here, set using {@link #setOriginalLaunchUrl(Uri)}.
+     *
+     * @see TrustedWebActivityIntent#getOriginalLaunchUrl()
+     */
+    public static final String EXTRA_ORIGINAL_LAUNCH_URL =
+            "androidx.browser.trusted.extra.ORIGINAL_LAUNCH_URL";
+
+    /**
+     * If a TWA is being launched using Launch Handler API, its client mode value is provided,
+     * see {@link #setLaunchHandlerClientMode}.
+     */
+    public static final String EXTRA_LAUNCH_HANDLER_CLIENT_MODE =
+            "androidx.browser.trusted.extra.LAUNCH_HANDLER_CLIENT_MODE";
 
     private final @NonNull Uri mUri;
     private final CustomTabsIntent.@NonNull Builder mIntentBuilder = new CustomTabsIntent.Builder();
@@ -86,8 +110,16 @@ public class TrustedWebActivityIntentBuilder {
     private @Nullable ShareData mShareData;
     private @Nullable ShareTarget mShareTarget;
 
+    private @Nullable FileHandlingData mFileHandlingData;
+
+    private @Nullable Uri mOriginalLaunchUrl;
+
+    @LaunchHandlerClientMode.ClientMode
+    private int mLaunchHandlerClientMode = LaunchHandlerClientMode.AUTO;
+
     private @NonNull TrustedWebActivityDisplayMode mDisplayMode =
             new TrustedWebActivityDisplayMode.DefaultMode();
+    private @Nullable List<TrustedWebActivityDisplayMode> mDisplayOverrideList;
 
     @ScreenOrientation.LockType
     private int mScreenOrientation = ScreenOrientation.DEFAULT;
@@ -237,6 +269,31 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
+     * Sets the parameters for delivering launch files to the launch queue.
+     *
+     * A web application can declare "file_handlers" in its web manifest, enabling it to handle
+     * file opening requests from users. The opened files are then made available by the browser
+     * to the web app through the LaunchQueue interface of the Launch Handler API. LaunchQueue
+     * implementation depends on a browser receiving a TrustedWebActivityIntent.
+     *
+     * This method provides the support for file handling in Trusted Web Activities.
+     * {@link FileHandlingData} should contain the URIs list of files opened by a user and captured
+     * by an intent filter declared in the app manifest. API doesn't perform URI validation and it
+     * entirely dependents on a browser receiving a TrustedWebActivityIntent.
+     *
+     * The API passes read/write permissions for the files to the browser to allow the web
+     * application to read and write a file as it required by LaunchQueue interface specification.
+     *
+     * @param fileHandlingData A {@link FileHandlingData} object containing the data to be sent
+     * to browser launch queue.
+     */
+    public @NonNull TrustedWebActivityIntentBuilder setFileHandlingData(
+            @NonNull FileHandlingData fileHandlingData) {
+        mFileHandlingData = fileHandlingData;
+        return this;
+    }
+
+    /**
      * Sets a {@link TrustedWebActivityDisplayMode}. This can be used e.g. to enable immersive mode
      * (see {@link TrustedWebActivityDisplayMode.ImmersiveMode}. Not setting it means
      * {@link TrustedWebActivityDisplayMode.DefaultMode} will be used.
@@ -244,6 +301,28 @@ public class TrustedWebActivityIntentBuilder {
     public @NonNull TrustedWebActivityIntentBuilder setDisplayMode(
             @NonNull TrustedWebActivityDisplayMode displayMode) {
         mDisplayMode = displayMode;
+        return this;
+    }
+
+    /**
+     * Sets the display override fallback list for a Trusted Web Activity.
+     *
+     * Web applications can declare a "display_override" list to specify the preferred order of
+     * display modes. This is useful for more advanced display modes that may have limited browser
+     * support ({@see https://wicg.github.io/manifest-incubations/#display_override-member}). The
+     * browser will use the first display mode in the list that it supports, and fall back to the
+     * `display` manifest field if none are supported.
+     *
+     * @param displayOverrideList A list of {@link TrustedWebActivityDisplayMode} that represents
+     * the fallback order of display modes.
+     */
+    public @NonNull TrustedWebActivityIntentBuilder setDisplayOverrideList(
+            @Nullable List<TrustedWebActivityDisplayMode> displayOverrideList) {
+        if (displayOverrideList == null) {
+            mDisplayOverrideList = new ArrayList<>();
+        } else {
+            mDisplayOverrideList = displayOverrideList;
+        }
         return this;
     }
 
@@ -257,6 +336,34 @@ public class TrustedWebActivityIntentBuilder {
     public @NonNull TrustedWebActivityIntentBuilder setScreenOrientation(
             @ScreenOrientation.LockType int orientation) {
         mScreenOrientation = orientation;
+        return this;
+    }
+
+    /**
+     * Sets the original launch URL. This is used by Protocol Handlers to let the browser see
+     * the URL that was opened before being processed an modified (the original URL will usually
+     * have a custom data scheme and no host, as opposed to the full http/https location in the
+     * Intent data).
+     *
+     * @see TrustedWebActivityIntent#getOriginalLaunchUrl()
+     *
+     * @param originalLaunchUrl The URL that was originally opened, before being processed and
+     *                          modified by a Protocol Handler.
+     */
+    public @NonNull TrustedWebActivityIntentBuilder setOriginalLaunchUrl(
+            @NonNull Uri originalLaunchUrl) {
+        mOriginalLaunchUrl = originalLaunchUrl;
+        return this;
+    }
+
+    /**
+     * Sets the parameter for delivering Launch Handler API client mode via a Trusted Web Activity.
+     *
+     * @param launchHandlerClientMode A string describing the client mode.
+     */
+    public @NonNull TrustedWebActivityIntentBuilder setLaunchHandlerClientMode(
+            @LaunchHandlerClientMode.ClientMode int launchHandlerClientMode) {
+        mLaunchHandlerClientMode = launchHandlerClientMode;
         return this;
     }
 
@@ -290,9 +397,29 @@ public class TrustedWebActivityIntentBuilder {
                 sharedUris = mShareData.uris;
             }
         }
+        List<Uri> fileHandlingUris = Collections.emptyList();
+        if (mFileHandlingData != null) {
+            intent.putExtra(EXTRA_FILE_HANDLING_DATA, mFileHandlingData.toBundle());
+            if (mFileHandlingData.uris != null) {
+                fileHandlingUris = mFileHandlingData.uris;
+            }
+        }
         intent.putExtra(EXTRA_DISPLAY_MODE, mDisplayMode.toBundle());
+        if (mDisplayOverrideList != null) {
+            ArrayList<Bundle> bundles = new ArrayList<>();
+            for (TrustedWebActivityDisplayMode displayMode : mDisplayOverrideList) {
+                bundles.add(displayMode.toBundle());
+            }
+            intent.putExtra(EXTRA_DISPLAY_OVERRIDE, bundles);
+        }
         intent.putExtra(EXTRA_SCREEN_ORIENTATION, mScreenOrientation);
-        return new TrustedWebActivityIntent(intent, sharedUris);
+        if (mOriginalLaunchUrl != null) {
+            intent.putExtra(EXTRA_ORIGINAL_LAUNCH_URL, mOriginalLaunchUrl);
+        }
+
+        intent.putExtra(EXTRA_LAUNCH_HANDLER_CLIENT_MODE, mLaunchHandlerClientMode);
+
+        return new TrustedWebActivityIntent(intent, sharedUris, fileHandlingUris);
     }
 
     /**

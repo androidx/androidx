@@ -70,7 +70,7 @@ private val PRESET_FILE_URIS =
         "https://storage.googleapis.com/exoplayer-test-media-1/mp4/samsung-s21-hdr-hdr10.mp4",
         "https://storage.googleapis.com/exoplayer-test-media-1/mp4/Pixel7Pro_HLG_1080P.mp4",
         "https://storage.googleapis.com/exoplayer-test-media-internal-63834241aced7884c2544af1a3452" +
-            "e01/mp4/sony-hdr-hlg-full-range.mp4"
+            "e01/mp4/sony-hdr-hlg-full-range.mp4",
     )
 
 class TestFiltersActivity : Activity() {
@@ -206,14 +206,14 @@ class TestFiltersActivity : Activity() {
                 object : Transformer.Listener {
                     override fun onTransformationCompleted(
                         mediaItem: MediaItem,
-                        transformationResult: TransformationResult
+                        transformationResult: TransformationResult,
                     ) {
                         this@TestFiltersActivity.onTransformationCompleted(filePath, mediaItem)
                     }
 
                     override fun onTransformationError(
                         mediaItem: MediaItem,
-                        exception: TransformationException
+                        exception: TransformationException,
                     ) {
                         this@TestFiltersActivity.onTransformationError(exception)
                     }

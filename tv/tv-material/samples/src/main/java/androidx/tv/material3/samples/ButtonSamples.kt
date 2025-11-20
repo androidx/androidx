@@ -46,12 +46,12 @@ fun OutlinedButtonSample() {
 fun LikeButtonSample() {
     Button(
         onClick = { /* Do something! */ },
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
     ) {
         Icon(
             Icons.Filled.Favorite,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.IconSize)
+            modifier = Modifier.size(ButtonDefaults.IconSize),
         )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text("Like")

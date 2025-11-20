@@ -29,7 +29,7 @@ import kotlin.math.abs
 
 private class ItemFoundInScroll(
     val itemOffset: Int,
-    val previousAnimation: AnimationState<Float, AnimationVector1D>
+    val previousAnimation: AnimationState<Float, AnimationVector1D>,
 ) : CancellationException()
 
 private val TargetDistance = 2500.dp
@@ -111,7 +111,7 @@ internal suspend fun LazyLayoutScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
     numOfItemsForTeleport: Int,
-    density: Density
+    density: Density,
 ) {
     requirePrecondition(index >= 0f) { "Index should be non-negative" }
 

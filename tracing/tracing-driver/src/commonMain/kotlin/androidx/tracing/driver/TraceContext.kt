@@ -17,56 +17,61 @@
 package androidx.tracing.driver
 
 import androidx.annotation.RestrictTo
-import androidx.collection.mutableIntObjectMapOf
-import okio.Closeable
+import androidx.annotation.RestrictTo.Scope
+import kotlin.concurrent.Volatile
 
 /**
  * This is something that is only typically created once per process. All the traces emitted are
  * managed and written into a single [TraceSink] in an optimal way based on the underlying platform.
  */
+// False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
+@Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class TraceContext
 internal constructor(
-    public val sequenceId: Int,
-    /** The sink all the [PooledTracePacket]'s are written to. */
-    public val sink: TraceSink,
+    /** The sink all the trace events are written to. */
+    @JvmField public val sink: TraceSink,
     /** Is tracing enabled ? */
-    public val isEnabled: Boolean,
+    @JvmField public val isEnabled: Boolean,
     /** Debug mode */
     // When debugging is on, we keep track of outstanding allocations in the pool,
     // and provide useful logging to help with debugging & testing.
-    internal val isDebug: Boolean,
-) : Closeable {
+    @JvmField internal val isDebug: Boolean,
+) : AutoCloseable {
 
-    public constructor(
-        sequenceId: Int,
-        sink: TraceSink,
-        isEnabled: Boolean
-    ) : this(sequenceId, sink, isEnabled, isDebug = false)
+    public constructor(sink: TraceSink, isEnabled: Boolean) : this(sink, isEnabled, isDebug = false)
 
-    internal val lock = Lock()
-    internal val processes = mutableIntObjectMapOf<ProcessTrack>()
+    @JvmField internal val processTrackLock = Any()
 
-    /** @return A [ProcessTrack] using the unique process [id] using the provided [TraceContext]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // TODO: Make public
-    public open fun ProcessTrack(id: Int, name: String): ProcessTrack {
-        val track = processes[id]
-        return track
-            ?: lock.withLock {
-                val track =
-                    processes.getOrPut(id) { ProcessTrack(context = this, id = id, name = name) }
-                check(track.name == name)
-                track
+    @JvmField @Volatile internal var isProcessInitialized: Boolean = false
+    @RestrictTo(Scope.LIBRARY_GROUP) public open lateinit var process: ProcessTrack
+
+    /** Create an instance of a [Tracer] that can be used to emit trace events. */
+    public open fun createTracer(name: String): Tracer {
+        return PerfettoTracer(context = this, name = name)
+    }
+
+    /**
+     * @return A [ProcessTrack] using the unique process [id], a [name] and the provided
+     *   [TraceContext].
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public open fun createProcessTrack(id: Int, name: String) {
+        synchronized(processTrackLock) {
+            if (!isProcessInitialized) {
+                process = ProcessTrack(context = this, id = id, name = name)
+                isProcessInitialized = true
             }
+        }
     }
 
     /** Flushes the trace packets into the underlying [TraceSink]. */
     public fun flush() {
         if (isEnabled) {
-            processes.forEachValue { processTrack ->
-                processTrack.flush()
-                processTrack.threads.forEachValue { threadTrack -> threadTrack.flush() }
-                processTrack.counters.forEachValue { counterTrack -> counterTrack.flush() }
-            }
+            process.flush()
+            process.threads.forEachValue { threadTrack -> threadTrack.flush() }
+            process.counters.forEachValue { counterTrack -> counterTrack.flush() }
+
             // Call flush() on the sink after all the tracks have been flushed.
             sink.flush()
         }
@@ -83,33 +88,25 @@ internal constructor(
             return 0L
         }
         var count = 0L
-        processes.forEachValue { processTrack ->
-            count += processTrack.pool.poolableCount()
-            processTrack.threads.forEachValue { threadTrack ->
-                count += threadTrack.pool.poolableCount()
-            }
-
-            processTrack.counters.forEachValue { counterTrack ->
-                count += counterTrack.pool.poolableCount()
-            }
-        }
+        count += process.pool.poolableCount()
+        process.threads.forEachValue { threadTrack -> count += threadTrack.pool.poolableCount() }
+        process.counters.forEachValue { counterTrack -> count += counterTrack.pool.poolableCount() }
         return count
+    }
+
+    internal fun validateTrackPools(validateTrackPool: (Track) -> Unit) {
+        if (isDebug) {
+            validateTrackPool(process)
+            process.threads.forEachValue { threadTrack -> validateTrackPool(threadTrack) }
+            process.counters.forEachValue { counterTrack -> validateTrackPool(counterTrack) }
+        }
     }
 }
 
 // An empty trace context when tracing is disabled.
-
-private const val EMPTY_TRACE_CONTEXT_SEQUENCE_ID = -1
-
-internal object EmptyTraceContext :
-    TraceContext(
-        sequenceId = EMPTY_TRACE_CONTEXT_SEQUENCE_ID,
-        sink = EmptyTraceSink(),
-        isEnabled = false
-    ) {
-    internal val process = EmptyProcessTrack(this)
-    internal val thread = EmptyThreadTrack(process)
-    internal val counter = EmptyCounterTrack(process)
-
-    override fun ProcessTrack(id: Int, name: String): ProcessTrack = process
+internal object EmptyTraceContext : TraceContext(sink = EmptyTraceSink(), isEnabled = false) {
+    val track = EmptyProcessTrack(context = this)
+    override var process: ProcessTrack = track
+    internal val thread = EmptyThreadTrack(track)
+    internal val counter = EmptyCounterTrack(track)
 }

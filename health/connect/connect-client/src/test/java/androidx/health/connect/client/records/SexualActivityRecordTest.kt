@@ -17,7 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -45,7 +44,7 @@ class SexualActivityRecordTest {
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
                         protectionUsed = SexualActivityRecord.PROTECTION_USED_PROTECTED,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                        metadata = Metadata.manualEntry(),
                     )
                     .toString()
             )

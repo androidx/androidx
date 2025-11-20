@@ -58,13 +58,13 @@ fun CustomFontFamilySample() {
             Font(
                 resId = R.font.my_font_400_regular,
                 weight = FontWeight.W400,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             ),
             Font(
                 resId = R.font.my_font_400_italic,
                 weight = FontWeight.W400,
-                style = FontStyle.Italic
-            )
+                style = FontStyle.Italic,
+            ),
         )
     Text(text = "Demo Text", fontFamily = fontFamily)
 }
@@ -83,7 +83,7 @@ fun FontFamilySynthesisSample() {
             TextStyle(
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
-                fontSynthesis = FontSynthesis.Weight
-            )
+                fontSynthesis = FontSynthesis.Weight,
+            ),
     )
 }

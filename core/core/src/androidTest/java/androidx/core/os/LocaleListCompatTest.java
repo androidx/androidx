@@ -26,8 +26,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.os.Build;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -393,7 +391,6 @@ public class LocaleListCompatTest {
         assertNotEquals(first.toLanguageTags(), second.toLanguageTags());
     }
 
-    @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testLocaleListCompat_matchesLanguageAndScript() {
         assertTrue(LocaleListCompat.matchesLanguageAndScript(forLanguageTag("fr-Latn-FR"),
@@ -432,21 +429,10 @@ public class LocaleListCompatTest {
     }
 
     private Locale forLanguageTag(String str) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Locale.forLanguageTag(str);
-        } else {
-            return LocaleListCompat.forLanguageTagCompat(str);
-        }
+        return Locale.forLanguageTag(str);
     }
 
     private String toLanguageTag(Locale locale) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return locale.toLanguageTag();
-        } else {
-            StringBuilder builder = new StringBuilder();
-            LocaleListCompatWrapper.toLanguageTag(builder, locale);
-            return builder.toString();
-        }
+        return locale.toLanguageTag();
     }
-
 }

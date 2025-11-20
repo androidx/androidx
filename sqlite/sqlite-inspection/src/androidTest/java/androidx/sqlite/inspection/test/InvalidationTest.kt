@@ -75,7 +75,7 @@ class InvalidationTest {
                     testEnvironment.assertNoQueuedEvents()
                     hook.first().asExitHook.onExit(null)
                     testEnvironment.receiveEvent().let { event ->
-                        assertThat(event.oneOfCase == DATABASE_POSSIBLY_CHANGED)
+                        assertThat(event.oneOfCase).isEqualTo(DATABASE_POSSIBLY_CHANGED)
                         assertThat(event.databasePossiblyChanged)
                             .isEqualTo(DatabasePossiblyChangedEvent.getDefaultInstance())
                     }

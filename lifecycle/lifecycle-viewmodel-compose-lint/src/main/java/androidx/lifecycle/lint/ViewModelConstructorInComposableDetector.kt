@@ -52,7 +52,7 @@ class ViewModelConstructorInComposableDetector : Detector(), SourceCodeScanner {
                         ISSUE,
                         node,
                         context.getNameLocation(node),
-                        "Constructing a view model in a composable"
+                        "Constructing a view model in a composable",
                     )
                 }
             }
@@ -74,8 +74,8 @@ class ViewModelConstructorInComposableDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ViewModelConstructorInComposableDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

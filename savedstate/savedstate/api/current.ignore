@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedState$default(android.os.Bundle, androidx.savedstate.serialization.SavedStateConfiguration, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateDecoderKt.decodeFromSavedState$default(android.os.Bundle,androidx.savedstate.serialization.SavedStateConfiguration,int,Object)
+RemovedMethod: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedStateNullable$default(android.os.Bundle, androidx.savedstate.serialization.SavedStateConfiguration, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateDecoderKt.decodeFromSavedStateNullable$default(android.os.Bundle,androidx.savedstate.serialization.SavedStateConfiguration,int,Object)
+RemovedMethod: androidx.savedstate.serialization.SavedStateEncoderKt#encodeToSavedState$default(Object, androidx.savedstate.serialization.SavedStateConfiguration, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateEncoderKt.encodeToSavedState$default(Object,androidx.savedstate.serialization.SavedStateConfiguration,int,Object)
+RemovedMethod: androidx.savedstate.serialization.SavedStateEncoderKt#encodeToSavedStateNullable$default(Object, androidx.savedstate.serialization.SavedStateConfiguration, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateEncoderKt.encodeToSavedStateNullable$default(Object,androidx.savedstate.serialization.SavedStateConfiguration,int,Object)
+RemovedMethod: androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt#saved$default(androidx.savedstate.SavedStateRegistryOwner, String, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt.saved$default(androidx.savedstate.SavedStateRegistryOwner,String,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0,int,Object)
+RemovedMethod: androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt#savedNullable$default(androidx.savedstate.SavedStateRegistryOwner, String, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0, int, Object):
+    Binary breaking change: Removed method androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt.savedNullable$default(androidx.savedstate.SavedStateRegistryOwner,String,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0,int,Object)

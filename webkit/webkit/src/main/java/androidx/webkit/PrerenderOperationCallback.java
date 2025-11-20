@@ -21,12 +21,9 @@ import org.jspecify.annotations.NonNull;
 /**
  * Callback interface for the prerender operation.
  */
-@WebViewCompat.ExperimentalUrlPrerender
 public interface PrerenderOperationCallback {
     /**
      * Called when a prerendered page is activated (used for an actual navigation).
-     * Use this callback to perform any necessary actions when the prerendering completes and the
-     * page becomes active.
      */
     void onPrerenderActivated();
 

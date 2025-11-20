@@ -45,9 +45,7 @@ public class TestUtil {
 
     // Run shell command.
     private void runShellCommand(String command) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mInstrumentation.getUiAutomation().executeShellCommand(command);
-        }
+        mInstrumentation.getUiAutomation().executeShellCommand(command);
     }
 
     public void overrideKillSwitches(boolean override) {

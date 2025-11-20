@@ -61,13 +61,14 @@ public class EnablePartitionedCookiesTest {
             "</body></html>"
     );
 
-    private Context mCtx;
-
     @BeforeClass
     public static void setUpClass() throws Exception {
         Context ctx = ApplicationProvider.getApplicationContext();
-        String featureName = WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES;
-        WebkitUtils.checkStartupFeature(ctx, featureName);
+        WebkitUtils.checkStartupFeature(ctx,
+                WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES);
+        // Note: only call ProcessGlobalConfig from @BeforeClass because this is only safe to call
+        // once per process. If we call this from @Before or in the @Test method directly, then that
+        // would prevent us from ever adding a second test case to this class.
         ProcessGlobalConfig config = new ProcessGlobalConfig();
         config.setPartitionedCookiesEnabled(ctx, true);
         ProcessGlobalConfig.apply(config);
@@ -75,7 +76,6 @@ public class EnablePartitionedCookiesTest {
 
     @Before
     public void setUp() {
-        mCtx = ApplicationProvider.getApplicationContext();
         clearCookies();
         CookieManager.getInstance().setAcceptCookie(true);
     }

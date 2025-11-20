@@ -60,8 +60,8 @@ val IconToggleButtonScreen =
                                 Modifier.semantics { contentDescription = ToggleButtonDescription },
                         ) {
                             Icon(
-                                painterResource(R.drawable.ic_favorite_rounded),
-                                contentDescription = null
+                                painterResource(R.drawable.icon_favorite_rounded),
+                                contentDescription = null,
                             )
                         }
 
@@ -71,8 +71,8 @@ val IconToggleButtonScreen =
                             checked = checked.value,
                         ) {
                             Icon(
-                                painterResource(R.drawable.ic_favorite_rounded),
-                                contentDescription = null
+                                painterResource(R.drawable.icon_favorite_rounded),
+                                contentDescription = null,
                             )
                         }
                     }
@@ -84,7 +84,7 @@ val IconToggleButtonScreen =
                 device
                     .wait(
                         Until.findObject(By.desc(ToggleButtonDescription)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()

@@ -173,7 +173,7 @@ class AggregationResultConverterTest {
     // ZoneOffset.ofTotalSeconds() has been banned but safe here for serialization.
     @SuppressWarnings("GoodTime")
     private fun AggregationResultGroupedByDuration.assertEquals(
-        expected: AggregationResultGroupedByDuration,
+        expected: AggregationResultGroupedByDuration
     ) {
         result.assertEquals(expected.result)
         assertThat(startTime).isEqualTo(expected.startTime)
@@ -182,7 +182,7 @@ class AggregationResultConverterTest {
     }
 
     private fun AggregationResultGroupedByPeriod.assertEquals(
-        expected: AggregationResultGroupedByPeriod,
+        expected: AggregationResultGroupedByPeriod
     ) {
         result.assertEquals(expected.result)
         assertThat(startTime).isEqualTo(expected.startTime)

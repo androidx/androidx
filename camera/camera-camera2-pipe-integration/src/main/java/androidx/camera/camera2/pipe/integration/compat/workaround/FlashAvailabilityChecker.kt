@@ -18,9 +18,9 @@ package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.FlashAvailabilityBufferUnderflowQuirk
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import java.nio.BufferUnderflowException
 
@@ -41,13 +41,13 @@ public fun CameraProperties.isFlashAvailable(allowRethrowOnError: Boolean = fals
             metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]
         } catch (e: BufferUnderflowException) {
             if (DeviceQuirks[FlashAvailabilityBufferUnderflowQuirk::class.java] != null) {
-                Log.debug {
+                Camera2Logger.debug {
                     "Device is known to throw an exception while checking flash availability. Flash" +
                         " is not available. [Manufacturer: ${Build.MANUFACTURER}, Model:" +
                         " ${Build.MODEL}, API Level: ${Build.VERSION.SDK_INT}]."
                 }
             } else {
-                Log.error(e) {
+                Camera2Logger.error(e) {
                     "Exception thrown while checking for flash availability on device not known to " +
                         "throw exceptions during this check. Please file an issue at " +
                         "https://issuetracker.google.com/issues/new?component=618491&template=1257717" +
@@ -63,7 +63,7 @@ public fun CameraProperties.isFlashAvailable(allowRethrowOnError: Boolean = fals
             }
         }
     if (flashAvailable == null) {
-        Log.warn {
+        Camera2Logger.warn {
             "Characteristics did not contain key FLASH_INFO_AVAILABLE. Flash is not available."
         }
     }

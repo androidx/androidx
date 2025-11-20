@@ -57,7 +57,7 @@ private val MouseAsTouchEvents = listOf(ACTION_DOWN, ACTION_MOVE, ACTION_UP)
 
 internal actual fun createInputDispatcher(
     testContext: TestContext,
-    root: RootForTest
+    root: RootForTest,
 ): InputDispatcher {
     require(root is ViewRootForTest) {
         "InputDispatcher only supports dispatching to ViewRootForTest, not to " +
@@ -89,7 +89,7 @@ internal actual fun createInputDispatcher(
 internal class AndroidInputDispatcher(
     private val testContext: TestContext,
     private val root: ViewRootForTest,
-    private val sendEvent: (InputEvent) -> Unit
+    private val sendEvent: (InputEvent) -> Unit,
 ) : InputDispatcher(testContext, root) {
 
     private val batchLock = makeSynchronizedObject()
@@ -113,7 +113,7 @@ internal class AndroidInputDispatcher(
     override fun PartialGesture.enqueueDown(pointerId: Int) {
         enqueueTouchEvent(
             if (lastPositions.size == 1) ACTION_DOWN else ACTION_POINTER_DOWN,
-            lastPositions.keys.sorted().indexOf(pointerId)
+            lastPositions.keys.sorted().indexOf(pointerId),
         )
     }
 
@@ -123,7 +123,7 @@ internal class AndroidInputDispatcher(
 
     override fun PartialGesture.enqueueMoves(
         relativeHistoricalTimes: List<Long>,
-        historicalCoordinates: List<List<Offset>>
+        historicalCoordinates: List<List<Offset>>,
     ) {
         val entries = lastPositions.entries.sortedBy { it.key }
         val absoluteHistoricalTimes = relativeHistoricalTimes.map { currentTime + it }
@@ -134,14 +134,14 @@ internal class AndroidInputDispatcher(
             pointerIds = List(entries.size) { entries[it].key },
             eventTimes = absoluteHistoricalTimes + listOf(currentTime),
             coordinates =
-                List(entries.size) { historicalCoordinates[it] + listOf(entries[it].value) }
+                List(entries.size) { historicalCoordinates[it] + listOf(entries[it].value) },
         )
     }
 
     override fun PartialGesture.enqueueUp(pointerId: Int) {
         enqueueTouchEvent(
             if (lastPositions.size == 1) ACTION_UP else ACTION_POINTER_UP,
-            lastPositions.keys.sorted().indexOf(pointerId)
+            lastPositions.keys.sorted().indexOf(pointerId),
         )
     }
 
@@ -195,7 +195,21 @@ internal class AndroidInputDispatcher(
                 ScrollWheel.Horizontal -> MotionEvent.AXIS_HSCROLL
                 ScrollWheel.Vertical -> MotionEvent.AXIS_VSCROLL
                 else -> -1
-            }
+            },
+        )
+    }
+
+    override fun MouseInputState.enqueueScroll(offset: Offset) {
+        enqueueMouseEvent(
+            downTime = downTime,
+            eventTime = currentTime,
+            action = ACTION_SCROLL,
+            coordinate = lastPosition,
+            metaState = keyInputState.constructMetaState(),
+            buttonState = pressedButtons.fold(0) { state, buttonId -> state or buttonId },
+            // We invert vertical scrolling to align with another platforms.
+            // Vertical scrolling on desktop/web have opposite sign.
+            delta = offset.copy(y = -offset.y),
         )
     }
 
@@ -238,7 +252,7 @@ internal class AndroidInputDispatcher(
             actionIndex = actionIndex,
             pointerIds = List(entries.size) { entries[it].key },
             eventTimes = listOf(currentTime),
-            coordinates = List(entries.size) { listOf(entries[it].value) }
+            coordinates = List(entries.size) { listOf(entries[it].value) },
         )
     }
 
@@ -249,7 +263,7 @@ internal class AndroidInputDispatcher(
         actionIndex: Int,
         pointerIds: List<Int>,
         eventTimes: List<Long>,
-        coordinates: List<List<Offset>>
+        coordinates: List<List<Offset>>,
     ) {
         check(coordinates.size == pointerIds.size) {
             "Coordinates size should equal pointerIds size " +
@@ -320,7 +334,7 @@ internal class AndroidInputDispatcher(
                         /* deviceId = */ 0,
                         /* edgeFlags = */ 0,
                         /* source = */ SOURCE_TOUCHSCREEN,
-                        /* flags = */ 0
+                        /* flags = */ 0,
                     )
                     .apply {
                         // The current time & coordinates are the last element in the lists, and
@@ -356,7 +370,7 @@ internal class AndroidInputDispatcher(
                                             }
                                     }
                                 },
-                                /* metaState = */ 0
+                                /* metaState = */ 0,
                             )
                         }
                         offsetLocation(-positionInScreen.x, -positionInScreen.y)
@@ -375,7 +389,7 @@ internal class AndroidInputDispatcher(
             metaState = keyInputState.constructMetaState(),
             buttonState = pressedButtons.fold(0) { state, buttonId -> state or buttonId },
             axis = axis,
-            axisDelta = delta
+            axisDelta = delta,
         )
     }
 
@@ -387,7 +401,7 @@ internal class AndroidInputDispatcher(
         metaState: Int,
         buttonState: Int,
         axis: Int = -1,
-        axisDelta: Float = 0f
+        axisDelta: Float = 0f,
     ) {
         synchronized(batchLock) {
             ensureNotDisposed {
@@ -434,7 +448,68 @@ internal class AndroidInputDispatcher(
                         /* deviceId = */ 0,
                         /* edgeFlags = */ 0,
                         /* source = */ SOURCE_MOUSE,
-                        /* flags = */ 0
+                        /* flags = */ 0,
+                    )
+                    .apply { offsetLocation(-positionInScreen.x, -positionInScreen.y) }
+            )
+        }
+    }
+
+    private fun enqueueMouseEvent(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        coordinate: Offset,
+        metaState: Int,
+        buttonState: Int,
+        axis: Int = -1,
+        delta: Offset,
+    ) {
+        synchronized(batchLock) {
+            ensureNotDisposed {
+                "Can't enqueue mouse event (" +
+                    "downTime=$downTime, " +
+                    "eventTime=$eventTime, " +
+                    "action=$action, " +
+                    "coordinate=$coordinate, " +
+                    "metaState=$metaState, " +
+                    "buttonState=$buttonState, " +
+                    "axis=$axis, " +
+                    "delta=$delta)"
+            }
+            val positionInScreen = run {
+                val array = intArrayOf(0, 0)
+                root.view.getLocationOnScreen(array)
+                Offset(array[0].toFloat(), array[1].toFloat())
+            }
+            batchedEvents.add(
+                MotionEvent.obtain(
+                        /* downTime = */ downTime,
+                        /* eventTime = */ eventTime,
+                        /* action = */ action,
+                        /* pointerCount = */ 1,
+                        /* pointerProperties = */ arrayOf(
+                            PointerProperties().apply {
+                                id = 0
+                                toolType = MotionEvent.TOOL_TYPE_MOUSE
+                            }
+                        ),
+                        /* pointerCoords = */ arrayOf(
+                            PointerCoords().apply {
+                                x = positionInScreen.x + coordinate.x
+                                y = positionInScreen.y + coordinate.y
+                                setAxisValue(MotionEvent.AXIS_HSCROLL, delta.x)
+                                setAxisValue(MotionEvent.AXIS_VSCROLL, delta.y)
+                            }
+                        ),
+                        /* metaState = */ metaState,
+                        /* buttonState = */ buttonState,
+                        /* xPrecision = */ 1f,
+                        /* yPrecision = */ 1f,
+                        /* deviceId = */ 0,
+                        /* edgeFlags = */ 0,
+                        /* source = */ SOURCE_MOUSE,
+                        /* flags = */ 0,
                     )
                     .apply { offsetLocation(-positionInScreen.x, -positionInScreen.y) }
             )
@@ -444,14 +519,14 @@ internal class AndroidInputDispatcher(
     override fun RotaryInputState.enqueueRotaryScrollHorizontally(horizontalScrollPixels: Float) {
         enqueueRotaryScrollEvent(
             eventTime = currentTime,
-            scrollPixels = -horizontalScrollPixels / horizontalScrollFactor
+            scrollPixels = -horizontalScrollPixels / horizontalScrollFactor,
         )
     }
 
     override fun RotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
         enqueueRotaryScrollEvent(
             eventTime = currentTime,
-            scrollPixels = -verticalScrollPixels / verticalScrollFactor
+            scrollPixels = -verticalScrollPixels / verticalScrollFactor,
         )
     }
 
@@ -484,7 +559,7 @@ internal class AndroidInputDispatcher(
                     /* deviceId = */ findInputDevice(root.view.context, SOURCE_ROTARY_ENCODER),
                     /* edgeFlags = */ 0,
                     /* source = */ SOURCE_ROTARY_ENCODER,
-                    /* flags = */ 0
+                    /* flags = */ 0,
                 )
             )
         }
@@ -504,7 +579,7 @@ internal class AndroidInputDispatcher(
             action = action,
             code = keyCode,
             repeat = repeatCount,
-            metaState = metaState
+            metaState = metaState,
         )
     }
 
@@ -515,7 +590,7 @@ internal class AndroidInputDispatcher(
         action: Int,
         code: Int,
         repeat: Int,
-        metaState: Int
+        metaState: Int,
     ) {
         synchronized(batchLock) {
             ensureNotDisposed {
@@ -537,7 +612,7 @@ internal class AndroidInputDispatcher(
                     /* repeat = */ repeat,
                     /* metaState = */ metaState,
                     /* deviceId = */ KeyCharacterMap.VIRTUAL_KEYBOARD,
-                    /* scancode = */ 0
+                    /* scancode = */ 0,
                 )
 
             batchedEvents.add(keyEvent)
@@ -563,6 +638,9 @@ internal class AndroidInputDispatcher(
                 currentClockTime = event.eventTime
                 sendAndRecycleEvent(event)
             }
+            // Run all due tasks to make sure the last event is being handled.
+            // This is necessary in case we're on a confined scheduler.
+            testContext.testOwner.runCurrent()
         }
     }
 

@@ -67,14 +67,14 @@ internal constructor(
         spanStyle = spanStyle,
         paragraphStyle = paragraphStyle,
         platformStyle =
-            createPlatformTextStyleInternal(spanStyle.platformStyle, paragraphStyle.platformStyle)
+            createPlatformTextStyleInternal(spanStyle.platformStyle, paragraphStyle.platformStyle),
     )
 
     @Deprecated(
         "TextStyle constructors that do not take new stable parameters " +
             "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
             "constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -94,7 +94,7 @@ internal constructor(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
         lineHeight: TextUnit = TextUnit.Unspecified,
-        textIndent: TextIndent? = null
+        textIndent: TextIndent? = null,
     ) : this(
         SpanStyle(
             color = color,
@@ -112,7 +112,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = null,
-            drawStyle = null
+            drawStyle = null,
         ),
         ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
@@ -123,16 +123,16 @@ internal constructor(
             lineHeightStyle = null,
             lineBreak = LineBreak.Unspecified,
             hyphens = Hyphens.Unspecified,
-            textMotion = null
+            textMotion = null,
         ),
-        platformStyle = null
+        platformStyle = null,
     )
 
     @Deprecated(
         "TextStyle constructors that do not take new stable parameters " +
             "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
             "constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -154,7 +154,7 @@ internal constructor(
         lineHeight: TextUnit = TextUnit.Unspecified,
         textIndent: TextIndent? = null,
         platformStyle: PlatformTextStyle? = null,
-        lineHeightStyle: LineHeightStyle? = null
+        lineHeightStyle: LineHeightStyle? = null,
     ) : this(
         SpanStyle(
             color = color,
@@ -172,7 +172,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
-            drawStyle = null
+            drawStyle = null,
         ),
         ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
@@ -183,9 +183,9 @@ internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = LineBreak.Unspecified,
             hyphens = Hyphens.Unspecified,
-            textMotion = null
+            textMotion = null,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     /**
@@ -228,7 +228,7 @@ internal constructor(
         "TextStyle constructors that do not take new stable parameters " +
             "like TextMotion are deprecated. Please use the new stable " +
             "constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -252,7 +252,7 @@ internal constructor(
         platformStyle: PlatformTextStyle? = null,
         lineHeightStyle: LineHeightStyle? = null,
         lineBreak: LineBreak? = null,
-        hyphens: Hyphens? = null
+        hyphens: Hyphens? = null,
     ) : this(
         SpanStyle(
             color = color,
@@ -269,7 +269,7 @@ internal constructor(
             background = background,
             textDecoration = textDecoration,
             shadow = shadow,
-            platformStyle = platformStyle?.spanStyle
+            platformStyle = platformStyle?.spanStyle,
         ),
         ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
@@ -279,9 +279,9 @@ internal constructor(
             platformStyle = platformStyle?.paragraphStyle,
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak ?: LineBreak.Unspecified,
-            hyphens = hyphens ?: Hyphens.Unspecified
+            hyphens = hyphens ?: Hyphens.Unspecified,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     @Deprecated(
@@ -289,7 +289,7 @@ internal constructor(
             "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
             "where these parameters are non-nullable. Null value has been replaced by a special " +
             "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -333,7 +333,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
+            drawStyle = drawStyle,
         ),
         ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
@@ -344,9 +344,9 @@ internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak ?: LineBreak.Unspecified,
             hyphens = hyphens ?: Hyphens.Unspecified,
-            textMotion = textMotion
+            textMotion = textMotion,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     /**
@@ -430,7 +430,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
+            drawStyle = drawStyle,
         ),
         ParagraphStyle(
             textAlign = textAlign,
@@ -441,9 +441,9 @@ internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak,
             hyphens = hyphens,
-            textMotion = textMotion
+            textMotion = textMotion,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     /**
@@ -513,7 +513,7 @@ internal constructor(
         lineHeightStyle: LineHeightStyle? = null,
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
-        textMotion: TextMotion? = null
+        textMotion: TextMotion? = null,
     ) : this(
         SpanStyle(
             brush = brush,
@@ -532,7 +532,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
+            drawStyle = drawStyle,
         ),
         ParagraphStyle(
             textAlign = textAlign,
@@ -543,9 +543,9 @@ internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak,
             hyphens = hyphens,
-            textMotion = textMotion
+            textMotion = textMotion,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     @Deprecated(
@@ -553,7 +553,7 @@ internal constructor(
             "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
             "where these parameters are non-nullable. Null value has been replaced by a special " +
             "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         brush: Brush?,
@@ -580,7 +580,7 @@ internal constructor(
         lineHeightStyle: LineHeightStyle? = null,
         lineBreak: LineBreak? = null,
         hyphens: Hyphens? = null,
-        textMotion: TextMotion? = null
+        textMotion: TextMotion? = null,
     ) : this(
         SpanStyle(
             brush = brush,
@@ -599,7 +599,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle?.spanStyle,
-            drawStyle = drawStyle
+            drawStyle = drawStyle,
         ),
         ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
@@ -610,9 +610,9 @@ internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak ?: LineBreak.Unspecified,
             hyphens = hyphens ?: Hyphens.Unspecified,
-            textMotion = textMotion
+            textMotion = textMotion,
         ),
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     @Stable fun toSpanStyle(): SpanStyle = spanStyle
@@ -633,7 +633,7 @@ internal constructor(
         if (other == null || other == Default) return this
         return TextStyle(
             spanStyle = toSpanStyle().merge(other.toSpanStyle()),
-            paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle())
+            paragraphStyle = toParagraphStyle().merge(other.toParagraphStyle()),
         )
     }
 
@@ -696,7 +696,7 @@ internal constructor(
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
         platformStyle: PlatformTextStyle? = null,
-        textMotion: TextMotion? = null
+        textMotion: TextMotion? = null,
     ): TextStyle {
         val mergedSpanStyle: SpanStyle =
             spanStyle.fastMerge(
@@ -717,7 +717,7 @@ internal constructor(
                 textDecoration = textDecoration,
                 shadow = shadow,
                 platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
+                drawStyle = drawStyle,
             )
         val mergedParagraphStyle: ParagraphStyle =
             paragraphStyle.fastMerge(
@@ -729,7 +729,7 @@ internal constructor(
                 lineHeightStyle = lineHeightStyle,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
-                textMotion = textMotion
+                textMotion = textMotion,
             )
         if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
         return TextStyle(mergedSpanStyle, mergedParagraphStyle)
@@ -740,7 +740,7 @@ internal constructor(
             "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
             "where these parameters are non-nullable. Null value has been replaced by a special " +
             "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     @Stable
     fun merge(
@@ -767,7 +767,7 @@ internal constructor(
         lineBreak: LineBreak? = null,
         hyphens: Hyphens? = null,
         platformStyle: PlatformTextStyle? = null,
-        textMotion: TextMotion? = null
+        textMotion: TextMotion? = null,
     ): TextStyle {
         val mergedSpanStyle: SpanStyle =
             spanStyle.fastMerge(
@@ -788,7 +788,7 @@ internal constructor(
                 textDecoration = textDecoration,
                 shadow = shadow,
                 platformStyle = platformStyle?.spanStyle,
-                drawStyle = drawStyle
+                drawStyle = drawStyle,
             )
         val mergedParagraphStyle: ParagraphStyle =
             paragraphStyle.fastMerge(
@@ -800,7 +800,7 @@ internal constructor(
                 lineHeightStyle = lineHeightStyle,
                 lineBreak = lineBreak ?: LineBreak.Unspecified,
                 hyphens = hyphens ?: Hyphens.Unspecified,
-                textMotion = textMotion
+                textMotion = textMotion,
             )
         if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
         return TextStyle(mergedSpanStyle, mergedParagraphStyle)
@@ -815,7 +815,7 @@ internal constructor(
     fun merge(other: SpanStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle().merge(other),
-            paragraphStyle = toParagraphStyle()
+            paragraphStyle = toParagraphStyle(),
         )
     }
 
@@ -828,7 +828,7 @@ internal constructor(
     fun merge(other: ParagraphStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle(),
-            paragraphStyle = toParagraphStyle().merge(other)
+            paragraphStyle = toParagraphStyle().merge(other),
         )
     }
 
@@ -845,7 +845,7 @@ internal constructor(
         "TextStyle copy constructors that do not take new stable parameters " +
             "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
             "copy constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.spanStyle.color,
@@ -865,7 +865,7 @@ internal constructor(
         textAlign: TextAlign? = this.paragraphStyle.textAlign,
         textDirection: TextDirection? = this.paragraphStyle.textDirection,
         lineHeight: TextUnit = this.paragraphStyle.lineHeight,
-        textIndent: TextIndent? = this.paragraphStyle.textIndent
+        textIndent: TextIndent? = this.paragraphStyle.textIndent,
     ): TextStyle {
         return TextStyle(
             spanStyle =
@@ -890,7 +890,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = this.spanStyle.platformStyle,
-                    drawStyle = this.spanStyle.drawStyle
+                    drawStyle = this.spanStyle.drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -902,9 +902,9 @@ internal constructor(
                     lineHeightStyle = this.lineHeightStyle,
                     lineBreak = this.lineBreak,
                     hyphens = this.hyphens,
-                    textMotion = this.textMotion
+                    textMotion = this.textMotion,
                 ),
-            platformStyle = this.platformStyle
+            platformStyle = this.platformStyle,
         )
     }
 
@@ -912,7 +912,7 @@ internal constructor(
         "TextStyle copy constructors that do not take new stable parameters " +
             "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
             "copy constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.spanStyle.color,
@@ -934,7 +934,7 @@ internal constructor(
         lineHeight: TextUnit = this.paragraphStyle.lineHeight,
         textIndent: TextIndent? = this.paragraphStyle.textIndent,
         platformStyle: PlatformTextStyle? = this.platformStyle,
-        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle
+        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
     ): TextStyle {
         return TextStyle(
             spanStyle =
@@ -959,7 +959,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = this.spanStyle.drawStyle
+                    drawStyle = this.spanStyle.drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -971,9 +971,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = this.lineBreak,
                     hyphens = this.hyphens,
-                    textMotion = this.textMotion
+                    textMotion = this.textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -981,7 +981,7 @@ internal constructor(
         "TextStyle copy constructors that do not take new stable parameters " +
             "like LineBreak, Hyphens, and TextMotion are deprecated. Please use the new stable " +
             "copy constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.spanStyle.color,
@@ -1005,7 +1005,7 @@ internal constructor(
         platformStyle: PlatformTextStyle? = this.platformStyle,
         lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
         lineBreak: LineBreak? = this.paragraphStyle.lineBreak,
-        hyphens: Hyphens? = this.paragraphStyle.hyphens
+        hyphens: Hyphens? = this.paragraphStyle.hyphens,
     ): TextStyle {
         return TextStyle(
             spanStyle =
@@ -1030,7 +1030,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = this.drawStyle
+                    drawStyle = this.drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -1042,9 +1042,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = lineBreak ?: LineBreak.Unspecified,
                     hyphens = hyphens ?: Hyphens.Unspecified,
-                    textMotion = this.textMotion
+                    textMotion = this.textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -1053,7 +1053,7 @@ internal constructor(
             "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
             "where these parameters are non-nullable. Null value has been replaced by a special " +
             "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.spanStyle.color,
@@ -1104,7 +1104,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = drawStyle
+                    drawStyle = drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -1116,9 +1116,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = lineBreak ?: LineBreak.Unspecified,
                     hyphens = hyphens ?: Hyphens.Unspecified,
-                    textMotion = textMotion
+                    textMotion = textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -1171,7 +1171,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = drawStyle
+                    drawStyle = drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -1183,9 +1183,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = lineBreak,
                     hyphens = hyphens,
-                    textMotion = textMotion
+                    textMotion = textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -1194,7 +1194,7 @@ internal constructor(
             "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
             "where these parameters are non-nullable. Null value has been replaced by a special " +
             "Unspecified object for performance reason.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         brush: Brush?,
@@ -1242,7 +1242,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = drawStyle
+                    drawStyle = drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -1254,9 +1254,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = lineBreak ?: LineBreak.Unspecified,
                     hyphens = hyphens ?: Hyphens.Unspecified,
-                    textMotion = textMotion
+                    textMotion = textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -1306,7 +1306,7 @@ internal constructor(
                     textDecoration = textDecoration,
                     shadow = shadow,
                     platformStyle = platformStyle?.spanStyle,
-                    drawStyle = drawStyle
+                    drawStyle = drawStyle,
                 ),
             paragraphStyle =
                 ParagraphStyle(
@@ -1318,9 +1318,9 @@ internal constructor(
                     lineHeightStyle = lineHeightStyle,
                     lineBreak = lineBreak,
                     hyphens = hyphens,
-                    textMotion = textMotion
+                    textMotion = textMotion,
                 ),
-            platformStyle = platformStyle
+            platformStyle = platformStyle,
         )
     }
 
@@ -1572,7 +1572,7 @@ internal constructor(
 fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
     return TextStyle(
         spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
-        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction)
+        paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction),
     )
 }
 
@@ -1589,13 +1589,13 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) =
     TextStyle(
         spanStyle = resolveSpanStyleDefaults(style.spanStyle),
         paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),
-        platformStyle = style.platformStyle
+        platformStyle = style.platformStyle,
     )
 
 /** If [textDirection] is null returns a [TextDirection] based on [layoutDirection]. */
 internal fun resolveTextDirection(
     layoutDirection: LayoutDirection,
-    textDirection: TextDirection
+    textDirection: TextDirection,
 ): TextDirection {
     return when (textDirection) {
         TextDirection.Content ->
@@ -1614,7 +1614,7 @@ internal fun resolveTextDirection(
 
 private fun createPlatformTextStyleInternal(
     platformSpanStyle: PlatformSpanStyle?,
-    platformParagraphStyle: PlatformParagraphStyle?
+    platformParagraphStyle: PlatformParagraphStyle?,
 ): PlatformTextStyle? {
     return if (platformSpanStyle == null && platformParagraphStyle == null) {
         null

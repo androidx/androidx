@@ -28,5 +28,5 @@ class ScalingLazyColumnBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = ScalingLazyColumnBenchmark,
-        actionSuffix = "SCALING_LAZY_COLUMN_ACTIVITY"
+        actionSuffix = "SCALING_LAZY_COLUMN_ACTIVITY",
     )

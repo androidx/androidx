@@ -41,7 +41,7 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
  */
 internal fun getPreviewProviderParameters(
     parameterProviderClass: Class<out PreviewParameterProvider<*>>?,
-    parameterProviderIndex: Int
+    parameterProviderIndex: Int,
 ): Array<Any?> {
     if (parameterProviderClass != null) {
         try {
@@ -115,7 +115,7 @@ internal fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
 private fun findGroupsThatMatchPredicate(
     root: Group,
     predicate: (Group) -> Boolean,
-    findOnlyFirst: Boolean = false
+    findOnlyFirst: Boolean = false,
 ): List<Group> {
     val result = mutableListOf<Group>()
     val stack = mutableListOf(root)

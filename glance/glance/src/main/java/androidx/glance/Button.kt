@@ -38,7 +38,7 @@ import androidx.glance.unit.ColorProvider
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-fun Button(
+public fun Button(
     text: String,
     onClick: Action,
     modifier: GlanceModifier = GlanceModifier,
@@ -46,7 +46,7 @@ fun Button(
     style: TextStyle? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
-) = ButtonElement(text, onClick, modifier, enabled, style, colors, maxLines)
+): Unit = ButtonElement(text, onClick, modifier, enabled, style, colors, maxLines)
 
 /**
  * Adds a button view to the glance view.
@@ -61,7 +61,7 @@ fun Button(
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-fun Button(
+public fun Button(
     text: String,
     onClick: () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
@@ -69,7 +69,7 @@ fun Button(
     style: TextStyle? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
-) = ButtonElement(text, action(block = onClick), modifier, enabled, style, colors, maxLines)
+): Unit = ButtonElement(text, action(block = onClick), modifier, enabled, style, colors, maxLines)
 
 /**
  * Adds a button view to the glance view.
@@ -89,7 +89,7 @@ fun Button(
  */
 @ExperimentalGlanceApi
 @Composable
-fun Button(
+public fun Button(
     text: String,
     onClick: () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
@@ -97,8 +97,8 @@ fun Button(
     style: TextStyle? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
-    key: String? = null
-) = ButtonElement(text, action(key, onClick), modifier, enabled, style, colors, maxLines)
+    key: String? = null,
+): Unit = ButtonElement(text, action(key, onClick), modifier, enabled, style, colors, maxLines)
 
 @Composable
 internal fun ButtonElement(
@@ -124,15 +124,15 @@ internal fun ButtonElement(
             this.set(colors) { this.colors = it }
             this.set(enabled) { this.enabled = it }
             this.set(maxLines) { this.maxLines = it }
-        }
+        },
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableButton : EmittableWithText() {
+public class EmittableButton : EmittableWithText() {
     override var modifier: GlanceModifier = GlanceModifier
-    var colors: ButtonColors? = null
-    var enabled: Boolean = true
+    public var colors: ButtonColors? = null
+    public var enabled: Boolean = true
 
     override fun copy(): Emittable =
         EmittableButton().also {
@@ -150,7 +150,7 @@ class EmittableButton : EmittableWithText() {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun EmittableButton.toEmittableText() =
+public fun EmittableButton.toEmittableText(): EmittableText =
     EmittableText().also {
         it.modifier = modifier
         it.text = text
@@ -159,8 +159,11 @@ fun EmittableButton.toEmittableText() =
     }
 
 /** Represents the colors used to style a button, prefer this to using the modifier. */
-class ButtonColors
-internal constructor(val backgroundColor: ColorProvider, val contentColor: ColorProvider) {
+public class ButtonColors
+internal constructor(
+    public val backgroundColor: ColorProvider,
+    public val contentColor: ColorProvider,
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -181,7 +184,7 @@ internal constructor(val backgroundColor: ColorProvider, val contentColor: Color
 }
 
 /** Contains the default values used by [Button]. */
-object ButtonDefaults {
+public object ButtonDefaults {
     @Composable
     /**
      * Creates a [ButtonColors] that represents the default background and content colors used in a
@@ -190,8 +193,8 @@ object ButtonDefaults {
      * @param backgroundColor the background color of this [Button]
      * @param contentColor the content color of this [Button]
      */
-    fun buttonColors(
+    public fun buttonColors(
         backgroundColor: ColorProvider = GlanceTheme.colors.primary,
-        contentColor: ColorProvider = GlanceTheme.colors.onPrimary
-    ) = ButtonColors(backgroundColor = backgroundColor, contentColor = contentColor)
+        contentColor: ColorProvider = GlanceTheme.colors.onPrimary,
+    ): ButtonColors = ButtonColors(backgroundColor = backgroundColor, contentColor = contentColor)
 }

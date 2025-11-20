@@ -25,6 +25,7 @@ import androidx.appsearch.usagereporting.ActionConstants;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Abstract wrapper class for {@link GenericDocument} of all types of taken actions, which contains
@@ -45,8 +46,7 @@ public abstract class TakenActionGenericDocument extends GenericDocument {
      * @throws IllegalArgumentException if the integer value of property {@code actionType} is
      *                                  invalid.
      */
-    public static @NonNull TakenActionGenericDocument create(@NonNull GenericDocument document)
-            throws IllegalArgumentException {
+    public static @NonNull TakenActionGenericDocument create(@NonNull GenericDocument document) {
         Preconditions.checkNotNull(document);
         int actionType = (int) document.getPropertyLong(PROPERTY_PATH_ACTION_TYPE);
         switch (actionType) {
@@ -71,6 +71,8 @@ public abstract class TakenActionGenericDocument extends GenericDocument {
 
     /** Abstract builder for {@link TakenActionGenericDocument}. */
     abstract static class Builder<T extends Builder<T>> extends GenericDocument.Builder<T> {
+        @Nullable private Integer mActionType = null;
+
         /**
          * Creates a new {@link TakenActionGenericDocument.Builder}.
          *
@@ -97,7 +99,7 @@ public abstract class TakenActionGenericDocument extends GenericDocument {
             super(Preconditions.checkNotNull(namespace), Preconditions.checkNotNull(id),
                     Preconditions.checkNotNull(schemaType));
 
-            setPropertyLong(PROPERTY_PATH_ACTION_TYPE, actionType);
+            mActionType = actionType;
         }
 
         /**
@@ -107,5 +109,15 @@ public abstract class TakenActionGenericDocument extends GenericDocument {
         Builder(@NonNull GenericDocument document) {
             super(Preconditions.checkNotNull(document));
         }
+
+        /** Builds the {@link GenericDocument} and ensures that the action type is set. */
+        @Override
+        public GenericDocument build() {
+            if (mActionType != null) {
+                setPropertyLong(PROPERTY_PATH_ACTION_TYPE, mActionType);
+            }
+          return super.build();
+        }
+
     }
 }

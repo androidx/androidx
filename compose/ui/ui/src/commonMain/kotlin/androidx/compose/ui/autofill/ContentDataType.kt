@@ -29,6 +29,7 @@ expect sealed interface ContentDataType {
          * autofillable.
          */
         val None: ContentDataType
+
         /** Indicates that the associated component is a text field. */
         val Text: ContentDataType
 

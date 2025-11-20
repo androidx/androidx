@@ -1,13 +1,24 @@
 // Signature format: 4.0
 package androidx.privacysandbox.activity.client {
 
-  public interface LocalSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> extends androidx.privacysandbox.activity.core.SdkActivityLauncher {
-    method public void dispose();
+  @Deprecated public final class LocalManagedSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> implements androidx.privacysandbox.activity.client.LocalSdkActivityLauncher {
+    method @Deprecated public void dispose();
+    method @Deprecated public suspend Object? launchSdkActivity(android.os.IBinder sdkActivityHandlerToken, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
-  public final class SdkActivityLaunchers {
-    method public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.activity.client.LocalSdkActivityLauncher<T> createSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
-    method public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.activity.core.SdkActivityLauncher);
+  @Deprecated public interface LocalSdkActivityLauncher extends androidx.privacysandbox.activity.core.SdkActivityLauncher {
+    method @Deprecated public void dispose();
+  }
+
+  @Deprecated public final class LocalUnmanagedSdkActivityLauncher<T extends android.app.Activity> implements androidx.privacysandbox.activity.client.LocalSdkActivityLauncher {
+    method @Deprecated public void dispose();
+    method @Deprecated public suspend Object? launchSdkActivity(android.os.IBinder sdkActivityHandlerToken, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  }
+
+  @Deprecated public final class SdkActivityLaunchers {
+    method @Deprecated public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.activity.client.LocalManagedSdkActivityLauncher<T> createManagedSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
+    method @Deprecated public static <T extends android.app.Activity> androidx.privacysandbox.activity.client.LocalUnmanagedSdkActivityLauncher<T> createUnmanagedSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
+    method @Deprecated public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.activity.core.SdkActivityLauncher);
   }
 
 }

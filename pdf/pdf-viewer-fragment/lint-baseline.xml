@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/error_cannot_open_pdf` is marked as private in androidx.pdf:pdf-viewer:1.0.0-alpha12"
+        errorLine1="        android:text=&quot;@string/error_cannot_open_pdf&quot;"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/pdf_viewer_fragment.xml"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: "
+        errorLine1="                insets.getInsets(WindowInsetsCompat.Type.ime()).run {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/pdf/viewer/fragment/insets/TranslateInsetsAnimationCallback.kt"/>
+    </issue>
+
+</issues>

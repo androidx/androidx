@@ -39,7 +39,7 @@ import androidx.compose.ui.util.fastRoundToInt
 @RequiresApi(Build.VERSION_CODES.O)
 internal class AndroidAutofill(
     val view: View,
-    val autofillTree: @Suppress("Deprecation") AutofillTree
+    val autofillTree: @Suppress("Deprecation") AutofillTree,
 ) : @Suppress("Deprecation") Autofill {
 
     val autofillManager =
@@ -67,8 +67,8 @@ internal class AndroidAutofill(
                 boundingBox.left.fastRoundToInt(),
                 boundingBox.top.fastRoundToInt(),
                 boundingBox.right.fastRoundToInt(),
-                boundingBox.bottom.fastRoundToInt()
-            )
+                boundingBox.bottom.fastRoundToInt(),
+            ),
         )
     }
 
@@ -98,7 +98,7 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
             AutofillApi26Helper.setAutofillType(child, ContentDataType.Text.dataType)
             AutofillApi26Helper.setAutofillHints(
                 child,
-                autofillNode.autofillTypes.fastMap { it.androidType }.toTypedArray()
+                autofillNode.autofillTypes.fastMap { it.androidType }.toTypedArray(),
             )
 
             val boundingBox = autofillNode.boundingBox
@@ -108,7 +108,7 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
                 Log.w(
                     "Autofill Warning",
                     """Bounding box not set.
-                        Did you call perform autofillTree before the component was positioned? """
+                        Did you call perform autofillTree before the component was positioned? """,
                 )
             } else {
                 val left = boundingBox.left.fastRoundToInt()
@@ -136,7 +136,7 @@ internal fun AndroidAutofill.performAutofill(values: SparseArray<AutofillValue>)
             AutofillApi26Helper.isText(value) ->
                 autofillTree.performAutofill(
                     itemId,
-                    AutofillApi26Helper.textValue(value).toString()
+                    AutofillApi26Helper.textValue(value).toString(),
                 )
             AutofillApi26Helper.isDate(value) -> TODO("b/138604541: Add onFill() callback for date")
             AutofillApi26Helper.isList(value) -> TODO("b/138604541: Add onFill() callback for list")

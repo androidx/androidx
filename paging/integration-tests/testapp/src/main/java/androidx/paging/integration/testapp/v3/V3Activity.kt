@@ -62,7 +62,7 @@ class V3Activity : AppCompatActivity() {
         recyclerView.adapter =
             pagingAdapter.withLoadStateHeaderAndFooter(
                 header = StateItemAdapter { pagingAdapter.retry() },
-                footer = StateItemAdapter { pagingAdapter.retry() }
+                footer = StateItemAdapter { pagingAdapter.retry() },
             )
 
         setupLoadStateButtons(pagingAdapter)

@@ -25,7 +25,7 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 
@@ -34,33 +34,30 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
 
     implementation(project(":wear:protolayout:protolayout-material-core"))
     implementation(project(":wear:protolayout:protolayout-proto"))
     implementation("androidx.annotation:annotation-experimental:1.4.1")
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
-    lintPublish(project(":wear:protolayout:protolayout-lint"))
-
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.core:core:1.7.0")
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
     testImplementation(libs.truth)
+    testImplementation(libs.guavaAndroid)
+    testImplementation(libs.testMonitor)
+    testImplementation(libs.truth)
+    testImplementation("org.robolectric:shadowapi:4.15")
 }
 
 android {
@@ -76,4 +73,5 @@ androidx {
     inceptionYear = "2023"
     description = "Material components library for ProtoLayout."
     addGoldenImageAssets()
+    enableRobolectric()
 }

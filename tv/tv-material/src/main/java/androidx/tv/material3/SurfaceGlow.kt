@@ -33,10 +33,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 
 @Composable
-internal fun Modifier.tvSurfaceGlow(
-    shape: Shape,
-    glow: Glow,
-): Modifier {
+internal fun Modifier.tvSurfaceGlow(shape: Shape, glow: Glow): Modifier {
     val color =
         calculateSurfaceColorAtElevation(color = glow.elevationColor, elevation = glow.elevation)
     val glowBlurRadiusPx = with(LocalDensity.current) { glow.elevation.toPx() }
@@ -51,7 +48,7 @@ internal fun Modifier.tvSurfaceGlow(
                     name = "tvSurfaceGlow"
                     properties["shape"] = shape
                     properties["glow"] = glow
-                }
+                },
         )
     )
 }
@@ -60,21 +57,17 @@ private class SurfaceGlowElement(
     private val shape: Shape,
     private val glowBlurRadiusPx: Float,
     private val color: Color,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<SurfaceGlowNode>() {
     override fun create(): SurfaceGlowNode {
-        return SurfaceGlowNode(
-            shape = shape,
-            glowBlurRadiusPx = glowBlurRadiusPx,
-            color = color,
-        )
+        return SurfaceGlowNode(shape = shape, glowBlurRadiusPx = glowBlurRadiusPx, color = color)
     }
 
     override fun update(node: SurfaceGlowNode) {
         node.reactToUpdates(
             newShape = shape,
             newGlowBlurRadiusPx = glowBlurRadiusPx,
-            newColor = color
+            newColor = color,
         )
     }
 
@@ -108,11 +101,7 @@ private class SurfaceGlowNode(
     // This value is lazily allocated
     private var shapeOutlineCache: SurfaceShapeOutlineCache? = null
 
-    fun reactToUpdates(
-        newShape: Shape,
-        newGlowBlurRadiusPx: Float,
-        newColor: Color,
-    ) {
+    fun reactToUpdates(newShape: Shape, newGlowBlurRadiusPx: Float, newColor: Color) {
         shape = newShape
         glowBlurRadiusPx = newGlowBlurRadiusPx
         color = newColor
@@ -136,7 +125,7 @@ private class SurfaceGlowNode(
                         shape = shape,
                         size = size,
                         layoutDirection = layoutDirection,
-                        density = this
+                        density = this,
                     )
             }
 
@@ -146,7 +135,7 @@ private class SurfaceGlowNode(
                         shape = shape,
                         size = size,
                         layoutDirection = layoutDirection,
-                        density = this
+                        density = this,
                     )
             ) {
                 is Outline.Rectangle -> canvas.drawRect(shapeOutline.rect, paint!!)
@@ -161,7 +150,7 @@ private class SurfaceGlowNode(
                         bottom = size.height,
                         radiusX = shapeCornerRadiusX,
                         radiusY = shapeCornerRadiusY,
-                        paint = paint!!
+                        paint = paint!!,
                     )
                 }
                 is Outline.Generic -> canvas.drawPath(shapeOutline.path, paint!!)
@@ -185,7 +174,7 @@ private class SurfaceGlowNode(
             /* radius= */ glowBlurRadiusPx,
             /* dx= */ 0f,
             /* dy= */ 0f,
-            /* shadowColor= */ shadowColor
+            /* shadowColor= */ shadowColor,
         )
     }
 }

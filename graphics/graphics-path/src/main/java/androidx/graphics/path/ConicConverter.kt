@@ -65,13 +65,20 @@ internal class ConicConverter {
 
     /** Converts the conic in [points] to a series of quadratics, which will all be stored */
     fun convert(points: FloatArray, weight: Float, tolerance: Float, offset: Int = 0) {
-        quadraticCount = internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
-        // 3 points per quadratic, 2 floats per point, with one point of overlap
-        val newDataSize = quadraticCount * 2 * 2 + 2
-        if (newDataSize > quadraticData.size) {
-            quadraticData = FloatArray(newDataSize)
+        val isDalvik = "dalvik".equals(System.getProperty("java.vm.name"), ignoreCase = true)
+        if (isDalvik) {
             quadraticCount =
                 internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
+            // 3 points per quadratic, 2 floats per point, with one point of overlap
+            val newDataSize = quadraticCount * 2 * 2 + 2
+            if (newDataSize > quadraticData.size) {
+                quadraticData = FloatArray(newDataSize)
+                quadraticCount =
+                    internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
+            }
+        } else {
+            quadraticData = conicToQuadratics(points, offset, weight, tolerance)
+            quadraticCount = (quadraticData.size - 2) / 4
         }
         currentQuadratic = 0
     }
@@ -86,6 +93,6 @@ internal class ConicConverter {
         offset: Int,
         quadraticPoints: FloatArray,
         weight: Float,
-        tolerance: Float
+        tolerance: Float,
     ): Int
 }

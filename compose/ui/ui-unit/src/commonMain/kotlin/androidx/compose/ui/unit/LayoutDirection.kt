@@ -26,5 +26,5 @@ enum class LayoutDirection {
     Ltr,
 
     /** Horizontal layout direction is from Right to Left. */
-    Rtl
+    Rtl,
 }

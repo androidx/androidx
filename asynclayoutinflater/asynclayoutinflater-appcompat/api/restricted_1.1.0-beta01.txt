@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.asynclayoutinflater.appcompat {
+
+  public class AsyncAppCompatFactory implements androidx.asynclayoutinflater.view.AsyncLayoutFactory {
+    ctor public AsyncAppCompatFactory();
+    method public android.view.View? onCreateView(android.view.View?, String, android.content.Context, android.util.AttributeSet);
+    method public android.view.View? onCreateView(String, android.content.Context, android.util.AttributeSet);
+  }
+
+}
+

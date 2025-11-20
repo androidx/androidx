@@ -28,6 +28,8 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetPasswordOption
+import androidx.credentials.provider.CredentialEntry.Companion.marshall
+import androidx.credentials.provider.CredentialEntry.Companion.unmarshallCredentialEntries
 import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.PasswordCredentialEntry.Companion.fromSlice
 import androidx.credentials.provider.ui.UiUtils.Companion.testBiometricPromptData
@@ -74,7 +76,7 @@ class PasswordCredentialEntryTest {
     fun constructor_emptyUsername_throwsIAE() {
         assertThrows(
             "Expected empty username to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             PasswordCredentialEntry(mContext, "", mPendingIntent, BEGIN_OPTION)
         }
@@ -86,7 +88,9 @@ class PasswordCredentialEntryTest {
         val entry =
             PasswordCredentialEntry.Builder(mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
                 .build()
-        assertThat(equals(entry.icon, Icon.createWithResource(mContext, R.drawable.ic_password)))
+        assertThat(
+                equals(entry.icon, Icon.createWithResource(mContext, R.drawable.adx_ic_password))
+            )
             .isTrue()
         Assert.assertTrue(entry.hasDefaultIcon)
     }
@@ -149,7 +153,7 @@ class PasswordCredentialEntryTest {
     fun isAutoSelectAllowedFromOption_optionAllows_returnsTrue() {
         BEGIN_OPTION.candidateQueryData.putBoolean(
             CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            true
+            true,
         )
         val entry =
             PasswordCredentialEntry.Builder(mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
@@ -208,7 +212,7 @@ class PasswordCredentialEntryTest {
                 DISPLAYNAME,
                 LAST_USED_TIME,
                 ICON,
-                affiliatedDomain = expectedAffiliatedDomain
+                affiliatedDomain = expectedAffiliatedDomain,
             )
 
         assertThat(entryWithAffiliationType.affiliatedDomain).isEqualTo(expectedAffiliatedDomain)
@@ -226,7 +230,7 @@ class PasswordCredentialEntryTest {
                 DISPLAYNAME,
                 LAST_USED_TIME,
                 ICON,
-                isDefaultIconPreferredAsSingleProvider = expectedPreferredDefaultIconBit
+                isDefaultIconPreferredAsSingleProvider = expectedPreferredDefaultIconBit,
             )
 
         assertThat(entry.isDefaultIconPreferredAsSingleProvider)
@@ -261,7 +265,7 @@ class PasswordCredentialEntryTest {
         assertThat(entry.pendingIntent).isEqualTo(mPendingIntent)
         assertThat(entry.lastUsedTime).isNull()
         assertThat(entry.icon.toString())
-            .isEqualTo(Icon.createWithResource(mContext, R.drawable.ic_password).toString())
+            .isEqualTo(Icon.createWithResource(mContext, R.drawable.adx_ic_password).toString())
         assertThat(entry.isAutoSelectAllowed).isFalse()
         assertThat(entry.beginGetCredentialOption).isEqualTo(BEGIN_OPTION)
         assertThat(entry.affiliatedDomain).isNull()
@@ -314,6 +318,36 @@ class PasswordCredentialEntryTest {
                 ?.let { PasswordCredentialEntry.fromCredentialEntry(it) }
         assertNotNull(entry)
         entry?.let { assertEntryWithAllParams(entry) }
+    }
+
+    @Test
+    fun createFromBundle_success() {
+        val expected =
+            PasswordCredentialEntry(
+                mContext,
+                "title",
+                mPendingIntent,
+                BEGIN_OPTION,
+                "displayname",
+                Instant.ofEpochMilli(1760047935000L),
+                ICON,
+                true,
+                "affiliatedDomain",
+                true,
+            )
+        val bundle = Bundle()
+        listOf(expected).marshall(bundle)
+
+        val actual = bundle.unmarshallCredentialEntries().single() as PasswordCredentialEntry
+
+        assertThat(actual.displayName).isEqualTo(expected.displayName)
+        assertThat(actual.affiliatedDomain).isEqualTo(expected.affiliatedDomain)
+        assertThat(actual.lastUsedTime?.toEpochMilli())
+            .isEqualTo(expected.lastUsedTime?.toEpochMilli())
+        assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+        assertThat(actual.entryGroupId).isEqualTo(expected.entryGroupId)
+        assertThat(actual.isDefaultIconPreferredAsSingleProvider)
+            .isEqualTo(expected.isDefaultIconPreferredAsSingleProvider)
     }
 
     @Suppress("DEPRECATION")

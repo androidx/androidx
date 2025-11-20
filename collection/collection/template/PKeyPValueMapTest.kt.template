@@ -37,7 +37,7 @@ import kotlin.test.assertTrue
 // object-to-object is ScatterMap.kt, which doesn't have a template.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-@Suppress("RemoveRedundantCallsOfConversionMethods")
+@Suppress("RemoveRedundantCallsOfConversionMethods", "REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class PKeyPValueMapTest {
     @Test
     fun pKeyPValueMap() {
@@ -597,7 +597,7 @@ class PKeyPValueMapTest {
         )
         assertEquals(
             "x${order[0].toPKey()}=${order[0].toPValue()}, ${order[1].toPKey()}=" +
-            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}...",
+            "${order[1].toPValue()}, ${order[2].toPKey()}=${order[2].toPValue()}, ...y",
             map.joinToString(prefix = "x", postfix = "y", limit = 3)
         )
         assertEquals(
@@ -609,7 +609,7 @@ class PKeyPValueMapTest {
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
-            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}, ...",
             map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
         )
     }

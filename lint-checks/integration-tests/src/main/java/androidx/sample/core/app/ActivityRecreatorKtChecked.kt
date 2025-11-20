@@ -126,7 +126,7 @@ internal object ActivityRecreatorKtChecked {
                         null,
                         null,
                         false,
-                        false
+                        false,
                     )
                 } else {
                     activity.recreate()
@@ -154,7 +154,7 @@ internal object ActivityRecreatorKtChecked {
     internal fun queueOnStopIfNecessary(
         currentlyRecreatingToken: Any?,
         currentlyRecreatingHashCode: Int,
-        activity: Activity
+        activity: Activity,
     ): Boolean {
         return try {
             val token = tokenField!![activity]
@@ -179,7 +179,7 @@ internal object ActivityRecreatorKtChecked {
                                 activityThread,
                                 token,
                                 false,
-                                "AppCompat recreation"
+                                "AppCompat recreation",
                             )
                         } else {
                             performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
@@ -217,7 +217,7 @@ internal object ActivityRecreatorKtChecked {
                     "performStopActivity",
                     IBinder::class.java,
                     Boolean::class.javaPrimitiveType,
-                    String::class.java
+                    String::class.java,
                 )
             performStop.isAccessible = true
             performStop
@@ -235,7 +235,7 @@ internal object ActivityRecreatorKtChecked {
                 activityThreadClass.getDeclaredMethod(
                     "performStopActivity",
                     IBinder::class.java,
-                    Boolean::class.javaPrimitiveType
+                    Boolean::class.javaPrimitiveType,
                 )
             performStop.isAccessible = true
             performStop
@@ -265,7 +265,7 @@ internal object ActivityRecreatorKtChecked {
                     Configuration::class.java,
                     Configuration::class.java,
                     Boolean::class.javaPrimitiveType,
-                    Boolean::class.javaPrimitiveType
+                    Boolean::class.javaPrimitiveType,
                 )
             relaunch.isAccessible = true
             relaunch

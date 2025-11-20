@@ -43,7 +43,7 @@ internal class PassiveListenerCallbackRegistrationRequest(
                     RequestsProto.PassiveListenerCallbackRegistrationRequest.parseFrom(bytes)
                 PassiveListenerCallbackRegistrationRequest(
                     proto.packageName,
-                    PassiveListenerConfig(proto.config)
+                    PassiveListenerConfig(proto.config),
                 )
             }
     }

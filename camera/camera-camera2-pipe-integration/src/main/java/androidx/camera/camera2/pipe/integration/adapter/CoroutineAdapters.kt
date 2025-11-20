@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import androidx.arch.core.util.Function
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CancellationException
@@ -75,6 +78,16 @@ public fun <T> Deferred<T>.asListenableFuture(
         }
     return CallbackToFutureAdapter.getFuture(resolver)
 }
+
+/** Convert a job into a ListenableFuture<Void>. */
+public fun <T> Deferred<T>.asVoidListenableFuture(): ListenableFuture<Void> =
+    FutureChain.from(this.asListenableFuture())
+        .transform(
+            Function {
+                return@Function null
+            },
+            CameraXExecutors.directExecutor(),
+        )
 
 /**
  * Converts a [suspend] function `block` into a [ListenableFuture].
@@ -169,9 +182,7 @@ public fun <T, R> Deferred<T>.propagateCompletion(
  * @param cause If it's an instance of [CancellationException], [Deferred.cancel] is invoked for
  *   this, otherwise, [CompletableDeferred.completeExceptionally] is invoked.
  */
-public fun <T> CompletableDeferred<T>.completeFailing(
-    cause: Throwable,
-) {
+public fun <T> CompletableDeferred<T>.completeFailing(cause: Throwable) {
     if (cause is CancellationException) {
         cancel(cause)
     } else {

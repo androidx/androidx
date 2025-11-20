@@ -26,13 +26,13 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":tracing:tracing-driver"))
+    androidTestImplementation(project(":tracing:tracing-driver-wire"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(project(":tracing:tracing-perfetto"))
     androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
@@ -40,8 +40,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
@@ -51,6 +51,12 @@ android {
             enableMinification = false
             testProguardFiles "proguard-rules.pro"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.tracing.driver.DelicateTracingApi")
     }
 }
 

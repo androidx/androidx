@@ -26,7 +26,7 @@ import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("com.google.protobuf")
@@ -35,9 +35,9 @@ plugins {
 dependencies {
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.runtime:runtime:1.1.1")
-    api("androidx.compose.ui:ui-graphics:1.1.1")
-    api("androidx.compose.ui:ui-unit:1.1.1")
+    api("androidx.compose.runtime:runtime:1.7.8")
+    api("androidx.compose.ui:ui-graphics:1.6.0")
+    api("androidx.compose.ui:ui-unit:1.6.0")
     api("androidx.collection:collection-ktx:1.4.3")
 
     implementation("androidx.core:core-ktx:1.7.0")
@@ -45,16 +45,16 @@ dependencies {
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation(project(":core:core-remoteviews"))
+    implementation("androidx.core:core-remoteviews:1.1.0")
     implementation(project(":glance:glance-appwidget-proto"))
-    implementation(libs.kotlinStdlib)
+    implementation("androidx.compose.ui:ui-util:1.6.5")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -85,8 +85,6 @@ dependencies {
 }
 
 android {
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     resourcePrefix "glance_"
     buildTypes {
         debug {
@@ -94,13 +92,7 @@ android {
         }
     }
     namespace = "androidx.glance.appwidget"
-
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
-    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
-    experimentalProperties["android.lint.useK2Uast"] = false
-
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     compileSdk = 35
 }
 
@@ -110,9 +102,9 @@ androidx {
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":glance:glance-appwidget:glance-appwidget-samples"))
     addGoldenImageAssets()
+    enableRobolectric()
 }
 
 LayoutGeneratorTask.registerLayoutGenerator(

@@ -200,7 +200,7 @@ public abstract class BaseProgram {
      * @see androidx.tvprovider.media.tv.TvContractCompat.Programs#COLUMN_THUMBNAIL_URI
      */
     public Uri getThumbnailUri() {
-        String uri = mValues.getAsString(Programs.COLUMN_POSTER_ART_URI);
+        String uri = mValues.getAsString(Programs.COLUMN_THUMBNAIL_URI);
         return uri == null ? null : Uri.parse(uri);
     }
 

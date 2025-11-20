@@ -70,7 +70,7 @@ class CheckboxesInRowsTestCase(private val amountOfCheckboxes: Int) :
         Checkbox(
             checked = state.value,
             onCheckedChange = { state.value = !state.value },
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }

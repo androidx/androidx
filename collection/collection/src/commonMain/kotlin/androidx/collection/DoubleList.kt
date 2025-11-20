@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier", "FacadeClassJvmName")
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -191,7 +192,7 @@ public sealed class DoubleList(initialCapacity: Int) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: Double) -> R
+        operation: (index: Int, acc: R, element: Double) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -221,7 +222,7 @@ public sealed class DoubleList(initialCapacity: Int) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: Double, acc: R) -> R
+        operation: (index: Int, element: Double, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -317,7 +318,7 @@ public sealed class DoubleList(initialCapacity: Int) {
      */
     public inline fun elementAtOrElse(
         @IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> Double
+        defaultValue: (index: Int) -> Double,
     ): Double {
         if (index !in 0 until _size) {
             return defaultValue(index)
@@ -463,15 +464,17 @@ public sealed class DoubleList(initialCapacity: Int) {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        this@DoubleList.forEachIndexed { index, element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            this@DoubleList.forEachIndexed { index, element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(element)
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(element)
         }
         append(postfix)
     }
@@ -491,18 +494,20 @@ public sealed class DoubleList(initialCapacity: Int) {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Double) -> CharSequence
+        crossinline transform: (Double) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        this@DoubleList.forEachIndexed { index, element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            this@DoubleList.forEachIndexed { index, element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(element))
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(element))
         }
         append(postfix)
     }
@@ -586,7 +591,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
                 destination = content,
                 destinationOffset = index + 1,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         content[index] = element
@@ -612,7 +617,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
                 destination = content,
                 destinationOffset = index + elements.size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.copyInto(content, index)
@@ -639,14 +644,14 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
                 destination = content,
                 destinationOffset = index + elements._size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.content.copyInto(
             destination = content,
             destinationOffset = index,
             startIndex = 0,
-            endIndex = elements._size
+            endIndex = elements._size,
         )
         _size += elements._size
         return true
@@ -787,7 +792,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
                 destination = content,
                 destinationOffset = index,
                 startIndex = index + 1,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         _size--
@@ -813,7 +818,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
                     destination = content,
                     destinationOffset = start,
                     startIndex = end,
-                    endIndex = _size
+                    endIndex = _size,
                 )
             }
             _size -= (end - start)
@@ -936,7 +941,7 @@ public fun mutableDoubleListOf(element1: Double, element2: Double): MutableDoubl
 public fun mutableDoubleListOf(
     element1: Double,
     element2: Double,
-    element3: Double
+    element3: Double,
 ): MutableDoubleList {
     val list = MutableDoubleList(3)
     list += element1
@@ -957,9 +962,7 @@ public inline fun mutableDoubleListOf(vararg elements: Double): MutableDoubleLis
  *
  * @param builderAction Lambda in which the [MutableDoubleList] can be populated.
  */
-public inline fun buildDoubleList(
-    builderAction: MutableDoubleList.() -> Unit,
-): DoubleList {
+public inline fun buildDoubleList(builderAction: MutableDoubleList.() -> Unit): DoubleList {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableDoubleList().apply(builderAction)
 }

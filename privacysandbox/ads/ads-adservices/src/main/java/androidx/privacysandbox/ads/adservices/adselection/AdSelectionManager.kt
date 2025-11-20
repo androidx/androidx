@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException
  * AdSelection Manager provides APIs for app and ad-SDKs to run ad selection processes as well as
  * report impressions.
  */
-abstract class AdSelectionManager internal constructor() {
+public abstract class AdSelectionManager internal constructor() {
     /**
      * Runs the ad selection process on device to select a remarketing ad for the caller
      * application.
@@ -58,7 +58,7 @@ abstract class AdSelectionManager internal constructor() {
      * allowed rate limits and is throttled.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome
+    public abstract suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome
 
     /**
      * Selects an ad from the results of previously ran ad selections.
@@ -92,7 +92,7 @@ abstract class AdSelectionManager internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun selectAds(
+    public abstract suspend fun selectAds(
         adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
     ): AdSelectionOutcome
 
@@ -120,7 +120,7 @@ abstract class AdSelectionManager internal constructor() {
      * @param reportImpressionRequest the request for reporting impression.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
+    public abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
 
     /**
      * Notifies the service that there is a new ad event to report for the ad selected by the
@@ -161,7 +161,7 @@ abstract class AdSelectionManager internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun reportEvent(reportEventRequest: ReportEventRequest)
+    public abstract suspend fun reportEvent(reportEventRequest: ReportEventRequest)
 
     /**
      * Updates the counter histograms for an ad which was previously selected by a call to
@@ -196,7 +196,7 @@ abstract class AdSelectionManager internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun updateAdCounterHistogram(
+    public abstract suspend fun updateAdCounterHistogram(
         updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
     )
 
@@ -235,7 +235,7 @@ abstract class AdSelectionManager internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun getAdSelectionData(
+    public abstract suspend fun getAdSelectionData(
         getAdSelectionDataRequest: GetAdSelectionDataRequest
     ): GetAdSelectionDataOutcome
 
@@ -271,11 +271,11 @@ abstract class AdSelectionManager internal constructor() {
      */
     @ExperimentalFeatures.Ext10OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract suspend fun persistAdSelectionResult(
+    public abstract suspend fun persistAdSelectionResult(
         persistAdSelectionResultRequest: PersistAdSelectionResultRequest
     ): AdSelectionOutcome
 
-    companion object {
+    public companion object {
         /**
          * Creates [AdSelectionManager].
          *
@@ -284,7 +284,7 @@ abstract class AdSelectionManager internal constructor() {
          */
         @JvmStatic
         @SuppressLint("NewApi")
-        fun obtain(context: Context): AdSelectionManager? {
+        public fun obtain(context: Context): AdSelectionManager? {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AdSelectionManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersionS() >= 9) {

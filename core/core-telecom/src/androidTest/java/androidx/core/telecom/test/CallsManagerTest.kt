@@ -19,19 +19,21 @@ package androidx.core.telecom.test
 import android.os.Build.VERSION_CODES
 import android.telecom.CallException
 import android.telecom.DisconnectCause
+import android.telecom.PhoneAccount
 import android.telecom.PhoneAccount.CAPABILITY_SELF_MANAGED
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING
 import android.telecom.PhoneAccount.CAPABILITY_VIDEO_CALLING
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.AddCallResult
+import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestPermissionUtils.createBluetoothPermissionRule
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.ALL_CALL_CAPABILITIES
 import androidx.core.telecom.test.utils.TestUtils.OUTGOING_NAME
@@ -39,6 +41,7 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.rule.GrantPermissionRule
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -46,30 +49,38 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallsManagerTest : BaseTelecomTest() {
     private val mTestClassName = "androidx.core.telecom.test"
+    @get:Rule val bluetoothPermissionRule: GrantPermissionRule = createBluetoothPermissionRule()
 
     companion object {
         val TAG = CallsManagerTest::class.java.simpleName
     }
 
+    @After
+    fun tearDown() {
+        Utils.resetUtils()
+    }
+
     @SmallTest
     @Test
-    fun testGetPhoneAccountWithUBuild() {
+    fun testGetPhoneAccountWithUpsideDownCakePlusBuild() {
         try {
-            Utils.setUtils(TestUtils.mV2Build)
+            setTestBuildVersion(VERSION_CODES.UPSIDE_DOWN_CAKE)
             val account = mCallsManager.getPhoneAccountHandleForPackage()
             assertEquals(mTestClassName, account.componentName.className)
         } finally {
@@ -79,9 +90,9 @@ class CallsManagerTest : BaseTelecomTest() {
 
     @SmallTest
     @Test
-    fun testGetPhoneAccountWithUBuildWithTminusBuild() {
+    fun testGetPhoneAccountWithUBuildWithTiramisuMinusBuild() {
         try {
-            Utils.setUtils(TestUtils.mBackwardsCompatBuild)
+            setTestBuildVersion(VERSION_CODES.TIRAMISU)
             val account = mCallsManager.getPhoneAccountHandleForPackage()
             assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, account.componentName.className)
         } finally {
@@ -93,7 +104,7 @@ class CallsManagerTest : BaseTelecomTest() {
     @Test
     fun testGetPhoneAccountWithInvalidBuild() {
         try {
-            Utils.setUtils(TestUtils.mInvalidBuild)
+            setTestBuildVersion(0)
             assertThrows(UnsupportedOperationException::class.java) {
                 mCallsManager.getPhoneAccountHandleForPackage()
             }
@@ -117,11 +128,11 @@ class CallsManagerTest : BaseTelecomTest() {
             val account = mCallsManager.getBuiltPhoneAccount()!!
             assertNotNull(account.extras)
             assertTrue(account.extras.getBoolean(CallsManager.PLACEHOLDER_VALUE_ACCOUNT_BUNDLE))
-            if (Utils.hasPlatformV2Apis()) {
+            if (!Utils.shouldUseBackwardsCompatImplementation()) {
                 assertTrue(
                     Utils.hasCapability(
                         CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS,
-                        account.capabilities
+                        account.capabilities,
                     )
                 )
             } else {
@@ -140,7 +151,6 @@ class CallsManagerTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testRegisterAllCapabilities() {
-        setUpV2Test()
         mCallsManager.registerAppWithTelecom(
             CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING or
                 CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING
@@ -162,7 +172,6 @@ class CallsManagerTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testRegisterVideoCapabilitiesOnly() {
-        setUpBackwardsCompatTest()
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
 
         val phoneAccount = mCallsManager.getBuiltPhoneAccount()!!
@@ -180,7 +189,6 @@ class CallsManagerTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testAddOutgoingVideoCall_CallEndpointShouldBeSpeaker_Transactional() {
-        setUpV2Test()
         runBlocking { assertVideoCallStartsWithSpeakerEndpoint() }
     }
 
@@ -202,7 +210,6 @@ class CallsManagerTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testPauseExecutionOrThrow_Transactional() {
-        setUpV2Test()
         runBlocking {
             val cd = CompletableDeferred<AddCallResult>()
             cd.complete(AddCallResult.SuccessCallSession())
@@ -235,7 +242,6 @@ class CallsManagerTest : BaseTelecomTest() {
     @SmallTest
     @Test
     fun testEndToEndSelectingAStartingEndpointTransactional() {
-        setUpV2Test()
         runBlocking { assertStartingCallEndpoint(coroutineContext) }
     }
 
@@ -245,6 +251,173 @@ class CallsManagerTest : BaseTelecomTest() {
     fun testEndToEndSelectingAStartingEndpointBackwardsCompat() {
         setUpBackwardsCompatTest()
         runBlocking { assertStartingCallEndpoint(coroutineContext) }
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_default_onModernSdk_usesModernPath() {
+        setTestBuildVersion(VERSION_CODES.UPSIDE_DOWN_CAKE) // SDK 34
+
+        // Use default parameter for backwardsCompatSdkLevel (33)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Should use modern path
+        assertEquals(VERSION_CODES.TIRAMISU, CallsManager.mBackwardsCompatUpperBound)
+        assertTrue(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(mContext.packageName, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.TIRAMISU)
+    @SmallTest
+    @Test
+    fun testRegister_default_onLegacySdk_usesLegacyPath() {
+        setTestBuildVersion(VERSION_CODES.TIRAMISU) // SDK 33
+
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Should use legacy path
+        assertEquals(VERSION_CODES.TIRAMISU, CallsManager.mBackwardsCompatUpperBound)
+        assertFalse(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_override_forceLegacyPathOnModernSdk() {
+        setTestBuildVersion(35) // VanillaIceCream
+
+        // Force legacy path by setting the upper bound to the current SDK
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 35,
+        )
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Should be forced to use legacy path
+        assertEquals(35, CallsManager.mBackwardsCompatUpperBound)
+        assertFalse(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_override_doesNotApplyOnNewerSdk() {
+        setTestBuildVersion(36) // Baklava
+
+        // Set the upper bound below the current SDK
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 35,
+        )
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Should revert to modern path because current SDK (36) is > bound (35)
+        assertEquals(35, CallsManager.mBackwardsCompatUpperBound)
+        assertTrue(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(mContext.packageName, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_override_clampsValueTooHigh() {
+        setTestBuildVersion(35) // VanillaIceCream
+
+        // Pass an override value (40) that is higher than the current SDK (35)
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 40,
+        )
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // The value should be clamped to 35, forcing the legacy path
+        assertEquals(35, CallsManager.mBackwardsCompatUpperBound)
+        assertFalse(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_override_clampsValueTooLow() {
+        setTestBuildVersion(VERSION_CODES.UPSIDE_DOWN_CAKE) // SDK 34
+
+        // Pass an override value (32) lower than the minimum (33)
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 32,
+        )
+
+        val account = mCallsManager.getBuiltPhoneAccount()!!
+        val handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // The value is clamped to 33. Since current SDK (34) > 33, it should use the modern path.
+        assertEquals(VERSION_CODES.TIRAMISU, CallsManager.mBackwardsCompatUpperBound)
+        assertTrue(
+            account.hasCapabilities(PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS)
+        )
+        assertEquals(mContext.packageName, handle.componentName.className)
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_reRegistration_updatesImplementationPath() {
+        setTestBuildVersion(35) // SDK 35
+
+        // Step 1: Register with default (modern path)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+
+        var account = mCallsManager.getBuiltPhoneAccount()!!
+        var handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Verify modern path
+        assertEquals(33, CallsManager.mBackwardsCompatUpperBound)
+        assertTrue(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(mTestClassName, handle.componentName.className)
+
+        // Step 2: Re-register, forcing legacy path
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 35,
+        )
+
+        account = mCallsManager.getBuiltPhoneAccount()!!
+        handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Verify legacy path
+        assertEquals(35, CallsManager.mBackwardsCompatUpperBound)
+        assertFalse(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(CallsManager.CONNECTION_SERVICE_CLASS, handle.componentName.className)
+
+        // Step 3: Re-register, reverting to modern path
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_BASELINE,
+            backwardsCompatSdkLevel = 33, // Default
+        )
+
+        account = mCallsManager.getBuiltPhoneAccount()!!
+        handle = mCallsManager.getPhoneAccountHandleForPackage()
+
+        // Verify modern path again
+        assertEquals(33, CallsManager.mBackwardsCompatUpperBound)
+        assertTrue(account.hasCapabilities(CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS))
+        assertEquals(mTestClassName, handle.componentName.className)
     }
 
     private suspend fun assertStartingCallEndpoint(coroutineContext: CoroutineContext) {
@@ -282,7 +455,7 @@ class CallsManagerTest : BaseTelecomTest() {
                         CallAttributesCompat.DIRECTION_OUTGOING,
                         CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
                         ALL_CALL_CAPABILITIES,
-                        earpieceEndpoint
+                        earpieceEndpoint,
                     ),
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
@@ -326,7 +499,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 Log.i(
                     TAG,
                     "assertStartingCallEndpoint: " +
-                        "endpoints.size=[${initialEndpoints.size}], earpiece=[$earpieceEndpoint]"
+                        "endpoints.size=[${initialEndpoints.size}], earpiece=[$earpieceEndpoint]",
                 )
                 preCallEndpointsScope?.cancel()
             }
@@ -341,7 +514,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 TestUtils.OUTGOING_NAME,
                 TestUtils.TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
-                CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
             )
         ) {
             launch {
@@ -373,5 +546,15 @@ class CallsManagerTest : BaseTelecomTest() {
                 Log.i(TAG, " flowsJob.cancel()")
             }
         }
+    }
+
+    private fun setTestBuildVersion(sdk: Int) {
+        val testAdapter =
+            object : BuildVersionAdapter {
+                override fun hasInvalidBuildVersion(): Boolean = sdk < VERSION_CODES.O
+
+                override fun getCurrentSdk(): Int = sdk
+            }
+        Utils.setUtils(testAdapter)
     }
 }

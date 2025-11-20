@@ -21,9 +21,6 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
-
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -35,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
 
     final Config mConfig;

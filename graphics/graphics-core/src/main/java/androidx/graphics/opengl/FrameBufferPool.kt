@@ -47,7 +47,7 @@ internal class FrameBufferPool(
      * Maximum size that the pool before additional requests to allocate buffers blocks until
      * another [FrameBuffer] is released. Must be greater than 0.
      */
-    private val maxPoolSize: Int
+    private val maxPoolSize: Int,
 ) {
 
     private class FrameBufferProvider(val frameBuffer: FrameBuffer) : BufferPool.BufferProvider {

@@ -49,7 +49,7 @@ fun TextToggleButtonVariantSample() {
     TextToggleButton(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        shapes = TextToggleButtonDefaults.variantAnimatedShapes()
+        shapes = TextToggleButtonDefaults.variantAnimatedShapes(),
     ) {
         Text(text = if (checked) "On" else "Off")
     }
@@ -64,9 +64,6 @@ fun LargeTextToggleButtonSample() {
         onCheckedChange = { checked = !checked },
         modifier = Modifier.touchTargetAwareSize(TextButtonDefaults.LargeButtonSize),
     ) {
-        Text(
-            text = if (checked) "On" else "Off",
-            style = TextToggleButtonDefaults.largeButtonTextStyle,
-        )
+        Text(text = if (checked) "On" else "Off", style = TextToggleButtonDefaults.largeTextStyle)
     }
 }

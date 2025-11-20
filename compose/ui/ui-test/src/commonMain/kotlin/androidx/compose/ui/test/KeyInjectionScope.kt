@@ -144,7 +144,7 @@ internal class KeyInjectionScopeImpl(private val baseScope: MultiModalInjectionS
  */
 fun KeyInjectionScope.pressKey(
     key: Key,
-    pressDurationMillis: Long = DefaultKeyPressDurationMillis
+    pressDurationMillis: Long = DefaultKeyPressDurationMillis,
 ) {
     keyDown(key)
     advanceEventTime(pressDurationMillis)
@@ -232,7 +232,6 @@ fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.
  *
  * @return true if the function key is currently down, false otherwise.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isFnDown: Boolean
     get() = isKeyDown(Key.Function)
 
@@ -241,7 +240,6 @@ val KeyInjectionScope.isFnDown: Boolean
  *
  * @return true if a control key is currently down, false otherwise.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isCtrlDown: Boolean
     get() = isKeyDown(Key.CtrlLeft) || isKeyDown(Key.CtrlRight)
 
@@ -250,7 +248,6 @@ val KeyInjectionScope.isCtrlDown: Boolean
  *
  * @return true if an alt key is currently down, false otherwise.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isAltDown: Boolean
     get() = isKeyDown(Key.AltLeft) || isKeyDown(Key.AltRight)
 
@@ -259,7 +256,6 @@ val KeyInjectionScope.isAltDown: Boolean
  *
  * @return true if a meta key is currently down, false otherwise.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isMetaDown: Boolean
     get() = isKeyDown(Key.MetaLeft) || isKeyDown(Key.MetaRight)
 
@@ -268,7 +264,6 @@ val KeyInjectionScope.isMetaDown: Boolean
  *
  * @return true if a shift key is currently down, false otherwise.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val KeyInjectionScope.isShiftDown: Boolean
     get() = isKeyDown(Key.ShiftLeft) || isKeyDown(Key.ShiftRight)
 

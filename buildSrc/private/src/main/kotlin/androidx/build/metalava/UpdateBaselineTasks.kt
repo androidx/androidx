@@ -16,20 +16,11 @@
 
 package androidx.build.metalava
 
-import androidx.build.Version
-import androidx.build.checkapi.ApiBaselinesLocation
-import androidx.build.checkapi.ApiLocation
 import java.io.File
 import javax.inject.Inject
-import org.gradle.api.file.FileCollection
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.OutputFiles
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 
@@ -57,12 +48,15 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
             getGenerateApiArgs(
                 createProjectXmlFile(),
                 sourcePaths.files.filter { it.exists() },
+                // API lint is not run on bytecode-only APIs, so don't bother processing the jar
+                // when generating a baseline.
+                compiledSources = null,
                 null,
                 GenerateApiMode.PublicApi,
                 ApiLintMode.CheckBaseline(baselineFile, targetsJavaConsumers.get()),
                 // API version history doesn't need to be generated
                 emptyList(),
-                manifestPath.orNull?.asFile?.absolutePath
+                manifestPath.orNull?.asFile?.absolutePath,
             )
         val args = checkArgs + getCommonBaselineUpdateArgs(baselineFile)
 
@@ -71,29 +65,12 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
 }
 
 @CacheableTask
-abstract class IgnoreApiChangesTask @Inject constructor(workerExecutor: WorkerExecutor) :
-    MetalavaTask(workerExecutor) {
+internal abstract class IgnoreApiChangesTask @Inject constructor(workerExecutor: WorkerExecutor) :
+    CompatibilityMetalavaTask(workerExecutor) {
     init {
         description =
             "Updates an API tracking baseline file (api/X.Y.Z.ignore) to match the " +
                 "current set of violations"
-    }
-
-    // The API that the library is supposed to be compatible with
-    @get:Input abstract val referenceApi: Property<ApiLocation>
-
-    @get:Input abstract val api: Property<ApiLocation>
-
-    // The baseline files (api/*.*.*.ignore) to update
-    @get:Input abstract val baselines: Property<ApiBaselinesLocation>
-
-    // Version for the current API surface.
-    @get:Input abstract val version: Property<Version>
-
-    @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    fun getTaskInputs(): List<File> {
-        val referenceApiLocation = referenceApi.get()
-        return listOf(referenceApiLocation.publicApiFile, referenceApiLocation.restrictedApiFile)
     }
 
     // Declaring outputs prevents Gradle from rerunning this task if the inputs haven't changed
@@ -107,78 +84,31 @@ abstract class IgnoreApiChangesTask @Inject constructor(workerExecutor: WorkerEx
     fun exec() {
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
 
-        val apiLocation = api.get()
-        val referenceApiLocation = referenceApi.get()
-        val freezeApis = shouldFreezeApis(referenceApiLocation.version(), version.get())
-        updateBaseline(
-            apiLocation.publicApiFile,
-            referenceApiLocation.publicApiFile,
-            baselines.get().publicApiFile,
-            false,
-            freezeApis
-        )
-        if (referenceApiLocation.restrictedApiFile.exists()) {
-            updateBaseline(
-                apiLocation.restrictedApiFile,
-                referenceApiLocation.restrictedApiFile,
-                baselines.get().restrictedApiFile,
-                true,
-                freezeApis
-            )
+        val freezeApis = shouldFreezeApis(referenceApi.get().version(), version.get())
+        updateBaseline(restricted = false, freezeApis)
+        if (restrictedApisExist()) {
+            updateBaseline(restricted = true, freezeApis)
         }
     }
 
-    // Updates the contents of baselineFile to specify an exception for every API present in apiFile
-    // but not
-    // present in the current source path
-    private fun updateBaseline(
-        api: File,
-        prevApi: File,
-        baselineFile: File,
-        processRestrictedApis: Boolean,
-        freezeApis: Boolean,
-    ) {
-        val args = getCommonBaselineUpdateArgs(bootClasspath, dependencyClasspath, baselineFile)
-        args +=
-            listOf(
-                "--baseline",
-                baselineFile.toString(),
-                "--check-compatibility:api:released",
-                prevApi.toString(),
-                "--source-files",
-                api.toString()
-            )
-        if (freezeApis) {
-            args += listOf("--error-category", "Compatibility")
-        }
-        if (processRestrictedApis) {
-            args +=
-                listOf(
-                    "--show-annotation",
-                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                        "LIBRARY_GROUP)",
-                    "--show-annotation",
-                    "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                        "LIBRARY_GROUP_PREFIX)",
-                    "--show-unannotated"
-                )
+    /**
+     * Updates the contents of the baseline file to specify an exception for every compatibility
+     * error found comparing the previous API to the current.
+     *
+     * @param restricted whether this compatibility check is for restricted APIs
+     * @param freezeApis whether APIs are frozen and no changes should be allowed
+     */
+    private fun updateBaseline(restricted: Boolean, freezeApis: Boolean) {
+        val baseline = getBaselineFile(restricted)
+        val args = buildList {
+            addAll(getCommonBaselineUpdateArgs(baseline))
+            addAll(getCompatibilityArguments(restricted, freezeApis))
+
+            add("--baseline")
+            add(baseline.toString())
         }
         runWithArgs(args)
     }
-}
-
-private fun getCommonBaselineUpdateArgs(
-    bootClasspath: FileCollection,
-    dependencyClasspath: FileCollection,
-    baselineFile: File
-): MutableList<String> {
-    val args =
-        mutableListOf(
-            "--classpath",
-            (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator)
-        )
-    args += getCommonBaselineUpdateArgs(baselineFile)
-    return args
 }
 
 private fun getCommonBaselineUpdateArgs(baselineFile: File): List<String> {
@@ -189,6 +119,6 @@ private fun getCommonBaselineUpdateArgs(baselineFile: File): List<String> {
         baselineFile.toString(),
         "--pass-baseline-updates",
         "--delete-empty-baselines",
-        "--format=v4"
+        "--format=v4",
     )
 }

@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// TO debug processor, run:
+//./gradlew :r:in:k:clean :r:in:k:cC --no-daemon
+// -Dorg.gradle.debug=true
+// -Dkotlin.compiler.execution.strategy="in-process"
+
+
+
+import androidx.build.KotlinTarget
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    // Remove when b/442128557 is fixed
+    id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id("androidx.room3")
+}
+android {
+    buildFeatures {
+        aidl = true
+        buildConfig = true
+    }
+    compileOptions {
+        // For testing Java records
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    flavorDimensions "processorConfiguration"
+    productFlavors {
+        withKspGenKotlin {
+            dimension "processorConfiguration"
+        }
+    }
+    // b/435705964
+    packaging.jniLibs.useLegacyPackaging = true
+    namespace = "androidx.room3.integration.kotlintestapp"
+}
+
+tasks.withType(KotlinCompilationTask).configureEach {
+    it.compilerOptions {
+        // For testing Java records
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    implementation(project(":room3:room3-common"))
+    implementation(project(":room3:room3-runtime"))
+    implementation(project(":room3:room3-paging"))
+    implementation(project(":room3:room3-sqlite-wrapper"))
+    implementation(project(":paging:paging-runtime"))
+    implementation(project(":paging:paging-guava"))
+    implementation("androidx.arch.core:core-runtime:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation(libs.kotlinCoroutinesAndroid)
+    kspWithKspGenKotlin(project(":room3:room3-compiler"))
+    kspAndroidTestWithKspGenKotlin(project(":room3:room3-compiler"))
+    androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(project(":room3:room3-guava"))
+    androidTestImplementation(project(":room3:room3-testing"))
+    androidTestImplementation(project(":room3:room3-paging-guava"))
+    androidTestImplementation(project(":room3:room3-paging-rxjava3"))
+    // we need latest guava android because room-paging-guava's guava-android gets override by
+    // its kotlinx-coroutines-guava dependency's guava-jre version
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(project(":room3:room3-rxjava3"))
+    androidTestImplementation(project(":internal-testutils-common"))
+    androidTestImplementation(project(":paging:paging-runtime"))
+    androidTestImplementation(project(":paging:paging-guava"))
+    androidTestImplementation(project(":paging:paging-rxjava3"))
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation("androidx.collection:collection")
+    androidTestImplementation(project(":sqlite:sqlite-bundled"))
+}
+
+room3 {
+    schemaDirectory(
+        "withKspGenKotlin",
+        layout.projectDirectory.dir("schemas-ksp")
+    )
+}
+
+androidx {
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
+}

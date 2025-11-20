@@ -31,7 +31,7 @@ import kotlin.annotation.AnnotationRetention.SOURCE
     ExerciseEndReason.AUTO_END_MISSING_LISTENER,
     ExerciseEndReason.USER_END,
     ExerciseEndReason.AUTO_END_SUPERSEDED,
-    ExerciseEndReason.AUTO_END_PREPARE_EXPIRED
+    ExerciseEndReason.AUTO_END_PREPARE_EXPIRED,
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ExerciseEndReason {

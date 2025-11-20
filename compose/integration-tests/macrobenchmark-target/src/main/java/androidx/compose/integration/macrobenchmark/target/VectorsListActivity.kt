@@ -65,9 +65,7 @@ class VectorsListActivity : ComponentActivity() {
 
     @Composable
     private fun ComposeLazyList() {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().semantics { contentDescription = "IamLazy" },
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxSize().semantics { contentDescription = "IamLazy" }) {
             items(count = 1000, key = { index -> index }, contentType = { "test" }) { index ->
                 val text = contents[index]
                 Row(
@@ -77,14 +75,14 @@ class VectorsListActivity : ComponentActivity() {
                             .wrapContentHeight()
                             .padding(vertical = Dp(12F), horizontal = Dp(12F)),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_launcher),
                         modifier = Modifier.height(Dp(40F)).width(Dp(40F)),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.Center,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                     Column(
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = Dp(16F))
@@ -94,7 +92,7 @@ class VectorsListActivity : ComponentActivity() {
                             fontWeight = FontWeight.Normal,
                             textAlign = TextAlign.Start,
                             overflow = TextOverflow.Ellipsis,
-                            text = text
+                            text = text,
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
@@ -106,14 +104,14 @@ class VectorsListActivity : ComponentActivity() {
                                     Modifier.height(Dp(16F)).width(Dp(16F)).padding(end = Dp(1F)),
                                 contentScale = ContentScale.Fit,
                                 alignment = Alignment.Center,
-                                contentDescription = ""
+                                contentDescription = "",
                             )
                             Text(
                                 fontStyle = FontStyle.Normal,
                                 fontWeight = FontWeight.Normal,
                                 textAlign = TextAlign.Start,
                                 overflow = TextOverflow.Ellipsis,
-                                text = text
+                                text = text,
                             )
                         }
                     }
@@ -125,7 +123,7 @@ class VectorsListActivity : ComponentActivity() {
                         modifier = Modifier.height(Dp(24F)).width(Dp(24F)),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterEnd,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                     Image(
                         painter =
@@ -135,7 +133,7 @@ class VectorsListActivity : ComponentActivity() {
                         modifier = Modifier.height(Dp(24F)).width(Dp(24F)),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterEnd,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                 }
             }

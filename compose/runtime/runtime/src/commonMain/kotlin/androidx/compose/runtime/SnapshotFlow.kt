@@ -35,15 +35,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 /**
- * The default coroutine context to use when calling [collectAsState]. Set this composition local to
- * change the default context on which flow collection into state objects should occur.
- *
- * By default, this takes the value of [EmptyCoroutineContext].
- */
-val LocalCollectAsStateCoroutineContext =
-    staticCompositionLocalOf<CoroutineContext> { EmptyCoroutineContext }
-
-/**
  * Collects values from this [StateFlow] and represents its latest value via [State]. The
  * [StateFlow.value] is used as an initial value. Every time there would be new value posted into
  * the [StateFlow] the returned [State] will be updated causing recomposition of every [State.value]
@@ -54,8 +45,8 @@ val LocalCollectAsStateCoroutineContext =
  */
 @Suppress("StateFlowValueCalledInComposition")
 @Composable
-fun <T> StateFlow<T>.collectAsState(
-    context: CoroutineContext = LocalCollectAsStateCoroutineContext.current
+public fun <T> StateFlow<T>.collectAsState(
+    context: CoroutineContext = EmptyCoroutineContext
 ): State<T> = collectAsState(value, context)
 
 /**
@@ -68,9 +59,9 @@ fun <T> StateFlow<T>.collectAsState(
  * @param context [CoroutineContext] to use for collecting.
  */
 @Composable
-fun <T : R, R> Flow<T>.collectAsState(
+public fun <T : R, R> Flow<T>.collectAsState(
     initial: R,
-    context: CoroutineContext = LocalCollectAsStateCoroutineContext.current
+    context: CoroutineContext = EmptyCoroutineContext,
 ): State<R> =
     produceState(initial, this, context) {
         if (context == EmptyCoroutineContext) {
@@ -115,7 +106,7 @@ fun <T : R, R> Flow<T>.collectAsState(
  * produce the same result. It is valid for a state observer to both skip intermediate states as
  * well as run multiple times for the same state and the result should be the same.
  */
-fun <T> snapshotFlow(block: () -> T): Flow<T> = flow {
+public fun <T> snapshotFlow(block: () -> T): Flow<T> = flow {
     // Objects read the last time block was run
     val readSet = MutableScatterSet<Any>()
     val readObserver: (Any) -> Unit = {

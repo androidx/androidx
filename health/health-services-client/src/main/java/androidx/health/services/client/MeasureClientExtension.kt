@@ -29,7 +29,7 @@ import androidx.health.services.client.data.MeasureCapabilities
 @kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun MeasureClient.unregisterMeasureCallback(
     dataType: DeltaDataType<*, *>,
-    callback: MeasureCallback
+    callback: MeasureCallback,
 ) = unregisterMeasureCallbackAsync(dataType, callback).awaitWithException()
 
 /**

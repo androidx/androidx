@@ -38,5 +38,5 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 fun ImageBitmap.assertAgainstGolden(
     rule: ScreenshotTestRule,
     goldenIdentifier: String,
-    matcher: BitmapMatcher = MSSIMMatcher()
+    matcher: BitmapMatcher = MSSIMMatcher(),
 ) = asAndroidBitmap().assertAgainstGolden(rule, goldenIdentifier, matcher)

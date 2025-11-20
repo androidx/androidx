@@ -43,7 +43,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -66,8 +65,8 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://m3.material.io/components/bottom-sheets/overview" class="external"
- * target="_blank">Material Design standard bottom sheet scaffold</a>.
+ * [Material Design standard bottom sheet
+ * scaffold](https://m3.material.io/components/bottom-sheets/overview)
  *
  * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
  * viewing and interacting with both regions. They are commonly used to keep a feature or secondary
@@ -133,7 +132,7 @@ fun BottomSheetScaffold(
     snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     containerColor: Color = MaterialTheme.colorScheme.surface,
     contentColor: Color = contentColorFor(containerColor),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Box(modifier.fillMaxSize().background(containerColor)) {
         // Using composition local provider instead of Surface as Surface implements .clip() which
@@ -157,9 +156,9 @@ fun BottomSheetScaffold(
                         tonalElevation = sheetTonalElevation,
                         shadowElevation = sheetShadowElevation,
                         dragHandle = sheetDragHandle,
-                        content = sheetContent
+                        content = sheetContent,
                     )
-                }
+                },
             )
         }
     }
@@ -175,7 +174,7 @@ fun BottomSheetScaffold(
 @Stable
 class BottomSheetScaffoldState(
     val bottomSheetState: SheetState,
-    val snackbarHostState: SnackbarHostState
+    val snackbarHostState: SnackbarHostState,
 )
 
 /**
@@ -189,12 +188,12 @@ class BottomSheetScaffoldState(
 @ExperimentalMaterial3Api
 fun rememberBottomSheetScaffoldState(
     bottomSheetState: SheetState = rememberStandardBottomSheetState(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): BottomSheetScaffoldState {
     return remember(bottomSheetState, snackbarHostState) {
         BottomSheetScaffoldState(
             bottomSheetState = bottomSheetState,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
         )
     }
 }
@@ -233,7 +232,7 @@ private fun StandardBottomSheet(
     tonalElevation: Dp,
     shadowElevation: Dp,
     dragHandle: @Composable (() -> Unit)?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     // TODO Load the motionScheme tokens from the component tokens file
     val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
@@ -257,7 +256,7 @@ private fun StandardBottomSheet(
                     ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                         sheetState = state,
                         orientation = orientation,
-                        onFling = { scope.launch { state.settle(it) } }
+                        onFling = { scope.launch { state.settle(it) } },
                     )
                 }
             )
@@ -279,11 +278,13 @@ private fun StandardBottomSheet(
                         if (!state.skipPartiallyExpanded) {
                             PartiallyExpanded at (layoutHeight - peekHeightPx)
                         }
-                        if (sheetHeight != peekHeightPx) {
-                            Expanded at maxOf(layoutHeight - sheetHeight, 0f)
-                        }
-                        if (!state.skipHiddenState) {
+                        // Ensure when there is no content, there is just one anchor set to
+                        // layoutHeight. Hidden overrides skipHiddenState in this use case.
+                        if (sheetHeight == 0f || !state.skipHiddenState) {
                             Hidden at layoutHeight
+                        }
+                        if (sheetHeight > 0f) {
+                            Expanded at layoutHeight - sheetHeight
                         }
                     }
                     val newTarget =
@@ -296,20 +297,15 @@ private fun StandardBottomSheet(
                                     newAnchors.hasAnchorFor(Hidden) -> Hidden
                                     else -> oldTarget
                                 }
-                            Expanded ->
-                                when {
-                                    newAnchors.hasAnchorFor(Expanded) -> Expanded
-                                    newAnchors.hasAnchorFor(PartiallyExpanded) -> PartiallyExpanded
-                                    newAnchors.hasAnchorFor(Hidden) -> Hidden
-                                    else -> oldTarget
-                                }
+
+                            Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
                         }
                     return@draggableAnchors newAnchors to newTarget
                 }
                 .anchoredDraggable(
                     state = state.anchoredDraggableState,
                     orientation = orientation,
-                    enabled = sheetSwipeEnabled
+                    enabled = sheetSwipeEnabled,
                 )
                 // Scale up the Surface vertically in case the sheet's offset overflows below the
                 // min anchor. This is done to avoid showing a gap when the sheet opens and bounces
@@ -334,10 +330,9 @@ private fun StandardBottomSheet(
                     getString(Strings.BottomSheetPartialExpandDescription)
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
-                Box(
+                DragHandleWithTooltip(
                     modifier =
-                        Modifier.align(CenterHorizontally)
-                            .clickable {
+                        Modifier.clickable {
                                 when (state.currentValue) {
                                     Expanded ->
                                         scope.launch {
@@ -347,14 +342,16 @@ private fun StandardBottomSheet(
                                                 state.partialExpand()
                                             }
                                         }
+
                                     PartiallyExpanded -> scope.launch { state.expand() }
                                     else -> scope.launch { state.show() }
                                 }
                             }
                             .semantics(mergeDescendants = true) {
                                 with(state) {
-                                    // Provides semantics to interact with the bottomsheet if there
-                                    // is more than one anchor to swipe to and swiping is enabled.
+                                    // Provides semantics to interact with the bottomsheet if
+                                    // there is more than one anchor to swipe to and swiping is
+                                    // enabled.
                                     if (
                                         anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled
                                     ) {
@@ -388,9 +385,8 @@ private fun StandardBottomSheet(
                                     }
                                 }
                             },
-                ) {
-                    dragHandle()
-                }
+                    content = dragHandle,
+                )
             }
             content()
         }

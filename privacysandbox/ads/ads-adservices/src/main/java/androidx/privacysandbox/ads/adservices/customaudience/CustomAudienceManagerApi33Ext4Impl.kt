@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-class CustomAudienceManagerApi33Ext4Impl(context: Context) :
+public class CustomAudienceManagerApi33Ext4Impl(context: Context) :
     CustomAudienceManagerImplCommon(
         context.getSystemService(
             android.adservices.customaudience.CustomAudienceManager::class.java

@@ -70,20 +70,16 @@ public abstract class Segment internal constructor() {
      * For performance-sensitive code, prefer to use [computeBoundingBox] with a pre-allocated
      * instance of [MutableBox].
      */
-    public fun computeBoundingBox(): ImmutableBox {
-        // TODO(b/354236964): Optimize unnecessary allocations
-        val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
-        return ImmutableBox.fromTwoPoints(ImmutableVec(minX, minY), ImmutableVec(maxX, maxY))
+    public fun computeBoundingBox(): ImmutableBox = withXAndYBounds { minX, maxX, minY, maxY ->
+        ImmutableBox.fromTwoPoints(minX, minY, maxX, maxY)
     }
 
     /** Populates [outBox] with the minimum bounding box containing the [Segment]. */
-    public fun computeBoundingBox(outBox: MutableBox): MutableBox {
-        // TODO(b/354236964): Optimize unnecessary allocations
-        val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
-        outBox.setXBounds(minX, maxX)
-        outBox.setYBounds(minY, maxY)
-        return outBox
-    }
+    public fun computeBoundingBox(outBox: MutableBox): MutableBox =
+        withXAndYBounds { minX, maxX, minY, maxY ->
+            outBox.setXBounds(minX, maxX)
+            outBox.setYBounds(minY, maxY)
+        }
 
     /**
      * Returns the point on the segment at the given ratio of the segment's length, measured from
@@ -97,7 +93,7 @@ public abstract class Segment internal constructor() {
     public fun computeLerpPoint(ratio: Float): ImmutableVec =
         ImmutableVec(
             (1.0f - ratio) * start.x + ratio * end.x,
-            (1.0f - ratio) * start.y + ratio * end.y
+            (1.0f - ratio) * start.y + ratio * end.y,
         )
 
     /**
@@ -120,7 +116,6 @@ public abstract class Segment internal constructor() {
      * if they are sufficiently close that floating-point underflow occurs.
      */
     public fun project(pointToProject: Vec): Float {
-        // TODO(b/354236964): Optimize unnecessary allocations
         if (Vec.areEquivalent(start, end)) {
             throw IllegalArgumentException("Projecting onto a segment of zero length is undefined.")
         }
@@ -142,14 +137,27 @@ public abstract class Segment internal constructor() {
      * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun asImmutable(): ImmutableSegment
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun toImmutable(): ImmutableSegment
 
     /**
      * Compares this [Segment] with [other], and returns true if both [start] points are considered
      * almost equal with the given [tolerance], and likewise for both [end] points.
      */
     public fun isAlmostEqual(other: Segment, @FloatRange(from = 0.0) tolerance: Float): Boolean =
-        start.isAlmostEqual(other.start, tolerance) && end.isAlmostEqual(other.end, tolerance)
+        this === other ||
+            (start.isAlmostEqual(other.start, tolerance) && end.isAlmostEqual(other.end, tolerance))
+
+    /**
+     * Calls the provided callback with four floats corresponding to the (minX, maxX, minY, maxY)
+     * bounds of the segment. These bounds are used to compute the bounding rectangle of segment.
+     */
+    private inline fun <R> withXAndYBounds(callback: (Float, Float, Float, Float) -> R) =
+        callback(
+            minOf(start.x, end.x),
+            maxOf(start.x, end.x),
+            minOf(start.y, end.y),
+            maxOf(start.y, end.y),
+        )
 
     public companion object {
         /**
@@ -168,20 +176,5 @@ public abstract class Segment internal constructor() {
         /** Returns a string representation for [segment] using its [Segment] properties. */
         internal fun string(segment: Segment): String =
             "Segment(start=${segment.start}, end=${segment.end})"
-
-        /**
-         * Returns the minimum and maximum x and y coordinates for all points inside [segment].
-         *
-         * This function returns four floats corresponding to the (minX, maxX, minY, maxY)
-         * coordinates of the segment. These coordinates are used to compute the bounding rectangle
-         * of [segment].
-         */
-        private fun getBoundingXYCoordinates(segment: Segment) =
-            arrayOf(
-                minOf(segment.start.x, segment.end.x),
-                maxOf(segment.start.x, segment.end.x),
-                minOf(segment.start.y, segment.end.y),
-                maxOf(segment.start.y, segment.end.y),
-            )
     }
 }

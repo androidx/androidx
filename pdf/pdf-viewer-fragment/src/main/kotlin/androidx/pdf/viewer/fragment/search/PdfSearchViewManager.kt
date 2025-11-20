@@ -63,17 +63,10 @@ internal class PdfSearchViewManager(private val pdfSearchView: PdfSearchView) {
                 context.getString(
                     androidx.pdf.R.string.match_status_description,
                     results.currentMatch,
-                    results.totalMatches
+                    results.totalMatches,
                 )
 
             if (results.totalMatches == 0) {
-                /*
-                Announce that no matching results found; it provides a better UX by
-                updating user upfront that no further actions are available for current search query.
-                */
-                announceForAccessibility(
-                    context.getString(androidx.pdf.R.string.message_no_match_status)
-                )
                 /*
                 Disable prev and next buttons when totalMatches = 0, which represents
                 no search results found for current search query.
@@ -102,7 +95,7 @@ internal class PdfSearchViewManager(private val pdfSearchView: PdfSearchView) {
         pdfSearchView.context.getString(
             androidx.pdf.R.string.message_match_status,
             currentSelection, // selection-index
-            totalMatches // total matches
+            totalMatches, // total matches
         )
 
     companion object {

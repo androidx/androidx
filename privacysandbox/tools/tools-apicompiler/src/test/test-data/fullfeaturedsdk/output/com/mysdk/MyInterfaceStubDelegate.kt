@@ -13,8 +13,7 @@ public class MyInterfaceStubDelegate internal constructor(
 ) : IMyInterface.Stub() {
   private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
-  public override fun doSomething(request: ParcelableRequest,
-      transactionCallback: IResponseTransactionCallback) {
+  public override fun doSomething(request: ParcelableRequest, transactionCallback: IResponseTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.doSomething(RequestConverter(context).fromParcelable(request))
@@ -28,8 +27,7 @@ public class MyInterfaceStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun getMyInterface(input: IMyInterface,
-      transactionCallback: IMyInterfaceTransactionCallback) {
+  public override fun getMyInterface(input: IMyInterface, transactionCallback: IMyInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
@@ -43,12 +41,10 @@ public class MyInterfaceStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun getMySecondInterface(input: IMySecondInterface,
-      transactionCallback: IMySecondInterfaceTransactionCallback) {
+  public override fun getMySecondInterface(input: IMySecondInterface, transactionCallback: IMySecondInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
-        val result = delegate.getMySecondInterface((input as
-            MySecondInterfaceStubDelegate).delegate)
+        val result = delegate.getMySecondInterface((input as MySecondInterfaceStubDelegate).delegate)
         transactionCallback.onSuccess(MySecondInterfaceStubDelegate(result, context))
       }
       catch (t: Throwable) {

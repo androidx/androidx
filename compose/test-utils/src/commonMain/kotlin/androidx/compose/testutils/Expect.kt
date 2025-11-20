@@ -26,7 +26,7 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
 fun expectAssertionError(
     expectError: Boolean = true,
     expectedMessage: String = ".*",
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     expectError<AssertionError>(expectError, expectedMessage, block)
 }
@@ -44,7 +44,7 @@ fun expectAssertionError(
 inline fun <reified T : Throwable> expectError(
     expectError: Boolean = true,
     expectedMessage: String = ".*",
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     val expectedClassName = T::class.simpleName
     try {
@@ -70,7 +70,7 @@ inline fun <reified T : Throwable> expectError(
 internal fun throwExpectError(
     expectedClassName: String?,
     thrown: Throwable? = null,
-    expectedMessage: String? = null
+    expectedMessage: String? = null,
 ) {
     val stackTrace =
         if (thrown != null) {

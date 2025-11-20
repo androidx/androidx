@@ -46,14 +46,14 @@ public class LocationAccuracy(
             Log.w(
                 TAG,
                 "horizontalPositionErrorMeters value " +
-                    "$horizontalPositionErrorMeters is out of range"
+                    "$horizontalPositionErrorMeters is out of range",
             )
         }
         if (verticalPositionErrorMeters < 0.0) {
             Log.w(
                 TAG,
                 "verticalPositionErrorMeters value " +
-                    "$verticalPositionErrorMeters is out of range"
+                    "$verticalPositionErrorMeters is out of range",
             )
         }
     }
@@ -66,7 +66,7 @@ public class LocationAccuracy(
             proto.locationAccuracy.verticalPositionError
         } else {
             Double.MAX_VALUE
-        }
+        },
     )
 
     internal fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {

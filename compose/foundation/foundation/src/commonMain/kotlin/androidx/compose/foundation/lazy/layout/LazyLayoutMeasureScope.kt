@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
@@ -30,26 +30,25 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
-import androidx.compose.ui.unit.sp
 
 /**
  * The receiver scope of a [LazyLayout]'s measure lambda. The return value of the measure lambda is
  * [MeasureResult], which should be returned by [layout].
  *
- * Main difference from the regular flow of writing any custom layout is that you have a new
- * function [measure] which accepts item index and constraints, composes the item based and then
- * measures all the layouts emitted in the item content block.
- *
- * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
- * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
- * change.
+ * Call [compose] to compose items emitted in a content block for a given index.
  */
 @Stable
-@ExperimentalFoundationApi
 sealed interface LazyLayoutMeasureScope : MeasureScope {
+
+    /**
+     * Compose an item of lazy layout.
+     *
+     * @param index the item index. Should be no larger that [LazyLayoutItemProvider.itemCount].
+     * @return List of [Measurable]s. Note that if you emitted multiple children into the item
+     *   composable you will receive multiple measurebles.
+     */
+    fun compose(@AndroidXIntRange(from = 0) index: Int): List<Measurable>
+
     /**
      * Subcompose and measure the item of lazy layout.
      *
@@ -60,49 +59,18 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
      *   composable you will receive multiple placeables, each of them will be measured with the
      *   passed [constraints].
      */
+    @Deprecated(
+        "Please use compose and call Measurable.measure",
+        ReplaceWith("compose(index).map { it.measure(constraints) }"),
+    )
+    @ExperimentalFoundationApi
     fun measure(index: Int, constraints: Constraints): List<Placeable>
-
-    // Below overrides added to work around https://youtrack.jetbrains.com/issue/KT-51672
-    // Must be kept in sync until resolved.
-
-    @Stable
-    override fun TextUnit.toDp(): Dp {
-        checkPrecondition(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Dp(value * fontScale)
-    }
-
-    @Stable override fun Int.toDp(): Dp = (this / density).dp
-
-    @Stable override fun Float.toDp(): Dp = (this / density).dp
-
-    @Stable override fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
-
-    @Stable override fun Int.toSp(): TextUnit = (this / (fontScale * density)).sp
-
-    @Stable override fun Dp.toSp(): TextUnit = (value / fontScale).sp
-
-    @Stable
-    override fun DpSize.toSize(): Size =
-        if (isSpecified) {
-            Size(width.toPx(), height.toPx())
-        } else {
-            Size.Unspecified
-        }
-
-    @Stable
-    override fun Size.toDpSize(): DpSize =
-        if (isSpecified) {
-            DpSize(width.toDp(), height.toDp())
-        } else {
-            DpSize.Unspecified
-        }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyLayoutMeasureScopeImpl
 internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,
-    private val subcomposeMeasureScope: SubcomposeMeasureScope
+    private val subcomposeMeasureScope: SubcomposeMeasureScope,
 ) : LazyLayoutMeasureScope, MeasureScope by subcomposeMeasureScope {
 
     private val itemProvider = itemContentFactory.itemProvider()
@@ -113,6 +81,24 @@ internal constructor(
      */
     private val placeablesCache = mutableIntObjectMapOf<List<Placeable>>()
 
+    private val measurablesCache = mutableIntObjectMapOf<List<Measurable>>()
+
+    override fun compose(index: Int): List<Measurable> {
+        val cachedMeasurable = measurablesCache[index]
+        if (cachedMeasurable != null) {
+            return cachedMeasurable
+        } else {
+            val key = itemProvider.getKey(index)
+            val contentType = itemProvider.getContentType(index)
+            val itemContent = itemContentFactory.getContent(index, key, contentType)
+            return subcomposeMeasureScope.subcompose(key, itemContent).also {
+                measurablesCache[index] = it
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Deprecated("Please use compose and measure")
     override fun measure(index: Int, constraints: Constraints): List<Placeable> {
         val cachedPlaceable = placeablesCache[index]
         return if (cachedPlaceable != null) {

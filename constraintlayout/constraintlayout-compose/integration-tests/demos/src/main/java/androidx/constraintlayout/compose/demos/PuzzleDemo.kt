@@ -78,11 +78,7 @@ fun AnimatedPuzzlePiecesDemo() {
                 val shuffle = index.map { ordered[it] }.toTypedArray()
                 val set1 = constraintSet {
                     val flow =
-                        createFlow(
-                            elements = ordered,
-                            maxElement = grid,
-                            wrapMode = Wrap.Aligned,
-                        )
+                        createFlow(elements = ordered, maxElement = grid, wrapMode = Wrap.Aligned)
                     constrain(flow) {
                         centerTo(parent)
                         width = Dimension.ratio("1:1")
@@ -97,11 +93,7 @@ fun AnimatedPuzzlePiecesDemo() {
                 }
                 val set2 = constraintSet {
                     val flow =
-                        createFlow(
-                            elements = shuffle,
-                            maxElement = grid,
-                            wrapMode = Wrap.Aligned,
-                        )
+                        createFlow(elements = shuffle, maxElement = grid, wrapMode = Wrap.Aligned)
                     constrain(flow) {
                         centerTo(parent)
                         width = Dimension.ratio("1:1")
@@ -145,7 +137,7 @@ fun AnimatedPuzzlePiecesDemo() {
                 }
                 .background(Color.Red)
                 .fillMaxSize(),
-        progress = progress
+        progress = progress,
     ) {
         val painter = rememberVectorPainter(image = Icons.Default.Face)
         index.forEachIndexed { i, id ->
@@ -154,7 +146,7 @@ fun AnimatedPuzzlePiecesDemo() {
                 y = i / grid,
                 gridSize = grid,
                 painter = painter,
-                modifier = Modifier.layoutId(refId[id])
+                modifier = Modifier.layoutId(refId[id]),
             )
         }
     }

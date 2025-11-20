@@ -35,10 +35,8 @@ import kotlinx.atomicfu.atomic
  * and all of the underlying placeholder objects for each expected output.
  */
 internal class FrameImpl
-private constructor(
-    private val frameState: FrameState,
-    override val imageStreams: Set<StreamId>,
-) : Frame {
+private constructor(private val frameState: FrameState, override val imageStreams: Set<StreamId>) :
+    Frame {
     internal constructor(
         frameState: FrameState
     ) : this(frameState, frameState.imageOutputs.map { it.streamId }.toSet())

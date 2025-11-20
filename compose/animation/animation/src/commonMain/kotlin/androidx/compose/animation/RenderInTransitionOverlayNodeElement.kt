@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSharedTransitionApi::class)
-
 package androidx.compose.animation
 
 import androidx.compose.runtime.getValue
@@ -23,35 +21,34 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Constraints
 
-internal data class RenderInTransitionOverlayNodeElement(
+internal class RenderInTransitionOverlayNodeElement(
     var sharedTransitionScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     val zIndexInOverlay: Float,
-    val clipInOverlay: (LayoutDirection, Density) -> Path?
 ) : ModifierNodeElement<RenderInTransitionOverlayNode>() {
     override fun create(): RenderInTransitionOverlayNode {
         return RenderInTransitionOverlayNode(
             sharedTransitionScope,
             renderInOverlay,
             zIndexInOverlay,
-            clipInOverlay
         )
     }
 
@@ -59,19 +56,17 @@ internal data class RenderInTransitionOverlayNodeElement(
         node.sharedScope = sharedTransitionScope
         node.renderInOverlay = renderInOverlay
         node.zIndexInOverlay = zIndexInOverlay
-        node.clipInOverlay = clipInOverlay
     }
 
     override fun hashCode(): Int =
-        ((sharedTransitionScope.hashCode() * 31 + renderInOverlay.hashCode()) * 31 +
-            zIndexInOverlay.hashCode()) * 31 + clipInOverlay.hashCode()
+        (sharedTransitionScope.hashCode() * 31 + renderInOverlay.hashCode()) * 31 +
+            zIndexInOverlay.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (other is RenderInTransitionOverlayNodeElement) {
             return sharedTransitionScope == other.sharedTransitionScope &&
                 renderInOverlay === other.renderInOverlay &&
-                zIndexInOverlay == other.zIndexInOverlay &&
-                clipInOverlay === other.clipInOverlay
+                zIndexInOverlay == other.zIndexInOverlay
         }
         return false
     }
@@ -81,7 +76,6 @@ internal data class RenderInTransitionOverlayNodeElement(
         properties["sharedTransitionScope"] = sharedTransitionScope
         properties["renderInOverlay"] = renderInOverlay
         properties["zIndexInOverlay"] = zIndexInOverlay
-        properties["clipInOverlayDuringTransition"] = clipInOverlay
     }
 }
 
@@ -89,35 +83,79 @@ internal class RenderInTransitionOverlayNode(
     var sharedScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     zIndexInOverlay: Float,
-    var clipInOverlay: (LayoutDirection, Density) -> Path?,
-) : Modifier.Node(), DrawModifierNode, ModifierLocalModifierNode {
+) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, ModifierLocalModifierNode {
     var zIndexInOverlay by mutableFloatStateOf(zIndexInOverlay)
 
-    val parentState: SharedElementInternalState?
+    val parentState: SharedElementEntry?
         get() = ModifierLocalSharedElementInternalState.current
 
+    /**
+     * Both enabled and positionInOverlay below are mutated during approach placement. Once they are
+     * updated during the layout phase, they will explicitly trigger invalidation of drawing for
+     * both the SharedTransition overlay as well as the RenderInTransitionOverlayNode. In other
+     * words, the state observation only needs to happen during placement, the drawing stage will be
+     * invalidated **in the same frame** as needed. Therefore, both the enabled and
+     * positionInOverlay properties are intentionally defined as non-snapshot states, as they are
+     * not meant to be observed.
+     */
+    private var enabled: Boolean = false
+        set(value) {
+            if (value != field) {
+                this@RenderInTransitionOverlayNode.sharedScope.invalidateOverlay?.invoke()
+                invalidateDraw()
+                field = value
+            }
+        }
+
+    private var positionInOverlay: Offset = Offset.Zero
+        set(value) {
+            if (value != field) {
+                this@RenderInTransitionOverlayNode.sharedScope.invalidateOverlay?.invoke()
+                invalidateDraw()
+                field = value
+            }
+        }
+
     private inner class LayerWithRenderer(val layer: GraphicsLayer) : LayerRenderer {
-        override val parentState: SharedElementInternalState?
+        override val parentState: SharedElementEntry?
             get() = this@RenderInTransitionOverlayNode.parentState
 
         override val zIndex: Float
             get() = this@RenderInTransitionOverlayNode.zIndexInOverlay
 
         override fun drawInOverlay(drawScope: DrawScope) {
-            if (renderInOverlay()) {
+            if (enabled) {
                 with(drawScope) {
-                    val (x, y) =
-                        sharedScope.root.localPositionOf(
-                            this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
-                            Offset.Zero
-                        )
-                    val clipPath = clipInOverlay(layoutDirection, requireDensity())
-                    if (clipPath != null) {
-                        clipPath(clipPath) { translate(x, y) { drawLayer(layer) } }
+                    translate(positionInOverlay.x, positionInOverlay.y) { drawLayer(layer) }
+                }
+            }
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        return measurable.measure(constraints).run {
+            layout(width, height) {
+                if (!isLookingAhead) {
+                    if (renderInOverlay()) {
+                        // Access coordinates from the PlacementScope to ensure position changes
+                        // while `renderInOverlay` is enabled triggers changes in the position
+                        // in overlay, and invalidations in drawing.
+                        coordinates?.let {
+                            enabled = true
+                            positionInOverlay =
+                                sharedScope.root.localPositionOf(
+                                    this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
+                                    Offset.Zero,
+                                )
+                        }
                     } else {
-                        translate(x, y) { drawLayer(layer) }
+                        enabled = false
                     }
                 }
+                place(0, 0)
             }
         }
     }
@@ -127,7 +165,7 @@ internal class RenderInTransitionOverlayNode(
     override fun ContentDrawScope.draw() {
         val layer = requireNotNull(layer) { "Error: layer never initialized" }
         layer.record { this@draw.drawContent() }
-        if (!renderInOverlay()) {
+        if (!enabled) {
             drawLayer(layer)
         }
     }

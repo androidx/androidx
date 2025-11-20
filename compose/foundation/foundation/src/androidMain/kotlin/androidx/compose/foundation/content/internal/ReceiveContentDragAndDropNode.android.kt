@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.toClipMetadata
 @OptIn(ExperimentalFoundationApi::class)
 internal actual fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
-    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
+    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit,
 ): DragAndDropTargetModifierNode {
     return DragAndDropTargetModifierNode(
         shouldStartDragAndDrop = {
@@ -61,7 +61,7 @@ internal actual fun ReceiveContentDragAndDropNode(
                         receiveContentConfiguration.receiveContentListener.onReceive(original)
                     return original != remaining
                 }
-            }
+            },
     )
 }
 
@@ -71,7 +71,7 @@ internal fun DragAndDropEvent.toTransferableContent(): TransferableContent {
         TransferableContent(
             clipEntry = clipData.toClipEntry(),
             clipMetadata = clipDescription.toClipMetadata(),
-            source = TransferableContent.Source.DragAndDrop
+            source = TransferableContent.Source.DragAndDrop,
         )
     }
 }

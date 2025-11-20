@@ -70,9 +70,9 @@ public fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
-    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null
+    finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
 ): Modifier =
     this.clipToBounds() then
         SizeAnimationModifierElement(animationSpec, Alignment.TopStart, finishedListener)
@@ -104,7 +104,7 @@ public fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     alignment: Alignment = Alignment.TopStart,
     finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)? = null,
@@ -112,10 +112,10 @@ public fun Modifier.animateContentSize(
     this.clipToBounds() then
         SizeAnimationModifierElement(animationSpec, alignment, finishedListener)
 
-private data class SizeAnimationModifierElement(
+private class SizeAnimationModifierElement(
     val animationSpec: FiniteAnimationSpec<IntSize>,
     val alignment: Alignment,
-    val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?
+    val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?,
 ) : ModifierNodeElement<SizeAnimationModifierNode>() {
     override fun create(): SizeAnimationModifierNode =
         SizeAnimationModifierNode(animationSpec, alignment, finishedListener)
@@ -132,6 +132,18 @@ private data class SizeAnimationModifierElement(
         properties["alignment"] = alignment
         properties["finishedListener"] = finishedListener
     }
+
+    override fun hashCode(): Int {
+        return (animationSpec.hashCode() * 31 + alignment.hashCode()) * 31 +
+            finishedListener.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is SizeAnimationModifierElement &&
+            other.animationSpec == animationSpec &&
+            other.finishedListener === finishedListener &&
+            other.alignment == alignment
+    }
 }
 
 internal val InvalidSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
@@ -145,7 +157,7 @@ internal val IntSize.isValid: Boolean
 private class SizeAnimationModifierNode(
     var animationSpec: AnimationSpec<IntSize>,
     var alignment: Alignment = Alignment.TopStart,
-    var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null
+    var listener: ((startSize: IntSize, endSize: IntSize) -> Unit)? = null,
 ) : LayoutModifierNodeWithPassThroughIntrinsics() {
     private var lookaheadSize: IntSize = InvalidSize
     private var lookaheadConstraints: Constraints = Constraints()
@@ -182,7 +194,7 @@ private class SizeAnimationModifierNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable =
             if (isLookingAhead) {
@@ -210,7 +222,7 @@ private class SizeAnimationModifierNode(
                 alignment.align(
                     size = measuredSize,
                     space = IntSize(width, height),
-                    layoutDirection = this@measure.layoutDirection
+                    layoutDirection = this@measure.layoutDirection,
                 )
             placeable.place(offset)
         }
@@ -236,7 +248,7 @@ private class SizeAnimationModifierNode(
             }
                 ?: AnimData(
                     Animatable(targetSize, IntSize.VectorConverter, IntSize(1, 1)),
-                    targetSize
+                    targetSize,
                 )
 
         animData = data
@@ -248,21 +260,21 @@ internal abstract class LayoutModifierNodeWithPassThroughIntrinsics :
     LayoutModifierNode, Modifier.Node() {
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) = measurable.minIntrinsicWidth(height)
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) = measurable.minIntrinsicHeight(width)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) = measurable.maxIntrinsicWidth(height)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) = measurable.maxIntrinsicHeight(width)
 }

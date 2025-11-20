@@ -17,12 +17,12 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.activity.integration.testapp"
     }
@@ -43,7 +43,6 @@ dependencies {
     // Manually align dependencies across debugRuntime and debugAndroidTestRuntime.
     androidTestImplementation("androidx.annotation:annotation:1.8.1")
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestRuntimeOnly(libs.testCore)
     androidTestRuntimeOnly(libs.testRunner)
 }

@@ -29,7 +29,7 @@ class ToStringLogger(private val stringBuilder: StringBuilder = StringBuilder())
             it.level = LogLevel.DEBUG
             it.setOutputEventListener { stringBuilder.append(it.toString() + "\n") }
         },
-        Clock { System.currentTimeMillis() }
+        Clock { System.currentTimeMillis() },
     ) {
     /** Returns the current log. */
     fun buildString() = stringBuilder.toString()

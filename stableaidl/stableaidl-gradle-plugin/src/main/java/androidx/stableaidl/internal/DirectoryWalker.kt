@@ -69,7 +69,7 @@ internal constructor(
      * If a predicate's `test()` method returns true, that file will be skipped and the given
      * FileAction will not be run for it.
      */
-    private val filters: Collection<Predicate<Path>>
+    private val filters: Collection<Predicate<Path>>,
 ) {
     /**
      * A FileAction represents a unit of work to perform on a file in a directory tree. The `call()`
@@ -155,7 +155,7 @@ internal constructor(
         private fun extensions(extensions: Set<String>): Builder {
             Preconditions.checkArgument(
                 extensions.isNotEmpty(),
-                "cannot pass in an empty array of extensions"
+                "cannot pass in an empty array of extensions",
             )
             for (ext in extensions) {
                 Preconditions.checkArgument(ext.isNotEmpty(), "cannot pass in an empty extension")
@@ -268,7 +268,7 @@ internal constructor(
                     }
                     return FileVisitResult.CONTINUE
                 }
-            }
+            },
         )
         return this
     }

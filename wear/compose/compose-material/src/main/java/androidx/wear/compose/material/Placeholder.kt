@@ -103,7 +103,7 @@ public class PlaceholderState
 internal constructor(
     private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
-    private val isReduceMotionEnabled: Boolean
+    private val isReduceMotionEnabled: Boolean,
 ) {
 
     /**
@@ -405,7 +405,7 @@ public fun Modifier.placeholder(
     color: Color =
         MaterialTheme.colors.onSurface
             .copy(alpha = 0.1f)
-            .compositeOver(MaterialTheme.colors.surface)
+            .compositeOver(MaterialTheme.colors.surface),
 ): Modifier =
     this then
         PlaceholderElement(
@@ -418,7 +418,7 @@ public fun Modifier.placeholder(
                     properties["placeholderState"] = placeholderState
                     properties["shape"] = shape
                     properties["color"] = color
-                }
+                },
         )
 
 /**
@@ -470,7 +470,7 @@ public fun Modifier.placeholderShimmer(
                         properties["placeholderState"] = placeholderState
                         properties["shape"] = shape
                         properties["color"] = color
-                    }
+                    },
             )
         }
     )
@@ -509,7 +509,7 @@ public object PlaceholderDefaults {
     public fun placeholderChipColors(
         originalChipColors: ChipColors,
         placeholderState: PlaceholderState,
-        color: Color = MaterialTheme.colors.surface
+        color: Color = MaterialTheme.colors.surface,
     ): ChipColors {
         return if (!placeholderState.isShowContent) {
             ChipDefaults.chipColors(
@@ -517,7 +517,7 @@ public object PlaceholderDefaults {
                     PlaceholderBackgroundPainter(
                         painter = originalChipColors.background(enabled = true).value,
                         placeholderState = placeholderState,
-                        color = color
+                        color = color,
                     ),
                 contentColor = originalChipColors.contentColor(enabled = true).value,
                 secondaryContentColor =
@@ -527,7 +527,7 @@ public object PlaceholderDefaults {
                     PlaceholderBackgroundPainter(
                         painter = originalChipColors.background(enabled = false).value,
                         placeholderState = placeholderState,
-                        color = color
+                        color = color,
                     ),
                 disabledContentColor = originalChipColors.contentColor(enabled = false).value,
                 disabledSecondaryContentColor =
@@ -563,7 +563,7 @@ public object PlaceholderDefaults {
                 PlaceholderBackgroundPainter(
                     painter = null,
                     placeholderState = placeholderState,
-                    color = color
+                    color = color,
                 ),
             contentColor = Color.Transparent,
             secondaryContentColor = Color.Transparent,
@@ -572,7 +572,7 @@ public object PlaceholderDefaults {
                 PlaceholderBackgroundPainter(
                     painter = null,
                     placeholderState = placeholderState,
-                    color = color
+                    color = color,
                 ),
             disabledContentColor = Color.Transparent,
             disabledSecondaryContentColor = Color.Transparent,
@@ -601,7 +601,7 @@ public object PlaceholderDefaults {
             PlaceholderBackgroundPainter(
                 painter = painter,
                 placeholderState = placeholderState,
-                color = color
+                color = color,
             )
         } else {
             painter
@@ -674,21 +674,16 @@ internal value class PlaceholderStage internal constructor(internal val type: In
 private fun wipeOffBrush(color: Color, offset: Offset, placeholderState: PlaceholderState): Brush {
     val halfGradientWidth = placeholderState.gradientXYWidth / 2f
     return Brush.linearGradient(
-        colorStops =
-            listOf(
-                    0f to Color.Transparent,
-                    0.75f to color,
-                )
-                .toTypedArray(),
+        colorStops = listOf(0f to Color.Transparent, 0.75f to color).toTypedArray(),
         start =
             Offset(
                 x = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.x,
-                y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y
+                y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y,
             ),
         end =
             Offset(
                 x = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.x,
-                y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y
+                y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y,
             ),
     )
 }
@@ -702,7 +697,7 @@ internal class PlaceholderBackgroundPainter(
     val painter: Painter?,
     private val placeholderState: PlaceholderState,
     val color: Color,
-    private var alpha: Float = 1.0f
+    private var alpha: Float = 1.0f,
 ) : Painter() {
     override fun DrawScope.onDraw() {
         // Due to anti aliasing we can not use a SolidColor brush over the top of the background
@@ -788,7 +783,7 @@ internal class PlaceholderBackgroundPainter(
 
 private abstract class AbstractPlaceholderModifierNode(
     private val alpha: Float = 1.0f,
-    private val shape: Shape
+    private val shape: Shape,
 ) : DrawModifierNode, Modifier.Node(), GlobalPositionAwareModifierNode, ObserverModifierNode {
 
     private var offset by mutableStateOf(Offset.Zero)
@@ -853,7 +848,7 @@ private class PlaceholderElement(
     private val color: Color,
     private val shape: Shape,
     private val alpha: Float = 1.0f,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<PlaceholderModifierNode>() {
 
     override fun create(): PlaceholderModifierNode {
@@ -933,7 +928,7 @@ private class PlaceholderShimmerElement(
     private val color: Color,
     private val shape: Shape,
     private val alpha: Float = 1.0f,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<PlaceholderShimmerModifierNode>() {
 
     override fun create(): PlaceholderShimmerModifierNode {
@@ -995,12 +990,12 @@ private class PlaceholderShimmerModifierNode(
                 start =
                     Offset(
                         x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
-                        y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
+                        y = placeholderState.placeholderProgression - halfGradientWidth - offset.y,
                     ),
                 end =
                     Offset(
                         x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
-                        y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
+                        y = placeholderState.placeholderProgression + halfGradientWidth - offset.y,
                     ),
                 colorStops =
                     listOf(
@@ -1008,7 +1003,7 @@ private class PlaceholderShimmerModifierNode(
                             0.65f to color.copy(alpha = placeholderState.placeholderShimmerAlpha),
                             0.9f to color.copy(alpha = 0f),
                         )
-                        .toTypedArray()
+                        .toTypedArray(),
             )
         } else {
             null

@@ -32,7 +32,7 @@ import java.time.Instant.EPOCH
 class TimeDataSourceService : ComplicationDataSourceService() {
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             val text = PlainComplicationText.Builder("--").build()
@@ -41,7 +41,7 @@ class TimeDataSourceService : ComplicationDataSourceService() {
                         value = 0f,
                         min = 0f,
                         max = 9f,
-                        contentDescription = text
+                        contentDescription = text,
                     )
                     .setText(text)
                     .build()
@@ -58,7 +58,7 @@ class TimeDataSourceService : ComplicationDataSourceService() {
                     .format()
                     .concat(DynamicString.constant(":"))
                     .concat(epochDuration.secondsPart.format()),
-                "--"
+                "--",
             )
 
         listener.onComplicationData(

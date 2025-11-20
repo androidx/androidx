@@ -45,15 +45,15 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                         isWindowAreaComponentValid(
                             windowAreaComponentClass,
-                            ExtensionsUtil.safeVendorApiLevel
+                            ExtensionsUtil.safeVendorApiLevel,
                         ) &&
                         isExtensionWindowAreaStatusValid(
                             extensionWindowAreaStatusClass,
-                            ExtensionsUtil.safeVendorApiLevel
+                            ExtensionsUtil.safeVendorApiLevel,
                         ) &&
                         isExtensionWindowAreaPresentationValid(
                             extensionWindowAreaPresentationClass,
-                            ExtensionsUtil.safeVendorApiLevel
+                            ExtensionsUtil.safeVendorApiLevel,
                         )
                 ) {
                     windowExtensions.windowAreaComponent

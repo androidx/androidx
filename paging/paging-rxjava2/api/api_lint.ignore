@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+TypeParameterName: androidx.paging.rxjava2.PagingRx#getFlowable(androidx.paging.Pager<Key,Value>):
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.rxjava2.PagingRx#getObservable(androidx.paging.Pager<Key,Value>):
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.rxjava2.RxPagingSource:
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.paging.rxjava2.RxRemoteMediator:
+    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

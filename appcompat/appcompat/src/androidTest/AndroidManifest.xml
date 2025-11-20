@@ -395,6 +395,10 @@
 
         <activity android:name="androidx.appcompat.app.LocalesLateOnCreateActivity"/>
 
+        <activity
+            android:name="androidx.appcompat.widget.ActionBarContextViewActivity"
+            android:theme="@style/ActionBarContextViewTheme" />
+
     </application>
 
 </manifest>

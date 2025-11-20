@@ -146,12 +146,11 @@ public class TabTemplate implements Template {
             return false;
         }
         TabTemplate otherTemplate = (TabTemplate) other;
-
         return mIsLoading == otherTemplate.mIsLoading
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mTabs, otherTemplate.mTabs)
                 && Objects.equals(mTabContents, otherTemplate.mTabContents)
-                && Objects.equals(mActiveTabContentId, otherTemplate.getActiveTabContentId());
+                && Objects.equals(mActiveTabContentId, otherTemplate.mActiveTabContentId);
     }
 
     TabTemplate(TabTemplate.Builder builder) {

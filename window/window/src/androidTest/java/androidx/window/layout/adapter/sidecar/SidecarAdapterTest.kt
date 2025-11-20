@@ -65,7 +65,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarDisplayFeatures =
             listOf(
                 sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_FOLD),
-                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_FOLD)
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_FOLD),
             )
         val sidecarCallbackAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
@@ -84,7 +84,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
         val sidecarDisplayFeatures =
             listOf(
                 sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_HINGE),
-                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE)
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE),
             )
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
@@ -103,12 +103,12 @@ public class SidecarAdapterTest : TranslatorTestInterface {
                 WINDOW_BOUNDS.left,
                 WINDOW_BOUNDS.top,
                 WINDOW_BOUNDS.left,
-                WINDOW_BOUNDS.bottom / 2
+                WINDOW_BOUNDS.bottom / 2,
             )
         val extensionDisplayFeatures =
             listOf(
                 sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_HINGE),
-                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE)
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE),
             )
         val sidecarCallbackAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(extensionDisplayFeatures)

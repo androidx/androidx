@@ -18,7 +18,6 @@ package androidx.core.content;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.Q;
 import static android.os.Build.VERSION_CODES.R;
@@ -174,14 +173,6 @@ public class IntentCompatTest {
         assertThat(activityIntent.getPackage()).isEqualTo(VERIFIER_PACKAGE_NAME);
         assertThat(activityIntent.getData()).isEqualTo(
                 Uri.fromParts("package", PACKAGE_NAME, /* fragment= */ null));
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = LOLLIPOP)
-    public void createManageUnusedAppRestrictionsIntent_preApi23() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> IntentCompat.createManageUnusedAppRestrictionsIntent(
-                        mContext, PACKAGE_NAME));
     }
 
     @Test

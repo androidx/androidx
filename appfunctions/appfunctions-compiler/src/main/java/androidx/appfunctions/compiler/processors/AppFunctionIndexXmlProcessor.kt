@@ -16,9 +16,14 @@
 
 package androidx.appfunctions.compiler.processors
 
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSerializableProxy.ResolvedAnnotatedSerializableProxies
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
-import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.compiler.core.createElementWithTextNode
+import androidx.appfunctions.compiler.core.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionDataTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.CompileTimeAppFunctionMetadata
+import androidx.appfunctions.compiler.core.toXmlElement
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -29,48 +34,61 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import kotlin.reflect.KProperty1
-import org.w3c.dom.Document
-import org.w3c.dom.Element
 
 /**
- * Generates AppFunction's index xml file with all properties of [AppFunctionMetadata] for the
- * AppSearch indexer to index.
+ * Generates AppFunction's index xml file with all properties of [CompileTimeAppFunctionMetadata]
+ * for the AppSearch indexer to index.
  *
  * The generator would write an XML file as `/assets/app_functions_dynamic_schema.xml`. The file
  * would be packaged into the APK's asset when assembled, so that the AppSearch indexer can look up
  * the asset and inject metadata into platform AppSearch database accordingly.
  */
-class AppFunctionIndexXmlProcessor(
-    private val codeGenerator: CodeGenerator,
-) : SymbolProcessor {
+class AppFunctionIndexXmlProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        generateIndexXml(AppFunctionSymbolResolver(resolver).resolveAnnotatedAppFunctions())
+        val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
+        val resolvedAnnotatedSerializableProxies =
+            ResolvedAnnotatedSerializableProxies(
+                appFunctionSymbolResolver.resolveAllAnnotatedSerializableProxiesFromModule()
+            )
+        generateIndexXml(
+            appFunctionSymbolResolver.getAnnotatedAppFunctionsFromAllModules(),
+            resolvedAnnotatedSerializableProxies,
+            appFunctionSymbolResolver.getAppFunctionSerializablesDescriptionMap(),
+        )
         return emptyList()
     }
 
     /**
      * Generates AppFunction's index xml files for indexer in App Search.
      *
-     * @param appFunctionsByClass a collection of functions annotated with @AppFunction grouped by
-     *   their enclosing classes.
+     * @param appFunctionsByClass a collection of functions annotated with @AppFunction
+     * @param resolvedAnnotatedSerializableProxies a collection of resolved annotated serializable
+     *   proxies
      */
     private fun generateIndexXml(
         appFunctionsByClass: List<AnnotatedAppFunctions>,
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        appFunctionSerializablesDescriptionMap: Map<String, String>,
     ) {
-        if (appFunctionsByClass.isEmpty()) {
-            return
-        }
-        writeXmlFile(appFunctionsByClass)
+        writeXmlFile(
+            appFunctionsByClass,
+            resolvedAnnotatedSerializableProxies,
+            appFunctionSerializablesDescriptionMap,
+        )
     }
 
     private fun writeXmlFile(
         appFunctionsByClass: List<AnnotatedAppFunctions>,
+        resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
+        appFunctionSerializablesDescriptionMap: Map<String, String>,
     ) {
         val appFunctionMetadataList =
             appFunctionsByClass.flatMap {
-                it.createAppFunctionMetadataList().map { it.toAppFunctionMetadataDocument() }
+                it.createAppFunctionMetadataList(
+                    resolvedAnnotatedSerializableProxies,
+                    appFunctionSerializablesDescriptionMap,
+                )
             }
 
         val xmlDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -79,21 +97,33 @@ class AppFunctionIndexXmlProcessor(
         val appFunctionsElement = xmlDocument.createElement(APP_FUNCTIONS_ELEMENTS_TAG)
         xmlDocument.appendChild(appFunctionsElement)
 
+        val aggregatedDataTypes: MutableMap<String, AppFunctionDataTypeMetadata> = mutableMapOf()
         for (appFunctionMetadata in appFunctionMetadataList) {
+            appFunctionMetadata.components.dataTypes.forEach { (objectKey, dataTypeMetadata) ->
+                aggregatedDataTypes.putIfAbsent(objectKey, dataTypeMetadata)
+            }
+            val sanitizedAppFunctionMetadata =
+                appFunctionMetadata.copy(components = AppFunctionComponentsMetadata())
+
             val appFunctionElement =
-                xmlDocument.createElementWithInstance(
-                    APP_FUNCTION_ITEM_TAG,
-                    appFunctionMetadata,
-                    // Below properties are named differently in platform's
-                    // AppFunctionStaticMetadata GD hence we encode them in XML accordingly.
-                    customTagNames = mapOf("isEnabledByDefault" to "enabledByDefault"),
-                    // Irrelevant properties that do not need to be encoded in XML.
-                    skipProperties = setOf("namespace")
-                )
+                sanitizedAppFunctionMetadata
+                    .toAppFunctionMetadataDocument()
+                    .toXmlElement(xmlDocument, APP_FUNCTION_ITEM_TAG)
             appFunctionElement.appendChild(
-                xmlDocument.createElementWithTextNode(APP_FUNCTION_ID_TAG, appFunctionMetadata.id)
+                xmlDocument.createElementWithTextNode(
+                    APP_FUNCTION_ID_TAG,
+                    sanitizedAppFunctionMetadata.id,
+                )
             )
             appFunctionsElement.appendChild(appFunctionElement)
+        }
+
+        if (aggregatedDataTypes.isNotEmpty()) {
+            val componentElement =
+                AppFunctionComponentsMetadata(aggregatedDataTypes)
+                    .toAppFunctionComponentsMetadataDocument()
+                    .toXmlElement(doc = xmlDocument, COMPONENT_ITEM_TAG)
+            appFunctionsElement.appendChild(componentElement)
         }
 
         val transformer =
@@ -108,73 +138,13 @@ class AppFunctionIndexXmlProcessor(
             .createNewFile(
                 Dependencies(
                     aggregating = true,
-                    *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray()
+                    *appFunctionsByClass.flatMap { it.getSourceFiles() }.toTypedArray(),
                 ),
                 XML_PACKAGE_NAME,
                 XML_FILE_NAME,
-                XML_EXTENSION
+                XML_EXTENSION,
             )
             .use { stream -> transformer.transform(DOMSource(xmlDocument), StreamResult(stream)) }
-    }
-
-    /**
-     * Creates an XML element from [instance], including nested structures and collections.
-     *
-     * This function recursively converts a data class instance into an XML element, handling nested
-     * data classes and collections appropriately. For non-data-class values, it creates text nodes.
-     *
-     * @param elementName The name of the root XML element to create.
-     * @param instance The instance to convert into an XML structure.
-     * @param customTagNames Mapping of property names to customized tag names when creating nodes.
-     * @param skipProperties Property names to skip when creating XML elements.
-     * @return The created XML element representing the instance.
-     */
-    private fun Document.createElementWithInstance(
-        elementName: String,
-        instance: Any,
-        customTagNames: Map<String, String>,
-        skipProperties: Set<String>,
-    ): Element {
-        if (instance.isPrimitiveType()) {
-            return createElementWithTextNode(elementName, instance.toString())
-        }
-
-        val doc = this
-        val element = createElement(elementName)
-
-        for (property in instance::class.members.filterIsInstance<KProperty1<Any, *>>()) {
-
-            if (property.name in skipProperties) continue
-
-            val value = property.get(instance) ?: continue
-            val propertyName = customTagNames[property.name] ?: property.name
-
-            when {
-                value is List<*> ->
-                    value
-                        .filterNotNull()
-                        .map { item ->
-                            doc.createElementWithInstance(
-                                propertyName,
-                                item,
-                                customTagNames,
-                                skipProperties
-                            )
-                        }
-                        .forEach(element::appendChild)
-                else ->
-                    element.appendChild(
-                        doc.createElementWithInstance(
-                            propertyName,
-                            value,
-                            customTagNames,
-                            skipProperties
-                        )
-                    )
-            }
-        }
-
-        return element
     }
 
     private fun Any.isPrimitiveType(): Boolean {
@@ -189,15 +159,13 @@ class AppFunctionIndexXmlProcessor(
             this is String
     }
 
-    private fun Document.createElementWithTextNode(elementName: String, text: String): Element =
-        createElement(elementName).apply { appendChild(createTextNode(text)) }
-
     private companion object {
         const val XML_PACKAGE_NAME = "assets"
-        const val XML_FILE_NAME = "app_functions_dynamic_schema"
+        const val XML_FILE_NAME = "app_functions_v2"
         const val XML_EXTENSION = "xml"
         const val APP_FUNCTIONS_ELEMENTS_TAG = "appfunctions"
         const val APP_FUNCTION_ITEM_TAG = "appfunction"
+        const val COMPONENT_ITEM_TAG = "AppFunctionComponentMetadataDocument"
         const val APP_FUNCTION_ID_TAG = "functionId"
     }
 }

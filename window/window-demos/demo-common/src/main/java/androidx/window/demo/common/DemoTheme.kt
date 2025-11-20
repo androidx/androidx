@@ -24,10 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.colorResource
 
 @Composable
-fun DemoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun DemoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme =
         if (darkTheme) {
             darkColorScheme(

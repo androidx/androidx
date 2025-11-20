@@ -22,7 +22,8 @@ import java.time.Instant
 
 /** Set of shared metadata fields for [Record]. */
 @SuppressWarnings("NewApi") // Temporary until we can enable java8 desugaring effectively.
-public class Metadata(
+public class Metadata
+internal constructor(
     /**
      * Client supplied data recording method to help to understand how the data was recorded.
      *
@@ -33,9 +34,8 @@ public class Metadata(
     @param:RecordingMethod @property:RecordingMethod @get:RecordingMethod val recordingMethod: Int,
 
     /**
-     * Unique identifier of this data, assigned by the Android Health Platform at insertion time.
-     * When [Record] is created before insertion, this takes a sentinel value, any assigned value
-     * will be ignored.
+     * Unique identifier of this data, assigned by Health Connect at insertion time. When [Record]
+     * is created before insertion, this takes a sentinel value, any assigned value will be ignored.
      */
     public val id: String = EMPTY_ID,
 
@@ -147,9 +147,215 @@ public class Metadata(
             RECORDING_METHOD_UNKNOWN,
             RECORDING_METHOD_ACTIVELY_RECORDED,
             RECORDING_METHOD_AUTOMATICALLY_RECORDED,
-            RECORDING_METHOD_MANUAL_ENTRY
+            RECORDING_METHOD_MANUAL_ENTRY,
         )
         @Retention(AnnotationRetention.SOURCE)
         annotation class RecordingMethod
+
+        /**
+         * Creates Metadata for an actively recorded record.
+         *
+         * [RECORDING_METHOD_ACTIVELY_RECORDED] is auto populated.
+         *
+         * @param device The [Device] associated with the record.
+         */
+        @JvmStatic
+        fun activelyRecorded(device: Device): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED, device = device)
+
+        /**
+         * Creates Metadata for an actively recorded record with the provided client ID.
+         *
+         * [RECORDING_METHOD_ACTIVELY_RECORDED] is auto populated.
+         *
+         * @param device The [Device] associated with the record.
+         * @param clientRecordId The client ID of the record.
+         * @param clientRecordVersion The client version of the record (default: 0).
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun activelyRecorded(
+            device: Device,
+            clientRecordId: String,
+            clientRecordVersion: Long = 0,
+        ): Metadata =
+            Metadata(
+                recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED,
+                device = device,
+                clientRecordId = clientRecordId,
+                clientRecordVersion = clientRecordVersion,
+            )
+
+        /**
+         * Creates Metadata to update a record with an existing UUID.
+         *
+         * [RECORDING_METHOD_ACTIVELY_RECORDED] is auto populated.
+         *
+         * Use this only when there's no client ID or version associated with the record.
+         *
+         * @param id The existing UUID of the record.
+         * @param device The [Device] associated with the record.
+         */
+        @JvmStatic
+        fun activelyRecordedWithId(id: String, device: Device): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_ACTIVELY_RECORDED, id = id, device = device)
+
+        /**
+         * Creates Metadata for an automatically recorded record.
+         *
+         * [RECORDING_METHOD_AUTOMATICALLY_RECORDED] is auto populated.
+         *
+         * @param device The [Device] associated with the record.
+         */
+        @JvmStatic
+        fun autoRecorded(device: Device): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED, device = device)
+
+        /**
+         * Creates Metadata for an automatically recorded record with the provided client ID.
+         *
+         * [RECORDING_METHOD_AUTOMATICALLY_RECORDED] is auto populated.
+         *
+         * @param device The [Device] associated with the record.
+         * @param clientRecordId The client ID of the record.
+         * @param clientRecordVersion The client version of the record (default: 0).
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun autoRecorded(
+            device: Device,
+            clientRecordId: String,
+            clientRecordVersion: Long = 0,
+        ): Metadata =
+            Metadata(
+                recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED,
+                device = device,
+                clientRecordId = clientRecordId,
+                clientRecordVersion = clientRecordVersion,
+            )
+
+        /**
+         * Creates Metadata to update a record with an existing UUID.
+         *
+         * [RECORDING_METHOD_AUTOMATICALLY_RECORDED] is auto populated.
+         *
+         * Use this only when there's no client ID or version associated with the record.
+         *
+         * @param id The existing UUID of the record.
+         * @param device The [Device] associated with the record.
+         */
+        @JvmStatic
+        fun autoRecordedWithId(id: String, device: Device): Metadata =
+            Metadata(
+                recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED,
+                id = id,
+                device = device,
+            )
+
+        /**
+         * Creates Metadata for a manually entered record. Developers can provide optional device
+         * information.
+         *
+         * [RECORDING_METHOD_MANUAL_ENTRY] is auto populated.
+         *
+         * @param device The optional [Device] associated with the record.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun manualEntry(device: Device? = null): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY, device = device)
+
+        /**
+         * Creates Metadata for a manually entered record with the provided client ID. Developers
+         * can provide optional device information.
+         *
+         * [RECORDING_METHOD_MANUAL_ENTRY] is auto populated.
+         *
+         * @param clientRecordId The client ID of the record.
+         * @param clientRecordVersion The client version of the record (default: 0).
+         * @param device The optional [Device] associated with the record.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun manualEntry(
+            clientRecordId: String,
+            clientRecordVersion: Long = 0,
+            device: Device? = null,
+        ): Metadata =
+            Metadata(
+                recordingMethod = RECORDING_METHOD_MANUAL_ENTRY,
+                device = device,
+                clientRecordId = clientRecordId,
+                clientRecordVersion = clientRecordVersion,
+            )
+
+        /**
+         * Creates Metadata to update a record with an existing UUID.
+         *
+         * [RECORDING_METHOD_MANUAL_ENTRY] is auto populated.
+         *
+         * Use this only when there's no client ID or version associated with the record.
+         *
+         * @param id The existing UUID of the record.
+         * @param device The optional [Device] associated with the recording.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun manualEntryWithId(id: String, device: Device? = null): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY, id = id, device = device)
+
+        /**
+         * Creates Metadata with unknown recording method.
+         *
+         * [RECORDING_METHOD_UNKNOWN] is auto populated.
+         *
+         * This should only be used in the case when the recording method is geniously unknown.
+         *
+         * @param device The optional [Device] associated with the record.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun unknownRecordingMethod(device: Device? = null): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, device = device)
+
+        /**
+         * Creates Metadata with unknown recording method with the provided client ID.
+         *
+         * [RECORDING_METHOD_UNKNOWN] is auto populated.
+         *
+         * This should only be used in the case when the recording method is geniously unknown.
+         *
+         * @param clientRecordId The client ID of the record.
+         * @param clientRecordVersion The client version of the record (default: 0).
+         * @param device The optional [Device] associated with the recording.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun unknownRecordingMethod(
+            clientRecordId: String,
+            clientRecordVersion: Long = 0,
+            device: Device? = null,
+        ): Metadata =
+            Metadata(
+                recordingMethod = RECORDING_METHOD_UNKNOWN,
+                device = device,
+                clientRecordId = clientRecordId,
+                clientRecordVersion = clientRecordVersion,
+            )
+
+        /**
+         * Creates Metadata to update a record with an existing UUID.
+         *
+         * [RECORDING_METHOD_UNKNOWN] is auto populated.
+         *
+         * This should only be used in the case when the recording method is geniously unknown.
+         *
+         * @param id The existing UUID of the record.
+         * @param device The optional [Device] associated with the record.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun unknownRecordingMethodWithId(id: String, device: Device? = null): Metadata =
+            Metadata(recordingMethod = RECORDING_METHOD_UNKNOWN, id = id, device = device)
     }
 }

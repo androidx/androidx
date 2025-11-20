@@ -231,7 +231,6 @@ Libraries within an atomic group should not specify a version in their
 androidx {
     name = 'AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2019'
     description = 'Provides local and centralized app indexing'
 }
@@ -316,7 +315,6 @@ import androidx.build.KmpPlatformsKt
 androidx {
     name = "Collection"
     type = LibraryType.KMP_LIBRARY
-    mavenGroup = LibraryGroups.COLLECTION
     mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP
     inceptionYear = "2018"
     description = "Standalone efficient collections."
@@ -326,14 +324,14 @@ androidx {
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
 The recommended minimum SDK version for new Jetpack libraries is currently
-**23** (Android 6.0, Marshmallow). This SDK was chosen to represent 99% of
-active devices based on Play Store check-ins (see Android Studio
+**24** (Android 7.0, Nougat). This SDK was chosen to represent 99% of active
+devices based on Play Store check-ins (see Android Studio
 [distribution metadata](https://dl.google.com/android/studio/metadata/distributions.json)
 for current statistics). This maximizes potential users for external developers
 while minimizing the amount of overhead necessary to support legacy versions.
 
 However, if no explicit minimum SDK version is specified for a library, the
-default is **21** (Android 5.0, Lollipop).
+default is **23** (Android 6.0, Marshmallow).
 
 Note that a library **must not** depend on another library with a higher
 `minSdkVersion` that its own, so it may be necessary for a new library to match

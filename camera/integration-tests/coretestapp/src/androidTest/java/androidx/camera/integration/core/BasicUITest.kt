@@ -59,9 +59,7 @@ class BasicUITest(private val implName: String, private val cameraConfig: String
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =
@@ -79,7 +77,7 @@ class BasicUITest(private val implName: String, private val cameraConfig: String
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     // Skip DetectLeaksAfterTestSuccess on API 27 and 29 devices. Some objects (analyzer or taking
@@ -210,12 +208,12 @@ class BasicUITest(private val implName: String, private val cameraConfig: String
             listOf(
                 arrayOf(
                     Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
                 ),
                 arrayOf(
                     CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
-                )
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+                ),
             )
     }
 }

@@ -35,8 +35,7 @@ import org.jspecify.annotations.Nullable;
  * Wrapper class that can be used as a unique identifier for a session. Also contains an accessor
  * for the {@link AuthTabCallback} for the session if there was any.
  */
-@ExperimentalAuthTab
-public class AuthTabSessionToken {
+public final class AuthTabSessionToken {
     private static final String TAG = "AuthTabSessionToken";
 
     /**
@@ -125,7 +124,8 @@ public class AuthTabSessionToken {
      *               {@link CustomTabsIntent#EXTRA_SESSION}.
      * @return The token that was generated.
      */
-    public static @Nullable AuthTabSessionToken getSessionTokenFromIntent(@NonNull Intent intent) {
+    public static @Nullable AuthTabSessionToken createSessionTokenFromIntent(
+            @NonNull Intent intent) {
         Bundle b = intent.getExtras();
         if (b == null) return null;
         IBinder binder = b.getBinder(CustomTabsIntent.EXTRA_SESSION);

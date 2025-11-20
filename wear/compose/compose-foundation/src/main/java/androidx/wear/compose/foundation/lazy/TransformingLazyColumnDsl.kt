@@ -20,19 +20,18 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
+import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.trace
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
-import androidx.wear.compose.foundation.lazy.layout.LazyLayoutIntervalContent
-import androidx.wear.compose.foundation.lazy.layout.MutableIntervalList
 
 /** Receiver scope being used by the item content parameter of [TransformingLazyColumn]. */
 @TransformingLazyColumnScopeMarker
@@ -64,18 +63,6 @@ public sealed interface TransformingLazyColumnItemScope {
     ): Modifier
 
     /**
-     * Preserves the appearance of some content within an item, by preventing implicit access to the
-     * [TransformingLazyColumnItemScope]. Explicit use of [LocalTransformingLazyColumnItemScope] can
-     * still apply transformations to the item.
-     *
-     * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnImplicitSample
-     */
-    @Composable
-    public fun TransformExclusion(content: @Composable TransformingLazyColumnItemScope.() -> Unit) {
-        CompositionLocalProvider(LocalTransformingLazyColumnItemScope provides null) { content() }
-    }
-
-    /**
      * This modifier animates item appearance (fade in), disappearance (fade out) and placement
      * changes (such as an item reordering).
      *
@@ -96,7 +83,7 @@ public sealed interface TransformingLazyColumnItemScope {
         placementSpec: FiniteAnimationSpec<IntOffset>? =
             spring(
                 stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntOffset.VisibilityThreshold
+                visibilityThreshold = IntOffset.VisibilityThreshold,
             ),
         fadeOutSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
     ): Modifier
@@ -120,7 +107,7 @@ public sealed interface TransformingLazyColumnScope {
         count: Int,
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
-        content: @Composable TransformingLazyColumnItemScope.(index: Int) -> Unit
+        content: @Composable TransformingLazyColumnItemScope.(index: Int) -> Unit,
     )
 
     /**
@@ -140,7 +127,7 @@ public sealed interface TransformingLazyColumnScope {
     public fun item(
         key: Any? = null,
         contentType: Any? = null,
-        content: @Composable TransformingLazyColumnItemScope.() -> Unit
+        content: @Composable TransformingLazyColumnItemScope.() -> Unit,
     )
 }
 
@@ -163,12 +150,12 @@ public inline fun <T> TransformingLazyColumnScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline contentType: (item: T) -> Any? = { null },
-    crossinline itemContent: @Composable TransformingLazyColumnItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable TransformingLazyColumnItemScope.(item: T) -> Unit,
 ): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(items[index]) } else null,
-        contentType = { index: Int -> contentType(items[index]) }
+        contentType = { index: Int -> contentType(items[index]) },
     ) {
         itemContent(items[it])
     }
@@ -194,12 +181,12 @@ public inline fun <T> TransformingLazyColumnScope.itemsIndexed(
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent:
         @Composable
-        TransformingLazyColumnItemScope.(index: Int, item: T) -> Unit
+        TransformingLazyColumnItemScope.(index: Int, item: T) -> Unit,
 ): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(index, items[index]) } else null,
-        contentType = { index -> contentType(index, items[index]) }
+        contentType = { index -> contentType(index, items[index]) },
     ) {
         itemContent(it, items[it])
     }
@@ -207,13 +194,21 @@ public inline fun <T> TransformingLazyColumnScope.itemsIndexed(
 internal class TransformingLazyColumnItemScopeImpl(
     val index: Int,
     val state: TransformingLazyColumnState,
-    val reduceMotionEnabled: Boolean
+    val reduceMotionEnabled: Boolean,
 ) : TransformingLazyColumnItemScope {
 
     private val _scrollProgress: TransformingLazyColumnItemScrollProgress
         get() =
-            state.layoutInfo.visibleItems.fastFirstOrNull { it.index == index }?.scrollProgress
-                ?: TransformingLazyColumnItemScrollProgress.Unspecified
+            trace("wear-compose:tlc:scrollProgress") {
+                with(state.layoutInfo.visibleItems) {
+                    val firstItem =
+                        firstOrNull()
+                            ?: return@trace TransformingLazyColumnItemScrollProgress.Unspecified
+                    val delta = index - firstItem.index
+                    if (delta in indices) this[delta].scrollProgress
+                    else TransformingLazyColumnItemScrollProgress.Unspecified
+                }
+            }
 
     override val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress
         get() = _scrollProgress
@@ -242,7 +237,7 @@ internal class TransformingLazyColumnItemScopeImpl(
 }
 
 internal class TransformingLazyColumnCompositeParentDataModifier(
-    val heightProvider: (Int, TransformingLazyColumnItemScrollProgress) -> Int,
+    val heightProvider: (Int, TransformingLazyColumnItemScrollProgress) -> Int
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         if (parentData is LazyLayoutAnimationSpecsNode) {
@@ -274,22 +269,18 @@ internal class TransformingLazyColumnScopeImpl(
         count: Int,
         key: ((index: Int) -> Any)?,
         contentType: (index: Int) -> Any?,
-        content: @Composable TransformingLazyColumnItemScope.(Int) -> Unit
+        content: @Composable TransformingLazyColumnItemScope.(Int) -> Unit,
     ) {
         intervals.addInterval(
             count,
-            TransformingLazyColumnInterval(
-                key,
-                type = contentType,
-                item = content,
-            )
+            TransformingLazyColumnInterval(key, type = contentType, item = content),
         )
     }
 
     override fun item(
         key: Any?,
         contentType: Any?,
-        content: @Composable TransformingLazyColumnItemScope.() -> Unit
+        content: @Composable TransformingLazyColumnItemScope.() -> Unit,
     ) {
         intervals.addInterval(
             1,
@@ -297,7 +288,7 @@ internal class TransformingLazyColumnScopeImpl(
                 key = if (key != null) { _: Int -> key } else null,
                 type = { contentType },
                 item = { content() },
-            )
+            ),
         )
     }
 }

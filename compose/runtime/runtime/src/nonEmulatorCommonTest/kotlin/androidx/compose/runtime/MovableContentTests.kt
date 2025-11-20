@@ -34,6 +34,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Stable
 class MovableContentTests {
@@ -182,7 +186,7 @@ class MovableContentTests {
             assertEquals(
                 expected = marker,
                 actual = root.findFirst { it.name == "Marker" },
-                message = "Expected marker node to move with the movable content"
+                message = "Expected marker node to move with the movable content",
             )
             assertTrue("Expected all remember observers to be kept alive") {
                 rememberedObject.all { it.isLive }
@@ -272,7 +276,7 @@ class MovableContentTests {
             assertEquals(
                 expected = marker,
                 actual = root.findFirst { it.name == "Marker" },
-                message = "Expected marker node to move with the movable content"
+                message = "Expected marker node to move with the movable content",
             )
             assertTrue("Expected all remember observers to be kept alive") {
                 rememberObservers.all { it.isLive }
@@ -325,7 +329,7 @@ class MovableContentTests {
             assertEquals(
                 expected = marker,
                 actual = root.findFirst { it.name == "Marker" },
-                message = "Expected marker node to move with the movable content"
+                message = "Expected marker node to move with the movable content",
             )
         }
 
@@ -381,7 +385,7 @@ class MovableContentTests {
             assertEquals(
                 expected = marker,
                 actual = root.findFirst { it.name == "Marker" },
-                message = "Expected marker node to move with the movable content"
+                message = "Expected marker node to move with the movable content",
             )
         }
 
@@ -750,8 +754,9 @@ class MovableContentTests {
     }
 
     @Test
+    @Suppress("RememberInComposition") // See note below
     fun compositionLocalsShouldBeAvailable() = compositionTest {
-        var someValue by mutableStateOf(0)
+        var someValue by mutableIntStateOf(0)
         val local = staticCompositionLocalOf<Int> { error("No value provided for local") }
 
         compose {
@@ -1333,10 +1338,10 @@ class MovableContentTests {
 
     @Test
     fun movableContentOfTheSameFunctionShouldHaveStableKeys() = compositionTest {
-        val hashList1 = mutableListOf<Int>()
-        val hashList2 = mutableListOf<Int>()
-        val composable1: @Composable () -> Unit = { hashList1.add(currentCompositeKeyHash) }
-        val composable2: @Composable () -> Unit = { hashList2.add(currentCompositeKeyHash) }
+        val hashList1 = mutableListOf<CompositeKeyHashCode>()
+        val hashList2 = mutableListOf<CompositeKeyHashCode>()
+        val composable1: @Composable () -> Unit = { hashList1.add(currentCompositeKeyHashCode) }
+        val composable2: @Composable () -> Unit = { hashList2.add(currentCompositeKeyHashCode) }
         val movableContent1A = movableContentOf(composable1)
         val movableContent1B = movableContentOf(composable1)
         val movableContent2A = movableContentOf(composable2)
@@ -1352,7 +1357,7 @@ class MovableContentTests {
             movableContent2B()
         }
 
-        fun List<Int>.assertAllTheSame() = forEach { assertEquals(it, first()) }
+        fun List<CompositeKeyHashCode>.assertAllTheSame() = forEach { assertEquals(it, first()) }
         hashList1.assertAllTheSame()
         hashList2.assertAllTheSame()
         assertNotEquals(hashList1.first(), hashList2.first())
@@ -1360,10 +1365,10 @@ class MovableContentTests {
 
     @Test
     fun keyInsideMovableContentShouldntChangeWhenRecomposed() = compositionTest {
-        val hashList = mutableListOf<Int>()
+        val hashList = mutableListOf<CompositeKeyHashCode>()
         val counter = mutableStateOf(0)
         val movableContent = movableContentOf {
-            hashList.add(currentCompositeKeyHash)
+            hashList.add(currentCompositeKeyHashCode)
             Text("counter=${counter.value}")
         }
         compose { movableContent() }
@@ -1546,7 +1551,6 @@ class MovableContentTests {
 
         condition = true
         expectChanges()
-        println("Done")
         revalidate()
         verifyConsistent()
     }
@@ -1808,6 +1812,149 @@ class MovableContentTests {
         index++
         advance()
     }
+
+    @Test
+    fun moveContentBetweenSubcompositions() = compositionTest {
+        var inSubcompose by mutableStateOf(true)
+        val content = movableContentOf { Text("Some text") }
+        compose {
+            if (inSubcompose) {
+                Subcompose { content() }
+            } else {
+                DeferredSubcompose { content() }
+            }
+        }
+
+        inSubcompose = false
+        advance()
+    }
+
+    @Test
+    fun movableContentReactivated() = compositionTest {
+        var value by mutableStateOf(true)
+        var text by mutableStateOf("text")
+        val movableContent = movableContentOf { Linear { Text(text) } }
+
+        val content =
+            @Composable {
+                if (value) {
+                    movableContent()
+                } else {
+                    movableContent()
+                }
+            }
+
+        compose(content)
+        validate { Linear { Text(text) } }
+
+        val c = composition as ReusableComposition
+        c.deactivate()
+        value = false
+        c.setContentWithReuse(content)
+
+        c.deactivate()
+        value = true
+        text = "new text"
+        c.setContentWithReuse(content)
+
+        revalidate()
+    }
+
+    private class ManualClock : MonotonicFrameClock {
+        val awaiters = mutableListOf<Awaiter<*>>()
+
+        private class Awaiter<R>(
+            private val onFrame: (Long) -> R,
+            private val continuation: CancellableContinuation<R>,
+        ) {
+            fun runFrame(frameTimeNanos: Long): () -> Unit {
+                val result = runCatching { onFrame(frameTimeNanos) }
+                return { continuation.resumeWith(result) }
+            }
+        }
+
+        override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+            suspendCancellableCoroutine { co ->
+                awaiters.add(Awaiter(onFrame, co))
+            }
+
+        fun runFrame(nanos: Long) {
+            awaiters.forEach { it.runFrame(nanos).invoke() }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun movableContentInvalidatedWhileDeleted() {
+        val clock = ManualClock()
+
+        compositionTest(clock) {
+            var value by mutableStateOf(true)
+            var targetScope: RecomposeScope? = null
+            val movableContent = movableContentOf { key: Int ->
+                Linear {
+                    targetScope = currentRecomposeScope
+                    Text(key.toString())
+                }
+            }
+
+            val content: @Composable () -> Unit = {
+                if (value) {
+                    movableContent(20)
+                } else {
+                    Linear { repeat(5) { Text("$it") } }
+                }
+
+                targetScope?.invalidate()
+            }
+
+            compose(content)
+            validate { Linear { Text("20") } }
+
+            value = false
+            Snapshot.sendApplyNotifications()
+
+            while (clock.awaiters.isEmpty()) {
+                testCoroutineScheduler.advanceTimeBy(5.milliseconds)
+            }
+            clock.runFrame(testCoroutineScheduler.currentTime.milliseconds.inWholeNanoseconds)
+
+            // This is before previous content is disposed (e.g. during measure)
+            composition!!.setContent(content)
+            verifyConsistent()
+
+            testCoroutineScheduler.runCurrent()
+
+            validate { Linear { repeat(5) { Text("$it") } } }
+        }
+    }
+
+    @Test
+    fun movableContentRemovedFromWriter() = compositionTest {
+        var value by mutableStateOf(true)
+        val movableContent = movableContentOf { key: Int -> Linear { Text(key.toString()) } }
+        compose {
+            // This group will be removed first, moving the second group over the gap
+            // This will force anchor to be negative during extraction.
+            if (value) {
+                Text("Hello")
+            }
+
+            if (value) {
+                movableContent(0)
+            }
+        }
+
+        validate {
+            Text("Hello")
+            Linear { Text("0") }
+        }
+
+        value = false
+        advance()
+
+        validate {}
+    }
 }
 
 @Composable
@@ -1838,7 +1985,7 @@ private fun MockViewValidator.Column(block: MockViewValidator.() -> Unit) {
 private fun Text(text: String) {
     ComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "Text" } },
-        update = { set(text) { attributes["text"] = it } }
+        update = { set(text) { attributes["text"] = it } },
     )
 }
 
@@ -1860,16 +2007,16 @@ private fun MockViewValidator.Marker() {
 private fun Marker(value: Int) {
     ComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "Marker" } },
-        update = { set(value) { attributes["value"] = it } }
+        update = { set(value) { attributes["value"] = it } },
     )
 }
 
 @Composable
-private fun Stack(isHorizontal: Boolean, block: @Composable () -> Unit) {
+private fun Stack(isHorizontal: Boolean, content: @Composable () -> Unit) {
     if (isHorizontal) {
-        Column(block)
+        Column(content)
     } else {
-        Row(block)
+        Row(content)
     }
 }
 

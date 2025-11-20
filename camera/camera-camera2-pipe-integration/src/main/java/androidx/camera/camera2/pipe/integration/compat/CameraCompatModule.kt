@@ -34,6 +34,6 @@ import dagger.Module
             UseFlashModeTorchFor3aUpdate.Bindings::class,
             UseTorchAsFlash.Bindings::class,
             TemplateParamsOverride.Bindings::class,
-        ],
+        ]
 )
 public abstract class CameraCompatModule

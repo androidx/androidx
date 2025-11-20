@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -54,7 +54,6 @@ dependencies {
     })
     // ... therefore we manually depend on AppCompat v1.1.0
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation(libs.kotlinStdlib)
 }
 
 androidx {

@@ -19,6 +19,7 @@ package androidx.tracing.driver
 internal val id = AtomicLong(42L)
 
 /** Generates a monotonically increasing [Long] value. */
+@PublishedApi
 internal fun monotonicId(): Long {
     return id.incrementAndGet()
 }

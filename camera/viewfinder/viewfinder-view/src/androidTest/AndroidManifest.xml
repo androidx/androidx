@@ -20,17 +20,7 @@
 
     <application>
         <activity
-            android:name="androidx.camera.viewfinder.utils.ForegroundTestActivity"
-            android:exported="true"
-            android:configChanges="orientation|screenSize"
-            android:label="ForegroundTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="androidx.camera.viewfinder.utils.FakeActivity"
+            android:name="androidx.camera.viewfinder.view.FakeActivity"
             android:exported="true"
             android:label="Fake Activity">
             <intent-filter>

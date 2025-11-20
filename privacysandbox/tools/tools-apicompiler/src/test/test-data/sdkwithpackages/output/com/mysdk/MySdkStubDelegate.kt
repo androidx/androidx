@@ -32,8 +32,7 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override
-      fun getMyInterface(transactionCallback: IMyMainPackageInterfaceTransactionCallback) {
+  public override fun getMyInterface(transactionCallback: IMyMainPackageInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMyInterface()
@@ -47,8 +46,7 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override
-      fun getMyOtherPackageInterface(transactionCallback: IMyOtherPackageInterfaceTransactionCallback) {
+  public override fun getMyOtherPackageInterface(transactionCallback: IMyOtherPackageInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMyOtherPackageInterface()

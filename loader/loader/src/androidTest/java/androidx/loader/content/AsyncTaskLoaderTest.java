@@ -47,7 +47,7 @@ public class AsyncTaskLoaderTest {
             }
         });
 
-        assertTrue(loader.mLoadInBackgoundLatch.await(1, TimeUnit.SECONDS));
+        assertTrue(loader.mLoadInBackgroundLatch.await(1, TimeUnit.SECONDS));
     }
 
     @Test
@@ -98,23 +98,23 @@ public class AsyncTaskLoaderTest {
             }
         });
 
-        assertTrue(loader.mLoadInBackgoundLatch.await(1, TimeUnit.SECONDS));
+        assertTrue(loader.mLoadInBackgroundLatch.await(1, TimeUnit.SECONDS));
         assertEquals(1, loader.mGetExecutorCallCount);
     }
 
     private static class TestAsyncTaskLoader extends AsyncTaskLoader<Void> {
-        final CountDownLatch mLoadInBackgoundLatch;
+        final CountDownLatch mLoadInBackgroundLatch;
         Executor mExecutor = null;
         int mGetExecutorCallCount = 0;
 
         TestAsyncTaskLoader(int latchCount) {
             super(ApplicationProvider.getApplicationContext());
-            mLoadInBackgoundLatch = new CountDownLatch(latchCount);
+            mLoadInBackgroundLatch = new CountDownLatch(latchCount);
         }
 
         @Override
         public Void loadInBackground() {
-            mLoadInBackgoundLatch.countDown();
+            mLoadInBackgroundLatch.countDown();
             return null;
         }
 

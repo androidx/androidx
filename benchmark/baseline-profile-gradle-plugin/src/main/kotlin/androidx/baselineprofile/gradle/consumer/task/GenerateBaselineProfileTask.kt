@@ -20,8 +20,6 @@ import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -34,7 +32,6 @@ private const val GENERATE_TASK_NAME = "generate"
 
 /** This task does nothing and it's only to start the generation process. */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 internal abstract class GenerateBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -46,7 +43,7 @@ internal abstract class GenerateBaselineProfileTask : DefaultTask() {
             project.tasks.maybeRegister<GenerateBaselineProfileTask>(
                 GENERATE_TASK_NAME,
                 variantName,
-                TASK_NAME_SUFFIX
+                TASK_NAME_SUFFIX,
             ) {
                 if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
             }
@@ -64,7 +61,6 @@ internal abstract class GenerateBaselineProfileTask : DefaultTask() {
  * `generateBaselineProfile` generating only for `release` with AGP 8.0.
  */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTask() {
 
     companion object {
@@ -72,12 +68,12 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
             project: Project,
             variantName: String,
             lastTaskProvider: TaskProvider<*>? = null,
-            warnings: Warnings
+            warnings: Warnings,
         ) =
             project.tasks.maybeRegister<MainGenerateBaselineProfileTaskForAgp80Only>(
                 GENERATE_TASK_NAME,
                 variantName,
-                TASK_NAME_SUFFIX
+                TASK_NAME_SUFFIX,
             ) {
                 if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
                 it.printWarningMultipleBuildTypesWithAgp80.set(warnings.multipleBuildTypesWithAgp80)
@@ -112,7 +108,7 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
 
         Details on https://issuetracker.google.com/issue?id=270433400.
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
     }
 }

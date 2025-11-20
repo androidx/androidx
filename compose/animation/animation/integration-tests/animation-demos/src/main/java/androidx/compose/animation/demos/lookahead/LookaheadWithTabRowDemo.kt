@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -52,7 +51,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithTabRowDemo() {
@@ -68,7 +66,7 @@ fun LookaheadWithTabRowDemo() {
             Modifier.fillMaxWidth()
                 .animateBounds(
                     this@LookaheadScope,
-                    if (isWide) Modifier else Modifier.padding(end = 100.dp)
+                    if (isWide) Modifier else Modifier.padding(end = 100.dp),
                 )
                 .fillMaxHeight()
                 .background(Color(0xFFfffbd0))
@@ -85,9 +83,7 @@ fun FancyTabs() {
     var state by remember { mutableIntStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
-        TabRow(
-            selectedTabIndex = state,
-        ) {
+        TabRow(selectedTabIndex = state) {
             titles.forEachIndexed { index, title ->
                 FancyTab(title = title, onClick = { state = index }, selected = (index == state))
             }
@@ -95,7 +91,7 @@ fun FancyTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -105,7 +101,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
             Modifier.padding(10.dp).height(50.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
                 Modifier.size(10.dp)
@@ -115,7 +111,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.body1,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         }
     }
@@ -135,7 +131,7 @@ fun ScrollingTextTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
     Column {
         ScrollableTabRow(selectedTabIndex = state) {
@@ -144,7 +140,7 @@ fun ScrollingTextTabs() {
                     Tab(
                         selected = state == index,
                         onClick = { state = index },
-                        text = { Text(title) }
+                        text = { Text(title) },
                     )
                 }
             }
@@ -152,7 +148,7 @@ fun ScrollingTextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling text tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -171,7 +167,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
 
     // Reuse the default offset animation modifier, but use our own indicator
@@ -189,7 +185,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }

@@ -27,10 +27,8 @@ import static java.lang.Integer.MAX_VALUE;
 import android.content.SharedPreferences;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.DatabaseTest;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.Preference;
 
 import org.junit.Before;
@@ -39,7 +37,6 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class IdGeneratorTest extends DatabaseTest {
 
     private IdGenerator mIdGenerator;

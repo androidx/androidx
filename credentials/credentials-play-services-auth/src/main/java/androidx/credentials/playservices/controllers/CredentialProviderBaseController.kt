@@ -41,7 +41,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
         val retryables: Set<Int> =
             setOf(
                 CommonStatusCodes.NETWORK_ERROR,
-                CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL
+                CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL,
             )
 
         // Generic controller request code used by all controllers
@@ -80,8 +80,13 @@ internal open class CredentialProviderBaseController(private val context: Contex
         // Key for the result intent to send back to the controller
         const val RESULT_DATA_TAG = "RESULT_DATA"
 
-        // Key for the actual parcelable type sent to the hidden activity
-        const val EXTRA_GET_CREDENTIAL_INTENT = "EXTRA_GET_CREDENTIAL_INTENT"
+        // Key for the actual parcelable type sent to the hidden activity, regardless of API flow.
+        const val EXTRA_FLOW_PENDING_INTENT = "EXTRA_FLOW_PENDING_INTENT"
+
+        const val EXTRA_DIGITAL_CREDENTIAL_INTENT = "EXTRA_DIGITAL_CREDENTIAL_INTENT"
+
+        // Key for the error name to be used in the activity error reporting.
+        const val EXTRA_ERROR_NAME = "EXTRA_ERROR_NAME"
 
         // Key for the failure boolean sent back from hidden activity to controller
         const val FAILURE_RESPONSE_TAG = "FAILURE_RESPONSE"
@@ -101,7 +106,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
         /** Shuttles back exceptions only related to the hidden activity that can't be parceled */
         internal fun getCredentialExceptionTypeToException(
             typeName: String?,
-            msg: String?
+            msg: String?,
         ): GetCredentialException {
             return when (typeName) {
                 GET_CANCELED -> {
@@ -137,7 +142,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
 
         internal fun createCredentialExceptionTypeToException(
             typeName: String?,
-            msg: String?
+            msg: String?,
         ): CreateCredentialException {
             return when (typeName) {
                 CREATE_CANCELED -> {
@@ -165,7 +170,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
     fun generateHiddenActivityIntent(
         resultReceiver: ResultReceiver,
         hiddenIntent: Intent,
-        typeTag: String
+        typeTag: String,
     ) {
         hiddenIntent.putExtra(TYPE_TAG, typeTag)
         hiddenIntent.putExtra(ACTIVITY_REQUEST_CODE_TAG, CONTROLLER_REQUEST_CODE)

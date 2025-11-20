@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo
  *   cap filters for the ad.
  */
 @ExperimentalFeatures.Ext8OptIn
-class AdFilters public constructor(val frequencyCapFilters: FrequencyCapFilters?) {
+public class AdFilters public constructor(public val frequencyCapFilters: FrequencyCapFilters?) {
     /** Checks whether two [AdFilters] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

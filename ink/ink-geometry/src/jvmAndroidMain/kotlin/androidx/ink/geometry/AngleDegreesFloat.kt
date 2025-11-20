@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.MustBeDocumented
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
 
 /**
- * A signed angle in degrees. A positive value represents rotation from the positive x-axis to the
- * positive y-axis. [Angle] class manages the conversion of angle values in degrees and radians with
- * [Angle.radiansToDegrees] and [Angle.degreesToRadians]. Most of Strokes API requires angle values
- * in radians.
+ * A signed angle in degrees. A positive value represents rotation in the direction from the
+ * positive x-axis towards the positive y-axis.
+ *
+ * Ink generally provides and accepts angle values in degrees. The [Angle] class provides the
+ * conversion methods [Angle.radiansToDegrees] and [Angle.degreesToRadians], which can be used to
+ * convert to and from the radian values used by trigonometric functions.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)

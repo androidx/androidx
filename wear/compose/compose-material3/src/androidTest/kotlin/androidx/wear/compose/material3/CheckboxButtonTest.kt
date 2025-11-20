@@ -55,14 +55,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.samples.CheckboxButtonSample
 import androidx.wear.compose.material3.samples.SplitCheckboxButtonSample
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class CheckboxButtonTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {
@@ -234,7 +236,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -249,7 +251,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -264,7 +266,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -279,7 +281,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -294,7 +296,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -309,7 +311,7 @@ class CheckboxButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -351,7 +353,7 @@ class CheckboxButtonTest {
             CheckboxButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { Text(text = textContent) }
+                label = { Text(text = textContent) },
             )
         }
 
@@ -366,7 +368,7 @@ class CheckboxButtonTest {
             SplitCheckboxButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { Text(text = textContent) }
+                label = { Text(text = textContent) },
             )
         }
 
@@ -388,7 +390,7 @@ class CheckboxButtonTest {
                                     " for the ToggleButton."
                         )
                     },
-                    secondaryLabel = { Text(text = "Secondary label with text.") }
+                    secondaryLabel = { Text(text = "Secondary label with text.") },
                 )
             }
             .assertHeightIsAtLeast(minHeight)
@@ -409,7 +411,7 @@ class CheckboxButtonTest {
                                     "to test height is adjustable. This should exceed the minimum height" +
                                     " for the SplitToggleButton."
                         )
-                    }
+                    },
                 )
             }
             .assertHeightIsAtLeast(minHeight)
@@ -551,91 +553,91 @@ class CheckboxButtonTest {
         Assert.assertEquals(2, secondaryLabelMaxLines)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_button_allows_checked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_button_allows_unchecked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNCHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_checkbox_button_allows_checked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_checkbox_button_allows_unchecked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNCHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_checkbox_button_colors_enabled_and_checked() {
         rule.verifyCheckboxButtonColors(checked = true, enabled = true)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_checkbox_button_colors_enabled_and_unchecked() {
         rule.verifyCheckboxButtonColors(checked = false, enabled = true)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_checkbox_button_colors_disabled_and_checked() {
         rule.verifyCheckboxButtonColors(checked = true, enabled = false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_checkbox_button_colors_disabled_and_unchecked() {
         rule.verifyCheckboxButtonColors(checked = false, enabled = false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_split_checkbox_button_colors_enabled_and_checked() {
         rule.verifySplitCheckboxButtonColors(checked = true, enabled = true)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_split_checkbox_button_colors_enabled_and_unchecked() {
         rule.verifySplitCheckboxButtonColors(checked = false, enabled = true)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_split_checkbox_button_colors_disabled_and_checked() {
         rule.verifySplitCheckboxButtonColors(checked = true, enabled = false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verify_split_checkbox_button_colors_disabled_and_unchecked() {
         rule.verifySplitCheckboxButtonColors(checked = false, enabled = false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_checked_colors_are_customisable() {
         val boxColor = Color.Green
@@ -647,7 +649,7 @@ class CheckboxButtonTest {
                 colors =
                     CheckboxButtonDefaults.checkboxButtonColors(
                         checkedBoxColor = boxColor,
-                        checkedCheckmarkColor = checkmarkColor
+                        checkedCheckmarkColor = checkmarkColor,
                     ),
                 modifier = Modifier.testTag(TEST_TAG),
             )
@@ -658,7 +660,7 @@ class CheckboxButtonTest {
         checkboxImage.assertContainsColor(checkmarkColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_unchecked_colors_are_customisable() {
         // NB checkmark is erased during animation, so we don't test uncheckedCheckmarkColor
@@ -668,11 +670,8 @@ class CheckboxButtonTest {
             CheckboxButtonWithDefaults(
                 enabled = true,
                 checked = false,
-                colors =
-                    CheckboxButtonDefaults.checkboxButtonColors(
-                        uncheckedBoxColor = boxColor,
-                    ),
-                modifier = Modifier.testTag(TEST_TAG)
+                colors = CheckboxButtonDefaults.checkboxButtonColors(uncheckedBoxColor = boxColor),
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -680,7 +679,7 @@ class CheckboxButtonTest {
         checkboxImage.assertContainsColor(boxColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun disabled_checkbox_checked_colors_are_customisable() {
         val boxColor = Color.Green
@@ -692,7 +691,7 @@ class CheckboxButtonTest {
                 colors =
                     CheckboxButtonDefaults.checkboxButtonColors(
                         disabledCheckedBoxColor = boxColor,
-                        disabledCheckedCheckmarkColor = checkmarkColor
+                        disabledCheckedCheckmarkColor = checkmarkColor,
                     ),
                 modifier = Modifier.testTag(TEST_TAG),
             )
@@ -703,7 +702,7 @@ class CheckboxButtonTest {
         checkboxImage.assertContainsColor(checkmarkColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun disabled_checkbox_unchecked_colors_are_customisable() {
         // NB checkmark is erased during animation, so we don't test uncheckedCheckmarkColor
@@ -715,9 +714,9 @@ class CheckboxButtonTest {
                 checked = false,
                 colors =
                     CheckboxButtonDefaults.checkboxButtonColors(
-                        disabledUncheckedBoxColor = boxColor,
+                        disabledUncheckedBoxColor = boxColor
                     ),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -729,7 +728,7 @@ class CheckboxButtonTest {
     private fun verifyToggleButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContentWithTheme {
             CheckboxButtonWithDefaults(
@@ -737,7 +736,7 @@ class CheckboxButtonTest {
                 colors =
                     CheckboxButtonDefaults.checkboxButtonColors(
                         checkedContainerColor = CHECKED_COLOR,
-                        uncheckedContainerColor = UNCHECKED_COLOR
+                        uncheckedContainerColor = UNCHECKED_COLOR,
                     ),
                 onCheckedChange = {},
                 enabled = enabled,
@@ -752,7 +751,7 @@ class CheckboxButtonTest {
     private fun verifySplitToggleButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContentWithTheme {
             SplitCheckboxButtonWithDefaults(
@@ -760,7 +759,7 @@ class CheckboxButtonTest {
                 colors =
                     CheckboxButtonDefaults.splitCheckboxButtonColors(
                         checkedContainerColor = CHECKED_COLOR,
-                        uncheckedContainerColor = UNCHECKED_COLOR
+                        uncheckedContainerColor = UNCHECKED_COLOR,
                     ),
                 onCheckedChange = {},
                 enabled = enabled,
@@ -841,7 +840,7 @@ private fun ComposeContentTestRule.verifyCheckboxButtonColors(enabled: Boolean, 
                 enabled = enabled,
                 label = { actualLabelColor = LocalContentColor.current },
                 secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
-                icon = { actualIconColor = LocalContentColor.current }
+                icon = { actualIconColor = LocalContentColor.current },
             )
         }
     }
@@ -853,14 +852,14 @@ private fun ComposeContentTestRule.verifyCheckboxButtonColors(enabled: Boolean, 
         .captureToImage()
         .assertContainsColor(
             if (expectedContainerColor != Color.Transparent) expectedContainerColor
-            else testBackgroundColor,
+            else testBackgroundColor
         )
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.verifySplitCheckboxButtonColors(
     enabled: Boolean,
-    checked: Boolean
+    checked: Boolean,
 ) {
     val testBackgroundColor = Color.White
     var expectedContainerColor = Color.Transparent
@@ -895,15 +894,12 @@ private fun ComposeContentTestRule.verifySplitCheckboxButtonColors(
         .captureToImage()
         .assertContainsColor(
             if (expectedContainerColor != Color.Transparent) expectedContainerColor
-            else testBackgroundColor,
+            else testBackgroundColor
         )
 }
 
 @Composable
-private fun checkbox_button_container_color(
-    checked: Boolean,
-    enabled: Boolean,
-): Color {
+private fun checkbox_button_container_color(checked: Boolean, enabled: Boolean): Color {
     return if (checked && enabled) MaterialTheme.colorScheme.primaryContainer
     else if (!checked && enabled) MaterialTheme.colorScheme.surfaceContainer
     else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f)

@@ -30,7 +30,6 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-common"))
-    implementation(libs.kotlinStdlib)
     implementation(libs.autoCommon)
     implementation(libs.javapoet)
     testImplementation(libs.googleCompileTesting)

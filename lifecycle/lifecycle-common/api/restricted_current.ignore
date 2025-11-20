@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.lifecycle.Lifecycle#getCurrentState():
+    Source breaking change: method androidx.lifecycle.Lifecycle.getCurrentState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.Lifecycle#getCurrentStateFlow():
+    Source breaking change: method androidx.lifecycle.Lifecycle.getCurrentStateFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.Lifecycle.Event#getTargetState():
+    Source breaking change: method androidx.lifecycle.Lifecycle.Event.getTargetState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleKt#getCoroutineScope(androidx.lifecycle.Lifecycle):
+    Source breaking change: method androidx.lifecycle.LifecycleKt.getCoroutineScope(androidx.lifecycle.Lifecycle) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleKt#getEventFlow(androidx.lifecycle.Lifecycle):
+    Source breaking change: method androidx.lifecycle.LifecycleKt.getEventFlow(androidx.lifecycle.Lifecycle) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleOwner#getLifecycle():
+    Source breaking change: method androidx.lifecycle.LifecycleOwner.getLifecycle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleOwnerKt#getLifecycleScope(androidx.lifecycle.LifecycleOwner):
+    Source breaking change: method androidx.lifecycle.LifecycleOwnerKt.getLifecycleScope(androidx.lifecycle.LifecycleOwner) can no longer be resolved from Kotlin source

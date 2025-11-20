@@ -88,7 +88,7 @@ private class HandwritingDetectorNode(var callback: () -> Unit) :
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }

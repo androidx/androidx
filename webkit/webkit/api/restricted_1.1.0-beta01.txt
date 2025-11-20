@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.webkit {
 
   public final class ProxyConfig {
@@ -14,8 +14,8 @@ package androidx.webkit {
     ctor public ProxyConfig.Builder();
     ctor public ProxyConfig.Builder(androidx.webkit.ProxyConfig);
     method public androidx.webkit.ProxyConfig.Builder addBypassRule(String);
-    method public androidx.webkit.ProxyConfig.Builder addDirect(@androidx.webkit.ProxyConfig.ProxyScheme String);
     method public androidx.webkit.ProxyConfig.Builder addDirect();
+    method public androidx.webkit.ProxyConfig.Builder addDirect(@androidx.webkit.ProxyConfig.ProxyScheme String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String, @androidx.webkit.ProxyConfig.ProxyScheme String);
     method public androidx.webkit.ProxyConfig build();
@@ -125,8 +125,8 @@ package androidx.webkit {
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract android.webkit.WebMessagePort! getFrameworkPort();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract java.lang.reflect.InvocationHandler! getInvocationHandler();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(androidx.webkit.WebMessageCompat);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(android.os.Handler?, androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setWebMessageCallback(androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat);
   }
 
   public abstract static class WebMessagePortCompat.WebMessageCallbackCompat {
@@ -197,12 +197,12 @@ package androidx.webkit {
   public class WebViewClientCompat extends android.webkit.WebViewClient {
     ctor public WebViewClientCompat();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final String![]! getSupportedFeatures();
-    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, java.lang.reflect.InvocationHandler);
     method @RequiresApi(23) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
     method @RequiresApi(21) @UiThread public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, java.lang.reflect.InvocationHandler);
+    method @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, java.lang.reflect.InvocationHandler);
     method @RequiresApi(27) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, android.webkit.SafeBrowsingResponse);
     method @UiThread public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, androidx.webkit.SafeBrowsingResponseCompat);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, @androidx.webkit.WebViewClientCompat.SafeBrowsingThreat int, java.lang.reflect.InvocationHandler);
   }
 
   @IntDef({android.webkit.WebViewClient.SAFE_BROWSING_THREAT_UNKNOWN, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_MALWARE, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_PHISHING, android.webkit.WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WebViewClientCompat.SafeBrowsingThreat {
@@ -219,8 +219,8 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_WHITELIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, androidx.webkit.WebViewRenderProcessClient?);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewRenderProcessClient(android.webkit.WebView, java.util.concurrent.Executor, androidx.webkit.WebViewRenderProcessClient);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.START_SAFE_BROWSING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void startSafeBrowsing(android.content.Context, android.webkit.ValueCallback<java.lang.Boolean!>?);
   }
 

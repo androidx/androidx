@@ -30,11 +30,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.constraints.ConstraintListener;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
@@ -66,24 +63,13 @@ public class BatteryChargingTrackerTest {
 
     private Intent createBatteryChangedIntent(boolean charging) {
         Intent intent = new Intent(Intent.ACTION_BATTERY_CHANGED);
-        if (Build.VERSION.SDK_INT >= 23) {
-            int status = charging ? BatteryManager.BATTERY_STATUS_CHARGING
-                    : BatteryManager.BATTERY_STATUS_DISCHARGING;
-            intent.putExtra(BatteryManager.EXTRA_STATUS, status);
-        } else {
-            int plugged = charging ? 1 : 0;
-            intent.putExtra(BatteryManager.EXTRA_PLUGGED, plugged);
-        }
+        int status = charging ? BatteryManager.BATTERY_STATUS_CHARGING
+                : BatteryManager.BATTERY_STATUS_DISCHARGING;
+        intent.putExtra(BatteryManager.EXTRA_STATUS, status);
         return intent;
     }
 
     private Intent createChargingIntent(boolean charging) {
-        return new Intent(
-                charging ? Intent.ACTION_POWER_CONNECTED : Intent.ACTION_POWER_DISCONNECTED);
-    }
-
-    @RequiresApi(23)
-    private Intent createChargingIntent_afterApi23(boolean charging) {
         return new Intent(
                 charging ? BatteryManager.ACTION_CHARGING : BatteryManager.ACTION_DISCHARGING);
     }
@@ -111,17 +97,6 @@ public class BatteryChargingTrackerTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testGetIntentFilter_beforeApi23() {
-        IntentFilter intentFilter = mTracker.getIntentFilter();
-        assertThat(intentFilter.hasAction(Intent.ACTION_POWER_CONNECTED), is(true));
-        assertThat(intentFilter.hasAction(Intent.ACTION_POWER_DISCONNECTED), is(true));
-        assertThat(intentFilter.countActions(), is(2));
-    }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = 23)
     public void testGetIntentFilter_afterApi23() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
         assertThat(intentFilter.hasAction(BatteryManager.ACTION_CHARGING), is(true));
@@ -142,29 +117,14 @@ public class BatteryChargingTrackerTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(maxSdkVersion = 22)
-    public void testOnBroadcastReceive_notifiesListeners_beforeApi23() {
-        mockContextReturns(createBatteryChangedIntent(false));
+    public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
+        mockContextReturns(null);
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
         mTracker.onBroadcastReceive(createChargingIntent(true));
         verify(mListener).onConstraintChanged(true);
         mTracker.onBroadcastReceive(createChargingIntent(false));
-        verify(mListener, times(2)).onConstraintChanged(false);
-    }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = 23)
-    public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
-        mockContextReturns(null);
-        mTracker.addListener(mListener);
-        verify(mListener).onConstraintChanged(false);
-
-        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(true));
-        verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(false));
         // onConstraintChanged was called once more, in total, twice
         verify(mListener, times(2)).onConstraintChanged(false);
     }

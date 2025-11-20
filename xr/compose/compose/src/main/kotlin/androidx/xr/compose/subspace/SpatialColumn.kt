@@ -19,12 +19,26 @@ package androidx.xr.compose.subspace
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastRoundToInt
+import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SpatialAlignment
+import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceLayout
+import androidx.xr.compose.subspace.layout.SubspaceMeasurable
+import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
+import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
+import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.SubspacePlaceable
+import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.ContentlessEntity
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.GroupEntity
 
 /**
  * A layout composable that arranges its children in a vertical sequence.
@@ -33,7 +47,7 @@ import androidx.xr.scenecore.ContentlessEntity
  *
  * @param modifier Modifiers to apply to the layout.
  * @param alignment The default alignment for child elements within the column.
- * @param name The name of the layout.
+ * @param verticalArrangement The vertical arrangement of the children.
  * @param content The composable content to be laid out vertically.
  */
 @Composable
@@ -41,24 +55,161 @@ import androidx.xr.scenecore.ContentlessEntity
 public fun SpatialColumn(
     modifier: SubspaceModifier = SubspaceModifier,
     alignment: SpatialAlignment = SpatialAlignment.Center,
-    name: String = defaultSpatialColumnName(),
+    verticalArrangement: SpatialArrangement.Vertical = SpatialArrangement.Center,
     content: @Composable @SubspaceComposable SpatialColumnScope.() -> Unit,
 ) {
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val coreGroupEntity = remember {
+        CoreGroupEntity(GroupEntity.create(session, name = "SpatialColumn", pose = Pose.Identity))
+    }
     SubspaceLayout(
         modifier = modifier,
         content = { SpatialColumnScopeInstance.content() },
-        coreEntity =
-            rememberCoreContentlessEntity {
-                ContentlessEntity.create(this, name = name, pose = Pose.Identity)
-            },
-        name = name,
-        measurePolicy =
-            RowColumnMeasurePolicy(
-                orientation = LayoutOrientation.Vertical,
-                alignment = alignment,
-                curveRadius = Dp.Infinity,
-            ),
+        coreEntity = coreGroupEntity,
+        measurePolicy = SpatialColumnMeasurePolicy(alignment, verticalArrangement),
     )
+}
+
+/**
+ * Measure policy for [SpatialColumn] layouts. Handles the measurement and placement of children in
+ * a vertical sequence.
+ */
+internal class SpatialColumnMeasurePolicy(
+    private val alignment: SpatialAlignment,
+    private val verticalArrangement: SpatialArrangement.Vertical,
+) : SubspaceMeasurePolicy, SpatialRowColumnMeasurePolicy() {
+
+    override fun SubspaceMeasureScope.measure(
+        measurables: List<SubspaceMeasurable>,
+        constraints: VolumeConstraints,
+    ): SubspaceMeasureResult {
+        return measure(
+            measurables = measurables,
+            constraints = constraints,
+            arrangementSpacingInt = verticalArrangement.spacing.roundToPx(),
+            mainAxisMultiplier = MainAxisMultiplier.VerticalAxisMultiplier,
+            subspaceMeasureScope = this,
+        )
+    }
+
+    override val SubspacePlaceable.mainAxisSize: Int
+        get() = measuredHeight
+
+    override val SubspacePlaceable.crossAxisSize: Int
+        get() = measuredWidth
+
+    override val VolumeConstraints.mainAxisTargetSpace: Int
+        get() = if (maxHeight != VolumeConstraints.INFINITY) maxHeight else minHeight
+
+    override val VolumeConstraints.mainAxisMin: Int
+        get() = minHeight
+
+    override val VolumeConstraints.crossAxisMin: Int
+        get() = minWidth
+
+    override val VolumeConstraints.crossAxisMax: Int
+        get() = maxWidth
+
+    override fun arrangeMainAxisPositions(
+        mainAxisLayoutSize: Int,
+        childrenMainAxisSize: IntArray,
+        mainAxisPositions: IntArray,
+        subspaceMeasureScope: SubspaceMeasureScope,
+    ) {
+        with(verticalArrangement) {
+            subspaceMeasureScope.arrange(
+                totalSize = mainAxisLayoutSize,
+                sizes = childrenMainAxisSize,
+                outPositions = mainAxisPositions,
+            )
+        }
+    }
+
+    override fun getMainAxisOffset(contentSize: IntVolumeSize, containerSize: IntVolumeSize): Int {
+        // Each child will have its main-axis offset adjusted, based on extra space available and
+        // the provided alignment. `mainAxisOffset` represents the top edge of the content in the
+        // container space.
+        return (alignment.verticalOffset(contentSize.height, containerSize.height) +
+                containerSize.height / 2.0)
+            .fastRoundToInt()
+    }
+
+    override fun buildConstraints(
+        mainAxisMin: Int,
+        mainAxisMax: Int,
+        crossAxisMin: Int,
+        crossAxisMax: Int,
+        minDepth: Int,
+        maxDepth: Int,
+    ): VolumeConstraints {
+        return VolumeConstraints(
+            minWidth = crossAxisMin,
+            maxWidth = crossAxisMax,
+            minHeight = mainAxisMin,
+            maxHeight = mainAxisMax,
+            minDepth = minDepth,
+            maxDepth = maxDepth,
+        )
+    }
+
+    override fun VolumeConstraints.plusMainAxis(addToMainAxis: Int): VolumeConstraints {
+        return VolumeConstraints(
+            minWidth = 0,
+            maxWidth = maxWidth,
+            minHeight = 0,
+            maxHeight = maxHeight + addToMainAxis,
+            minDepth = 0,
+            maxDepth = maxDepth,
+        )
+    }
+
+    override fun contentSize(
+        mainAxisLayoutSize: Int,
+        crossAxisSize: Int,
+        depthSize: Int,
+    ): IntVolumeSize {
+        return IntVolumeSize(width = crossAxisSize, height = mainAxisLayoutSize, depth = depthSize)
+    }
+
+    override fun Density.getPose(
+        resolvedMeasurable: ResolvedMeasurable,
+        containerSize: IntVolumeSize,
+        mainAxisOffset: Int,
+    ): Pose {
+        val mainAxisPosition = (resolvedMeasurable.mainAxisPosition ?: 0) + mainAxisOffset
+
+        val placeable =
+            checkNotNull(resolvedMeasurable.placeable) {
+                "Placeable cannot be null when getPose is called. Measurement phase might have failed for this item."
+            }
+
+        // Set child's cross-axis position based on its desired size + the container's
+        // size/alignment.
+        val crossAxisSize = placeable.crossAxisSize
+        val crossAxisPosition =
+            resolvedMeasurable.horizontalOffset(
+                width = crossAxisSize,
+                space = containerSize.width,
+                parentSpatialAlignment = alignment,
+            )
+
+        val depthPosition =
+            resolvedMeasurable.depthOffset(
+                depth = placeable.measuredDepth,
+                space = containerSize.depth,
+                parentSpatialAlignment = alignment,
+            )
+
+        val position =
+            Vector3(
+                x = crossAxisPosition.toFloat(),
+                y = mainAxisPosition.toFloat(),
+                z = depthPosition.toFloat(),
+            )
+        val orientation = Quaternion.Identity
+
+        return Pose(position, orientation)
+    }
 }
 
 /** Scope for customizing the layout of children within a [SpatialColumn]. */
@@ -103,6 +254,7 @@ public interface SpatialColumnScope {
     public fun SubspaceModifier.align(alignment: SpatialAlignment.Depth): SubspaceModifier
 }
 
+/** Default implementation of the [SpatialColumnScope] interface. */
 internal object SpatialColumnScopeInstance : SpatialColumnScope {
     override fun SubspaceModifier.weight(weight: Float, fill: Boolean): SubspaceModifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
@@ -121,10 +273,4 @@ internal object SpatialColumnScopeInstance : SpatialColumnScope {
     override fun SubspaceModifier.align(alignment: SpatialAlignment.Depth): SubspaceModifier {
         return this then RowColumnAlignElement(depthSpatialAlignment = alignment)
     }
-}
-
-private var spatialColumnNamePart: Int = 0
-
-private fun defaultSpatialColumnName(): String {
-    return "SpatialColumn-${spatialColumnNamePart++}"
 }

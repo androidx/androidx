@@ -34,7 +34,7 @@ class SuspendAnimationTest {
                 spring(dampingRatio = Spring.DampingRatioMediumBouncy),
                 Float.VectorConverter,
                 initialValue = 0f,
-                targetValue = 1f
+                targetValue = 1f,
             )
         val clock = TestFrameClock()
         val interval = 50
@@ -61,7 +61,7 @@ class SuspendAnimationTest {
         val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
             TwoWayConverter(
                 convertToVector = { AnimationVector2D(it.x, it.y) },
-                convertFromVector = { Offset(it.v1, it.v2) }
+                convertFromVector = { Offset(it.v1, it.v2) },
             )
         val anim =
             TargetBasedAnimation(tween(500), offsetToVector, initialValue = from, targetValue = to)
@@ -90,7 +90,7 @@ class SuspendAnimationTest {
             DecayAnimation(
                 FloatExponentialDecaySpec(),
                 initialValue = from,
-                initialVelocity = velocity
+                initialVelocity = velocity,
             )
         val clock = TestFrameClock()
         val interval = 50
@@ -118,14 +118,14 @@ class SuspendAnimationTest {
             val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
                 TwoWayConverter(
                     convertToVector = { AnimationVector2D(it.x, it.y) },
-                    convertFromVector = { Offset(it.v1, it.v2) }
+                    convertFromVector = { Offset(it.v1, it.v2) },
                 )
             val anim =
                 TargetBasedAnimation(
                     tween(500),
                     offsetToVector,
                     initialValue = from,
-                    targetValue = to
+                    targetValue = to,
                 )
             val clock = TestFrameClock()
             val interval = 50
@@ -133,7 +133,7 @@ class SuspendAnimationTest {
                 AnimationState(
                     initialValue = from,
                     typeConverter = offsetToVector,
-                    lastFrameTimeNanos = 0
+                    lastFrameTimeNanos = 0,
                 )
             withContext(clock) {
                 // Put in a bunch of frames 50 milliseconds apart
@@ -145,7 +145,7 @@ class SuspendAnimationTest {
                 animationState.animateTo(
                     to,
                     animationSpec = tween(500),
-                    sequentialAnimation = true
+                    sequentialAnimation = true,
                 ) {
                     assertTrue(animationState.isRunning)
                     assertTrue(isRunning)
@@ -183,7 +183,7 @@ class SuspendAnimationTest {
             DecayAnimation(
                 FloatExponentialDecaySpec(),
                 initialValue = from,
-                initialVelocity = initialVelocity
+                initialVelocity = initialVelocity,
             )
         val clock = TestFrameClock()
         val interval = 50

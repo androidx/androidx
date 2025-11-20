@@ -929,39 +929,39 @@ class SieveCacheTest {
 
     private fun createStandardCache(
         removedEntries: MutableList<String> = mutableListOf(),
-        evictedEntries: MutableList<String> = mutableListOf()
+        evictedEntries: MutableList<String> = mutableListOf(),
     ): SieveCache<String, String> {
         return SieveCache(
             4,
             onEntryRemoved = { _, old, _, evicted ->
                 (if (evicted) evictedEntries else removedEntries).add(old)
-            }
+            },
         )
     }
 
     private fun createCacheWithCustomSize(
         removedEntries: MutableList<String> = mutableListOf(),
-        evictedEntries: MutableList<String> = mutableListOf()
+        evictedEntries: MutableList<String> = mutableListOf(),
     ): SieveCache<String, String> {
         return SieveCache(
             4096,
             sizeOf = { _, v -> v.length },
             onEntryRemoved = { _, old, _, evicted ->
                 (if (evicted) evictedEntries else removedEntries).add(old)
-            }
+            },
         )
     }
 
     private fun createZeroSizeCache(
         removedEntries: MutableList<String> = mutableListOf(),
-        evictedEntries: MutableList<String> = mutableListOf()
+        evictedEntries: MutableList<String> = mutableListOf(),
     ): SieveCache<String, String> {
         return SieveCache(
             4,
             sizeOf = { _, _ -> 0 },
             onEntryRemoved = { _, old, _, evicted ->
                 (if (evicted) evictedEntries else removedEntries).add(old)
-            }
+            },
         )
     }
 }

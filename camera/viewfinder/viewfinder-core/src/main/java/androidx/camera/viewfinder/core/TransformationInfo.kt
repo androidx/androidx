@@ -16,16 +16,19 @@
 
 package androidx.camera.viewfinder.core
 
+import androidx.camera.viewfinder.core.TransformationInfo.Companion.CROP_NONE
+
 /**
  * Transformation information associated with the preview output.
  *
  * This information can be used to transform the Surface of a Viewfinder to be suitable to be
  * displayed.
  */
-class TransformationInfo(
-
-    /** Rotation of the source, relative to the device's natural rotation. */
-    val sourceRotation: Int,
+class TransformationInfo
+@JvmOverloads
+constructor(
+    /** Rotation of the source, relative to the device's natural rotation, in degrees. */
+    val sourceRotation: Int = 0,
 
     /**
      * Indicates whether the source has been mirrored horizontally.
@@ -40,7 +43,7 @@ class TransformationInfo(
      * @see android.hardware.camera2.params.OutputConfiguration.MIRROR_MODE_H
      * @see androidx.camera.core.SurfaceRequest.TransformationInfo.isMirroring
      */
-    val isSourceMirroredHorizontally: Boolean,
+    val isSourceMirroredHorizontally: Boolean = false,
 
     /**
      * Indicates whether the source has been mirrored vertically.
@@ -54,19 +57,45 @@ class TransformationInfo(
      *
      * @see android.hardware.camera2.params.OutputConfiguration.MIRROR_MODE_V
      */
-    val isSourceMirroredVertically: Boolean,
+    val isSourceMirroredVertically: Boolean = false,
 
-    /** Left offset of the cropRect in pixels */
-    val cropRectLeft: Int,
+    /**
+     * Left offset of the cropRect in pixels.
+     *
+     * The offset is in the coordinates of the original surface, before rotation or mirroring.
+     *
+     * If not set, this value will default to [CROP_NONE], which is equivalent to an offset of 0.
+     */
+    val cropRectLeft: Float = CROP_NONE,
 
-    /** Top offset of the cropRect in pixels */
-    val cropRectTop: Int,
+    /**
+     * Top offset of the cropRect in pixels
+     *
+     * The offset is in the coordinates of the original surface, before rotation or mirroring.
+     *
+     * If not set, this value will default to [CROP_NONE], which is equivalent to an offset of 0.
+     */
+    val cropRectTop: Float = CROP_NONE,
 
-    /** Right offset of the cropRect in pixels */
-    val cropRectRight: Int,
+    /**
+     * Right offset of the cropRect in pixels
+     *
+     * The offset is in the coordinates of the original surface, before rotation or mirroring.
+     *
+     * If not set, this value will default to [CROP_NONE], which is equivalent to an offset of the
+     * width of the surface.
+     */
+    val cropRectRight: Float = CROP_NONE,
 
-    /** Bottom offset of the cropRect in pixels */
-    val cropRectBottom: Int,
+    /**
+     * Bottom offset of the cropRect in pixels
+     *
+     * The offset is in the coordinates of the original surface, before rotation or mirroring.
+     *
+     * If not set, this value will default to [CROP_NONE], which is equivalent to an offset of the
+     * height of the surface.
+     */
+    val cropRectBottom: Float = CROP_NONE,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -87,10 +116,42 @@ class TransformationInfo(
         var result = sourceRotation
         result = 31 * result + isSourceMirroredHorizontally.hashCode()
         result = 31 * result + isSourceMirroredVertically.hashCode()
-        result = 31 * result + cropRectLeft
-        result = 31 * result + cropRectTop
-        result = 31 * result + cropRectRight
-        result = 31 * result + cropRectBottom
+        result = 31 * result + cropRectLeft.hashCode()
+        result = 31 * result + cropRectTop.hashCode()
+        result = 31 * result + cropRectRight.hashCode()
+        result = 31 * result + cropRectBottom.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "TransformationInfo(" +
+            "sourceRotation=$sourceRotation, " +
+            "isSourceMirroredHorizontally=$isSourceMirroredHorizontally, " +
+            "isSourceMirroredVertically=$isSourceMirroredVertically, " +
+            "cropRectLeft=$cropRectLeft, " +
+            "cropRectTop=$cropRectTop, " +
+            "cropRectRight=$cropRectRight, " +
+            "cropRectBottom=$cropRectBottom" +
+            ")"
+    }
+
+    companion object {
+        /**
+         * A crop value specifying no crop should be applied.
+         *
+         * When used as a value for [TransformationInfo.cropRectLeft],
+         * [TransformationInfo.cropRectTop], [TransformationInfo.cropRectRight], or
+         * [TransformationInfo.cropRectBottom], the crop rect dimension will be equivalent to the
+         * resolution of the untransformed surface.
+         */
+        const val CROP_NONE: Float = Float.NaN
+
+        /**
+         * A [TransformationInfo] with default values.
+         *
+         * This transformation info instance has no source rotation, no mirroring, and no crop
+         * rectangle.
+         */
+        @JvmField val DEFAULT: TransformationInfo = TransformationInfo()
     }
 }

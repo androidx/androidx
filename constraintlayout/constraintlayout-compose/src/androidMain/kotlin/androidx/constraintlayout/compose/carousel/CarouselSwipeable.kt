@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 internal open class CarouselSwipeableState<T>(
     initialValue: T,
     internal val animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    internal val confirmStateChange: (newValue: T) -> Boolean = { true }
+    internal val confirmStateChange: (newValue: T) -> Boolean = { true },
 ) {
     /**
      * The current value of the state.
@@ -235,7 +235,7 @@ internal open class CarouselSwipeableState<T>(
                         anchors = anchors.keys,
                         thresholds = thresholds,
                         velocity = 0f,
-                        velocityThreshold = Float.POSITIVE_INFINITY
+                        velocityThreshold = Float.POSITIVE_INFINITY,
                     )
             return anchors[target] ?: currentValue
         }
@@ -350,7 +350,7 @@ internal open class CarouselSwipeableState<T>(
                     anchors = anchors.keys,
                     thresholds = thresholds,
                     velocity = velocity,
-                    velocityThreshold = velocityThreshold
+                    velocityThreshold = velocityThreshold,
                 )
             val targetState = anchors[targetValue]
             if (targetState != null && confirmStateChange(targetState)) animateTo(targetState)
@@ -388,11 +388,11 @@ internal open class CarouselSwipeableState<T>(
         /** The default [Saver] implementation for [CarouselSwipeableState]. */
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
-            confirmStateChange: (T) -> Boolean
+            confirmStateChange: (T) -> Boolean,
         ) =
             Saver<CarouselSwipeableState<T>, T>(
                 save = { it.currentValue },
-                restore = { CarouselSwipeableState(it, animationSpec, confirmStateChange) }
+                restore = { CarouselSwipeableState(it, animationSpec, confirmStateChange) },
             )
     }
 }
@@ -412,7 +412,7 @@ internal class SwipeProgress<T>(
     val from: T,
     val to: T,
     /*@FloatRange(from = 0.0, to = 1.0)*/
-    val fraction: Float
+    val fraction: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -448,19 +448,19 @@ internal class SwipeProgress<T>(
 internal fun <T : Any> rememberCarouselSwipeableState(
     initialValue: T,
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    confirmStateChange: (newValue: T) -> Boolean = { true }
+    confirmStateChange: (newValue: T) -> Boolean = { true },
 ): CarouselSwipeableState<T> {
     return rememberSaveable(
         saver =
             CarouselSwipeableState.Saver(
                 animationSpec = animationSpec,
-                confirmStateChange = confirmStateChange
+                confirmStateChange = confirmStateChange,
             )
     ) {
         CarouselSwipeableState(
             initialValue = initialValue,
             animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange
+            confirmStateChange = confirmStateChange,
         )
     }
 }
@@ -478,13 +478,13 @@ internal fun <T : Any> rememberCarouselSwipeableState(
 internal fun <T : Any> rememberCarouselSwipeableStateFor(
     value: T,
     onValueChange: (T) -> Unit,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec
+    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
 ): CarouselSwipeableState<T> {
     val swipeableState = remember {
         CarouselSwipeableState(
             initialValue = value,
             animationSpec = animationSpec,
-            confirmStateChange = { true }
+            confirmStateChange = { true },
         )
     }
     val forceAnimationCheck = remember { mutableStateOf(false) }
@@ -548,7 +548,7 @@ internal fun <T> Modifier.carouselSwipeable(
     interactionSource: MutableInteractionSource? = null,
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FixedThreshold(56.dp) },
     resistance: ResistanceConfig? = SwipeableDefaults.resistanceConfig(anchors.keys),
-    velocityThreshold: Dp = SwipeableDefaults.VelocityThreshold
+    velocityThreshold: Dp = SwipeableDefaults.VelocityThreshold,
 ) =
     composed(
         inspectorInfo =
@@ -591,7 +591,7 @@ internal fun <T> Modifier.carouselSwipeable(
             interactionSource = interactionSource,
             startDragImmediately = state.isAnimationRunning,
             onDragStopped = { velocity -> launch { state.performFling(velocity) } },
-            state = state.draggableState
+            state = state.draggableState,
         )
     }
 
@@ -662,7 +662,7 @@ internal class ResistanceConfig(
     /*@FloatRange(from = 0.0)*/
     val factorAtMin: Float = SwipeableDefaults.StandardResistanceFactor,
     /*@FloatRange(from = 0.0)*/
-    val factorAtMax: Float = SwipeableDefaults.StandardResistanceFactor
+    val factorAtMax: Float = SwipeableDefaults.StandardResistanceFactor,
 ) {
     fun computeResistance(overflow: Float): Float {
         val factor = if (overflow < 0) factorAtMin else factorAtMax
@@ -732,7 +732,7 @@ private fun computeTarget(
     anchors: Set<Float>,
     thresholds: (Float, Float) -> Float,
     velocity: Float,
-    velocityThreshold: Float
+    velocityThreshold: Float,
 ): Float {
     val bounds = findBounds(offset, anchors)
     return when (bounds.size) {
@@ -789,7 +789,7 @@ internal object SwipeableDefaults {
     fun resistanceConfig(
         anchors: Set<Float>,
         factorAtMin: Float = StandardResistanceFactor,
-        factorAtMax: Float = StandardResistanceFactor
+        factorAtMax: Float = StandardResistanceFactor,
     ): ResistanceConfig? {
         return if (anchors.size <= 1) {
             null
@@ -818,7 +818,7 @@ internal val <T> CarouselSwipeableState<T>.PreUpPostDownNestedScrollConnection:
             override fun onPostScroll(
                 consumed: Offset,
                 available: Offset,
-                source: NestedScrollSource
+                source: NestedScrollSource,
             ): Offset {
                 return if (source == NestedScrollSource.UserInput) {
                     performDrag(available.toFloat()).toOffset()

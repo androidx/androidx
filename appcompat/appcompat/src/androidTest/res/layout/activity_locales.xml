@@ -24,6 +24,11 @@
         android:layout_height="wrap_content"
         android:text="locales" />
 
+    <androidx.appcompat.app.ConfigurationChangeWatchingView
+        android:id="@+id/configuration_change_watcher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"

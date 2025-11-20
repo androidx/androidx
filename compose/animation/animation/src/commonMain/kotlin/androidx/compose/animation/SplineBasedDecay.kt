@@ -31,7 +31,7 @@ private const val P2 = 1.0f - EndTension * (1.0f - Inflection)
 private fun computeSplineInfo(
     splinePositions: FloatArray,
     splineTimes: FloatArray,
-    nbSamples: Int
+    nbSamples: Int,
 ) {
     var xMin = 0.0f
     var yMin = 0.0f
@@ -117,7 +117,7 @@ internal object AndroidFlingSpline {
          * Instantaneous velocity coefficient at this point in the fling expressed in total distance
          * per unit time
          */
-        val velocityCoefficient: Float
+        val velocityCoefficient: Float,
     )
 }
 

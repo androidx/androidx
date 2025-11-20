@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.viewinterop.InteropViewFactoryHolder
@@ -98,12 +97,19 @@ internal class LayoutNode(
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
 
-    internal var offsetFromRoot: IntOffset = IntOffset.Max
-    internal var lastSize: IntSize = IntSize.Zero
+    // Params managed by RectManager start:
+    internal var hasPositionalLayerTransformationsInOffsetFromRoot: Boolean = false
+    // this offset contains the combined offset accumulated by the coordinators attached to
+    // this node, not including the offset of the outer one, as the outer offset is part of the
+    // offsetFromRoot of this node, and the rest of the modifiers are affecting offsetFromRoot
+    // for the children.
     internal var outerToInnerOffset: IntOffset = IntOffset.Max
     internal var outerToInnerOffsetDirty: Boolean = true
-
-    var forceUseOldLayers: Boolean = false
+    // rect in parent is the sum of transformations for parent's coordinators not including the
+    // outer one, and the transformations on this node's outer coordinator.
+    internal var rectInParentDirty: Boolean = true
+    internal var addedToRectList: Boolean = false
+    // Params managed by RectManager end.
 
     override var compositeKeyHash: Int = 0
 
@@ -315,6 +321,9 @@ internal class LayoutNode(
         if (instance.layoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0) {
             layoutDelegate.childrenAccessingCoordinatesDuringPlacement++
         }
+        if (instance.globallyPositionedObservers > 0) {
+            globallyPositionedObservers++
+        }
     }
 
     private fun exceptionMessageForParentingOrOwnership(instance: LayoutNode) =
@@ -366,6 +375,10 @@ internal class LayoutNode(
             child.detach()
         }
         child._foldedParent = null
+        if (child.globallyPositionedObservers > 0) {
+            globallyPositionedObservers--
+        }
+
         child.outerCoordinator.wrappedBy = null
 
         if (child.isVirtual) {
@@ -508,6 +521,9 @@ internal class LayoutNode(
         val parent = this.parent
         if (parent == null) {
             measurePassDelegate.isPlaced = true
+            // regular nodes go through markNodeAndSubtreeAsPlaced(), from where we call this
+            // function on rectManager. as root marked as placed here, we need to call it.
+            owner.rectManager.recalculateRectIfDirty(this)
             lookaheadPassDelegate?.onAttachedToNullParent()
         }
 
@@ -552,7 +568,6 @@ internal class LayoutNode(
         invalidateMeasurements()
         parent?.invalidateMeasurements()
 
-        forEachCoordinatorIncludingInner { it.onLayoutNodeAttach() }
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
@@ -584,6 +599,8 @@ internal class LayoutNode(
             lookaheadPassDelegate?.let { it.measuredByParent = UsageByParent.NotUsed }
         }
         layoutDelegate.resetAlignmentLines()
+
+        forEachCoordinatorIncludingInner { it.onLayoutNodeDetach() }
         onDetach?.invoke(owner)
 
         @OptIn(ExperimentalComposeUiApi::class)
@@ -594,6 +611,7 @@ internal class LayoutNode(
         ignoreRemeasureRequests { _foldedChildren.forEach { child -> child.detach() } }
         nodes.markAsDetached()
         owner.onDetach(this)
+        owner.rectManager.remove(this)
         this.owner = null
 
         lookaheadRoot = null
@@ -645,7 +663,7 @@ internal class LayoutNode(
 
     override fun toString(): String {
         return "${simpleIdentityToString(this, null)} children: ${children.size} " +
-            "measurePolicy: $measurePolicy"
+            "measurePolicy: $measurePolicy deactivated: $isDeactivated"
     }
 
     internal val hasFixedInnerContentConstraints: Boolean
@@ -683,22 +701,22 @@ internal class LayoutNode(
     internal abstract class NoIntrinsicsMeasurePolicy(private val error: String) : MeasurePolicy {
         override fun IntrinsicMeasureScope.minIntrinsicWidth(
             measurables: List<IntrinsicMeasurable>,
-            height: Int
+            height: Int,
         ) = error(error)
 
         override fun IntrinsicMeasureScope.minIntrinsicHeight(
             measurables: List<IntrinsicMeasurable>,
-            width: Int
+            width: Int,
         ) = error(error)
 
         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
             measurables: List<IntrinsicMeasurable>,
-            height: Int
+            height: Int,
         ) = error(error)
 
         override fun IntrinsicMeasureScope.maxIntrinsicHeight(
             measurables: List<IntrinsicMeasurable>,
-            width: Int
+            width: Int,
         ) = error(error)
     }
 
@@ -954,11 +972,19 @@ internal class LayoutNode(
         }
 
     private fun applyModifier(modifier: Modifier) {
+        val hadPointerInput = nodes.has(Nodes.PointerInput)
+        val hadFocusTarget = nodes.has(Nodes.FocusTarget)
         _modifier = modifier
         nodes.updateFrom(modifier)
+        val hasPointerInput = nodes.has(Nodes.PointerInput)
+        val hasFocusTarget = nodes.has(Nodes.FocusTarget)
         layoutDelegate.updateParentData()
         if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
             lookaheadRoot = this
+        }
+
+        if (hadPointerInput != hasPointerInput || hadFocusTarget != hasFocusTarget) {
+            requireOwner().rectManager.updateFlagsFor(this, hasFocusTarget, hasPointerInput)
         }
     }
 
@@ -986,7 +1012,24 @@ internal class LayoutNode(
      * Flag used by [OnPositionedDispatcher] to identify LayoutNodes that have already had their
      * [OnGloballyPositionedModifier]'s dispatch called so that they aren't called multiple times.
      */
-    internal var needsOnPositionedDispatch = false
+    internal var needsOnGloballyPositionedDispatch = false
+
+    /**
+     * Count of attached [GlobalPositionAwareModifierNode] modifiers or children having such
+     * modifiers in their subtree.
+     */
+    var globallyPositionedObservers: Int = 0
+        set(value) {
+            if (field != value) {
+                if (value > 0 && field == 0) {
+                    parent?.globallyPositionedObservers++
+                }
+                if (value == 0 && field > 0) {
+                    parent?.globallyPositionedObservers--
+                }
+                field = value
+            }
+        }
 
     internal fun place(x: Int, y: Int) {
         if (intrinsicsUsageByParent == UsageByParent.NotUsed) {
@@ -1036,7 +1079,7 @@ internal class LayoutNode(
         pointerPosition: Offset,
         hitTestResult: HitTestResult,
         pointerType: PointerType = PointerType.Unknown,
-        isInLayer: Boolean = true
+        isInLayer: Boolean = true,
     ) {
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
         outerCoordinator.hitTest(
@@ -1044,7 +1087,7 @@ internal class LayoutNode(
             positionInWrapped,
             hitTestResult,
             pointerType,
-            isInLayer
+            isInLayer,
         )
     }
 
@@ -1053,7 +1096,7 @@ internal class LayoutNode(
         pointerPosition: Offset,
         hitSemanticsEntities: HitTestResult,
         pointerType: PointerType = PointerType.Touch,
-        isInLayer: Boolean = true
+        isInLayer: Boolean = true,
     ) {
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
         outerCoordinator.hitTest(
@@ -1061,7 +1104,7 @@ internal class LayoutNode(
             positionInWrapped,
             hitSemanticsEntities,
             pointerType = PointerType.Touch,
-            isInLayer = isInLayer
+            isInLayer = isInLayer,
         )
     }
 
@@ -1092,14 +1135,14 @@ internal class LayoutNode(
     internal fun requestRemeasure(
         forceRequest: Boolean = false,
         scheduleMeasureAndLayout: Boolean = true,
-        invalidateIntrinsics: Boolean = true
+        invalidateIntrinsics: Boolean = true,
     ) {
         if (!ignoreRemeasureRequests && !isVirtual) {
             val owner = owner ?: return
             owner.onRequestMeasure(
                 layoutNode = this,
                 forceRequest = forceRequest,
-                scheduleMeasureAndLayout = scheduleMeasureAndLayout
+                scheduleMeasureAndLayout = scheduleMeasureAndLayout,
             )
             if (invalidateIntrinsics) {
                 measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
@@ -1114,7 +1157,7 @@ internal class LayoutNode(
     internal fun requestLookaheadRemeasure(
         forceRequest: Boolean = false,
         scheduleMeasureAndLayout: Boolean = true,
-        invalidateIntrinsics: Boolean = true
+        invalidateIntrinsics: Boolean = true,
     ) {
         checkPrecondition(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the " +
@@ -1126,7 +1169,7 @@ internal class LayoutNode(
                 layoutNode = this,
                 affectsLookahead = true,
                 forceRequest = forceRequest,
-                scheduleMeasureAndLayout = scheduleMeasureAndLayout
+                scheduleMeasureAndLayout = scheduleMeasureAndLayout,
             )
             if (invalidateIntrinsics) {
                 lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
@@ -1145,7 +1188,6 @@ internal class LayoutNode(
             parent?.invalidateMeasurements()
             return
         }
-        outerToInnerOffsetDirty = true
         if (lookaheadRoot != null) {
             requestLookaheadRemeasure()
         } else {
@@ -1155,19 +1197,63 @@ internal class LayoutNode(
 
     internal fun invalidateOnPositioned() {
         // If we've already scheduled a measure, the positioned callbacks will get called anyway
-        if (layoutPending || measurePending || needsOnPositionedDispatch) return
+        if (
+            globallyPositionedObservers == 0 ||
+                layoutPending ||
+                measurePending ||
+                needsOnGloballyPositionedDispatch
+        )
+            return
         requireOwner().requestOnPositionedCallback(this)
     }
 
-    internal inline fun ignoreRemeasureRequests(block: () -> Unit) {
+    internal fun onCoordinatorRectChanged(coordinator: NodeCoordinator) {
+        val rectManager = owner?.rectManager
+        val placementPending = layoutState != Idle || measurePending || layoutPending
+        if (addedToRectList && rectManager != null) {
+            if (coordinator === outerCoordinator) {
+                // transformations on the outer coordinator update the offset from parent
+                rectInParentDirty = true
+                if (!placementPending) {
+                    // during placement we get it called right after
+                    rectManager.recalculateRectIfDirty(this)
+                }
+            } else {
+                // transformations on other coordinators invalidate outerToInnerOffset
+                // and offset from parent for each child
+                outerToInnerOffsetDirty = true
+                forEachChild {
+                    it.rectInParentDirty = true
+                    // during placement it is guaranteed to get recalculateRectIfDirty() call on
+                    // each child after the parent finish its placement. we don't want to call it
+                    // straight away, as there are might be multiple changes on the same layout
+                    // node, and we want to apply them once in batch.
+                    if (!placementPending) {
+                        rectManager.recalculateRectIfDirty(it)
+                    }
+                }
+
+                // Since there has been an update to a coordinator somewhere in the
+                // modifier chain of this layout node, we might have onRectChanged
+                // callbacks that need to be notified of that change. As a result, even
+                // if the outer rect of this layout node hasn't changed, we want to
+                // invalidate the callbacks for them
+                rectManager.invalidateCallbacksFor(this)
+            }
+        }
+
+        layoutDelegate.measurePassDelegate.requestLayoutIfCoordinatesAreUsedAndNotifyChildren()
+    }
+
+    internal inline fun <T> ignoreRemeasureRequests(block: () -> T): T {
         ignoreRemeasureRequests = true
-        block()
+        val result = block()
         ignoreRemeasureRequests = false
+        return result
     }
 
     /** Used to request a new layout pass from the owner. */
     internal fun requestRelayout(forceRequest: Boolean = false) {
-        outerToInnerOffsetDirty = true
         if (!isVirtual) {
             owner?.onRequestRelayout(this, forceRequest = forceRequest)
         }
@@ -1273,6 +1359,19 @@ internal class LayoutNode(
         _children.forEach { it.invalidateSubtree(false) }
     }
 
+    fun invalidateMeasurementForSubtree() {
+        requestRemeasure()
+        _children.forEach { it.invalidateMeasurementForSubtree() }
+    }
+
+    fun invalidateDrawForSubtree(isRootOfInvalidation: Boolean = true) {
+        if (isRootOfInvalidation) {
+            parent?.invalidateLayer()
+        }
+        nodes.headToTail(Nodes.Layout) { it.requireCoordinator(Nodes.Layout).layer?.invalidate() }
+        _children.forEach { it.invalidateDrawForSubtree(false) }
+    }
+
     /** Marks the layoutNode dirty for another lookahead measure pass. */
     internal fun markLookaheadMeasurePending() = layoutDelegate.markLookaheadMeasurePending()
 
@@ -1292,7 +1391,7 @@ internal class LayoutNode(
     }
 
     override fun onLayoutComplete() {
-        innerCoordinator.visitNodes(Nodes.LayoutAware) { it.onPlaced(innerCoordinator) }
+        innerCoordinator.visitNodes(Nodes.OnPlaced) { it.onPlaced(innerCoordinator) }
     }
 
     /** Calls [block] on all [LayoutModifierNodeCoordinator]s in the NodeCoordinator chain. */
@@ -1394,6 +1493,8 @@ internal class LayoutNode(
             resetModifierState()
         }
         val oldSemanticsId = semanticsId
+        // semanticsId is used as the identity. we need to remove from rectlist before changing it
+        owner?.rectManager?.remove(this)
         semanticsId = generateSemanticsId()
         owner?.onPreLayoutNodeReused(this, oldSemanticsId)
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
@@ -1405,6 +1506,10 @@ internal class LayoutNode(
         }
         rescheduleRemeasureOrRelayout(this)
         owner?.onPostLayoutNodeReused(this, oldSemanticsId)
+        // Sometimes, while scrolling with reuse, a child LayoutNode, might not
+        // require measure or layout at all, but at a minimum we need to update RectManager with
+        // the correct information.
+        owner?.rectManager?.recalculateRectIfDirty(this)
     }
 
     override fun onDeactivate() {
@@ -1436,7 +1541,7 @@ internal class LayoutNode(
                 NoIntrinsicsMeasurePolicy(error = "Undefined intrinsics block and it is required") {
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ) = error("Undefined measure and it is required")
             }
 

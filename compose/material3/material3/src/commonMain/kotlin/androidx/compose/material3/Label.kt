@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Label component that will append a [label] to [content]. The positioning logic uses
- * [TooltipDefaults.rememberTooltipPositionProvider].
+ * [TooltipDefaults.rememberAboveTooltipPositionProvider].
  *
  * Label appended to thumbs of Slider:
  *
@@ -66,18 +66,19 @@ fun Label(
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,
     isPersistent: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // Has the same positioning logic as PlainTooltips
-    val positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
+    val positionProvider =
+        TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above)
     val state =
         if (isPersistent) remember { LabelStateImpl() }
         else rememberBasicTooltipState(mutatorMutex = MutatorMutex())
 
     var anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
-    val scope = remember { TooltipScopeImpl { anchorBounds.value } }
+    val scope = remember { TooltipScopeImpl({ anchorBounds.value }, positionProvider) }
 
     val wrappedContent: @Composable () -> Unit = {
         Box(modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }) { content() }
@@ -90,12 +91,12 @@ fun Label(
         modifier = modifier,
         focusable = false,
         enableUserInput = false,
-        content = wrappedContent
+        content = wrappedContent,
     )
     HandleInteractions(
         enabled = !isPersistent,
         state = state,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -104,7 +105,7 @@ fun Label(
 private fun HandleInteractions(
     enabled: Boolean,
     state: TooltipState,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource,
 ) {
     if (enabled) {
         LaunchedEffect(interactionSource) {

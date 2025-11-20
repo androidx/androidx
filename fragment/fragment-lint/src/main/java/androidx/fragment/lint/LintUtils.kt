@@ -32,7 +32,7 @@ import org.jetbrains.uast.UQualifiedReferenceExpression
 internal fun PsiType?.extends(
     context: JavaContext,
     superName: String,
-    strict: Boolean = false
+    strict: Boolean = false,
 ): Boolean = context.evaluator.extendsClass(PsiTypesUtil.getPsiClass(this), superName, strict)
 
 /** Walks up the uastParent hierarchy from this element. */

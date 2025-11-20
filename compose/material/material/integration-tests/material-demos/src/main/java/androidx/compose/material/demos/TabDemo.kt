@@ -72,7 +72,7 @@ fun TabDemo() {
         Button(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = { showingSimple.value = !showingSimple.value },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan)
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Cyan),
         ) {
             Text(buttonText)
         }

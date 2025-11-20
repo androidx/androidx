@@ -16,10 +16,7 @@
 
 package androidx.core.os;
 
-import android.os.Build;
-
 import androidx.annotation.IntRange;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 
 import org.jspecify.annotations.NonNull;
@@ -159,15 +156,12 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     }
 
     private static String getLikelyScript(Locale locale) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final String script = Api21Impl.getScript(locale);
-            if (!script.isEmpty()) {
-                return script;
-            } else {
-                return "";
-            }
+        final String script = locale.getScript();
+        if (!script.isEmpty()) {
+            return script;
+        } else {
+            return "";
         }
-        return "";
     }
 
     private static final Locale LOCALE_EN_XA = new Locale("en", "XA");
@@ -266,16 +260,5 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     public Locale getFirstMatch(String @NonNull [] supportedLocales) {
         return computeFirstMatch(Arrays.asList(supportedLocales),
                 false /* assume English is not supported */);
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static String getScript(Locale locale) {
-            return locale.getScript();
-        }
     }
 }

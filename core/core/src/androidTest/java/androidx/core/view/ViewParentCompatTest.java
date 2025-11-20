@@ -27,7 +27,6 @@ import android.view.ViewParent;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -138,7 +137,6 @@ public class ViewParentCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void  dispatchNestedScroll_viewIsNotASupportNestedScrollingParent_callsCorrectMethod() {
         final ViewParentImpl viewParentImpl = mock(ViewParentImpl.class);
 

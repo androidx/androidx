@@ -238,7 +238,7 @@ class MediatorLiveDataTest {
                 val source = MutableLiveData<String>()
                 source.value = "b"
                 mediator.addSource(source) { mediator.value = "c" }
-            }
+            },
         )
         owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
         assertThat(mediator.value, `is`("c"))

@@ -26,18 +26,17 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.12.0")
     api project(":privacysandbox:ui:ui-core")
+    implementation("androidx.tracing:tracing:1.3.0")
 
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -59,5 +58,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "lets an SdkRuntime aware SDK share UI with a client application."
-    legacyDisableKotlinStrictApiMode = true
 }

@@ -17,7 +17,6 @@
 package androidx.wear.compose.material
 
 import android.content.res.Configuration
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
@@ -43,6 +42,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -50,10 +50,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class SwipeToDismissBoxScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -103,7 +103,7 @@ class SwipeToDismissBoxScreenshotTest {
         layoutDirection: LayoutDirection,
         swipedPercentage: Float,
         isOnDismissOverload: Boolean = false,
-        goldenIdentifier: String = testName.methodName
+        goldenIdentifier: String = testName.methodName,
     ) {
         val screenShotSizeDp = SCREENSHOT_SIZE.dp
         rule.setContentWithTheme {
@@ -118,21 +118,21 @@ class SwipeToDismissBoxScreenshotTest {
 
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
-                LocalConfiguration provides fixedScreenSizeConfiguration
+                LocalConfiguration provides fixedScreenSizeConfiguration,
             ) {
                 val state = rememberSwipeToDismissBoxState()
                 if (isOnDismissOverload) {
                     SwipeToDismissBox(
                         onDismissed = {},
                         modifier = Modifier.testTag(TEST_TAG).size(screenShotSizeDp),
-                        state = state
+                        state = state,
                     ) { isBackground ->
                         boxContent(isBackground = isBackground)
                     }
                 } else {
                     SwipeToDismissBox(
                         modifier = Modifier.testTag(TEST_TAG).size(screenShotSizeDp),
-                        state = state
+                        state = state,
                     ) { isBackground ->
                         boxContent(isBackground = isBackground)
                     }

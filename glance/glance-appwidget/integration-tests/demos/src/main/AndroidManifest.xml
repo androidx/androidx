@@ -44,6 +44,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".CustomUnmanagedSessionReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity android:name=".ActionDemoActivity" />
 

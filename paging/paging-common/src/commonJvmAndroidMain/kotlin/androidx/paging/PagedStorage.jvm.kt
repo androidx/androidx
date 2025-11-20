@@ -85,7 +85,7 @@ internal class PagedStorage<T : Any> :
         page: Page<*, T>,
         trailingNulls: Int,
         positionOffset: Int,
-        counted: Boolean
+        counted: Boolean,
     ) {
         placeholdersBefore = leadingNulls
         pages.clear()
@@ -106,7 +106,7 @@ internal class PagedStorage<T : Any> :
         trailingNulls: Int,
         positionOffset: Int,
         callback: Callback,
-        counted: Boolean = true
+        counted: Boolean = true,
     ) {
         init(leadingNulls, page, trailingNulls, positionOffset, counted)
         callback.onInitialized(size)
@@ -137,7 +137,7 @@ internal class PagedStorage<T : Any> :
      */
     private inline fun <V> traversePages(
         localIndex: Int,
-        crossinline onLastPage: (page: Page<*, T>, pageInternalIndex: Int) -> V
+        crossinline onLastPage: (page: Page<*, T>, pageInternalIndex: Int) -> V,
     ): V {
         var localPageIndex = 0
         var pageInternalIndex: Int = localIndex
@@ -175,9 +175,9 @@ internal class PagedStorage<T : Any> :
                     config.prefetchDistance,
                     config.enablePlaceholders,
                     config.initialLoadSizeHint,
-                    config.maxSize
+                    config.maxSize,
                 ),
-            leadingPlaceholderCount = placeholdersBefore
+            leadingPlaceholderCount = placeholdersBefore,
         )
     }
 
@@ -239,7 +239,7 @@ internal class PagedStorage<T : Any> :
         insertNulls: Boolean,
         maxSize: Int,
         requiredRemaining: Int,
-        callback: Callback
+        callback: Callback,
     ): Boolean {
         var totalRemoved = 0
         while (needsTrimFromFront(maxSize, requiredRemaining)) {
@@ -269,7 +269,7 @@ internal class PagedStorage<T : Any> :
         insertNulls: Boolean,
         maxSize: Int,
         requiredRemaining: Int,
-        callback: Callback
+        callback: Callback,
     ): Boolean {
         var totalRemoved = 0
         while (needsTrimFromEnd(maxSize, requiredRemaining)) {

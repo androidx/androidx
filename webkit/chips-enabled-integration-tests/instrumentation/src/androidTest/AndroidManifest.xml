@@ -19,7 +19,7 @@
          -->
     <application
         android:hardwareAccelerated="true"
-        android:label="AndroidX Webkit Unittests"
+        android:label="Jetpack Webkit Unittests"
         android:usesCleartextTraffic="true">
 
         <activity android:name="androidx.webkit.WebViewTestActivity" />

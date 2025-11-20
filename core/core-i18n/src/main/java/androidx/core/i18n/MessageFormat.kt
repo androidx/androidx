@@ -36,7 +36,7 @@ public class MessageFormat private constructor() {
             context: Context,
             locale: Locale = Locale.getDefault(),
             msg: String,
-            namedArguments: Map<String, Any>
+            namedArguments: Map<String, Any>,
         ): String {
             val result: StringBuffer = StringBuffer()
             return MessageFormat(context, msg, locale)
@@ -59,7 +59,7 @@ public class MessageFormat private constructor() {
                 context,
                 Locale.getDefault(),
                 context.resources.getString(id),
-                namedArguments
+                namedArguments,
             )
         }
     }

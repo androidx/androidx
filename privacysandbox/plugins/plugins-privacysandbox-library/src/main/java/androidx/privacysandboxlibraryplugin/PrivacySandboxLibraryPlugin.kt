@@ -16,13 +16,11 @@
 
 package androidx.privacysandboxlibraryplugin
 
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.LibraryExtension
 import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.StopExecutionException
-import org.gradle.kotlin.dsl.dependencies
 
 /*
  * For modules that are used by a privacy sandbox sdk module using Androidx, we need to configure
@@ -32,83 +30,67 @@ import org.gradle.kotlin.dsl.dependencies
 abstract class PrivacySandboxLibraryPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        var kspPluginApplied = false
-        val libraryPluginId = "com.android.library"
-        project.pluginManager.apply(libraryPluginId)
-        project.pluginManager.withPlugin(libraryPluginId) {
-            val libraryAndroidComponentsExtension =
-                project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
-            val libraryExtension = project.extensions.getByType(LibraryExtension::class.java)
-            val kspGradlePluginId = "com.google.devtools.ksp"
-            project.pluginManager.apply(kspGradlePluginId)
-            project.pluginManager.withPlugin(kspGradlePluginId) {
-                kspPluginApplied = true
-                val sdkDirectory = libraryAndroidComponentsExtension.sdkComponents.sdkDirectory
-                val aidlExecutableInputs =
-                    project.objects.newInstance(AidlExecutableInputs::class.java)
-                val frameworkAidlInputs =
-                    project.objects.newInstance(FrameworkAidlInputs::class.java)
-                frameworkAidlInputs.frameworkAidl.set(
-                    sdkDirectory.map {
-                        it.dir("platforms")
-                            .dir(libraryExtension.compileSdkVersion!!)
-                            .file("framework.aidl")
-                    }
-                )
-                frameworkAidlInputs.platformSdk.set(
-                    frameworkAidlInputs.frameworkAidl.map { it.asFile.parentFile.absolutePath }
-                )
-                val aidlFile =
-                    sdkDirectory.map {
-                        it.dir("build-tools")
+        project.pluginManager.apply("com.android.library")
+        project.pluginManager.apply("com.google.devtools.ksp")
+        project.pluginManager.withPlugin("com.google.devtools.ksp") {
+            configureKsp(project)
+            addSandboxDependencies(project)
+        }
+    }
+
+    private fun configureKsp(project: Project) {
+        val androidComponents =
+            project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+        val libraryExtension = project.extensions.getByType(LibraryExtension::class.java)
+        val kspExtension = project.extensions.getByType(KspExtension::class.java)
+
+        val sdkDir = androidComponents.sdkComponents.sdkDirectory
+        val aidlInputs =
+            project.objects.newInstance(AidlExecutableInputs::class.java).apply {
+                aidl.set(
+                    sdkDir.map { sdk ->
+                        sdk.dir("build-tools")
                             .dir(libraryExtension.buildToolsVersion)
                             .file(
-                                if (System.getProperty("os.name").startsWith("Windows")) {
-                                    "aidl.exe"
-                                } else {
-                                    "aidl"
-                                }
+                                if (System.getProperty("os.name").startsWith("Windows")) "aidl.exe"
+                                else "aidl"
                             )
                     }
-                aidlExecutableInputs.aidl.set(aidlFile)
-                aidlExecutableInputs.buildToolsVersion.set(
-                    aidlExecutableInputs.aidl.map { it.asFile.parentFile.name }
                 )
-                val kspExtension = project.extensions.getByType(KspExtension::class.java)
-                kspExtension.arg(aidlExecutableInputs)
-                kspExtension.arg(frameworkAidlInputs)
+                buildToolsVersion.set(aidl.map { it.asFile.parentFile.name })
             }
 
-            // Add additional dependencies required for KSP outputs
+        val frameworkInputs =
+            project.objects.newInstance(FrameworkAidlInputs::class.java).apply {
+                frameworkAidl.set(androidComponents.sdkComponents.aidl.flatMap { it.framework })
+                platformSdk.set(frameworkAidl.map { it.asFile.parentFile.absolutePath })
+            }
 
-            val toolsVersion = "1.0.0-alpha08"
-            val sdkRuntimeVersion = "1.0.0-alpha13"
-            project.dependencies {
-                add("ksp", "androidx.privacysandbox.tools:tools-apicompiler:$toolsVersion")
-                add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-                add("implementation", "androidx.privacysandbox.tools:tools:$toolsVersion")
-                add(
-                    "implementation",
-                    "androidx.privacysandbox.sdkruntime:sdkruntime-core:$sdkRuntimeVersion"
-                )
-                add(
-                    "implementation",
-                    "androidx.privacysandbox.sdkruntime:sdkruntime-client:$sdkRuntimeVersion"
-                )
-                add(
-                    "implementation",
-                    "androidx.privacysandbox.sdkruntime:sdkruntime-provider:$sdkRuntimeVersion"
-                )
-            }
-            project.afterEvaluate {
-                if (!kspPluginApplied) {
-                    throw StopExecutionException(
-                        """Plugin '$pluginId' was unable to apply plugin '$kspGradlePluginId'.
-                            Please apply the '$kspGradlePluginId' plugin in ${project.buildFile.absolutePath}.
-                            """
-                    )
-                }
-            }
+        kspExtension.apply {
+            arg(aidlInputs)
+            arg(frameworkInputs)
+        }
+    }
+
+    private fun addSandboxDependencies(project: Project) {
+        val toolsVersion = "1.0.0-alpha13"
+        val sdkRuntimeVersion = "1.0.0-alpha18"
+        project.dependencies.apply {
+            add("ksp", "androidx.privacysandbox.tools:tools-apicompiler:$toolsVersion")
+            add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+            add("implementation", "androidx.privacysandbox.tools:tools:$toolsVersion")
+            add(
+                "implementation",
+                "androidx.privacysandbox.sdkruntime:sdkruntime-core:$sdkRuntimeVersion",
+            )
+            add(
+                "implementation",
+                "androidx.privacysandbox.sdkruntime:sdkruntime-client:$sdkRuntimeVersion",
+            )
+            add(
+                "implementation",
+                "androidx.privacysandbox.sdkruntime:sdkruntime-provider:$sdkRuntimeVersion",
+            )
         }
     }
 

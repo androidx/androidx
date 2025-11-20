@@ -77,7 +77,7 @@ private enum class AnchoredDraggableSampleValue {
     HalfStart,
     Center,
     HalfEnd,
-    End
+    End,
 }
 
 @Composable
@@ -111,8 +111,8 @@ fun AnchoredDraggableAnchorsFromCompositionSample() {
                     flingBehavior =
                         AnchoredDraggableDefaults.flingBehavior(
                             state,
-                            positionalThreshold = { distance -> distance * 0.25f }
-                        )
+                            positionalThreshold = { distance -> distance * 0.25f },
+                        ),
                 )
                 .background(Color.Red)
         )
@@ -174,7 +174,7 @@ fun AnchoredDraggableCustomAnchoredSample() {
                     initialValue = offset,
                     initialVelocity = velocity,
                     targetValue = targetOffset,
-                    animationSpec = snapAnimationSpec
+                    animationSpec = snapAnimationSpec,
                 ) { value, velocity ->
                     dragTo(value, velocity)
                 }
@@ -213,7 +213,7 @@ fun AnchoredDraggableWithOverscrollSample() {
                 .anchoredDraggable(
                     state,
                     Orientation.Horizontal,
-                    overscrollEffect = overscrollEffect
+                    overscrollEffect = overscrollEffect,
                 )
                 .overscroll(overscrollEffect)
                 .background(Color.Red)
@@ -294,14 +294,14 @@ fun DraggableAnchorsSample() {
                             offset =
                                 (offset + delta).coerceIn(
                                     anchors.minPosition(),
-                                    anchors.maxPosition()
+                                    anchors.maxPosition(),
                                 )
                         },
                     orientation = Orientation.Horizontal,
                     onDragStopped = { velocity ->
                         val closestAnchor = anchors.positionOf(anchors.closestAnchor(offset)!!)
                         animate(offset, closestAnchor, velocity) { value, _ -> offset = value }
-                    }
+                    },
                 )
                 .background(Color.Red)
         )
@@ -320,7 +320,7 @@ fun AnchoredDraggableDynamicAnchorsSample() {
         activePositions: List<String> = listOf(open, closed),
         modifier: Modifier = Modifier,
         drawerContent: @Composable () -> Unit,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         Box(modifier) {
             Box(Modifier.anchoredDraggable(state, Orientation.Horizontal)) { content() }
@@ -406,7 +406,7 @@ fun AnchoredDraggableProgrammaticFlingSample() {
                 .anchoredDraggable(
                     state = state,
                     orientation = Orientation.Horizontal,
-                    flingBehavior = flingBehavior
+                    flingBehavior = flingBehavior,
                 )
                 .background(Color.Red)
         )
@@ -454,26 +454,26 @@ private fun Modifier.visualizeDraggableAnchors(
     orientation: Orientation,
     lineColor: Color = Color.Black,
     lineStrokeWidth: Float = 10f,
-    linePathEffect: PathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 30f))
+    linePathEffect: PathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 30f)),
 ) = drawWithContent {
     drawContent()
     state.anchors.forEach { _, position ->
         val startOffset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) position else 0f,
-                y = if (orientation == Orientation.Vertical) position else 0f
+                y = if (orientation == Orientation.Vertical) position else 0f,
             )
         val endOffset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) startOffset.x else size.height,
-                y = if (orientation == Orientation.Vertical) startOffset.y else size.width
+                y = if (orientation == Orientation.Vertical) startOffset.y else size.width,
             )
         drawLine(
             color = lineColor,
             start = startOffset,
             end = endOffset,
             strokeWidth = lineStrokeWidth,
-            pathEffect = linePathEffect
+            pathEffect = linePathEffect,
         )
     }
 }

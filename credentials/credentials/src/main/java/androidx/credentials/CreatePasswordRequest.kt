@@ -94,7 +94,7 @@ private constructor(
         isAutoSelectAllowed = isAutoSelectAllowed,
         displayInfo = DisplayInfo(id, null),
         origin = origin,
-        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials
+        preferImmediatelyAvailableCredentials = preferImmediatelyAvailableCredentials,
     )
 
     /**
@@ -132,7 +132,7 @@ private constructor(
         origin: String?,
         preferDefaultProvider: String?,
         preferImmediatelyAvailableCredentials: Boolean,
-        isAutoSelectAllowed: Boolean
+        isAutoSelectAllowed: Boolean,
     ) : this(
         id = id,
         password = password,

@@ -27,7 +27,6 @@ import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -38,7 +37,6 @@ import java.util.List;
 /**
  * Test for {@link androidx.core.telephony.SubscriptionManagerCompat}.
  */
-@SdkSuppress(minSdkVersion = 22)
 @SmallTest
 public class SubscriptionManagerCompatTest {
 

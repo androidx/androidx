@@ -31,5 +31,5 @@ val PagingFoundationDemos =
             ComposableDemo("Paging with VerticalPager") { PagingWithVerticalPager() },
             ComposableDemo("Paging with LazyGrid") { PagingWithLazyGrid() },
             ComposableDemo("Paging with LazyColumn") { PagingWithLazyList() },
-        )
+        ),
     )

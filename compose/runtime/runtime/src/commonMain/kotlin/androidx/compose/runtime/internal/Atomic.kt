@@ -16,6 +16,8 @@
 
 package androidx.compose.runtime.internal
 
+import kotlin.jvm.JvmInline
+
 internal expect class AtomicReference<V>(value: V) {
     fun get(): V
 
@@ -34,4 +36,16 @@ internal expect class AtomicInt(value: Int) {
     fun add(amount: Int): Int
 
     fun compareAndSet(expect: Int, newValue: Int): Boolean
+}
+
+@JvmInline
+internal value class AtomicBoolean(private val wrapped: AtomicInt = AtomicInt(0)) {
+
+    constructor(value: Boolean) : this(AtomicInt(if (value) 1 else 0))
+
+    fun get(): Boolean = wrapped.get() != 0
+
+    fun set(value: Boolean) = wrapped.set(if (value) 1 else 0)
+
+    fun getAndSet(newValue: Boolean): Boolean = wrapped.compareAndSet(1, if (newValue) 1 else 0)
 }

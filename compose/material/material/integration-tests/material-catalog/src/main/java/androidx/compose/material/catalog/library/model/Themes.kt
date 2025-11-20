@@ -31,7 +31,7 @@ data class Theme(
     val shapeCornerFamily: ThemeShapeCornerFamily = ThemeShapeCornerFamily.Rounded,
     val smallShapeCornerSize: Int = 4,
     val mediumShapeCornerSize: Int = 4,
-    val largeShapeCornerSize: Int = 0
+    val largeShapeCornerSize: Int = 0,
 )
 
 val DefaultTheme = Theme()
@@ -46,7 +46,7 @@ enum class ThemeColor {
     Purple,
     Red,
     Teal,
-    Yellow
+    Yellow,
 }
 
 fun ThemeColor.getColor(darkTheme: Boolean): Color =
@@ -68,7 +68,7 @@ enum class ThemeFontFamily(val label: String) {
     SansSerif("Sans serif"),
     Serif("Serif"),
     Monospace("Monospace"),
-    Cursive("Cursive")
+    Cursive("Cursive"),
 }
 
 fun ThemeFontFamily.getFontFamily(): FontFamily =
@@ -82,7 +82,7 @@ fun ThemeFontFamily.getFontFamily(): FontFamily =
 
 enum class ThemeShapeCornerFamily(val label: String) {
     Rounded("Rounded"),
-    Cut("Cut")
+    Cut("Cut"),
 }
 
 fun ThemeShapeCornerFamily.getShape(size: Dp): CornerBasedShape =
@@ -101,7 +101,7 @@ val ThemeSaver =
                 ShapeCornerFamilyKey to theme.shapeCornerFamily.ordinal,
                 SmallShapeCornerSizeKey to theme.smallShapeCornerSize,
                 MediumShapeCornerSizeKey to theme.mediumShapeCornerSize,
-                LargeShapeCornerSizeKey to theme.largeShapeCornerSize
+                LargeShapeCornerSizeKey to theme.largeShapeCornerSize,
             )
         },
         restore = { map ->
@@ -112,9 +112,9 @@ val ThemeSaver =
                 shapeCornerFamily = ThemeShapeCornerFamily.values()[map[ShapeCornerFamilyKey]!!],
                 smallShapeCornerSize = map[SmallShapeCornerSizeKey]!!,
                 mediumShapeCornerSize = map[MediumShapeCornerSizeKey]!!,
-                largeShapeCornerSize = map[LargeShapeCornerSizeKey]!!
+                largeShapeCornerSize = map[LargeShapeCornerSizeKey]!!,
             )
-        }
+        },
     )
 
 const val MaxSmallShapeCornerSize = 16

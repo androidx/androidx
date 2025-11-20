@@ -16,13 +16,13 @@
 
 package androidx.camera.view
 
-import android.os.Build
 import android.os.Looper.getMainLooper
 import android.view.Surface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +36,7 @@ private const val INVALID_ROTATION = -1
 /** Unit tests for [RotationProvider]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class RotationProviderTest {
 
     private val rotationProvider = RotationProvider(getInstrumentation().context)
@@ -57,8 +57,10 @@ class RotationProviderTest {
         var rotationChanged = INVALID_ROTATION
         val listenerKept = RotationProvider.Listener { rotationChanged = it }
         val listenerRemoved = RotationProvider.Listener { rotationNoChange = it }
-        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerKept)
-        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerRemoved)
+        val listenersAdded =
+            rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerKept) &&
+                rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerRemoved)
+        assumeTrue("The device cannot detect rotation changes.", listenersAdded)
 
         // Act.
         rotationProvider.removeListener(listenerRemoved)
@@ -74,7 +76,9 @@ class RotationProviderTest {
     fun addListener_receivesCallback() {
         // Arrange.
         var rotation = -1
-        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) { rotation = it }
+        val added =
+            rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) { rotation = it }
+        assumeTrue("The device cannot detect rotation changes.", added)
         // Act.
         rotationProvider.mOrientationListener.onOrientationChanged(0)
         shadowOf(getMainLooper()).idle()

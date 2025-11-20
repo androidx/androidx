@@ -24,8 +24,10 @@ import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import kotlin.math.min
 
 internal class ThrottledCallbacks {
@@ -47,7 +49,7 @@ internal class ThrottledCallbacks {
 
         var topLeft: Long = 0
         var bottomRight: Long = 0
-        var lastInvokeMillis: Long = -throttleMillis
+        var lastInvokeMillis: Long = Long.MIN_VALUE
         var lastUninvokedFireMillis: Long = -1
 
         override fun unregister() {
@@ -69,6 +71,7 @@ internal class ThrottledCallbacks {
                     bottomRight = bottomRight,
                     windowOffset = windowOffset,
                     screenOffset = screenOffset,
+                    windowSize = windowSize,
                     viewToWindowMatrix = viewToWindowMatrix,
                 )
             if (rect == null) {
@@ -94,9 +97,16 @@ internal class ThrottledCallbacks {
     var minDebounceDeadline: Long = -1
     var windowOffset: IntOffset = IntOffset.Zero
     var screenOffset: IntOffset = IntOffset.Zero
+    var windowSize: Long = 0
     var viewToWindowMatrix: Matrix? = null
 
-    fun updateOffsets(screen: IntOffset, window: IntOffset, matrix: Matrix?): Boolean {
+    fun updateOffsets(
+        screen: IntOffset,
+        window: IntOffset,
+        matrix: Matrix?,
+        windowWidth: Int,
+        windowHeight: Int,
+    ): Boolean {
         var updated = false
         if (window != windowOffset) {
             windowOffset = window
@@ -108,6 +118,11 @@ internal class ThrottledCallbacks {
         }
         if (matrix != null) {
             viewToWindowMatrix = matrix
+            updated = true
+        }
+        val size = packXY(windowWidth, windowHeight)
+        if (size != windowSize) {
+            windowSize = size
             updated = true
         }
         return updated
@@ -137,7 +152,7 @@ internal class ThrottledCallbacks {
                     debounceMillis = debounceToUse,
                     node = node,
                     callback = callback,
-                )
+                ),
         )
     }
 
@@ -173,6 +188,18 @@ internal class ThrottledCallbacks {
         }
     }
 
+    inline fun forEachNewCallbackNeverInvoked(callback: (Entry) -> Unit) {
+        rectChangedMap.forEachValue { entry ->
+            var next: Entry? = entry
+            while (next != null) {
+                if (entry.lastInvokeMillis == Long.MIN_VALUE) {
+                    callback(entry)
+                }
+                next = next.next
+            }
+        }
+    }
+
     /** Fires all [rectChangedMap] entries with latest window/screen info. */
     fun fireOnRectChangedEntries(currentMillis: Long) {
         val windowOffset = windowOffset
@@ -184,7 +211,7 @@ internal class ThrottledCallbacks {
                 windowOffset = windowOffset,
                 screenOffset = screenOffset,
                 viewToWindowMatrix = viewToWindowMatrix,
-                currentMillis = currentMillis
+                currentMillis = currentMillis,
             )
         }
     }
@@ -196,20 +223,19 @@ internal class ThrottledCallbacks {
         val viewToWindowMatrix = viewToWindowMatrix
         globalChangeEntries?.linkedForEach { entry ->
             val node = entry.node.requireLayoutNode()
-            val offsetFromRoot = node.offsetFromRoot
-            val lastSize = node.lastSize
+            val offsetFromRoot = node.requireOwner().rectManager.getOffsetFromRectListFor(node)
 
             // For global change callbacks, we'll still need to update the Entry bounds
             entry.topLeft = offsetFromRoot.packedValue
             entry.bottomRight =
-                packXY(offsetFromRoot.x + lastSize.width, offsetFromRoot.y + lastSize.height)
+                packXY(offsetFromRoot.x + node.width, offsetFromRoot.y + node.height)
 
             fire(
                 entry = entry,
                 windowOffset = windowOffset,
                 screenOffset = screenOffset,
                 viewToWindowMatrix = viewToWindowMatrix,
-                currentMillis = currentMillis
+                currentMillis = currentMillis,
             )
         }
     }
@@ -231,7 +257,7 @@ internal class ThrottledCallbacks {
                     screenOffset = screenOffset,
                     viewToWindowMatrix = viewToWindowMatrix,
                     currentMillis = currentMillis,
-                    minDeadline = minDeadline
+                    minDeadline = minDeadline,
                 )
         }
         globalChangeEntries?.linkedForEach { entry ->
@@ -242,22 +268,25 @@ internal class ThrottledCallbacks {
                     screenOffset = screenOffset,
                     viewToWindowMatrix = viewToWindowMatrix,
                     currentMillis = currentMillis,
-                    minDeadline = minDeadline
+                    minDeadline = minDeadline,
                 )
         }
         minDebounceDeadline = if (minDeadline == Long.MAX_VALUE) -1 else minDeadline
     }
 
-    private fun fireWithUpdatedRect(
+    internal fun fireWithUpdatedRect(
         entry: Entry,
         topLeft: Long,
         bottomRight: Long,
-        currentMillis: Long
+        currentMillis: Long,
     ) {
         val lastInvokeMillis = entry.lastInvokeMillis
         val throttleMillis = entry.throttleMillis
         val debounceMillis = entry.debounceMillis
-        val pastThrottleDeadline = currentMillis - lastInvokeMillis >= throttleMillis
+        // We need to check separately for lastInvokeMillis being Long.MIN_VALUE because when it is,
+        // we will end up with Long overflow.
+        val pastThrottleDeadline =
+            currentMillis - lastInvokeMillis >= throttleMillis || lastInvokeMillis == Long.MIN_VALUE
         val zeroDebounce = debounceMillis == 0L
         val zeroThrottle = throttleMillis == 0L
 
@@ -301,7 +330,11 @@ internal class ThrottledCallbacks {
         currentMillis: Long,
     ) {
         val lastInvokeMillis = entry.lastInvokeMillis
-        val throttleOkay = currentMillis - lastInvokeMillis > entry.throttleMillis
+        // We need to check separately for lastInvokeMillis being Long.MIN_VALUE because when it is,
+        // we will end up with Long overflow.
+        val throttleOkay =
+            currentMillis - lastInvokeMillis > entry.throttleMillis ||
+                lastInvokeMillis == Long.MIN_VALUE
         val debounceOkay = entry.debounceMillis == 0L
         entry.lastUninvokedFireMillis = currentMillis
         if (throttleOkay && debounceOkay) {
@@ -311,7 +344,7 @@ internal class ThrottledCallbacks {
                 entry.bottomRight,
                 windowOffset,
                 screenOffset,
-                viewToWindowMatrix
+                viewToWindowMatrix,
             )
         }
         if (!debounceOkay) {
@@ -330,11 +363,11 @@ internal class ThrottledCallbacks {
         screenOffset: IntOffset,
         viewToWindowMatrix: Matrix?,
         currentMillis: Long,
-        minDeadline: Long
+        minDeadline: Long,
     ): Long {
         var newMinDeadline = minDeadline
         if (entry.debounceMillis > 0 && entry.lastUninvokedFireMillis > 0) {
-            if (currentMillis - entry.lastUninvokedFireMillis > entry.debounceMillis) {
+            if (currentMillis - entry.lastUninvokedFireMillis >= entry.debounceMillis) {
                 entry.lastInvokeMillis = currentMillis
                 entry.lastUninvokedFireMillis = -1
                 val topLeft = entry.topLeft
@@ -403,8 +436,9 @@ internal class ThrottledCallbacks {
     private inline fun MutableIntObjectMap<Entry>.runFor(id: Int, block: (Entry) -> Unit) {
         var entry: Entry? = get(id)
         while (entry != null) {
+            val next = entry.next
             block(entry)
-            entry = entry.next
+            entry = next
         }
     }
 
@@ -427,6 +461,11 @@ internal class ThrottledCallbacks {
                 value.next = null
                 if (next != null) {
                     put(key, next)
+                } else {
+                    val layoutNode = value.node.node.requireLayoutNode()
+                    if (layoutNode.addedToRectList) {
+                        layoutNode.requireOwner().rectManager.unsetHasCallbacksFor(layoutNode)
+                    }
                 }
                 true
             }
@@ -454,6 +493,7 @@ internal fun rectInfoFor(
     bottomRight: Long,
     windowOffset: IntOffset,
     screenOffset: IntOffset,
+    windowSize: Long,
     viewToWindowMatrix: Matrix?,
 ): RelativeLayoutBounds? {
     val coordinator = node.requireCoordinator(Nodes.Layout)
@@ -466,12 +506,18 @@ internal fun rectInfoFor(
     // is accurate.
     val needsTransform = layoutNode.outerCoordinator !== coordinator
     return if (needsTransform) {
-        val transformed = layoutNode.outerCoordinator.coordinates.localBoundingBoxOf(coordinator)
+        val topLeftOffset = IntOffset(topLeft).toOffset()
+        val size = coordinator.coordinates.size
+        val transformedPos =
+            layoutNode.outerCoordinator.coordinates
+                .localPositionOf(coordinator, topLeftOffset)
+                .round()
         RelativeLayoutBounds(
-            transformed.topLeft.round().packedValue,
-            transformed.bottomRight.round().packedValue,
+            transformedPos.packedValue,
+            IntOffset(transformedPos.x + size.width, transformedPos.y + size.height).packedValue,
             windowOffset,
             screenOffset,
+            windowSize,
             viewToWindowMatrix,
             node,
         )
@@ -481,6 +527,7 @@ internal fun rectInfoFor(
             bottomRight,
             windowOffset,
             screenOffset,
+            windowSize,
             viewToWindowMatrix,
             node,
         )

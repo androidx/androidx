@@ -1,6 +1,6 @@
 // Baseline format: 1.0
 InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
-    Invalid nullability on parameter `tintMode` in method `setTintMode`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
+    Invalid nullability on type android.graphics.PorterDuff.Mode in parameter `tintMode` in method `setTintMode`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is nullable.
 
 
 MissingNullability: androidx.appcompat.content.res.AppCompatResources#getColorStateList(android.content.Context, int):

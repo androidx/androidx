@@ -16,12 +16,11 @@
 
 package androidx.build.gitclient
 
-import androidx.build.gitclient.GitHeadShaSource.Parameters
+import androidx.build.getCheckoutRoot
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
 import javax.inject.Inject
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -36,42 +35,40 @@ import org.gradle.process.ExecOperations
  *   and MANIFEST to resolve the files if these environmental variables are set, otherwise it will
  *   default to using git.
  */
-fun Project.getChangedFilesProvider(
-    baseCommitOverride: Provider<String>,
-): Provider<List<String>> {
-    val changeInfoPath = System.getenv("CHANGE_INFO")
-    val manifestPath = System.getenv("MANIFEST")
-    return if (changeInfoPath != null && manifestPath != null) {
-        if (baseCommitOverride.isPresent())
-            throw GradleException(
-                "Overriding base commit is not supported when using CHANGE_INFO and MANIFEST"
+fun Project.getChangedFilesProvider(baseCommitOverride: Provider<String>): Provider<List<String>> {
+    return providers
+        .of(NonGitChangedFilesSource::class.java) {
+            it.parameters.projectDirRelativeToRoot.set(
+                projectDir.relativeTo(getCheckoutRoot()).toString()
             )
-        getChangedFilesFromChangeInfoProvider(manifestPath, changeInfoPath)
-    } else if (changeInfoPath != null) {
-        throw GradleException("Setting CHANGE_INFO requires also setting MANIFEST")
-    } else if (manifestPath != null) {
-        throw GradleException("Setting MANIFEST requires also setting CHANGE_INFO")
-    } else {
-        providers.of(GitChangedFilesSource::class.java) {
-            it.parameters.workingDir.set(rootProject.layout.projectDirectory)
-            it.parameters.baseCommitOverride.set(baseCommitOverride)
+            it.parameters.baseCommitOverridePresent.set(
+                baseCommitOverride.map { true }.orElse(false)
+            )
         }
-    }
+        .orElse(
+            providers.of(GitChangedFilesSource::class.java) {
+                it.parameters.workingDir.set(rootProject.layout.projectDirectory)
+                it.parameters.baseCommitOverride.set(baseCommitOverride)
+            }
+        )
 }
 
 /**
  * @return provider of HEAD SHA. It will use MANIFEST to get the SHA if the environmental variable
  *   is set, otherwise it will default to using git.
  */
-fun getHeadShaProvider(project: Project): Provider<String> {
-    val manifestPath = System.getenv("MANIFEST")
-    return if (manifestPath != null) { // using manifest xml file for HEAD SHA
-        project.getHeadShaFromManifestProvider(manifestPath)
-    } else { // using git for HEAD SHA
-        project.providers.of(GitHeadShaSource::class.java) {
-            it.parameters.workingDir.set(project.layout.projectDirectory)
+fun Project.getHeadShaProvider(): Provider<String> {
+    return providers
+        .of(NonGitHeadShaSource::class.java) {
+            it.parameters.projectDirRelativeToRoot.set(
+                projectDir.relativeTo(getCheckoutRoot()).toString()
+            )
         }
-    }
+        .orElse(
+            providers.of(GitHeadShaSource::class.java) {
+                it.parameters.workingDir.set(project.layout.projectDirectory)
+            }
+        )
 }
 
 /** Provides HEAD SHA by calling git in [Parameters.workingDir]. */
@@ -98,7 +95,7 @@ internal abstract class GitChangedFilesSource :
     ValueSource<List<String>, GitChangedFilesSource.Parameters> {
     interface Parameters : ValueSourceParameters {
         val workingDir: DirectoryProperty
-        val baseCommitOverride: Property<String?>
+        val baseCommitOverride: Property<String>
     }
 
     @get:Inject abstract val execOperations: ExecOperations
@@ -118,13 +115,14 @@ internal abstract class GitChangedFilesSource :
                         "-1",
                         "--merges",
                         "--oneline",
-                        "--pretty=format:%H"
+                        "--pretty=format:%H",
                     )
                     it.standardOutput = output
                     it.workingDir = gitDirInParentFilepath
                 }
                 String(output.toByteArray(), Charset.defaultCharset()).trim()
             }
+        output.reset()
         // Get the list of changed files since the last git merge commit
         execOperations.exec {
             it.commandLine("git", "diff", "--name-only", "HEAD", baseCommit)

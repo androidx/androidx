@@ -21,7 +21,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
@@ -52,6 +51,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -63,13 +63,9 @@ import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.padding
-import androidx.wear.compose.material3.internal.Strings.Companion.OpenOnPhoneContentDescriptionIcon
-import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.material3.tokens.MotionTokens.DurationLong2
 import androidx.wear.compose.material3.tokens.MotionTokens.DurationShort3
-import androidx.wear.compose.materialcore.screenHeightDp
-import androidx.wear.compose.materialcore.screenWidthDp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -89,7 +85,8 @@ import kotlinx.coroutines.launch
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right or when the [durationMillis] has passed. Implementation of this lambda must
+ *   remove the dialog from the composition hierarchy e.g. by setting [visible] to false.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [openOnPhoneDialogCurvedText] for this parameter, which
  *   will give the default sweep angle and padding, and [OpenOnPhoneDialogDefaults.curvedTextStyle]
@@ -114,6 +111,12 @@ public fun OpenOnPhoneDialog(
     durationMillis: Long = OpenOnPhoneDialogDefaults.DurationMillis,
     content: @Composable () -> Unit = { OpenOnPhoneDialogDefaults.Icon() },
 ) {
+    if (visible) {
+        // This will activate the screen-on flag for the duration of this screen, so that the
+        // animations run to completion and then the dialog self-dismisses.
+        KeepScreenOn()
+    }
+
     val a11yFullDurationMillis =
         LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
             originalTimeoutMillis = durationMillis,
@@ -138,7 +141,7 @@ public fun OpenOnPhoneDialog(
             curvedText = curvedText,
             durationMillis = a11yFullDurationMillis,
             colors = colors,
-            content = content
+            content = content,
         )
     }
 }
@@ -173,7 +176,7 @@ public fun OpenOnPhoneDialogContent(
     durationMillis: Long,
     modifier: Modifier = Modifier,
     colors: OpenOnPhoneDialogColors = OpenOnPhoneDialogDefaults.colors(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit {
     var progress by remember { mutableFloatStateOf(0f) }
     val progressAnimatable = remember { Animatable(0f) }
@@ -217,32 +220,35 @@ public fun OpenOnPhoneDialogContent(
     val iconColor =
         animateColorAsState(
             if (finalAnimation) colors.iconContainerColor else colors.iconColor,
-            colorReversalAnimationSpec
+            colorReversalAnimationSpec,
         )
     val iconContainerColor =
         animateColorAsState(
             if (finalAnimation) colors.iconColor else colors.iconContainerColor,
-            colorReversalAnimationSpec
+            colorReversalAnimationSpec,
         )
 
     Box(modifier = modifier.fillMaxSize()) {
-        val topPadding = screenHeightDp() * HeightPaddingFraction
-        val size = screenWidthDp() * SizeFraction
+        val topPadding = screenHeightFraction(HeightPaddingFraction)
+        val size = screenWidthFraction(SizeFraction)
         Box(
             modifier =
-                Modifier.padding(top = topPadding.dp).size(size.dp).align(Alignment.TopCenter),
-            contentAlignment = Alignment.Center
+                Modifier.padding(top = topPadding)
+                    .size(size)
+                    .align(Alignment.TopCenter)
+                    .clearAndSetSemantics {},
+            contentAlignment = Alignment.Center,
         ) {
             iconAndProgressContainer(
                 iconContainerColor = iconContainerColor.value,
                 progressIndicatorColors =
                     ProgressIndicatorDefaults.colors(
                         SolidColor(colors.progressIndicatorColor),
-                        SolidColor(colors.progressTrackColor)
+                        SolidColor(colors.progressTrackColor),
                     ),
                 sizeAnimationFraction = sizeAnimationFraction,
                 progressAlphaAnimationFraction = progressAlphaAnimationFraction,
-                progress = { progress }
+                progress = { progress },
             )()
             CompositionLocalProvider(LocalContentColor provides iconColor.value, content)
         }
@@ -252,7 +258,7 @@ public fun OpenOnPhoneDialogContent(
                     modifier = Modifier.graphicsLayer { alpha = alphaAnimatable.value },
                     anchor = 90f,
                     angularDirection = CurvedDirection.Angular.Reversed,
-                    contentBuilder = curvedText
+                    contentBuilder = curvedText,
                 )
             }
         }
@@ -268,15 +274,12 @@ public fun OpenOnPhoneDialogContent(
  * @param style The style to apply to the text. It is recommended to use
  *   [OpenOnPhoneDialogDefaults.curvedTextStyle] for curved text in [OpenOnPhoneDialog].
  */
-public fun CurvedScope.openOnPhoneDialogCurvedText(
-    text: String,
-    style: CurvedTextStyle,
-): Unit =
+public fun CurvedScope.openOnPhoneDialogCurvedText(text: String, style: CurvedTextStyle): Unit =
     curvedText(
         text = text,
         style = style,
-        maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-        modifier = CurvedModifier.padding(PaddingDefaults.edgePadding)
+        maxSweepAngle = OpenOnPhoneMaxSweepAngle,
+        modifier = CurvedModifier.padding(PaddingDefaults.edgePadding),
     )
 
 /** Contains the default values used by [OpenOnPhoneDialog]. */
@@ -284,7 +287,7 @@ public object OpenOnPhoneDialogDefaults {
 
     /** The default style for curved text content. */
     public val curvedTextStyle: CurvedTextStyle
-        @Composable get() = CurvedTextStyle(MaterialTheme.typography.titleLarge)
+        @Composable get() = MaterialTheme.typography.arcLarge
 
     /** The default message for an [OpenOnPhoneDialog]. */
     public val text: String
@@ -295,14 +298,9 @@ public object OpenOnPhoneDialogDefaults {
      * animation.
      *
      * @param modifier Modifier to be applied to the icon.
-     * @param contentDescription The content description for the icon.
      */
-    @OptIn(ExperimentalAnimationGraphicsApi::class)
     @Composable
-    public fun Icon(
-        modifier: Modifier = Modifier,
-        contentDescription: String = iconContentDescription
-    ) {
+    public fun Icon(modifier: Modifier = Modifier) {
         val animation =
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_open_on_phone_animation)
         var atEnd by remember { mutableStateOf(false) }
@@ -314,14 +312,10 @@ public object OpenOnPhoneDialogDefaults {
         }
         Icon(
             painter = rememberAnimatedVectorPainter(animation, atEnd),
-            contentDescription = contentDescription,
-            modifier = modifier.size(IconSize)
+            contentDescription = null,
+            modifier = modifier.size(IconSize),
         )
     }
-
-    /** The default content description for the open on phone icon */
-    public val iconContentDescription: String
-        @Composable get() = getString(OpenOnPhoneContentDescriptionIcon)
 
     /**
      * Creates a [OpenOnPhoneDialogColors] that represents the default colors used in
@@ -346,18 +340,18 @@ public object OpenOnPhoneDialogDefaults {
         iconContainerColor: Color = Color.Unspecified,
         progressIndicatorColor: Color = Color.Unspecified,
         progressTrackColor: Color = Color.Unspecified,
-        textColor: Color = Color.Unspecified
+        textColor: Color = Color.Unspecified,
     ): OpenOnPhoneDialogColors =
         MaterialTheme.colorScheme.defaultOpenOnPhoneDialogColors.copy(
             iconColor = iconColor,
             iconContainerColor = iconContainerColor,
             progressIndicatorColor = progressIndicatorColor,
             progressTrackColor = progressTrackColor,
-            textColor = textColor
+            textColor = textColor,
         )
 
     /** Default timeout for the [OpenOnPhoneDialog] dialog, in milliseconds. */
-    public const val DurationMillis: Long = 4000L
+    public val DurationMillis: Long = 4000L
 
     private val ColorScheme.defaultOpenOnPhoneDialogColors: OpenOnPhoneDialogColors
         get() {
@@ -367,7 +361,7 @@ public object OpenOnPhoneDialogDefaults {
                         iconContainerColor = fromToken(ColorSchemeKeyTokens.PrimaryContainer),
                         progressIndicatorColor = fromToken(ColorSchemeKeyTokens.Primary),
                         progressTrackColor = fromToken(ColorSchemeKeyTokens.OnPrimary),
-                        textColor = fromToken(ColorSchemeKeyTokens.OnBackground)
+                        textColor = fromToken(ColorSchemeKeyTokens.OnBackground),
                     )
                     .also { mDefaultOpenOnPhoneDialogColorsCached = it }
         }
@@ -390,7 +384,7 @@ public class OpenOnPhoneDialogColors(
     public val iconContainerColor: Color,
     public val progressIndicatorColor: Color,
     public val progressTrackColor: Color,
-    public val textColor: Color
+    public val textColor: Color,
 ) {
     /**
      * Returns a copy of this OpenOnPhoneDialogColors optionally overriding some of the values.
@@ -406,7 +400,7 @@ public class OpenOnPhoneDialogColors(
         iconContainerColor: Color = this.iconContainerColor,
         progressIndicatorColor: Color = this.progressIndicatorColor,
         progressTrackColor: Color = this.progressTrackColor,
-        textColor: Color = this.textColor
+        textColor: Color = this.textColor,
     ): OpenOnPhoneDialogColors =
         OpenOnPhoneDialogColors(
             iconColor = iconColor.takeOrElse { this.iconColor },
@@ -414,7 +408,7 @@ public class OpenOnPhoneDialogColors(
             progressIndicatorColor =
                 progressIndicatorColor.takeOrElse { this.progressIndicatorColor },
             progressTrackColor = progressTrackColor.takeOrElse { this.progressTrackColor },
-            textColor = textColor.takeOrElse { this.textColor }
+            textColor = textColor.takeOrElse { this.textColor },
         )
 
     override fun equals(other: Any?): Boolean {
@@ -445,7 +439,7 @@ private fun iconAndProgressContainer(
     progressIndicatorColors: ProgressIndicatorColors,
     sizeAnimationFraction: State<Float>,
     progressAlphaAnimationFraction: State<Float>,
-    progress: () -> Float
+    progress: () -> Float,
 ): @Composable BoxScope.() -> Unit = {
     // Some animations might overshoot outside 0..1 range, that's why we need to coerce values above
     // 0 to eliminate negative padding and strokeWidth.
@@ -469,7 +463,7 @@ private fun iconAndProgressContainer(
         progress = progress,
         progressAlpha = progressAlphaAnimationFraction.value,
         strokeWidth = strokeWidth,
-        colors = progressIndicatorColors
+        colors = progressIndicatorColors,
     )
 }
 
@@ -494,8 +488,10 @@ private fun IconContainerProgressIndicator(
     )
 }
 
-private const val WidthPaddingFraction = 0.176f
 private const val HeightPaddingFraction = 0.157f
-private const val SizeFraction = 1 - WidthPaddingFraction * 2
+
+private const val WidthPaddingFraction = 0.176f
+private const val SizeFraction = (1 - WidthPaddingFraction * 2)
 private val progressIndicatorStrokeWidth = 5.dp
 private val progressIndicatorPadding = 5.dp
+private const val OpenOnPhoneMaxSweepAngle = 200f

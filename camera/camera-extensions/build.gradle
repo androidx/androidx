@@ -26,23 +26,27 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api(libs.guavaListenableFuture)
     api(project(":camera:camera-core"))
+    api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("androidx.lifecycle:lifecycle-common:2.3.1")
+    implementation(libs.androidx.annotation)
     annotationProcessor(libs.autoValue)
 
     compileOnly(project(":camera:camera-extensions-stub"))
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":camera:camera-extensions-stub"))
@@ -56,7 +60,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
@@ -70,24 +73,22 @@ dependencies {
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-testlib-extensions"))
-    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(libs.testMonitor)
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
 
 android {
-    compileSdk = 35
-
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
+    compileSdk = 36
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
 
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.extensions"
 }
 
@@ -97,4 +98,5 @@ androidx {
     inceptionYear = "2019"
     description = "OEM Extensions for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."
+    enableRobolectric()
 }

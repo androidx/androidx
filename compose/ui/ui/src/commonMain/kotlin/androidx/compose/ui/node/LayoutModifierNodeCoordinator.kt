@@ -94,7 +94,7 @@ internal class LayoutModifierNodeCoordinator(
                         // This allows `measure` calls in the modifier to be redirected to
                         // calling lookaheadMeasure in wrapped.
                         this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
-                        constraints
+                        constraints,
                     )
                 }
             }
@@ -109,7 +109,7 @@ internal class LayoutModifierNodeCoordinator(
             with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
                 minIntrinsicWidth(
                     this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
-                    height
+                    height,
                 )
             }
 
@@ -117,7 +117,7 @@ internal class LayoutModifierNodeCoordinator(
             with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
                 maxIntrinsicWidth(
                     this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
-                    height
+                    height,
                 )
             }
 
@@ -125,7 +125,7 @@ internal class LayoutModifierNodeCoordinator(
             with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
                 minIntrinsicHeight(
                     this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
-                    width
+                    width,
                 )
             }
 
@@ -133,7 +133,7 @@ internal class LayoutModifierNodeCoordinator(
             with(this@LayoutModifierNodeCoordinator.layoutModifierNode) {
                 maxIntrinsicHeight(
                     this@LayoutModifierNodeCoordinator.wrappedNonNull.lookaheadDelegate!!,
-                    width
+                    width,
                 )
             }
     }
@@ -230,7 +230,7 @@ internal class LayoutModifierNodeCoordinator(
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
     ) {
         super.placeAt(position, zIndex, layerBlock)
         onAfterPlaceAt()
@@ -244,6 +244,7 @@ internal class LayoutModifierNodeCoordinator(
         // our position in order ot know how to offset the value we provided).
         if (isShallowPlacing) return
         onPlaced()
+        val wrapped = wrappedNonNull
         approachMeasureScope?.let {
             with(it.approachNode) {
                 val approachComplete =
@@ -253,13 +254,15 @@ internal class LayoutModifierNodeCoordinator(
                         ) &&
                             !it.approachMeasureRequired &&
                             size == lookaheadDelegate?.size &&
-                            wrappedNonNull.size == wrappedNonNull.lookaheadDelegate?.size
+                            wrapped.size == wrapped.lookaheadDelegate?.size
                     }
-                wrappedNonNull.forcePlaceWithLookaheadOffset = approachComplete
+                wrapped.forcePlaceWithLookaheadOffset = approachComplete
             }
         }
+        wrapped.isPlacingForAlignment = isPlacingForAlignment
         measureResult.placeChildren()
-        wrappedNonNull.forcePlaceWithLookaheadOffset = false
+        wrapped.isPlacingForAlignment = false
+        wrapped.forcePlaceWithLookaheadOffset = false
     }
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {
@@ -270,7 +273,10 @@ internal class LayoutModifierNodeCoordinator(
     override fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         wrappedNonNull.draw(canvas, graphicsLayer)
         if (layoutNode.requireOwner().showLayoutBounds) {
-            drawBorder(canvas, modifierBoundsPaint)
+            val wrapped = wrapped
+            if (wrapped != null && (size != wrapped.size || wrapped.position != IntOffset.Zero)) {
+                drawBorder(canvas, modifierBoundsPaint)
+            }
         }
     }
 

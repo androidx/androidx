@@ -69,7 +69,7 @@ internal actual fun rememberAccessibilityServiceState(
                 listener.register(accessibilityManager)
             }
         },
-        onDispose = { listener.unregister(accessibilityManager) }
+        onDispose = { listener.unregister(accessibilityManager) },
     )
 
     return listener
@@ -79,7 +79,7 @@ internal actual fun rememberAccessibilityServiceState(
 private fun ObserveState(
     lifecycleOwner: LifecycleOwner,
     handleEvent: (Lifecycle.Event) -> Unit = {},
-    onDispose: () -> Unit = {}
+    onDispose: () -> Unit = {},
 ) {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event -> handleEvent(event) }
@@ -188,7 +188,7 @@ private class Listener(
         @JvmStatic
         fun addAccessibilityServicesStateChangeListener(
             am: AccessibilityManager,
-            listener: AccessibilityServicesStateChangeListener
+            listener: AccessibilityServicesStateChangeListener,
         ) {
             am.addAccessibilityServicesStateChangeListener(listener)
         }
@@ -196,7 +196,7 @@ private class Listener(
         @JvmStatic
         fun removeAccessibilityServicesStateChangeListener(
             am: AccessibilityManager,
-            listener: AccessibilityServicesStateChangeListener
+            listener: AccessibilityServicesStateChangeListener,
         ) {
             am.removeAccessibilityServicesStateChangeListener(listener)
         }

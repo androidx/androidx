@@ -41,7 +41,7 @@ fun OpenOnPhoneDialogSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Open on phone") }
+            label = { Text("Open on phone") },
         )
     }
 
@@ -50,6 +50,6 @@ fun OpenOnPhoneDialogSample() {
     OpenOnPhoneDialog(
         visible = showConfirmation,
         onDismissRequest = { showConfirmation = false },
-        curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) }
+        curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) },
     )
 }

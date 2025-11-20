@@ -167,7 +167,7 @@ private const val UsageMessage =
 @Composable
 fun AccessibilityNodeInspectorButton(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var active by remember { mutableStateOf(false) }
     val state = rememberAccessibilityNodeInspectorState()
@@ -185,7 +185,7 @@ fun AccessibilityNodeInspectorButton(
                 .then(NodeSelectionGestureModifier(state, onDragStarted = { active = true }))
                 // Tag the button so the inspector can detect when the button itself is selected and
                 // show a help message.
-                .semantics(mergeDescendants = true) { testTag = InspectorButtonTestTag }
+                .semantics(mergeDescendants = true) { testTag = InspectorButtonTestTag },
     ) {
         content()
 
@@ -200,11 +200,11 @@ fun AccessibilityNodeInspectorButton(
                     buttons = {
                         Button(
                             onClick = { active = false },
-                            modifier = Modifier.padding(16.dp).fillMaxWidth()
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
                         ) {
                             Text("DISMISS")
                         }
-                    }
+                    },
                 )
             }
         }
@@ -222,7 +222,7 @@ private val NodeInfo.isInspectorButton: Boolean
                 val testTag =
                     AccessibilityNodeInfoHelper.readExtraData(
                         it.nodeInfo.unwrap(),
-                        TestTagExtrasKey
+                        TestTagExtrasKey,
                     )
                 if (testTag == InspectorButtonTestTag) {
                     return true
@@ -243,18 +243,14 @@ private fun AccessibilityNodeInspector(
     if (state.isReady) {
         Popup(
             popupPositionProvider = state,
-            properties =
-                PopupProperties(
-                    focusable = true,
-                    excludeFromSystemGesture = false,
-                ),
-            onDismissRequest = onDismissRequest
+            properties = PopupProperties(focusable = true, excludeFromSystemGesture = false),
+            onDismissRequest = onDismissRequest,
         ) {
             Box(
                 propagateMinConstraints = true,
                 modifier =
                     Modifier.width { state.inspectorWindowSize.width }
-                        .height { state.inspectorWindowSize.height }
+                        .height { state.inspectorWindowSize.height },
             ) {
                 // Selection UI and input handling.
                 Box(
@@ -271,7 +267,7 @@ private fun AccessibilityNodeInspector(
                                 Modifier.wrapContentSize()
                                     .padding(16.dp)
                                     .background(MaterialTheme.colors.surface)
-                                    .padding(16.dp)
+                                    .padding(16.dp),
                         )
                     } else {
                         InspectorNodeDetailsDialog(
@@ -316,7 +312,7 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
                         top = bounds.top.toFloat(),
                         right = bounds.right.toFloat(),
                         bottom = bounds.bottom.toFloat(),
-                        clipOp = ClipOp.Difference
+                        clipOp = ClipOp.Difference,
                     ) {
                         drawRect(Color.Black.copy(alpha = layerAlpha))
                     }
@@ -330,7 +326,7 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
                 Color.Green,
                 style = Stroke(1.dp.toPx()),
                 topLeft = lastBounds.topLeft.toOffset(),
-                size = lastBounds.size.toSize()
+                size = lastBounds.size.toSize(),
             )
         }
 
@@ -341,12 +337,12 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
                 drawLine(
                     Color.Red,
                     start = Offset(0f, localOffset.y),
-                    end = Offset(size.width, localOffset.y)
+                    end = Offset(size.width, localOffset.y),
                 )
                 drawLine(
                     Color.Red,
                     start = Offset(localOffset.x, 0f),
-                    end = Offset(localOffset.x, size.height)
+                    end = Offset(localOffset.x, size.height),
                 )
             }
     }
@@ -450,7 +446,7 @@ private fun InspectorNodeDetailsDialog(
 ) {
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = onBack
+        onDismissRequest = onBack,
     ) {
         InspectorNodeDetails(leafNode = leafNode, onNodeClick = onNodeClick, onBack = onBack)
     }
@@ -460,14 +456,14 @@ private fun InspectorNodeDetailsDialog(
 private fun InspectorNodeDetails(
     leafNode: NodeInfo,
     onNodeClick: (NodeInfo) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors() else lightColors()) {
         val peekInteractionSource = remember { MutableInteractionSource() }
         val peeking by peekInteractionSource.collectIsPressedAsState()
         Surface(
             modifier = Modifier.padding(16.dp).alpha(if (peeking) 0f else 1f),
-            elevation = 4.dp
+            elevation = 4.dp,
         ) {
             Column {
                 TopAppBar(
@@ -481,13 +477,13 @@ private fun InspectorNodeDetails(
                         IconButton(onClick = {}, interactionSource = peekInteractionSource) {
                             Icon(Icons.Filled.Info, contentDescription = null)
                         }
-                    }
+                    },
                 )
 
                 NodeProperties(
                     node = leafNode,
                     onNodeClick = onNodeClick,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
                 )
             }
         }
@@ -527,7 +523,7 @@ private fun NodeProperties(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit, modi
                         if (v is AccessibilityNodeInfoCompat) {
                             nodeLinkRepresentation(
                                 node = v,
-                                onClick = { onNodeClick(v.toNodeInfo()) }
+                                onClick = { onNodeClick(v.toNodeInfo()) },
                             )
                         } else {
                             PropertyValueRepresentation(v)
@@ -605,7 +601,7 @@ private fun KeyValueRow(name: String, valueRepresentation: PropertyValueRepresen
                 name,
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.caption,
-                modifier = Modifier.alpha(0.5f)
+                modifier = Modifier.alpha(0.5f),
             )
         },
         valueContent = {
@@ -615,10 +611,10 @@ private fun KeyValueRow(name: String, valueRepresentation: PropertyValueRepresen
                 Text(
                     valueRepresentation.text,
                     fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.horizontalScroll(rememberScrollState())
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
                 )
             }
-        }
+        },
     )
 }
 
@@ -680,7 +676,7 @@ private inline fun KeyValueRowLayout(
                 if (wrap && valuePlaceable.width == valueConstraints.maxWidth) {
                     Pair(
                         Offset(contentPaddingPx / 2f, keyPlaceable.height.toFloat()),
-                        Offset(contentPaddingPx / 2f, totalHeight.toFloat())
+                        Offset(contentPaddingPx / 2f, totalHeight.toFloat()),
                     )
                 } else {
                     null
@@ -697,19 +693,19 @@ private inline fun KeyValueRowLayout(
                     val keyY =
                         Alignment.CenterVertically.align(
                             size = keyPlaceable.height,
-                            space = totalHeight
+                            space = totalHeight,
                         )
                     keyPlaceable.placeRelative(0, keyY)
 
                     val valueY =
                         Alignment.CenterVertically.align(
                             size = valuePlaceable.height,
-                            space = totalHeight
+                            space = totalHeight,
                         )
                     valuePlaceable.placeRelative(valueX, valueY)
                 }
             }
-        }
+        },
     )
 }
 
@@ -720,7 +716,7 @@ private inline fun KeyValueRowLayout(
  */
 private data class PropertyValueRepresentation(
     val text: AnnotatedString,
-    val customRenderer: (@Composable () -> Unit)? = null
+    val customRenderer: (@Composable () -> Unit)? = null,
 )
 
 private val ValueTypeTextStyle = TextStyle(fontFamily = FontFamily.Monospace)
@@ -801,7 +797,7 @@ private fun Accordion(
     selectedIndex: Int,
     onSelectIndex: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    content: AccordionScope.() -> Unit
+    content: AccordionScope.() -> Unit,
 ) {
     Column(modifier) {
         // Don't rebuild the items every time the selection changes.
@@ -833,7 +829,7 @@ private fun AccordionItemView(
     headerHeight: Dp,
     isExpanded: Boolean,
     shrinkHeader: Boolean,
-    onHeaderClick: () -> Unit
+    onHeaderClick: () -> Unit,
 ) {
     // Shrink collapsed headers to give more space to the expanded body.
     val headerScale by animateFloatAsState(if (shrinkHeader) 0.8f else 1f, label = "headerScale")
@@ -854,7 +850,7 @@ private fun AccordionItemView(
         Icon(
             Icons.Filled.ArrowDropDown,
             contentDescription = null,
-            modifier = Modifier.graphicsLayer { rotationZ = iconRotation }
+            modifier = Modifier.graphicsLayer { rotationZ = iconRotation },
         )
         item.header()
     }
@@ -877,7 +873,7 @@ private interface AccordionScope {
 
 private data class AccordionItem(
     val header: @Composable () -> Unit,
-    val content: @Composable () -> Unit
+    val content: @Composable () -> Unit,
 )
 
 private fun buildAccordionItems(content: AccordionScope.() -> Unit): List<AccordionItem> {
@@ -896,7 +892,7 @@ private fun buildAccordionItems(content: AccordionScope.() -> Unit): List<Accord
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Any?,
-    unspecifiedValue: Any? = null
+    unspecifiedValue: Any? = null,
 ) {
     if (value != unspecifiedValue) {
         set(key, value)
@@ -907,7 +903,7 @@ private fun MutableMap<String, Any?>.setIfSpecified(
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Boolean,
-    unspecifiedValue: Boolean = false
+    unspecifiedValue: Boolean = false,
 ) {
     if (value != unspecifiedValue) {
         set(key, value)
@@ -918,7 +914,7 @@ private fun MutableMap<String, Any?>.setIfSpecified(
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Int,
-    unspecifiedValue: Int = 0
+    unspecifiedValue: Int = 0,
 ) {
     if (value != unspecifiedValue) {
         set(key, value)
@@ -932,11 +928,7 @@ private fun MutableMap<String, Any?>.setIfSpecified(
  */
 private fun CharSequence.toFormattedDebugString(): AnnotatedString = buildAnnotatedString {
     val quoteStyle = SpanStyle(color = Color.Gray, fontWeight = FontWeight.Bold)
-    val specialStyle =
-        SpanStyle(
-            color = Color.Red,
-            fontWeight = FontWeight.Bold,
-        )
+    val specialStyle = SpanStyle(color = Color.Red, fontWeight = FontWeight.Bold)
 
     withStyle(quoteStyle) { append('"') }
 
@@ -1100,7 +1092,7 @@ private class AccessibilityNodeInspectorState(private val hostView: View) :
         oldLeft: Int,
         oldTop: Int,
         oldRight: Int,
-        oldBottom: Int
+        oldBottom: Int,
     ) {
         inspectorWindowSize = calculateInspectorWindowSize()
     }
@@ -1109,7 +1101,7 @@ private class AccessibilityNodeInspectorState(private val hostView: View) :
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset = IntOffset.Zero
 
     private fun calculateInspectorWindowSize(): IntSize {
@@ -1119,10 +1111,7 @@ private class AccessibilityNodeInspectorState(private val hostView: View) :
     }
 }
 
-private data class NodeInfo(
-    val nodeInfo: AccessibilityNodeInfoCompat,
-    val boundsInScreen: IntRect,
-)
+private data class NodeInfo(val nodeInfo: AccessibilityNodeInfoCompat, val boundsInScreen: IntRect)
 
 /** Returns a map with all the inspectable properties of this [NodeInfo]. */
 private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
@@ -1148,7 +1137,8 @@ private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
     setIfSpecified("isAccessibilityDataSensitive", node.isAccessibilityDataSensitive)
     setIfSpecified("isAccessibilityFocused", node.isAccessibilityFocused)
     setIfSpecified("isCheckable", node.isCheckable)
-    setIfSpecified("isChecked", node.isChecked)
+    // TODO(b/406574577): Remove suppression once 1.17.0 stable is released.
+    @Suppress("DEPRECATION") setIfSpecified("isChecked", node.isChecked)
     setIfSpecified("isClickable", node.isClickable)
     setIfSpecified("isLongClickable", node.isLongClickable)
     setIfSpecified("isContextClickable", node.isContextClickable)
@@ -1171,7 +1161,8 @@ private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
     setIfSpecified("isTextSelectable", node.isTextSelectable)
     setIfSpecified("isVisibleToUser", node.isVisibleToUser, unspecifiedValue = true)
     setIfSpecified("labelFor", node.labelFor)
-    setIfSpecified("labeledBy", node.labeledBy)
+    // TODO(b/406574577): Remove suppression once 1.17.0 stable is released.
+    @Suppress("DEPRECATION") setIfSpecified("labeledBy", node.labeledBy)
     setIfSpecified("liveRegion", node.liveRegion)
     setIfSpecified("maxTextLength", node.maxTextLength, unspecifiedValue = -1)
     setIfSpecified("movementGranularities", node.movementGranularities)
@@ -1185,7 +1176,7 @@ private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
     setIfSpecified("canOpenPopup", node.canOpenPopup())
     setIfSpecified(
         "hasRequestInitialAccessibilityFocus",
-        node.hasRequestInitialAccessibilityFocus()
+        node.hasRequestInitialAccessibilityFocus(),
     )
     setIfSpecified("extras", node.extrasWithoutExtraData)
     setIfSpecified("extraRenderingInfo", node.extraRenderingInfo)
@@ -1218,7 +1209,8 @@ private val AccessibilityNodeInfoCompat.extrasWithoutExtraData: Bundle
 private object AccessibilityNodeInfoHelper {
     fun readExtraData(node: AccessibilityNodeInfo, key: String): Any? {
         if (key in node.availableExtraData && node.refreshWithExtraData(key, Bundle())) {
-            @Suppress("DEPRECATION") return node.extras.get(key)
+            @Suppress("DEPRECATION")
+            return node.extras.get(key)
         } else {
             return null
         }
@@ -1307,10 +1299,7 @@ private class AccessibilityTreeInspectorApi34(private val rootView: View) :
 }
 
 private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo =
-    NodeInfo(
-        nodeInfo = this,
-        boundsInScreen = Rect().also(::getBoundsInScreen).toComposeIntRect(),
-    )
+    NodeInfo(nodeInfo = this, boundsInScreen = Rect().also(::getBoundsInScreen).toComposeIntRect())
 
 private fun NodeInfo.dumpToLog(tag: String) {
     val indent = "  "

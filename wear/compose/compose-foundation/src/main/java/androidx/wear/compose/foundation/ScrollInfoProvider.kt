@@ -153,13 +153,24 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
         get() {
             val screenHeightPx = state.config.value?.viewportHeightPx ?: 0
             val layoutInfo = state.layoutInfo
-            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-                if (it.index != layoutInfo.totalItemsCount - 1) {
-                    return@let 0f
-                }
-                val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
-                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+            val reverseLayout = state.config.value?.reverseLayout ?: false
+            return if (reverseLayout) {
+                layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                    if (it.index != 0) {
+                        return@let 0f
+                    }
+                    val bottomEdge = -it.offset + screenHeightPx / 2 + it.size / 2
+                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            } else {
+                layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                    if (it.index != layoutInfo.totalItemsCount - 1) {
+                        return@let 0f
+                    }
+                    val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
+                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            }
         }
 
     override fun toString(): String {
@@ -196,14 +207,26 @@ private class LazyListStateScrollInfoProvider(val state: LazyListState) : Scroll
     override val lastItemOffset: Float
         get() {
             val layoutInfo = state.layoutInfo
-            val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-                if (it.index != layoutInfo.totalItemsCount - 1) {
-                    return@let 0f
-                }
-                val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
-                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+            val lazyColumnHeightPx = layoutInfo.viewportSize.height
+            val reverseLayout = state.layoutInfo.reverseLayout
+            return if (reverseLayout) {
+                layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                    if (it.index != 0) {
+                        return@let 0f
+                    }
+                    val bottomEdge =
+                        -it.offset + lazyColumnHeightPx + layoutInfo.viewportStartOffset
+                    (lazyColumnHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            } else {
+                layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                    if (it.index != layoutInfo.totalItemsCount - 1) {
+                        return@let 0f
+                    }
+                    val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
+                    (lazyColumnHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            }
         }
 
     override fun toString(): String {
@@ -220,7 +243,9 @@ private class ScrollStateScrollInfoProvider(val state: ScrollState) : ScrollInfo
     override val isScrollAwayValid: Boolean
         get() = true
 
-    override val isScrollable = state.maxValue != 0
+    override val isScrollable: Boolean
+        get() = state.maxValue != 0
+
     // Work around the default implementation of ScrollState not providing a useful
     // isScrollInProgress
     private var prevOffset: Int? = null
@@ -254,8 +279,9 @@ private class TransformingLazyColumnStateScrollInfoProvider(
         get() = state.layoutInfo.totalItemsCount > 0
 
     override val isScrollable
-        // TODO: b/349071165 - Update to respect the scroll bounds.
-        get() = state.layoutInfo.totalItemsCount > 0
+        get() =
+            state.layoutInfo.totalItemsCount > 0 &&
+                (state.canScrollBackward || state.canScrollForward)
 
     override val isScrollInProgress
         get() = state.isScrollInProgress
@@ -270,22 +296,64 @@ private class TransformingLazyColumnStateScrollInfoProvider(
                     return@let Float.NaN
                 }
                 val newOffset = item.offset.toFloat()
-                if (initialStartOffset.isNaN()) {
+                if (initialStartOffset.isNaN() || newOffset > initialStartOffset) {
                     initialStartOffset = newOffset
                 }
                 initialStartOffset - newOffset
             } ?: Float.NaN
 
+    private var previousLastItemKey: Any? = null
+
     override val lastItemOffset: Float
         get() {
             val layoutInfo = state.layoutInfo
             val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItems.lastOrNull()?.let {
-                if (it.index != layoutInfo.totalItemsCount - 1) {
-                    return@let 0f
+            val reverseLayout = layoutInfo.reverseLayout
+
+            val lastItem =
+                if (reverseLayout) {
+                    layoutInfo.visibleItems.firstOrNull()?.let { if (it.index == 0) it else null }
+                } else {
+                    layoutInfo.visibleItems.lastOrNull()?.let {
+                        if (it.index == layoutInfo.totalItemsCount - 1) it else null
+                    }
                 }
-                (screenHeightPx - it.offset - it.transformedHeight).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+
+            if (lastItem == null) {
+                previousLastItemKey = null
+                return 0f
+            }
+
+            val animation =
+                if (!state.isScrollInProgress) {
+                    state.animator.getAnimation(lastItem.key)
+                } else {
+                    null
+                }
+
+            // The logical offset is always top-down.
+            val logicalOffset =
+                if (
+                    animation?.isPlacementAnimationInProgress == true &&
+                        previousLastItemKey == lastItem.key &&
+                        animation.animatedScrollProgress.isSpecified
+                ) {
+                    animation.logicalOffset.y
+                } else {
+                    lastItem.offset
+                }
+
+            if (animation?.isPlacementAnimationInProgress != true) {
+                previousLastItemKey = lastItem.key
+            }
+
+            return if (reverseLayout) {
+                    logicalOffset
+                } else {
+                    screenHeightPx - logicalOffset - lastItem.transformedHeight
+                }
+                .toFloat()
+                .coerceAtLeast(0f)
         }
 
     override fun toString(): String {

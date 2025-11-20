@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.findCodePointOrEmojiStartBefore
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
@@ -30,7 +31,7 @@ import androidx.compose.foundation.text.input.internal.SelectionWedgeAffinity
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.WedgeAffinity
 import androidx.compose.foundation.text.input.internal.getIndexTransformationType
-import androidx.compose.foundation.text.input.internal.selection.TextFieldPreparedSelection.Companion.NoCharacterFound
+import androidx.compose.foundation.text.input.internal.selection.SelectionMovementDeletionContext.Companion.NoCharacterFound
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextLayoutResult
@@ -43,11 +44,11 @@ import kotlin.jvm.JvmInline
 import kotlin.math.abs
 
 /**
- * [TextFieldPreparedSelection] provides a scope for many selection-related operations. However,
- * some vertical cursor operations like moving between lines or page up and down require a cache of
- * X position in text to remember where to move the cursor in next line.
- * [TextFieldPreparedSelection] is a disposable scope that cannot hold its own state. This class
- * helps to pass a cached X value between selection operations in different scopes.
+ * [SelectionMovementDeletionContext] provides a scope for many selection-related operations.
+ * However, some vertical cursor operations like moving between lines or page up and down require a
+ * cache of X position in text to remember where to move the cursor in next line.
+ * [SelectionMovementDeletionContext] is a disposable scope that cannot hold its own state. This
+ * class helps to pass a cached X value between selection operations in different scopes.
  */
 internal class TextFieldPreparedSelectionState {
     /**
@@ -82,21 +83,21 @@ internal class TextFieldPreparedSelectionState {
  * @param visibleTextLayoutHeight Height of the visible area of text inside TextField to decide
  *   where cursor needs to move when page up/down is requested.
  * @param textPreparedSelectionState An object that holds any context that needs to be long lived
- *   between successive [TextFieldPreparedSelection]s, e.g. original X position of the cursor while
- *   moving the cursor up/down.
+ *   between successive [SelectionMovementDeletionContext]s, e.g. original X position of the cursor
+ *   while moving the cursor up/down.
  */
-internal class TextFieldPreparedSelection(
+internal class SelectionMovementDeletionContext(
     private val state: TransformedTextFieldState,
     private val textLayoutResult: TextLayoutResult?,
     private val isFromSoftKeyboard: Boolean,
     private val visibleTextLayoutHeight: Float,
-    private val textPreparedSelectionState: TextFieldPreparedSelectionState
+    private val textPreparedSelectionState: TextFieldPreparedSelectionState,
 ) {
     /**
      * Read the value from state without read observation to not accidentally cause recompositions.
      * Freezing the initial value is necessary to make atomic operations in the scope of this
-     * [TextFieldPreparedSelection]. It is also used to make comparison between the initial state
-     * and the modified state of selection and content.
+     * [SelectionMovementDeletionContext]. It is also used to make comparison between the initial
+     * state and the modified state of selection and content.
      */
     val initialValue: TextFieldCharSequence
 
@@ -109,7 +110,7 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    /** Current active selection in the context of this [TextFieldPreparedSelection] */
+    /** Current active selection in the context of this [SelectionMovementDeletionContext] */
     var selection = initialValue.selection
 
     var wedgeAffinity: WedgeAffinity? = null
@@ -125,8 +126,8 @@ internal class TextFieldPreparedSelection(
      */
     private inline fun applyIfNotEmpty(
         resetCachedX: Boolean = true,
-        block: TextFieldPreparedSelection.() -> Unit
-    ): TextFieldPreparedSelection {
+        block: SelectionMovementDeletionContext.() -> Unit,
+    ): SelectionMovementDeletionContext {
         if (resetCachedX) {
             textPreparedSelectionState.resetCachedX()
         }
@@ -155,7 +156,7 @@ internal class TextFieldPreparedSelection(
         }
 
     /** If there is already a selection, collapse it to the left side. Otherwise, execute [or] */
-    fun collapseLeftOr(or: TextFieldPreparedSelection.() -> Unit) = applyIfNotEmpty {
+    fun collapseLeftOr(or: SelectionMovementDeletionContext.() -> Unit) = applyIfNotEmpty {
         if (selection.collapsed) {
             or(this)
         } else {
@@ -168,7 +169,7 @@ internal class TextFieldPreparedSelection(
     }
 
     /** If there is already a selection, collapse it to the right side. Otherwise, execute [or] */
-    fun collapseRightOr(or: TextFieldPreparedSelection.() -> Unit) = applyIfNotEmpty {
+    fun collapseRightOr(or: SelectionMovementDeletionContext.() -> Unit) = applyIfNotEmpty {
         if (selection.collapsed) {
             or(this)
         } else {
@@ -195,7 +196,7 @@ internal class TextFieldPreparedSelection(
      */
     private inline fun moveCursorTo(
         resetCachedX: Boolean = true,
-        proposedCursorMovement: () -> Int
+        proposedCursorMovement: () -> Int,
     ) =
         applyIfNotEmpty(resetCachedX) {
             val oldCursor = selection.end
@@ -203,7 +204,7 @@ internal class TextFieldPreparedSelection(
                 calculateNextCursorPositionAndWedgeAffinity(
                     proposedCursor = proposedCursorMovement(),
                     cursor = oldCursor,
-                    transformedTextFieldState = state
+                    transformedTextFieldState = state,
                 )
 
             if (newCursor != oldCursor || !selection.collapsed) {
@@ -213,6 +214,10 @@ internal class TextFieldPreparedSelection(
                 wedgeAffinity = newWedgeAffinity
             }
         }
+
+    fun moveCursorPrevByCodePointOrEmoji() = moveCursorTo {
+        text.findCodePointOrEmojiStartBefore(selection.end, ifNotFound = NoCharacterFound)
+    }
 
     fun moveCursorPrevByChar() = moveCursorTo { text.findPrecedingBreak(selection.end) }
 
@@ -260,11 +265,19 @@ internal class TextFieldPreparedSelection(
         paragraphEnd
     }
 
-    fun moveCursorUpByLine() =
-        moveCursorTo(resetCachedX = false) { textLayoutResult?.jumpByLinesOffset(-1) ?: 0 }
+    fun moveCursorUpByLine(): SelectionMovementDeletionContext {
+        val target = textLayoutResult?.jumpByLinesOffset(-1) ?: Int.MIN_VALUE
+        // There are no more lines above the current one. We can reset the cached X offset.
+        return moveCursorTo(resetCachedX = target == Int.MIN_VALUE) { target.coerceAtLeast(0) }
+    }
 
-    fun moveCursorDownByLine() =
-        moveCursorTo(resetCachedX = false) { textLayoutResult?.jumpByLinesOffset(1) ?: text.length }
+    fun moveCursorDownByLine(): SelectionMovementDeletionContext {
+        val target = textLayoutResult?.jumpByLinesOffset(1) ?: Int.MAX_VALUE
+        // There are no more lines below the current one. We can reset the cached X offset.
+        return moveCursorTo(resetCachedX = target == Int.MAX_VALUE) {
+            target.coerceAtMost(text.length)
+        }
+    }
 
     fun moveCursorToLineLeftSide() =
         if (isLtr()) {
@@ -308,7 +321,7 @@ internal class TextFieldPreparedSelection(
                 state.replaceText(
                     newText = "",
                     range = TextRange(initialValue.selection.start, selection.end),
-                    restartImeIfContentChanges = !isFromSoftKeyboard
+                    restartImeIfContentChanges = !isFromSoftKeyboard,
                 )
             }
             // Update the internal selection to where it was moved by the delete operation.
@@ -364,6 +377,20 @@ internal class TextFieldPreparedSelection(
         return getLineEnd(currentLine, true)
     }
 
+    /**
+     * Calculates the new cursor offset after jumping a specific number of lines.
+     *
+     * It uses [TextFieldPreparedSelectionState.cachedX] to restore the previous X coordinate of the
+     * cursor if available. Otherwise, it calculates the X coordinate from the current cursor
+     * position and caches it.
+     *
+     * If the target line is outside the text boundaries, it returns [Int.MIN_VALUE] for lines
+     * before the first line and [Int.MAX_VALUE] for lines after the last line.
+     *
+     * @param linesAmount The number of lines to jump. A positive value jumps down, and a negative
+     *   value jumps up.
+     * @return The new cursor offset after jumping the lines.
+     */
     private fun TextLayoutResult.jumpByLinesOffset(linesAmount: Int): Int {
         val currentOffset = selection.end
 
@@ -374,10 +401,10 @@ internal class TextFieldPreparedSelection(
         val targetLine = getLineForOffset(currentOffset) + linesAmount
         when {
             targetLine < 0 -> {
-                return 0
+                return Int.MIN_VALUE
             }
             targetLine >= lineCount -> {
-                return text.length
+                return Int.MAX_VALUE
             }
         }
 
@@ -410,7 +437,7 @@ internal class TextFieldPreparedSelection(
         val newPos =
             currentPos.translate(
                 translateX = 0f,
-                translateY = visibleTextLayoutHeight * pagesAmount
+                translateY = visibleTextLayoutHeight * pagesAmount,
             )
         // which line does the new cursor position belong?
         val topLine = textLayoutResult.getLineForVerticalPosition(newPos.top)
@@ -450,7 +477,7 @@ internal class TextFieldPreparedSelection(
 internal fun calculateNextCursorPositionAndWedgeAffinity(
     proposedCursor: Int,
     cursor: Int,
-    transformedTextFieldState: TransformedTextFieldState
+    transformedTextFieldState: TransformedTextFieldState,
 ): CursorAndWedgeAffinity {
     if (proposedCursor == NoCharacterFound) {
         // At the start or end of the text, no change.
@@ -472,7 +499,7 @@ internal fun calculateNextCursorPositionAndWedgeAffinity(
                 Untransformed ->
                     CursorAndWedgeAffinity(
                         proposedCursor,
-                        if (forward) WedgeAffinity.Start else WedgeAffinity.End
+                        if (forward) WedgeAffinity.Start else WedgeAffinity.End,
                     )
 
                 // It doesn't matter which end of the deleted range we put the cursor, they'll both
@@ -517,7 +544,7 @@ internal fun calculateNextCursorPositionAndWedgeAffinity(
                     }
                 }
             }
-        }
+        },
     )
 }
 
@@ -528,7 +555,7 @@ internal value class CursorAndWedgeAffinity(private val value: Long) {
 
     constructor(
         cursor: Int,
-        wedgeAffinity: WedgeAffinity?
+        wedgeAffinity: WedgeAffinity?,
     ) : this(
         packInts(
             cursor,
@@ -536,7 +563,7 @@ internal value class CursorAndWedgeAffinity(private val value: Long) {
                 WedgeAffinity.Start -> 0
                 WedgeAffinity.End -> 1
                 null -> -1
-            }
+            },
         )
     )
 

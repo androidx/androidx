@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
@@ -35,16 +36,22 @@ import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
+@SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>()
 
-@ExperimentalTestApi
+@SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -63,6 +70,11 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
+@SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
@@ -92,7 +104,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
+@SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
@@ -118,12 +130,16 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
     AndroidComposeTestRule(
         activityRule = ActivityScenarioRule(activityClass),
-        activityProvider = ::getActivityFromTestRule
+        activityProvider = ::getActivityFromTestRule,
     )
 
 /**
@@ -147,15 +163,14 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
-    effectContext: CoroutineContext = EmptyCoroutineContext
+    effectContext: CoroutineContext = EmptyCoroutineContext,
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
     AndroidComposeTestRule(
         activityRule = ActivityScenarioRule(activityClass),
         activityProvider = ::getActivityFromTestRule,
-        effectContext = effectContext
+        effectContext = effectContext,
     )
 
 /**
@@ -170,6 +185,10 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  * A typical use case on Android is when the test needs to launch an Activity (the compose host)
  * after one or more dependencies have been injected.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 fun createEmptyComposeRule(): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },
@@ -178,7 +197,7 @@ fun createEmptyComposeRule(): ComposeTestRule =
                 "createEmptyComposeRule() does not provide an Activity to set Compose content in." +
                     " Launch and use the Activity yourself, or use createAndroidComposeRule()."
             )
-        }
+        },
     )
 
 /**
@@ -198,7 +217,6 @@ fun createEmptyComposeRule(): ComposeTestRule =
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
 fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeTestRule =
@@ -210,14 +228,14 @@ fun createEmptyComposeRule(
                 "createEmptyComposeRule() does not provide an Activity to set Compose content in." +
                     " Launch and use the Activity yourself, or use createAndroidComposeRule()."
             )
-        }
+        },
     )
 
 @OptIn(ExperimentalTestApi::class)
 class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
 private constructor(
     val activityRule: R,
-    private val environment: AndroidComposeUiTestEnvironment<A>
+    private val environment: AndroidComposeUiTestEnvironment<A>,
 ) : ComposeContentTestRule {
     private val composeTest = environment.test
 
@@ -241,7 +259,7 @@ private constructor(
      */
     constructor(
         activityRule: R,
-        activityProvider: (R) -> A
+        activityProvider: (R) -> A,
     ) : this(
         activityRule = activityRule,
         effectContext = EmptyCoroutineContext,
@@ -270,14 +288,20 @@ private constructor(
      *   used for composition and the [MainTestClock].
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
-    @ExperimentalTestApi
     constructor(
         activityRule: R,
         effectContext: CoroutineContext = EmptyCoroutineContext,
         activityProvider: (R) -> A,
     ) : this(
         activityRule,
-        AndroidComposeUiTestEnvironment(effectContext) { activityProvider(activityRule) },
+        AndroidComposeUiTestEnvironment(
+            effectContext = effectContext,
+            // Since now it calls kotlinx.coroutines.test.runTest under the hood,
+            // to preserve the behaviour compatibility we set an Infinite timeout
+            testTimeout = Duration.INFINITE,
+        ) {
+            activityProvider(activityRule)
+        },
     )
 
     /**
@@ -289,17 +313,32 @@ private constructor(
         get() = checkNotNull(composeTest.activity) { "Host activity not found" }
 
     override fun apply(base: Statement, description: Description): Statement {
-        val testStatement = activityRule.apply(base, description)
+        val testWithDisposal =
+            object : Statement() {
+                override fun evaluate() {
+                    var blockException: Throwable? = null
+                    try {
+                        // Run the test
+                        base.evaluate()
+                    } catch (t: Throwable) {
+                        blockException = t
+                    }
+
+                    // Throw the aggregate exception. May be from the test body or from the cleanup.
+                    blockException?.let { throw it }
+                }
+            }
+
         return object : Statement() {
             override fun evaluate() {
-                environment.runTest { testStatement.evaluate() }
+                environment.runTest { activityRule.apply(testWithDisposal, description).evaluate() }
             }
         }
     }
 
     @Deprecated(
         message = "Do not instantiate this Statement, use AndroidComposeTestRule instead",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.ERROR,
     )
     inner class AndroidComposeStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
@@ -341,7 +380,7 @@ private constructor(
     override fun waitUntil(
         conditionDescription: String,
         timeoutMillis: Long,
-        condition: () -> Boolean
+        condition: () -> Boolean,
     ) {
         composeTest.waitUntil(conditionDescription, timeoutMillis, condition)
     }
@@ -370,12 +409,12 @@ private constructor(
 
     override fun onNode(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean
+        useUnmergedTree: Boolean,
     ): SemanticsNodeInteraction = composeTest.onNode(matcher, useUnmergedTree)
 
     override fun onAllNodes(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean
+        useUnmergedTree: Boolean,
     ): SemanticsNodeInteractionCollection = composeTest.onAllNodes(matcher, useUnmergedTree)
 
     override fun setContent(composable: @Composable () -> Unit) = composeTest.setContent(composable)

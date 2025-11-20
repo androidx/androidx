@@ -18,17 +18,20 @@ package androidx.window.layout
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowSdkExtensions
 import androidx.window.WindowTestUtils
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastWindowExtensionVersion
 import androidx.window.WindowTestUtils.Companion.assumeBeforeWindowExtensionVersion
+import androidx.window.core.Bounds
+import androidx.window.layout.FoldingFeature.State.Companion.FLAT
+import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.adapter.WindowBackend
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
@@ -87,7 +90,7 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun testWindowLayoutInfo_contextAsListener() =
         testScope.runTest {
             assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
@@ -123,7 +126,7 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun testWindowLayoutInfo_multicastingWithContext() =
         testScope.runTest {
             assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
@@ -142,7 +145,7 @@ class WindowInfoTrackerImplTest {
         }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun testWindowLayoutInfo_nonUiContext_throwsError() =
         testScope.runTest {
             assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
@@ -179,8 +182,137 @@ class WindowInfoTrackerImplTest {
         }
     }
 
+    @Test
+    fun testGetCurrentWindowLayoutInfo_throwsBeforeApi9() {
+        assumeBeforeWindowExtensionVersion(9)
+        activityScenario.scenario.onActivity { testActivity ->
+            assertFailsWith<UnsupportedOperationException> {
+                tracker.getCurrentWindowLayoutInfo(testActivity)
+            }
+        }
+    }
+
+    @Test
+    fun testGetCurrentWindowLayoutInfo_nonUiContext_throwsError() {
+        assumeAtLeastWindowExtensionVersion(9)
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val tracker = WindowInfoTracker.getOrCreate(context)
+
+        assertFailsWith<IllegalArgumentException> { tracker.getCurrentWindowLayoutInfo(context) }
+    }
+
+    @Test
+    fun testGetCurrentWindowLayoutInfo_activityAsContext() {
+        assumeAtLeastWindowExtensionVersion(9)
+        activityScenario.scenario.onActivity { testActivity ->
+            val displayFeature: DisplayFeature =
+                HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
+            val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
+            val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
+            val tracker =
+                WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+
+            assertThat(tracker.getCurrentWindowLayoutInfo(testActivity))
+                .isEqualTo(currentWindowLayoutInfo)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun testGetCurrentWindowLayoutInfo_overlayWindowAsContext() {
+        assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+        assumeAtLeastWindowExtensionVersion(9)
+        val displayFeature: DisplayFeature =
+            HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
+        val currentWindowLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
+        val fakeBackend = FakeWindowBackend(currentWindowLayoutInfo = currentWindowLayoutInfo)
+        val tracker =
+            WindowInfoTrackerImpl(windowMetricsCalculator, fakeBackend, windowSdkExtensions)
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
+
+        assertThat(tracker.getCurrentWindowLayoutInfo(windowContext))
+            .isEqualTo(currentWindowLayoutInfo)
+    }
+
+    @Test
+    fun testRegisterWindowLayoutInfoListener_activity() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                Dispatchers.setMain(testDispatcher)
+                val receivedValues = mutableListOf<WindowLayoutInfo>()
+                val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+                // Use a direct executor to run the listener callback immediately.
+                val executor = Executor { command -> command.run() }
+
+                tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
+                val layoutInfo = WindowLayoutInfo(emptyList())
+                fakeBackend.triggerSignal(layoutInfo)
+
+                assertThat(receivedValues).containsExactly(layoutInfo)
+            }
+        }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun testRegisterWindowLayoutInfoListener_context() =
+        testScope.runTest {
+            assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+            assumeAtLeastWindowExtensionVersion(2)
+            Dispatchers.setMain(testDispatcher)
+            val receivedValues = mutableListOf<WindowLayoutInfo>()
+            val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+            val executor = Executor { command -> command.run() }
+            val windowContext = WindowTestUtils.createOverlayWindowContext()
+
+            tracker.registerWindowLayoutInfoListener(windowContext, executor, listener)
+            val layoutInfo = WindowLayoutInfo(emptyList())
+            fakeBackend.triggerSignal(layoutInfo)
+
+            assertThat(receivedValues).containsExactly(layoutInfo)
+        }
+
+    @Test
+    fun testUnregisterWindowLayoutInfoListener() =
+        testScope.runTest {
+            activityScenario.scenario.onActivity { testActivity ->
+                Dispatchers.setMain(testDispatcher)
+                val receivedValues = mutableListOf<WindowLayoutInfo>()
+                val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+                val executor = Executor { command -> command.run() }
+
+                tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
+                // Verify listener is active
+                val displayFeature: DisplayFeature =
+                    HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
+                val firstLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
+                fakeBackend.triggerSignal(firstLayoutInfo)
+                assertThat(receivedValues).containsExactly(firstLayoutInfo)
+
+                tracker.unregisterWindowLayoutInfoListener(listener)
+                // Verify listener is removed and does not receive new values
+                val secondLayoutInfo = WindowLayoutInfo(emptyList())
+                fakeBackend.triggerSignal(secondLayoutInfo)
+                assertThat(receivedValues).containsExactly(firstLayoutInfo)
+            }
+        }
+
+    @Test
+    fun testRegisterWindowLayoutInfoListener_doesNotAddSameListenerTwice() {
+        activityScenario.scenario.onActivity { testActivity ->
+            val receivedValues = mutableListOf<WindowLayoutInfo>()
+            val listener = Consumer<WindowLayoutInfo> { receivedValues.add(it) }
+            val executor = Executor { command -> command.run() }
+
+            tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
+            tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
+
+            assertThat(fakeBackend.consumers.size).isEqualTo(1)
+        }
+    }
+
     private class FakeWindowBackend(
-        override val supportedPostures: List<SupportedPosture> = emptyList()
+        override val supportedPostures: List<SupportedPosture> = emptyList(),
+        val currentWindowLayoutInfo: WindowLayoutInfo = WindowLayoutInfo(emptyList()),
     ) : WindowBackend {
         val consumers = mutableMapOf<Consumer<WindowLayoutInfo>, Executor>()
 
@@ -199,5 +331,7 @@ class WindowInfoTrackerImplTest {
         override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
             consumers.remove(callback)
         }
+
+        override fun getCurrentWindowLayoutInfo(context: Context) = currentWindowLayoutInfo
     }
 }

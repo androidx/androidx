@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ads.adservices.customaudience
 
 import android.net.Uri
+import androidx.privacysandbox.ads.adservices.TestFixtures
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
@@ -29,7 +30,7 @@ import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFeatures.Ext8OptIn::class)
+@OptIn(ExperimentalFeatures.Ext8OptIn::class, ExperimentalFeatures.Ext16OptIn::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 31)
@@ -56,7 +57,8 @@ class JoinCustomAudienceRequestTest {
                 activationTime,
                 expirationTime,
                 userBiddingSignals,
-                trustedBiddingSignals
+                trustedBiddingSignals,
+                componentAds = TestFixtures.componentAds,
             )
         val result = "JoinCustomAudience: customAudience=$customAudience"
         val joinCustomAudienceRequest = JoinCustomAudienceRequest(customAudience)

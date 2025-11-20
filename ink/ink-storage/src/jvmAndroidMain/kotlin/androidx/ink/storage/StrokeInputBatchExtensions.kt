@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("StrokeInputBatchSerialization")
+@file:JvmName("StrokeInputBatchExtensions")
 
 package androidx.ink.storage
 
@@ -22,108 +22,74 @@ import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInputBatch
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.Arrays
-import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
-private const val DECOMPRESSED_BYTES_INITIAL_CAPACITY = 32 * 1024
-
 /**
- * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into an
- * [ImmutableStrokeInputBatch], throwing an exception if parsing was not successful. The serialized
- * representation is gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto messages, the
- * same as written to [OutputStream] by [StrokeInputBatch.encode]. Java callers should use
- * [StrokeInputBatchSerialization.decodeStrokeInputBatchOrThrow].
- */
-public fun StrokeInputBatch.Companion.decodeOrThrow(input: InputStream): ImmutableStrokeInputBatch =
-    decode(input, throwOnParseError = true)!!
-
-/**
- * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into an
- * [ImmutableStrokeInputBatch], returning `null` if parsing was not successful. The serialized
- * representation is gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto messages, the
- * same as written to [OutputStream] by [StrokeInputBatch.encode]. Java callers should use
- * [StrokeInputBatchSerialization.decodeStrokeInputBatchOrNull].
- */
-public fun StrokeInputBatch.Companion.decodeOrNull(input: InputStream): ImmutableStrokeInputBatch? =
-    decode(input, throwOnParseError = false)
-
-/**
- * Write the gzip-compressed serialized representation of the [CodedStrokeInputBatch] to the given
- * [OutputStream].
+ * Write a gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto message representing the
+ * [StrokeInputBatch] to the given [OutputStream].
  */
 public fun StrokeInputBatch.encode(output: OutputStream) {
     check(nativePointer != 0L) { "the StrokeInputBatch is already closed" }
     GZIPOutputStream(output).use {
-        it.write(StrokeInputBatchSerializationJni.nativeSerializeStrokeInputBatch(nativePointer))
+        it.write(StrokeInputBatchSerializationNative.serialize(nativePointer))
     }
 }
 
 /**
- * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into an
- * [ImmutableStrokeInputBatch], throwing an exception if parsing was not successful. The serialized
- * representation is gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto messages, the
- * same as written to [OutputStream] by [StrokeInputBatch.encode]. Kotlin callers should use
- * [StrokeInputBatch.Companion.decodeOrThrow] instead.
- */
-public fun decodeOrThrow(input: InputStream): ImmutableStrokeInputBatch =
-    StrokeInputBatch.decodeOrThrow(input)
-
-/**
- * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into an
- * [ImmutableStrokeInputBatch], returning `null` if parsing was not successful. The serialized
- * representation is gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto messages, the
- * same as written to [OutputStream] by [StrokeInputBatch.encode]. Kotlin callers should use
- * [StrokeInputBatch.Companion.decodeOrNull] instead.
- */
-public fun decodeOrNull(input: InputStream): ImmutableStrokeInputBatch? =
-    StrokeInputBatch.decodeOrNull(input)
-
-/**
- * A helper for the public functions for decoding a [CodedStrokeInputBatch] from an [InputStream]
- * providing the serialized representation put to an [OutputStream] by [StrokeInputBatch.encode].
- * The serialized representation is gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto
- * messages.
+ * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into a
+ * [ImmutableStrokeInputBatch], throwing an exception if parsing or validation was not successful.
+ * Java callers should use [StrokeInputBatchSerialization.decode] instead.
  *
- * @param throwOnParseError Configuration flag for whether to throw (`true`) or return null
- *   (`false`) when the underlying parsing fails. If an exception is thrown, it should have a
- *   descriptive error message.
+ * @param input [InputStream] providing gzip-compressed `ink.proto.CodedStrokeInputBatch` binary
+ *   proto messages, the same as written to [OutputStream] by [encode].
+ * @return The [ImmutableStrokeInputBatch] parsed from the [InputStream].
+ * @throws [java.io.IOException] if gzip-format bytes cannot be read from [input].
+ * @throws [IllegalArgumentException] [input] does not provide a valid
+ *   `ink.proto.CodedStrokeInputBatch` proto message, or the corresponding [StrokeInputBatch] is
+ *   invalid.
  */
-private fun decode(input: InputStream, throwOnParseError: Boolean): ImmutableStrokeInputBatch? {
-    var decompressedBytes = ByteArray(DECOMPRESSED_BYTES_INITIAL_CAPACITY)
-    var totalBytesRead = 0
-    GZIPInputStream(input).use { gzipStream ->
-        // Could do gzipStream.readAllBytes(), but that requires Android T (33), since it's only
-        // available as of OpenJDK 11.
-        while (true) {
-            val bytesRead =
-                gzipStream.read(
-                    decompressedBytes,
-                    totalBytesRead,
-                    decompressedBytes.size - totalBytesRead
-                )
-            if (bytesRead == -1) {
-                break
-            }
-            totalBytesRead += bytesRead
-            if (totalBytesRead == decompressedBytes.size) {
-                decompressedBytes = Arrays.copyOf(decompressedBytes, decompressedBytes.size * 2)
-            }
-        }
-    }
-    val nativeAddress =
-        StrokeInputBatchSerializationJni.nativeNewStrokeInputBatchFromProto(
-            strokeInputBatchDirectBuffer = null,
-            strokeInputBatchBytes = decompressedBytes,
-            strokeInputBatchOffset = 0,
-            strokeInputBatchLength = totalBytesRead,
-            throwOnParseError = throwOnParseError,
+public fun StrokeInputBatch.Companion.decode(input: InputStream): ImmutableStrokeInputBatch {
+    val decompressed = DecompressedBytes(input)
+    val nativePointer =
+        StrokeInputBatchSerializationNative.newFromProto(
+            directByteBuffer = null,
+            byteArray = decompressed.bytes,
+            offset = 0,
+            length = decompressed.size,
         )
-    if (nativeAddress == 0L) {
-        check(!throwOnParseError) {
-            "throwOnParseError is set and the native call returned a zero memory address."
-        }
-        return null
-    }
-    return ImmutableStrokeInputBatch(nativeAddress)
+    check(nativePointer != 0L) { "Should have thrown exception if decoding failed." }
+    return ImmutableStrokeInputBatch.wrapNative(nativePointer)
+}
+
+// Using an explicit singleton object instead of @file:JvmName to put the static interface intended
+// for use from Java in a class because otherwise there are multiple top-level functions with the
+// same name and signature on the Kotlin side. If one of those were used from Kotlin, it chooses and
+// overload arbitrarily, which leads to potentially very confusing behavior (e.g. decode might work
+// by coincidence at one point and then suddenly stop working when more overloads are added).
+
+public object StrokeInputBatchSerialization {
+    /**
+     * Write a gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto message representing
+     * the [StrokeInputBatch] to the given [OutputStream].
+     */
+    @JvmStatic
+    public fun encode(strokeInputBatch: StrokeInputBatch, output: OutputStream): Unit =
+        strokeInputBatch.encode(output)
+
+    /**
+     * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into a
+     * [ImmutableStrokeInputBatch], throwing an exception if parsing or validation was not
+     * successful. Kotlin callers should use [StrokeInputBatch.Companion.decode] instead.
+     *
+     * @param input [InputStream] providing gzip-compressed `ink.proto.CodedStrokeInputBatch` binary
+     *   proto messages, the same as written to [OutputStream] by [encode].
+     * @return The [ImmutableStrokeInputBatch] parsed from the [InputStream].
+     * @throws [java.io.IOException] if gzip-format bytes cannot be read from [input].
+     * @throws [IllegalArgumentException] [input] does not provide a valid
+     *   `ink.proto.CodedStrokeInputBatch` proto message, or the corresponding [StrokeInputBatch] is
+     *   invalid.
+     */
+    @JvmStatic
+    public fun decode(input: InputStream): ImmutableStrokeInputBatch =
+        StrokeInputBatch.decode(input)
 }

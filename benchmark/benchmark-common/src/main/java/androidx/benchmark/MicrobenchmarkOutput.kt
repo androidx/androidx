@@ -28,7 +28,7 @@ internal class MicrobenchmarkOutput(
     val warmupIterations: Int,
     val repeatIterations: Int,
     val thermalThrottleSleepSeconds: Long,
-    val reportMetricsInBundle: Boolean
+    val reportMetricsInBundle: Boolean,
 ) {
     fun createBundle() =
         Bundle().apply {
@@ -41,7 +41,7 @@ internal class MicrobenchmarkOutput(
                     testName = definition.outputTestName,
                     measurements =
                         Measurements(singleMetrics = metricResults, sampledMetrics = emptyList()),
-                    profilerResults = profilerResults
+                    profilerResults = profilerResults,
                 )
         }
 
@@ -54,6 +54,6 @@ internal class MicrobenchmarkOutput(
             warmupIterations = warmupIterations,
             repeatIterations = repeatIterations,
             thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-            profilerOutputs = profilerResults.map { BenchmarkData.TestResult.ProfilerOutput(it) }
+            profilerOutputs = profilerResults.map { BenchmarkData.TestResult.ProfilerOutput(it) },
         )
 }

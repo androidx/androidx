@@ -43,7 +43,7 @@ fun PointerIconSample() {
                 Text("Selectable text")
                 Text(
                     modifier = Modifier.pointerHoverIcon(PointerIcon.Hand, true),
-                    text = "Selectable text with hand"
+                    text = "Selectable text with hand",
                 )
             }
         }

@@ -73,7 +73,7 @@ internal class AmbientLifecycleObserverImpl(
                     callback.onEnterAmbient(
                         AmbientLifecycleObserver.AmbientDetails(
                             burnInProtectionRequired = burnInProtection,
-                            deviceHasLowBitAmbient = lowBitAmbient
+                            deviceHasLowBitAmbient = lowBitAmbient,
                         )
                     )
                 }
@@ -99,7 +99,7 @@ internal class AmbientLifecycleObserverImpl(
      */
     constructor(
         activity: Activity,
-        callback: AmbientLifecycleObserver.AmbientLifecycleCallback
+        callback: AmbientLifecycleObserver.AmbientLifecycleCallback,
     ) : this(activity, { r -> r.run() }, callback)
 
     init {

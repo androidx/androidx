@@ -56,7 +56,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 internal fun Modifier.stylusHandwriting(
     enabled: Boolean,
     showHoverIcon: Boolean,
-    onHandwritingSlopExceeded: () -> Unit
+    onHandwritingSlopExceeded: () -> Unit,
 ): Modifier =
     if (enabled && isStylusHandwritingSupported) {
         if (showHoverIcon) {
@@ -193,7 +193,7 @@ internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> U
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         suspendingPointerInputModifierNode.onPointerEvent(pointerEvent, pass, bounds)
     }
@@ -221,5 +221,5 @@ internal val HandwritingBoundsExpansion =
         start = HandwritingBoundsHorizontalOffset,
         top = HandwritingBoundsVerticalOffset,
         end = HandwritingBoundsHorizontalOffset,
-        bottom = HandwritingBoundsVerticalOffset
+        bottom = HandwritingBoundsVerticalOffset,
     )

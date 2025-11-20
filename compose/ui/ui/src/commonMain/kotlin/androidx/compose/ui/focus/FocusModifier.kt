@@ -36,6 +36,6 @@ fun Modifier.focusTarget(): Modifier = this then FocusTargetNode.FocusTargetElem
 /** Add this modifier to a component to make it focusable. */
 @Deprecated(
     "Replaced by focusTarget",
-    ReplaceWith("focusTarget()", "androidx.compose.ui.focus.focusTarget")
+    ReplaceWith("focusTarget()", "androidx.compose.ui.focus.focusTarget"),
 )
 fun Modifier.focusModifier(): Modifier = focusTarget()

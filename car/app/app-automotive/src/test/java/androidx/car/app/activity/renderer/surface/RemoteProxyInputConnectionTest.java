@@ -45,6 +45,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link RemoteProxyInputConnection} */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class RemoteProxyInputConnectionTest {
     private RemoteProxyInputConnection mRemoteProxyInputConnection;

@@ -45,6 +45,16 @@ class RemoteEntryTest {
 
         assertNotNull(entry)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.isAutoSelect).isFalse()
+    }
+
+    @Test
+    fun constructor_isAutoSelect_success() {
+        val entry = RemoteEntry(mPendingIntent, isAutoSelect = true)
+
+        assertNotNull(entry)
+        assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.isAutoSelect).isTrue()
     }
 
     @Test
@@ -58,20 +68,21 @@ class RemoteEntryTest {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun fromSlice_success() {
-        val originalEntry = RemoteEntry(mPendingIntent)
+        val originalEntry = RemoteEntry(mPendingIntent, isAutoSelect = true)
 
         val fromSlice = fromSlice(RemoteEntry.toSlice(originalEntry))
 
         assertThat(fromSlice).isNotNull()
         if (fromSlice != null) {
             assertThat(fromSlice.pendingIntent).isEqualTo(mPendingIntent)
+            assertThat(fromSlice.isAutoSelect).isTrue()
         }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 34)
     fun fromRemoteEntry_success() {
-        val originalEntry = RemoteEntry(mPendingIntent)
+        val originalEntry = RemoteEntry(mPendingIntent, isAutoSelect = true)
         val slice = toSlice(originalEntry)
         Assert.assertNotNull(slice)
 
@@ -80,5 +91,6 @@ class RemoteEntryTest {
 
         assertThat(remoteEntry).isNotNull()
         assertThat(remoteEntry!!.pendingIntent).isEqualTo(mPendingIntent)
+        assertThat(remoteEntry.isAutoSelect).isTrue()
     }
 }

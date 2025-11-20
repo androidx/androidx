@@ -70,7 +70,6 @@ public class MultiProfileTest {
             Assert.assertNotNull(createdProfile.getGeolocationPermissions());
             Assert.assertNotNull(createdProfile.getWebStorage());
             Assert.assertNotNull(createdProfile.getServiceWorkerController());
-            Assert.assertEquals(mProfileStore.getAllProfileNames().size(), 2);
         });
     }
 

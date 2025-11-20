@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.layout
 
+import androidx.collection.IntList
 import androidx.collection.MutableOrderedScatterSet
+import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableOrderedScatterSetOf
 import androidx.collection.mutableScatterMapOf
@@ -24,41 +26,50 @@ import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.PausableComposition
+import androidx.compose.runtime.PausedComposition
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableComposition
 import androidx.compose.runtime.ReusableContentHost
+import androidx.compose.runtime.ShouldPauseCallback
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.internal.throwIllegalStateExceptionForNullCheck
 import androidx.compose.ui.internal.throwIndexOutOfBoundsException
+import androidx.compose.ui.layout.SubcomposeLayoutState.PausedPrecomposition
 import androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle
 import androidx.compose.ui.materialize
+import androidx.compose.ui.node.ComposeUiNode.Companion.ApplyOnDeactivatedNodeAssertion
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLocals
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.OutOfFrameExecutor
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseDescendants
+import androidx.compose.ui.platform.createPausableSubcomposition
 import androidx.compose.ui.platform.createSubcomposition
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmInline
 
 /**
  * Analogue of [Layout] which allows to subcompose the actual content during the measuring stage for
@@ -81,12 +92,12 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 fun SubcomposeLayout(
     modifier: Modifier = Modifier,
-    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
+    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult,
 ) {
     SubcomposeLayout(
         state = remember { SubcomposeLayoutState() },
         modifier = modifier,
-        measurePolicy = measurePolicy
+        measurePolicy = measurePolicy,
     )
 }
 
@@ -114,9 +125,9 @@ fun SubcomposeLayout(
 fun SubcomposeLayout(
     state: SubcomposeLayoutState,
     modifier: Modifier = Modifier,
-    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult
+    measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult,
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
     val compositionContext = rememberCompositionContext()
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
@@ -127,9 +138,10 @@ fun SubcomposeLayout(
             set(compositionContext, state.setCompositionContext)
             set(measurePolicy, state.setMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
+            reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
-            set(compositeKeyHash, SetCompositeKeyHash)
-        }
+            init(compositeKeyHash, SetCompositeKeyHash)
+        },
     )
     if (!currentComposer.skipping) {
         SideEffect { state.forceRecomposeChildren() }
@@ -181,8 +193,8 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
         "This constructor is deprecated",
         ReplaceWith(
             "SubcomposeLayoutState(SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse))",
-            "androidx.compose.ui.layout.SubcomposeSlotReusePolicy"
-        )
+            "androidx.compose.ui.layout.SubcomposeSlotReusePolicy",
+        ),
     )
     constructor(
         maxSlotsToRetainForReuse: Int
@@ -221,14 +233,97 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
      * soon) you can use [PrecomposedSlotHandle.dispose] on a returned object to dispose the
      * content.
      *
-     * @param slotId unique id which represents the slot we are composing into.
+     * @param slotId unique id which represents the slot to compose into.
      * @param content the composable content which defines the slot.
      * @return [PrecomposedSlotHandle] instance which allows you to dispose the content.
      */
     fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle =
         state.precompose(slotId, content)
 
+    /**
+     * Creates [PausedPrecomposition], which allows to perform the composition in an incremental
+     * manner.
+     *
+     * @param slotId unique id which represents the slot to compose into.
+     * @param content the composable content which defines the slot.]
+     * @return [PausedPrecomposition] for the given [slotId]. It allows to perform the composition
+     *   in an incremental manner. Performing full or partial precomposition makes the next
+     *   scope.subcompose(slotId) call during the measure pass faster as the content is already
+     *   composed.
+     */
+    fun createPausedPrecomposition(
+        slotId: Any?,
+        content: @Composable () -> Unit,
+    ): PausedPrecomposition = state.precomposePaused(slotId, content)
+
     internal fun forceRecomposeChildren() = state.forceRecomposeChildren()
+
+    /**
+     * A [PausedPrecomposition] is a subcomposition that can be composed incrementally as it
+     * supports being paused and resumed.
+     *
+     * Pausable subcomposition can be used between frames to prepare a subcomposition before it is
+     * required by the main composition. For example, this is used in lazy lists to prepare list
+     * items in between frames to that are likely to be scrolled in. The composition is paused when
+     * the start of the next frame is near, allowing composition to be spread across multiple frames
+     * without delaying the production of the next frame.
+     *
+     * @see [PausedComposition]
+     */
+    sealed interface PausedPrecomposition {
+
+        /**
+         * Returns `true` when the [PausedPrecomposition] is complete. [isComplete] matches the last
+         * value returned from [resume]. Once a [PausedPrecomposition] is [isComplete] the [apply]
+         * method should be called. If the [apply] method is not called synchronously and
+         * immediately after [resume] returns `true` then this [isComplete] can return `false` as
+         * any state changes read by the paused composition while it is paused will cause the
+         * composition to require the paused composition to need to be resumed before it is used.
+         */
+        val isComplete: Boolean
+
+        /**
+         * Resume the composition that has been paused. This method should be called until [resume]
+         * returns `true` or [isComplete] is `true` which has the same result as the last result of
+         * calling [resume]. The [shouldPause] parameter is a lambda that returns whether the
+         * composition should be paused. For example, in lazy lists this returns `false` until just
+         * prior to the next frame starting in which it returns `true`
+         *
+         * Calling [resume] after it returns `true` or when `isComplete` is true will throw an
+         * exception.
+         *
+         * @param shouldPause A lambda that is used to determine if the composition should be
+         *   paused. This lambda is called often so should be a very simple calculation. Returning
+         *   `true` does not guarantee the composition will pause, it should only be considered a
+         *   request to pause the composition. Not all composable functions are pausable and only
+         *   pausable composition functions will pause.
+         * @return `true` if the composition is complete and `false` if one or more calls to
+         *   `resume` are required to complete composition.
+         */
+        @Suppress("ExecutorRegistration") fun resume(shouldPause: ShouldPauseCallback): Boolean
+
+        /**
+         * Apply the composition. This is the last step of a paused composition and is required to
+         * be called prior to the composition is usable.
+         *
+         * Calling [apply] should always be proceeded with a check of [isComplete] before it is
+         * called and potentially calling [resume] in a loop until [isComplete] returns `true`. This
+         * can happen if [resume] returned `true` but [apply] was not synchronously called
+         * immediately afterwords. Any state that was read that changed between when [resume] being
+         * called and [apply] being called may require the paused composition to be resumed before
+         * applied.
+         *
+         * @return [PrecomposedSlotHandle] you can use to premeasure the slot as well, or to dispose
+         *   the composed content.
+         */
+        fun apply(): PrecomposedSlotHandle
+
+        /**
+         * Cancels the paused composition. This should only be used if the composition is going to
+         * be disposed and the entire composition is not going to be used.
+         */
+        fun cancel()
+    }
 
     /** Instance of this interface is returned by [precompose] function. */
     interface PrecomposedSlotHandle {
@@ -302,7 +397,8 @@ interface SubcomposeSlotReusePolicy {
      */
     class SlotIdsSet
     internal constructor(
-        private val set: MutableOrderedScatterSet<Any?> = mutableOrderedScatterSetOf()
+        @PublishedApi
+        internal val set: MutableOrderedScatterSet<Any?> = mutableOrderedScatterSetOf()
     ) : Collection<Any?> {
 
         override val size: Int
@@ -377,8 +473,24 @@ interface SubcomposeSlotReusePolicy {
          * Iterates over every element stored in this set by invoking the specified [block] lambda.
          * The iteration order is the same as the insertion order. It is safe to remove the element
          * passed to [block] during iteration.
+         *
+         * NOTE: This method is obscured by `Collection<T>.forEach` since it is marked with
+         *
+         * @HidesMember, which means in practice this will never get called. Please use
+         *   [fastForEach] instead.
          */
         fun forEach(block: (Any?) -> Unit) = set.forEach(block)
+
+        /**
+         * Iterates over every element stored in this set by invoking the specified [block] lambda.
+         * The iteration order is the same as the insertion order. It is safe to remove the element
+         * passed to [block] during iteration.
+         *
+         * NOTE: this method was added in order to allow for a more performant forEach method. It is
+         * necessary because [forEach] is obscured by `Collection<T>.forEach` since it is marked
+         * with @HidesMember.
+         */
+        inline fun fastForEach(block: (Any?) -> Unit) = set.forEach(block)
     }
 }
 
@@ -399,9 +511,10 @@ fun SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse: Int): SubcomposeSlotReus
  * SubcomposeLayout and even when the SubcomposeLayout's LayoutNode is reused via the
  * ReusableComposeNode mechanism.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 internal class LayoutNodeSubcompositionsState(
     private val root: LayoutNode,
-    slotReusePolicy: SubcomposeSlotReusePolicy
+    slotReusePolicy: SubcomposeSlotReusePolicy,
 ) : ComposeNodeLifecycleCallback {
     var compositionContext: CompositionContext? = null
 
@@ -427,12 +540,21 @@ internal class LayoutNodeSubcompositionsState(
     private val precomposeMap = mutableScatterMapOf<Any?, LayoutNode>()
     private val reusableSlotIdsSet = SubcomposeSlotReusePolicy.SlotIdsSet()
 
-    // SlotHandles precomposed in the post-lookahead pass.
+    // SlotHandles precomposed in the approach pass. These slot handles are owned by the approach
+    // pass, hence the approach pass is responsible for disposing them when they are no longer
+    // needed. Note: if `precompose` is called on a slot owned by the approach pass, the
+    // approach will yield ownership to the new caller. When the new caller disposes a slot
+    // that is still needed by approach, the approach pass will be triggered to create
+    // and own the slot.
     private val approachPrecomposeSlotHandleMap = mutableScatterMapOf<Any?, PrecomposedSlotHandle>()
 
-    // Slot ids _composed_ in post-lookahead. The valid slot ids are stored between 0 and
-    // currentApproachIndex - 1, beyond index currentApproachIndex are obsolete ids.
-    private val approachComposedSlotIds = mutableVectorOf<Any?>()
+    // Slot ids of compositions needed in the approach pass. These compositions are either owned
+    // by the approach pass, or by the caller of [SubcomposeLayoutState#precompose]. For
+    // compositions not created by the approach pass, if they are disposed while the approach pass
+    // still needs it, the approach pass will be triggered to re-create the composition.
+    // The valid slot ids are stored between 0 and currentApproachIndex - 1, beyond index
+    // currentApproachIndex are [UnspecifiedSlotId]s.
+    private val slotIdsOfCompositionsNeededInApproach = mutableVectorOf<Any?>()
 
     /**
      * `root.foldedChildren` list consist of:
@@ -474,6 +596,10 @@ internal class LayoutNodeSubcompositionsState(
             slotIdToNode.getOrPut(slotId) {
                 val precomposed = precomposeMap.remove(slotId)
                 if (precomposed != null) {
+                    val nodeState = nodeToNodeState[precomposed]
+                    if (ExtraLoggingEnabled) {
+                        nodeState?.record(SLOperation.TookFromPrecomposeMap)
+                    }
                     @Suppress("ExceptionMessage") checkPrecondition(precomposedCount > 0)
                     precomposedCount--
                     precomposed
@@ -495,7 +621,7 @@ internal class LayoutNodeSubcompositionsState(
         }
         currentIndex++
 
-        subcompose(node, slotId, content)
+        subcompose(node, slotId, pausable = false, content)
 
         return if (layoutState == LayoutState.Measuring || layoutState == LayoutState.LayingOut) {
             node.childMeasurables
@@ -504,56 +630,100 @@ internal class LayoutNodeSubcompositionsState(
         }
     }
 
-    private fun subcompose(node: LayoutNode, slotId: Any?, content: @Composable () -> Unit) {
+    // This may be called in approach pass, if a node is only emitted in the approach pass, but
+    // not in the lookahead pass.
+    private fun subcompose(
+        node: LayoutNode,
+        slotId: Any?,
+        pausable: Boolean,
+        content: @Composable () -> Unit,
+    ) {
         val nodeState = nodeToNodeState.getOrPut(node) { NodeState(slotId, {}) }
+        val contentChanged = nodeState.content !== content
+        if (nodeState.pausedComposition != null) {
+            if (contentChanged) {
+                // content did change so it is not safe to apply the current paused composition.
+                nodeState.cancelPausedPrecomposition()
+            } else if (pausable) {
+                // the paused composition is initialized and the content didn't change
+                return
+            } else {
+                // we can apply as we are still composing the same content.
+                nodeState.applyPausedPrecomposition(shouldComplete = true)
+            }
+        }
         val hasPendingChanges = nodeState.composition?.hasInvalidations ?: true
-        if (nodeState.content !== content || hasPendingChanges || nodeState.forceRecompose) {
+        if (contentChanged || hasPendingChanges || nodeState.forceRecompose) {
             nodeState.content = content
-            subcompose(node, nodeState)
+            subcompose(node, nodeState, pausable)
             nodeState.forceRecompose = false
         }
     }
 
-    private fun subcompose(node: LayoutNode, nodeState: NodeState) {
+    private val outOfFrameExecutor: OutOfFrameExecutor?
+        get() = root.requireOwner().outOfFrameExecutor
+
+    private fun subcompose(node: LayoutNode, nodeState: NodeState, pausable: Boolean) {
+        requirePrecondition(nodeState.pausedComposition == null) {
+            "new subcompose call while paused composition is still active"
+        }
         Snapshot.withoutReadObservation {
             ignoreRemeasureRequests {
-                val content = nodeState.content
-                nodeState.composition =
-                    subcomposeInto(
-                        existing = nodeState.composition,
-                        container = node,
-                        parent =
-                            compositionContext
-                                ?: throwIllegalStateExceptionForNullCheck(
-                                    "parent composition reference not set"
-                                ),
-                        reuseContent = nodeState.forceReuse,
-                        composable = { ReusableContentHost(nodeState.active, content) }
+                val existing = nodeState.composition
+                val parentComposition =
+                    compositionContext
+                        ?: throwIllegalStateExceptionForNullCheck(
+                            "parent composition reference not set"
+                        )
+                if (ExtraLoggingEnabled) {
+                    nodeState.record(
+                        if (existing == null) SLOperation.SubcomposeNew else SLOperation.Subcompose
                     )
+                    if (pausable) {
+                        nodeState.record(SLOperation.SubcomposePausable)
+                    }
+                    if (nodeState.forceReuse) {
+                        nodeState.record(SLOperation.SubcomposeForceReuse)
+                    }
+                }
+                val composition =
+                    if (existing == null || existing.isDisposed) {
+                        if (pausable) {
+                            createPausableSubcomposition(node, parentComposition)
+                        } else {
+                            createSubcomposition(node, parentComposition)
+                        }
+                    } else {
+                        existing
+                    }
+                nodeState.composition = composition
+                val content = nodeState.content
+                val composable: @Composable () -> Unit =
+                    if (outOfFrameExecutor != null) {
+                        nodeState.composedWithReusableContentHost = false
+                        content
+                    } else {
+                        nodeState.composedWithReusableContentHost = true
+                        { ReusableContentHost(nodeState.active, content) }
+                    }
+                if (pausable) {
+                    composition as PausableComposition
+                    if (nodeState.forceReuse) {
+                        nodeState.pausedComposition =
+                            composition.setPausableContentWithReuse(composable)
+                    } else {
+                        nodeState.pausedComposition = composition.setPausableContent(composable)
+                    }
+                } else {
+                    if (nodeState.forceReuse) {
+                        composition.setContentWithReuse(composable)
+                    } else {
+                        composition.setContent(composable)
+                    }
+                }
                 nodeState.forceReuse = false
             }
         }
-    }
-
-    private fun subcomposeInto(
-        existing: ReusableComposition?,
-        container: LayoutNode,
-        reuseContent: Boolean,
-        parent: CompositionContext,
-        composable: @Composable () -> Unit
-    ): ReusableComposition {
-        return if (existing == null || existing.isDisposed) {
-                createSubcomposition(container, parent)
-            } else {
-                existing
-            }
-            .apply {
-                if (!reuseContent) {
-                    setContent(composable)
-                } else {
-                    setContentWithReuse(composable)
-                }
-            }
     }
 
     private fun getSlotIdAtIndex(foldedChildren: List<LayoutNode>, index: Int): Any? {
@@ -586,8 +756,11 @@ internal class LayoutNodeSubcompositionsState(
                         reusableCount++
                         if (nodeState.active) {
                             node.resetLayoutState()
-                            nodeState.active = false
-                            needApplyNotification = true
+                            nodeState.reuseComposition(forceDeactivate = false)
+
+                            if (nodeState.composedWithReusableContentHost) {
+                                needApplyNotification = true
+                            }
                         }
                     } else {
                         ignoreRemeasureRequests {
@@ -610,6 +783,21 @@ internal class LayoutNodeSubcompositionsState(
         makeSureStateIsConsistent()
     }
 
+    private fun NodeState.deactivateOutOfFrame(executor: OutOfFrameExecutor) {
+        executor.schedule {
+            if (!active) {
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.DeactivateOutOfFrame)
+                }
+                composition?.deactivate()
+            } else {
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.DeactivateOutOfFrameCancelled)
+                }
+            }
+        }
+    }
+
     private fun markActiveNodesAsReused(deactivate: Boolean) {
         precomposedCount = 0
         precomposeMap.clear()
@@ -624,14 +812,15 @@ internal class LayoutNodeSubcompositionsState(
                     val nodeState = nodeToNodeState[node]
                     if (nodeState != null && nodeState.active) {
                         node.resetLayoutState()
-                        if (deactivate) {
-                            nodeState.composition?.deactivate()
-                            nodeState.activeState = mutableStateOf(false)
-                        } else {
-                            nodeState.active = false
-                        }
-                        // create a new instance to avoid change notifications
+                        nodeState.reuseComposition(forceDeactivate = deactivate)
                         nodeState.slotId = ReusedSlotId
+                        if (ExtraLoggingEnabled) {
+                            if (deactivate) {
+                                nodeState.record(SLOperation.SlotToReusedFromOnDeactivate)
+                            } else {
+                                nodeState.record(SLOperation.SlotToReusedFromOnReuse)
+                            }
+                        }
                     }
                 }
             }
@@ -727,6 +916,9 @@ internal class LayoutNodeSubcompositionsState(
             val node = foldedChildren[reusableNodesSectionStart]
             val nodeState = nodeToNodeState[node]!!
             // create a new instance to avoid change notifications
+            if (ExtraLoggingEnabled) {
+                nodeState.record(SLOperation.Reused)
+            }
             nodeState.activeState = mutableStateOf(true)
             nodeState.forceReuse = true
             nodeState.forceRecompose = true
@@ -740,7 +932,7 @@ internal class LayoutNodeSubcompositionsState(
         return object : LayoutNode.NoIntrinsicsMeasurePolicy(error = NoIntrinsicsMessage) {
             override fun MeasureScope.measure(
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 scope.layoutDirection = layoutDirection
                 scope.density = density
@@ -755,6 +947,7 @@ internal class LayoutNodeSubcompositionsState(
                         result.placeChildren()
                         // dispose
                         disposeUnusedSlotsInApproach()
+                        disposeOrReuseStartingFromIndex(currentIndex)
                     }
                 } else {
                     // Lookahead pass, or the main pass if not in a lookahead scope.
@@ -764,7 +957,12 @@ internal class LayoutNodeSubcompositionsState(
                     return createMeasureResult(result) {
                         currentIndex = indexAfterMeasure
                         result.placeChildren()
-                        disposeOrReuseStartingFromIndex(currentIndex)
+                        if (root.lookaheadRoot == null) {
+                            // If this is in lookahead scope, we need to dispose *after*
+                            // approach placement, to give approach pass the opportunity to
+                            // transfer the ownership of subcompositions before disposing.
+                            disposeOrReuseStartingFromIndex(currentIndex)
+                        }
                     }
                 }
             }
@@ -772,11 +970,19 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     private fun disposeUnusedSlotsInApproach() {
+        // Iterate over the slots owned by approach, and dispose slots if neither lookahead
+        // nor approach needs it.
         approachPrecomposeSlotHandleMap.removeIf { slotId, handle ->
-            val id = approachComposedSlotIds.indexOf(slotId)
+            val id = slotIdsOfCompositionsNeededInApproach.indexOf(slotId)
             if (id < 0 || id >= currentApproachIndex) {
-                // Slot was not used in the latest pass of post-lookahead.
-                handle.dispose()
+                if (id >= 0) {
+                    // Remove the slotId from the list before disposing
+                    slotIdsOfCompositionsNeededInApproach[id] = UnspecifiedSlotId
+                }
+                if (precomposeMap.contains(slotId)) {
+                    // Node has not been needed by lookahead, or approach.
+                    handle.dispose()
+                }
                 true
             } else {
                 false
@@ -786,7 +992,7 @@ internal class LayoutNodeSubcompositionsState(
 
     private inline fun createMeasureResult(
         result: MeasureResult,
-        crossinline placeChildrenBlock: () -> Unit
+        crossinline placeChildrenBlock: () -> Unit,
     ) =
         object : MeasureResult by result {
             override fun placeChildren() {
@@ -806,10 +1012,13 @@ internal class LayoutNodeSubcompositionsState(
             "intrinsic measurement."
 
     fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle {
+        precompose(slotId, content, pausable = false)
+        return createPrecomposedSlotHandle(slotId)
+    }
+
+    private fun precompose(slotId: Any?, content: @Composable () -> Unit, pausable: Boolean) {
         if (!root.isAttached) {
-            return object : PrecomposedSlotHandle {
-                override fun dispose() {}
-            }
+            return
         }
         makeSureStateIsConsistent()
         if (!slotIdToNode.containsKey(slotId)) {
@@ -828,28 +1037,98 @@ internal class LayoutNodeSubcompositionsState(
                         createNodeAt(root.foldedChildren.size).also { precomposedCount++ }
                     }
                 }
-            subcompose(node, slotId, content)
+            subcompose(node, slotId, pausable = pausable, content)
+        }
+    }
+
+    private fun NodeState.reuseComposition(forceDeactivate: Boolean) {
+        if (!forceDeactivate && composedWithReusableContentHost) {
+            // Deactivation through ReusableContentHost is controlled with the active flag
+            active = false
+        } else {
+            // Otherwise, create a new instance to avoid state change notifications
+            activeState = mutableStateOf(false)
+        }
+
+        if (pausedComposition != null) {
+            // Cancelling disposes composition, so no additional work is needed.
+            cancelPausedPrecomposition()
+        } else if (forceDeactivate) {
+            if (ExtraLoggingEnabled) {
+                record(SLOperation.ReuseForceSyncDeactivation)
+            }
+            composition?.deactivate()
+        } else {
+            val outOfFrameExecutor = outOfFrameExecutor
+            if (outOfFrameExecutor != null) {
+                if (ExtraLoggingEnabled) {
+                    record(SLOperation.ReuseScheduleOutOfFrameDeactivation)
+                }
+                deactivateOutOfFrame(outOfFrameExecutor)
+            } else {
+                if (!composedWithReusableContentHost) {
+                    if (ExtraLoggingEnabled) {
+                        record(SLOperation.ReuseSyncDeactivation)
+                    }
+                    composition?.deactivate()
+                } else if (ExtraLoggingEnabled) {
+                    record(SLOperation.ReuseDeactivationViaHost)
+                }
+            }
+        }
+    }
+
+    private fun NodeState.cancelPausedPrecomposition() {
+        pausedComposition?.let {
+            it.cancel()
+            pausedComposition = null
+            composition?.dispose()
+            composition = null
+            if (ExtraLoggingEnabled) {
+                record(SLOperation.CancelPausedPrecomposition)
+            }
+        }
+    }
+
+    private fun disposePrecomposedSlot(slotId: Any?) {
+        makeSureStateIsConsistent()
+        val node = precomposeMap.remove(slotId)
+        if (node != null) {
+            checkPrecondition(precomposedCount > 0) { "No pre-composed items to dispose" }
+            val itemIndex = root.foldedChildren.indexOf(node)
+            checkPrecondition(itemIndex >= root.foldedChildren.size - precomposedCount) {
+                "Item is not in pre-composed item range"
+            }
+            // move this item into the reusable section
+            reusableCount++
+            precomposedCount--
+
+            nodeToNodeState[node]?.cancelPausedPrecomposition()
+
+            val reusableStart = root.foldedChildren.size - precomposedCount - reusableCount
+            move(itemIndex, reusableStart, 1)
+            disposeOrReuseStartingFromIndex(reusableStart)
+        }
+        // If the slot is not owned by approach (e.g. created for prefetch) and disposed before
+        // approach finishes using it, the approach pass will be invoked to re-create the
+        // composition if needed.
+        if (slotIdsOfCompositionsNeededInApproach.contains(slotId)) {
+            root.requestRemeasure(true)
+        }
+    }
+
+    private fun createPrecomposedSlotHandle(slotId: Any?): PrecomposedSlotHandle {
+        if (!root.isAttached) {
+            return object : PrecomposedSlotHandle {
+                override fun dispose() {}
+            }
         }
         return object : PrecomposedSlotHandle {
             // Saves indices of placeables that have been premeasured in this handle
             val hasPremeasured = mutableIntSetOf()
 
             override fun dispose() {
-                makeSureStateIsConsistent()
-                val node = precomposeMap.remove(slotId)
-                if (node != null) {
-                    checkPrecondition(precomposedCount > 0) { "No pre-composed items to dispose" }
-                    val itemIndex = root.foldedChildren.indexOf(node)
-                    checkPrecondition(itemIndex >= root.foldedChildren.size - precomposedCount) {
-                        "Item is not in pre-composed item range"
-                    }
-                    // move this item into the reusable section
-                    reusableCount++
-                    precomposedCount--
-                    val reusableStart = root.foldedChildren.size - precomposedCount - reusableCount
-                    move(itemIndex, reusableStart, 1)
-                    disposeOrReuseStartingFromIndex(reusableStart)
-                }
+                disposePrecomposedSlot(slotId)
             }
 
             override val placeablesCount: Int
@@ -876,7 +1155,7 @@ internal class LayoutNodeSubcompositionsState(
 
             override fun traverseDescendants(
                 key: Any?,
-                block: (TraversableNode) -> TraverseDescendantsAction
+                block: (TraversableNode) -> TraverseDescendantsAction,
             ) {
                 precomposeMap[slotId]?.nodes?.head?.traverseDescendants(key, block)
             }
@@ -900,6 +1179,73 @@ internal class LayoutNodeSubcompositionsState(
         }
     }
 
+    fun precomposePaused(slotId: Any?, content: @Composable () -> Unit): PausedPrecomposition {
+        if (!root.isAttached) {
+            return object : PausedPrecompositionImpl {
+                override val isComplete: Boolean = true
+
+                override fun resume(shouldPause: ShouldPauseCallback) = true
+
+                override fun apply() = createPrecomposedSlotHandle(slotId)
+
+                override fun cancel() {}
+            }
+        }
+        precompose(slotId, content, pausable = true)
+        return object : PausedPrecompositionImpl {
+            override fun cancel() {
+                if (nodeState?.pausedComposition != null) {
+                    // only dispose if the paused composition is still waiting to be applied
+                    disposePrecomposedSlot(slotId)
+                }
+            }
+
+            private val nodeState: NodeState?
+                get() = precomposeMap[slotId]?.let { nodeToNodeState[it] }
+
+            override val isComplete: Boolean
+                get() = nodeState?.pausedComposition?.isComplete ?: true
+
+            override fun resume(shouldPause: ShouldPauseCallback): Boolean {
+                val nodeState = nodeState
+                val pausedComposition = nodeState?.pausedComposition
+                return if (pausedComposition != null && !pausedComposition.isComplete) {
+                    if (ExtraLoggingEnabled) {
+                        nodeState.record(SLOperation.ResumePaused)
+                    }
+                    val isComplete =
+                        Snapshot.withoutReadObservation {
+                            try {
+                                pausedComposition.resume(shouldPause)
+                            } catch (e: Throwable) {
+                                val operations = nodeState.operations
+                                if (operations != null) {
+                                    throw SubcomposeLayoutPausableCompositionException(
+                                        nodeState.operations,
+                                        slotId,
+                                        e,
+                                    )
+                                } else {
+                                    throw e
+                                }
+                            }
+                        }
+                    if (ExtraLoggingEnabled && !isComplete) {
+                        nodeState.record(SLOperation.PausePaused)
+                    }
+                    isComplete
+                } else {
+                    true
+                }
+            }
+
+            override fun apply(): PrecomposedSlotHandle {
+                nodeState?.applyPausedPrecomposition(shouldComplete = false)
+                return createPrecomposedSlotHandle(slotId)
+            }
+        }
+    }
+
     fun forceRecomposeChildren() {
         val childCount = root.foldedChildren.size
         if (reusableCount != childCount) {
@@ -907,38 +1253,87 @@ internal class LayoutNodeSubcompositionsState(
             // in other cases, all of them are going to be invalidated later anyways
             nodeToNodeState.forEachValue { nodeState -> nodeState.forceRecompose = true }
 
-            if (!root.measurePending) {
-                root.requestRemeasure()
+            if (root.lookaheadRoot != null) {
+                // If the SubcomposeLayout is in a LookaheadScope, request for a lookahead measure
+                // so that lookahead gets triggered again to recompose children.
+                if (!root.lookaheadMeasurePending) {
+                    root.requestLookaheadRemeasure()
+                }
+            } else {
+                if (!root.measurePending) {
+                    root.requestRemeasure()
+                }
             }
         }
     }
 
     private fun createNodeAt(index: Int) =
-        LayoutNode(
-                isVirtual = true,
-            )
-            .also { node -> ignoreRemeasureRequests { root.insertAt(index, node) } }
+        LayoutNode(isVirtual = true).also { node ->
+            ignoreRemeasureRequests { root.insertAt(index, node) }
+        }
 
     private fun move(from: Int, to: Int, count: Int = 1) {
         ignoreRemeasureRequests { root.move(from, to, count) }
     }
 
-    private inline fun ignoreRemeasureRequests(block: () -> Unit) =
+    private inline fun <T> ignoreRemeasureRequests(block: () -> T): T =
         root.ignoreRemeasureRequests(block)
+
+    private fun NodeState.applyPausedPrecomposition(shouldComplete: Boolean) {
+        val pausedComposition = pausedComposition
+        if (pausedComposition != null) {
+            Snapshot.withoutReadObservation {
+                ignoreRemeasureRequests {
+                    try {
+                        if (shouldComplete) {
+                            while (!pausedComposition.isComplete) {
+                                pausedComposition.resume { false }
+                            }
+                        }
+                        pausedComposition.apply()
+                    } catch (e: Throwable) {
+                        val operations = operations
+                        if (operations != null) {
+                            throw SubcomposeLayoutPausableCompositionException(
+                                operations,
+                                slotId,
+                                e,
+                            )
+                        } else {
+                            throw e
+                        }
+                    }
+                    this.pausedComposition = null
+                }
+            }
+        }
+    }
 
     private class NodeState(
         var slotId: Any?,
         var content: @Composable () -> Unit,
-        var composition: ReusableComposition? = null
+        var composition: ReusableComposition? = null,
     ) {
         var forceRecompose = false
         var forceReuse = false
+        var pausedComposition: PausedComposition? = null
         var activeState = mutableStateOf(true)
+        var composedWithReusableContentHost = false
         var active: Boolean
             get() = activeState.value
             set(value) {
                 activeState.value = value
             }
+
+        val operations = if (ExtraLoggingEnabled) mutableIntListOf() else null
+
+        fun record(op: SLOperation) {
+            val operations = operations ?: return
+            operations.add(op.value)
+            if (operations.size >= 50) {
+                operations.removeRange(0, 10)
+            }
+        }
     }
 
     private inner class Scope : SubcomposeMeasureScope {
@@ -959,7 +1354,7 @@ internal class LayoutNodeSubcompositionsState(
             height: Int,
             alignmentLines: Map<AlignmentLine, Int>,
             rulers: (RulerScope.() -> Unit)?,
-            placementBlock: Placeable.PlacementScope.() -> Unit
+            placementBlock: Placeable.PlacementScope.() -> Unit,
         ): MeasureResult {
             checkMeasuredSize(width, height)
             return object : MeasureResult {
@@ -1009,25 +1404,55 @@ internal class LayoutNodeSubcompositionsState(
 
     private fun approachSubcompose(
         slotId: Any?,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ): List<Measurable> {
-        requirePrecondition(approachComposedSlotIds.size >= currentApproachIndex) {
+        requirePrecondition(slotIdsOfCompositionsNeededInApproach.size >= currentApproachIndex) {
             "Error: currentApproachIndex cannot be greater than the size of the" +
                 "approachComposedSlotIds list."
         }
-        if (approachComposedSlotIds.size == currentApproachIndex) {
-            approachComposedSlotIds.add(slotId)
+        val nodeForSlot = slotIdToNode[slotId]
+        if (slotIdsOfCompositionsNeededInApproach.size == currentApproachIndex) {
+            slotIdsOfCompositionsNeededInApproach.add(slotId)
         } else {
-            approachComposedSlotIds[currentApproachIndex] = slotId
+            slotIdsOfCompositionsNeededInApproach[currentApproachIndex] = slotId
         }
         currentApproachIndex++
-        if (!precomposeMap.contains(slotId)) {
-            // Not composed yet
+        val precomposed = precomposeMap.contains(slotId)
+        if (!precomposed && nodeForSlot == null) {
+            // The slot was not composed in the lookahead pass. And it has not been pre-composed in
+            // the approach pass. Hence, we will precompose it for the approach pass, and track it
+            // in approachPrecomposeSlotHandleMap so that it can be disposed when no longer needed
+            // in approach.
             precompose(slotId, content).also { approachPrecomposeSlotHandleMap[slotId] = it }
-            if (root.layoutState == LayoutState.LayingOut) {
-                root.requestLookaheadRelayout(true)
-            } else {
-                root.requestLookaheadRemeasure(true)
+        } else {
+            // A non-null `nodeForSlot` here means that the slot was composed in lookahead
+            // initially, but no longer needed && has not been disposed yet.
+            // Move from lookahead composed to pre-composed, so that it can be disposed when
+            // no longer needed in approach.
+            if (!precomposed && nodeForSlot != null) {
+                // Transfer ownership of the subcomposition from lookahead pass to approach pass.
+                // As a result, the composition can be disposed as soon as approach pass no
+                // longer needs it.
+                // First, move this node to the end where we keep precomposed items
+                val nodeIndex = root.foldedChildren.indexOf(nodeForSlot)
+                move(nodeIndex, root.foldedChildren.size, 1)
+                precomposedCount++
+                // Remove the slotId from slotIdToNode so that if lookahead were to subcompose
+                // this item, it'll need to take the node out of precomposeMap.
+                slotIdToNode.remove(slotId)
+                precomposeMap[slotId] = nodeForSlot
+                approachPrecomposeSlotHandleMap[slotId] = createPrecomposedSlotHandle(slotId)
+
+                if (root.isAttached) {
+                    makeSureStateIsConsistent()
+                }
+            }
+
+            // Re-subcompose if needed based on forceRecompose
+            val node = precomposeMap[slotId]
+            val nodeState = node?.let { nodeToNodeState[it] }
+            if (nodeState?.forceRecompose == true) {
+                subcompose(node, slotId, pausable = false, content)
             }
         }
 
@@ -1063,3 +1488,81 @@ private object NoOpSubcomposeSlotReusePolicy : SubcomposeSlotReusePolicy {
 
     override fun areCompatible(slotId: Any?, reusableSlotId: Any?) = false
 }
+
+private interface PausedPrecompositionImpl : PausedPrecomposition
+
+private val UnspecifiedSlotId = Any()
+
+@JvmInline
+private value class SLOperation(val value: Int) {
+    companion object {
+        val CancelPausedPrecomposition = SLOperation(0)
+        val ReuseForceSyncDeactivation = SLOperation(1)
+        val ReuseScheduleOutOfFrameDeactivation = SLOperation(2)
+        val ReuseSyncDeactivation = SLOperation(3)
+        val ReuseDeactivationViaHost = SLOperation(4)
+        val TookFromPrecomposeMap = SLOperation(5)
+        val Subcompose = SLOperation(6)
+        val SubcomposeNew = SLOperation(7)
+        val SubcomposePausable = SLOperation(8)
+        val SubcomposeForceReuse = SLOperation(9)
+        val DeactivateOutOfFrame = SLOperation(10)
+        val DeactivateOutOfFrameCancelled = SLOperation(11)
+        val SlotToReusedFromOnDeactivate = SLOperation(12)
+        val SlotToReusedFromOnReuse = SLOperation(13)
+        val Reused = SLOperation(14)
+        val ResumePaused = SLOperation(15)
+        val PausePaused = SLOperation(16)
+        val ApplyPaused = SLOperation(17)
+    }
+}
+
+private class SubcomposeLayoutPausableCompositionException(
+    private val operations: IntList,
+    private val slotId: Any?,
+    cause: Throwable?,
+) : IllegalStateException(cause) {
+
+    private fun operationsList(): List<String> = buildList {
+        var currentOperation = operations.size - 1
+        while (currentOperation >= 0) {
+            val operation = operations[currentOperation]
+            val stringValue =
+                when (SLOperation(operation)) {
+                    SLOperation.CancelPausedPrecomposition -> "CancelPausedPrecomposition"
+                    SLOperation.ReuseForceSyncDeactivation -> "ReuseForceSyncDeactivation"
+                    SLOperation.ReuseScheduleOutOfFrameDeactivation ->
+                        "ReuseScheduleOutOfFrameDeactivation"
+                    SLOperation.ReuseSyncDeactivation -> "ReuseSyncDeactivation"
+                    SLOperation.ReuseDeactivationViaHost -> "ReuseDeactivationViaHost"
+                    SLOperation.TookFromPrecomposeMap -> "TookFromPrecomposeMap"
+                    SLOperation.Subcompose -> "Subcompose"
+                    SLOperation.SubcomposeNew -> "SubcomposeNew"
+                    SLOperation.SubcomposePausable -> "SubcomposePausable"
+                    SLOperation.SubcomposeForceReuse -> "SubcomposeForceReuse"
+                    SLOperation.DeactivateOutOfFrame -> "DeactivateOutOfFrame"
+                    SLOperation.DeactivateOutOfFrameCancelled -> "DeactivateOutOfFrameCancelled"
+                    SLOperation.SlotToReusedFromOnDeactivate -> "SlotToReusedFromOnDeactivate"
+                    SLOperation.SlotToReusedFromOnReuse -> "SlotToReusedFromOnReuse"
+                    SLOperation.Reused -> "Reused"
+                    SLOperation.ResumePaused -> "ResumePaused"
+                    SLOperation.PausePaused -> "PausePaused"
+                    SLOperation.ApplyPaused -> "ApplyPaused"
+                    else -> "Unexpected $operation"
+                }
+            add("$currentOperation: $stringValue")
+            currentOperation--
+        }
+    }
+
+    @Suppress("ListIterator")
+    override val message: String?
+        get() =
+            """
+            |slotid=$slotId. Last operations:
+            |${operationsList().joinToString("\n")}
+            """
+                .trimMargin()
+}
+
+private const val ExtraLoggingEnabled = false

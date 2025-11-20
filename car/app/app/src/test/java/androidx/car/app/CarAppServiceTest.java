@@ -50,6 +50,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link CarAppService} and related classes for establishing a host connection. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public final class CarAppServiceTest {
     @Rule

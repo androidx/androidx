@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @file:RequiresApi(33)
 
 package androidx.camera.camera2.internal
@@ -27,7 +26,9 @@ import android.hardware.camera2.params.DynamicRangeProfiles.HLG10
 import android.hardware.camera2.params.DynamicRangeProfiles.STANDARD
 import androidx.annotation.RequiresApi
 
-val HLG10_UNCONSTRAINED by lazy { DynamicRangeProfiles(longArrayOf(HLG10, 0, 0)) }
+val HLG10_UNCONSTRAINED by lazy {
+    DynamicRangeProfiles(longArrayOf(HLG10, CONSTRAINTS_NONE, LATENCY_NONE))
+}
 
 val HLG10_CONSTRAINED by lazy { DynamicRangeProfiles(longArrayOf(HLG10, HLG10, LATENCY_NONE)) }
 
@@ -49,7 +50,7 @@ val HDR10_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             HDR10,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -62,7 +63,7 @@ val HDR10_PLUS_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             HDR10_PLUS,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -78,7 +79,7 @@ val HDR10_HDR10_PLUS_UNCONSTRAINED by lazy {
             LATENCY_NONE,
             HDR10_PLUS,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -91,7 +92,7 @@ val DOLBY_VISION_10B_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             DOLBY_VISION_10B_HDR_OEM,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -104,7 +105,7 @@ val DOLBY_VISION_10B_UNCONSTRAINED_SLOW by lazy {
             LATENCY_NONE, // HLG is mandated
             DOLBY_VISION_10B_HDR_OEM,
             CONSTRAINTS_NONE,
-            LATENCY_NON_ZERO
+            LATENCY_NON_ZERO,
         )
     )
 }
@@ -143,7 +144,7 @@ val DOLBY_VISION_CONSTRAINED by lazy {
             LATENCY_NONE,
             DOLBY_VISION_8B_HDR_OEM,
             DOLBY_VISION_8B_HDR_OEM or DOLBY_VISION_10B_HDR_OEM,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }

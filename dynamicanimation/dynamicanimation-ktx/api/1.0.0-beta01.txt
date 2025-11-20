@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.dynamicanimation.animation {
+
+  public final class DynamicAnimationKt {
+    method public static androidx.dynamicanimation.animation.FlingAnimation flingAnimationOf(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> setter, kotlin.jvm.functions.Function0<java.lang.Float> getter);
+    method public static androidx.dynamicanimation.animation.SpringAnimation springAnimationOf(kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> setter, kotlin.jvm.functions.Function0<java.lang.Float> getter, optional float finalPosition);
+    method public static inline androidx.dynamicanimation.animation.SpringAnimation withSpringForceProperties(androidx.dynamicanimation.animation.SpringAnimation, kotlin.jvm.functions.Function1<? super androidx.dynamicanimation.animation.SpringForce,kotlin.Unit> func);
+  }
+
+}
+

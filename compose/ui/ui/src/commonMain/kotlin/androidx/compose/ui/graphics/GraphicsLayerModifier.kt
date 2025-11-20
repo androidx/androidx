@@ -18,6 +18,9 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -25,10 +28,15 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.requireCoordinator
+import androidx.compose.ui.node.updateLayerBlock
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.toSize
 
 /**
  * A [Modifier.Element] that makes content draw into a draw layer. The draw layer can be invalidated
@@ -75,9 +83,9 @@ import androidx.compose.ui.unit.Constraints
             "Modifier.graphicsLayer(scaleX, scaleY, alpha, translationX, translationY, " +
                 "shadowElevation, rotationX, rotationY, rotationZ, cameraDistance, transformOrigin, " +
                 "shape, clip, null, DefaultShadowColor, DefaultShadowColor)",
-            "androidx.compose.ui.graphics"
+            "androidx.compose.ui.graphics",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Stable
 fun Modifier.graphicsLayer(
@@ -93,7 +101,7 @@ fun Modifier.graphicsLayer(
     cameraDistance: Float = DefaultCameraDistance,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     shape: Shape = RectangleShape,
-    clip: Boolean = false
+    clip: Boolean = false,
 ) =
     graphicsLayer(
         scaleX = scaleX,
@@ -111,7 +119,7 @@ fun Modifier.graphicsLayer(
         clip = clip,
         renderEffect = null,
         blendMode = BlendMode.SrcOver,
-        colorFilter = null
+        colorFilter = null,
     )
 
 /**
@@ -160,9 +168,9 @@ fun Modifier.graphicsLayer(
             "Modifier.graphicsLayer(scaleX, scaleY, alpha, translationX, translationY, " +
                 "shadowElevation, rotationX, rotationY, rotationZ, cameraDistance, transformOrigin, " +
                 "shape, clip, null, DefaultShadowColor, DefaultShadowColor)",
-            "androidx.compose.ui.graphics"
+            "androidx.compose.ui.graphics",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Stable
 fun Modifier.graphicsLayer(
@@ -179,7 +187,7 @@ fun Modifier.graphicsLayer(
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     shape: Shape = RectangleShape,
     clip: Boolean = false,
-    renderEffect: RenderEffect? = null
+    renderEffect: RenderEffect? = null,
 ) =
     graphicsLayer(
         scaleX = scaleX,
@@ -200,7 +208,7 @@ fun Modifier.graphicsLayer(
         renderEffect = renderEffect,
         compositingStrategy = CompositingStrategy.Auto,
         blendMode = BlendMode.SrcOver,
-        colorFilter = null
+        colorFilter = null,
     )
 
 /**
@@ -251,10 +259,11 @@ fun Modifier.graphicsLayer(
         ReplaceWith(
             "Modifier.graphicsLayer(scaleX, scaleY, alpha, translationX, translationY, " +
                 "shadowElevation, rotationX, rotationY, rotationZ, cameraDistance, transformOrigin, " +
-                "shape, clip, null, DefaultShadowColor, DefaultShadowColor, CompositingStrategy.Auto)",
-            "androidx.compose.ui.graphics"
+                "shape, clip, renderEffect, ambientShadowColor, spotShadowColor, " +
+                "CompositingStrategy.Auto)",
+            "androidx.compose.ui.graphics",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Stable
 fun Modifier.graphicsLayer(
@@ -294,7 +303,7 @@ fun Modifier.graphicsLayer(
         spotShadowColor,
         CompositingStrategy.Auto,
         BlendMode.SrcOver,
-        null
+        null,
     )
 
 /**
@@ -348,6 +357,18 @@ fun Modifier.graphicsLayer(
  * @param spotShadowColor see [GraphicsLayerScope.spotShadowColor]
  * @param compositingStrategy see [GraphicsLayerScope.compositingStrategy]
  */
+@Deprecated(
+    "Replace with graphicsLayer that consumes a blend mode and a color filter",
+    replaceWith =
+        ReplaceWith(
+            "Modifier.graphicsLayer(scaleX, scaleY, alpha, translationX, translationY, " +
+                "shadowElevation, rotationX, rotationY, rotationZ, cameraDistance, transformOrigin, " +
+                "shape, clip, renderEffect, ambientShadowColor, spotShadowColor, " +
+                "compositingStrategy, BlendMode.SrcOver, null)",
+            "androidx.compose.ui.graphics",
+        ),
+    level = DeprecationLevel.HIDDEN,
+)
 @Stable
 fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
@@ -366,7 +387,7 @@ fun Modifier.graphicsLayer(
     renderEffect: RenderEffect? = null,
     ambientShadowColor: Color = DefaultShadowColor,
     spotShadowColor: Color = DefaultShadowColor,
-    compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
+    compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
 ) =
     graphicsLayer(
         scaleX,
@@ -387,7 +408,7 @@ fun Modifier.graphicsLayer(
         spotShadowColor,
         compositingStrategy,
         BlendMode.SrcOver,
-        null
+        null,
     )
 
 /**
@@ -463,7 +484,7 @@ fun Modifier.graphicsLayer(
     spotShadowColor: Color = DefaultShadowColor,
     compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
     blendMode: BlendMode = BlendMode.SrcOver,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) =
     this then
         GraphicsLayerElement(
@@ -485,7 +506,7 @@ fun Modifier.graphicsLayer(
             spotShadowColor,
             compositingStrategy,
             blendMode,
-            colorFilter
+            colorFilter,
         )
 
 private data class GraphicsLayerElement(
@@ -507,7 +528,7 @@ private data class GraphicsLayerElement(
     val spotShadowColor: Color,
     val compositingStrategy: CompositingStrategy,
     val blendMode: BlendMode,
-    val colorFilter: ColorFilter?
+    val colorFilter: ColorFilter?,
 ) : ModifierNodeElement<SimpleGraphicsLayerModifier>() {
     override fun create(): SimpleGraphicsLayerModifier {
         return SimpleGraphicsLayerModifier(
@@ -529,7 +550,7 @@ private data class GraphicsLayerElement(
             spotShadowColor = spotShadowColor,
             compositingStrategy = compositingStrategy,
             blendMode = blendMode,
-            colorFilter = colorFilter
+            colorFilter = colorFilter,
         )
     }
 
@@ -589,6 +610,9 @@ private data class GraphicsLayerElement(
  * shadow, and clipping. Prefer this version when you have layer properties backed by a
  * [androidx.compose.runtime.State] or an animated value as reading a state inside [block] will only
  * cause the layer properties update without triggering recomposition and relayout.
+ *
+ * NOTE: [block] can be invoked multiple times, which is why it's important for performance to
+ * minimize work done inside of it. [block] may also be invoked before effects.
  *
  * @sample androidx.compose.ui.samples.AnimateFadeIn
  * @param block block on [GraphicsLayerScope] where you define the layer properties.
@@ -678,9 +702,10 @@ private class BlockGraphicsLayerElement(val block: GraphicsLayerScope.() -> Unit
     }
 }
 
-internal class BlockGraphicsLayerModifier(
-    var layerBlock: GraphicsLayerScope.() -> Unit,
-) : LayoutModifierNode, Modifier.Node() {
+private var reusableGraphicsLayerScope: ReusableGraphicsLayerScope? = null
+
+internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() -> Unit) :
+    LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
 
     /**
      * We can skip remeasuring as we only need to rerun the placement block. we request it manually
@@ -689,15 +714,13 @@ internal class BlockGraphicsLayerModifier(
     override val shouldAutoInvalidate: Boolean
         get() = false
 
-    fun invalidateLayerBlock() {
-        requireCoordinator(Nodes.Layout)
-            .wrapped
-            ?.updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
-    }
+    override val isImportantForBounds = false
+
+    fun invalidateLayerBlock() = updateLayerBlock(layerBlock)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
@@ -706,6 +729,56 @@ internal class BlockGraphicsLayerModifier(
     }
 
     override fun toString(): String = "BlockGraphicsLayerModifier(" + "block=$layerBlock)"
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
+
+        val coordinator = requireCoordinator(Nodes.Layout)
+        val shape: Shape
+        val clip: Boolean
+        if (!coordinator.wasLayerBlockInvoked) {
+            // If this is the first time semantics is invalidated, we read the properties
+            // directly from the layer block, as the layout phase has not happened yet.
+            if (reusableGraphicsLayerScope == null) {
+                reusableGraphicsLayerScope = ReusableGraphicsLayerScope()
+            } else {
+                reusableGraphicsLayerScope!!.reset()
+            }
+            val scope = reusableGraphicsLayerScope!!
+
+            scope.graphicsDensity = coordinator.layoutNode.density
+            scope.size = coordinator.size.toSize()
+
+            // The layer block is invoked without read observation as a performance optimization,
+            // since reads are already observed inside of NodeCoordinator and semantics invalidation
+            // is triggered if required.
+            Snapshot.withoutReadObservation {
+                // Currently, the layerBlock is invoked an extra time here to access the shape and
+                // clip properties, as the first semantics invalidation happens before layout. If in
+                // the future semantics invalidation is changed to happen after layout, this
+                // invocation can be removed and we can always read the properties from the
+                // coordinator.
+                layerBlock.invoke(scope)
+            }
+
+            shape = scope.shape
+            clip = scope.clip
+        } else {
+            // If the properties are already available in the coordinator, so we don't need to
+            // invoke the layer block and instead read them from the coordinator.
+            shape = coordinator.lastShape
+            clip = coordinator.lastClip
+        }
+
+        if (!clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may be completely
+            // unrelated to the shape of the UI element.
+            return
+        }
+
+        this.shape = shape
+    }
 }
 
 private class SimpleGraphicsLayerModifier(
@@ -727,8 +800,8 @@ private class SimpleGraphicsLayerModifier(
     var spotShadowColor: Color,
     var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
     var blendMode: BlendMode = BlendMode.SrcOver,
-    var colorFilter: ColorFilter? = null
-) : LayoutModifierNode, Modifier.Node() {
+    var colorFilter: ColorFilter? = null,
+) : LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
 
     /**
      * We can skip remeasuring as we only need to rerun the placement block. we request it manually
@@ -736,6 +809,8 @@ private class SimpleGraphicsLayerModifier(
      */
     override val shouldAutoInvalidate: Boolean
         get() = false
+
+    override val isImportantForBounds = false
 
     private var layerBlock: GraphicsLayerScope.() -> Unit = {
         scaleX = this@SimpleGraphicsLayerModifier.scaleX
@@ -759,15 +834,11 @@ private class SimpleGraphicsLayerModifier(
         colorFilter = this@SimpleGraphicsLayerModifier.colorFilter
     }
 
-    fun invalidateLayerBlock() {
-        requireCoordinator(Nodes.Layout)
-            .wrapped
-            ?.updateLayerBlock(this.layerBlock, forceUpdateLayerParameters = true)
-    }
+    fun invalidateLayerBlock() = updateLayerBlock(layerBlock)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
@@ -797,4 +868,17 @@ private class SimpleGraphicsLayerModifier(
             "blendMode=$blendMode, " +
             "colorFilter=$colorFilter" +
             ")"
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
+
+        if (!this@SimpleGraphicsLayerModifier.clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may just be drawing
+            // a shape without it actually representing the boundary of the UI element.
+            return
+        }
+
+        this.shape = this@SimpleGraphicsLayerModifier.shape
+    }
 }

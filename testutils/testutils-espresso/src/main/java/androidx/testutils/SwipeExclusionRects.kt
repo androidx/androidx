@@ -51,7 +51,7 @@ private class SetExclusionRectsOnLayout : View.OnLayoutChangeListener {
         oldLeft: Int,
         oldTop: Int,
         oldRight: Int,
-        oldBottom: Int
+        oldBottom: Int,
     ) {
         if (v == null) return
         exclusionRects.clear()

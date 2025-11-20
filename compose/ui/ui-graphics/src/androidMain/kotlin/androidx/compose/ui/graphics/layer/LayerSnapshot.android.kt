@@ -83,13 +83,13 @@ internal object LayerSnapshotV22 : LayerSnapshotImpl {
                 size.width, /* pixel width */
                 size.height, /* pixel height */
                 PixelFormat.RGBA_8888, /* format */
-                1 /* maxImages */
+                1, /* maxImages */
             )
             .use { reader ->
                 val image = suspendCancellableCoroutine { continuation ->
                     reader.setOnImageAvailableListener(
                         { continuation.resume(it.acquireLatestImage()) },
-                        HandlerCompat.createAsync(looper)
+                        HandlerCompat.createAsync(looper),
                     )
 
                     val surface = reader.surface

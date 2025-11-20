@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:builder-model:8.1.0")
+    compileOnly("com.android.tools.build:builder-model:8.1.1")
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
     compileOnly(libs.intellijCore)
@@ -37,8 +37,7 @@ dependencies {
 
     testImplementation(libs.kotlinStdlib)
     testRuntimeOnly(libs.kotlinReflect)
-    testImplementation(libs.kotlinStdlibJdk8)
-    testImplementation(libs.androidLintApiPrevAnalysis)
+    testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

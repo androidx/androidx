@@ -87,7 +87,7 @@ import org.xml.sax.XMLReader
 fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
     linkStyles: TextLinkStyles? = null,
-    linkInteractionListener: LinkInteractionListener? = null
+    linkInteractionListener: LinkInteractionListener? = null,
 ): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
     val stringToParse = "<$ContentHandlerReplacementTag />$htmlString"
@@ -99,7 +99,7 @@ fun AnnotatedString.Companion.fromHtml(
 @VisibleForTesting
 internal fun Spanned.toAnnotatedString(
     linkStyles: TextLinkStyles? = null,
-    linkInteractionListener: LinkInteractionListener? = null
+    linkInteractionListener: LinkInteractionListener? = null,
 ): AnnotatedString {
     return AnnotatedString.Builder(capacity = length)
         .append(this)
@@ -110,7 +110,7 @@ internal fun Spanned.toAnnotatedString(
 private fun AnnotatedString.Builder.addSpans(
     spanned: Spanned,
     linkStyles: TextLinkStyles?,
-    linkInteractionListener: LinkInteractionListener?
+    linkInteractionListener: LinkInteractionListener?,
 ) {
     spanned.getSpans(0, length, Any::class.java).forEach { span ->
         val range = TextRange(spanned.getSpanStart(span), spanned.getSpanEnd(span))
@@ -123,7 +123,7 @@ private fun AnnotatedString.Builder.addSpan(
     start: Int,
     end: Int,
     linkStyles: TextLinkStyles?,
-    linkInteractionListener: LinkInteractionListener?
+    linkInteractionListener: LinkInteractionListener?,
 ) {
     when (span) {
         is AbsoluteSizeSpan -> {
@@ -142,8 +142,8 @@ private fun AnnotatedString.Builder.addSpan(
             addBullet(
                 start = start,
                 end = end,
-                indentation = DefaultBulletIndentation * span.indentationLevel,
-                bullet = span.bullet
+                indentation = Bullet.DefaultIndentation * span.indentationLevel,
+                bullet = span.bullet,
             )
         }
         is ForegroundColorSpan -> {
@@ -245,7 +245,7 @@ private val TagHandler =
             opening: Boolean,
             tag: String?,
             output: Editable?,
-            xmlReader: XMLReader?
+            xmlReader: XMLReader?,
         ) {
             if (xmlReader == null || output == null) return
 
@@ -258,7 +258,7 @@ private val TagHandler =
 
 private class AnnotationContentHandler(
     private val contentHandler: ContentHandler,
-    private val output: Editable
+    private val output: Editable,
 ) : ContentHandler by contentHandler {
 
     // We handle the ul/li tags manually since default implementation will add newlines but we
@@ -333,7 +333,7 @@ private class AnnotationContentHandler(
         // <li style="color:red"> is a no-op in terms of applying color. This needs to be handled
         // manually since we can't use default implementation which adds unwanted new lines for us.
         commitCurrentBulletSpan()
-        currentBulletSpan = BulletSpanWithLevel(DefaultBullet, bulletIndentation, output.length)
+        currentBulletSpan = BulletSpanWithLevel(Bullet.Default, bulletIndentation, output.length)
     }
 
     private fun handleLiEnd() {
@@ -359,7 +359,7 @@ private class AnnotationSpan(val key: String, val value: String)
 internal data class BulletSpanWithLevel(
     val bullet: Bullet,
     val indentationLevel: Int,
-    val start: Int
+    val start: Int,
 )
 
 /**

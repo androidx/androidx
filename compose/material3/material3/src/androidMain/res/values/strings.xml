@@ -15,6 +15,8 @@
   -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Spoken description for the default overflow indicator for button groups -->
+    <string name="m3c_button_group_more_options">"More options"</string>
     <!-- Spoken description of a dialog -->
     <string name="m3c_dialog">"Dialog"</string>
     <!-- Spoken description of expanded state of a dropdown menu -->
@@ -89,6 +91,8 @@
     <string name="m3c_floating_toolbar_collapse">Collapse toolbar</string>
     <!-- Spoken for the expand action for a floating toolbar action. -->
     <string name="m3c_floating_toolbar_expand">Expand toolbar</string>
+    <!-- Spoken description for the default overflow indicator for floating toolbars -->
+    <string name="m3c_floating_toolbar_more_options">"More options"</string>
     <!-- Spoken description of a tooltip -->
     <string name="m3c_tooltip_pane_description">Tooltip</string>
     <string name="m3c_tooltip_long_press_label">Show tooltip</string>
@@ -117,9 +121,9 @@
     <!-- A label for a textfield that allows the user to input hours. It reads: Edit Box, for hour -->
     <string name="m3c_time_picker_hour_text_field">for hour</string>
     <!-- Accessibility string used for describing the button in time picker that changes the dialog to text input mode. [CHAR LIMIT=NONE] -->
-    <string name="m3c_time_picker_toggle_keyboard">Switch to text input mode for the time input</string>
+    <string name="m3c_time_picker_toggle_keyboard">Switch to text input mode</string>
     <!-- Accessibility string used for describing the button in time picker that changes the dialog to circular clock mode. [CHAR LIMIT=NONE] -->
-    <string name="m3c_time_picker_toggle_touch">Switch to clock mode for the time input</string>
+    <string name="m3c_time_picker_toggle_touch">Switch to clock mode</string>
     <!-- Title for a dialog that allows the user to select the time with a clock time picker. -->
     <string name="m3c_time_picker_dialog_title">Select Time</string>
     <!-- Title for a dialog that allows the user to enter the time with a text input. -->

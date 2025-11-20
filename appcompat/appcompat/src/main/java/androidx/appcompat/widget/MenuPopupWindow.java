@@ -83,15 +83,11 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
     }
 
     public void setEnterTransition(Object enterTransition) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setEnterTransition(mPopup, (Transition) enterTransition);
-        }
+        mPopup.setEnterTransition((Transition) enterTransition);
     }
 
     public void setExitTransition(Object exitTransition) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setExitTransition(mPopup, (Transition) exitTransition);
-        }
+        mPopup.setExitTransition((Transition) exitTransition);
     }
 
     public void setHoverListener(MenuItemHoverListener hoverListener) {
@@ -238,21 +234,6 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
             }
 
             return super.onHoverEvent(ev);
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setEnterTransition(PopupWindow popupWindow, Transition enterTransition) {
-            popupWindow.setEnterTransition(enterTransition);
-        }
-
-        static void setExitTransition(PopupWindow popupWindow, Transition exitTransition) {
-            popupWindow.setExitTransition(exitTransition);
         }
     }
 

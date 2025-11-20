@@ -72,7 +72,7 @@ interface LayoutModifier {
  */
 internal class CombinedLayoutModifier(
     private val left: LayoutModifier,
-    private val right: LayoutModifier
+    private val right: LayoutModifier,
 ) : LayoutModifier {
     override fun <R> foldRight(initial: R, operation: (R, Element) -> R): R =
         right.foldRight(left.foldRight(initial, operation), operation)

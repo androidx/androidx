@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems#getItemCount():
+    Source breaking change: method androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.getItemCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems#getViewTypeCount():
+    Source breaking change: method androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.getViewTypeCount() can no longer be resolved from Kotlin source

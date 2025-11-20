@@ -25,7 +25,7 @@ internal object MatcherUtils {
     /** Checks component match allowing wildcard patterns. */
     internal fun areComponentsMatching(
         activityComponent: ActivityComponentInfo?,
-        ruleComponent: ActivityComponentInfo
+        ruleComponent: ActivityComponentInfo,
     ): Boolean {
         if (activityComponent == null) {
             return ruleComponent.packageName == "*" && ruleComponent.className == "*"
@@ -47,7 +47,7 @@ internal object MatcherUtils {
                 "Checking match of $activityComponent with rule " +
                     "component $ruleComponent, " +
                     "packages match: $packagesMatch, " +
-                    "classes match: $classesMatch"
+                    "classes match: $classesMatch",
             )
         }
         return packagesMatch && classesMatch
@@ -59,7 +59,7 @@ internal object MatcherUtils {
      */
     internal fun isActivityMatching(
         activity: Activity,
-        ruleComponent: ActivityComponentInfo
+        ruleComponent: ActivityComponentInfo,
     ): Boolean {
         if (areComponentsMatching(ActivityComponentInfo(activity.componentName), ruleComponent)) {
             return true

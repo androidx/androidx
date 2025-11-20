@@ -23,10 +23,12 @@ import android.net.Uri;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link QRCodeSignInMethod}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class QRCodeSignInMethodTest {
     private final Uri mUri = Uri.parse("http://www.youtube.com/watch?v=dQw4w9WgXcQ");

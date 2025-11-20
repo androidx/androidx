@@ -15,7 +15,6 @@
  */
 package androidx.wear.compose.material
 
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
@@ -30,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -37,10 +37,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -61,23 +61,13 @@ class ButtonScreenshotTest {
     @Test
     fun button_outlined_ltr() =
         verifyScreenshot(LayoutDirection.Ltr) {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Text("abc")
-            }
+            OutlinedButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
     fun button_outlined_rtl() =
         verifyScreenshot(LayoutDirection.Rtl) {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Text("abc")
-            }
+            OutlinedButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
@@ -106,7 +96,7 @@ class ButtonScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

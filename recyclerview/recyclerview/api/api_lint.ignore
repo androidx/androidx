@@ -18,9 +18,9 @@ ArrayReturn: androidx.recyclerview.widget.SortedList#replaceAll(T[], boolean) pa
 
 
 BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):
-    Methods must not throw unchecked exceptions
+    Unchecked exception java.lang.IllegalStateException does not need to be listed in the method throws clause (only in documentation)
 BannedThrow: androidx.recyclerview.widget.SortedList#get(int):
-    Methods must not throw unchecked exceptions
+    Unchecked exception java.lang.IndexOutOfBoundsException does not need to be listed in the method throws clause (only in documentation)
 
 
 CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback#fillData(T[], int, int):
@@ -863,3 +863,15 @@ PublicTypedef: androidx.recyclerview.widget.RecyclerView.EdgeEffectFactory.EdgeD
     Don't expose @IntDef: EdgeDirection must be hidden.
 PublicTypedef: androidx.recyclerview.widget.RecyclerView.ItemAnimator.AdapterChanges:
     Don't expose @IntDef: AdapterChanges must be hidden.
+
+
+TypeParameterName: androidx.recyclerview.widget.ListAdapter:
+    Invalid type parameter name "VH". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.recyclerview.widget.RecyclerView.Adapter:
+    Invalid type parameter name "VH". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.recyclerview.widget.SortedList.BatchedCallback:
+    Invalid type parameter name "T2". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.recyclerview.widget.SortedList.Callback:
+    Invalid type parameter name "T2". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.recyclerview.widget.SortedListAdapterCallback:
+    Invalid type parameter name "T2". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

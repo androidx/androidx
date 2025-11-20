@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -596,7 +595,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             // child but that should perform good enough as it is very hard to start dragging a
             // new child before the previous one settles.
             mOverdrawChild = selected.itemView;
-            addChildDrawingOrderCallback();
         }
         int actionStateMask = (1 << (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState))
                 - 1;
@@ -1294,32 +1292,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
             }
         }
         return 0;
-    }
-
-    private void addChildDrawingOrderCallback() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return; // we use elevation on Lollipop
-        }
-        if (mChildDrawingOrderCallback == null) {
-            mChildDrawingOrderCallback = new RecyclerView.ChildDrawingOrderCallback() {
-                @Override
-                public int onGetChildDrawingOrder(int childCount, int i) {
-                    if (mOverdrawChild == null) {
-                        return i;
-                    }
-                    int childPosition = mOverdrawChildPosition;
-                    if (childPosition == -1) {
-                        childPosition = mRecyclerView.indexOfChild(mOverdrawChild);
-                        mOverdrawChildPosition = childPosition;
-                    }
-                    if (i == childCount - 1) {
-                        return childPosition;
-                    }
-                    return i < childPosition ? i : i + 1;
-                }
-            };
-        }
-        mRecyclerView.setChildDrawingOrderCallback(mChildDrawingOrderCallback);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */

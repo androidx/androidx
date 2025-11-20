@@ -60,16 +60,14 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
     /** Get a new vector multiplied by a scalar amount. */
     public operator fun times(c: Float): Vector3 = Vector3(x * c, y * c, z * c)
 
-    /** Returns a new vector with the product of this vector and the [other] vector. */
-    public operator fun times(other: Vector3): Vector3 =
-        Vector3(x * other.x, y * other.y, z * other.z)
+    /**
+     * Returns a new vector with each component of this vector multiplied by each corresponding
+     * component of the [other] vector.
+     */
+    public fun scale(other: Vector3): Vector3 = Vector3(x * other.x, y * other.y, z * other.z)
 
     /** Returns a new vector with this vector divided by a scalar amount. */
     public operator fun div(c: Float): Vector3 = Vector3(x / c, y / c, z / c)
-
-    /** Returns a new vector with this vector divided by the [other] vector. */
-    public operator fun div(other: Vector3): Vector3 =
-        Vector3(x / other.x, y / other.y, z / other.z)
 
     /** Returns the dot product of this vector and the [other] vector. */
     public infix fun dot(other: Vector3): Float = x * other.x + y * other.y + z * other.z
@@ -77,6 +75,16 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
     /** Returns the cross product of this vector and the [other] vector. */
     public infix fun cross(other: Vector3): Vector3 =
         Vector3(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x)
+
+    /** Returns the component-wise multiplicative inverse of this vector. */
+    public fun inverse(): Vector3 {
+        if (this.x == 0f || this.y == 0f || this.z == 0f) {
+            throw IllegalArgumentException(
+                "Cannot take the multiplicative inverse if any component of the Vector3 is zero."
+            )
+        }
+        return Vector3(1 / this.x, 1 / this.y, 1 / this.z)
+    }
 
     /** Returns the normalized version of this vector. */
     public fun toNormalized(): Vector3 {
@@ -107,7 +115,12 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
         return this.x == other.x && this.y == other.y && this.z == other.z
     }
 
-    override fun hashCode(): Int = 31 * x.hashCode() + y.hashCode() + z.hashCode()
+    override fun hashCode(): Int {
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
+        result = 31 * result + z.hashCode()
+        return result
+    }
 
     override fun toString(): String = "[x=$x, y=$y, z=$z]"
 
@@ -174,7 +187,7 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
             Vector3(
                 lerp(start.x, end.x, ratio),
                 lerp(start.y, end.y, ratio),
-                lerp(start.z, end.z, ratio)
+                lerp(start.z, end.z, ratio),
             )
 
         /** Returns the minimum of each component of the two vectors. */

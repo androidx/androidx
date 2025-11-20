@@ -65,10 +65,7 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
                     Text("App Card")
                 }
             CardType.TitleCard ->
-                TitleCard(
-                    onClick = { /* do something */ },
-                    title = { Text("Title card") },
-                ) {
+                TitleCard(onClick = { /* do something */ }, title = { Text("Title card") }) {
                     Text("Title Card")
                 }
             CardType.OutlinedCard ->
@@ -86,5 +83,5 @@ enum class CardType {
     Card,
     AppCard,
     TitleCard,
-    OutlinedCard
+    OutlinedCard,
 }

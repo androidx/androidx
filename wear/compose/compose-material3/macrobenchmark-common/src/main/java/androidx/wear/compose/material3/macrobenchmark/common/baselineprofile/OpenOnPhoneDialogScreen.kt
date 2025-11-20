@@ -55,7 +55,7 @@ val OpenOnPhoneDialogScreen =
                                     contentDescription = OpenOnPhoneDialog
                                 },
                             onClick = { showConfirmation = true },
-                            label = { Text("Open on phone") }
+                            label = { Text("Open on phone") },
                         )
                     }
 
@@ -67,7 +67,7 @@ val OpenOnPhoneDialogScreen =
                     OpenOnPhoneDialog(
                         visible = showConfirmation,
                         onDismissRequest = { showConfirmation = false },
-                        curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) }
+                        curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) },
                     )
                 }
             }

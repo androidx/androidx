@@ -275,8 +275,6 @@ GetterSetterNames: androidx.constraintlayout.core.motion.CustomVariable#getBoole
     Symmetric method for `setBooleanValue` must be named `isBooleanValue`; was `getBooleanValue`
 GetterSetterNames: androidx.constraintlayout.core.widgets.Barrier#getAllowsGoneWidget():
     Symmetric method for `setAllowsGoneWidget` must be named `isAllowsGoneWidget`; was `getAllowsGoneWidget`
-GetterSetterNames: androidx.constraintlayout.core.widgets.ConstraintAnchor#setFinalValue(int):
-    Symmetric method for `hasFinalValue` must be named `setHasFinalValue`; was `setFinalValue`
 
 
 InternalField: androidx.constraintlayout.core.ArrayLinkedVariables#mCache:

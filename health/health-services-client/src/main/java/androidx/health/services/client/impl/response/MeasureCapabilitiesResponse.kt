@@ -26,7 +26,7 @@ import androidx.health.services.client.proto.ResponsesProto
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCapabilitiesResponse(
     /** [MeasureCapabilities] supported by this device. */
-    public val measureCapabilities: MeasureCapabilities,
+    public val measureCapabilities: MeasureCapabilities
 ) : ProtoParcelable<ResponsesProto.MeasureCapabilitiesResponse>() {
 
     override val proto: ResponsesProto.MeasureCapabilitiesResponse =

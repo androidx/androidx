@@ -27,14 +27,23 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":pdf:pdf-viewer"))
     api("androidx.core:core:1.13.1")
+
+    testImplementation(project(":pdf:pdf-viewer"))
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.truth)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testExtJunitKtx)
+    testImplementation(libs.kotlinCoroutinesTest)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
@@ -54,7 +63,8 @@ android {
 
     defaultConfig {
         minSdk = 31
-        compileSdk = 35
+        compileSdk = 36
+        compileSdkExtension = 19
     }
 
     buildFeatures.aidl = true
@@ -64,9 +74,6 @@ android {
             version = 1
         }
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
@@ -74,4 +81,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Parse and process PDF documents providing the implementations of PdfDocument and PdfLoader sandboxing the underlying android PdfRenderer class."
+    enableRobolectric()
 }

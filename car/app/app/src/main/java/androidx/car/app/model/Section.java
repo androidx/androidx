@@ -16,9 +16,13 @@
 
 package androidx.car.app.model;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.serialization.ListDelegate;
 import androidx.car.app.serialization.ListDelegateImpl;
@@ -46,12 +50,14 @@ public abstract class Section<T extends Item> {
     private final @NonNull ListDelegate<T> mItemsDelegate;
     private final @Nullable CarText mTitle;
     private final @Nullable CarText mNoItemsMessage;
+    private final @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
 
     // Empty constructor for serialization
     protected Section() {
         mItemsDelegate = new ListDelegateImpl<>(Collections.emptyList());
         mTitle = null;
         mNoItemsMessage = null;
+        mOnItemVisibilityChangedDelegate = null;
     }
 
     /** Constructor that fills out fields from any section builder. */
@@ -59,6 +65,7 @@ public abstract class Section<T extends Item> {
         mItemsDelegate = new ListDelegateImpl<>(Collections.unmodifiableList(builder.mItems));
         mTitle = builder.mHeader;
         mNoItemsMessage = builder.mNoItemsMessage;
+        mOnItemVisibilityChangedDelegate = builder.mOnItemVisibilityChangedDelegate;
     }
 
     /** Returns the items added to this section. */
@@ -78,6 +85,14 @@ public abstract class Section<T extends Item> {
         return mNoItemsMessage;
     }
 
+    /**
+     * Returns the {@link OnItemVisibilityChangedDelegate} to be called when the visible items in
+     * this {@link Section} changes, or {@code null} if one isn't set.
+     */
+    public @Nullable OnItemVisibilityChangedDelegate getOnItemVisibilityChangedDelegate() {
+        return mOnItemVisibilityChangedDelegate;
+    }
+
     @Override
     public boolean equals(@Nullable Object other) {
         if (other == null) {
@@ -88,19 +103,26 @@ public abstract class Section<T extends Item> {
         }
         Section<?> section = (Section<?>) other;
 
-        return Objects.equals(mItemsDelegate, section.mItemsDelegate) && Objects.equals(mTitle,
-                section.mTitle)
-                && Objects.equals(mNoItemsMessage, section.mNoItemsMessage);
+        return Objects.equals(mItemsDelegate, section.mItemsDelegate)
+                && Objects.equals(mTitle, section.mTitle)
+                && Objects.equals(mNoItemsMessage, section.mNoItemsMessage)
+                && Objects.equals(mOnItemVisibilityChangedDelegate == null,
+                section.mOnItemVisibilityChangedDelegate == null);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mItemsDelegate, mTitle, mNoItemsMessage);
+        return Objects.hash(
+                mItemsDelegate, mTitle, mNoItemsMessage, mOnItemVisibilityChangedDelegate == null);
     }
 
     @Override
     public @NonNull String toString() {
-        return "Section";
+        return "Section { title: " + mTitle
+                + ", noItemsMessage: " + mNoItemsMessage
+                + ", itemsDelegate: " + mItemsDelegate
+                + ", onItemVisibilityChangedDelegate: "
+                + (mOnItemVisibilityChangedDelegate != null);
     }
 
     /**
@@ -114,9 +136,49 @@ public abstract class Section<T extends Item> {
         @NonNull List<T> mItems = new ArrayList<>();
         @Nullable CarText mHeader;
         @Nullable CarText mNoItemsMessage;
+        @Nullable OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
 
         protected BaseBuilder() {
         }
+
+        /**
+         * Sets the {@link OnItemVisibilityChangedListener} to call when the visible items in this
+         * {@link Section} changes.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@code Looper#getMainLooper()}.
+         *
+         * <p>It's possible for more than 1 {@link Section} to be visible on the screen at the same
+         * time, in which case, every visible Section's {@link OnItemVisibilityChangedListener}
+         * will be triggered with their respective visible items.
+         *
+         * <p>Passing {@code null} will clear the {@link OnItemVisibilityChangedListener}.
+         */
+        @CanIgnoreReturnValue
+        @SuppressWarnings({"SetterReturnsThis", "unchecked", "ExecutorRegistration"})
+        public @NonNull B setOnItemVisibilityChangedListener(
+                @Nullable OnItemVisibilityChangedListener onItemVisibilityChangedListener) {
+            if (onItemVisibilityChangedListener == null) {
+                mOnItemVisibilityChangedDelegate = null;
+            } else {
+                mOnItemVisibilityChangedDelegate =
+                        OnItemVisibilityChangedDelegateImpl.create(onItemVisibilityChangedListener);
+            }
+            return (B) this;
+        }
+
+        /**
+         * Use {@link #setOnItemVisibilityChangedListener(OnItemVisibilityChangedListener)} instead.
+         */
+        @CanIgnoreReturnValue
+        @SuppressWarnings({"SetterReturnsThis", "unchecked"})
+        @RestrictTo(LIBRARY)
+        public @NonNull B setOnItemVisibilityChangedDelegate(
+                @Nullable OnItemVisibilityChangedDelegate onItemVisibilityChangedDelegate) {
+            mOnItemVisibilityChangedDelegate = onItemVisibilityChangedDelegate;
+            return (B) this;
+        }
+
 
         /** Sets the items for this section, overwriting any other previously set items. */
         @CanIgnoreReturnValue

@@ -45,7 +45,7 @@ data class ShapeItem(
     val usesPillStarFactor: Boolean = false,
     val usesInnerRatio: Boolean = true,
     val usesRoundness: Boolean = true,
-    val usesInnerParameters: Boolean = true
+    val usesInnerParameters: Boolean = true,
 )
 
 open class ShapeParameters(
@@ -62,7 +62,7 @@ open class ShapeParameters(
     pillStarFactor: Float = .5f,
     shapeId: ShapeId = ShapeId.Polygon,
     splitProgress: Float = 1.0f,
-    customFeaturesOverlay: List<FeatureType> = listOf()
+    customFeaturesOverlay: List<FeatureType> = listOf(),
 ) {
     internal val sides = mutableFloatStateOf(sides.toFloat())
     internal val innerRadius = mutableFloatStateOf(innerRadius)
@@ -90,7 +90,7 @@ open class ShapeParameters(
                     RoundedPolygon.pill(
                         width = this.width.floatValue,
                         height = this.height.floatValue,
-                        smoothing = this.smooth.floatValue
+                        smoothing = this.smooth.floatValue,
                     )
                 },
                 shapeOutput = {
@@ -100,14 +100,14 @@ open class ShapeParameters(
                         height = this.height.floatValue,
                         code =
                             "RoundedPolygon.pill(width = $this.width.floatValue, " +
-                                "height = $this.height.floatValue)"
+                                "height = $this.height.floatValue)",
                     )
                 },
                 usesSides = false,
                 usesInnerParameters = false,
                 usesInnerRatio = false,
                 usesRoundness = true,
-                usesWidthAndHeight = true
+                usesWidthAndHeight = true,
             ),
             ShapeItem(
                 "PillStar",
@@ -122,9 +122,9 @@ open class ShapeParameters(
                         innerRounding =
                             CornerRounding(
                                 this.innerRoundness.floatValue,
-                                this.innerSmooth.floatValue
+                                this.innerSmooth.floatValue,
                             ),
-                        vertexSpacing = this.pillStarFactor.floatValue
+                        vertexSpacing = this.pillStarFactor.floatValue,
                     )
                 },
                 shapeOutput = {
@@ -144,11 +144,11 @@ open class ShapeParameters(
                                 "numVerticesPerRadius = $sides, " +
                                 "innerRadius = ${innerRadius}f, " +
                                 "rounding = CornerRounding(${roundness}f, ${smooth}f), " +
-                                "innerRounding = CornerRounding(${innerRoundness}f, ${innerSmooth}f))"
+                                "innerRounding = CornerRounding(${innerRoundness}f, ${innerSmooth}f))",
                     )
                 },
                 usesWidthAndHeight = true,
-                usesPillStarFactor = true
+                usesPillStarFactor = true,
             ),
             ShapeItem(
                 "Star",
@@ -162,8 +162,8 @@ open class ShapeParameters(
                         innerRounding =
                             CornerRounding(
                                 this.innerRoundness.floatValue,
-                                this.innerSmooth.floatValue
-                            )
+                                this.innerSmooth.floatValue,
+                            ),
                     )
                 },
                 shapeOutput = {
@@ -185,7 +185,7 @@ open class ShapeParameters(
                                 "CornerRounding(${this.roundness.floatValue}f," +
                                 "${this.smooth.floatValue}f), " +
                                 "innerRounding = CornerRounding(${this.innerRoundness.floatValue}f, " +
-                                "${this.innerSmooth.floatValue}f))"
+                                "${this.innerSmooth.floatValue}f))",
                     )
                 },
             ),
@@ -194,8 +194,7 @@ open class ShapeParameters(
                 shapegen = {
                     RoundedPolygon(
                         numVertices = this.sides.floatValue.roundToInt(),
-                        rounding =
-                            CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
+                        rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     )
                 },
                 shapeOutput = {
@@ -208,11 +207,11 @@ open class ShapeParameters(
                         code =
                             "RoundedPolygon(numVertices = ${this.sides.floatValue.roundToInt()}," +
                                 "rounding = CornerRounding(${this.roundness.floatValue}f, " +
-                                "${this.smooth.floatValue}f))"
+                                "${this.smooth.floatValue}f))",
                     )
                 },
                 usesInnerRatio = false,
-                usesInnerParameters = false
+                usesInnerParameters = false,
             ),
             ShapeItem(
                 "Triangle",
@@ -226,13 +225,13 @@ open class ShapeParameters(
                             radialToCartesian(this.innerRadius.floatValue, 90f.toRadians()).x,
                             radialToCartesian(this.innerRadius.floatValue, 90f.toRadians()).y,
                             radialToCartesian(1f, 150f.toRadians()).x,
-                            radialToCartesian(1f, 150f.toRadians()).y
+                            radialToCartesian(1f, 150f.toRadians()).y,
                         )
                     RoundedPolygon(
                         points,
                         CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                         centerX = 0f,
-                        centerY = 0f
+                        centerY = 0f,
                     )
                 },
                 shapeOutput = {
@@ -255,11 +254,11 @@ open class ShapeParameters(
                                 "    radialToCartesian(1f, 150f.toRadians()).y)\n" +
                                 "RoundedPolygon(points, CornerRounding(" +
                                 "${this.roundness.floatValue}f, ${this.smooth.floatValue}f), " +
-                                "centerX = 0f, centerY = 0f)"
+                                "centerX = 0f, centerY = 0f)",
                     )
                 },
                 usesSides = false,
-                usesInnerParameters = false
+                usesInnerParameters = false,
             ),
             ShapeItem(
                 "Blob",
@@ -267,20 +266,10 @@ open class ShapeParameters(
                     val sx = this.innerRadius.floatValue.coerceAtLeast(0.1f)
                     val sy = this.roundness.floatValue.coerceAtLeast(0.1f)
                     RoundedPolygon(
-                        vertices =
-                            floatArrayOf(
-                                -sx,
-                                -sy,
-                                sx,
-                                -sy,
-                                sx,
-                                sy,
-                                -sx,
-                                sy,
-                            ),
+                        vertices = floatArrayOf(-sx, -sy, sx, -sy, sx, sy, -sx, sy),
                         rounding = CornerRounding(min(sx, sy), this.smooth.floatValue),
                         centerX = 0f,
-                        centerY = 0f
+                        centerY = 0f,
                     )
                 },
                 shapeOutput = {
@@ -296,11 +285,11 @@ open class ShapeParameters(
                                 "val verts = floatArrayOf(-sx, -sy, sx, -sy, sx, sy, -sx, sy)\n" +
                                 "RoundedPolygon(verts, rounding = CornerRounding(min(sx, sy), " +
                                 "${this.smooth.floatValue}f)," +
-                                "centerX = 0f, centerY = 0f)"
+                                "centerX = 0f, centerY = 0f)",
                     )
                 },
                 usesSides = false,
-                usesInnerParameters = false
+                usesInnerParameters = false,
             ),
             ShapeItem(
                 "CornerSE",
@@ -312,10 +301,10 @@ open class ShapeParameters(
                                 CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                                 CornerRounding(1f),
                                 CornerRounding(1f),
-                                CornerRounding(1f)
+                                CornerRounding(1f),
                             ),
                         centerX = 0f,
-                        centerY = 0f
+                        centerY = 0f,
                     )
                 },
                 shapeOutput = {
@@ -329,12 +318,12 @@ open class ShapeParameters(
                                 "perVertexRounding = listOf(CornerRounding(" +
                                 "${this.roundness.floatValue}f, ${this.smooth.floatValue}f), " +
                                 "CornerRounding(1f), CornerRounding(1f),  CornerRounding(1f))," +
-                                "centerX = 0f, centerY = 0f)"
+                                "centerX = 0f, centerY = 0f)",
                     )
                 },
                 usesSides = false,
                 usesInnerRatio = false,
-                usesInnerParameters = false
+                usesInnerParameters = false,
             ),
             ShapeItem(
                 "Circle",
@@ -344,7 +333,7 @@ open class ShapeParameters(
                             Matrix().apply {
                                 scale(
                                     x = this@ShapeParameters.width.floatValue,
-                                    y = this@ShapeParameters.height.floatValue
+                                    y = this@ShapeParameters.height.floatValue,
                                 )
                                 rotateX(rotation)
                             }
@@ -356,13 +345,13 @@ open class ShapeParameters(
                         roundness = this.roundness.floatValue,
                         smooth = this.smooth.floatValue,
                         rotation = this.rotation.floatValue,
-                        code = "RoundedPolygon.circle($sides)"
+                        code = "RoundedPolygon.circle($sides)",
                     )
                 },
                 usesSides = true,
                 usesInnerRatio = false,
                 usesWidthAndHeight = true,
-                usesInnerParameters = false
+                usesInnerParameters = false,
             ),
             ShapeItem(
                 "Rectangle",
@@ -370,8 +359,7 @@ open class ShapeParameters(
                     RoundedPolygon.rectangle(
                         width = 4f,
                         height = 2f,
-                        rounding =
-                            CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
+                        rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     )
                 },
                 shapeOutput = {
@@ -384,13 +372,13 @@ open class ShapeParameters(
                         code =
                             "RoundedPolygon.rectangle(width = 4f, height = 2f, " +
                                 "rounding = CornerRounding(" +
-                                "${this.roundness.floatValue}f, ${this.smooth.floatValue}f))"
+                                "${this.roundness.floatValue}f, ${this.smooth.floatValue}f))",
                     )
                 },
                 usesSides = false,
                 usesInnerRatio = false,
-                usesInnerParameters = false
-            )
+                usesInnerParameters = false,
+            ),
 
             /*
             TODO: Add quarty. Needs to be able to specify a rounding radius of up to 2f
@@ -414,7 +402,7 @@ open class ShapeParameters(
             this.pillStarFactor.floatValue,
             ShapeId.values()[this.shapeIx],
             this.splitProgress.floatValue,
-            this.customFeaturesOverlay.value.map { it }
+            this.customFeaturesOverlay.value.map { it },
         )
 
     enum class ShapeId {
@@ -426,7 +414,7 @@ open class ShapeParameters(
         Blob,
         CornerSE,
         Circle,
-        Rectangle
+        Rectangle,
     }
 
     fun serialized(): String =
@@ -503,7 +491,7 @@ open class ShapeParameters(
                     // Move the center to the origin.
                     translate(
                         x = -(bounds.left + bounds.right) / 2,
-                        y = -(bounds.top + bounds.bottom) / 2
+                        y = -(bounds.top + bounds.bottom) / 2,
                     )
 
                     // Scale to the [-1, 1] range
@@ -529,7 +517,7 @@ open class ShapeParameters(
             height = height.floatValue,
             pillStarFactor = pillStarFactor.floatValue,
             splitProgress = splitProgress.floatValue,
-            customFeaturesOverlay = customFeaturesOverlay.value
+            customFeaturesOverlay = customFeaturesOverlay.value,
         ) ==
             other.shapeDescription(
                 sides = other.sides.floatValue.toInt(),
@@ -543,13 +531,13 @@ open class ShapeParameters(
                 height = other.height.floatValue,
                 pillStarFactor = other.pillStarFactor.floatValue,
                 splitProgress = other.splitProgress.floatValue,
-                customFeaturesOverlay = other.customFeaturesOverlay.value
+                customFeaturesOverlay = other.customFeaturesOverlay.value,
             )
 
     private fun radialToCartesian(
         radius: Float,
         angleRadians: Float,
-        center: Offset = Offset.Zero
+        center: Offset = Offset.Zero,
     ) = directionVector(angleRadians) * radius + center
 }
 
@@ -568,7 +556,7 @@ class CustomShapeParameters(
     shapeId: ShapeId = ShapeId.Polygon,
     splitProgress: Float = 1.0f,
     customFeaturesOverlay: List<FeatureType> = listOf(),
-    private val shapegen: () -> RoundedPolygon
+    private val shapegen: () -> RoundedPolygon,
 ) :
     ShapeParameters(
         name,
@@ -584,7 +572,7 @@ class CustomShapeParameters(
         pillStarFactor,
         shapeId,
         splitProgress,
-        customFeaturesOverlay
+        customFeaturesOverlay,
     ) {
 
     override val isCustom: Boolean = true

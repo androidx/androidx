@@ -9,12 +9,11 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     implementation(libs.material)
 
     implementation(project(":compose:animation:animation"))
@@ -51,6 +50,4 @@ android {
         viewBinding = true
     }
     namespace = "androidx.compose.ui.demos"
-    // TODO(b/349411310)?
-    experimentalProperties["android.lint.useK2Uast"] = false
 }

@@ -108,7 +108,7 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
-        callback: Consumer<List<SplitInfo>>
+        callback: Consumer<List<SplitInfo>>,
     ) {
         if (splitInfoJobs.containsKey(callback)) {
             return
@@ -179,16 +179,13 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun setLaunchingActivityStack(
-        options: Bundle,
-        activityStack: ActivityStack,
-    ): Bundle {
+    override fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle {
         TODO("Not yet implemented")
     }
 
     override fun setOverlayCreateParams(
         options: Bundle,
-        overlayCreateParams: OverlayCreateParams
+        overlayCreateParams: OverlayCreateParams,
     ): Bundle {
         TODO("Not yet implemented")
     }
@@ -227,7 +224,7 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     override fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
-        overlayInfoCallback: Consumer<OverlayInfo>
+        overlayInfoCallback: Consumer<OverlayInfo>,
     ) {
         TODO("Not yet implemented")
     }
@@ -238,7 +235,7 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
 
     override fun addEmbeddedActivityWindowInfoCallbackForActivity(
         activity: Activity,
-        callback: Consumer<EmbeddedActivityWindowInfo>
+        callback: Consumer<EmbeddedActivityWindowInfo>,
     ) {
         TODO("Not yet implemented")
     }

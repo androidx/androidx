@@ -95,7 +95,7 @@ class AnimatedPlacementModifier(val scope: CoroutineScope) : OnPlacedModifier, L
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {

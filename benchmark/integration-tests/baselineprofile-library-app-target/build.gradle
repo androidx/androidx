@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
@@ -34,6 +34,5 @@ android {
 
 dependencies {
     implementation(project(":benchmark:integration-tests:baselineprofile-library-consumer"))
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
 }

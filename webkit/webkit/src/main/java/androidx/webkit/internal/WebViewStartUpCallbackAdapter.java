@@ -16,14 +16,14 @@
 
 package androidx.webkit.internal;
 
-import androidx.annotation.NonNull;
-import androidx.webkit.BlockingStartUpLocation;
+import androidx.webkit.StartUpLocation;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewStartUpResult;
 
 import org.chromium.support_lib_boundary.WebViewStartUpCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewStartUpResultBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+import org.jspecify.annotations.NonNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -36,11 +36,12 @@ import java.util.Objects;
  * Adapter between WebViewCompat.WebViewStartUpCallback and WebViewStartUpCallbackBoundaryInterface
  * (the corresponding interface shared with the support library glue in the WebView APK).
  */
+@WebViewCompat.ExperimentalAsyncStartUp
 public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoundaryInterface {
     private final WebViewCompat.WebViewStartUpCallback mWebViewStartUpCallback;
 
     public WebViewStartUpCallbackAdapter(
-            @NonNull WebViewCompat.WebViewStartUpCallback webViewStartUpCallback) {
+            WebViewCompat.@NonNull WebViewStartUpCallback webViewStartUpCallback) {
         mWebViewStartUpCallback = webViewStartUpCallback;
     }
 
@@ -56,10 +57,10 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
         mWebViewStartUpCallback.onSuccess(result);
     }
 
-    private static class BlockingStartUpLocationImpl implements BlockingStartUpLocation {
+    private static class StartUpLocationImpl implements StartUpLocation {
         private final Throwable mThrowable;
 
-        BlockingStartUpLocationImpl(Throwable t) {
+        StartUpLocationImpl(Throwable t) {
             mThrowable = t;
         }
 
@@ -67,6 +68,7 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
          * Gets the stack information depicting the code location.
          */
         @Override
+        @NonNull
         public String getStackInformation() {
             StringWriter sw = new StringWriter();
             mThrowable.printStackTrace(new PrintWriter(sw));
@@ -76,9 +78,20 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
 
     private WebViewStartUpResult webViewStartUpResultFromBoundaryInterface(
             @NonNull WebViewStartUpResultBoundaryInterface result) {
+        List<StartUpLocation> blockingStartUpLocations = convertFromThrowables(
+                result.getBlockingStartUpLocations());
+        List<StartUpLocation> asyncStartUpLocations;
+        if (WebViewFeatureInternal
+                .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
+            asyncStartUpLocations = convertFromThrowables(
+                    result.getAsyncStartUpLocations());
+        } else {
+            asyncStartUpLocations = null;
+        }
         return new WebViewStartUpResult() {
-            private final List<BlockingStartUpLocation> mBlockingStartUpLocations =
-                    convertFromThrowables(result.getBlockingStartUpLocations());
+            private final List<StartUpLocation> mBlockingStartUpLocations =
+                    blockingStartUpLocations;
+            private final List<StartUpLocation> mAsyncStartUpLocations = asyncStartUpLocations;
 
             @Override
             public Long getTotalTimeInUiThreadMillis() {
@@ -91,18 +104,22 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
             }
 
             @Override
-            public List<BlockingStartUpLocation> getBlockingStartUpLocations() {
+            public List<StartUpLocation> getUiThreadBlockingStartUpLocations() {
                 return mBlockingStartUpLocations;
             }
 
-            private List<BlockingStartUpLocation> convertFromThrowables(
-                    List<Throwable> throwables) {
-                List<BlockingStartUpLocation> blockingStartUpLocations = new ArrayList<>();
-                for (Throwable location: throwables) {
-                    blockingStartUpLocations.add(new BlockingStartUpLocationImpl(location));
-                }
-                return blockingStartUpLocations;
+            @Override
+            public List<StartUpLocation> getNonUiThreadBlockingStartUpLocations() {
+                return mAsyncStartUpLocations;
             }
         };
+    }
+    private List<StartUpLocation> convertFromThrowables(
+            List<Throwable> throwables) {
+        List<StartUpLocation> startUpLocations = new ArrayList<>();
+        for (Throwable location: throwables) {
+            startUpLocations.add(new StartUpLocationImpl(location));
+        }
+        return startUpLocations;
     }
 }

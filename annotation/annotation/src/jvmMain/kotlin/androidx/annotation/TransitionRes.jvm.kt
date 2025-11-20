@@ -26,6 +26,6 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.FIELD
+    AnnotationTarget.FIELD,
 )
 public annotation class TransitionRes

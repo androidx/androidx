@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -38,7 +39,6 @@ import android.provider.Browser;
 
 import androidx.annotation.ColorRes;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +46,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -53,6 +55,7 @@ import java.util.Locale;
  */
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CustomTabsIntentTest {
 
@@ -845,7 +848,6 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M /* getActiveNetwork requires api>=23 */)
     public void testBindNetworkToCustomTabs() {
         ConnectivityManager cm =
                 (ConnectivityManager) ApplicationProvider.getApplicationContext()
@@ -870,5 +872,217 @@ public class CustomTabsIntentTest {
                 .build()
                 .intent;
         assertTrue(intent.getBooleanExtra(CustomTabsIntent.EXTRA_ENABLE_EPHEMERAL_BROWSING, false));
+    }
+
+    @Test
+    public void testEnableCloseButtonInCustomTab() {
+        Intent intent = new CustomTabsIntent.Builder()
+                .setCloseButtonEnabled(true)
+                .build()
+                .intent;
+        assertTrue(CustomTabsIntent.isCloseButtonEnabled(intent));
+    }
+
+    @Test
+    public void testDisableCloseButtonInCustomTab() {
+        Intent intent = new CustomTabsIntent.Builder()
+                .setCloseButtonEnabled(false)
+                .build()
+                .intent;
+        assertFalse(CustomTabsIntent.isCloseButtonEnabled(intent));
+    }
+
+    @Test
+    public void testCloseButtonByDefaultInCustomTab() {
+        Bitmap icon = Bitmap.createBitmap(/* width= */ 16, /* height= */ 16,
+                    Bitmap.Config.ARGB_8888);
+        Intent intent = new CustomTabsIntent.Builder()
+                .setCloseButtonPosition(CustomTabsIntent.CLOSE_BUTTON_POSITION_START)
+                .setCloseButtonIcon(icon)
+                .build()
+                .intent;
+        assertTrue(CustomTabsIntent.isCloseButtonEnabled(intent));
+        assertEquals(CustomTabsIntent.CLOSE_BUTTON_POSITION_START,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_CLOSE_BUTTON_POSITION,
+                        CustomTabsIntent.CLOSE_BUTTON_POSITION_DEFAULT));
+        Bundle extras = intent.getExtras();
+        assertEquals(icon, (Bitmap) extras.getParcelable(CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON));
+    }
+
+    @Test
+    public void testOpenInBrowserButton() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertEquals(CustomTabsIntent.getOpenInBrowserButtonState(intent),
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_DEFAULT);
+
+        intent = new CustomTabsIntent.Builder().setOpenInBrowserButtonState(
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_ON).build().intent;
+        assertEquals(CustomTabsIntent.getOpenInBrowserButtonState(intent),
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_ON);
+
+        intent = new CustomTabsIntent.Builder().setOpenInBrowserButtonState(
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_OFF).build().intent;
+        assertEquals(CustomTabsIntent.getOpenInBrowserButtonState(intent),
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_OFF);
+
+        intent = new CustomTabsIntent.Builder().setOpenInBrowserButtonState(
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_DEFAULT).build().intent;
+        assertEquals(CustomTabsIntent.getOpenInBrowserButtonState(intent),
+                CustomTabsIntent.OPEN_IN_BROWSER_STATE_DEFAULT);
+
+        try {
+            new CustomTabsIntent.Builder().setOpenInBrowserButtonState(-1);
+            fail("The state value be higher than 0.");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setOpenInBrowserButtonState(
+                    CustomTabsIntent.OPEN_IN_BROWSER_STATE_OFF + 1);
+            fail("The state value should not be higher than the max value.");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void testAddCustomContentAction_singleAction() {
+        PendingIntent pendingIntent = TestUtil.makeMockPendingIntent();
+        CustomContentAction action = new CustomContentAction.Builder(
+                1, "Action 1", pendingIntent, CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE)
+                .build();
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .addCustomContentAction(action)
+                .build().intent;
+
+        assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_CUSTOM_CONTENT_ACTIONS));
+        ArrayList<Bundle> actionBundles = intent.getParcelableArrayListExtra(
+                CustomTabsIntent.EXTRA_CUSTOM_CONTENT_ACTIONS);
+        assertNotNull(actionBundles);
+        assertEquals(1, actionBundles.size());
+
+        CustomContentAction retrievedAction = CustomContentAction.fromBundle(actionBundles.get(0));
+        assertNotNull(retrievedAction);
+        assertEquals(action.getId(), retrievedAction.getId());
+        assertEquals(action.getLabel(), retrievedAction.getLabel());
+        assertEquals(pendingIntent, retrievedAction.getPendingIntent());
+    }
+
+    @Test
+    public void testAddCustomContentAction_multipleActions() {
+        PendingIntent pendingIntent1 = TestUtil.makeMockPendingIntent();
+        PendingIntent pendingIntent2 = TestUtil.makeMockPendingIntent();
+
+        CustomContentAction action1 = new CustomContentAction.Builder(
+                1, "Image Action", pendingIntent1, CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE)
+                .build();
+        CustomContentAction action2 = new CustomContentAction.Builder(
+                2, "Link Action", pendingIntent2, CustomTabsIntent.CONTENT_TARGET_TYPE_LINK)
+                .build();
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .addCustomContentAction(action1)
+                .addCustomContentAction(action2)
+                .build().intent;
+
+        ArrayList<Bundle> actionBundles = intent.getParcelableArrayListExtra(
+                CustomTabsIntent.EXTRA_CUSTOM_CONTENT_ACTIONS);
+        assertNotNull(actionBundles);
+        assertEquals(2, actionBundles.size());
+
+        List<CustomContentAction> retrievedActions = CustomTabsIntent.getCustomContentActions(
+                intent);
+        assertEquals(2, retrievedActions.size());
+        assertEquals(action1.getId(), retrievedActions.get(0).getId());
+        assertEquals(pendingIntent1, retrievedActions.get(0).getPendingIntent());
+        assertEquals(action2.getId(), retrievedActions.get(1).getId());
+        assertEquals(pendingIntent2, retrievedActions.get(1).getPendingIntent());
+    }
+
+    @Test
+    public void testAddCustomContentAction_duplicateId_throwsIllegalArgumentException() {
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        builder.addCustomContentAction(new CustomContentAction.Builder(
+                1, "Action 1", TestUtil.makeMockPendingIntent(),
+                CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE)
+                .build());
+        try {
+            builder.addCustomContentAction(new CustomContentAction.Builder(
+                    1, "Action 1 Duplicate", TestUtil.makeMockPendingIntent(),
+                    CustomTabsIntent.CONTENT_TARGET_TYPE_LINK)
+                    .build());
+            fail("Expected IllegalArgumentException for duplicate custom content action ID");
+        } catch (IllegalArgumentException e) {
+            // Expected
+            assertTrue(e.getMessage().contains("CustomContentAction with ID 1 already exists."));
+        }
+    }
+
+    @Test
+    public void testGetCustomContentActions_noActionsSet() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        List<CustomContentAction> actions = CustomTabsIntent.getCustomContentActions(intent);
+        assertNotNull(actions);
+        assertTrue(actions.isEmpty());
+        assertFalse(intent.hasExtra(CustomTabsIntent.EXTRA_CUSTOM_CONTENT_ACTIONS));
+    }
+
+    @Test
+    public void testGetCustomContentActions_actionsAreSet() {
+        PendingIntent pendingIntentLink = TestUtil.makeMockPendingIntent();
+        PendingIntent pendingIntentImage = TestUtil.makeMockPendingIntent();
+
+        CustomContentAction action1 = new CustomContentAction.Builder(
+                10, "Label1", pendingIntentLink, CustomTabsIntent.CONTENT_TARGET_TYPE_LINK)
+                .build();
+        CustomContentAction action2 = new CustomContentAction.Builder(
+                20, "Label2", pendingIntentImage, CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE)
+                .build();
+
+        Intent intent = new CustomTabsIntent.Builder()
+                .addCustomContentAction(action1)
+                .addCustomContentAction(action2)
+                .build().intent;
+
+        List<CustomContentAction> actions = CustomTabsIntent.getCustomContentActions(intent);
+        assertNotNull(actions);
+        assertEquals(2, actions.size());
+
+        assertEquals(10, actions.get(0).getId());
+        assertEquals("Label1", actions.get(0).getLabel());
+        assertEquals(CustomTabsIntent.CONTENT_TARGET_TYPE_LINK, actions.get(0).getTargetType());
+        assertEquals(pendingIntentLink, actions.get(0).getPendingIntent());
+
+        assertEquals(20, actions.get(1).getId());
+        assertEquals("Label2", actions.get(1).getLabel());
+        assertEquals(CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE, actions.get(1).getTargetType());
+        assertEquals(pendingIntentImage, actions.get(1).getPendingIntent());
+    }
+
+    @Test
+    public void testGetCustomContentActions_malformedBundleInList() {
+        ArrayList<Bundle> bundles = new ArrayList<>();
+        bundles.add(new CustomContentAction.Builder(1512, "Valid", TestUtil.makeMockPendingIntent(),
+                CustomTabsIntent.CONTENT_TARGET_TYPE_IMAGE).build().toBundle());
+        Bundle malformedBundle = new Bundle(); // Missing ID
+        malformedBundle.putString(CustomContentAction.KEY_LABEL, "Malformed");
+        bundles.add(malformedBundle);
+
+        Intent intent = new Intent();
+        intent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_CUSTOM_CONTENT_ACTIONS, bundles);
+
+        List<CustomContentAction> actions = CustomTabsIntent.getCustomContentActions(intent);
+        assertEquals(1, actions.size()); // Only the valid one should be parsed
+        assertEquals(1512, actions.get(0).getId());
+    }
+
+    @Test
+    public void testInitialNavigationAllowedToLeaveBrowser() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertFalse(CustomTabsIntent.isInitialNavigationAllowedToLeaveBrowser(intent));
+
+        intent = new CustomTabsIntent.Builder().setInitialNavigationAllowedToLeaveBrowser(
+                true).build().intent;
+        assertTrue(CustomTabsIntent.isInitialNavigationAllowedToLeaveBrowser(intent));
     }
 }

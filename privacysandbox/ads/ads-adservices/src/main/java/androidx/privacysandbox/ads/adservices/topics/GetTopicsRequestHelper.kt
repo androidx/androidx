@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
 
 /** Helper class to consolidate conversion logic for GetTopicsRequest. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-object GetTopicsRequestHelper {
+public object GetTopicsRequestHelper {
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertRequestWithRecordObservation(

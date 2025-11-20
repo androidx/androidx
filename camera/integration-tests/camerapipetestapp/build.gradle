@@ -18,24 +18,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    compileSdk = 35
-
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.camera.integration.camera2.pipe"
     }
-
-    sourceSets {
-        main.manifest.srcFile "src/main/AndroidManifest.xml"
-        main.java.srcDirs = ["src/main/java"]
-        main.java.excludes = ["**/build/**"]
-        main.java.includes = ["**/*.java"]
-        main.res.srcDirs = ["src/main/res"]
-    }
-
     buildTypes {
         release {
             minifyEnabled = true
@@ -49,7 +39,6 @@ android {
 
 dependencies {
     // Internal library
-    implementation(libs.kotlinStdlib)
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.1.0")
@@ -62,6 +51,12 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+
+    // Transitive dependencies
+    implementation 'androidx.lifecycle:lifecycle-common:2.8.7'
+    implementation libs.androidx.annotation
+    implementation libs.androidx.core
+    implementation libs.kotlinCoroutinesCore
 
     debugImplementation(libs.testCore)
 }

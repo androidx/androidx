@@ -32,9 +32,10 @@ class MdocFieldTest {
 
     @Test
     fun construction_success() {
-        val field = MdocField("org.iso.18013.5.1.age_over_21", true, setOf(FIELD_DISPLAY_DATA))
+        val field = MdocField("org.iso.18013.5.1", "age_over_21", true, setOf(FIELD_DISPLAY_DATA))
 
-        assertThat(field.fieldName).isEqualTo("org.iso.18013.5.1.age_over_21")
+        assertThat(field.namespace).isEqualTo("org.iso.18013.5.1")
+        assertThat(field.identifier).isEqualTo("age_over_21")
         assertThat((field.fieldValue) as Boolean).isTrue()
         assertThat(field.fieldDisplayPropertySet).containsExactly(FIELD_DISPLAY_DATA)
     }

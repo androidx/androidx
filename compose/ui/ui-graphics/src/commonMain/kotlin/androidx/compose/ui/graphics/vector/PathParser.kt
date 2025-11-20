@@ -42,6 +42,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
@@ -82,7 +83,7 @@ class PathParser {
     @Suppress("ConcreteCollection")
     fun pathStringToNodes(
         pathData: String,
-        @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList()
+        @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList(),
     ): ArrayList<PathNode> {
         var start = 0
         var end = pathData.length
@@ -118,14 +119,31 @@ class PathParser {
                 if ((command.code or 0x20) != 'z'.code) {
                     dataCount = 0
 
-                    do {
-                        // Skip any whitespace
-                        while (index < end && pathData[index] <= ' ') index++
+                    // After a command code, there can only be whitespaces (but they are
+                    // optional).
+                    while (index < end && pathData[index] <= ' ') index++
 
+                    val isThisAnArcCommand = (command.code or 0x20) == 'a'.code
+
+                    // To track how many floats we have read for this command
+                    val count = dataCount
+
+                    do {
                         // Find the next float and add it to the data array if we got a valid result
                         // An invalid result could be a malformed float, or simply that we reached
                         // the end of the list of floats
-                        val result = nextFloat(pathData, index, end)
+                        // If this is an elliptical arc command (a or A), the large-arc-flag and
+                        // sweep-flag may be clubbed together with x.
+                        // w3 Spec: https://www.w3.org/TR/SVG2/paths.html#PathDataBNF
+                        // Read them at 3rd & 4th position as they will always be of length 1
+
+                        val result =
+                            if (isThisAnArcCommand && (dataCount - count in 3..4)) {
+                                // read a flag
+                                nextFloat(pathData, index, min(index + 1, end))
+                            } else {
+                                nextFloat(pathData, index, end)
+                            }
                         index = result.index
                         val value = result.floatValue
 
@@ -135,8 +153,17 @@ class PathParser {
                             resizeNodeData(dataCount)
                         }
 
-                        // Skip any commas
-                        while (index < end && pathData[index] == ',') index++
+                        // After a number, there can be whitespaces or a comma. The whitespaces
+                        // can come before or after the comma. The comma is optional, but there
+                        // must be at least 1 whitespace if the comma is not present. We keep
+                        // our parsing simple here and allow multiple commas to appears, including
+                        // after the last parameter of a command. This is more lenient than the
+                        // official specification but this won't reject any correctly formed SVG
+                        // path string.
+                        // SVG path grammar reference: https://www.w3.org/TR/SVG2/paths.html
+                        while (index < end && (pathData[index] <= ' ' || pathData[index] == ',')) {
+                            index++
+                        }
                     } while (index < end && !value.isNaN())
                 }
 
@@ -281,7 +308,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.dx1,
                     node.dy1,
                     node.dx2,
-                    node.dy2
+                    node.dy2,
                 )
                 ctrlX = currentX + node.dx1
                 ctrlY = currentY + node.dy1
@@ -357,7 +384,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.verticalEllipseRadius.toDouble(),
                     node.theta.toDouble(),
                     node.isMoreThanHalf,
-                    node.isPositiveArc
+                    node.isPositiveArc,
                 )
                 currentX = arcStartX
                 currentY = arcStartY
@@ -375,7 +402,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.verticalEllipseRadius.toDouble(),
                     node.theta.toDouble(),
                     node.isMoreThanHalf,
-                    node.isPositiveArc
+                    node.isPositiveArc,
                 )
                 currentX = node.arcStartX
                 currentY = node.arcStartY
@@ -398,7 +425,7 @@ private fun drawArc(
     b: Double,
     theta: Double,
     isMoreThanHalf: Boolean,
-    isPositiveArc: Boolean
+    isPositiveArc: Boolean,
 ) {
 
     /* Convert rotation angle from degrees to radians */
@@ -488,7 +515,7 @@ private fun arcToBezier(
     e1y: Double,
     theta: Double,
     start: Double,
-    sweep: Double
+    sweep: Double,
 ) {
     var eta1x = e1x
     var eta1y = e1y
@@ -532,7 +559,7 @@ private fun arcToBezier(
             q2x.toFloat(),
             q2y.toFloat(),
             e2x.toFloat(),
-            e2y.toFloat()
+            e2y.toFloat(),
         )
         eta1 = eta2
         eta1x = e2x

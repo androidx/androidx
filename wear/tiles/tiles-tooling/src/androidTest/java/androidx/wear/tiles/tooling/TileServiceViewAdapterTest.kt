@@ -34,9 +34,7 @@ private const val TEST_TILE_PREVIEWS_KOTLIN_FILE = "androidx.wear.tiles.tooling.
 private const val TEST_TILE_PREVIEWS_JAVA_FILE = "androidx.wear.tiles.tooling.TestTilePreviews"
 
 @RunWith(Parameterized::class)
-class TileServiceViewAdapterTest(
-    private val testFile: String,
-) {
+class TileServiceViewAdapterTest(private val testFile: String) {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityTestRule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
@@ -49,9 +47,7 @@ class TileServiceViewAdapterTest(
             activityTestRule.activity.findViewById(R.id.tile_service_view_adapter)
     }
 
-    private fun initAndInflate(
-        methodFqn: String,
-    ) {
+    private fun initAndInflate(methodFqn: String) {
         activityTestRule.runOnUiThread {
             tileServiceViewAdapter.init(methodFqn)
             tileServiceViewAdapter.requestLayout()
@@ -191,11 +187,7 @@ class TileServiceViewAdapterTest(
     companion object {
         @Parameterized.Parameters
         @JvmStatic
-        fun parameters() =
-            listOf(
-                TEST_TILE_PREVIEWS_KOTLIN_FILE,
-                TEST_TILE_PREVIEWS_JAVA_FILE,
-            )
+        fun parameters() = listOf(TEST_TILE_PREVIEWS_KOTLIN_FILE, TEST_TILE_PREVIEWS_JAVA_FILE)
 
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {

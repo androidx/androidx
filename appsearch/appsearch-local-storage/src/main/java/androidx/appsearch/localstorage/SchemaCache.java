@@ -18,6 +18,8 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.app.PropertyPath;
+import androidx.appsearch.checker.initialization.qual.UnknownInitialization;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
@@ -68,6 +71,15 @@ public class SchemaCache {
      */
     private final Map<String, Map<String, List<String>>>
             mSchemaChildToTransitiveUnprefixedParentsMap = new ArrayMap<>();
+
+    /**
+     * An in-memory cache of property paths, keyed by prefixed schema type, that point to
+     * {@link androidx.appsearch.app.AppSearchAccount} property paths.
+     *
+     * <p>This map is used for runtime validation of documents. It is rebuilt from schema
+     * information during {@code getSchema} calls.
+     */
+    private final Map<String, Set<String>> mPrefixedAccountPropertyPaths = new ArrayMap<>();
 
     public SchemaCache() {
     }
@@ -130,7 +142,7 @@ public class SchemaCache {
         Set<String> visited = new ArraySet<>();
         Queue<String> prefixedSchemaQueue = new ArrayDeque<>(prefixedSchemaTypes);
         while (!prefixedSchemaQueue.isEmpty()) {
-            String currentPrefixedSchema = prefixedSchemaQueue.poll();
+            String currentPrefixedSchema = Objects.requireNonNull(prefixedSchemaQueue.poll());
             if (visited.contains(currentPrefixedSchema)) {
                 continue;
             }
@@ -171,6 +183,11 @@ public class SchemaCache {
         }
     }
 
+    /**  Add all the prefixed schema types with account {@link PropertyPath}s . */
+    public @NonNull Map<String, Set<String>> getPrefixedAccountPropertyPaths() {
+        return mPrefixedAccountPropertyPaths;
+    }
+
     /**
      * Rebuilds the schema parent-to-children and child-to-parents maps for the given prefix,
      * based on the current schema map.
@@ -180,13 +197,15 @@ public class SchemaCache {
      * results from {@link #getSchemaTypesWithDescendants} and
      * {@link #getTransitiveUnprefixedParentSchemaTypes} would be stale.
      */
-    public void rebuildCacheForPrefix(@NonNull String prefix)
+    public void rebuildCacheForPrefix(
+            @UnknownInitialization SchemaCache this, @NonNull String prefix)
             throws AppSearchException {
         Preconditions.checkNotNull(prefix);
 
-        mSchemaParentToChildrenMap.remove(prefix);
-        mSchemaChildToTransitiveUnprefixedParentsMap.remove(prefix);
-        Map<String, SchemaTypeConfigProto> prefixedSchemaMap = mSchemaMap.get(prefix);
+        Objects.requireNonNull(mSchemaParentToChildrenMap).remove(prefix);
+        Objects.requireNonNull(mSchemaChildToTransitiveUnprefixedParentsMap).remove(prefix);
+        Map<String, SchemaTypeConfigProto> prefixedSchemaMap =
+            Objects.requireNonNull(mSchemaMap).get(prefix);
         if (prefixedSchemaMap == null) {
             return;
         }
@@ -206,7 +225,7 @@ public class SchemaCache {
         }
         // Record the map for the current prefix.
         if (!parentToChildrenMap.isEmpty()) {
-            mSchemaParentToChildrenMap.put(prefix, parentToChildrenMap);
+            Objects.requireNonNull(mSchemaParentToChildrenMap).put(prefix, parentToChildrenMap);
         }
 
         // If the flag is on, build the child-to-parent maps as caches. Otherwise, this
@@ -240,10 +259,11 @@ public class SchemaCache {
      * results from {@link #getSchemaTypesWithDescendants} and
      * {@link #getTransitiveUnprefixedParentSchemaTypes} would be stale.
      */
-    public void rebuildCache() throws AppSearchException {
-        mSchemaParentToChildrenMap.clear();
-        mSchemaChildToTransitiveUnprefixedParentsMap.clear();
-        for (String prefix : mSchemaMap.keySet()) {
+    public void rebuildCache(
+            @UnknownInitialization SchemaCache this) throws AppSearchException {
+        Objects.requireNonNull(mSchemaParentToChildrenMap).clear();
+        Objects.requireNonNull(mSchemaChildToTransitiveUnprefixedParentsMap).clear();
+        for (String prefix : Objects.requireNonNull(mSchemaMap).keySet()) {
             rebuildCacheForPrefix(prefix);
         }
     }
@@ -266,6 +286,12 @@ public class SchemaCache {
             mSchemaMap.put(prefix, schemaTypeMap);
         }
         schemaTypeMap.put(schemaTypeConfigProto.getSchemaType(), schemaTypeConfigProto);
+    }
+
+    /**  Add the account {@link PropertyPath} for the given prefixed schema type. */
+    public void addToSchemasWipeoutAccountPropertyPaths(@NonNull String prefixedSchemaType,
+            @NonNull Set<String> accountPropertyPaths) {
+        mPrefixedAccountPropertyPaths.put(prefixedSchemaType, accountPropertyPaths);
     }
 
     /**

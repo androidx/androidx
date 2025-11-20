@@ -17,34 +17,25 @@
 package androidx.build.dependencyTracker
 
 import java.io.Serializable
-import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.logging.Logger
 
 /**
  * Utility class that traverses all project dependencies and discover which modules depend on each
  * other. This is mainly used by [AffectedModuleDetector] to find out which projects should be run.
+ *
+ * @param dependentList A map from a project to the list of projects that depend on it. e.g. if
+ *   project A depends on B, it is stored as B -> {A}.
  */
-class DependencyTracker(rootProject: Project, logger: Logger?) : Serializable {
-    private val dependentList: Map<String, Set<String>>
-
+class DependencyTracker(private val dependentList: Map<String, Set<String>>, logger: Logger?) :
+    Serializable {
     init {
-        val result = mutableMapOf<String, MutableSet<String>>()
         val stringBuilder = StringBuilder()
-        rootProject.subprojects.forEach { project ->
-            project.configurations.forEach { config ->
-                config.dependencies.filterIsInstance<ProjectDependency>().forEach {
-                    stringBuilder.append(
-                        "there is a dependency from ${project.path} (${config.name}) to " +
-                            it.path +
-                            "\n"
-                    )
-                    result.getOrPut(it.path) { mutableSetOf() }.add(project.path)
-                }
+        dependentList.forEach { (project, dependents) ->
+            dependents.forEach { dependent ->
+                stringBuilder.append("there is a dependency from $dependent to $project\n")
             }
         }
         logger?.info(stringBuilder.toString())
-        dependentList = result
     }
 
     fun findAllDependents(projectPath: String): Set<String> {

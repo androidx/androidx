@@ -19,8 +19,6 @@ package androidx.camera.testing.mocks;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-import android.os.Build;
-
 import androidx.camera.testing.impl.mocks.MockObserver;
 import androidx.camera.testing.impl.mocks.helpers.CallTimes;
 
@@ -35,7 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class MockObserverTest {
     private static final Object DUMMY_NEW_DATA = new Object();
     private static final Object DUMMY_NEW_DATA_2 = new Object();

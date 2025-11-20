@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.vectordrawable.graphics.drawable {
 
   public interface Animatable2Compat extends android.graphics.drawable.Animatable {
@@ -21,15 +21,15 @@ package androidx.vectordrawable.graphics.drawable {
     method public void draw(android.graphics.Canvas!);
     method public int getOpacity();
     method public boolean isRunning();
-    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public static void registerAnimationCallback(android.graphics.drawable.Drawable!, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback!);
+    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter!);
     method public void setColorFilter(int, android.graphics.PorterDuff.Mode!);
     method public void start();
     method public void stop();
-    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
     method public static boolean unregisterAnimationCallback(android.graphics.drawable.Drawable!, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback!);
+    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback);
   }
 
 }

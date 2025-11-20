@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -21,16 +22,13 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 
 package androidx.collection
 
-import androidx.collection.internal.EMPTY_OBJECTS
-import androidx.collection.internal.requirePrecondition
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
-import kotlin.math.max
 
 // A "flat" hash map based on abseil's flat_hash_map
 // (see https://abseil.io/docs/cpp/guides/container). Unlike its C++
@@ -177,7 +175,7 @@ internal val EmptyGroup =
     longArrayOf(
         // NOTE: the first byte in the array's logical order is in the LSB
         -0x7f7f7f7f_7f7f7f01L, // Sentinel, Empty, Empty... or 0xFF80808080808080UL
-        -1L // 0xFFFFFFFFFFFFFFFFUL
+        -1L, // 0xFFFFFFFFFFFFFFFFUL
     )
 
 // Width of a group, in bytes. Since we can only use types as large as
@@ -218,6 +216,24 @@ public fun <K, V> mutableScatterMapOf(vararg pairs: Pair<K, V>): MutableScatterM
     MutableScatterMap<K, V>(pairs.size).apply { putAll(pairs) }
 
 /**
+ * Returns a new [MutableScatterMap] with the same mappings as the specified [Map].
+ *
+ * The [MutableScatterMap] is created an initial capacity sufficient to hold the mappings in the
+ * specified [Map].
+ */
+public fun <K, V> MutableScatterMap(from: Map<K, V>): MutableScatterMap<K, V> =
+    MutableScatterMap<K, V>(from.size).apply { putAll(from) }
+
+/**
+ * Returns a new [MutableScatterMap] with the same mappings as the specified [ScatterMap].
+ *
+ * The [MutableScatterMap] is created an initial capacity sufficient to hold the mappings in the
+ * specified [Map].
+ */
+public fun <K, V> MutableScatterMap(from: ScatterMap<K, V>): MutableScatterMap<K, V> =
+    MutableScatterMap<K, V>(from.size).apply { putAll(from) }
+
+/**
  * [ScatterMap] is a container with a [Map]-like interface based on a flat hash table implementation
  * (the key/value mappings are not stored by nodes but directly into arrays). The underlying
  * implementation is designed to avoid all allocations on insertion, removal, retrieval, and
@@ -247,166 +263,82 @@ public fun <K, V> mutableScatterMapOf(vararg pairs: Pair<K, V>): MutableScatterM
  * can also control memory usage with [MutableScatterMap] by manually calling
  * [MutableScatterMap.trim].
  *
+ * **Note**: For the JS target the implementation delegates to a regular map.
+ *
  * @see [MutableScatterMap]
  */
-public sealed class ScatterMap<K, V> {
-    // NOTE: Our arrays are marked internal to implement inlined forEach{}
-    // The backing array for the metadata bytes contains
-    // `capacity + 1 + ClonedMetadataCount` entries, including when
-    // the table is empty (see [EmptyGroup]).
-    @PublishedApi @JvmField internal var metadata: LongArray = EmptyGroup
-
-    @PublishedApi @JvmField internal var keys: Array<Any?> = EMPTY_OBJECTS
-
-    @PublishedApi @JvmField internal var values: Array<Any?> = EMPTY_OBJECTS
-
-    // We use a backing field for capacity to avoid invokevirtual calls
-    // every time we need to look at the capacity
-    @JvmField internal var _capacity: Int = 0
-
+public expect sealed class ScatterMap<K, V> {
     /**
      * Returns the number of key-value pairs that can be stored in this map without requiring
      * internal storage reallocation.
      */
     public val capacity: Int
-        get() = _capacity
-
-    // We use a backing field for capacity to avoid invokevirtual calls
-    // every time we need to look at the size
-    @JvmField internal var _size: Int = 0
 
     /** Returns the number of key-value pairs in this map. */
     public val size: Int
-        get() = _size
 
     /** Returns `true` if this map has at least one entry. */
-    public fun any(): Boolean = _size != 0
+    public fun any(): Boolean
 
     /** Returns `true` if this map has no entries. */
-    public fun none(): Boolean = _size == 0
+    public fun none(): Boolean
 
     /** Indicates whether this map is empty. */
-    public fun isEmpty(): Boolean = _size == 0
+    public fun isEmpty(): Boolean
 
     /** Returns `true` if this map is not empty. */
-    public fun isNotEmpty(): Boolean = _size != 0
+    public fun isNotEmpty(): Boolean
 
     /**
      * Returns the value corresponding to the given [key], or `null` if such a key is not present in
      * the map.
      */
-    public operator fun get(key: K): V? {
-        val index = findKeyIndex(key)
-        @Suppress("UNCHECKED_CAST") return if (index >= 0) values[index] as V? else null
-    }
+    public operator fun get(key: K): V?
 
     /**
      * Returns the value to which the specified [key] is mapped, or [defaultValue] if this map
      * contains no mapping for the key.
      */
-    public fun getOrDefault(key: K, defaultValue: V): V {
-        val index = findKeyIndex(key)
-        if (index >= 0) {
-            @Suppress("UNCHECKED_CAST") return values[index] as V
-        }
-        return defaultValue
-    }
+    public fun getOrDefault(key: K, defaultValue: V): V
 
     /**
      * Returns the value for the given [key] if the value is present and not null. Otherwise,
      * returns the result of the [defaultValue] function.
      */
-    public inline fun getOrElse(key: K, defaultValue: () -> V): V {
-        return get(key) ?: defaultValue()
-    }
+    public inline fun getOrElse(key: K, defaultValue: () -> V): V
 
     /**
      * Iterates over every key/value pair stored in this map by invoking the specified [block]
      * lambda.
      */
-    @PublishedApi
-    internal inline fun forEachIndexed(block: (index: Int) -> Unit) {
-        val m = metadata
-        val lastIndex = m.size - 2 // We always have 0 or at least 2 entries
-
-        for (i in 0..lastIndex) {
-            var slot = m[i]
-            if (slot.maskEmptyOrDeleted() != BitmaskMsb) {
-                // Branch-less if (i == lastIndex) 7 else 8
-                // i - lastIndex returns a negative value when i < lastIndex,
-                // so 1 is set as the MSB. By inverting and shifting we get
-                // 0 when i < lastIndex, 1 otherwise.
-                val bitCount = 8 - ((i - lastIndex).inv() ushr 31)
-                for (j in 0 until bitCount) {
-                    if (isFull(slot and 0xffL)) {
-                        val index = (i shl 3) + j
-                        block(index)
-                    }
-                    slot = slot shr 8
-                }
-                if (bitCount != 8) return
-            }
-        }
-    }
-
-    /**
-     * Iterates over every key/value pair stored in this map by invoking the specified [block]
-     * lambda.
-     */
-    public inline fun forEach(block: (key: K, value: V) -> Unit) {
-        val k = keys
-        val v = values
-
-        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(k[index] as K, v[index] as V) }
-    }
+    public inline fun forEach(block: (key: K, value: V) -> Unit)
 
     /** Iterates over every key stored in this map by invoking the specified [block] lambda. */
-    public inline fun forEachKey(block: (key: K) -> Unit) {
-        val k = keys
-
-        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(k[index] as K) }
-    }
+    public inline fun forEachKey(block: (key: K) -> Unit)
 
     /** Iterates over every value stored in this map by invoking the specified [block] lambda. */
-    public inline fun forEachValue(block: (value: V) -> Unit) {
-        val v = values
-
-        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(v[index] as V) }
-    }
+    public inline fun forEachValue(block: (value: V) -> Unit)
 
     /** Returns true if all entries match the given [predicate]. */
-    public inline fun all(predicate: (K, V) -> Boolean): Boolean {
-        forEach { key, value -> if (!predicate(key, value)) return false }
-        return true
-    }
+    public inline fun all(predicate: (K, V) -> Boolean): Boolean
 
     /** Returns true if at least one entry matches the given [predicate]. */
-    public inline fun any(predicate: (K, V) -> Boolean): Boolean {
-        forEach { key, value -> if (predicate(key, value)) return true }
-        return false
-    }
+    public inline fun any(predicate: (K, V) -> Boolean): Boolean
 
     /** Returns the number of entries in this map. */
-    public fun count(): Int = size
+    public fun count(): Int
 
     /** Returns the number of entries matching the given [predicate]. */
-    public inline fun count(predicate: (K, V) -> Boolean): Int {
-        var count = 0
-        forEach { key, value -> if (predicate(key, value)) count++ }
-        return count
-    }
+    public inline fun count(predicate: (K, V) -> Boolean): Int
 
     /** Returns true if the specified [key] is present in this hash map, false otherwise. */
-    public operator fun contains(key: K): Boolean = findKeyIndex(key) >= 0
+    public operator fun contains(key: K): Boolean
 
     /** Returns true if the specified [key] is present in this hash map, false otherwise. */
-    public fun containsKey(key: K): Boolean = findKeyIndex(key) >= 0
+    public fun containsKey(key: K): Boolean
 
     /** Returns true if the specified [value] is present in this hash map, false otherwise. */
-    public fun containsValue(value: V): Boolean {
-        forEachValue { v -> if (value == v) return true }
-        return false
-    }
+    public fun containsValue(value: V): Boolean
 
     /**
      * Creates a String from the elements separated by [separator] and using [prefix] before and
@@ -418,48 +350,20 @@ public sealed class ScatterMap<K, V> {
      *
      * [transform] may be supplied to convert each element to a custom String.
      */
-    @JvmOverloads
     public fun joinToString(
         separator: CharSequence = ", ",
         prefix: CharSequence = "",
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        transform: ((key: K, value: V) -> CharSequence)? = null
-    ): String = buildString {
-        append(prefix)
-        var index = 0
-        this@ScatterMap.forEach { key, value ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
-            }
-            if (index != 0) {
-                append(separator)
-            }
-            if (transform == null) {
-                append(key)
-                append('=')
-                append(value)
-            } else {
-                append(transform(key, value))
-            }
-            index++
-        }
-        append(postfix)
-    }
+        transform: ((key: K, value: V) -> CharSequence)? = null,
+    ): String
 
     /**
      * Returns the hash code value for this map. The hash code the sum of the hash codes of each
      * key/value pair.
      */
-    public override fun hashCode(): Int {
-        var hash = 0
-
-        forEach { key, value -> hash += key.hashCode() xor value.hashCode() }
-
-        return hash
-    }
+    public override fun hashCode(): Int
 
     /**
      * Compares the specified object [other] with this hash map for equality. The two objects are
@@ -468,118 +372,14 @@ public sealed class ScatterMap<K, V> {
      * - Has the same [size] as this map
      * - Contains key/value pairs equal to this map's pair
      */
-    public override fun equals(other: Any?): Boolean {
-        if (other === this) {
-            return true
-        }
-
-        if (other !is ScatterMap<*, *>) {
-            return false
-        }
-        if (other.size != size) {
-            return false
-        }
-
-        @Suppress("UNCHECKED_CAST") val o = other as ScatterMap<Any?, Any?>
-
-        forEach { key, value ->
-            if (value == null) {
-                if (o[key] != null || !o.containsKey(key)) {
-                    return false
-                }
-            } else if (value != o[key]) {
-                return false
-            }
-        }
-
-        return true
-    }
+    public override fun equals(other: Any?): Boolean
 
     /**
      * Returns a string representation of this map. The map is denoted in the string by the `{}`.
      * Each key/value pair present in the map is represented inside '{}` by a substring of the form
      * `key=value`, and pairs are separated by `, `.
      */
-    public override fun toString(): String {
-        if (isEmpty()) {
-            return "{}"
-        }
-
-        val s = StringBuilder().append('{')
-        var i = 0
-        forEach { key, value ->
-            s.append(if (key === this) "(this)" else key)
-            s.append("=")
-            s.append(if (value === this) "(this)" else value)
-            i++
-            if (i < _size) {
-                s.append(',').append(' ')
-            }
-        }
-
-        return s.append('}').toString()
-    }
-
-    internal fun asDebugString(): String = buildString {
-        append('{')
-        append("metadata=[")
-        for (i in 0 until capacity) {
-            when (val metadata = readRawMetadata(metadata, i)) {
-                Empty -> append("Empty")
-                Deleted -> append("Deleted")
-                else -> append(metadata)
-            }
-            append(", ")
-        }
-        append("], ")
-        append("keys=[")
-        for (i in keys.indices) {
-            append(keys[i])
-            append(", ")
-        }
-        append("], ")
-        append("values=[")
-        for (i in values.indices) {
-            append(values[i])
-            append(", ")
-        }
-        append("]")
-        append('}')
-    }
-
-    /**
-     * Scans the hash table to find the index in the backing arrays of the specified [key]. Returns
-     * -1 if the key is not present.
-     */
-    internal inline fun findKeyIndex(key: K): Int {
-        val hash = hash(key)
-        val hash2 = h2(hash)
-
-        val probeMask = _capacity
-        var probeOffset = h1(hash) and probeMask
-        var probeIndex = 0
-
-        while (true) {
-            val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
-                if (keys[index] == key) {
-                    return index
-                }
-                m = m.next()
-            }
-
-            if (g.maskEmpty() != 0L) {
-                break
-            }
-
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
-
-        return -1
-    }
+    public override fun toString(): String
 
     /**
      * Wraps this [ScatterMap] with a [Map] interface. The [Map] is backed by the [ScatterMap], so
@@ -591,7 +391,7 @@ public sealed class ScatterMap<K, V> {
      * [Map] implementation returned by this method tries to be as efficient as possible, the
      * semantics of [Map] may require the allocation of temporary objects for access and iteration.
      */
-    public fun asMap(): Map<K, V> = MapWrapper(this)
+    public fun asMap(): Map<K, V>
 }
 
 /**
@@ -624,64 +424,23 @@ public sealed class ScatterMap<K, V> {
  * automatically shrinks its storage to avoid using more memory than necessary. You can also control
  * memory usage with [MutableScatterMap] by manually calling [MutableScatterMap.trim].
  *
+ * **Note**: For the JS target the implementation delegates to a regular map.
+ *
  * @param initialCapacity The initial desired capacity for this container. The container will honor
  *   this value by guaranteeing its internal structures can hold that many entries without requiring
  *   any allocations. The initial capacity can be set to 0.
  * @constructor Creates a new [MutableScatterMap]
  * @see Map
  */
-public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapacity) :
-    ScatterMap<K, V>() {
-    // Number of entries we can add before we need to grow
-    private var growthLimit = 0
-
-    init {
-        requirePrecondition(initialCapacity >= 0) { "Capacity must be a positive value." }
-        initializeStorage(unloadedCapacity(initialCapacity))
-    }
-
-    private fun initializeStorage(initialCapacity: Int) {
-        val newCapacity =
-            if (initialCapacity > 0) {
-                // Since we use longs for storage, our capacity is never < 7, enforce
-                // it here. We do have a special case for 0 to create small empty maps
-                max(7, normalizeCapacity(initialCapacity))
-            } else {
-                0
-            }
-        _capacity = newCapacity
-        initializeMetadata(newCapacity)
-        keys = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
-        values = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
-    }
-
-    private fun initializeMetadata(capacity: Int) {
-        metadata =
-            if (capacity == 0) {
-                EmptyGroup
-            } else {
-                // Round up to the next multiple of 8 and find how many longs we need
-                val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
-                LongArray(size).apply {
-                    fill(AllEmpty)
-                    writeRawMetadata(this, capacity, Sentinel)
-                }
-            }
-        initializeGrowth()
-    }
-
-    private fun initializeGrowth() {
-        growthLimit = loadedCapacity(capacity) - _size
-    }
+public expect class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapacity) :
+    ScatterMap<K, V> {
 
     /**
      * Returns the value to which the specified [key] is mapped, if the value is present in the map
      * and not `null`. Otherwise, calls `defaultValue()` and puts the result in the map associated
      * with [key].
      */
-    public inline fun getOrPut(key: K, defaultValue: () -> V): V {
-        return get(key) ?: defaultValue().also { set(key, it) }
-    }
+    public inline fun getOrPut(key: K, defaultValue: () -> V): V
 
     /**
      * Retrieves a value for [key] and computes a new value based on the existing value (or `null`
@@ -690,23 +449,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      *
      * @return value computed by `computeBlock`.
      */
-    public inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): V {
-        val index = findInsertIndex(key)
-        val inserting = index < 0
-
-        @Suppress("UNCHECKED_CAST")
-        val computedValue = computeBlock(key, if (inserting) null else values[index] as V)
-
-        // Skip Array.set() if key is already there
-        if (inserting) {
-            val insertionIndex = index.inv()
-            keys[insertionIndex] = key
-            values[insertionIndex] = computedValue
-        } else {
-            values[index] = computedValue
-        }
-        return computedValue
-    }
+    public inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): V
 
     /**
      * Creates a new mapping from [key] to [value] in this map. If [key] is already present in the
@@ -714,11 +457,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      * [value]. If [key] is not present, a new entry is added to the map, which may require to grow
      * the underlying storage and cause allocations.
      */
-    public operator fun set(key: K, value: V) {
-        val index = findInsertIndex(key).let { index -> if (index < 0) index.inv() else index }
-        keys[index] = key
-        values[index] = value
-    }
+    public operator fun set(key: K, value: V)
 
     /**
      * Creates a new mapping from [key] to [value] in this map. If [key] is already present in the
@@ -727,255 +466,97 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      * the underlying storage and cause allocations. Return the previous value associated with the
      * [key], or `null` if the key was not present in the map.
      */
-    public fun put(key: K, value: V): V? {
-        val index = findInsertIndex(key).let { index -> if (index < 0) index.inv() else index }
-        val oldValue = values[index]
-        keys[index] = key
-        values[index] = value
-
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
-    }
+    public fun put(key: K, value: V): V?
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
+    public fun putAll(@Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>)
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public fun putAll(pairs: Iterable<Pair<K, V>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
+    public fun putAll(pairs: Iterable<Pair<K, V>>)
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public fun putAll(pairs: Sequence<Pair<K, V>>) {
-        for ((key, value) in pairs) {
-            this[key] = value
-        }
-    }
+    public fun putAll(pairs: Sequence<Pair<K, V>>)
 
     /** Puts all the key/value mappings in the [from] map into this map. */
-    public fun putAll(from: Map<K, V>) {
-        from.forEach { (key, value) -> this[key] = value }
-    }
+    public fun putAll(from: Map<K, V>)
 
     /** Puts all the key/value mappings in the [from] map into this map. */
-    public fun putAll(from: ScatterMap<K, V>) {
-        from.forEach { key, value -> this[key] = value }
-    }
+    public fun putAll(from: ScatterMap<K, V>)
 
     /**
      * Puts the key/value mapping from the [pair] in this map, using the first element as the key,
      * and the second element as the value.
      */
-    public inline operator fun plusAssign(pair: Pair<K, V>) {
-        this[pair.first] = pair.second
-    }
+    public inline operator fun plusAssign(pair: Pair<K, V>)
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public inline operator fun plusAssign(
-        @Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>
-    ): Unit = putAll(pairs)
+    public inline operator fun plusAssign(@Suppress("ArrayReturn") pairs: Array<out Pair<K, V>>)
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public inline operator fun plusAssign(pairs: Iterable<Pair<K, V>>): Unit = putAll(pairs)
+    public inline operator fun plusAssign(pairs: Iterable<Pair<K, V>>)
 
     /**
      * Puts all the [pairs] into this map, using the first component of the pair as the key, and the
      * second component as the value.
      */
-    public inline operator fun plusAssign(pairs: Sequence<Pair<K, V>>): Unit = putAll(pairs)
+    public inline operator fun plusAssign(pairs: Sequence<Pair<K, V>>)
 
     /** Puts all the key/value mappings in the [from] map into this map. */
-    public inline operator fun plusAssign(from: Map<K, V>): Unit = putAll(from)
+    public inline operator fun plusAssign(from: Map<K, V>)
 
     /** Puts all the key/value mappings in the [from] map into this map. */
-    public inline operator fun plusAssign(from: ScatterMap<K, V>): Unit = putAll(from)
+    public inline operator fun plusAssign(from: ScatterMap<K, V>)
 
     /**
      * Removes the specified [key] and its associated value from the map. If the [key] was present
      * in the map, this function returns the value that was present before removal.
      */
-    public fun remove(key: K): V? {
-        val index = findKeyIndex(key)
-        if (index >= 0) {
-            return removeValueAt(index)
-        }
-        return null
-    }
+    public fun remove(key: K): V?
 
     /**
      * Removes the specified [key] and its associated value from the map if the associated value
      * equals [value]. Returns whether the removal happened.
      */
-    public fun remove(key: K, value: V): Boolean {
-        val index = findKeyIndex(key)
-        if (index >= 0) {
-            if (values[index] == value) {
-                removeValueAt(index)
-                return true
-            }
-        }
-        return false
-    }
+    public fun remove(key: K, value: V): Boolean
 
     /** Removes any mapping for which the specified [predicate] returns true. */
-    public inline fun removeIf(predicate: (K, V) -> Boolean) {
-        forEachIndexed { index ->
-            @Suppress("UNCHECKED_CAST")
-            if (predicate(keys[index] as K, values[index] as V)) {
-                removeValueAt(index)
-            }
-        }
-    }
+    public inline fun removeIf(predicate: (K, V) -> Boolean)
 
     /** Removes the specified [key] and its associated value from the map. */
-    public inline operator fun minusAssign(key: K) {
-        remove(key)
-    }
+    public inline operator fun minusAssign(key: K)
 
     /** Removes the specified [keys] and their associated value from the map. */
-    public inline operator fun minusAssign(@Suppress("ArrayReturn") keys: Array<out K>) {
-        for (key in keys) {
-            remove(key)
-        }
-    }
+    public inline operator fun minusAssign(@Suppress("ArrayReturn") keys: Array<out K>)
 
     /** Removes the specified [keys] and their associated value from the map. */
-    public inline operator fun minusAssign(keys: Iterable<K>) {
-        for (key in keys) {
-            remove(key)
-        }
-    }
+    public inline operator fun minusAssign(keys: Iterable<K>)
 
     /** Removes the specified [keys] and their associated value from the map. */
-    public inline operator fun minusAssign(keys: Sequence<K>) {
-        for (key in keys) {
-            remove(key)
-        }
-    }
+    public inline operator fun minusAssign(keys: Sequence<K>)
 
     /** Removes the specified [keys] and their associated value from the map. */
-    public inline operator fun minusAssign(keys: ScatterSet<K>) {
-        keys.forEach { key -> remove(key) }
-    }
+    public inline operator fun minusAssign(keys: ScatterSet<K>)
 
     /** Removes the specified [keys] and their associated value from the map. */
-    public inline operator fun minusAssign(keys: ObjectList<K>) {
-        keys.forEach { key -> remove(key) }
-    }
-
-    @PublishedApi
-    internal fun removeValueAt(index: Int): V? {
-        _size -= 1
-
-        // TODO: We could just mark the entry as empty if there's a group
-        //       window around this entry that was already empty
-        writeMetadata(metadata, _capacity, index, Deleted)
-        keys[index] = null
-        val oldValue = values[index]
-        values[index] = null
-
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
-    }
+    public inline operator fun minusAssign(keys: ObjectList<K>)
 
     /** Removes all mappings from this map. */
-    public fun clear() {
-        _size = 0
-        if (metadata !== EmptyGroup) {
-            metadata.fill(AllEmpty)
-            writeRawMetadata(metadata, _capacity, Sentinel)
-        }
-        values.fill(null, 0, _capacity)
-        keys.fill(null, 0, _capacity)
-        initializeGrowth()
-    }
-
-    /**
-     * Scans the hash table to find the index at which we can store a value for the give [key]. If
-     * the key already exists in the table, its index will be returned, otherwise the `index.inv()`
-     * of an empty slot will be returned. Calling this function may cause the internal storage to be
-     * reallocated if the table is full.
-     */
-    @PublishedApi
-    internal fun findInsertIndex(key: K): Int {
-        val hash = hash(key)
-        val hash1 = h1(hash)
-        val hash2 = h2(hash)
-
-        val probeMask = _capacity
-        var probeOffset = hash1 and probeMask
-        var probeIndex = 0
-
-        while (true) {
-            val g = group(metadata, probeOffset)
-            var m = g.match(hash2)
-            while (m.hasNext()) {
-                val index = (probeOffset + m.get()) and probeMask
-                if (keys[index] == key) {
-                    return index
-                }
-                m = m.next()
-            }
-
-            if (g.maskEmpty() != 0L) {
-                break
-            }
-
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
-
-        var index = findFirstAvailableSlot(hash1)
-        if (growthLimit == 0 && !isDeleted(metadata, index)) {
-            adjustStorage()
-            index = findFirstAvailableSlot(hash1)
-        }
-
-        _size += 1
-        growthLimit -= if (isEmpty(metadata, index)) 1 else 0
-        writeMetadata(metadata, _capacity, index, hash2.toLong())
-
-        return index.inv()
-    }
-
-    /**
-     * Finds the first empty or deleted slot in the table in which we can store a value without
-     * resizing the internal storage.
-     */
-    private fun findFirstAvailableSlot(hash1: Int): Int {
-        val probeMask = _capacity
-        var probeOffset = hash1 and probeMask
-        var probeIndex = 0
-
-        while (true) {
-            val g = group(metadata, probeOffset)
-            val m = g.maskEmptyOrDeleted()
-            if (m != 0L) {
-                return (probeOffset + m.lowestBitSet()) and probeMask
-            }
-            probeIndex += GroupWidth
-            probeOffset = (probeOffset + probeIndex) and probeMask
-        }
-    }
+    public fun clear()
 
     /**
      * Trims this [MutableScatterMap]'s storage so it is sized appropriately to hold the current
@@ -984,146 +565,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      * Returns the number of empty entries removed from this map's storage. Returns be 0 if no
      * trimming is necessary or possible.
      */
-    public fun trim(): Int {
-        val previousCapacity = _capacity
-        val newCapacity = normalizeCapacity(unloadedCapacity(_size))
-        if (newCapacity < previousCapacity) {
-            resizeStorage(newCapacity)
-            return previousCapacity - _capacity
-        }
-        return 0
-    }
-
-    /**
-     * Grow internal storage if necessary. This function can instead opt to remove deleted entries
-     * from the table to avoid an expensive reallocation of the underlying storage. This "rehash in
-     * place" occurs when the current size is <= 25/32 of the table capacity. The choice of 25/32 is
-     * detailed in the implementation of abseil's `raw_hash_set`.
-     */
-    internal fun adjustStorage() { // Internal to prevent inlining
-        if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
-            dropDeletes()
-        } else {
-            resizeStorage(nextCapacity(_capacity))
-        }
-    }
-
-    // Internal to prevent inlining
-    internal fun dropDeletes() {
-        val metadata = metadata
-        val capacity = _capacity
-        val keys = keys
-        val values = values
-
-        // Converts Sentinel and Deleted to Empty, and Full to Deleted
-        convertMetadataForCleanup(metadata, capacity)
-
-        var index = 0
-
-        // Drop deleted items and re-hashes surviving entries
-        while (index != capacity) {
-            var m = readRawMetadata(metadata, index)
-            // Formerly Deleted entry, we can use it as a swap spot
-            if (m == Empty) {
-                index++
-                continue
-            }
-
-            // Formerly Full entries are now marked Deleted. If we see an
-            // entry that's not marked Deleted, we can ignore it completely
-            if (m != Deleted) {
-                index++
-                continue
-            }
-
-            val hash = hash(keys[index])
-            val hash1 = h1(hash)
-            val targetIndex = findFirstAvailableSlot(hash1)
-
-            // Test if the current index (i) and the new index (targetIndex) fall
-            // within the same group based on the hash. If the group doesn't change,
-            // we don't move the entry
-            val probeOffset = hash1 and capacity
-            val newProbeIndex = ((targetIndex - probeOffset) and capacity) / GroupWidth
-            val oldProbeIndex = ((index - probeOffset) and capacity) / GroupWidth
-
-            if (newProbeIndex == oldProbeIndex) {
-                val hash2 = h2(hash)
-                writeRawMetadata(metadata, index, hash2.toLong())
-
-                // Copies the metadata into the clone area
-                metadata[metadata.lastIndex] = metadata[0]
-
-                index++
-                continue
-            }
-
-            m = readRawMetadata(metadata, targetIndex)
-            if (m == Empty) {
-                // The target is empty so we can transfer directly
-                val hash2 = h2(hash)
-                writeRawMetadata(metadata, targetIndex, hash2.toLong())
-                writeRawMetadata(metadata, index, Empty)
-
-                keys[targetIndex] = keys[index]
-                keys[index] = null
-
-                values[targetIndex] = values[index]
-                values[index] = null
-            } else /* m == Deleted */ {
-                // The target isn't empty so we use an empty slot denoted by
-                // swapIndex to perform the swap
-                val hash2 = h2(hash)
-                writeRawMetadata(metadata, targetIndex, hash2.toLong())
-
-                val oldKey = keys[targetIndex]
-                keys[targetIndex] = keys[index]
-                keys[index] = oldKey
-
-                val oldValue = values[targetIndex]
-                values[targetIndex] = values[index]
-                values[index] = oldValue
-
-                // Since we exchanged two slots we must repeat the process with
-                // element we just moved in the current location
-                index--
-            }
-
-            // Copies the metadata into the clone area
-            metadata[metadata.lastIndex] = metadata[0]
-
-            index++
-        }
-
-        initializeGrowth()
-    }
-
-    // Internal to prevent inlining
-    internal fun resizeStorage(newCapacity: Int) {
-        val previousMetadata = metadata
-        val previousKeys = keys
-        val previousValues = values
-        val previousCapacity = _capacity
-
-        initializeStorage(newCapacity)
-
-        val newMetadata = metadata
-        val newKeys = keys
-        val newValues = values
-        val capacity = _capacity
-
-        for (i in 0 until previousCapacity) {
-            if (isFull(previousMetadata, i)) {
-                val previousKey = previousKeys[i]
-                val hash = hash(previousKey)
-                val index = findFirstAvailableSlot(h1(hash))
-
-                writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
-                newKeys[index] = previousKey
-                newValues[index] = previousValues[i]
-            }
-        }
-    }
+    public fun trim(): Int
 
     /**
      * Wraps this [ScatterMap] with a [MutableMap] interface. The [MutableMap] is backed by the
@@ -1137,7 +579,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      * efficient as possible, the semantics of [MutableMap] may require the allocation of temporary
      * objects for access and iteration.
      */
-    public fun asMutableMap(): MutableMap<K, V> = MutableMapWrapper(this)
+    public fun asMutableMap(): MutableMap<K, V>
 }
 
 internal inline fun convertMetadataForCleanup(metadata: LongArray, capacity: Int) {
@@ -1397,390 +839,4 @@ internal inline fun Group.maskEmpty(): Bitmask {
 @PublishedApi
 internal inline fun Group.maskEmptyOrDeleted(): Bitmask {
     return (this and (this.inv() shl 7)) and BitmaskMsb
-}
-
-private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
-
-private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entry<K, V>> {
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): Iterator<Map.Entry<K, V>> {
-        return iterator {
-            parent.forEachIndexed { index ->
-                @Suppress("UNCHECKED_CAST")
-                yield(MapEntry(parent.keys[index] as K, parent.values[index] as V))
-            }
-        }
-    }
-
-    override fun containsAll(elements: Collection<Map.Entry<K, V>>): Boolean =
-        elements.all { parent[it.key] == it.value }
-
-    override fun contains(element: Map.Entry<K, V>): Boolean = parent[element.key] == element.value
-}
-
-private class Keys<K, V>(private val parent: ScatterMap<K, V>) : Set<K> {
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): Iterator<K> = iterator { parent.forEachKey { key -> yield(key) } }
-
-    override fun containsAll(elements: Collection<K>): Boolean =
-        elements.all { parent.containsKey(it) }
-
-    override fun contains(element: K): Boolean = parent.containsKey(element)
-}
-
-private class Values<K, V>(private val parent: ScatterMap<K, V>) : Collection<V> {
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): Iterator<V> = iterator {
-        parent.forEachValue { value -> yield(value) }
-    }
-
-    override fun containsAll(elements: Collection<V>): Boolean =
-        elements.all { parent.containsValue(it) }
-
-    override fun contains(element: V): Boolean = parent.containsValue(element)
-}
-
-// TODO: While not mandatory, it would be pertinent to throw a
-//       ConcurrentModificationException when the underlying ScatterMap
-//       is modified while iterating over keys/values/entries. To do
-//       this we should probably have some kind of generation ID in
-//       ScatterMap that would be incremented on any add/remove/clear
-//       or rehash.
-private open class MapWrapper<K, V>(private val parent: ScatterMap<K, V>) : Map<K, V> {
-    private var _entries: Entries<K, V>? = null
-    override val entries: Set<Map.Entry<K, V>>
-        get() = _entries ?: Entries(parent).apply { _entries = this }
-
-    private var _keys: Keys<K, V>? = null
-    override val keys: Set<K>
-        get() = _keys ?: Keys(parent).apply { _keys = this }
-
-    private var _values: Values<K, V>? = null
-    override val values: Collection<V>
-        get() = _values ?: Values(parent).apply { _values = this }
-
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun get(key: K): V? = parent[key]
-
-    override fun containsValue(value: V): Boolean = parent.containsValue(value)
-
-    override fun containsKey(key: K): Boolean = parent.containsKey(key)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as MapWrapper<*, *>
-
-        return parent == other.parent
-    }
-
-    override fun hashCode(): Int = parent.hashCode()
-
-    override fun toString(): String = parent.toString()
-}
-
-private class MutableMapEntry<K, V>(
-    val keys: Array<Any?>,
-    val values: Array<Any?>,
-    val index: Int
-) : MutableMap.MutableEntry<K, V> {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun setValue(newValue: V): V {
-        val oldValue = values[index]
-        values[index] = newValue
-        return oldValue as V
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override val key: K
-        get() = keys[index] as K
-
-    @Suppress("UNCHECKED_CAST")
-    override val value: V
-        get() = values[index] as V
-}
-
-private class MutableEntries<K, V>(private val parent: MutableScatterMap<K, V>) :
-    MutableSet<MutableMap.MutableEntry<K, V>> {
-
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): MutableIterator<MutableMap.MutableEntry<K, V>> =
-        object : MutableIterator<MutableMap.MutableEntry<K, V>> {
-            var iterator: Iterator<MutableMap.MutableEntry<K, V>>
-            var current = -1
-
-            init {
-                iterator = iterator {
-                    parent.forEachIndexed { index ->
-                        current = index
-                        yield(MutableMapEntry(parent.keys, parent.values, current))
-                    }
-                }
-            }
-
-            override fun hasNext(): Boolean = iterator.hasNext()
-
-            override fun next(): MutableMap.MutableEntry<K, V> = iterator.next()
-
-            override fun remove() {
-                if (current != -1) {
-                    parent.removeValueAt(current)
-                    current = -1
-                }
-            }
-        }
-
-    override fun clear() = parent.clear()
-
-    override fun containsAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        return elements.all { parent[it.key] == it.value }
-    }
-
-    override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean =
-        parent[element.key] == element.value
-
-    override fun addAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun add(element: MutableMap.MutableEntry<K, V>): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun retainAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            var found = false
-            for (entry in elements) {
-                if (entry.key == parent.keys[index] && entry.value == parent.values[index]) {
-                    found = true
-                    break
-                }
-            }
-            if (!found) {
-                parent.removeValueAt(index)
-                changed = true
-            }
-        }
-        return changed
-    }
-
-    override fun removeAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            for (entry in elements) {
-                if (entry.key == parent.keys[index] && entry.value == parent.values[index]) {
-                    parent.removeValueAt(index)
-                    changed = true
-                    break
-                }
-            }
-        }
-        return changed
-    }
-
-    override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
-        val index = parent.findKeyIndex(element.key)
-        if (index >= 0 && parent.values[index] == element.value) {
-            parent.removeValueAt(index)
-            return true
-        }
-        return false
-    }
-}
-
-private class MutableKeys<K, V>(private val parent: MutableScatterMap<K, V>) : MutableSet<K> {
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): MutableIterator<K> =
-        object : MutableIterator<K> {
-            val iterator = iterator { parent.forEachIndexed { index -> yield(index) } }
-            var current: Int = -1
-
-            override fun hasNext(): Boolean = iterator.hasNext()
-
-            override fun next(): K {
-                current = iterator.next()
-                @Suppress("UNCHECKED_CAST") return parent.keys[current] as K
-            }
-
-            override fun remove() {
-                if (current >= 0) {
-                    parent.removeValueAt(current)
-                    current = -1
-                }
-            }
-        }
-
-    override fun clear() = parent.clear()
-
-    override fun addAll(elements: Collection<K>): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun add(element: K): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun retainAll(elements: Collection<K>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            if (parent.keys[index] !in elements) {
-                parent.removeValueAt(index)
-                changed = true
-            }
-        }
-        return changed
-    }
-
-    override fun removeAll(elements: Collection<K>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            if (parent.keys[index] in elements) {
-                parent.removeValueAt(index)
-                changed = true
-            }
-        }
-        return changed
-    }
-
-    override fun remove(element: K): Boolean {
-        val index = parent.findKeyIndex(element)
-        if (index >= 0) {
-            parent.removeValueAt(index)
-            return true
-        }
-        return false
-    }
-
-    override fun containsAll(elements: Collection<K>): Boolean =
-        elements.all { parent.containsKey(it) }
-
-    override fun contains(element: K): Boolean = parent.containsKey(element)
-}
-
-private class MutableValues<K, V>(private val parent: MutableScatterMap<K, V>) :
-    MutableCollection<V> {
-    override val size: Int
-        get() = parent._size
-
-    override fun isEmpty(): Boolean = parent.isEmpty()
-
-    override fun iterator(): MutableIterator<V> =
-        object : MutableIterator<V> {
-            val iterator = iterator { parent.forEachIndexed { index -> yield(index) } }
-            var current: Int = -1
-
-            override fun hasNext(): Boolean = iterator.hasNext()
-
-            override fun next(): V {
-                current = iterator.next()
-                @Suppress("UNCHECKED_CAST") return parent.values[current] as V
-            }
-
-            override fun remove() {
-                if (current >= 0) {
-                    parent.removeValueAt(current)
-                    current = -1
-                }
-            }
-        }
-
-    override fun clear() = parent.clear()
-
-    override fun addAll(elements: Collection<V>): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun add(element: V): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun retainAll(elements: Collection<V>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            if (parent.values[index] !in elements) {
-                parent.removeValueAt(index)
-                changed = true
-            }
-        }
-        return changed
-    }
-
-    override fun removeAll(elements: Collection<V>): Boolean {
-        var changed = false
-        parent.forEachIndexed { index ->
-            if (parent.values[index] in elements) {
-                parent.removeValueAt(index)
-                changed = true
-            }
-        }
-        return changed
-    }
-
-    override fun remove(element: V): Boolean {
-        parent.forEachIndexed { index ->
-            if (parent.values[index] == element) {
-                parent.removeValueAt(index)
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun containsAll(elements: Collection<V>): Boolean =
-        elements.all { parent.containsValue(it) }
-
-    override fun contains(element: V): Boolean = parent.containsValue(element)
-}
-
-private class MutableMapWrapper<K, V>(private val parent: MutableScatterMap<K, V>) :
-    MapWrapper<K, V>(parent), MutableMap<K, V> {
-
-    private var _entries: MutableEntries<K, V>? = null
-    override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = _entries ?: MutableEntries(parent).apply { _entries = this }
-
-    private var _keys: MutableKeys<K, V>? = null
-    override val keys: MutableSet<K>
-        get() = _keys ?: MutableKeys(parent).apply { _keys = this }
-
-    private var _values: MutableValues<K, V>? = null
-    override val values: MutableCollection<V>
-        get() = _values ?: MutableValues(parent).apply { _values = this }
-
-    override fun clear() = parent.clear()
-
-    override fun remove(key: K): V? = parent.remove(key)
-
-    override fun putAll(from: Map<out K, V>) {
-        from.forEach { (key, value) -> parent[key] = value }
-    }
-
-    override fun put(key: K, value: V): V? = parent.put(key, value)
 }

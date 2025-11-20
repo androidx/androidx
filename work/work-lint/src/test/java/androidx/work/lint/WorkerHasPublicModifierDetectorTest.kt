@@ -37,7 +37,7 @@ class WorkerHasPublicModifierDetectorTest {
             import androidx.work.ListenableWorker
 
             private class Worker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -46,7 +46,7 @@ class WorkerHasPublicModifierDetectorTest {
             .files(
                 // Source files
                 LISTENABLE_WORKER,
-                worker
+                worker,
             )
             .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
@@ -72,7 +72,7 @@ class WorkerHasPublicModifierDetectorTest {
             import androidx.work.ListenableWorker
 
             class Worker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -81,7 +81,7 @@ class WorkerHasPublicModifierDetectorTest {
             .files(
                 // Source files
                 LISTENABLE_WORKER,
-                worker
+                worker,
             )
             .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
@@ -99,7 +99,7 @@ class WorkerHasPublicModifierDetectorTest {
             import androidx.work.ListenableWorker
 
             private class Worker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -119,7 +119,7 @@ class WorkerHasPublicModifierDetectorTest {
                    builder.setWorkerFactory(factory)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -131,7 +131,7 @@ class WorkerHasPublicModifierDetectorTest {
                 LISTENABLE_WORKER,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
                 worker,
-                snippet
+                snippet,
             )
             .issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()

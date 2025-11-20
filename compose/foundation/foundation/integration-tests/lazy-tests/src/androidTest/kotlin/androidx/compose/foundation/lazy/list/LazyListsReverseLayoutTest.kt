@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +47,7 @@ class LazyListsReverseLayoutTest {
 
     private val ContainerTag = "ContainerTag"
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var itemSize: Dp = Dp.Infinity
 
@@ -90,7 +91,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -109,7 +110,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -134,7 +135,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -161,7 +162,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -218,7 +219,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -237,7 +238,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -262,7 +263,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -289,7 +290,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -351,7 +352,7 @@ class LazyListsReverseLayoutTest {
                 LazyRow(
                     reverseLayout = true,
                     state = rememberLazyListState().also { state = it },
-                    modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                    modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
                 ) {
                     items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
                 }

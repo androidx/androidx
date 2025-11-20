@@ -50,7 +50,7 @@ class AlertDialogActivity : ComponentActivity() {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Chip(
                         onClick = { showDialog = true },
@@ -69,13 +69,13 @@ class AlertDialogActivity : ComponentActivity() {
                             Text(
                                 text = "Power off",
                                 textAlign = TextAlign.Center,
-                                color = MaterialTheme.colors.onBackground
+                                color = MaterialTheme.colors.onBackground,
                             )
                         },
                         negativeButton = {
                             Button(
                                 onClick = { showDialog = false },
-                                colors = ButtonDefaults.secondaryButtonColors()
+                                colors = ButtonDefaults.secondaryButtonColors(),
                             ) {
                                 Text("No")
                             }
@@ -85,7 +85,7 @@ class AlertDialogActivity : ComponentActivity() {
                                 onClick = { showDialog = false },
                                 colors = ButtonDefaults.primaryButtonColors(),
                                 modifier =
-                                    Modifier.semantics { contentDescription = DIALOG_CONFIRM }
+                                    Modifier.semantics { contentDescription = DIALOG_CONFIRM },
                             ) {
                                 Text("Yes")
                             }

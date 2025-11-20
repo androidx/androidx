@@ -69,7 +69,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         val rtl: Boolean,
         val targetBound: Boolean,
         val modification: Modification,
-        val adapterProvider: AdapterProviderForItems
+        val adapterProvider: AdapterProviderForItems,
     )
 
     companion object {
@@ -83,7 +83,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
         SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
         SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
-        REMOVE_FIRST_VISIBLE
+        REMOVE_FIRST_VISIBLE,
     }
 
     // start and end of the window of opportunity to modify the dataset
@@ -154,7 +154,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
                     it.assertValueCorrectness(
                         0,
                         targetPage + removeCountHead,
-                        test.viewPager.pageSize
+                        test.viewPager.pageSize,
                     )
                 }
                 // Only check assertOffsetSorted on scroll events _before_ the marker:
@@ -176,7 +176,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         val latch =
             test.viewPager.addWaitForDistanceToTarget(
                 targetPage,
-                targetPage - windowStart - epsilon
+                targetPage - windowStart - epsilon,
             )
         test.runOnUiThreadSync { test.viewPager.setCurrentItem(targetPage, true) }
         latch.await(2, SECONDS)
@@ -252,7 +252,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -302,7 +302,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -338,7 +338,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
     private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
-        pageSize: Int
+        pageSize: Int,
     ) = forEach {
         assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
@@ -357,7 +357,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
                 .dropWhile { it == sortOrder.sign }
                 .dropWhile { it != sortOrder.sign }
                 .size,
-            equalTo(0)
+            equalTo(0),
         )
     }
 

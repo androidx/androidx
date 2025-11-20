@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 
 class WithPluginClasspathUsageDetector : Detector(), SourceCodeScanner {
@@ -68,8 +69,8 @@ class WithPluginClasspathUsageDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         WithPluginClasspathUsageDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
     }
 }

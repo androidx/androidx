@@ -113,6 +113,7 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_message_listener_malicious_website);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.web_message_listener_malicious_website_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

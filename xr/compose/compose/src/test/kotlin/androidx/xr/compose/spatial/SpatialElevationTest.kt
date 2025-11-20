@@ -21,18 +21,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onChild
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.TestSetup
-import kotlin.test.assertFailsWith
+import androidx.xr.compose.testing.createFakeSession
+import androidx.xr.compose.testing.disableXr
+import androidx.xr.compose.testing.session
+import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.scene
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,70 +52,103 @@ class SpatialElevationTest {
 
     @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
+    private val parentTestTag = "parent"
+
     @Test
     fun spatialElevation_mainContent_isComposed() {
         composeTestRule.setContent {
-            TestSetup {
-                SpatialElevation {
-                    Box(modifier = Modifier.size(100.dp).testTag("MainContent")) {
-                        Text("Main Content")
-                    }
+            SpatialElevation {
+                Box(modifier = Modifier.size(100.dp).testTag("MainContent")) {
+                    Text("Main Content")
                 }
             }
         }
 
-        composeTestRule.onNodeWithTag("MainContent").assertExists()
+        composeTestRule.onAllNodesWithTag("MainContent").onLast().assertIsDisplayed()
     }
 
     @Test
-    fun spatialElevation_dialog_throwsError() {
-        assertFailsWith<RuntimeException> {
-            composeTestRule.setContent {
-                TestSetup { SpatialElevation { Dialog(onDismissRequest = {}) { Text("Title") } } }
-            }
-        }
-    }
+    fun spatialElevation_popup_doesNotThrowError() {
+        composeTestRule.setContent { SpatialElevation { Popup { Text("Popup") } } }
 
-    @Test
-    fun spatialElevation_popup_throwsError() {
-        assertFailsWith<RuntimeException> {
-            composeTestRule.setContent {
-                TestSetup { SpatialElevation { Popup { Text("Popup") } } }
-            }
-        }
+        composeTestRule.onAllNodesWithText("Popup").onLast().assertIsDisplayed()
     }
 
     @Test
     fun spatialElevation_xrNotSupported_doesNotThrowError() {
-        composeTestRule.setContent {
-            TestSetup(isXrEnabled = false) { SpatialElevation { Popup { Text("Popup") } } }
-        }
+        composeTestRule.disableXr()
+
+        composeTestRule.setContent { SpatialElevation { Popup { Text("Popup") } } }
 
         composeTestRule.onNodeWithText("Popup").assertExists()
     }
 
     @Test
     fun spatialElevation_homeSpaceMode_doesNotElevate() {
+        composeTestRule.session =
+            createFakeSession(composeTestRule.activity).apply { scene.requestHomeSpaceMode() }
+
         composeTestRule.setContent {
-            TestSetup {
-                this.spatialEnvironment.requestHomeSpaceMode()
-                Parent { SpatialElevation { Text("Main Content") } }
-            }
+            Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
         }
 
-        composeTestRule.onParent().onChild().assertTextContains("Main Content")
+        composeTestRule.onNodeWithTag(parentTestTag).onChild().assertTextContains("Main Content")
     }
 
     @Test
     fun spatialElevation_fullSpaceMode_doesElevate() {
         composeTestRule.setContent {
-            TestSetup {
-                this.spatialEnvironment.requestFullSpaceMode()
-                Parent { SpatialElevation { Text("Main Content") } }
+            Box(Modifier.testTag(parentTestTag)) { SpatialElevation { Text("Main Content") } }
+        }
+
+        // The placeholder content should not be displayed
+        composeTestRule.onNodeWithTag(parentTestTag).onChild().assertIsNotDisplayed()
+        // The placeholder and the elevated content both exist
+        composeTestRule.onAllNodesWithText("Main Content").assertCountEquals(2)
+    }
+
+    @Test
+    fun spatialElevation_elevated_panelSizeMatchesContentSize() {
+        composeTestRule.setContent {
+            Box(Modifier.size(1000.dp))
+            SpatialElevation { Box(Modifier.size(100.dp)) { Text("Main Content") } }
+        }
+
+        composeTestRule.onAllNodesWithText("Main Content").onLast().assertIsDisplayed()
+        val entities = composeTestRule.session?.scene?.getEntitiesOfType(PanelEntity::class.java)
+        checkNotNull(entities).single { !it.isMainPanelEntity && it.sizeInPixels.width == 100 }
+    }
+
+    @Test
+    fun spatialElevation_elevatedPanel_noXYOffsetIfParentViewIsSameSize() {
+        composeTestRule.setContent {
+            Box(Modifier.size(100.dp))
+            SpatialElevation(elevation = 10.dp) {
+                Box(Modifier.size(100.dp)) { Text("Main Content") }
             }
         }
 
-        composeTestRule.onParent().onChild().assertDoesNotExist()
-        composeTestRule.onNodeWithText("Main Content").assertExists()
+        composeTestRule.onAllNodesWithText("Main Content").onLast().assertIsDisplayed()
+        val entities =
+            checkNotNull(composeTestRule.session?.scene?.getEntitiesOfType(PanelEntity::class.java))
+        val panel = checkNotNull(entities).single { it.sizeInPixels.width == 100 }
+        assertThat(panel).isNotEqualTo(composeTestRule.session?.scene?.mainPanelEntity)
+        assertThat(panel.getPose().translation.x).isEqualTo(0f)
+        assertThat(panel.getPose().translation.y).isEqualTo(0f)
+        assertThat(panel.getPose().translation.z).isNotEqualTo(0f)
+    }
+
+    @Test
+    fun spatialElevation_elevatedPanel_contentIsOnlyDisplayedOnce() {
+        composeTestRule.setContent {
+            Box(Modifier.size(100.dp))
+            SpatialElevation(elevation = 10.dp) {
+                Box(Modifier.size(100.dp)) { Text("Main Content") }
+            }
+        }
+
+        composeTestRule.onAllNodesWithText("Main Content").assertCountEquals(2)
+        composeTestRule.onAllNodesWithText("Main Content").onFirst().assertIsNotDisplayed()
+        composeTestRule.onAllNodesWithText("Main Content").onLast().assertIsDisplayed()
     }
 }

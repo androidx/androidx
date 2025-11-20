@@ -50,7 +50,7 @@ public fun isLeftyModeEnabled(): Boolean {
         Settings.System.getInt(
             context.contentResolver,
             Settings.System.USER_ROTATION,
-            android.view.Surface.ROTATION_0
+            android.view.Surface.ROTATION_0,
         ) == android.view.Surface.ROTATION_180
     }
 }

@@ -69,5 +69,5 @@ internal class TextToggleButtonTestCase(private val type: TextToggleButtonType) 
 
 enum class TextToggleButtonType {
     TextToggleButtonOn,
-    TextToggleButtonOff
+    TextToggleButtonOff,
 }

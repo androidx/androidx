@@ -16,7 +16,6 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.annotation.TargetApi
 import android.health.connect.datatypes.Metadata.RECORDING_METHOD_UNKNOWN
 import android.os.Build
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -33,9 +32,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @SmallTest
-@TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-// Comment the SDK suppress to run on emulators lower than U.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class MetadataConvertersTest {
 
     fun metadata_convertToPlatform() {
@@ -51,8 +48,8 @@ class MetadataConvertersTest {
                     Device(
                         manufacturer = "Awesome-watches",
                         model = "AwesomeOne",
-                        type = Device.TYPE_WATCH
-                    )
+                        type = Device.TYPE_WATCH,
+                    ),
             )
 
         with(metadata.toPlatformMetadata()) {
@@ -85,7 +82,7 @@ class MetadataConvertersTest {
                 dataOrigin = DataOrigin("origin package name"),
                 lastModifiedTime = Instant.ofEpochMilli(6666L),
                 clientRecordId = "clientId",
-                clientRecordVersion = 2L
+                clientRecordVersion = 2L,
             )
 
         with(metadata.toPlatformMetadata()) {
@@ -135,9 +132,36 @@ class MetadataConvertersTest {
                     Device(
                         manufacturer = "AwesomeTech",
                         model = "AwesomeTwo",
-                        type = Device.TYPE_WATCH
+                        type = Device.TYPE_WATCH,
                     )
                 )
+        }
+    }
+
+    @Test
+    fun metadata_convertToSdk_noDevice() {
+        val metadata =
+            PlatformMetadataBuilder()
+                .apply {
+                    setId("someId")
+                    setDataOrigin(
+                        PlatformDataOriginBuilder().setPackageName("origin package name").build()
+                    )
+                    setLastModifiedTime(Instant.ofEpochMilli(6666L))
+                    setClientRecordId("clientId")
+                    setClientRecordVersion(2L)
+                    setRecordingMethod(PlatformMetadata.RECORDING_METHOD_MANUAL_ENTRY)
+                }
+                .build()
+
+        with(metadata.toSdkMetadata()) {
+            assertThat(id).isEqualTo("someId")
+            assertThat(dataOrigin).isEqualTo(DataOrigin("origin package name"))
+            assertThat(lastModifiedTime).isEqualTo(Instant.ofEpochMilli(6666L))
+            assertThat(clientRecordId).isEqualTo("clientId")
+            assertThat(clientRecordVersion).isEqualTo(2L)
+            assertThat(recordingMethod).isEqualTo(Metadata.RECORDING_METHOD_MANUAL_ENTRY)
+            assertThat(device).isNull()
         }
     }
 }

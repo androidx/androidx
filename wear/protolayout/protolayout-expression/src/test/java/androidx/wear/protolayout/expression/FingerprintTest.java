@@ -23,8 +23,10 @@ import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public final class FingerprintTest {
     private static final int SELF_TYPE_VALUE = 1234;
     private static final int FIELD_1 = 1;

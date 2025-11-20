@@ -71,7 +71,7 @@ class EffectsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.effects_view, container, false)
@@ -169,7 +169,7 @@ class EffectsFragment : Fragment() {
             OutputFileOptions.Builder(
                     requireContext().contentResolver,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
+                    contentValues,
                 )
                 .build()
         cameraController.takePicture(outputFileOptions, directExecutor(), onImageSavedCallback)
@@ -211,7 +211,7 @@ class EffectsFragment : Fragment() {
         contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName)
         return MediaStoreOutputOptions.Builder(
                 resolver,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
             )
             .setContentValues(contentValues)
             .build()

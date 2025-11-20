@@ -34,7 +34,7 @@ internal class FakeBitmapSource(override val pageNumber: Int) : PdfDocument.Bitm
             Bitmap.createBitmap(
                 scaledPageSizePx.width,
                 scaledPageSizePx.height,
-                Bitmap.Config.ARGB_8888
+                Bitmap.Config.ARGB_8888,
             )
         }
     }

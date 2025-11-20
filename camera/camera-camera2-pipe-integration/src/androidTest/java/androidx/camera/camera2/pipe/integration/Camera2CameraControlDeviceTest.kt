@@ -47,9 +47,9 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.testing.VerifyResultListener
-import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
-import androidx.camera.camera2.pipe.testing.toCameraInfoAdapter
+import androidx.camera.camera2.pipe.integration.testing.VerifyResultListener
+import androidx.camera.camera2.pipe.integration.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.integration.testing.toCameraInfoAdapter
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -81,7 +81,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCamera2Interop::class)
-@SdkSuppress(minSdkVersion = 21)
 class Camera2CameraControlDeviceTest {
     private lateinit var cameraSelector: CameraSelector
     private lateinit var context: Context
@@ -129,11 +128,11 @@ class Camera2CameraControlDeviceTest {
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
                     CONTROL_CAPTURE_INTENT,
-                    CONTROL_CAPTURE_INTENT_PREVIEW
+                    CONTROL_CAPTURE_INTENT_PREVIEW,
                 )
                 .setCaptureRequestOption<Int>(
                     COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST
+                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
                 )
         // Act.
         camera2CameraControl.setCaptureRequestOptions(builder.build())
@@ -162,12 +161,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
-                        CONTROL_CAPTURE_INTENT_PREVIEW
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
+            })
     }
 
     @Test
@@ -181,12 +177,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
-                        CONTROL_CAPTURE_INTENT_PREVIEW
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
+            })
     }
 
     @Test
@@ -197,11 +190,11 @@ class Camera2CameraControlDeviceTest {
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
                     CONTROL_CAPTURE_INTENT,
-                    CONTROL_CAPTURE_INTENT_PREVIEW
+                    CONTROL_CAPTURE_INTENT_PREVIEW,
                 )
                 .setCaptureRequestOption<Int>(
                     COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST
+                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
                 )
         assertFutureCompletes(camera2CameraControl.setCaptureRequestOptions(builder.build()))
 
@@ -224,13 +217,10 @@ class Camera2CameraControlDeviceTest {
             .isEqualTo(null)
 
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_CAPTURE_INTENT] ==
-                        CONTROL_CAPTURE_INTENT_PREVIEW &&
-                        requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW &&
+                    requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
+            })
     }
 
     @Test
@@ -240,11 +230,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AF_MODE] == CONTROL_AF_MODE_OFF
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AF_MODE] == CONTROL_AF_MODE_OFF
+            })
     }
 
     @Test
@@ -254,11 +242,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_OFF
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AE_MODE] == CONTROL_AE_MODE_OFF
+            })
     }
 
     @Test
@@ -268,11 +254,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AWB_MODE] == CONTROL_AWB_MODE_OFF
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AWB_MODE] == CONTROL_AWB_MODE_OFF
+            })
     }
 
     @Test
@@ -290,11 +274,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[SCALER_CROP_REGION] == cropRegion
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[SCALER_CROP_REGION] == cropRegion
+            })
     }
 
     @Test
@@ -309,11 +291,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AF_REGIONS] == meteringRectangles
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AF_REGIONS].contentEquals(meteringRectangles)
+            })
     }
 
     @Test
@@ -328,11 +308,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AE_REGIONS] == meteringRectangles
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AE_REGIONS].contentEquals(meteringRectangles)
+            })
     }
 
     @Test
@@ -347,11 +325,9 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { requestMetadata: RequestMetadata, _ ->
-                    requestMetadata.request[CONTROL_AWB_REGIONS] == meteringRectangles
-                },
-            )
+            .verify({ requestMetadata: RequestMetadata, _ ->
+                requestMetadata.request[CONTROL_AWB_REGIONS].contentEquals(meteringRectangles)
+            })
     }
 
     @Test
@@ -407,19 +383,15 @@ class Camera2CameraControlDeviceTest {
 
         // Assert.
         registerListener()
-            .verify(
-                { _, captureResult: FrameInfo ->
-                    captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            totalCaptureResult.physicalCameraTotalResults.containsKey(
-                                physicalCameraId
-                            )
-                        } else {
-                            totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
-                        }
+            .verify({ _, captureResult: FrameInfo ->
+                captureResult.unwrapAs(TotalCaptureResult::class)!!.let { totalCaptureResult ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        totalCaptureResult.physicalCameraTotalResults.containsKey(physicalCameraId)
+                    } else {
+                        totalCaptureResult.physicalCameraResults.containsKey(physicalCameraId)
                     }
-                },
-            )
+                }
+            })
     }
 
     private fun getZoom2XCropRegion(): Rect {
@@ -441,7 +413,7 @@ class Camera2CameraControlDeviceTest {
                 sensorRect!!.centerX() - sensorRect.width() / 4,
                 sensorRect.centerY() - sensorRect.height() / 4,
                 sensorRect.centerX() + sensorRect.width() / 4,
-                sensorRect.centerY() + sensorRect.height() / 4
+                sensorRect.centerY() + sensorRect.height() / 4,
             )
         }
     }
@@ -477,12 +449,7 @@ class Camera2CameraControlDeviceTest {
                 }
             }
     ) {
-        camera =
-            CameraUtil.createCameraAndAttachUseCase(
-                context,
-                cameraSelector,
-                useCase,
-            )
+        camera = CameraUtil.createCameraAndAttachUseCase(context, cameraSelector, useCase)
         camera2CameraControl = Camera2CameraControl.from(camera.cameraControl)
     }
 }

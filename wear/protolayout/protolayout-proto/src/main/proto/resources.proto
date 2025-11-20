@@ -4,6 +4,7 @@ syntax = "proto3";
 package androidx.wear.protolayout.proto;
 
 import "animation_parameters.proto";
+import "color.proto";
 import "dynamic.proto";
 import "trigger.proto";
 
@@ -158,6 +159,33 @@ message AndroidLottieResourceByResId {
 
   // The trigger to start the animation.
   Trigger start_trigger = 3;
+
+  // The collection of properties to customize Lottie further.
+  //
+  // There shouldn't be more than 10 of properties in this collection. Each property can be applied
+  // to one or more elements in Lottie file.
+  repeated LottieProperty properties = 4;
+}
+
+// A single point of customization in a Lottie file.
+//
+// Property can be applicable to one or more elements.
+message LottieProperty {
+  oneof inner {
+    // A single point of customization for Lottie file, that applies given color on all slots with
+    // the specified slot ID.
+    LottieColorForSlot slot_color = 1;
+  }
+}
+
+// A single point of customization for Lottie file, that applies given color on all slots with the
+// specified slot ID.
+message LottieColorForSlot {
+  // The slot ID to which color filter should be applied. The same ID can correspond to multiple
+  // slots, however, for each of those, all parents in the path should have names.
+  string sid = 1;
+  // The color to be applied on slots with this slot ID.
+  ColorProp color = 2;
 }
 
 // An image resource, which can be used by layouts. This holds multiple

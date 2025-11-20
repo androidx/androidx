@@ -17,9 +17,8 @@
 package androidx.core.uwb.helper
 
 import android.content.Context
+import androidx.core.uwb.RangingResult
 import androidx.core.uwb.exceptions.UwbHardwareNotAvailableException
-import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
-import androidx.core.uwb.exceptions.UwbSystemCallbackException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.UwbStatusCodes
 
@@ -37,22 +36,14 @@ internal fun checkSystemFeature(context: Context) {
     }
 }
 
-internal fun handleApiException(e: ApiException) {
-    when (e.statusCode) {
-        UwbStatusCodes.INVALID_API_CALL ->
-            throw IllegalArgumentException("Illegal api call was received.")
+internal fun getFailureReasonFromApiException(e: ApiException): Int {
+    return when (e.statusCode) {
+        UwbStatusCodes.INVALID_API_CALL -> RangingResult.RANGING_FAILURE_REASON_BAD_PARAMETERS
         UwbStatusCodes.RANGING_ALREADY_STARTED ->
-            throw IllegalStateException(
-                "Ranging has already started for the" + " clientSessionScope."
-            )
-        UwbStatusCodes.SERVICE_NOT_AVAILABLE ->
-            throw UwbServiceNotAvailableException("UWB Service is not available.")
+            RangingResult.RANGING_FAILURE_REASON_FAILED_TO_START
+        UwbStatusCodes.SERVICE_NOT_AVAILABLE -> RangingResult.RANGING_FAILURE_REASON_SYSTEM_POLICY
         UwbStatusCodes.UWB_SYSTEM_CALLBACK_FAILURE ->
-            throw UwbSystemCallbackException("UWB backend system resulted in an error.")
-        else ->
-            throw RuntimeException(
-                "Unexpected error. This indicates that the library is not " +
-                    "up-to-date with the service backend."
-            )
+            RangingResult.RANGING_FAILURE_REASON_SYSTEM_POLICY
+        else -> RangingResult.RANGING_FAILURE_REASON_UNKNOWN
     }
 }

@@ -64,7 +64,7 @@ fun AggregationByDurationResult(
                 aggregationResult1,
                 startTime1,
                 endTime1,
-                ZoneOffset.UTC
+                ZoneOffset.UTC,
             )
         )
         add(
@@ -72,7 +72,7 @@ fun AggregationByDurationResult(
                 aggregationResult2,
                 startTime2,
                 endTime2,
-                ZoneOffset.UTC
+                ZoneOffset.UTC,
             )
         )
     }
@@ -100,7 +100,7 @@ fun AggregationByPeriodResult(
 fun StubResponse(
     client: FakeHealthConnectClient,
     result: AggregationResult,
-    resultOnce: AggregationResult
+    resultOnce: AggregationResult,
 ) {
     // Sets a default return value for client.aggregate() and a queue with one item.
     client.overrides.aggregate = stub(queue = listOf(resultOnce)) { result }
@@ -110,7 +110,7 @@ fun StubResponse(
 fun StubResponseException(
     client: FakeHealthConnectClient,
     result: AggregationResult,
-    exception: Exception
+    exception: Exception,
 ) {
     // Sets a default exception that will be thrown for client.aggregate().
     val aggregationStub = MutableStub<AggregationResult>(exception)

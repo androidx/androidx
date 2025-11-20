@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
@@ -40,10 +41,7 @@ data class AnnotatedClasses(
     val interfaces: Set<ClassAndConstants>,
 )
 
-data class ClassAndConstants(
-    val kClass: KmClass,
-    val constants: List<Constant>,
-)
+data class ClassAndConstants(val kClass: KmClass, val constants: List<Constant>)
 
 internal object AnnotatedClassReader {
     val annotations = listOf(PrivacySandboxService::class)
@@ -91,7 +89,7 @@ internal object AnnotatedClassReader {
             services = services.toSet(),
             values = values.toSet(),
             callbacks = callbacks.toSet(),
-            interfaces = interfaces.toSet()
+            interfaces = interfaces.toSet(),
         )
     }
 
@@ -100,7 +98,7 @@ internal object AnnotatedClassReader {
         val classNode = ClassNode(Opcodes.ASM9)
         reader.accept(
             classNode,
-            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
         )
         return classNode
     }
@@ -170,7 +168,7 @@ internal object AnnotatedClassReader {
             "D" to Types.double,
             "F" to Types.float,
             "J" to Types.long,
-            "S" to Types.short
+            "S" to Types.short,
         )
 
     private fun getConstType(desc: String): androidx.privacysandbox.tools.core.model.Type {

@@ -63,7 +63,7 @@ fun SimpleFlowRow() {
         modifier =
             Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         text = "Flow Row with weights",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     FlowRow(
@@ -100,14 +100,14 @@ fun SimpleFlowRowMaxLinesWithSeeMore() {
             "Flow Row with total items of 40, " +
                 "with Max Lines of 2 and See More, " +
                 "which when clicked, increases max lines by two",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
     FlowRow(
         Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxLines = maxLines,
-        overflow = FlowRowOverflow.expandIndicator { Ellipsis(text = "...") { maxLines += 2 } }
+        overflow = FlowRowOverflow.expandIndicator { Ellipsis(text = "...") { maxLines += 2 } },
     ) {
         repeat(totalCount) {
             Box(
@@ -119,7 +119,7 @@ fun SimpleFlowRowMaxLinesWithSeeMore() {
                 Text(
                     text = it.toString(),
                     fontSize = 18.sp,
-                    modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                    modifier = Modifier.padding(3.dp).align(Alignment.Center),
                 )
             }
         }
@@ -139,7 +139,7 @@ fun SimpleFlowRowWithMaxHeight() {
             "Flow Row with total items of 40, " +
                 "with Max height of 200.dp and See More/collapse button, " +
                 "which when clicked, increases height by 200.dp",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     FlowRow(
@@ -153,8 +153,8 @@ fun SimpleFlowRowWithMaxHeight() {
             FlowRowOverflow.expandOrCollapseIndicator(
                 minHeightToShowCollapse = 200.dp,
                 expandIndicator = { Ellipsis(text = "...") { height += 200.dp } },
-                collapseIndicator = { Ellipsis(text = "^") { height = 100.dp } }
-            )
+                collapseIndicator = { Ellipsis(text = "^") { height = 100.dp } },
+            ),
     ) {
         repeat(40) {
             Box(
@@ -183,7 +183,7 @@ fun SimpleFlowRowMaxLinesDynamicSeeMore() {
             "Flow Row with total items of 40, " +
                 "with Max Lines of 2 and See More/collapse button, " +
                 "which when clicked, increases max lines by two",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
     val moreOrLessIndicator =
         @Composable { scope: FlowRowOverflowScope ->
@@ -192,7 +192,7 @@ fun SimpleFlowRowMaxLinesDynamicSeeMore() {
                 totalCount = totalCount,
                 { scope.shownItemCount },
                 onExpand = { maxLines += 2 },
-                onShrink = { maxLines = 2 }
+                onShrink = { maxLines = 2 },
             )
         }
     FlowRow(
@@ -208,8 +208,8 @@ fun SimpleFlowRowMaxLinesDynamicSeeMore() {
             FlowRowOverflow.expandOrCollapseIndicator(
                 minRowsToShowCollapse = 4,
                 expandIndicator = moreOrLessIndicator,
-                collapseIndicator = moreOrLessIndicator
-            )
+                collapseIndicator = moreOrLessIndicator,
+            ),
     ) {
         repeat(totalCount) {
             Box(
@@ -221,7 +221,7 @@ fun SimpleFlowRowMaxLinesDynamicSeeMore() {
                 Text(
                     text = it.toString(),
                     fontSize = 18.sp,
-                    modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                    modifier = Modifier.padding(3.dp).align(Alignment.Center),
                 )
             }
         }
@@ -263,7 +263,7 @@ internal fun DynamicSeeMoreForDrawText(
                     textMeasurer.measure(
                         text = "+2000",
                         style = TextStyle(fontSize = 24.sp),
-                        constraints = constraints
+                        constraints = constraints,
                     )
                 val placeable =
                     measurable.measure(
@@ -271,7 +271,7 @@ internal fun DynamicSeeMoreForDrawText(
                             minWidth = result.size.width,
                             maxWidth = result.size.width,
                             minHeight = result.size.height,
-                            maxHeight = result.size.height
+                            maxHeight = result.size.height,
                         )
                     )
                 layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
@@ -283,7 +283,7 @@ internal fun DynamicSeeMoreForDrawText(
             var textLayoutResult: TextLayoutResult =
                 textMeasurer.measure(
                     text = if (remainingItems == 0) collapseText else "+$remainingItems",
-                    style = TextStyle(fontSize = 18.sp)
+                    style = TextStyle(fontSize = 18.sp),
                 )
             drawText(
                 textLayoutResult,
@@ -291,7 +291,7 @@ internal fun DynamicSeeMoreForDrawText(
                     Offset(
                         (size.width - textLayoutResult.size.width) / 2,
                         (size.height - textLayoutResult.size.height) / 2,
-                    )
+                    ),
             )
         }
     }
@@ -303,7 +303,7 @@ internal fun Ellipsis(text: String, onClick: () -> Unit) {
         Text(
             modifier = Modifier.align(Alignment.Center).padding(3.dp),
             text = text,
-            fontSize = 18.sp
+            fontSize = 18.sp,
         )
     }
 }

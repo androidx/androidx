@@ -23,22 +23,12 @@ GetterSetterNames: androidx.compose.ui.text.TextLayoutResult#didOverflowWidth:
     Invalid name for boolean property `didOverflowWidth`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.text.TextLayoutResult#getHasVisualOverflow():
     Getter for boolean property `hasVisualOverflow` is named `getHasVisualOverflow` but should match the property name. Use `@get:JvmName` to rename.
-GetterSetterNames: androidx.compose.ui.text.TextRange#collapsed:
-    Invalid name for boolean property `collapsed`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: androidx.compose.ui.text.TextRange#reversed:
-    Invalid name for boolean property `reversed`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.text.font.FontVariation.Setting#needsDensity:
     Invalid name for boolean property `needsDensity`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.text.input.ImeOptions#autoCorrect:
     Invalid name for boolean property `autoCorrect`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.compose.ui.text.input.ImeOptions#singleLine:
     Invalid name for boolean property `singleLine`. Should start with one of `has`, `can`, `should`, `is`.
-
-
-KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#ParagraphIntrinsics(String, androidx.compose.ui.text.TextStyle, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver) parameter #2:
-    Parameter `spanStyles` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
-KotlinDefaultParameterOrder: androidx.compose.ui.text.ParagraphIntrinsicsKt#ParagraphIntrinsics(String, androidx.compose.ui.text.TextStyle, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver) parameter #3:
-    Parameter `placeholders` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 
 
 NullableCollection: androidx.compose.ui.text.SpanStyle#getLocaleList():

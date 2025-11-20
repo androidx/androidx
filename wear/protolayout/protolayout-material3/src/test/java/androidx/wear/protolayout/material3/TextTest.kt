@@ -43,18 +43,42 @@ class TextTest {
                     text = TEXT,
                     color = COLOR.argb,
                     typography = Typography.TITLE_MEDIUM,
-                    settings = listOf(roundness)
+                    settings = listOf(roundness),
                 )
             }
         val provider = LayoutElementAssertionsProvider(text)
 
         // Underlying implementation is just calling androidx.wear.protolayout.layout.basicText
         // which is fully tested for all fields
-        provider.onElement(hasText(TEXT)).assertExists()
+        provider.onElement(hasText(TEXT.staticValue)).assertExists()
         provider.onElement(hasColor(COLOR)).assertExists()
         assertThat((text as Text).fontStyle!!.settings).hasSize(3)
         assertThat(text.fontStyle!!.settings[0].toFontSettingProto())
             .isEqualTo(roundness.toFontSettingProto())
+    }
+
+    @Test
+    fun textAutoSize_inflates() {
+        val text =
+            materialScope(
+                context = ApplicationProvider.getApplicationContext(),
+                deviceConfiguration = DEVICE_PARAMETERS,
+            ) {
+                text(
+                    text = TEXT,
+                    typography = Typography.TITLE_MEDIUM, // 16sp
+                    incrementsForTypographySize = listOf(-2f, 4f),
+                )
+            }
+        val provider = LayoutElementAssertionsProvider(text)
+
+        // Underlying implementation is just calling androidx.wear.protolayout.layout.basicText
+        // which is fully tested for all fields
+        provider.onElement(hasText(TEXT.staticValue)).assertExists()
+        assertThat((text as Text).fontStyle!!.sizes).hasSize(3)
+        assertThat(text.fontStyle!!.sizes[0].value).isEqualTo(14) // -2 step
+        assertThat(text.fontStyle!!.sizes[1].value).isEqualTo(20) // 4 steps
+        assertThat(text.fontStyle!!.sizes[2].value).isEqualTo(16) // main
     }
 
     private companion object {

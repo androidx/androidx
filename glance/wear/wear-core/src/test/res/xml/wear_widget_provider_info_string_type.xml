@@ -1,0 +1,15 @@
+<wearwidget-provider
+    label="Test Label"
+    description="Test Description"
+    icon="@android:drawable/ic_delete"
+    preferredType="LARGE" >
+
+    <container
+        type="SMALL"
+        previewImage="@android:drawable/ic_menu_add"/>
+
+    <container
+        type="large"
+        previewImage="@android:drawable/ic_menu_send" />
+
+</wearwidget-provider>

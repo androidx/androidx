@@ -29,8 +29,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/components/dividers" class="external" target="_blank">Material
- * Design divider</a>.
+ * [Material Design divider](https://material.io/components/dividers)
  *
  * A divider is a thin line that groups content in lists and layouts.
  *
@@ -48,7 +47,7 @@ fun Divider(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.onSurface.copy(alpha = DividerAlpha),
     thickness: Dp = 1.dp,
-    startIndent: Dp = 0.dp
+    startIndent: Dp = 0.dp,
 ) {
     val indentMod =
         if (startIndent.value != 0f) {

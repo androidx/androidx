@@ -28,5 +28,5 @@ class ButtonGroupBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = ButtonGroupBenchmark,
-        actionSuffix = "BUTTON_GROUP_ACTIVITY"
+        actionSuffix = "BUTTON_GROUP_ACTIVITY",
     )

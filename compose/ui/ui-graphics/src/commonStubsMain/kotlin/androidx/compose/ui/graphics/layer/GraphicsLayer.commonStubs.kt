@@ -53,7 +53,7 @@ actual class GraphicsLayer {
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ): Unit = implementedInJetBrainsFork()
 
     actual var clip: Boolean = implementedInJetBrainsFork()

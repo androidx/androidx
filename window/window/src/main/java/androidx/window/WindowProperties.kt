@@ -20,7 +20,7 @@ package androidx.window
  * Window-related [PackageManager.Property][android.content.pm.PackageManager.Property] tags that
  * can be defined in the app manifest file, `AndroidManifest.xml`.
  */
-object WindowProperties {
+public object WindowProperties {
     /**
      * Application-level [PackageManager.Property][android.content.pm.PackageManager.Property] tag
      * that specifies whether OEMs are permitted to provide activity embedding split-rule
@@ -54,7 +54,7 @@ object WindowProperties {
      * &lt;/application&gt;
      * </pre>
      */
-    const val PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE =
+    public const val PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE: String =
         "android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
 
     /**
@@ -77,7 +77,7 @@ object WindowProperties {
      * &lt;/application&gt;
      * </pre>
      */
-    const val PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED =
+    public const val PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED: String =
         "android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
 
     /**
@@ -109,7 +109,7 @@ object WindowProperties {
      * </application>
      * ```
      */
-    const val PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED =
+    public const val PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED: String =
         "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED"
 
     /**
@@ -138,7 +138,7 @@ object WindowProperties {
      * </application>
      * ```
      */
-    const val PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE =
+    public const val PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE: String =
         "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE"
 
     /**
@@ -167,7 +167,7 @@ object WindowProperties {
      * </application>
      * ```
      */
-    const val PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES =
+    public const val PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES: String =
         "android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES"
 
     /**
@@ -213,7 +213,7 @@ object WindowProperties {
      * </application>
      * ```
      */
-    const val PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE =
+    public const val PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE: String =
         "android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE"
 
     /**
@@ -251,6 +251,6 @@ object WindowProperties {
      * </application>
      * ```
      */
-    const val PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE =
+    public const val PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE: String =
         "android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE"
 }

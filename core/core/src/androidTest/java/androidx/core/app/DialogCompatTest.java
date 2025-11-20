@@ -52,9 +52,10 @@ public class DialogCompatTest extends BaseInstrumentationTestCase<TestActivity> 
             @Override
             public void run() {
                 final Dialog dialog = new Dialog(mContext);
-                dialog.setContentView(R.layout.custom_dialog);
-                View button = dialog.findViewById(R.id.dialog_button);
-                assertSame(button, DialogCompat.requireViewById(dialog, R.id.dialog_button));
+                dialog.setContentView(androidx.core.R.layout.custom_dialog);
+                View button = dialog.findViewById(androidx.core.R.id.dialog_button);
+                assertSame(button, DialogCompat.requireViewById(dialog,
+                        androidx.core.R.id.dialog_button));
             }
         });
     }
@@ -67,7 +68,7 @@ public class DialogCompatTest extends BaseInstrumentationTestCase<TestActivity> 
             @Override
             public void run() {
                 final Dialog dialog = new Dialog(mContext);
-                dialog.setContentView(R.layout.custom_dialog);
+                dialog.setContentView(androidx.core.R.layout.custom_dialog);
                 DialogCompat.requireViewById(dialog, R.id.container);
             }
         });
@@ -81,7 +82,7 @@ public class DialogCompatTest extends BaseInstrumentationTestCase<TestActivity> 
             @Override
             public void run() {
                 final Dialog dialog = new Dialog(mContext);
-                dialog.setContentView(R.layout.custom_dialog);
+                dialog.setContentView(androidx.core.R.layout.custom_dialog);
                 DialogCompat.requireViewById(dialog, View.NO_ID);
             }
         });

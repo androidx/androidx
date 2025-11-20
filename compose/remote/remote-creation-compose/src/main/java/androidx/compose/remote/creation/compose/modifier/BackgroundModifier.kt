@@ -1,0 +1,59 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
+package androidx.compose.remote.creation.compose.modifier
+
+import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.capture.shaders.RemoteSolidColor
+import androidx.compose.remote.creation.compose.capture.shaders.solidColor
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponentHeight
+import androidx.compose.remote.creation.compose.layout.remoteComponentWidth
+import androidx.compose.remote.creation.compose.state.FallbackCreationState
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.ui.graphics.Color
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.Element {
+    override fun toRemoteComposeElement(): RecordingModifier.Element {
+        return if (brush is RemoteSolidColor) {
+            val r = brush.color.red.id
+            val g = brush.color.green.id
+            val b = brush.color.blue.id
+            val a = brush.color.alpha.id
+            androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(r, g, b, a)
+        } else {
+            val width = remoteComponentWidth(FallbackCreationState.state)
+            val height = remoteComponentHeight(FallbackCreationState.state)
+            androidx.compose.remote.creation.modifiers.BackgroundModifier(
+                brush.createShader(RemoteSize(width, height)),
+                0,
+            )
+        }
+    }
+}
+
+public fun RemoteModifier.background(color: Color): RemoteModifier =
+    this.then(BackgroundModifier(RemoteBrush.solidColor(color)))
+
+public fun RemoteModifier.background(color: RemoteColor): RemoteModifier =
+    this.then(BackgroundModifier(RemoteBrush.solidColor(color)))
+
+public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
+    this.then(BackgroundModifier(brush))

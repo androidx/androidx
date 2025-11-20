@@ -67,11 +67,11 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
         warmupCount: Int? = null,
         @SuppressWarnings("AutoBoxing") // allocations for tests not relevant, not in critical path
-        repeatCount: Int? = null
+        repeatCount: Int? = null,
     ) : this(
         warmupCount = warmupCount,
         measurementCount = repeatCount,
-        simplifiedTimingOnlyMode = false
+        simplifiedTimingOnlyMode = false,
     )
 
     /** Constructor used for standard uses of BenchmarkState, e.g. in BenchmarkRule */
@@ -84,7 +84,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         warmupCount: Int? = null,
         measurementCount: Int? = null,
         simplifiedTimingOnlyMode: Boolean = false,
-        config: MicrobenchmarkConfig? = null
+        config: MicrobenchmarkConfig? = null,
     ) : this(
         MicrobenchmarkPhase.Config(
             dryRunMode = Arguments.dryRunMode,
@@ -101,12 +101,12 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
                             TimeCapture(),
                             CpuEventCounterCapture(
                                 MicrobenchmarkPhase.cpuEventCounter,
-                                Arguments.cpuEventCounterMask
-                            )
+                                Arguments.cpuEventCounterMask,
+                            ),
                         )
                     } else {
                         arrayOf(TimeCapture())
-                    }
+                    },
         )
     )
 
@@ -135,7 +135,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
      * Decreasing iteration count used when running a multi-iteration measurement phase Used to
      * determine when a main measurement stage finishes.
      */
-    @Suppress("ShowingMemberInHiddenClass")
+    @field:Suppress("ShowingMemberInHiddenClass")
     @JvmField
     @PublishedApi // previously used by [BenchmarkState.keepRunningInline()]
     internal var iterationsRemaining: Int = -1
@@ -542,12 +542,12 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
                         BenchmarkData.TestResult.ProfilerOutput(
                             Profiler.ResultFile.ofPerfettoTrace(
                                 label = "Trace",
-                                absolutePath = perfettoTracePath
+                                absolutePath = perfettoTracePath,
                             )
                         )
                     },
-                    profilerResult?.let { BenchmarkData.TestResult.ProfilerOutput(it) }
-                )
+                    profilerResult?.let { BenchmarkData.TestResult.ProfilerOutput(it) },
+                ),
         )
 
     @ExperimentalBenchmarkStateApi
@@ -567,7 +567,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
     internal fun getFullStatusReport(
         key: String,
         reportMetrics: Boolean,
-        tracePath: String?
+        tracePath: String?,
     ): Bundle {
         Log.i(TAG, key + metricResults.map { it.getSummary() } + "count=$iterationsPerRepeat")
         val status = Bundle()
@@ -585,11 +585,11 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
                         tracePath?.let {
                             Profiler.ResultFile.ofPerfettoTrace(
                                 label = "Trace",
-                                absolutePath = tracePath
+                                absolutePath = tracePath,
                             )
                         },
-                        profilerResult
-                    )
+                        profilerResult,
+                    ),
             )
         return status
     }
@@ -599,7 +599,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
         fullClassName: String,
         simpleClassName: String,
         methodName: String,
-        perfettoTracePath: String?
+        perfettoTracePath: String?,
     ) {
         if (phaseIndex == -1) {
             return // nothing to report, BenchmarkState wasn't used
@@ -616,14 +616,14 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
             getFullStatusReport(
                 key = fullTestName,
                 reportMetrics = !Arguments.dryRunMode,
-                tracePath = perfettoTracePath
+                tracePath = perfettoTracePath,
             )
         reportBundle(bundle)
         ResultWriter.appendTestResult(
             getTestResult(
                 testName = PREFIX + methodName,
                 className = fullClassName,
-                perfettoTracePath = perfettoTracePath
+                perfettoTracePath = perfettoTracePath,
             )
         )
     }
@@ -688,7 +688,7 @@ class BenchmarkStateLegacy internal constructor(phaseConfig: MicrobenchmarkPhase
             dataNs: List<Long>,
             @IntRange(from = 0) warmupIterations: Int,
             @IntRange(from = 0) thermalThrottleSleepSeconds: Long,
-            @IntRange(from = 1) repeatIterations: Int
+            @IntRange(from = 1) repeatIterations: Int,
         ) {
             val metricsContainer = MetricsContainer(repeatCount = dataNs.size)
             dataNs.forEachIndexed { index, value -> metricsContainer.data[index][0] = value }

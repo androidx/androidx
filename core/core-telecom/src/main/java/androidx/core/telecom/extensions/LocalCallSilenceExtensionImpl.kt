@@ -28,7 +28,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -39,7 +38,7 @@ internal class LocalCallSilenceExtensionImpl(
     coroutineContext: CoroutineContext,
     private val callStateFlow: MutableSharedFlow<CallStateEvent>,
     private val initialSilenceState: Boolean,
-    private val onLocalSilenceUpdate: suspend (Boolean) -> Unit
+    private val onLocalSilenceUpdate: suspend (Boolean) -> Unit,
 ) : LocalCallSilenceExtension {
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var mIsGloballyMuted: Boolean = false
@@ -59,7 +58,7 @@ internal class LocalCallSilenceExtensionImpl(
                 } else if (isInactive() && shouldRemute) {
                     Log.i(
                         TAG,
-                        "MUTING the mic globally to put the device back in its original state"
+                        "MUTING the mic globally to put the device back in its original state",
                     )
                     mAudioManager.setMicrophoneMute(true)
                     shouldRemute = false
@@ -121,14 +120,11 @@ internal class LocalCallSilenceExtensionImpl(
     private fun onCreateLocalSilenceExtension(
         coroutineScope: CoroutineScope,
         remoteActions: Set<Int>,
-        binder: LocalCallSilenceStateListenerRemote
+        binder: LocalCallSilenceStateListenerRemote,
     ) {
         Log.d(TAG, "onCreateLocalSilenceExtension: actions=$remoteActions")
-        // Synchronize initial state with remote
-        binder.updateIsLocallySilenced(initialSilenceState)
         // Setup listeners for changes to state
         isLocallySilenced
-            .drop(1) // drop the first value since the sync was already sent out
             .onEach {
                 // send all updates to the remote surfaces
                 // VoIP --> ICS
@@ -147,6 +143,10 @@ internal class LocalCallSilenceExtensionImpl(
      */
     private suspend fun localCallSilenceStateChanged(isSilenced: Boolean) {
         Log.i(TAG, "localCallSilenceStateChanged: isSilenced=[$isSilenced]")
+        // notify the voip application of the remote InCallService update
         onLocalSilenceUpdate(isSilenced)
+        // update all remote surfaces to be in sync with the new state
+        // and the isLocallySilenced state
+        updateIsLocallySilenced(isSilenced)
     }
 }

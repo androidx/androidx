@@ -27,7 +27,6 @@ import kotlin.math.abs
  * A composition local to customize the focus scrolling behavior used by some scrollable containers.
  * [LocalBringIntoViewSpec] has a platform defined default behavior.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 expect val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
 
 /**
@@ -76,7 +75,7 @@ interface BringIntoViewSpec {
         internal fun defaultCalculateScrollDistance(
             offset: Float,
             size: Float,
-            containerSize: Float
+            containerSize: Float,
         ): Float {
             val trailingEdge = offset + size
             @Suppress("UnnecessaryVariable") val leadingEdge = offset

@@ -44,7 +44,7 @@ fun requestJavaHeapDump(context: Context) {
             .setTag("tag" /* Caller supplied tag for identification */)
             .build(),
         Dispatchers.IO.asExecutor(), // Your choice of executor for the callback to occur on.
-        listener
+        listener,
     )
 }
 
@@ -76,7 +76,7 @@ fun requestHeapProfile(context: Context) {
             .setCancellationSignal(cancellationSignal)
             .build(),
         Dispatchers.IO.asExecutor(), // Your choice of executor for the callback to occur on.
-        listener
+        listener,
     )
 
     // Optionally, wait for something interesting to happen and then stop the profiling to receive
@@ -111,7 +111,7 @@ fun requestStackSampling(context: Context) {
             .setCancellationSignal(cancellationSignal)
             .build(),
         Dispatchers.IO.asExecutor(), // Your choice of executor for the callback to occur on.
-        listener
+        listener,
     )
 
     // Optionally, wait for something interesting to happen and then stop the profiling to receive
@@ -146,7 +146,7 @@ fun requestSystemTrace(context: Context) {
             .setCancellationSignal(cancellationSignal)
             .build(),
         Dispatchers.IO.asExecutor(), // Your choice of executor for the callback to occur on.
-        listener
+        listener,
     )
 
     // Optionally, wait for something interesting to happen and then stop the profiling to receive
@@ -169,7 +169,7 @@ fun registerForAllProfilingResultsSample(context: Context) {
     registerForAllProfilingResults(
         context,
         Dispatchers.IO.asExecutor(), // Your choice of executor for the callback to occur on.
-        listener
+        listener,
     )
 }
 

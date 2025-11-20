@@ -51,7 +51,7 @@ object DataTransformationsKeyValue {
             CameraMetadataKey.COLOR_CORRECTION_ABERRATION_MODE to
                 { keyData: Any? ->
                     stateTransformation(CameraMetadataKey.COLOR_CORRECTION_ABERRATION_MODE, keyData)
-                }
+                },
         )
 
     private fun typeTransformation(key: CameraMetadataKey, keyData: Any?): String? {

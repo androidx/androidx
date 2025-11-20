@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.os.Build
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,7 +63,7 @@ class DataWithInlineClassJUnitTest {
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class DataWithInlineClassRobolectricTest {
     @Test
     fun inlineClassesAreEqualInRobolectric() {

@@ -22,7 +22,7 @@ android {
             assets.srcDirs new File(fontDir, "font").getAbsolutePath()
             resources {
                 srcDirs += [fontDir.getAbsolutePath()]
-                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
+                filter.includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
             }
         }
 

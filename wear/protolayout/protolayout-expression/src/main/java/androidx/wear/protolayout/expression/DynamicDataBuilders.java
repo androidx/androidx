@@ -298,7 +298,7 @@ public final class DynamicDataBuilders {
          * type}. Otherwise returns false.
          */
         default boolean hasValueOfType(@NonNull Class<?> type) {
-            throw new IllegalArgumentException(
+            throw new UnsupportedOperationException(
                     String.format(
                             "Class %s has not implemented 'hasValueOfType' method.", getClass()));
         }

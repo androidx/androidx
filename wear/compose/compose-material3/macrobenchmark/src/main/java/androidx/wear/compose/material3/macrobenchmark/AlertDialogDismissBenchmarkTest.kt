@@ -28,5 +28,5 @@ class AlertDialogDismissBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = AlertDialogDismissBenchmark,
-        actionSuffix = "ALERT_DIALOG_DISMISS_ACTIVITY"
+        actionSuffix = "ALERT_DIALOG_DISMISS_ACTIVITY",
     )

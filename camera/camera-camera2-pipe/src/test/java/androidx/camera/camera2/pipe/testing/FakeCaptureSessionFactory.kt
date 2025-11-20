@@ -26,14 +26,14 @@ import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 /** Fake [CaptureSessionFactory] for use in tests. This fake does NOT invoke callbacks. */
 internal class FakeCaptureSessionFactory(
     private val requiredStreams: Set<StreamId>,
-    private val deferrableStreams: Set<StreamId>
+    private val deferrableStreams: Set<StreamId>,
 ) : CaptureSessionFactory {
     private val allStreams = requiredStreams + deferrableStreams
 
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,
-        captureSessionState: CaptureSessionState
+        captureSessionState: CaptureSessionState,
     ): Map<StreamId, OutputConfigurationWrapper> {
         check(allStreams.containsAll(surfaces.keys)) {
             "Unexpected streams passed to create! Keys should be one of $allStreams but actual" +

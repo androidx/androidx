@@ -19,13 +19,12 @@ package androidx.work.impl.background.systemalarm;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.work.Logger;
 import androidx.work.impl.WorkManagerImpl;
 
 /**
- * Reschedules alarms on BOOT_COMPLETED and other similar scenarios.
+ * Reschedules alarms on BOOT_COMPLETED.
  */
 public class RescheduleReceiver extends BroadcastReceiver {
 
@@ -34,20 +33,15 @@ public class RescheduleReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Logger.get().debug(TAG, "Received intent " + intent);
-        if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            try {
-                WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
-                final PendingResult pendingResult = goAsync();
-                workManager.setReschedulePendingResult(pendingResult);
-            } catch (IllegalStateException e) {
-                // WorkManager has not already been initialized.
-                Logger.get().error(TAG,
-                        "Cannot reschedule jobs. WorkManager needs to be initialized via a "
-                                + "ContentProvider#onCreate() or an Application#onCreate().", e);
-            }
-        } else {
-            Intent reschedule = CommandHandler.createRescheduleIntent(context);
-            context.startService(reschedule);
+        try {
+            WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
+            final PendingResult pendingResult = goAsync();
+            workManager.setReschedulePendingResult(pendingResult);
+        } catch (IllegalStateException e) {
+            // WorkManager has not already been initialized.
+            Logger.get().error(TAG,
+                    "Cannot reschedule jobs. WorkManager needs to be initialized via a "
+                            + "ContentProvider#onCreate() or an Application#onCreate().", e);
         }
     }
 }

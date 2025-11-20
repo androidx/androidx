@@ -151,7 +151,7 @@ object Outputs {
         InstrumentationResults.reportAdditionalFileToCopy(
             key = sanitizedName,
             absoluteFilePath = destination.absolutePath,
-            reportOnRunEndOnly = reportOnRunEndOnly
+            reportOnRunEndOnly = reportOnRunEndOnly,
         )
         return destination.absolutePath
     }

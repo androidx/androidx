@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -49,6 +49,6 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.activity.ktx"
 }

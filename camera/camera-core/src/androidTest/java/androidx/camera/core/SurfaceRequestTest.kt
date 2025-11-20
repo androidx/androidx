@@ -31,7 +31,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth
@@ -47,7 +46,6 @@ import org.mockito.Mockito
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class SurfaceRequestTest {
     private val surfaceRequests: MutableList<SurfaceRequest> = ArrayList()
 
@@ -117,7 +115,7 @@ class SurfaceRequestTest {
                 ArgumentMatchers.eq(
                     SurfaceRequest.Result.of(
                         SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE,
-                        SURFACE
+                        SURFACE,
                     )
                 )
             )
@@ -156,7 +154,7 @@ class SurfaceRequestTest {
         request.provideSurface(
             SURFACE,
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
-            listener
+            listener,
         )
 
         // Cause request to be completed from producer side
@@ -166,7 +164,7 @@ class SurfaceRequestTest {
                 ArgumentMatchers.eq(
                     SurfaceRequest.Result.of(
                         SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY,
-                        SURFACE
+                        SURFACE,
                     )
                 )
             )
@@ -185,7 +183,7 @@ class SurfaceRequestTest {
                 ArgumentMatchers.eq(
                     SurfaceRequest.Result.of(
                         SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED,
-                        SURFACE
+                        SURFACE,
                     )
                 )
             )
@@ -241,7 +239,7 @@ class SurfaceRequestTest {
                 ArgumentMatchers.eq(
                     SurfaceRequest.Result.of(
                         SurfaceRequest.Result.RESULT_REQUEST_CANCELLED,
-                        SURFACE
+                        SURFACE,
                     )
                 )
             )
@@ -253,7 +251,7 @@ class SurfaceRequestTest {
         val listener = Mockito.mock(Runnable::class.java)
         request.addRequestCancellationListener(
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
-            listener
+            listener,
         )
 
         // Cause request to be cancelled from producer side
@@ -270,7 +268,7 @@ class SurfaceRequestTest {
         val listener = Mockito.mock(Runnable::class.java)
         request.addRequestCancellationListener(
             ContextCompat.getMainExecutor(ApplicationProvider.getApplicationContext()),
-            listener
+            listener,
         )
         Mockito.verify(listener, Mockito.timeout(500)).run()
     }
@@ -400,7 +398,7 @@ class SurfaceRequestTest {
                 Surface.ROTATION_0,
                 /*hasCameraTransform=*/ true,
                 /*sensorToBufferTransform=*/ Matrix(),
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             )
         }
         private val NO_OP_RESULT_LISTENER = Consumer { _: SurfaceRequest.Result? -> }

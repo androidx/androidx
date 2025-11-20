@@ -40,11 +40,7 @@ import org.jetbrains.uast.UCallExpression
  */
 class ComposableCoroutineCreationDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() =
-        listOf(
-            Async.shortName,
-            Launch.shortName,
-            LaunchIn.shortName,
-        )
+        listOf(Async.shortName, Launch.shortName, LaunchIn.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (
@@ -59,7 +55,7 @@ class ComposableCoroutineCreationDetector : Detector(), SourceCodeScanner {
                 node,
                 context.getNameLocation(node),
                 "Calls to ${method.name} should happen inside a LaunchedEffect and " +
-                    "not composition"
+                    "not composition",
             )
         }
     }
@@ -82,8 +78,8 @@ class ComposableCoroutineCreationDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ComposableCoroutineCreationDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

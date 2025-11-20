@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 class StateSaveFragment(
     var savedState: String? = null,
     val unsavedState: String? = null,
-    val retain: Boolean = false
+    val retain: Boolean = false,
 ) : StrictFragment() {
 
     @Suppress("DEPRECATION")

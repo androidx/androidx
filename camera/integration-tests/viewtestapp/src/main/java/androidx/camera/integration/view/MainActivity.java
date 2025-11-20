@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -40,6 +41,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Collections;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.content, Collections.emptyList());
         // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {

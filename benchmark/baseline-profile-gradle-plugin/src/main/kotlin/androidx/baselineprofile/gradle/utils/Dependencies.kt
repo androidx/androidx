@@ -26,7 +26,7 @@ internal class Dependencies(private val project: Project) {
     fun copy(
         fromPrefix: String,
         toPrefix: String,
-        configurationsToCopy: List<String> = defaultConfigurationsToCopy
+        configurationsToCopy: List<String> = defaultConfigurationsToCopy,
     ) {
         configurationsToCopy.forEach { configurationName ->
             val fromVariantConfigurationName = camelCase(fromPrefix, configurationName)

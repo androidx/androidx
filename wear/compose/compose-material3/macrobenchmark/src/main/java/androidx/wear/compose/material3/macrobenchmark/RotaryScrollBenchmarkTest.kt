@@ -33,7 +33,7 @@ class RotaryScrollBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = RotaryScrollBenchmark,
-        actionSuffix = "ROTARY_SCROLL_ACTIVITY"
+        actionSuffix = "ROTARY_SCROLL_ACTIVITY",
     ) {
 
     @Test

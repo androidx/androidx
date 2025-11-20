@@ -63,17 +63,18 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -82,7 +83,7 @@ private const val animationTime = 900L
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 class CarouselTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun carousel_autoScrolls() {
@@ -102,14 +103,14 @@ class CarouselTest {
         rule.setContent { SampleCarousel { BasicText(text = "Text ${it + 1}") } }
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
-        rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
+        rule.onNodeWithTag("pager").assertIsNotFocused()
 
-        rule.onNodeWithText("Text 1").onParent().requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
         rule.onNodeWithText("Text 2").assertDoesNotExist()
-        rule.onNodeWithText("Text 1").onParent().assertIsFocused()
+        rule.onNodeWithTag("pager").assertIsFocused()
     }
 
     @Test
@@ -123,7 +124,7 @@ class CarouselTest {
         }
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
-        rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
+        rule.onNodeWithTag("pager").assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -145,7 +146,7 @@ class CarouselTest {
         rule.mainClock.autoAdvance = false
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
-        rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
+        rule.onNodeWithTag("pager").assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -183,7 +184,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithText("Text 1").assertIsDisplayed()
-        rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
+        rule.onNodeWithTag("pager").assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -227,7 +228,7 @@ class CarouselTest {
 
         rule.mainClock.autoAdvance = false
         rule.onNodeWithText("Text 1").assertIsDisplayed()
-        rule.onNodeWithText("Text 1").onParent().assertIsNotFocused()
+        rule.onNodeWithTag("pager").assertIsNotFocused()
 
         rule.mainClock.advanceTimeBy(delayBetweenItems)
 
@@ -254,7 +255,7 @@ class CarouselTest {
             }
         }
 
-        rule.onNodeWithText("Text 1").onParent().requestFocus()
+        rule.onNodeWithTag("pager").requestFocus()
 
         rule.onNodeWithText("Card").requestFocus()
         rule.onNodeWithText("Card").assertIsFocused()
@@ -306,6 +307,7 @@ class CarouselTest {
         rule.onNodeWithText("Play 0", useUnmergedTree = true).assertIsDisplayed().assertIsFocused()
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454425755
     @Test
     fun carousel_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
@@ -335,6 +337,7 @@ class CarouselTest {
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454425755
     @Test
     fun carousel_withCarouselItem_parentContainerGainsFocusOnBackPress() {
         rule.setContent {
@@ -383,7 +386,7 @@ class CarouselTest {
                                 .size(200.dp)
                                 .border(2.dp, if (isFocused) Color.Red else Color.Black)
                                 .onFocusChanged { fs -> isFocused = fs.isFocused }
-                                .focusable()
+                                .focusable(),
                     )
                 }
                 item {
@@ -395,14 +398,14 @@ class CarouselTest {
                                 .border(2.dp, Color.Black),
                         carouselState = rememberCarouselState(),
                         itemCount = 3,
-                        autoScrollDurationMillis = delayBetweenItems
+                        autoScrollDurationMillis = delayBetweenItems,
                     ) {
                         SampleCarouselItem(index = it) {
                             Box(
                                 modifier =
                                     Modifier.animateEnterExit(
                                         enter = slideInHorizontally(),
-                                        exit = slideOutHorizontally()
+                                        exit = slideOutHorizontally(),
                                     )
                             ) {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
@@ -422,7 +425,7 @@ class CarouselTest {
                                 .size(250.dp)
                                 .border(2.dp, if (isFocused) Color.Red else Color.Black)
                                 .onFocusChanged { fs -> isFocused = fs.isFocused }
-                                .focusable()
+                                .focusable(),
                     )
                 }
             }
@@ -537,7 +540,7 @@ class CarouselTest {
                                 numberOfTimesTabGainedFocus++
                             }
                         },
-                    selectedTabIndex = selectedTabIndex
+                    selectedTabIndex = selectedTabIndex,
                 ) {
                     tabs.forEachIndexed { index, tab ->
                         Tab(
@@ -566,7 +569,7 @@ class CarouselTest {
         itemProgression.forEach {
             performKeyPress(
                 if (it < 0) NativeKeyEvent.KEYCODE_DPAD_LEFT else NativeKeyEvent.KEYCODE_DPAD_RIGHT,
-                abs(it)
+                abs(it),
             )
             rule.waitForIdle()
         }
@@ -728,7 +731,7 @@ class CarouselTest {
             }
             SampleCarousel(
                 itemCount = itemCount,
-                timeToDisplayItemMillis = itemDisplayDurationMs
+                timeToDisplayItemMillis = itemDisplayDurationMs,
             ) { index ->
                 if (index >= itemCount) {
                     // itemIndex requested should not be greater than itemCount. User could be
@@ -838,7 +841,7 @@ private fun SampleCarousel(
     carouselState: CarouselState = rememberCarouselState(),
     itemCount: Int = 3,
     timeToDisplayItemMillis: Long = delayBetweenItems,
-    content: @Composable AnimatedContentScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit,
 ) {
     Carousel(
         modifier = Modifier.padding(5.dp).fillMaxWidth().height(200.dp).testTag("pager"),
@@ -849,7 +852,7 @@ private fun SampleCarousel(
             CarouselDefaults.IndicatorRow(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).testTag("indicator"),
                 activeItemIndex = carouselState.activeItemIndex,
-                itemCount = itemCount
+                itemCount = itemCount,
             )
         },
         content = { content(it) },
@@ -881,10 +884,7 @@ private fun SampleButton(text: String = "Play") {
     )
 }
 
-private fun checkNodeCompletelyVisible(
-    rule: ComposeContentTestRule,
-    tag: String,
-): Boolean {
+private fun checkNodeCompletelyVisible(rule: ComposeContentTestRule, tag: String): Boolean {
     rule.waitForIdle()
 
     val rootRect = rule.onRoot().getUnclippedBoundsInRoot()
@@ -915,7 +915,7 @@ private fun performLongKeyPress(rule: ComposeContentTestRule, keyCode: Int, coun
                 0,
                 0,
                 0,
-                0
+                0,
             )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(firstKeyDownEvent))
         rule.waitForIdle()
@@ -930,7 +930,7 @@ private fun performLongKeyPress(rule: ComposeContentTestRule, keyCode: Int, coun
                 5,
                 0,
                 0,
-                0
+                0,
             )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(repeatedKeyDownEvent))
         rule.waitForIdle()
@@ -945,7 +945,7 @@ private fun performLongKeyPress(rule: ComposeContentTestRule, keyCode: Int, coun
                 0,
                 0,
                 0,
-                0
+                0,
             )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyUpEvent))
         rule.waitForIdle()

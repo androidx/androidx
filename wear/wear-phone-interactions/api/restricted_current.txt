@@ -26,22 +26,23 @@ package androidx.wear.phone.interactions.authentication {
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeChallenge {
     ctor public CodeChallenge(androidx.wear.phone.interactions.authentication.CodeVerifier codeVerifier);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
     ctor public CodeVerifier();
     ctor public CodeVerifier(optional int byteLength);
+    ctor @BytecodeOnly public CodeVerifier(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public CodeVerifier(String value);
-    method public String getValue();
+    method @InaccessibleFromKotlin public String getValue();
     property public String value;
   }
 
   public final class OAuthRequest {
-    method public String getPackageName();
-    method public String getRedirectUrl();
-    method public android.net.Uri getRequestUrl();
+    method @InaccessibleFromKotlin public String getPackageName();
+    method @InaccessibleFromKotlin public String getRedirectUrl();
+    method @InaccessibleFromKotlin public android.net.Uri getRequestUrl();
     property public String packageName;
     property public String redirectUrl;
     property public android.net.Uri requestUrl;
@@ -65,9 +66,9 @@ package androidx.wear.phone.interactions.authentication {
   }
 
   public final class OAuthResponse {
-    method public int getErrorCode();
-    method public android.net.Uri? getResponseUrl();
-    property @androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode public int errorCode;
+    method @InaccessibleFromKotlin public int getErrorCode();
+    method @InaccessibleFromKotlin public android.net.Uri? getResponseUrl();
+    property public int errorCode;
     property public android.net.Uri? responseUrl;
   }
 
@@ -82,7 +83,7 @@ package androidx.wear.phone.interactions.authentication {
     method @UiThread public void close();
     method public static androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
     method protected void finalize();
-    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getAvailabilityStatus();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.lang.Integer> getAvailabilityStatus();
     method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, java.util.concurrent.Executor executor, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
     property public kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
     field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
@@ -137,8 +138,8 @@ package androidx.wear.phone.interactions.authentication {
 package androidx.wear.phone.interactions.notifications {
 
   public final class BridgingConfig {
-    method public java.util.Set<java.lang.String>? getExcludedTags();
-    method public boolean isBridgingEnabled();
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.String>? getExcludedTags();
+    method @InaccessibleFromKotlin public boolean isBridgingEnabled();
     property public java.util.Set<java.lang.String>? excludedTags;
     property public boolean isBridgingEnabled;
   }

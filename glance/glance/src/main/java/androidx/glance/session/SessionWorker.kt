@@ -55,7 +55,7 @@ import kotlinx.coroutines.withContext
  * @property timeSource The time source for measuring progress towards timeouts.
  */
 @RestrictTo(LIBRARY_GROUP)
-data class TimeoutOptions(
+public data class TimeoutOptions(
     val initialTimeout: Duration = 45.seconds,
     val additionalTime: Duration = 5.seconds,
     val idleTimeout: Duration = 5.seconds,
@@ -71,28 +71,25 @@ data class TimeoutOptions(
  * composition, the worker blocks on [Session.receiveEvents] until [Session.close] is called.
  */
 @RestrictTo(LIBRARY_GROUP)
-class SessionWorker(
+public class SessionWorker(
     appContext: Context,
     private val params: WorkerParameters,
     private val sessionManager: SessionManager = GlanceSessionManager,
     private val timeouts: TimeoutOptions = TimeoutOptions(),
     @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
-    override val coroutineContext: CoroutineDispatcher = Dispatchers.Main
+    override val coroutineContext: CoroutineDispatcher = Dispatchers.Main,
 ) : CoroutineWorker(appContext, params) {
     // This constructor is required by WorkManager's default WorkerFactory.
-    constructor(
+    public constructor(
         appContext: Context,
-        params: WorkerParameters
-    ) : this(
-        appContext,
-        params,
-        GlanceSessionManager,
-    )
+        params: WorkerParameters,
+    ) : this(appContext, params, GlanceSessionManager)
 
-    companion object {
+    public companion object {
         internal const val TAG = "GlanceSessionWorker"
         internal const val DEBUG = false
         internal const val TimeoutExitReason = "TIMEOUT_EXIT_REASON"
+        private const val SessionRunLimit = 3
     }
 
     private val key =
@@ -101,58 +98,69 @@ class SessionWorker(
 
     @VisibleForTesting internal var effectJob: Job? = null
 
-    override suspend fun doWork() =
-        withTimerOrNull(timeouts.timeSource) {
-            observeIdleEvents(
-                applicationContext,
-                onIdle = {
-                    startTimer(timeouts.idleTimeout)
-                    if (DEBUG) Log.d(TAG, "Received idle event, session timeout $timeLeft")
-                }
-            ) {
-                val session =
-                    sessionManager.runWithLock { getSession(key) }
-                        ?: if (params.runAttemptCount == 0) {
-                            error("No session available for key $key")
-                        } else {
-                            // If this is a retry because the process was restarted (e.g. on app
-                            // upgrade
-                            // or reinstall), the Session object won't be available because it's not
-                            // persistable.
-                            Log.w(
-                                TAG,
-                                "SessionWorker attempted restart but Session is not available for $key"
-                            )
-                            return@observeIdleEvents Result.success()
-                        }
-
-                try {
-                    runSession(
-                        applicationContext,
-                        session,
-                        timeouts,
-                        effectJobFactory = { Job().also { effectJob = it } }
+    override suspend fun doWork(): Result {
+        val session =
+            sessionManager.runWithLock { getSession(key) }
+                ?: if (params.runAttemptCount == 0) {
+                    error("No session available for key $key")
+                } else {
+                    // If this is a retry because the process was restarted (e.g. on app upgrade
+                    // or reinstall), the Session object won't be available because it's not
+                    // persistable.
+                    Log.w(
+                        TAG,
+                        "SessionWorker attempted restart but Session is not available for $key",
                     )
-                } finally {
-                    // Get session manager lock to close session to prevent a race where an observer
-                    // who is checking session state (e.g. GlanceAppWidget.update) sees this session
-                    // as running before trying to send an event. Without the lock, it may happen
-                    // that we close right after they see us as running, which will cause an error
-                    // when they try to send an event.
-                    // With the lock, if they see us as running and send an event right before this
-                    // block, then the event will be unhandled.
-                    // After this block, observers will see this session as closed, so they will
-                    // start a new one instead of trying to send events to this one.
-                    // We must use NonCancellable here because it provides a Job that has not been
-                    // cancelled. The withTimerOrNull Job that the session runs in has already been
-                    // cancelled, so suspending with that Job would throw a CancellationException.
+                    return Result.success()
+                }
+
+        var nextSession: Session? = session
+        var runCount = 0
+        while (nextSession != null && runCount < SessionRunLimit) {
+            val currentSession = nextSession
+            runCount++
+            try {
+                val result =
+                    withTimerOrNull(timeouts.timeSource) {
+                        observeIdleEvents(
+                            applicationContext,
+                            onIdle = {
+                                startTimer(timeouts.idleTimeout)
+                                if (DEBUG)
+                                    Log.d(TAG, "Received idle event, session timeout $timeLeft")
+                            },
+                        ) {
+                            runSession(
+                                applicationContext,
+                                currentSession,
+                                timeouts,
+                                effectJobFactory = { Job().also { effectJob = it } },
+                            )
+                            Result.success()
+                        }
+                    }
+
+                if (result != null) {
+                    // If there is a result, runSession completed in time, which means that the
+                    // session was closed externally (widget deleted). In this case we do not care
+                    // if there were pending events to run.
+                    return result
+                }
+
+                // If the session timed out with pending events, continue looping.
+                nextSession = sessionManager.runWithLock { recreateOrClose(currentSession) }
+            } finally {
+                if (currentSession.hasError) {
+                    // An error was thrown, make sure to close the session.
                     withContext(NonCancellable) {
-                        sessionManager.runWithLock { closeSession(session.key) }
+                        sessionManager.runWithLock { closeSession(currentSession.key) }
                     }
                 }
-                Result.success()
             }
-        } ?: Result.success(Data.Builder().putBoolean(TimeoutExitReason, true).build())
+        }
+
+        return Result.success(Data.Builder().putBoolean(TimeoutExitReason, true).build())
+    }
 }
 
 private suspend fun TimerScope.runSession(
@@ -174,7 +182,7 @@ private suspend fun TimerScope.runSession(
     // ends.
     val effectExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         launch {
-            session.onCompositionError(context, throwable)
+            session.reportCompositionError(context, throwable)
             this@runSession.cancel("Error in composition effect coroutine", throwable)
         }
     }
@@ -194,7 +202,7 @@ private suspend fun TimerScope.runSession(
             } catch (e: CancellationException) {
                 // do nothing if we are cancelled.
             } catch (throwable: Throwable) {
-                session.onCompositionError(context, throwable)
+                session.reportCompositionError(context, throwable)
                 this@runSession.cancel("Error in recomposition coroutine", throwable)
             }
         }
@@ -215,7 +223,7 @@ private suspend fun TimerScope.runSession(
                             val processed =
                                 session.processEmittableTree(
                                     context,
-                                    root.copy() as EmittableWithChildren
+                                    root.copy() as EmittableWithChildren,
                                 )
                             // If the UI has been processed for the first time, set uiReady to true
                             // and start the timeout.
@@ -258,6 +266,6 @@ private suspend fun TimerScope.runSession(
  * [GlanceSessionManager], i.e. without starting a worker.
  */
 @RestrictTo(LIBRARY_GROUP)
-suspend fun Session.runSession(context: Context) {
+public suspend fun Session.runSession(context: Context) {
     noopTimer { runSession(context, this@runSession, TimeoutOptions()) }
 }

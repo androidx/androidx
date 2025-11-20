@@ -23,7 +23,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -62,7 +61,6 @@ import java.util.Set;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalAppSearchApi
 public abstract class RevocableFileDescriptorStore {
 
     private final Object mLock  = new Object();
@@ -130,7 +128,7 @@ public abstract class RevocableFileDescriptorStore {
      */
     public @Nullable ParcelFileDescriptor getOpenedRevocableFileDescriptorForWrite(
             @NonNull String packageName,
-            @NonNull AppSearchBlobHandle blobHandle) {
+            @NonNull AppSearchBlobHandle blobHandle) throws IOException {
         synchronized (mLock) {
             Map<AppSearchBlobHandle, AppSearchRevocableFileDescriptor> rfdsForPackage =
                     mSentRevocableFileDescriptorsForWriteLocked.get(packageName);
@@ -140,6 +138,13 @@ public abstract class RevocableFileDescriptorStore {
             AppSearchRevocableFileDescriptor revocableFileDescriptor =
                     rfdsForPackage.get(blobHandle);
             if (revocableFileDescriptor == null) {
+                return null;
+            }
+            if (!revocableFileDescriptor.getRevocableFileDescriptor().getFileDescriptor().valid()) {
+                // In Android T and below, even if the sent file descriptor is closed, the resource
+                // won't be released immediately. We should revoke now and recreate new pfd.
+                revocableFileDescriptor.revoke();
+                rfdsForPackage.remove(blobHandle);
                 return null;
             }
             // The revocableFileDescriptor should never be revoked, otherwise it should be removed
@@ -207,7 +212,7 @@ public abstract class RevocableFileDescriptorStore {
             @NonNull AppSearchBlobHandle blobHandle) throws IOException {
         synchronized (mLock) {
             Map<AppSearchBlobHandle, AppSearchRevocableFileDescriptor> rfdsForWrite =
-                    mSentRevocableFileDescriptorsForWriteLocked.remove(packageName);
+                    mSentRevocableFileDescriptorsForWriteLocked.get(packageName);
             if (rfdsForWrite == null) {
                 return;
             }
@@ -286,9 +291,18 @@ public abstract class RevocableFileDescriptorStore {
                                 .get(packageName);
                         if (rfdsForPackage != null) {
                             AppSearchRevocableFileDescriptor rfd =
-                                    rfdsForPackage.remove(blobHandle);
-                            if (rfd != null) {
+                                    rfdsForPackage.get(blobHandle);
+                            if (rfd == revocableFileDescriptor) {
+                                // In Platform, this close listener will be only called
+                                // when the resource of sent pfd is released in the sdk
+                                // side. In T and below this may happened on a delay.
+                                // If user re-write with the same blob handle before release
+                                // the resource, the mSentRevocableFileDescriptorsForWrite
+                                // will be override by new AppSearchRevocableFileDescriptor.
+                                // We should only revoke and remove from map if there is no
+                                // other rfd created for this blob handle.
                                 try {
+                                    rfdsForPackage.remove(blobHandle);
                                     rfd.revoke();
                                 } catch (IOException ioException) {
                                     // ignore, the sent RevocableFileDescriptor should already

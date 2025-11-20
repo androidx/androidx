@@ -26,6 +26,12 @@ package androidx.sqlite
  */
 @Suppress("NotCloseable")
 public interface SQLiteConnection : AutoCloseable {
+
+    /** Returns true if the connection has an active transaction, false otherwise. */
+    public fun inTransaction(): Boolean {
+        throw NotImplementedError("$this does not implement inTransaction().")
+    }
+
     /**
      * Prepares a new SQL statement.
      *

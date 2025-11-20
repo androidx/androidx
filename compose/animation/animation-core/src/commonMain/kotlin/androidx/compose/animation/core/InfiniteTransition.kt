@@ -74,7 +74,7 @@ public class InfiniteTransition internal constructor(public val label: String) {
         internal var targetValue: T,
         public val typeConverter: TwoWayConverter<T, V>,
         animationSpec: AnimationSpec<T>,
-        public val label: String
+        public val label: String,
     ) : State<T> {
         override var value: T by mutableStateOf(initialValue)
             internal set
@@ -106,7 +106,7 @@ public class InfiniteTransition internal constructor(public val label: String) {
         internal fun updateValues(
             initialValue: T,
             targetValue: T,
-            animationSpec: AnimationSpec<T>
+            animationSpec: AnimationSpec<T>,
         ) {
             this.initialValue = initialValue
             this.targetValue = targetValue
@@ -242,7 +242,7 @@ public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
     targetValue: T,
     typeConverter: TwoWayConverter<T, V>,
     animationSpec: InfiniteRepeatableSpec<T>,
-    label: String = "ValueAnimation"
+    label: String = "ValueAnimation",
 ): State<T> {
     val transitionAnimation = remember {
         TransitionAnimationState(initialValue, targetValue, typeConverter, animationSpec, label)
@@ -256,7 +256,7 @@ public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
             transitionAnimation.updateValues(
                 initialValue = initialValue,
                 targetValue = targetValue,
-                animationSpec = animationSpec
+                animationSpec = animationSpec,
             )
         }
     }
@@ -292,13 +292,13 @@ public fun InfiniteTransition.animateFloat(
     initialValue: Float,
     targetValue: Float,
     animationSpec: InfiniteRepeatableSpec<Float>,
-    label: String = "FloatAnimation"
+    label: String = "FloatAnimation",
 ): State<Float> =
     animateValue(initialValue, targetValue, Float.VectorConverter, animationSpec, label)
 
 @Deprecated(
     "rememberInfiniteTransition APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun rememberInfiniteTransition(): InfiniteTransition {
@@ -307,7 +307,7 @@ public fun rememberInfiniteTransition(): InfiniteTransition {
 
 @Deprecated(
     "animateValue APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
@@ -321,24 +321,24 @@ public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
         targetValue = targetValue,
         typeConverter = typeConverter,
         animationSpec = animationSpec,
-        label = "ValueAnimation"
+        label = "ValueAnimation",
     )
 }
 
 @Deprecated(
     "animateFloat APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun InfiniteTransition.animateFloat(
     initialValue: Float,
     targetValue: Float,
-    animationSpec: InfiniteRepeatableSpec<Float>
+    animationSpec: InfiniteRepeatableSpec<Float>,
 ): State<Float> {
     return animateFloat(
         initialValue = initialValue,
         targetValue = targetValue,
         animationSpec = animationSpec,
-        label = "FloatAnimation"
+        label = "FloatAnimation",
     )
 }

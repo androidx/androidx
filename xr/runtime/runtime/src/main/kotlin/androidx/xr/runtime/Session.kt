@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,32 @@
  * limitations under the License.
  */
 
+@file:Suppress("BanConcurrentHashMap")
+
 package androidx.xr.runtime
 
 import android.app.Activity
-import android.content.pm.PackageManager
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
-import androidx.core.content.ContextCompat
-import androidx.xr.runtime.internal.Runtime
-import androidx.xr.runtime.internal.RuntimeFactory
-import java.util.ServiceLoader
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.xr.runtime.Config.ConfigMode
+import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
+import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
+import androidx.xr.runtime.internal.ApkNotInstalledException
+import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
+import androidx.xr.runtime.internal.JxrRuntime
+import androidx.xr.runtime.internal.PerceptionRuntimeFactory
+import androidx.xr.runtime.internal.RenderingRuntimeFactory
+import androidx.xr.runtime.internal.SceneRuntimeFactory
+import androidx.xr.runtime.internal.UnsupportedDeviceException
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.ComparableTimeMark
 import kotlin.time.TimeSource
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -32,129 +47,355 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * A session is the main entrypoint to features provided by ARCore for Jetpack XR. It manages the
  * system's state and its lifecycle, and contains the state of objects tracked by ARCore for Jetpack
  * XR.
  *
- * This class owns a significant amount of native heap memory. Apps using a `Session` consider its
- * lifecycle to ensure that native resources are released when the session is no longer needed. If
- * your activity is a single XR-enabled activity, it is recommended to call the `Session` object's
- * lifecycle methods from the activity's lifecycle methods using a
- * [lifecycle-aware component](https://developer.android.com/topic/libraries/architecture/lifecycle).
- * See [create], [resume], [pause], and [destroy] for more details.
+ * This class owns a significant amount of native heap memory. The [Session]'s lifecycle will be
+ * scoped to the [Activity] that owns it.
  */
 @Suppress("NotCloseable")
 public class Session
-internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val runtime: Runtime,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@JvmOverloads
+public constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val activity: Activity,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val stateExtenders: List<StateExtender>,
+    public val stateExtenders: List<StateExtender> =
+        loadProviders(StateExtender::class.java, STATE_EXTENDER_PROVIDERS),
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val coroutineScope: CoroutineScope,
-    private val activity: Activity,
+    public val sessionConnectors: List<SessionConnector> =
+        loadProviders(SessionConnector::class.java, SESSION_CONNECTOR_PROVIDERS),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val runtimes: List<JxrRuntime> = emptyList(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val coroutineScope: CoroutineScope = CoroutineScope(context = EmptyCoroutineContext),
 ) {
+    init {
+        check(!activitySessionMap.containsKey(activity)) {
+            "Session already exists for activity: $activity"
+        }
+        activitySessionMap[activity] = this
+
+        for (stateExtender in stateExtenders) {
+            stateExtender.initialize(runtimes)
+        }
+        for (sessionConnector in sessionConnectors) {
+            sessionConnector.initialize(runtimes)
+        }
+    }
+
     public companion object {
+        private val activitySessionMap = ConcurrentHashMap<Activity, Session>()
+
         /**
          * Creates a new [Session].
          *
-         * Creating a session requires the `android.permission.SCENE_UNDERSTANDING` and
-         * `android.permission.HAND_TRACKING` permissions to be granted.
-         *
-         * @param activity the [Activity] that owns the session.
-         * @param coroutineDispatcher the [CoroutineDispatcher] that will be used to handle the
-         *   session's coroutines.
+         * @param activity the [Activity] that provides the context for the session's resources and
+         *   controls the session's runtime state based on the [activity]'s lifecycle.
+         * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
+         *   coroutines.
          * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
-         *   newly created session, or [SessionCreatePermissionsNotGranted] if the required
-         *   permissions haven't been granted.
+         *   newly created session, or another [SessionCreateResult] if a certain criteria was not
+         *   met.
+         * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
+         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
+         * @sample androidx.xr.arcore.samples.callSessionCreate
          */
         @JvmOverloads
         @JvmStatic
+        @Suppress("deprecation")
         public fun create(
             activity: Activity,
-            coroutineDispatcher: CoroutineDispatcher = CoroutineDispatchers.Lightweight,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        ): SessionCreateResult =
+            create(activity, coroutineContext, unscaledGravityAlignedActivitySpace = false)
+
+        /**
+         * Creates a new [Session].
+         *
+         * @param activity the [Activity] that provides the context for the session's resources and
+         *   controls the session's runtime state based on the [activity]'s lifecycle.
+         * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
+         *   coroutines.
+         * @param unscaledGravityAlignedActivitySpace whether to use the unscaled gravity aligned
+         *   activity space for the session. When true, causes ActivitySpace for this session to
+         *   always be gravity aligned and to have a scale of [1 unit = 1 Meter]. Note that this
+         *   might result in visual inconsistencies between HOME_SPACE and FULL_SPACE_MANAGED modes.
+         *   Defaults to false.
+         * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
+         *   newly created session, or another [SessionCreateResult] if a certain criteria was not
+         *   met.
+         * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
+         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
+         * @sample androidx.xr.arcore.samples.callSessionCreate
+         */
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @Deprecated("Will be deleted in a future release.")
+        public fun create(
+            activity: Activity,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+            unscaledGravityAlignedActivitySpace: Boolean = false,
         ): SessionCreateResult {
-            val missingPermissions = activity.selectMissing(SESSION_PERMISSIONS)
-            if (missingPermissions.isNotEmpty()) {
-                return SessionCreatePermissionsNotGranted(missingPermissions)
+            check(activity is LifecycleOwner) { "Unsupported Activity type: ${activity.javaClass}" }
+            return create(
+                activity,
+                lifecycleOwner = activity,
+                coroutineContext,
+                unscaledGravityAlignedActivitySpace,
+            )
+        }
+
+        /**
+         * Creates a new [Session] with a provided [LifecycleOwner].
+         *
+         * Only use this version of the constructor if you desire to have finer control over the
+         * session's lifecycle. The [lifecycleOwner]'s lifecycle must still be bounded within the
+         * lifecycle of the provided [activity]. The session will be automatically destroyed if the
+         * [activity]'s lifecycle becomes destroyed.
+         *
+         * @param activity the [Activity] that provides the context for the session's resources.
+         * @param lifecycleOwner the [LifecycleOwner] whose lifecycle controls the runtime state of
+         *   the session.
+         * @param coroutineContext the [CoroutineContext] that will be used to handle the session's
+         *   coroutines.
+         * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
+         *   newly created session, or another [SessionCreateResult] if a certain criteria was not
+         *   met.
+         * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
+         *   [android.Manifest.permission.CAMERA] has not been granted to the calling application.
+         * @sample androidx.xr.arcore.samples.callSessionCreate
+         */
+        @JvmOverloads
+        @JvmStatic
+        @Suppress("deprecation")
+        public fun create(
+            activity: Activity,
+            lifecycleOwner: LifecycleOwner,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        ): SessionCreateResult =
+            create(
+                activity,
+                lifecycleOwner,
+                coroutineContext,
+                unscaledGravityAlignedActivitySpace = false,
+            )
+
+        private fun create(
+            activity: Activity,
+            lifecycleOwner: LifecycleOwner,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+            unscaledGravityAlignedActivitySpace: Boolean = false,
+        ): SessionCreateResult {
+            check(activity is LifecycleOwner) { "Unsupported Activity type: ${activity.javaClass}" }
+
+            check(!activity.isDestroyed) { "Cannot create a new session on a destroyed activity." }
+
+            if (activitySessionMap.containsKey(activity)) {
+                return SessionCreateSuccess(activitySessionMap[activity]!!)
             }
 
-            val runtimeFactory: RuntimeFactory =
-                ServiceLoader.load(RuntimeFactory::class.java).single()
-            val runtime = runtimeFactory.createRuntime(activity)
-            runtime.lifecycleManager.create()
+            val features = getDeviceActivityFeatures(activity)
 
-            val stateExtenders = ServiceLoader.load(StateExtender::class.java).toList()
-            for (stateExtender in stateExtenders) {
-                stateExtender.initialize(runtime)
+            val runtimes = mutableListOf<JxrRuntime>()
+
+            val perceptionRuntimeFactory: PerceptionRuntimeFactory? =
+                selectProvider(
+                    loadProviders(PerceptionRuntimeFactory::class.java, RUNTIME_FACTORY_PROVIDERS),
+                    features,
+                )
+            val perceptionRuntime =
+                perceptionRuntimeFactory?.createRuntime(activity, coroutineContext)
+            try {
+                perceptionRuntime?.initialize()
+            } catch (e: ApkNotInstalledException) {
+                return SessionCreateApkRequired(e.requiredApk)
+            } catch (e: UnsupportedDeviceException) {
+                return SessionCreateUnsupportedDevice()
+            } catch (e: ApkCheckAvailabilityInProgressException) {
+                return SessionCreateApkRequired(e.requiredApk)
+            } catch (e: ApkCheckAvailabilityErrorException) {
+                return SessionCreateApkRequired(e.requiredApk)
             }
+            perceptionRuntime?.let { runtimes.add(it) }
+
+            val sceneRuntimeFactory =
+                selectProvider(
+                    loadProviders(SceneRuntimeFactory::class.java, SCENE_RUNTIME_FACTORY_PROVIDERS),
+                    features,
+                )
+            val sceneRuntime =
+                sceneRuntimeFactory?.create(activity, unscaledGravityAlignedActivitySpace)
+            sceneRuntime?.let { runtimes.add(it) }
+
+            val renderingRuntimeFactory =
+                selectProvider(
+                    loadProviders(
+                        RenderingRuntimeFactory::class.java,
+                        RENDERING_RUNTIME_FACTORY_PROVIDERS,
+                    ),
+                    features,
+                )
+            val renderingRuntime = renderingRuntimeFactory?.create(runtimes, activity)
+            renderingRuntime?.let { runtimes.add(it) }
+
+            check(runtimes.isNotEmpty()) {
+                "Neither ARCore nor SceneCore are available. Did you forget to add a dependency?"
+            }
+
+            val stateExtenders = loadProviders(StateExtender::class.java, STATE_EXTENDER_PROVIDERS)
+            val sessionConnectors =
+                loadProviders(SessionConnector::class.java, SESSION_CONNECTOR_PROVIDERS)
+
             val session =
-                Session(runtime, stateExtenders, CoroutineScope(coroutineDispatcher), activity)
+                Session(
+                    activity,
+                    stateExtenders,
+                    sessionConnectors,
+                    runtimes,
+                    CoroutineScope(context = coroutineContext),
+                )
+
+            lifecycleOwner.lifecycleScope.launch {
+                lifecycleOwner.lifecycle.addObserver(session.lifecycleObserver)
+                if (lifecycleOwner != activity) {
+                    activity.lifecycle.addObserver(
+                        observer =
+                            LifecycleEventObserver { _, event ->
+                                when (event) {
+                                    Lifecycle.Event.ON_DESTROY -> session.destroy()
+                                    else -> {}
+                                }
+                            }
+                    )
+                }
+            }
+
             return SessionCreateSuccess(session)
         }
 
-        // TODO(b/392919087): Move the Hand Tracking permission to another place.
-        internal val SESSION_PERMISSIONS: List<String> =
-            listOf("android.permission.SCENE_UNDERSTANDING", "android.permission.HAND_TRACKING")
-    }
+        private val RUNTIME_FACTORY_PROVIDERS =
+            listOf(
+                "androidx.xr.arcore.projected.ProjectedRuntimeFactory",
+                "androidx.xr.arcore.playservices.ArCoreRuntimeFactory",
+                "androidx.xr.arcore.openxr.OpenXrRuntimeFactory",
+                "androidx.xr.arcore.testing.FakePerceptionRuntimeFactory",
+            )
 
-    /** The state of the runtime. */
-    private enum class RuntimeState {
-        INITIALIZED,
-        RESUMED,
-        PAUSED,
-        STOPPED,
+        private val SCENE_RUNTIME_FACTORY_PROVIDERS =
+            listOf(
+                "androidx.xr.scenecore.spatial.core.SpatialSceneRuntimeFactory",
+                "androidx.xr.scenecore.testing.FakeSceneRuntimeFactory",
+            )
+
+        private val RENDERING_RUNTIME_FACTORY_PROVIDERS =
+            listOf(
+                "androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntimeFactory",
+                "androidx.xr.scenecore.testing.FakeRenderingRuntimeFactory",
+            )
+
+        private val STATE_EXTENDER_PROVIDERS =
+            listOf(
+                "androidx.xr.arcore.PerceptionStateExtender",
+                "androidx.xr.arcore.playservices.CameraStateExtender",
+                "androidx.xr.arcore.testing.FakeStateExtender",
+            )
+        private val SESSION_CONNECTOR_PROVIDERS =
+            listOf(
+                "androidx.xr.scenecore.Scene",
+                "androidx.xr.runtime.testing.FakeSessionConnector",
+            )
     }
 
     private val _state = MutableStateFlow<CoreState>(CoreState(TimeSource.Monotonic.markNow()))
-
     /** A [StateFlow] of the current state. */
     public val state: StateFlow<CoreState> = _state.asStateFlow()
 
-    private var runtimeState: RuntimeState = RuntimeState.INITIALIZED
     private var updateJob: Job? = null
 
-    /**
-     * Sets or changes the configuration to use.
-     *
-     * @return the result of the operation. This will be a [SessionConfigureSuccess] if the
-     *   configuration was successful, or a [SessionConfigureConfigurationNotSupported] if the
-     *   [SessionConfiguration] is not supported.
-     * @throws IllegalStateException if the session has been destroyed.
-     */
-    public fun configure(): SessionConfigureResult {
-        check(runtimeState != RuntimeState.STOPPED) { "Session has been destroyed." }
-        runtime.lifecycleManager.configure()
-        return SessionConfigureSuccess()
+    private val lock = Mutex()
+
+    /** The current state of the runtime configuration. */
+    @GuardedBy("lock")
+    public var config: Config =
+        Config(
+            Config.PlaneTrackingMode.DISABLED,
+            augmentedObjectCategories = listOf(),
+            Config.HandTrackingMode.DISABLED,
+            Config.DeviceTrackingMode.DISABLED,
+            Config.DepthEstimationMode.DISABLED,
+            Config.AnchorPersistenceMode.DISABLED,
+        )
+        private set
+
+    private val lifecycleObserver = LifecycleEventObserver { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> resume()
+            Lifecycle.Event.ON_PAUSE -> pause()
+            Lifecycle.Event.ON_DESTROY -> destroy()
+            else -> {}
+        }
     }
 
+    private val Activity.lifecycle: Lifecycle
+        get() = (this as LifecycleOwner).lifecycle
+
     /**
-     * Starts or resumes the session.
+     * Sets or changes the [Config] to use for the Session.
      *
-     * Resuming a session requires the `android.permission.SCENE_UNDERSTANDING` and
-     * `android.permission.HAND_TRACKING` permissions to be granted.
+     * The passed [config] will overwrite all [ConfigMode] values. Not all runtimes will support
+     * every [ConfigMode], and the desired modes should first be queried for availability using
+     * [ConfigMode.isSupported] before configuring.
      *
-     * @return the result of the operation. Can be [SessionResumeSuccess] if the session was
-     *   successfully resumed, or [SessionResumePermissionsNotGranted] if the required permissions
-     *   haven't been granted.
-     * @throws IllegalStateException if the session has been destroyed.
+     * It is recommended to use and modify the [Config.copy] of the current [Session.config] to
+     * maintain the current configuration state aside from the desired changes.
+     *
+     * Note that enabling most configurations will increase hardware resource consumption and should
+     * only be enabled if needed.
+     *
+     * @param config the [Config] that will be enabled if successful.
+     * @return the result of the operation. This will be a [SessionConfigureSuccess] if the
+     *   configuration was successful, or another [SessionConfigureResult] if a certain
+     *   configuration criteria was not met. In the case of the latter, the previous
+     *   [Session.config] will remain active.
+     * @throws [IllegalStateException] if the session has been destroyed.
+     * @throws [UnsupportedOperationException] if the configuration is not supported.
+     * @throws [SecurityException] if the necessary permissions have not been granted to the calling
+     *   application for the provided configuration.
      */
-    public fun resume(): SessionResumeResult {
-        check(runtimeState != RuntimeState.STOPPED) { "Session has been destroyed." }
-
-        if (runtimeState != RuntimeState.RESUMED) {
-            val missingPermissions = activity.selectMissing(SESSION_PERMISSIONS)
-            if (missingPermissions.isNotEmpty()) {
-                return SessionResumePermissionsNotGranted(missingPermissions)
-            }
-
-            runtime.lifecycleManager.resume()
-            runtimeState = RuntimeState.RESUMED
-            updateJob = coroutineScope.launch { updateLoop() }
+    public fun configure(config: Config): SessionConfigureResult {
+        check(activity.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "Session has been destroyed."
         }
+        return runBlocking {
+            lock.withLock {
+                try {
+                    for (runtime in runtimes) {
+                        runtime.configure(config)
+                    }
+                } catch (e: FaceTrackingNotCalibratedException) {
+                    return@withLock SessionConfigureCalibrationRequired(
+                        RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
+                    )
+                }
+                this@Session.config = config
+                SessionConfigureSuccess()
+            }
+        }
+    }
 
-        return SessionResumeSuccess()
+    /** Starts or resumes the session. */
+    private fun resume() {
+        for (runtime in runtimes) {
+            runtime.resume()
+        }
+        updateJob = coroutineScope.launch { updateLoop() }
     }
 
     /**
@@ -162,18 +403,13 @@ internal constructor(
      * system state will be retained in memory.
      *
      * Calling this method on an inactive session is a no-op.
-     *
-     * @throws IllegalStateException if the session has been destroyed.
      */
-    public fun pause() {
-        check(runtimeState != RuntimeState.STOPPED) { "Session has been destroyed." }
-
-        if (runtimeState == RuntimeState.RESUMED) {
-            runtime.lifecycleManager.pause()
-            runtimeState = RuntimeState.PAUSED
-            updateJob?.cancel()
-            updateJob = null
+    private fun pause() {
+        for (runtime in runtimes) {
+            runtime.pause()
         }
+        updateJob?.cancel()
+        updateJob = null
     }
 
     /**
@@ -183,39 +419,36 @@ internal constructor(
      * Calling this method on a destroyed session is a no-op. Additionally, calling this method on
      * an active session will first call [pause].
      */
-    public fun destroy() {
-        if (runtimeState == RuntimeState.STOPPED) {
-            return
-        } else if (runtimeState == RuntimeState.RESUMED) {
-            pause()
+    private fun destroy() {
+        activitySessionMap.remove(activity)
+        for (runtime in runtimes) {
+            runtime.destroy()
         }
-
-        runtime.lifecycleManager.stop()
+        for (sessionConnector in sessionConnectors) {
+            sessionConnector.close()
+        }
         coroutineScope.cancel()
-        runtimeState = RuntimeState.STOPPED
     }
 
     private suspend fun updateLoop() {
-        while (runtimeState == RuntimeState.RESUMED) {
-            update()
+        while (activity.lifecycle.currentState == Lifecycle.State.RESUMED) {
+            lock.withLock { update() }
         }
     }
 
     /** Produces the latest [CoreState] so it can be emitted downstream. */
+    @GuardedBy("lock")
     private suspend fun update() {
-        val timeMark = runtime.lifecycleManager.update()
+        var timeMark: ComparableTimeMark? = null
+        for (runtime in runtimes) {
+            runtime.update()?.let { timeMark = it }
+        }
+        check(timeMark != null)
         val state = CoreState(timeMark)
 
         for (stateExtender in stateExtenders) {
             stateExtender.extend(state)
         }
-
         _state.emit(state)
     }
 }
-
-private fun Activity.selectMissing(permissions: List<String>): List<String> =
-    permissions.filter { permission -> !hasPermission(permission) }
-
-private fun Activity.hasPermission(permission: String): Boolean =
-    ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED

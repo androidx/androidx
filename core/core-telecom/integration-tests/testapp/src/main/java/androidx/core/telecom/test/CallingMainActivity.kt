@@ -128,11 +128,11 @@ class CallingMainActivity : Activity() {
                     DIRECTION_OUTGOING,
                     CALL_TYPE_VIDEO_CALL,
                     ALL_CALL_CAPABILITIES,
-                    mPreCallEndpointAdapter.mSelectedCallEndpoint
+                    mPreCallEndpointAdapter.mSelectedCallEndpoint,
                 ),
                 participantCheckBox.isChecked,
                 raiseHandCheckBox.isChecked,
-                kickParticipantCheckBox.isChecked
+                kickParticipantCheckBox.isChecked,
             )
         }
 
@@ -145,11 +145,11 @@ class CallingMainActivity : Activity() {
                     DIRECTION_INCOMING,
                     CALL_TYPE_VIDEO_CALL,
                     ALL_CALL_CAPABILITIES,
-                    mPreCallEndpointAdapter.mSelectedCallEndpoint
+                    mPreCallEndpointAdapter.mSelectedCallEndpoint,
                 ),
                 participantCheckBox.isChecked,
                 raiseHandCheckBox.isChecked,
-                kickParticipantCheckBox.isChecked
+                kickParticipantCheckBox.isChecked,
             )
         }
 
@@ -221,7 +221,7 @@ class CallingMainActivity : Activity() {
         attributes: CallAttributesCompat,
         isParticipantsEnabled: Boolean,
         isRaiseHandEnabled: Boolean,
-        isKickParticipantEnabled: Boolean
+        isKickParticipantEnabled: Boolean,
     ) {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall(this, attributes, mNextNotificationId++)
@@ -239,7 +239,7 @@ class CallingMainActivity : Activity() {
                                 attributes,
                                 callObject,
                                 isRaiseHandEnabled,
-                                isKickParticipantEnabled
+                                isKickParticipantEnabled,
                             )
                         } else {
                             addCall(attributes, callObject)
@@ -247,7 +247,7 @@ class CallingMainActivity : Activity() {
                     } finally {
                         NotificationsUtilities.clearNotification(
                             mContext,
-                            callObject.notificationId
+                            callObject.notificationId,
                         )
                         Log.i(TAG, "addCallWithAttributes: finally block")
                     }
@@ -305,14 +305,14 @@ class CallingMainActivity : Activity() {
     private fun handleUpdateToNotification(
         it: NotificationActionInfo,
         attributes: CallAttributesCompat,
-        callObject: VoipCall
+        callObject: VoipCall,
     ) {
         if (it.isAnswer) {
             NotificationsUtilities.updateNotificationToOngoing(
                 mContext,
                 callObject.notificationId,
                 NOTIFICATION_CHANNEL_ID,
-                attributes.displayName.toString()
+                attributes.displayName.toString(),
             )
         } else {
             NotificationsUtilities.clearNotification(mContext, callObject.notificationId)
@@ -324,7 +324,7 @@ class CallingMainActivity : Activity() {
         attributes: CallAttributesCompat,
         callObject: VoipCall,
         isRaiseHandEnabled: Boolean = false,
-        isKickParticipantEnabled: Boolean = false
+        isKickParticipantEnabled: Boolean = false,
     ) {
         mCallsManager.addCallWithExtensions(
             attributes,
@@ -346,8 +346,7 @@ class CallingMainActivity : Activity() {
             val participants = ParticipantsExtensionManager()
             val participantExtension =
                 addParticipantExtension(
-                    initialParticipants =
-                        participants.participants.value.map { it.toParticipant() }.toSet()
+                    initialParticipants = participants.participants.value.map { it.toParticipant() }
                 )
             var raiseHandState: RaiseHandState? = null
             if (isRaiseHandEnabled) {
@@ -377,7 +376,7 @@ class CallingMainActivity : Activity() {
                 callObject.setParticipantControl(
                     ParticipantControl(
                         onParticipantAdded = participants::addParticipant,
-                        onParticipantRemoved = participants::removeParticipant
+                        onParticipantRemoved = participants::removeParticipant,
                     )
                 )
 
@@ -400,9 +399,7 @@ class CallingMainActivity : Activity() {
                 // Collect updates
                 participants.participants
                     .onEach {
-                        participantExtension.updateParticipants(
-                            it.map { p -> p.toParticipant() }.toSet()
-                        )
+                        participantExtension.updateParticipants(it.map { p -> p.toParticipant() })
                         participantExtension.updateActiveParticipant(
                             it.firstOrNull { p -> p.isActive }?.toParticipant()
                         )
@@ -461,7 +458,7 @@ class CallingMainActivity : Activity() {
                 voipCall.notificationId,
                 NOTIFICATION_CHANNEL_ID,
                 attributes.displayName.toString(),
-                attributes.direction == DIRECTION_OUTGOING
+                attributes.direction == DIRECTION_OUTGOING,
             )
         mNotificationManager.notify(voipCall.notificationId, notification)
     }

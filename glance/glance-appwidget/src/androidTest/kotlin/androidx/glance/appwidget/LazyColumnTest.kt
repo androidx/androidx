@@ -355,7 +355,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         text = "Row item 0, count $count",
-                        modifier = GlanceModifier.clickable { count++ }
+                        modifier = GlanceModifier.clickable { count++ },
                     )
                 }
             }
@@ -380,7 +380,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         "Text",
-                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>()),
                     )
                     Button("Button", onClick = actionStartActivity<Activity>())
                 }
@@ -408,7 +408,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         "Text",
-                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>()),
                     )
                     Button("Button", onClick = actionStartActivity<Activity>())
                 }
@@ -474,7 +474,7 @@ class LazyColumnTest {
                 val button =
                     list.getViewFromUnboxedListItem<FrameLayout>(
                         itemPosition = it,
-                        viewPosition = 0
+                        viewPosition = 0,
                     )
                 buttons[it] = assertIs<FrameLayout>(button)
             }
@@ -580,7 +580,7 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
 
 internal fun AppWidgetHostRule.waitForListViewChildWithText(
     text: String,
-    action: (list: ListView) -> Unit = {}
+    action: (list: ListView) -> Unit = {},
 ) {
     onHostView {}
 
@@ -647,7 +647,7 @@ private suspend fun ListAdapter.waitForItemIdAtPosition(position: Int, expectedI
                 Log.i(
                     "LazyColumnTest",
                     "ItemId at $position was expected to be " +
-                        "$expectedItemId, but was $actualItemId. Waiting for 200 ms."
+                        "$expectedItemId, but was $actualItemId. Waiting for 200 ms.",
                 )
                 delay(200) // Wait before retrying
                 actualItemId = getItemId(position)
@@ -662,7 +662,7 @@ private suspend fun ListAdapter.waitForItemIdAtPosition(position: Int, expectedI
 
 internal inline fun <reified T : View> ListView.getViewFromUnboxedListItem(
     itemPosition: Int,
-    viewPosition: Int
+    viewPosition: Int,
 ): T {
     // Box added during normalization to allow aligning item contents per the alignment set on
     // LazyColumn

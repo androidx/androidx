@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+@Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class IntListTest {
     private val list: MutableIntList = mutableIntListOf(1, 2, 3, 4, 5)
 
@@ -96,15 +97,15 @@ class IntListTest {
     fun joinToString() {
         assertEquals("${1}, ${2}, ${3}, ${4}, ${5}", list.joinToString())
         assertEquals(
-            "x${1}, ${2}, ${3}...",
-            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+            "x${1}, ${2}, ${3}, ...y",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${1}-${2}-${3}-${4}-${5}<",
-            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+            list.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         assertEquals(
-            "one, two, three...",
+            "one, two, three, ...",
             list.joinToString(limit = 3) {
                 when (it.toInt()) {
                     1 -> "one"
@@ -112,7 +113,7 @@ class IntListTest {
                     3 -> "three"
                     else -> "whoops"
                 }
-            }
+            },
         )
     }
 
@@ -163,21 +164,21 @@ class IntListTest {
             list.elementAtOrElse(0) {
                 assertEquals(0, it)
                 0
-            }
+            },
         )
         assertEquals(
             0,
             list.elementAtOrElse(-1) {
                 assertEquals(-1, it)
                 0
-            }
+            },
         )
         assertEquals(
             0,
             list.elementAtOrElse(5) {
                 assertEquals(5, it)
                 0
-            }
+            },
         )
     }
 
@@ -366,7 +367,7 @@ class IntListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" }
+            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" },
         )
     }
 
@@ -379,7 +380,7 @@ class IntListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" }
+            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" },
         )
     }
 

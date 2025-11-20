@@ -51,7 +51,7 @@ import androidx.glance.unit.Dimension
 
 internal fun normalizeCompositionTree(
     root: RemoteViewsRoot,
-    isPreviewComposition: Boolean = false
+    isPreviewComposition: Boolean = false,
 ) {
     coerceToOneChild(root)
     root.normalizeSizes()
@@ -221,7 +221,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
             Log.w(
                 GlanceAppWidgetTag,
                 "Glance Buttons should not have a background image modifier. " +
-                    "Consider an image with a clickable modifier."
+                    "Consider an image with a clickable modifier.",
             )
             target.modifier = modifiersMinusBgImage
         }
@@ -233,7 +233,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
             Log.w(
                 GlanceAppWidgetTag,
                 "Glance Buttons should not have a background color modifier. " +
-                    "Consider a tinted image with a clickable modifier"
+                    "Consider a tinted image with a clickable modifier",
             )
             target.modifier = modifiersMinusBgColor
         }
@@ -412,7 +412,7 @@ private fun GlanceModifier.warnIfMultipleClickableActions() {
         Log.w(
             GlanceAppWidgetTag,
             "More than one clickable defined on the same GlanceModifier, " +
-                "only the last one will be used."
+                "only the last one will be used.",
         )
     }
 }

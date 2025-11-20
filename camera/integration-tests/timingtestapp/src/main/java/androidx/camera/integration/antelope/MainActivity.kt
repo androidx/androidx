@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     SettingsDialog.DIALOG_TYPE_SINGLE,
                     getString(R.string.settings_single_test_dialog_title),
                     cameras.toTypedArray(),
-                    cameraIds.toTypedArray()
+                    cameraIds.toTypedArray(),
                 )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_SINGLE)
         }
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                     SettingsDialog.DIALOG_TYPE_MULTI,
                     getString(R.string.settings_multi_test_dialog_title),
                     cameras.toTypedArray(),
-                    cameraIds.toTypedArray()
+                    cameraIds.toTypedArray(),
                 )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_MULTI)
         }
@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
                 ContextCompat.checkSelfPermission(
                     this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Launch the permission request for WRITE_EXTERNAL_STORAGE. From Android T, skips to

@@ -46,6 +46,7 @@ import androidx.camera.core.impl.CameraCaptureCallbacks;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -80,7 +81,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
     @VisibleForTesting
     static final int MAX_IMAGES = 4;
 
-    ProcessingRequest mCurrentRequest = null;
+    @Nullable ProcessingRequest mCurrentRequest = null;
 
     @Nullable SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
 
@@ -235,6 +236,11 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         imageReaderProxy.setOnImageAvailableListener(imageReader -> {
             try {
                 ImageProxy image = imageReader.acquireLatestImage();
+
+                Logger.d(TAG, "OnImageAvailableListener: mCurrentRequest ID = "
+                        + (mCurrentRequest == null ? null : mCurrentRequest.getRequestId())
+                        + ", image.isNull = " + (image == null));
+
                 if (image != null) {
                     onImageProxyAvailable(image);
                 } else {
@@ -269,10 +275,12 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         } else {
             // If new request arrives but the previous aborted request still generates Image,
             // close the image and do nothing.
-            Integer stageId = (Integer) imageProxy.getImageInfo().getTagBundle()
-                    .getTag(mCurrentRequest.getTagBundleKey());
+            TagBundle tagBundle = imageProxy.getImageInfo().getTagBundle();
+            Integer stageId = (Integer) tagBundle.getTag(mCurrentRequest.getTagBundleKey());
             if (stageId == null) {
-                Logger.w(TAG, "Discarding ImageProxy which was acquired for aborted request");
+                Logger.w(TAG, "Discarding ImageProxy which was acquired for another request"
+                        + ", mCurrentRequest id = " + mCurrentRequest.getRequestId()
+                        + ", ImageProxy tagBundle keys = " + tagBundle.listKeys());
                 imageProxy.close();
                 return;
             }

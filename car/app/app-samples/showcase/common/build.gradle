@@ -26,13 +26,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     namespace = "androidx.car.app.sample.showcase.common"
 }
 
@@ -41,9 +38,6 @@ dependencies {
     implementation(project(":car:app:app"))
     debugImplementation(libs.leakcanary)
 
-    implementation(libs.kotlinStdlibCommon)
-    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.core:core:1.9.0")
     implementation(project(":annotation:annotation-experimental"))
 }
-
-

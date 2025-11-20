@@ -21,6 +21,7 @@ package androidx.build.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
 
 class Stubs {
 
@@ -64,6 +65,16 @@ class Parameterized
             """
             )
 
+        val TestParameterInjector =
+            TestFiles.kotlin(
+                    """
+                    package com.google.testing.junit.testparameterinjector
+
+                    class TestParameterInjector
+                    """
+                )
+                .indented()
+
         val AndroidJUnit4Runner =
             TestFiles.kotlin(
                 """
@@ -92,6 +103,63 @@ package org.junit
 annotation class Test
             """
             )
+        val RuleAnnotation =
+            TestFiles.kotlin(
+                """
+package org.junit
+
+annotation class Rule
+            """
+            )
+
+        val AndroidXScreenshotTestRule =
+            TestFiles.kotlin(
+                    """
+                    package androidx.test.screenshot
+
+                    class AndroidXScreenshotTestRule
+                    """
+                )
+                .indented()
+
+        val SdkSuppressAnnotation =
+            java(
+                    """
+        package androidx.test.filters;
+
+        import java.lang.annotation.ElementType;
+        import java.lang.annotation.Retention;
+        import java.lang.annotation.RetentionPolicy;
+        import java.lang.annotation.Target;
+
+        @Retention(RetentionPolicy.RUNTIME)
+        @Target({ElementType.TYPE, ElementType.METHOD})
+        public @interface SdkSuppress {
+            int minSdkVersion() default 0;
+            int maxSdkVersion() default Integer.MAX_VALUE;
+            String codename() default "";
+        }
+        """
+                )
+                .indented()
+
+        val AndroidBuild =
+            java(
+                    """
+            package android.os;
+
+            public final class Build {
+                public static final class VERSION_CODES {
+                    public static final int TIRAMISU = 33;
+                    public static final int VANILLA_ICE_CREAM = 35;
+                }
+                public static final class VERSION {
+                    public static final int SDK_INT = 35;
+                }
+            }
+            """
+                )
+                .indented()
 
         /**
          * [TestFile] containing OptIn.kt from the Kotlin standard library.
@@ -456,5 +524,107 @@ public class BuildCompat {
         """
                     .trimIndent()
             )
+
+        val FlaggedApi: TestFile =
+            TestFiles.java(
+                    """
+package android.annotation; // HIDE-FROM-DOCUMENTATION
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target({TYPE, METHOD, CONSTRUCTOR, FIELD, ANNOTATION_TYPE})
+@Retention(RetentionPolicy.CLASS)
+public @interface FlaggedApi {
+    String value();
+}
+      """
+                )
+                .indented()
+
+        val ChecksAconfigFlag: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.annotation
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FIELD
+)
+public annotation class ChecksAconfigFlag (
+    val flag: String
+)
+        """
+                )
+                .indented()
+
+        val RequiresAconfigFlag: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.annotation
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FILE,
+)
+public annotation class RequiresAconfigFlag (
+    val value: String
+)
+        """
+                )
+                .indented()
+
+        val Flags: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.core.flagging
+
+public class Flags {
+    public companion object {
+        @JvmOverloads
+        @JvmStatic
+        public fun getBooleanFlagValue(
+            packageName: String,
+            flagName: String,
+            defaultValue: Boolean = false,
+        ): Boolean {
+            return defaultValue
+        }
+    }
+}
+        """
+                )
+                .indented()
+
+        val EspressoUiController =
+            TestFiles.java(
+                    """
+package androidx.test.espresso;
+
+public interface UiController {
+    void loopMainThreadForAtLeast(long millisDelay);
+}
+            """
+                )
+                .indented()
     }
 }

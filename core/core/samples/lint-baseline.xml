@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `requestProfiling`"
+        errorLine1="    requestProfiling("
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `JavaHeapDumpRequestBuilder`"
+        errorLine1="        JavaHeapDumpRequestBuilder()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setBufferSizeKb`"
+        errorLine1="            .setBufferSizeKb(123 /* Requested buffer size in KB */)"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setTag`"
+        errorLine1="            .setTag(&quot;tag&quot; /* Caller supplied tag for identification */)"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `build`"
+        errorLine1="            .build(),"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `requestProfiling`"
+        errorLine1="    requestProfiling("
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `HeapProfileRequestBuilder`"
+        errorLine1="        HeapProfileRequestBuilder()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setBufferSizeKb`"
+        errorLine1="            .setBufferSizeKb(1000 /* Requested buffer size in KB */)"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setDurationMs`"
+        errorLine1="            .setDurationMs(5 * 1000 /* Requested profiling duration in milliseconds */)"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setTrackJavaAllocations`"
+        errorLine1="            .setTrackJavaAllocations(true)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setSamplingIntervalBytes`"
+        errorLine1="            .setSamplingIntervalBytes(100 /* Requested sampling interval in bytes */)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setTag`"
+        errorLine1="            .setTag(&quot;tag&quot; /* Caller supplied tag for identification */)"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setCancellationSignal`"
+        errorLine1="            .setCancellationSignal(cancellationSignal)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `build`"
+        errorLine1="            .build(),"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `requestProfiling`"
+        errorLine1="    requestProfiling("
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `StackSamplingRequestBuilder`"
+        errorLine1="        StackSamplingRequestBuilder()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setBufferSizeKb`"
+        errorLine1="            .setBufferSizeKb(1000 /* Requested buffer size in KB */)"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setDurationMs`"
+        errorLine1="            .setDurationMs(10 * 1000 /* Requested profiling duration in millisconds */)"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setSamplingFrequencyHz`"
+        errorLine1="            .setSamplingFrequencyHz(100 /* Requested sampling frequency */)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setTag`"
+        errorLine1="            .setTag(&quot;tag&quot; /* Caller supplied tag for identification */)"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setCancellationSignal`"
+        errorLine1="            .setCancellationSignal(cancellationSignal)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `build`"
+        errorLine1="            .build(),"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `requestProfiling`"
+        errorLine1="    requestProfiling("
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `SystemTraceRequestBuilder`"
+        errorLine1="        SystemTraceRequestBuilder()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setBufferSizeKb`"
+        errorLine1="            .setBufferSizeKb(1000 /* Requested buffer size in KB */)"
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setDurationMs`"
+        errorLine1="            .setDurationMs(60 * 1000 /* Requested profiling duration in millisconds */)"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setBufferFillPolicy`"
+        errorLine1="            .setBufferFillPolicy(BufferFillPolicy.RING_BUFFER /* Buffer fill policy */)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 35 (current min is 23): `RING_BUFFER`"
+        errorLine1="            .setBufferFillPolicy(BufferFillPolicy.RING_BUFFER /* Buffer fill policy */)"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setTag`"
+        errorLine1="            .setTag(&quot;tag&quot; /* Caller supplied tag for identification */)"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `setCancellationSignal`"
+        errorLine1="            .setCancellationSignal(cancellationSignal)"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `build`"
+        errorLine1="            .build(),"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `registerForAllProfilingResults`"
+        errorLine1="    registerForAllProfilingResults("
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `registerForAllProfilingResults`"
+        errorLine1="    val flow = registerForAllProfilingResults(context)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="            if (profilingResult.errorCode == ProfilingResult.ERROR_NONE) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getResultFilePath`"
+        errorLine1="                doSomethingWithMyFile(profilingResult.resultFilePath)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorCode`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 23): `android.os.ProfilingResult#getErrorMessage`"
+        errorLine1="                doSomethingWithFailure(profilingResult.errorCode, profilingResult.errorMessage)"
+        errorLine2="                                                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProfilingSamples.kt"/>
+    </issue>
+
+</issues>

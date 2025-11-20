@@ -1,0 +1,4 @@
+project.tasks.withType(Jar).configureEach { task ->
+    task.reproducibleFileOrder = true
+    task.preserveFileTimestamps = false
+}

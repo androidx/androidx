@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -31,12 +30,12 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.androidLintApiPrevKotlin)
-    compileOnly(libs.androidLintChecksPrevKotlin)
+    compileOnly(libs.androidLintApiStableAnalysis)
+    compileOnly(libs.androidLintChecksStableAnalysis)
     compileOnly(libs.kotlinStdlib)
 
-    testImplementation(libs.androidLintPrevKotlin)
-    testImplementation(libs.androidLintTestsPrevKotlin)
+    testImplementation(libs.androidLintStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }
@@ -46,5 +45,4 @@ androidx {
     type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2024"
     description = "Lint checks to verify usage of Gradle APIs."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

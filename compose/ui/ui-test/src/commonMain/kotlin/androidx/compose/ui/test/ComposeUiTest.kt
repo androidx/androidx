@@ -20,8 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestResult
 
 /**
  * Sets up the test environment, runs the given [test][block] and then tears down the test
@@ -39,17 +42,25 @@ import kotlinx.coroutines.test.TestDispatcher
  *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
  *
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
+ * @param runTestContext The [CoroutineContext] used to create the context to run the test [block].
+ *   By default [block] will run using [kotlinx.coroutines.test.StandardTestDispatcher].
+ *   [runTestContext] and [effectContext] must not share [TestCoroutineScheduler].
+ * @param testTimeout The [Duration] within which the test is expected to complete, otherwise a
+ *   platform specific timeout exception will be thrown.
  * @param block The test function.
  */
 @ExperimentalTestApi
 expect fun runComposeUiTest(
     effectContext: CoroutineContext = EmptyCoroutineContext,
-    block: ComposeUiTest.() -> Unit
-)
+    runTestContext: CoroutineContext = EmptyCoroutineContext,
+    testTimeout: Duration = 60.seconds,
+    block: suspend ComposeUiTest.() -> Unit,
+): TestResult
 
 /**
  * A test environment that allows you to test and control composables, either in isolation or in
@@ -168,7 +179,7 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     fun waitUntil(
         conditionDescription: String? = null,
         timeoutMillis: Long = 1_000,
-        condition: () -> Boolean
+        condition: () -> Boolean,
     )
 
     /**
@@ -196,7 +207,7 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
 fun ComposeUiTest.waitUntilNodeCount(
     matcher: SemanticsMatcher,
     count: Int,
-    timeoutMillis: Long = 1_000L
+    timeoutMillis: Long = 1_000L,
 ) {
     waitUntil("exactly $count nodes match (${matcher.description})", timeoutMillis) {
         // Never require the existence of compose roots. Either the current UI or the anticipated UI
@@ -218,7 +229,7 @@ fun ComposeUiTest.waitUntilNodeCount(
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
-    timeoutMillis: Long = 1_000L
+    timeoutMillis: Long = 1_000L,
 ) {
     waitUntil("at least one node matches (${matcher.description})", timeoutMillis) {
         onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
@@ -238,7 +249,7 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
 @ExperimentalTestApi
 fun ComposeUiTest.waitUntilExactlyOneExists(
     matcher: SemanticsMatcher,
-    timeoutMillis: Long = 1_000L
+    timeoutMillis: Long = 1_000L,
 ) = waitUntilNodeCount(matcher, 1, timeoutMillis)
 
 /**
@@ -259,7 +270,7 @@ internal const val NanoSecondsPerMilliSecond = 1_000_000L
 
 internal fun buildWaitUntilTimeoutMessage(
     timeoutMillis: Long,
-    conditionDescription: String?
+    conditionDescription: String?,
 ): String = buildString {
     append("Condition ")
     if (conditionDescription != null) {

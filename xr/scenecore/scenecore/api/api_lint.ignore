@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.xr.scenecore.runtime.Entity:
+    Public class androidx.xr.scenecore.runtime.Entity stripped of unavailable superclass androidx.xr.scenecore.runtime.ActivityPose
+
+
+ReferencesHidden: androidx.xr.scenecore.BaseEntity:
+    Class androidx.xr.scenecore.runtime.Entity is hidden but was referenced (as type parameter) from public class androidx.xr.scenecore.BaseEntity
+ReferencesHidden: androidx.xr.scenecore.BaseScenePose:
+    Class androidx.xr.scenecore.runtime.ActivityPose is hidden but was referenced (as type parameter) from public class androidx.xr.scenecore.BaseScenePose
+
+
+TypeParameterName: androidx.xr.scenecore.BaseEntity:
+    Invalid type parameter name "RtEntityType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.xr.scenecore.BaseScenePose:
+    Invalid type parameter name "RtActivityPoseType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

@@ -30,14 +30,14 @@ class SearchViewAssertions {
             val matchResult = Regex(MATCH_COUNT_PATTERN).find(extractedText)
             Preconditions.checkArgument(
                 matchResult != null,
-                "Extracted text $extractedText does not match pattern"
+                "Extracted text $extractedText does not match pattern",
             )
 
             val matchNumber = matchResult!!.groups[1]?.value?.toInt() ?: -1
             val totalMatches = matchResult.groups[2]?.value?.toInt() ?: -1
             Preconditions.checkArgument(
                 matchNumber >= 0 && totalMatches >= 0,
-                "Could not extract page number from the TextView"
+                "Could not extract page number from the TextView",
             )
 
             currentMatchNumber = matchNumber
@@ -51,14 +51,14 @@ class SearchViewAssertions {
             val matchResult = Regex(MATCH_COUNT_PATTERN).find(extractedText)
             Preconditions.checkArgument(
                 matchResult != null,
-                "Extracted text $extractedText does not match pattern"
+                "Extracted text $extractedText does not match pattern",
             )
 
             val matchNumber = matchResult!!.groups[1]?.value?.toInt() ?: -1
             val totalMatches = matchResult.groups[2]?.value?.toInt() ?: -1
             Preconditions.checkArgument(
                 matchNumber >= 0 && totalMatchNumber == totalMatches,
-                "Could not extract page number from the TextView"
+                "Could not extract page number from the TextView",
             )
 
             if (currentMatchNumber == 1) {
@@ -69,7 +69,7 @@ class SearchViewAssertions {
 
             Preconditions.checkArgument(
                 matchNumber == currentMatchNumber,
-                "Extracted match $matchNumber does not equal $currentMatchNumber"
+                "Extracted match $matchNumber does not equal $currentMatchNumber",
             )
         }
     }
@@ -80,14 +80,14 @@ class SearchViewAssertions {
             val matchResult = Regex(MATCH_COUNT_PATTERN).find(extractedText)
             Preconditions.checkArgument(
                 matchResult != null,
-                "Extracted text $extractedText does not match pattern"
+                "Extracted text $extractedText does not match pattern",
             )
 
             val matchNumber = matchResult!!.groups[1]?.value?.toInt() ?: -1
             val totalMatches = matchResult.groups[2]?.value?.toInt() ?: -1
             Preconditions.checkArgument(
                 matchNumber >= 0 && totalMatchNumber == totalMatches,
-                "Could not extract page number from the TextView"
+                "Could not extract page number from the TextView",
             )
 
             if (currentMatchNumber == totalMatchNumber) {
@@ -98,7 +98,7 @@ class SearchViewAssertions {
 
             Preconditions.checkArgument(
                 matchNumber == currentMatchNumber,
-                "Extracted match $matchNumber does not equal $currentMatchNumber"
+                "Extracted match $matchNumber does not equal $currentMatchNumber",
             )
         }
     }

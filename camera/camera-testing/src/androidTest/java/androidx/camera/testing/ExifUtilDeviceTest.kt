@@ -27,7 +27,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class ExifUtilDeviceTest {
 
     companion object {

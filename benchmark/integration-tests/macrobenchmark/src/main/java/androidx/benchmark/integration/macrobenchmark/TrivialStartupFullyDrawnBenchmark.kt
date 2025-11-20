@@ -57,7 +57,7 @@ class TrivialStartupFullyDrawnBenchmark {
             metrics = getStartupMetrics(),
             startupMode = startupMode,
             iterations = 1,
-            setupBlock = { pressHome() }
+            setupBlock = { pressHome() },
         ) {
             startActivityAndWait(
                 Intent().apply {

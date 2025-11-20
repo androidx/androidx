@@ -76,7 +76,7 @@ class ConstraintTrackingWorkerTest {
         Trackers(
             context = env.context,
             taskExecutor = env.taskExecutor,
-            batteryChargingTracker = fakeChargingTracker
+            batteryChargingTracker = fakeChargingTracker,
         )
     val greedyScheduler = GreedyScheduler(env, trackers)
     val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
@@ -175,7 +175,7 @@ class ConstraintTrackingWorkerTest {
                 NoOpForegroundProcessor,
                 workManager.workDatabase,
                 request.workSpec,
-                emptyList()
+                emptyList(),
             )
             .build()
     }

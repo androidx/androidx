@@ -52,7 +52,7 @@ private val LightColorPalette =
         gradient2_2 = listOf(Ocean3, Shadow3),
         gradient2_3 = listOf(Lavender3, Rose2),
         tornado1 = listOf(Shadow4, Ocean3),
-        isDark = false
+        isDark = false,
     )
 
 private val DarkColorPalette =
@@ -80,7 +80,7 @@ private val DarkColorPalette =
         gradient2_2 = listOf(Ocean4, Shadow2),
         gradient2_3 = listOf(Lavender3, Rose3),
         tornado1 = listOf(Shadow4, Ocean3),
-        isDark = true
+        isDark = true,
     )
 
 @Composable
@@ -92,7 +92,7 @@ fun JetsnackTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
             colors = debugColors(darkTheme),
             typography = Typography,
             shapes = Shapes,
-            content = content
+            content = content,
         )
     }
 }
@@ -132,7 +132,7 @@ class JetsnackColors(
     iconInteractiveInactive: Color,
     error: Color,
     notificationBadge: Color = error,
-    isDark: Boolean
+    isDark: Boolean,
 ) {
     var gradient6_1 by mutableStateOf(gradient6_1)
         private set
@@ -314,5 +314,5 @@ fun debugColors(darkTheme: Boolean, debugColor: Color = Color.Magenta) =
         onBackground = debugColor,
         onSurface = debugColor,
         onError = debugColor,
-        isLight = !darkTheme
+        isLight = !darkTheme,
     )

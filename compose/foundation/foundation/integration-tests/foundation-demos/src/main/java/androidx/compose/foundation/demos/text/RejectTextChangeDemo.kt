@@ -55,7 +55,7 @@ private fun RejectNonDigits() {
                 state.value = it
             }
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     )
 }
 
@@ -66,6 +66,6 @@ private fun RejectComposition() {
         modifier = demoTextFieldModifiers,
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),
-        onValueChange = { state.value = it }
+        onValueChange = { state.value = it },
     )
 }

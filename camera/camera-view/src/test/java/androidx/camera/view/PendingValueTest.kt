@@ -16,7 +16,6 @@
 
 package androidx.camera.view
 
-import android.os.Build
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -28,7 +27,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [PendingValue]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class PendingValueTest {
 
     @Test

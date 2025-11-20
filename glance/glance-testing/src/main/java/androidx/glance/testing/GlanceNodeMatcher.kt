@@ -21,17 +21,17 @@ package androidx.glance.testing
  * @param description a string explaining to the developer what conditions were being tested.
  * @param matcher a lambda performing the actual logic of matching on the GlanceNode
  */
-class GlanceNodeMatcher<R>(
+public class GlanceNodeMatcher<R>(
     internal val description: String,
-    private val matcher: (GlanceNode<R>) -> Boolean
+    private val matcher: (GlanceNode<R>) -> Boolean,
 ) {
     /** Returns whether the given node is matched by this matcher. */
-    fun matches(node: GlanceNode<R>): Boolean {
+    public fun matches(node: GlanceNode<R>): Boolean {
         return matcher(node)
     }
 
     /** Returns whether at least one of the given nodes is matched by this matcher. */
-    fun matchesAny(nodes: Iterable<GlanceNode<R>>): Boolean {
+    public fun matchesAny(nodes: Iterable<GlanceNode<R>>): Boolean {
         return nodes.any(matcher)
     }
 
@@ -40,7 +40,7 @@ class GlanceNodeMatcher<R>(
      *
      * @param other matcher that should also match in addition to current matcher
      */
-    infix fun and(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
+    public infix fun and(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
         return GlanceNodeMatcher("($description) && (${other.description})") {
             matcher(it) && other.matches(it)
         }
@@ -51,14 +51,14 @@ class GlanceNodeMatcher<R>(
      *
      * @param other matcher that can be tested to match if the current matcher doesn't.
      */
-    infix fun or(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
+    public infix fun or(other: GlanceNodeMatcher<R>): GlanceNodeMatcher<R> {
         return GlanceNodeMatcher("($description) || (${other.description})") {
             matcher(it) || other.matches(it)
         }
     }
 
     /** Returns whether the given node does not match the matcher. */
-    operator fun not(): GlanceNodeMatcher<R> {
+    public operator fun not(): GlanceNodeMatcher<R> {
         return GlanceNodeMatcher(("NOT ($description)")) { !matcher(it) }
     }
 }

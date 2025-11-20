@@ -88,7 +88,7 @@ class SplashScreenSampleActivity : AppCompatActivity() {
                 iconView,
                 View.TRANSLATION_Y,
                 iconView.translationY,
-                splashScreenView.height.toFloat()
+                splashScreenView.height.toFloat(),
             )
         translationY.duration = SPLASHSCREEN_TY_ANIMATION_DURATION.toLong()
         translationY.interpolator = accelerateInterpolator
@@ -117,7 +117,7 @@ class SplashScreenSampleActivity : AppCompatActivity() {
     private fun waitForAnimatedIconToFinish(
         splashScreenViewProvider: SplashScreenViewProvider,
         view: View,
-        animatorSet: AnimatorSet
+        animatorSet: AnimatorSet,
     ) {
         // If we want to wait for our Animated Vector Drawable to finish animating, we can compute
         // the remaining time to delay the start of the exit animation

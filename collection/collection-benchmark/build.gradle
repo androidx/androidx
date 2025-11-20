@@ -24,20 +24,17 @@
 
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("androidx.benchmark")
     id("androidx.benchmark.darwin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    // HACK: We consume the artifacts from this target in :collection:collection-benchmark-android
+    jvm()
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
@@ -45,9 +42,7 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
-            export(project(":benchmark:benchmark-darwin"))
+            export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
@@ -56,26 +51,12 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
             }
         }
 
         commonTest {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-                implementation(libs.junit)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
             }
         }
 
@@ -101,36 +82,22 @@ androidXMultiplatform {
                 }
             }
         }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
-        }
     }
 }
 
 androidx {
-    name = "Collections Benchmarks (Android / iOS)"
+    name = "Collections Benchmarks (iOS)"
     type = SoftwareType.BENCHMARK
     inceptionYear = "2022"
-    description = "AndroidX Collections Benchmarks (Android / iOS)"
+    description = "AndroidX Collections Benchmarks (iOS)"
 }
 
 darwinBenchmark {
-    xcodeGenConfigFile = project.rootProject.file(
-            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
-    )
+    xcodeGenConfigFile = new File(rootDir,
+            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml")
     xcodeProjectName = "collection-benchmark-ios"
     scheme = "testapp-ios"
     // To run locally switch to iOS 17.0 simulators
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
     referenceSha.set(androidx.getReferenceSha())
-}
-
-android {
-    namespace = "androidx.collection.benchmark"
-    defaultConfig {
-        minSdk = 22 // b/294570164
-    }
 }

@@ -149,14 +149,18 @@ public expect open class SparseArrayCompat<E> public constructor(initialCapacity
     public open fun isEmpty(): Boolean
 
     /**
-     * Given an index in the range `0...size()-1`, returns the key from the [index]th key-value
+     * Given an index in the range `0...[size]-1`, returns the key from the [index]th key-value
      * mapping that this SparseArray stores.
+     *
+     * @throws IndexOutOfBoundsException if index is not within `0..[size]-1`
      */
     public open fun keyAt(index: Int): Int
 
     /**
-     * Given an index in the range `0...size()-1`, returns the value from the [index]th key-value
+     * Given an index in the range `0...[size]-1`, returns the value from the [index]th key-value
      * mapping that this SparseArray stores.
+     *
+     * @throws IndexOutOfBoundsException if index is not within `0..[size]-1`
      */
     public open fun valueAt(index: Int): E
 
@@ -289,7 +293,7 @@ internal inline fun <E> SparseArrayCompat<E>.commonReplace(key: Int, value: E): 
 internal inline fun <E> SparseArrayCompat<E>.commonReplace(
     key: Int,
     oldValue: E,
-    newValue: E
+    newValue: E,
 ): Boolean {
     val index = indexOfKey(key)
     if (index >= 0) {
@@ -387,6 +391,9 @@ internal inline fun <E> SparseArrayCompat<E>.commonKeyAt(index: Int): Int {
     if (garbage) {
         gc()
     }
+    if (index >= size || index < 0) {
+        throw CollectionPlatformUtils.createIndexOutOfBoundsException()
+    }
     return keys[index]
 }
 
@@ -395,10 +402,11 @@ internal inline fun <E> SparseArrayCompat<E>.commonValueAt(index: Int): E {
     if (garbage) {
         gc()
     }
-    if (index >= values.size) {
+    if (index >= size || index < 0) {
         throw CollectionPlatformUtils.createIndexOutOfBoundsException()
     }
-    @Suppress("UNCHECKED_CAST") return values[index] as E
+    @Suppress("UNCHECKED_CAST")
+    return values[index] as E
 }
 
 @Suppress("NOTHING_TO_INLINE")

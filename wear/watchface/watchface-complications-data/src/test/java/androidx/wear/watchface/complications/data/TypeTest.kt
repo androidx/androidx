@@ -22,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class TypeTest {
     @Test
     public fun asWireComplicationType() {
@@ -29,7 +30,7 @@ public class TypeTest {
         assertThatIsWireType(ComplicationType.EMPTY, WireComplicationData.TYPE_EMPTY)
         assertThatIsWireType(
             ComplicationType.NOT_CONFIGURED,
-            WireComplicationData.TYPE_NOT_CONFIGURED
+            WireComplicationData.TYPE_NOT_CONFIGURED,
         )
         assertThatIsWireType(ComplicationType.SHORT_TEXT, WireComplicationData.TYPE_SHORT_TEXT)
         assertThatIsWireType(ComplicationType.LONG_TEXT, WireComplicationData.TYPE_LONG_TEXT)
@@ -39,7 +40,7 @@ public class TypeTest {
         assertThatIsWireType(ComplicationType.PHOTO_IMAGE, WireComplicationData.TYPE_LARGE_IMAGE)
         assertThatIsWireType(
             ComplicationType.NO_PERMISSION,
-            WireComplicationData.TYPE_NO_PERMISSION
+            WireComplicationData.TYPE_NO_PERMISSION,
         )
     }
 
@@ -53,7 +54,7 @@ public class TypeTest {
         assertThatIsApiType(WireComplicationData.TYPE_EMPTY, ComplicationType.EMPTY)
         assertThatIsApiType(
             WireComplicationData.TYPE_NOT_CONFIGURED,
-            ComplicationType.NOT_CONFIGURED
+            ComplicationType.NOT_CONFIGURED,
         )
         assertThatIsApiType(WireComplicationData.TYPE_SHORT_TEXT, ComplicationType.SHORT_TEXT)
         assertThatIsApiType(WireComplicationData.TYPE_LONG_TEXT, ComplicationType.LONG_TEXT)

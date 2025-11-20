@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 fun AudioRoutePickerDialog(
     ongoingCallsViewModel: OngoingCallsViewModel,
     onDismissDialog: () -> Unit,
-    onChangeAudioRoute: suspend (String) -> Unit
+    onChangeAudioRoute: suspend (String) -> Unit,
 ) {
     val currentAudioRoute: AudioEndpointUiState by
         ongoingCallsViewModel
@@ -73,7 +73,7 @@ fun AudioRoutePickerDialog(
             colors =
                 CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                )
+                ),
         ) {
             Column(modifier = Modifier.padding(6.dp)) {
                 Text("Current Audio Route")
@@ -98,7 +98,7 @@ fun AudioRoutePickerDialog(
 @Composable
 fun ClickableAudioRouteContent(
     @PreviewParameter(UserPreviewEndpointProvider::class) audioRoute: AudioEndpointUiState,
-    onChangeAudioRoute: suspend (String) -> Unit = {}
+    onChangeAudioRoute: suspend (String) -> Unit = {},
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isLoading: Boolean by remember { mutableStateOf(false) }
@@ -110,7 +110,7 @@ fun ClickableAudioRouteContent(
                 onChangeAudioRoute(audioRoute.id)
                 isLoading = false
             }
-        }
+        },
     ) {
         AudioRouteContent(audioRoute)
     }
@@ -120,11 +120,11 @@ fun ClickableAudioRouteContent(
 fun AudioRouteContent(audioRoute: AudioEndpointUiState) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(getResourceForAudioRoute(audioRoute.audioRoute)),
-            contentDescription = "audio route details"
+            contentDescription = "audio route details",
         )
         Spacer(modifier = Modifier.padding(horizontal = 6.dp))
         Text(audioRoute.name)

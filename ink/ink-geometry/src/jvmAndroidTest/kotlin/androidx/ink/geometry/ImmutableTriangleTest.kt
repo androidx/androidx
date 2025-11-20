@@ -158,9 +158,9 @@ class ImmutableTriangleTest {
     }
 
     @Test
-    fun asImmutable_returnsSelf() {
+    fun toImmutable_returnsSelf() {
         val triangle = ImmutableTriangle(P0, P1, P2)
-        val output = triangle.asImmutable()
+        val output = triangle.toImmutable()
 
         assertThat(output).isSameInstanceAs(triangle)
     }

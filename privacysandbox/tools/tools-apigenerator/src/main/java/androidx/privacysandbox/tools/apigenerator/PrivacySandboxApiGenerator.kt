@@ -55,11 +55,8 @@ import kotlin.io.path.readBytes
 /** Generate source files for communicating with an SDK running in the Privacy Sandbox. */
 class PrivacySandboxApiGenerator {
     @Deprecated("Please supply the frameworkAidl path argument")
-    fun generate(
-        sdkInterfaceDescriptors: Path,
-        aidlCompiler: Path,
-        outputDirectory: Path,
-    ) = generateImpl(sdkInterfaceDescriptors, aidlCompiler, null, outputDirectory)
+    fun generate(sdkInterfaceDescriptors: Path, aidlCompiler: Path, outputDirectory: Path) =
+        generateImpl(sdkInterfaceDescriptors, aidlCompiler, null, outputDirectory)
 
     /**
      * Generate API sources for a given SDK.
@@ -104,14 +101,14 @@ class PrivacySandboxApiGenerator {
             basePackageName,
             binderCodeConverter,
             interfaceFileGenerator,
-            output
+            output,
         )
         generateClientProxies(
             api,
             basePackageName,
             binderCodeConverter,
             interfaceFileGenerator,
-            output
+            output,
         )
         generateValueConverters(api, binderCodeConverter, output)
         generateSuspendFunctionUtilities(api, basePackageName, output)
@@ -145,7 +142,7 @@ class PrivacySandboxApiGenerator {
         basePackageName: String,
         binderCodeConverter: BinderCodeConverter,
         interfaceFileGenerator: InterfaceFileGenerator,
-        output: File
+        output: File,
     ) {
         val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
         api.callbacks.forEach {
@@ -159,7 +156,7 @@ class PrivacySandboxApiGenerator {
         basePackageName: String,
         binderCodeConverter: BinderCodeConverter,
         interfaceFileGenerator: InterfaceFileGenerator,
-        output: File
+        output: File,
     ) {
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName, binderCodeConverter)
         val annotatedInterfaces = api.services + api.interfaces
@@ -172,7 +169,7 @@ class PrivacySandboxApiGenerator {
     private fun generateValueConverters(
         api: ParsedApi,
         binderCodeConverter: BinderCodeConverter,
-        output: File
+        output: File,
     ) {
         val valueFileGenerator = ValueFileGenerator()
         val valueConverterFileGenerator =
@@ -185,14 +182,14 @@ class PrivacySandboxApiGenerator {
 
     private fun generateCoreLibInfoConverters(api: ParsedApi, output: File) {
         api.interfaces
-            .filter { it.inheritsSandboxedUiAdapter }
+            .filter { it.inheritsUiAdapter }
             .map { CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).writeTo(output) }
     }
 
     private fun generateSdkActivityLauncherUtilities(
         api: ParsedApi,
         basePackageName: String,
-        output: File
+        output: File,
     ) {
         if (!api.containsSdkActivityLauncher()) return
         SdkActivityLauncherProxyGenerator(basePackageName).generate().writeTo(output)
@@ -243,7 +240,7 @@ class PrivacySandboxApiGenerator {
     private fun generateSuspendFunctionUtilities(
         api: ParsedApi,
         basePackageName: String,
-        output: File
+        output: File,
     ) {
         if (!api.hasSuspendFunctions()) return
         ThrowableParcelConverterFileGenerator(basePackageName).generate().writeTo(output)

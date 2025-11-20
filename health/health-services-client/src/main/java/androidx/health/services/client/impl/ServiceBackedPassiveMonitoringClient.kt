@@ -48,21 +48,21 @@ import java.util.concurrent.Executor
 public class ServiceBackedPassiveMonitoringClient(
     private val applicationContext: Context,
     private val connectionManager: ConnectionManager =
-        HsConnectionManager.getInstance(applicationContext)
+        HsConnectionManager.getInstance(applicationContext),
 ) :
     PassiveMonitoringClient,
     Client<IPassiveMonitoringApiService>(
         CLIENT_CONFIGURATION,
         connectionManager,
         { binder -> IPassiveMonitoringApiService.Stub.asInterface(binder) },
-        { service -> service.apiVersion }
+        { service -> service.apiVersion },
     ) {
 
     private val packageName = applicationContext.packageName
 
     override fun setPassiveListenerServiceAsync(
         service: Class<out PassiveListenerService>,
-        config: PassiveListenerConfig
+        config: PassiveListenerConfig,
     ): ListenableFuture<Void> {
         if (!config.isValidPassiveGoal()) {
             return Futures.immediateFailedFuture(
@@ -76,28 +76,28 @@ public class ServiceBackedPassiveMonitoringClient(
             { remoteService, resultFuture ->
                 remoteService.registerPassiveListenerService(
                     PassiveListenerServiceRegistrationRequest(packageName, service.name, config),
-                    StatusCallback(resultFuture)
+                    StatusCallback(resultFuture),
                 )
             },
-            /* minApiVersion= */ 4
+            /* minApiVersion= */ 4,
         )
     }
 
     override fun setPassiveListenerCallback(
         config: PassiveListenerConfig,
-        callback: PassiveListenerCallback
+        callback: PassiveListenerCallback,
     ) {
         setPassiveListenerCallback(
             config,
             ContextCompat.getMainExecutor(applicationContext),
-            callback
+            callback,
         )
     }
 
     override fun setPassiveListenerCallback(
         config: PassiveListenerConfig,
         executor: Executor,
-        callback: PassiveListenerCallback
+        callback: PassiveListenerCallback,
     ) {
         if (!config.isValidPassiveGoal()) {
             callback.onRegistrationFailed(
@@ -115,7 +115,7 @@ public class ServiceBackedPassiveMonitoringClient(
                 service.registerPassiveListenerCallback(
                     PassiveListenerCallbackRegistrationRequest(packageName, config),
                     callbackStub,
-                    StatusCallback(result)
+                    StatusCallback(result),
                 )
             }
         Futures.addCallback(
@@ -129,7 +129,7 @@ public class ServiceBackedPassiveMonitoringClient(
                     callback.onRegistrationFailed(t)
                 }
             },
-            executor
+            executor,
         )
     }
 
@@ -138,7 +138,7 @@ public class ServiceBackedPassiveMonitoringClient(
             { service, resultFuture ->
                 service.unregisterPassiveListenerService(packageName, StatusCallback(resultFuture))
             },
-            /* minApiVersion= */ 4
+            /* minApiVersion= */ 4,
         )
     }
 
@@ -163,7 +163,7 @@ public class ServiceBackedPassiveMonitoringClient(
         Futures.transform(
             execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
             { response -> response!!.passiveMonitoringCapabilities },
-            ContextCompat.getMainExecutor(applicationContext)
+            ContextCompat.getMainExecutor(applicationContext),
         )
 
     internal companion object {

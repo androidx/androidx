@@ -27,7 +27,7 @@ enum class CallStateTransition {
     HOLD,
     UNHOLD,
     NONE,
-    DISCONNECT
+    DISCONNECT,
 }
 
 /** UI state and callback container for a Call */
@@ -41,7 +41,8 @@ data class CallUiState(
     val direction: Direction,
     val callType: CallType,
     val onStateChanged: (transition: CallStateTransition) -> Unit,
+    val meetingSummaryUiState: MeetingSummaryUiState,
     val participantUiState: ParticipantExtensionUiState?,
     val localCallSilenceUiState: LocalCallSilenceExtensionUiState?,
-    val callIconUiState: CallIconExtensionUiState?
+    val callIconUiState: CallIconExtensionUiState?,
 )

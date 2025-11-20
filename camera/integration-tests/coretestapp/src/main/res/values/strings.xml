@@ -24,6 +24,16 @@
     <string name="dual_selfie_off">Dual Selfie Off</string>
     <string name="dual_recording_on">Dual Record On</string>
     <string name="dual_recording_off">Dual Record Off</string>
+    <string name="effect_off">Media3 Effect Off</string>
+    <string name="effect_on">Media3 Effect On</string>
+    <string name="preview_mirror_off">Preview Mirror off</string>
+    <string name="preview_mirror_on">Preview Mirror on</string>
+    <string name="video_mirror_off">Video Mirror Off</string>
+    <string name="video_mirror_on">Video Mirror On</string>
+    <string name="viewport_off">View port 1/5 Off</string>
+    <string name="viewport_on">View port 1/5 On</string>
+    <string name="previewview_fit_off">PreviewView Fit Off</string>
+    <string name="previewview_fit_on">PreviewView Fit On</string>
     <string name="toggle">Toggle</string>
     <string name="finish">Finish</string>
     <string name="is_front_primary">IsFrontPrimary</string>

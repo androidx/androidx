@@ -16,8 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import android.graphics.Rect;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.FocusMeteringAction;
@@ -145,11 +143,6 @@ public class ForwardingCameraControl implements CameraControlInternal {
     @Override
     public @NonNull SessionConfig getSessionConfig() {
         return mCameraControlInternal.getSessionConfig();
-    }
-
-    @Override
-    public @NonNull Rect getSensorRect() {
-        return mCameraControlInternal.getSensorRect();
     }
 
     @Override

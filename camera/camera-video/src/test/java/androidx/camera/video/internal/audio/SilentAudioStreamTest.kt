@@ -18,7 +18,6 @@ package androidx.camera.video.internal.audio
 
 import android.media.AudioFormat
 import android.media.MediaRecorder
-import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import com.google.common.truth.Truth.assertThat
@@ -34,7 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class SilentAudioStreamTest {
 
     companion object {
@@ -54,7 +53,8 @@ class SilentAudioStreamTest {
         val audioSettings =
             AudioSettings.builder()
                 .setAudioSource(AUDIO_SOURCE)
-                .setSampleRate(SAMPLE_RATE)
+                .setCaptureSampleRate(SAMPLE_RATE)
+                .setEncodeSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)
                 .setAudioFormat(AUDIO_FORMAT)
                 .build()

@@ -17,11 +17,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":core:core-performance"))
     implementation(project(":core:core-performance:integration-tests:testlib"))
 }

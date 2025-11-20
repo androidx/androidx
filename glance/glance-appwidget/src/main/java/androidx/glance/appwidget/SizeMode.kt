@@ -86,14 +86,14 @@ import androidx.glance.appwidget.SizeMode.Responsive
  * effects to update state variables in the composition, otherwise be sure to handle any duplicate
  * triggering that may occur.
  */
-sealed interface SizeMode {
+public sealed interface SizeMode {
     /**
      * The [GlanceAppWidget] provides a single UI.
      *
      * The [LocalSize] will be the minimum size the App Widget can be, as defined in the App Widget
      * provider info (see [android.appwidget.AppWidgetManager.getAppWidgetInfo]).
      */
-    object Single : SizeMode, PreviewSizeMode {
+    public object Single : SizeMode, PreviewSizeMode {
         override fun toString(): String = "SizeMode.Single"
     }
 
@@ -106,7 +106,7 @@ sealed interface SizeMode {
      * [LocalSize] will be the one for which the UI is generated. See the note in [SizeMode] for
      * more info.
      */
-    object Exact : SizeMode {
+    public object Exact : SizeMode {
         override fun toString(): String = "SizeMode.Exact"
     }
 
@@ -126,7 +126,7 @@ sealed interface SizeMode {
      *
      * @param sizes List of sizes to use, must not be empty.
      */
-    class Responsive(val sizes: Set<DpSize>) : SizeMode, PreviewSizeMode {
+    public class Responsive(public val sizes: Set<DpSize>) : SizeMode, PreviewSizeMode {
 
         init {
             require(sizes.isNotEmpty()) { "The set of sizes cannot be empty" }
@@ -150,4 +150,4 @@ sealed interface SizeMode {
 }
 
 /** This marker interface determines which [SizeMode]s can be used for preview compositions. */
-sealed interface PreviewSizeMode : SizeMode
+public sealed interface PreviewSizeMode : SizeMode

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-@file:Suppress("UNUSED_VARIABLE") // These are sample files.
+@file:Suppress(
+    "DEPRECATION", // These samples are using the moved hiltViewModel API
+    "UNUSED_VARIABLE", // These are sample files.
+)
 
 package androidx.hilt.navigation.compose.samples
 

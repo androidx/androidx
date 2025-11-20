@@ -34,35 +34,45 @@ import com.google.common.util.concurrent.ListenableFuture
  */
 class FakeProcessCameraProviderWrapper(
     private val camera: Camera = FakeCamera(),
-    private val bindToLifecycleException: Throwable? = null
+    private val bindToLifecycleException: Throwable? = null,
 ) : ProcessCameraProviderWrapper {
 
-    private var unbindInvoked = false
+    private var unbindInvokedUseCases: List<UseCase> = emptyList()
+    private var shouldThrowOnGetCameraInfo = false
+    private var boundUseCases: List<UseCase> = emptyList()
 
-    fun unbindInvoked(): Boolean {
-        return unbindInvoked
+    /** Obtains the UseCases that were unbind()'d. */
+    fun getUnbindInvokedUseCases() = unbindInvokedUseCases
+
+    /** Resets the unbind()'d UseCases list. */
+    fun resetUnbindInvokedUseCases() {
+        unbindInvokedUseCases = emptyList()
     }
+
+    /** Obtains the UseCases that were bound. */
+    fun getBoundUseCases() = boundUseCases
 
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         return true
     }
 
     override fun unbind(vararg useCases: UseCase?) {
-        // no-op.
+        unbindInvokedUseCases = useCases.toList().filterNotNull()
     }
 
     override fun unbindAll() {
-        unbindInvoked = true
+        // no-op.
     }
 
     override fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
-        useCaseGroup: UseCaseGroup
+        useCaseGroup: UseCaseGroup,
     ): Camera {
         if (bindToLifecycleException != null) {
             throw bindToLifecycleException
         }
+        boundUseCases = useCaseGroup.useCases
         return camera
     }
 
@@ -71,6 +81,13 @@ class FakeProcessCameraProviderWrapper(
     }
 
     override fun getCameraInfo(cameraSelector: CameraSelector?): CameraInfo {
+        if (shouldThrowOnGetCameraInfo) {
+            throw IllegalArgumentException("Fake error: No camera available for selector")
+        }
         return camera.cameraInfo
+    }
+
+    fun setShouldThrowOnGetCameraInfo(shouldThrow: Boolean) {
+        shouldThrowOnGetCameraInfo = shouldThrow
     }
 }

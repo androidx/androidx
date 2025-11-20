@@ -25,15 +25,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.test.filters.SmallTest;
+import android.graphics.Color;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Verifies {@link DividerAttributes} behavior. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class DividerAttributesTest {
 
     @Test
@@ -44,6 +45,10 @@ public class DividerAttributesTest {
         assertThat(defaultAttrs.getWidthDp()).isEqualTo(WIDTH_SYSTEM_DEFAULT);
         assertThat(defaultAttrs.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
         assertThat(defaultAttrs.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(defaultAttrs.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(defaultAttrs.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
     }
 
     @Test
@@ -56,7 +61,10 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes1.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes1.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
         assertThat(dividerAttributes1.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
-
+        assertThat(dividerAttributes1.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(dividerAttributes1.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
         final DividerAttributes dividerAttributes2 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
                         .setWidthDp(20)
@@ -67,6 +75,10 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes2.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes2.getPrimaryMinRatio()).isEqualTo(0.2f);
         assertThat(dividerAttributes2.getPrimaryMaxRatio()).isEqualTo(0.8f);
+        assertThat(dividerAttributes2.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(dividerAttributes2.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
 
         final DividerAttributes dividerAttributes3 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -76,6 +88,10 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes3.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes3.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
         assertThat(dividerAttributes3.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes3.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(dividerAttributes3.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
 
         final DividerAttributes dividerAttributes4 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -86,6 +102,10 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes4.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes4.getPrimaryMinRatio()).isEqualTo(0.2f);
         assertThat(dividerAttributes4.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes4.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(dividerAttributes4.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
 
         final DividerAttributes dividerAttributes5 =
                 new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
@@ -96,6 +116,23 @@ public class DividerAttributesTest {
         assertThat(dividerAttributes5.getWidthDp()).isEqualTo(20);
         assertThat(dividerAttributes5.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
         assertThat(dividerAttributes5.getPrimaryMaxRatio()).isEqualTo(0.2f);
+        assertThat(dividerAttributes5.getPrimaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+        assertThat(dividerAttributes5.getSecondaryVeilColor()).isEqualTo(
+                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT);
+
+        final DividerAttributes dividerAttributes6 =
+                new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
+                        .setWidthDp(20)
+                        .setPrimaryVeilColor(Color.BLUE)
+                        .setSecondaryVeilColor(Color.GREEN)
+                        .build();
+        assertThat(dividerAttributes6.getDividerType()).isEqualTo(DIVIDER_TYPE_DRAGGABLE);
+        assertThat(dividerAttributes6.getWidthDp()).isEqualTo(20);
+        assertThat(dividerAttributes6.getPrimaryMinRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes6.getPrimaryMaxRatio()).isEqualTo(RATIO_SYSTEM_DEFAULT);
+        assertThat(dividerAttributes6.getPrimaryVeilColor()).isEqualTo(Color.BLUE);
+        assertThat(dividerAttributes6.getSecondaryVeilColor()).isEqualTo(Color.GREEN);
     }
 
     @Test
@@ -119,8 +156,30 @@ public class DividerAttributesTest {
                         .setWidthDp(20)
                         .build();
 
+        final DividerAttributes dividerAttributes4 =
+                new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
+                        .setWidthDp(20)
+                        .setPrimaryMinRatio(0.2f)
+                        .setPrimaryMaxRatio(0.8f)
+                        .setPrimaryVeilColor(
+                                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT)
+                        .setSecondaryVeilColor(
+                                DividerAttributes.DIVIDER_VEIL_COLOR_DEFAULT)
+                        .build();
+
+        final DividerAttributes dividerAttributes5 =
+                new DividerAttributes.Builder(DIVIDER_TYPE_DRAGGABLE)
+                        .setWidthDp(20)
+                        .setPrimaryMinRatio(0.2f)
+                        .setPrimaryMaxRatio(0.8f)
+                        .setPrimaryVeilColor(Color.BLUE)
+                        .setSecondaryVeilColor(Color.GREEN)
+                        .build();
+
         assertThat(dividerAttributes1).isEqualTo(dividerAttributes2);
         assertThat(dividerAttributes1).isNotEqualTo(dividerAttributes3);
+        assertThat(dividerAttributes1).isEqualTo(dividerAttributes4);
+        assertThat(dividerAttributes1).isNotEqualTo(dividerAttributes5);
     }
 
     @Test
@@ -131,6 +190,22 @@ public class DividerAttributesTest {
                 () -> new DividerAttributes.Builder(DIVIDER_TYPE_FIXED)
                         .setPrimaryMinRatio(0.2f)
                         .setPrimaryMaxRatio(0.8f)
+                        .build()
+        );
+
+        assertThrows(
+                "Must not set primary veil color for DIVIDER_TYPE_FIXED",
+                IllegalStateException.class,
+                () -> new DividerAttributes.Builder(DIVIDER_TYPE_FIXED)
+                        .setPrimaryVeilColor(Color.BLUE)
+                        .build()
+        );
+
+        assertThrows(
+                "Must not set primary veil color for DIVIDER_TYPE_FIXED",
+                IllegalStateException.class,
+                () -> new DividerAttributes.Builder(DIVIDER_TYPE_FIXED)
+                        .setSecondaryVeilColor(Color.BLUE)
                         .build()
         );
 

@@ -30,7 +30,6 @@ import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +47,6 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
         super(TestActivity.class);
     }
 
-    @SdkSuppress(minSdkVersion = 20)
     @Test
     public void testRemoteInputBuilder_toAndFromPlatform() throws Throwable {
         RemoteInput originalInput = new RemoteInput.Builder(RESULT_KEY)

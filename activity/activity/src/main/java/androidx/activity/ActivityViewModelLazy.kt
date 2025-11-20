@@ -48,7 +48,7 @@ public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
         VM::class,
         { viewModelStore },
         factoryPromise,
-        { this.defaultViewModelCreationExtras }
+        { this.defaultViewModelCreationExtras },
     )
 }
 
@@ -69,7 +69,7 @@ public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
 @MainThread
 public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
     noinline extrasProducer: (() -> CreationExtras)? = null,
-    noinline factoryProducer: (() -> Factory)? = null
+    noinline factoryProducer: (() -> Factory)? = null,
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: { defaultViewModelProviderFactory }
 
@@ -77,6 +77,6 @@ public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
         VM::class,
         { viewModelStore },
         factoryPromise,
-        { extrasProducer?.invoke() ?: this.defaultViewModelCreationExtras }
+        { extrasProducer?.invoke() ?: this.defaultViewModelCreationExtras },
     )
 }

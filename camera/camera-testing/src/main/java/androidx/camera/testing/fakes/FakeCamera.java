@@ -88,6 +88,8 @@ public class FakeCamera implements CameraInternal {
 
     private CameraConfig mCameraConfig = CameraConfigs.defaultConfig();
 
+    private boolean mIsRemoved = false;
+
     public FakeCamera() {
         this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,
                 new FakeCameraInfoInternal(DEFAULT_CAMERA_ID));
@@ -99,6 +101,11 @@ public class FakeCamera implements CameraInternal {
 
     public FakeCamera(@NonNull String cameraId) {
         this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal(cameraId));
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCamera(@NonNull CameraInfoInternal cameraInfo) {
+        this(cameraInfo.getCameraId(), /*cameraControl=*/null, cameraInfo);
     }
 
     public FakeCamera(@Nullable CameraControlInternal cameraControl,
@@ -263,7 +270,7 @@ public class FakeCamera implements CameraInternal {
 
         Logger.d(TAG, "Use cases " + useCases + " ATTACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
-            useCase.onStateAttached();
+            useCase.onSessionStart();
             useCase.onCameraControlReady();
             mUseCaseAttachState.setUseCaseAttached(
                     useCase.getName() + useCase.hashCode(),
@@ -293,7 +300,7 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use cases " + useCases + " DETACHED for camera " + mCameraId);
         for (UseCase useCase : useCases) {
             mUseCaseAttachState.setUseCaseDetached(useCase.getName() + useCase.hashCode());
-            useCase.onStateDetached();
+            useCase.onSessionStop();
         }
 
         if (mUseCaseAttachState.getAttachedSessionConfigs().isEmpty()) {
@@ -485,6 +492,7 @@ public class FakeCamera implements CameraInternal {
         mConfiguredDeferrableSurfaces.clear();
     }
 
+    @SuppressWarnings("GetterSetterNullability")
     @Override
     public @NonNull CameraConfig getExtendedConfig() {
         return mCameraConfig;
@@ -501,11 +509,32 @@ public class FakeCamera implements CameraInternal {
         return mState == State.RELEASED;
     }
 
-    private void setState(CameraInternal.State state) {
+    /**
+     * Sets the internal state of the camera without an error.
+     *
+     * <p>This is a convenience method for testing that calls
+     * {@link #setState(State, CameraState.StateError)} with a null error.
+     *
+     * @param state The new internal state for the camera.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setState(CameraInternal.@NonNull State state) {
         setState(state, null);
     }
 
-    private void setState(CameraInternal.State state, CameraState.StateError stateError) {
+    /**
+     * Sets the internal state of the camera, optionally with an error.
+     *
+     * <p>This method is used in tests to simulate various camera lifecycle states and error
+     * conditions. It updates both the internal state observable and the public-facing
+     * {@link CameraState}.
+     *
+     * @param state      The new internal state for the camera.
+     * @param stateError The associated error, or {@code null} if there is no error.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setState(CameraInternal.@NonNull State state,
+            CameraState.@Nullable StateError stateError) {
         mState = state;
         mObservableState.postValue(state);
         if (mCameraInfoInternal instanceof FakeCameraInfoInternal) {
@@ -588,5 +617,23 @@ public class FakeCamera implements CameraInternal {
         }
         return CaptureSimulationKt.simulateCaptureFrameAsync(mSessionConfig.getSurfaces(),
                 executor);
+    }
+
+    /**
+     * Sets the internal state to disconnected. This can be checked with {@link #isRemoved()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void onRemoved() {
+        mIsRemoved = true;
+    }
+
+    /**
+     * Returns true if {@link #onRemoved()} has been called on this instance.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public boolean isRemoved() {
+        return mIsRemoved;
     }
 }

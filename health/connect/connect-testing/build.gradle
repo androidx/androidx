@@ -27,11 +27,10 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation(project(":health:connect:connect-client"))
     implementation(project(":health:connect:connect-client-proto"))
 
@@ -47,7 +46,7 @@ android {
     }
     namespace = "androidx.health.connect.testing"
     testOptions.unitTests.includeAndroidResources = true
-    compileSdk = 35
+    compileSdk = 36
 }
 
 androidx {

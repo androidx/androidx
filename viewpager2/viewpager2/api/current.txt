@@ -62,7 +62,7 @@ package androidx.viewpager2.widget {
     ctor public ViewPager2(android.content.Context);
     ctor public ViewPager2(android.content.Context, android.util.AttributeSet?);
     ctor public ViewPager2(android.content.Context, android.util.AttributeSet?, int);
-    ctor @RequiresApi(21) public ViewPager2(android.content.Context, android.util.AttributeSet?, int, int);
+    ctor public ViewPager2(android.content.Context, android.util.AttributeSet?, int, int);
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
     method public boolean beginFakeDrag();

@@ -23,18 +23,23 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.animation.core"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -48,8 +53,7 @@ androidXMultiplatform {
                 implementation(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:ui:ui-graphics"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
+                implementation("androidx.collection:collection:1.5.0")
                 api(libs.kotlinCoroutinesCore)
             }
         }
@@ -87,7 +91,7 @@ androidXMultiplatform {
             dependsOn(commonStubsMain)
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
@@ -105,7 +109,7 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
@@ -127,15 +131,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Animation engine and animation primitives that are the building blocks of the Compose animation library"
-    metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation-core:animation-core-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.animation.core"
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
 }

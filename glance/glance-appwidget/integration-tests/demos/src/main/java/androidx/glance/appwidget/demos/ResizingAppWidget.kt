@@ -64,7 +64,7 @@ class ResizingAppWidget : GlanceAppWidget() {
                         GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
                             Log.i("GlanceAppWidget", "first clicked")
                         },
-                    style = TextStyle(textAlign = TextAlign.Start)
+                    style = TextStyle(textAlign = TextAlign.Start),
                 )
                 Text(
                     "second",
@@ -84,7 +84,7 @@ class ResizingAppWidget : GlanceAppWidget() {
                         GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
                             Log.i("GlanceAppWidget", "third clicked")
                         },
-                    style = TextStyle(textAlign = TextAlign.End)
+                    style = TextStyle(textAlign = TextAlign.End),
                 )
             }
             Text(
@@ -94,28 +94,28 @@ class ResizingAppWidget : GlanceAppWidget() {
                         .fillMaxWidth()
                         .clickable { Log.i("GlanceAppWidget", "middle clicked") }
                         .background(ImageProvider(R.drawable.compose)),
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
             )
             Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {
                 Text(
                     "left",
                     style = TextStyle(textAlign = TextAlign.Left),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "right",
                     style = TextStyle(textAlign = TextAlign.Right),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "start",
                     style = TextStyle(textAlign = TextAlign.Start),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "end",
                     style = TextStyle(textAlign = TextAlign.End),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
             }
             Row(modifier = GlanceModifier.fillMaxWidth()) {

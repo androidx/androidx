@@ -29,7 +29,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @SuppressLint("NewApi")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-open class AppSetIdManagerImplCommon(
+public open class AppSetIdManagerImplCommon(
     private val mAppSetIdManager: android.adservices.appsetid.AppSetIdManager
 ) : AppSetIdManager() {
 

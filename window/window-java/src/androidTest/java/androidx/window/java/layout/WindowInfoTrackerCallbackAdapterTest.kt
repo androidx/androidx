@@ -38,6 +38,7 @@ import org.mockito.kotlin.whenever
  * @see WindowInfoTracker
  */
 @OptIn(ExperimentalWindowApi::class)
+@Suppress("Deprecation") // WindowInfoTrackerCallbackAdapter is deprecated
 public class WindowInfoTrackerCallbackAdapterTest {
 
     @Test

@@ -64,7 +64,7 @@ fun CameraController.takePicture(
                 onImageSaved = { results ->
                     toastMessenger.show("Image saved to: " + results.savedUri)
                 },
-                onError = { e -> toastMessenger.show("Failed to save picture: " + e.message) }
+                onError = { e -> toastMessenger.show("Failed to save picture: " + e.message) },
             )
         } else {
             takePicture(
@@ -79,7 +79,7 @@ fun CameraController.takePicture(
                             "Failed to capture in-memory picture: " + exception.message
                         )
                     }
-                }
+                },
             )
         }
     } catch (exception: RuntimeException) {
@@ -128,7 +128,7 @@ fun CameraController.takePictureOnDisk(
         OutputFileOptions.Builder(
                 context.contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
             .build()
     takePicture(
@@ -142,7 +142,7 @@ fun CameraController.takePictureOnDisk(
             override fun onError(exception: ImageCaptureException) {
                 onError(exception)
             }
-        }
+        },
     )
 }
 
@@ -161,7 +161,7 @@ private fun getCroppedBitmap(image: ImageProxy): Bitmap {
         TransformUtils.getRectToRect(
             RectF(cropRect),
             RectF(0f, 0f, cropRect.width().toFloat(), cropRect.height().toFloat()),
-            0
+            0,
         )
 
     val canvas = Canvas(cropped)

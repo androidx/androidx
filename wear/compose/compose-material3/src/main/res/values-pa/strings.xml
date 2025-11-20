@@ -33,15 +33,19 @@
       <item quantity="other">%d ਸਕਿੰਟ</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"ਮਿਆਦ"</string>
+    <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"ਸਮਾਂ ਸੈੱਟ ਕਰਨ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"ਦਿਨ"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"ਮਹੀਨਾ"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"ਸਾਲ"</string>
+    <string name="wear_m3c_date_picker_heading" msgid="1824308273028674826">"ਤਾਰੀਖ ਸੈੱਟ ਕਰਨ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
+    <string name="wear_m3c_picker_click_to_adjust_hint" msgid="167976024035966099">"ਮੁੱਲ ਵਿਵਸਥਿਤ ਕਰੋ"</string>
+    <string name="wear_m3c_picker_click_to_select_hint" msgid="7994498880084699884">"ਮੁੱਲ ਚੁਣੋ"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"ਤਸਦੀਕ ਕਰੋ"</string>
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"ਅੱਗੇ"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"ਘਟਾਓ"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"ਵਧਾਓ"</string>
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"ਤਸਦੀਕ ਕਰੋ"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"ਖਾਰਜ ਕਰੋ"</string>
-    <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"ਫ਼ੋਨ \'ਤੇ ਖੋਲ੍ਹੋ"</string>
-    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="7845336918219306426">"\'ਫ਼ੋਨ \'ਤੇ ਖੋਲ੍ਹੋ\' ਪ੍ਰਤੀਕ"</string>
+    <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"ਆਪਣੇ ਫ਼ੋਨ ਦੀ ਜਾਂਚ ਕਰੋ"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"ਆਪਣੇ ਫ਼ੋਨ ਦੀ ਜਾਂਚ ਕਰੋ ਪ੍ਰਤੀਕ"</string>
 </resources>

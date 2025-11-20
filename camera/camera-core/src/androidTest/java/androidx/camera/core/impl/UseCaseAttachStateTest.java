@@ -33,7 +33,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.testing.impl.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +42,6 @@ import java.util.List;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
 public class UseCaseAttachStateTest {
     private final CameraDevice mMockCameraDevice = mock(CameraDevice.class);
     private final CameraCaptureSession mMockCameraCaptureSession =

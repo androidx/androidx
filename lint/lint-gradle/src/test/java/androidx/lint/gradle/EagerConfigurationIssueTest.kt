@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 class EagerConfigurationIssueTest :
     GradleLintDetectorTest(
         detector = DiscouragedGradleMethodDetector(),
-        issues = listOf(DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE)
+        issues = listOf(DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE),
     ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
@@ -54,6 +54,48 @@ class EagerConfigurationIssueTest :
             @@ -4 +4
             -     project.tasks.create("example")
             +     project.tasks.register("example")
+        """
+                .trimIndent()
+
+        check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
+    }
+
+    @Test
+    fun `Test usage of ConfigurationContainer#create`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.Project
+
+                fun configure(project: Project) {
+                    project.configurations.create("example")
+                    project.configurations.maybeCreate("example2")
+                }
+            """
+                    .trimIndent()
+            )
+
+        val expected =
+            """
+                src/test.kt:4: Error: Use register instead of create [EagerGradleConfiguration]
+                    project.configurations.create("example")
+                                           ~~~~~~
+                src/test.kt:5: Error: Use register instead of maybeCreate [EagerGradleConfiguration]
+                    project.configurations.maybeCreate("example2")
+                                           ~~~~~~~~~~~
+                2 errors, 0 warnings
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
+            Fix for src/test.kt line 4: Replace with register:
+            @@ -4 +4
+            -     project.configurations.create("example")
+            +     project.configurations.register("example")
+            Fix for src/test.kt line 5: Replace with register:
+            @@ -5 +5
+            -     project.configurations.maybeCreate("example2")
+            +     project.configurations.register("example2")
         """
                 .trimIndent()
 

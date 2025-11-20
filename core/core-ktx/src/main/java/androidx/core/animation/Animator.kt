@@ -86,7 +86,7 @@ public inline fun Animator.addListener(
     crossinline onEnd: (animator: Animator) -> Unit = {},
     crossinline onStart: (animator: Animator) -> Unit = {},
     crossinline onCancel: (animator: Animator) -> Unit = {},
-    crossinline onRepeat: (animator: Animator) -> Unit = {}
+    crossinline onRepeat: (animator: Animator) -> Unit = {},
 ): Animator.AnimatorListener {
     val listener =
         object : Animator.AnimatorListener {
@@ -109,7 +109,7 @@ public inline fun Animator.addListener(
  */
 public fun Animator.addPauseListener(
     onResume: (animator: Animator) -> Unit = {},
-    onPause: (animator: Animator) -> Unit = {}
+    onPause: (animator: Animator) -> Unit = {},
 ): Animator.AnimatorPauseListener {
     val listener =
         object : Animator.AnimatorPauseListener {

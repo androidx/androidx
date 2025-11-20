@@ -19,31 +19,54 @@ package androidx.wear.protolayout.testing
 import androidx.wear.protolayout.LayoutElementBuilders.Layout
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.LayoutElementBuilders.layoutElementFromProto
+import androidx.wear.protolayout.expression.DynamicDataPair
+import androidx.wear.protolayout.expression.dynamicDataMapOf
 
 /** Provides the main entry point into testing by exposing methods to find a layout element. */
 public class LayoutElementAssertionsProvider(layoutRoot: LayoutElement) {
     private val root: LayoutElement =
         layoutElementFromProto(layoutRoot.toLayoutElementProto(), null)
+    private var context: TestContext = TestContext()
 
     public constructor(layout: Layout) : this(layout.root!!)
+
+    /**
+     * Injects the app state and/or platform data for evaluating the dynamic data applied on the
+     * layout element under testing.
+     */
+    public fun withDynamicData(
+        vararg dynamicDataPairs: DynamicDataPair<*>
+    ): LayoutElementAssertionsProvider {
+        context.addDynamicData(dynamicDataMapOf(*dynamicDataPairs))
+
+        return this
+    }
 
     /** Finds an element that matches the given condition. */
     public fun onElement(matcher: LayoutElementMatcher): LayoutElementAssertion {
         val elementDescription = "element matching '${matcher.description}'"
-        return LayoutElementAssertion(elementDescription, searchElement(root, matcher))
+        return LayoutElementAssertion(
+            elementDescription,
+            searchElement(root, matcher, context),
+            context,
+        )
     }
 
     /**
      * Finds the top level element of the element tree added to this
      * [LayoutElementAssertionsProvider].
      */
-    public fun onRoot(): LayoutElementAssertion = LayoutElementAssertion("root", root)
+    public fun onRoot(): LayoutElementAssertion = LayoutElementAssertion("root", root, context)
 
     // TODO - b/374944199: add onAllElement which returns a LayoutElementAssertionCollection
 
-    private fun searchElement(root: LayoutElement?, matcher: LayoutElementMatcher): LayoutElement? {
+    private fun searchElement(
+        root: LayoutElement?,
+        matcher: LayoutElementMatcher,
+        context: TestContext,
+    ): LayoutElement? {
         if (root == null) return null
-        if (matcher.matches(root)) return root
-        return root.children.firstNotNullOfOrNull { searchElement(it, matcher) }
+        if (matcher.matches(root, context)) return root
+        return root.children.firstNotNullOfOrNull { searchElement(it, matcher, context) }
     }
 }

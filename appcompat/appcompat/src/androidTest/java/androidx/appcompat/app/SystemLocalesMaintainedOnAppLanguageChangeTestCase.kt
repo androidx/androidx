@@ -73,7 +73,7 @@ class SystemLocalesMaintainedOnAppLanguageChangeTestCase {
             // cleaning up any platform-persisted locales.
             AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
                 AppCompatDelegate.getLocaleManagerForApplication(),
-                LocaleList.getEmptyLocaleList()
+                LocaleList.getEmptyLocaleList(),
             )
         }
     }

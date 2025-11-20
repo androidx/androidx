@@ -17,20 +17,16 @@
 package androidx.wear.compose.material3
 
 import android.content.res.Configuration
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -39,6 +35,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -46,10 +43,10 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(TestParameterInjector::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class LevelIndicatorScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
@@ -93,7 +90,7 @@ class LevelIndicatorScreenshotTest {
             value = 25f,
             strokeWidth = LevelIndicatorDefaults.StrokeWidth * 2,
             shape = shape,
-            testName = testName
+            testName = testName,
         )
 
     @Test
@@ -102,7 +99,7 @@ class LevelIndicatorScreenshotTest {
             value = 25f,
             sweepAngle = LevelIndicatorDefaults.SweepAngle / 2f,
             shape = shape,
-            testName = testName
+            testName = testName,
         )
 
     private fun verifyScreenshot(
@@ -133,14 +130,14 @@ class LevelIndicatorScreenshotTest {
                 }
             CompositionLocalProvider(
                 LocalLayoutDirection provides actualLayoutDirection,
-                LocalConfiguration provides updatedConfig
+                LocalConfiguration provides updatedConfig,
             ) {
                 Box(
                     modifier =
                         Modifier.size(screenSizeDp.dp)
                             .background(MaterialTheme.colorScheme.background)
                 ) {
-                    LevelIndicator(
+                    StepperLevelIndicator(
                         value = { value },
                         valueRange = valueRange,
                         modifier = Modifier.align(Alignment.CenterStart).testTag(TEST_TAG),
@@ -155,9 +152,6 @@ class LevelIndicatorScreenshotTest {
 
         rule.waitForIdle()
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }

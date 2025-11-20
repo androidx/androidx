@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalLayoutApi::class)
 class RectsInFlowColumnTestCase(
     private val amountOfRectangles: Int,
-    private val modifier: Modifier = Modifier
+    private val modifier: Modifier = Modifier,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val states = mutableListOf<MutableState<Color>>()

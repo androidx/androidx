@@ -22,33 +22,11 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * An affine transformation in the plane. The transformation can be thought of as a 3x3 matrix:
- * ```
- *   ⎡m00  m10  m20⎤
- *   ⎢m01  m11  m21⎥
- *   ⎣ 0    0    1 ⎦
- * ```
+ * An immutable affine transformation in the plane. Individual operations can be constructed with
+ * factory methods like [translate] and [rotateDegrees].
  *
- * Applying the transformation can be thought of as a matrix multiplication, with the
- * to-be-transformed point represented as a column vector with an extra 1:
- * ```
- *   ⎡m00  m10  m20⎤   ⎡x⎤   ⎡m00*x + m10*y + m20⎤
- *   ⎢m01  m11  m21⎥ * ⎢y⎥ = ⎢m01*x + m11*y + m21⎥
- *   ⎣ 0    0    1 ⎦   ⎣1⎦   ⎣         1         ⎦
- * ```
- *
- * Transformations are composed via multiplication. Multiplication is not commutative (i.e. A*B !=
- * B*A), and the left-hand transformation is composed "after" the right hand transformation. E.g.,
- * if you have:
- * ```
- * val rotate = ImmutableAffineTransform.rotate(Angle.degreesToRadians(45))
- * val translate = ImmutableAffineTransform.translate(Vec(10, 0))
- * ```
- *
- * then `rotate * translate` first translates 10 units in the positive x-direction, then rotates 45°
- * about the origin.
- *
- * See [MutableAffineTransform] for mutable alternative to this class.
+ * See [AffineTransform] for more general documentation about how these transforms are represented.
+ * See [MutableAffineTransform] for a mutable alternative to this class.
  *
  * @constructor Constructs this transform with 6 float values, starting with the top left corner of
  *   the matrix and proceeding in row-major order. Prefer to create this object with functions that
@@ -83,7 +61,7 @@ public constructor(
     ) : this(values[0], values[1], values[2], values[3], values[4], values[5])
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun asImmutable(): ImmutableAffineTransform = this
+    public override fun toImmutable(): ImmutableAffineTransform = this
 
     /**
      * Component-wise equality operator for [ImmutableAffineTransform].
@@ -136,25 +114,26 @@ public constructor(
         @JvmStatic
         public fun scaleY(scaleFactor: Float): ImmutableAffineTransform = scale(1f, scaleFactor)
 
-        /** Returns a transformation that shears in the x-direction by the given factor. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+        /** Returns a transformation that skews in the x-direction by the given factor. */
         @JvmStatic
-        public fun shearX(shearFactor: Float): ImmutableAffineTransform =
-            ImmutableAffineTransform(1f, shearFactor, 0f, 0f, 1f, 0f)
+        public fun skewX(sx: Float): ImmutableAffineTransform =
+            ImmutableAffineTransform(1f, sx, 0f, 0f, 1f, 0f)
 
-        /** Returns a transformation that shears in the y-direction by the given factor. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+        /** Returns a transformation that skews in the y-direction by the given factor. */
         @JvmStatic
-        public fun shearY(shearFactor: Float): ImmutableAffineTransform =
-            ImmutableAffineTransform(1f, 0f, 0f, shearFactor, 1f, 0f)
+        public fun skewY(sy: Float): ImmutableAffineTransform =
+            ImmutableAffineTransform(1f, 0f, 0f, sy, 1f, 0f)
 
-        /** Returns a transformation that rotates by the given angle, centered about the origin. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+        /**
+         * Returns a transformation that rotates [degrees] in the direction from the positive x-axis
+         * towards the positive y-axis.
+         */
         @JvmStatic
-        public fun rotate(@AngleRadiansFloat angleOfRotation: Float): ImmutableAffineTransform {
-            val sin = sin(angleOfRotation)
-            val cos = cos(angleOfRotation)
-            return ImmutableAffineTransform(cos, -sin, 0f, sin, cos, 0f)
+        public fun rotateDegrees(@AngleDegreesFloat degrees: Float): ImmutableAffineTransform {
+            val radians = Angle.degreesToRadians(degrees)
+            val y = sin(radians)
+            val x = cos(radians)
+            return ImmutableAffineTransform(x, -y, 0f, y, x, 0f)
         }
     }
 }

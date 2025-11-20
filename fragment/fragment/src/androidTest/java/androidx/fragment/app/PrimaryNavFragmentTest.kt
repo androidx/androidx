@@ -318,7 +318,7 @@ class PrimaryNavFragmentTest {
                     postponedFragment to false,
                     trackingFragment to true,
                     trackingFragment to false,
-                    replacementFragment to true
+                    replacementFragment to true,
                 )
             )
 
@@ -361,7 +361,7 @@ class PrimaryNavFragmentTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 postponeEnterTransition()

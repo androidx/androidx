@@ -21,6 +21,8 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.UiThread;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -104,8 +106,10 @@ public class DragStartHelper {
     /**
      * Attach the helper to the view.
      * <p>
-     * This will replace previously existing touch and long click listeners.
+     * This will replace previously existing touch and long click listeners. This method must be
+     * called from the UI thread.
      */
+    @UiThread
     public void attach() {
         mView.setOnLongClickListener(mLongClickListener);
         mView.setOnTouchListener(mTouchListener);
@@ -114,8 +118,10 @@ public class DragStartHelper {
     /**
      * Detach the helper from the view.
      * <p>
-     * This will reset touch and long click listeners to {@code null}.
+     * This will reset touch and long click listeners to {@code null}. This method must be called
+     * from the UI thread.
      */
+    @UiThread
     public void detach() {
         mView.setOnLongClickListener(null);
         mView.setOnTouchListener(null);

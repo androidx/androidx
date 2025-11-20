@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
@@ -57,10 +57,8 @@ android {
 dependencies {
 
     // Specifying build type dependencies is part of the test
-    debugImplementation(libs.kotlinStdlib)
     debugImplementation(libs.constraintLayout)
 
-    releaseImplementation(libs.kotlinStdlib)
     releaseImplementation(libs.constraintLayout)
 }
 

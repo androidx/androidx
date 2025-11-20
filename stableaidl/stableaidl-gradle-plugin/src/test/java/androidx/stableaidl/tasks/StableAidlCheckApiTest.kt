@@ -49,9 +49,9 @@ class StableAidlCheckApiTest {
                     listOf(
                         FakeInjectableService(
                             FakeNoOpWorkAction::execOperations.getter.javaMethod!!,
-                            execOperations
+                            execOperations,
                         )
-                    )
+                    ),
                 )
         }
     }
@@ -78,10 +78,10 @@ class StableAidlCheckApiTest {
                 "--structured",
                 "--checkapi=equal",
                 expectedApiDir.absolutePath,
-                actualApiDir.absolutePath
+                actualApiDir.absolutePath,
             ),
             listOf(),
-            listOf()
+            listOf(),
         )
 
         // Check that executable only runs once and arguments are intact.
@@ -96,7 +96,7 @@ class StableAidlCheckApiTest {
                     "--structured",
                     "--checkapi=equal",
                     expectedApiDir.absolutePath,
-                    actualApiDir.absolutePath
+                    actualApiDir.absolutePath,
                 )
         }
     }

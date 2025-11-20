@@ -77,7 +77,7 @@ function sendScan() {
   uploadScan
 }
 
-sendScan scan.zip
+sendScan scan.1.zip
 echo uploaded scan
 if [ "$sendUpToDateScan" == "true" ]; then
   sendScan scan-up-to-date.zip

@@ -25,6 +25,7 @@ import android.text.style.ForegroundColorSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
 
 /** Tests for {@link CarText}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class CarTextTest {
     @Test

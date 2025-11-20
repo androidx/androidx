@@ -24,71 +24,52 @@
 
 import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
-import androidx.build.KotlinTarget
 
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.guavaListenableFuture)
+    api(libs.jspecify)
     api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
+    api(project(":xr:scenecore:scenecore-runtime"))
+
+    implementation(project(":xr:scenecore:scenecore-spatial-core"))
+    implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation(libs.androidx.core)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.activity:activity:1.9.3")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-    implementation(project(":xr:runtime:runtime-openxr"))
-    implementation("com.google.ar:impress:0.0.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":xr:scenecore:scenecore-testing"))
     testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
 
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testExtTruth)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoAndroid5)
-    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
-    androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
-
-    // For androidx.xr.extensions.
-    compileOnly(project(':xr:xr-stubs'))
-    testImplementation(project(':xr:xr-stubs'))
+    // For com.android.xr.extensions.
+    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
 }
 
 android {
     defaultConfig {
-        consumerProguardFiles 'proguard-rules.pro'
-        minSdkVersion 24
-    }
-    sourceSets {
-        test {
-            assets {
-                srcDirs += ["src/test/java/androidx/xr/scenecore/impl/fake_assets"]
-            }
-        }
-        androidTest {
-            jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/androidTest")
-        }
+        consumerProguardFiles("proguard-rules.pro")
+        minSdk = 24
     }
     namespace = "androidx.xr.scenecore"
 }
@@ -101,7 +82,5 @@ androidx {
 
     // TODO: b/379715750 - Remove this flag once the deprecated methods have been removed from the API.
     failOnDeprecationWarnings = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

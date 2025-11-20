@@ -20,7 +20,7 @@ import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.Types.any
-import androidx.privacysandbox.tools.core.model.Types.sandboxedUiAdapter
+import androidx.privacysandbox.tools.core.model.Types.uiAdapters
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
@@ -32,13 +32,10 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 
-internal class InterfaceParser(
-    private val logger: KSPLogger,
-    private val typeParser: TypeParser,
-) {
+internal class InterfaceParser(private val logger: KSPLogger, private val typeParser: TypeParser) {
     private val validInterfaceModifiers = setOf(Modifier.PUBLIC)
     private val validMethodModifiers = setOf(Modifier.PUBLIC, Modifier.SUSPEND)
-    private val validInterfaceSuperTypes = setOf(sandboxedUiAdapter)
+    private val validInterfaceSuperTypes = uiAdapters.toSet()
 
     fun parseInterface(interfaceDeclaration: KSClassDeclaration): AnnotatedInterface {
         check(interfaceDeclaration.classKind == ClassKind.INTERFACE) {
@@ -61,7 +58,7 @@ internal class InterfaceParser(
                             ClassKind.OBJECT,
                             ClassKind.INTERFACE,
                             ClassKind.ENUM_CLASS,
-                            ClassKind.CLASS
+                            ClassKind.CLASS,
                         )
                         .contains(it.classKind)
                 }
@@ -106,6 +103,13 @@ internal class InterfaceParser(
             )
         }
 
+        val inheritedUiAdapters = superTypes.intersect(uiAdapters)
+        if (inheritedUiAdapters.size > 1) {
+            logger.error(
+                "Error in $name: annotated interface inherits more than one UI adapter interface (${inheritedUiAdapters.map { it.simpleName }.sorted().joinToString(limit = 3)})."
+            )
+        }
+
         val methods = interfaceDeclaration.getDeclaredFunctions().map(::parseMethod).toList()
         return AnnotatedInterface(
             type = typeParser.parseFromDeclaration(interfaceDeclaration),
@@ -147,13 +151,13 @@ internal class InterfaceParser(
             name = method.simpleName.getFullName(),
             parameters = parameters,
             returnType = returnType,
-            isSuspend = method.modifiers.contains(Modifier.SUSPEND)
+            isSuspend = method.modifiers.contains(Modifier.SUSPEND),
         )
     }
 
     private fun parseParameter(
         method: KSFunctionDeclaration,
-        parameter: KSValueParameter
+        parameter: KSValueParameter,
     ): Parameter {
         val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
         if (parameter.hasDefault) {

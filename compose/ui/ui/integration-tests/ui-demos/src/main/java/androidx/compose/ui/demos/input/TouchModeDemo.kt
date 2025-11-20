@@ -42,7 +42,7 @@ fun TouchModeDemo() {
             text = "Currently in ${inputManager.inputMode} mode.",
             color = if (inputManager.inputMode == Touch) Blue else Red,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
         Text(
             "If you don't have a physical keyboard, you can click this button to exit" +
@@ -50,7 +50,7 @@ fun TouchModeDemo() {
         )
         Button(
             onClick = { inputManager.requestInputMode(Keyboard) },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         ) {
             Text("Exit touch mode")
         }

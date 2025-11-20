@@ -185,6 +185,7 @@ package androidx.mediarouter.media {
     method public int getPlaybackStream();
     method public int getPlaybackType();
     method public int getPresentationDisplayId();
+    method public java.util.List<java.util.Set<java.lang.String!>!> getRequiredPermissions();
     method public android.content.IntentSender? getSettingsActivity();
     method public int getVolume();
     method public int getVolumeHandling();
@@ -219,6 +220,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackStream(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackType(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPresentationDisplayId(int);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setRequiredPermissions(java.util.List<java.util.Set<java.lang.String!>!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setSettingsActivity(android.content.IntentSender?);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityPublic();
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityRestricted(java.util.Set<java.lang.String!>);
@@ -234,6 +236,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteSelector getSelector();
     method public boolean isActiveScan();
     method public boolean isValid();
+    method public boolean shouldScanWithScreenOff();
   }
 
   public abstract class MediaRouteProvider {
@@ -246,6 +249,7 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? onCreateDynamicGroupRouteController(String);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? onCreateDynamicGroupRouteController(String, androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteController? onCreateRouteController(String);
+    method public androidx.mediarouter.media.MediaRouteProvider.RouteController? onCreateRouteController(String, androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions);
     method public void onDiscoveryRequestChanged(androidx.mediarouter.media.MediaRouteDiscoveryRequest?);
     method public final void setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback?);
     method public final void setDescriptor(androidx.mediarouter.media.MediaRouteProviderDescriptor?);
@@ -308,12 +312,15 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaRouteProvider.RouteControllerOptions {
+    method public String getClientPackageName();
     method public android.os.Bundle getControlHints();
   }
 
   public static final class MediaRouteProvider.RouteControllerOptions.Builder {
     ctor public MediaRouteProvider.RouteControllerOptions.Builder();
+    ctor public MediaRouteProvider.RouteControllerOptions.Builder(androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions build();
+    method public androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions.Builder setClientPackageName(String);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteControllerOptions.Builder setControlHints(android.os.Bundle?);
   }
 

@@ -34,7 +34,7 @@ class OneTimeWorkRequestTest {
         assertEquals(request.workSpec.workerClassName, TestWorker::class.java.name)
         assertEquals(
             request.workSpec.inputMergerClassName,
-            ArrayCreatingInputMerger::class.java.name
+            ArrayCreatingInputMerger::class.java.name,
         )
     }
 

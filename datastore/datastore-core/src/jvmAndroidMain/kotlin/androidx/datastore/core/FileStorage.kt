@@ -41,7 +41,7 @@ class FileStorage<T>(
     private val coordinatorProducer: (File) -> InterProcessCoordinator = {
         createSingleProcessCoordinator(it)
     },
-    private val produceFile: () -> File
+    private val produceFile: () -> File,
 ) : Storage<T> {
 
     override fun createConnection(): StorageConnection<T> {
@@ -80,13 +80,14 @@ internal class FileStorageConnection<T>(
     private val file: File,
     private val serializer: Serializer<T>,
     override val coordinator: InterProcessCoordinator,
-    private val onClose: () -> Unit
+    private val onClose: () -> Unit,
 ) : StorageConnection<T> {
 
     private val closed = AtomicBoolean(false)
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
 
+    // TODO(b/394876261): Add exception handling for exceptions thrown due to direct boot.
     override suspend fun <R> readScope(block: suspend ReadScope<T>.(locked: Boolean) -> R): R {
         checkNotClosed()
 
@@ -100,6 +101,7 @@ internal class FileStorageConnection<T>(
         }
     }
 
+    // TODO(b/394876261): Add exception handling for exceptions thrown due to direct boot.
     override suspend fun writeScope(block: suspend WriteScope<T>.() -> Unit) {
         checkNotClosed()
         file.createParentDirectories()
@@ -148,7 +150,7 @@ internal class FileStorageConnection<T>(
 
 internal open class FileReadScope<T>(
     protected val file: File,
-    protected val serializer: Serializer<T>
+    protected val serializer: Serializer<T>,
 ) : ReadScope<T> {
 
     private val closed = AtomicBoolean(false)
@@ -164,9 +166,21 @@ internal open class FileReadScope<T>(
                     // by another process after the initial read attempt but before `file.exists()`
                     // is called. Otherwise file exists but we can't read it; throw
                     // FileNotFoundException because something is wrong.
-                    FileInputStream(file).use { stream -> serializer.readFrom(stream) }
+                    try {
+                        FileInputStream(file).use { stream -> serializer.readFrom(stream) }
+                    } catch (e: Exception) {
+                        throw if (e is FileNotFoundException) {
+                            wrapExceptionIfDueToDirectBoot(
+                                parentDirPath = file.parent,
+                                exception = e,
+                            )
+                        } else {
+                            e
+                        }
+                    }
+                } else {
+                    serializer.defaultValue
                 }
-                serializer.defaultValue
             }
         }
     }
@@ -186,12 +200,20 @@ internal class FileWriteScope<T>(file: File, serializer: Serializer<T>) :
     override suspend fun writeData(value: T) {
         checkNotClosed()
         runFileDiagnosticsIfNotCorruption(file) {
-            val fos = FileOutputStream(file)
-            fos.use { stream ->
-                serializer.writeTo(value, UncloseableOutputStream(stream))
-                stream.fd.sync()
-                // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
-                //  result in reverting to a previous state.
+            try {
+                val fos = FileOutputStream(file)
+                fos.use { stream ->
+                    serializer.writeTo(value, UncloseableOutputStream(stream))
+                    stream.fd.sync()
+                    // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
+                    //  result in reverting to a previous state.
+                }
+            } catch (e: Exception) {
+                throw if (e is FileNotFoundException) {
+                    wrapExceptionIfDueToDirectBoot(parentDirPath = file.parent, exception = e)
+                } else {
+                    e
+                }
             }
         }
     }

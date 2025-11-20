@@ -36,7 +36,7 @@ public actual object Lifecycling {
         if (isLifecycleEventObserver && isDefaultLifecycleObserver) {
             return DefaultLifecycleObserverAdapter(
                 `object` as DefaultLifecycleObserver,
-                `object` as LifecycleEventObserver
+                `object` as LifecycleEventObserver,
             )
         }
         if (isDefaultLifecycleObserver) {
@@ -62,7 +62,7 @@ public actual object Lifecycling {
 
     private fun createGeneratedAdapter(
         constructor: Constructor<out GeneratedAdapter>,
-        `object`: Any
+        `object`: Any,
     ): GeneratedAdapter {
         return try {
             constructor.newInstance(`object`)

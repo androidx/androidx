@@ -43,7 +43,7 @@ class RestoreCredentialTest {
     fun createFrom_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             val bundle = Bundle()
             bundle.putString("androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE", "")
@@ -55,12 +55,12 @@ class RestoreCredentialTest {
     fun createFrom_invalidJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected invalid Json to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             val bundle = Bundle()
             bundle.putString(
                 "androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE",
-                "invalid"
+                "invalid",
             )
             RestoreCredential.createFrom(bundle)
         }
@@ -71,7 +71,7 @@ class RestoreCredentialTest {
         val bundle = Bundle()
         bundle.putString(
             "androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE",
-            TEST_JSON
+            TEST_JSON,
         )
         RestoreCredential.createFrom(bundle)
     }
@@ -82,7 +82,7 @@ class RestoreCredentialTest {
         val bundle = Bundle()
         bundle.putString(
             "androidx.credentials.BUNDLE_KEY_GET_RESTORE_CREDENTIAL_RESPONSE",
-            testJsonExpected
+            testJsonExpected,
         )
         val restoreCredential = RestoreCredential.createFrom(bundle)
         val testJsonActual = restoreCredential.authenticationResponseJson

@@ -26,13 +26,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-livedata-core-ktx"))
     api(libs.truth)
-    api(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.mockitoCore4)
     testImplementation("androidx.arch.core:core-testing:2.2.0")

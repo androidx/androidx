@@ -18,22 +18,41 @@ package androidx.appsearch.cts.app;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.ext.SdkExtensions;
 
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
+import androidx.annotation.RequiresFeature;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.PlatformStorage;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+import org.jspecify.annotations.NonNull;
+
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 public class EnterpriseGlobalSearchSessionPlatformCtsTest extends
         EnterpriseGlobalSearchSessionCtsTestBase {
+
+    @RequiresFeature(
+            enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+            name = Features.ENTERPRISE_GLOBAL_SEARCH_SESSION)
     @Override
     protected ListenableFuture<EnterpriseGlobalSearchSession>
             createEnterpriseGlobalSearchSessionAsync() {
         Context context = ApplicationProvider.getApplicationContext();
         return PlatformStorage.createEnterpriseGlobalSearchSessionAsync(
                 new PlatformStorage.GlobalSearchContext.Builder(context).build());
+    }
+
+    @Override
+    @NonNull
+    protected Features getFeatures() {
+        Context context = ApplicationProvider.getApplicationContext();
+        return PlatformStorage.getFeatures(context);
     }
 }

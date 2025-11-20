@@ -50,11 +50,11 @@ class ScrollActivity : ComponentActivity() {
                     verticalArrangement =
                         Arrangement.spacedBy(
                             space = defaultItemSpacingDp,
-                            alignment = Alignment.CenterVertically
+                            alignment = Alignment.CenterVertically,
                         ),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
                     state = rememberScalingLazyListState(),
-                    modifier = Modifier.semantics { contentDescription = CONTENT_DESCRIPTION }
+                    modifier = Modifier.semantics { contentDescription = CONTENT_DESCRIPTION },
                 ) {
                     items(5000) { it ->
                         Box(
@@ -65,7 +65,7 @@ class ScrollActivity : ComponentActivity() {
                             Text(
                                 modifier = Modifier.align(Alignment.Center),
                                 text = "Item $it",
-                                color = MaterialTheme.colors.onSurface
+                                color = MaterialTheme.colors.onSurface,
                             )
                         }
                     }

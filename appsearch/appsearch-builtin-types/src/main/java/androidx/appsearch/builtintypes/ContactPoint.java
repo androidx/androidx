@@ -128,11 +128,11 @@ public class ContactPoint extends Thing {
 
     @SuppressWarnings("unchecked")
     static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        private String mLabel;
+        protected String mLabel;
         // Initialization to guarantee those won't be null
-        private List<String> mAddresses = Collections.emptyList();
-        private List<String> mEmails = Collections.emptyList();
-        private List<String> mTelephones = Collections.emptyList();
+        protected List<String> mAddresses = Collections.emptyList();
+        protected List<String> mEmails = Collections.emptyList();
+        protected List<String> mTelephones = Collections.emptyList();
 
         BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String label) {
             super(namespace, id);

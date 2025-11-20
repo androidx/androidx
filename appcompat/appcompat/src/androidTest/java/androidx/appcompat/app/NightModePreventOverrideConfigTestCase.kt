@@ -42,7 +42,7 @@ class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) 
         waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_NO,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
 
         // Simulate the user setting night mode, which should force an activity recreate().
@@ -55,7 +55,7 @@ class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) 
         // updateResourcesConfigurationForNightMode().
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
     }
 

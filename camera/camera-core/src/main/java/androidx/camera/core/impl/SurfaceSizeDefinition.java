@@ -73,6 +73,8 @@ public abstract class SurfaceSizeDefinition {
             @NonNull Map<Integer, Size> s1440pSizeMap,
             @NonNull Size recordSize,
             @NonNull Map<Integer, Size> maximumSizeMap,
+            @NonNull Map<Integer, Size> maximum4x3SizeMap,
+            @NonNull Map<Integer, Size> maximum16x9SizeMap,
             @NonNull Map<Integer, Size> ultraMaximumSizeMap) {
         return new AutoValue_SurfaceSizeDefinition(
                 analysisSize,
@@ -81,6 +83,8 @@ public abstract class SurfaceSizeDefinition {
                 s1440pSizeMap,
                 recordSize,
                 maximumSizeMap,
+                maximum4x3SizeMap,
+                maximum16x9SizeMap,
                 ultraMaximumSizeMap);
     }
 
@@ -101,6 +105,12 @@ public abstract class SurfaceSizeDefinition {
 
     /** Returns the format to size map of an MAXIMUM stream. */
     public abstract @NonNull Map<Integer, Size> getMaximumSizeMap();
+
+    /** Returns the format to size map of an MAXIMUM stream for 4:3 aspect ratio. */
+    public abstract @NonNull Map<Integer, Size> getMaximum4x3SizeMap();
+
+    /** Returns the format to size map of an MAXIMUM stream for 16:9 aspect ratio. */
+    public abstract @NonNull Map<Integer, Size> getMaximum16x9SizeMap();
 
     /** Returns the format to size map of an ULTRA_MAXIMUM stream. */
     public abstract @NonNull Map<Integer, Size> getUltraMaximumSizeMap();
@@ -126,6 +136,22 @@ public abstract class SurfaceSizeDefinition {
      * data for the format.
      */
     public @Nullable Size getMaximumSize(int format) {
+        return getMaximumSizeMap().get(format);
+    }
+
+    /**
+     * Returns the MAXIMUM 4:3 size for the specified format, or {@code null} null if there is no
+     * data for the format.
+     */
+    public @Nullable Size getMaximum4x3Size(int format) {
+        return getMaximumSizeMap().get(format);
+    }
+
+    /**
+     * Returns the MAXIMUM 16:9 size for the specified format, or {@code null} null if there is no
+     * data for the format.
+     */
+    public @Nullable Size getMaximum16x9Size(int format) {
         return getMaximumSizeMap().get(format);
     }
 

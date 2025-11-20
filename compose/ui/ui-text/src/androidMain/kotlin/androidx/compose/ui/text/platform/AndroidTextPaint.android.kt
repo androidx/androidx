@@ -100,7 +100,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
                     correctBlurRadius(this.shadow.blurRadius),
                     this.shadow.offset.x,
                     this.shadow.offset.y,
-                    this.shadow.color.toArgb()
+                    this.shadow.color.toArgb(),
                 )
             }
         }

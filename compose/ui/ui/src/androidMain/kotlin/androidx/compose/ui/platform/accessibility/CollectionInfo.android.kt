@@ -55,7 +55,7 @@ internal fun setCollectionInfo(node: SemanticsNode, info: AccessibilityNodeInfoC
                 if (isHorizontal) 1 else groupedChildren.count(),
                 if (isHorizontal) groupedChildren.count() else 1,
                 false,
-                AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE
+                AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE,
             )
         )
     }
@@ -103,7 +103,7 @@ internal fun setCollectionItemInfo(node: SemanticsNode, info: AccessibilityNodeI
                     if (isHorizontal) index else 0,
                     1,
                     false,
-                    node.config.getOrElse(SemanticsProperties.Selected) { false }
+                    node.config.getOrElse(SemanticsProperties.Selected) { false },
                 )
             if (itemInfo != null) {
                 info.setCollectionItemInfo(itemInfo)
@@ -124,7 +124,7 @@ private fun calculateIfHorizontallyStacked(items: List<SemanticsNode>): Boolean 
         items.fastZipWithNext { el1, el2 ->
             Offset(
                 abs(el1.boundsInRoot.center.x - el2.boundsInRoot.center.x),
-                abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y)
+                abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y),
             )
         }
     val (deltaX, deltaY) =
@@ -143,7 +143,7 @@ private fun CollectionInfo.toAccessibilityCollectionInfo() =
         rowCount,
         columnCount,
         false,
-        AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE
+        AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE,
     )
 
 private fun CollectionItemInfo.toAccessibilityCollectionItemInfo(itemNode: SemanticsNode) =
@@ -153,5 +153,5 @@ private fun CollectionItemInfo.toAccessibilityCollectionItemInfo(itemNode: Seman
         columnIndex,
         columnSpan,
         false,
-        itemNode.config.getOrElse(SemanticsProperties.Selected) { false }
+        itemNode.config.getOrElse(SemanticsProperties.Selected) { false },
     )

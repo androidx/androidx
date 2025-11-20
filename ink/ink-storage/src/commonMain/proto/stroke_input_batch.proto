@@ -1,0 +1,99 @@
+// Copyright 2024-2025 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Proto definitions for delta-coded storage of Ink strokes.
+
+syntax = "proto2";
+
+package androidx.ink.storage.proto;
+
+import "coded_numeric_run.proto";
+
+// A struct-of-arrays representing a complete StrokeInputBatch, compressed
+// lossily using delta coding. Each numeric run, if present, must have the same
+// number of elements (one for each input point).
+//
+// A StrokeInputBatch and a brush specification together can be used to
+// generate a stroke mesh, which can then be rendered to the screen. Once a
+// StrokeInputBatch is recorded, it is generally never changed; however, a
+// client app can change the brush specification after the fact, allowing a new
+// stroke mesh to be generated from the original StrokeInputBatch.
+message CodedStrokeInputBatch {
+  // The original (pre-stroke-modeler) sequence of input positions for the
+  // stroke, in stroke space.  Clients are generally free to define some of the
+  // stroke space however they want (e.g. whatever units they want), although in
+  // order for stroke modeling and prediction to make sense, it's generally
+  // expected that stroke stroke for an in-progress stroke maps to physical
+  // space in a straightforward way (isotropic and conformal, i.e. without any
+  // nonuniform scaling or angle deformation).
+  optional CodedNumericRun x_stroke_space = 1;
+  optional CodedNumericRun y_stroke_space = 2;
+
+  // Time elapsed for each input point, measured in seconds from the start of
+  // the stroke.
+  optional CodedNumericRun elapsed_time_seconds = 3;
+
+  // The stylus/touch pressure for each input point, from zero (inclusive) to 1
+  // (inclusive).
+  //
+  // This field can be omitted for clients that will never use any
+  // pressure-sensitive brush tips, or for input streams from sources that don't
+  // report pressure (e.g. mouse).
+  optional CodedNumericRun pressure = 4;
+
+  // The stylus tilt for each input point, from zero (inclusive) to pi/2
+  // (inclusive). A value of zero means that the stylus is perpendicular to the
+  // drawing surface, while a value of pi/2 would mean that the stylus was flat
+  // against the drawing surface.
+  //
+  // This field can be omitted for clients that will never use any
+  // tilt-sensitive brush tips, or for input streams from sources that don't
+  // report tilt (e.g. mouse or touch).
+  optional CodedNumericRun tilt = 5;
+
+  // The stylus orientation for each input point, from zero (inclusive) to 2*pi
+  // (exclusive). A value of zero means that the ray from the tip of the stylus
+  // towards the other end of the stylus points along the positive x-axis, and
+  // the orientation angle increases as the stylus moves from the positive
+  // x-axis towards the positive y-axis (i.e. counter-clockwise if positive-y is
+  // up, or clockwise if positive-y is down).
+  //
+  // This field can be omitted for clients that will never use any
+  // orientation-sensitive brush tips, or for input streams from sources that
+  // don't report orientation (e.g. mouse or touch).
+  optional CodedNumericRun orientation = 6;
+
+  // The `ToolType` for the entire `Stroke` -- the same value holds for all the
+  // individual input points. Maps to `InputToolType` values.
+  enum ToolType {
+    UNKNOWN_TYPE = 0;
+    MOUSE = 1;
+    TOUCH = 2;
+    STYLUS = 3;
+  }
+  optional ToolType tool_type = 7;
+
+  // The physical distance that the pointer traveled for each unit of distance
+  // in stroke space. For stylus/touch, this is the real-world distance that the
+  // stylus/fingertip moved in physical space; for mouse, this is the visual
+  // distance that the mouse pointer traveled along the surface of the display.
+  //
+  // A missing or zero value indicates that the relationship between stroke
+  // space and physical space is unknown or ill-defined for this input batch.
+  optional float stroke_unit_length_in_centimeters = 8;
+
+  // The seed value that should be used for seeding any noise generators for
+  // brush behaviors when a full stroke is regenerated with this input batch.
+  optional fixed32 noise_seed = 9;
+}

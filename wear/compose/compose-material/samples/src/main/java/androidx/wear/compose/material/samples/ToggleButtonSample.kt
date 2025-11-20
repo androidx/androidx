@@ -35,11 +35,7 @@ import androidx.wear.compose.material.ToggleButtonDefaults
 @Composable
 fun ToggleButtonWithIcon() {
     var checked by remember { mutableStateOf(true) }
-    ToggleButton(
-        checked = checked,
-        onCheckedChange = { checked = it },
-        enabled = true,
-    ) {
+    ToggleButton(checked = checked, onCheckedChange = { checked = it }, enabled = true) {
         Icon(
             painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
             contentDescription = "airplane",

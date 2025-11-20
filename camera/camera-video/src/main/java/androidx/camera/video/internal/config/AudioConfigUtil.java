@@ -16,7 +16,9 @@
 
 package androidx.camera.video.internal.config;
 
-import android.util.Range;
+import static androidx.camera.video.internal.config.CaptureEncodeRatesKt.toEncodeRate;
+import static androidx.camera.video.internal.config.CaptureEncodeRatesKt.toCaptureRate;
+
 import android.util.Rational;
 
 import androidx.camera.core.Logger;
@@ -36,6 +38,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -121,17 +124,18 @@ public final class AudioConfigUtil {
      *
      * @param audioMimeInfo the audio mime info.
      * @param audioSpec     the audio spec.
+     * @param captureToEncodeRatio the capture to encode sample rate ratio.
      * @return an AudioSettings.
      */
     public static @NonNull AudioSettings resolveAudioSettings(@NonNull AudioMimeInfo audioMimeInfo,
-            @NonNull AudioSpec audioSpec) {
+            @NonNull AudioSpec audioSpec, @Nullable Rational captureToEncodeRatio) {
         Supplier<AudioSettings> settingsSupplier;
         AudioProfileProxy compatibleAudioProfile = audioMimeInfo.getCompatibleAudioProfile();
         if (compatibleAudioProfile != null) {
             settingsSupplier = new AudioSettingsAudioProfileResolver(audioSpec,
-                    compatibleAudioProfile);
+                    compatibleAudioProfile, captureToEncodeRatio);
         } else {
-            settingsSupplier = new AudioSettingsDefaultResolver(audioSpec);
+            settingsSupplier = new AudioSettingsDefaultResolver(audioSpec, captureToEncodeRatio);
         }
 
         return settingsSupplier.get();
@@ -190,25 +194,20 @@ public final class AudioConfigUtil {
         return resolvedAudioSourceFormat;
     }
 
-    static int selectSampleRateOrNearestSupported(@NonNull Range<Integer> targetRange,
-            int channelCount, int sourceFormat, int initialTargetSampleRate) {
+    static int selectSampleRateOrNearestSupported(int channelCount, int sourceFormat,
+            int initialTargetSampleRate) {
         int selectedSampleRate = initialTargetSampleRate;
         // Sample rates sorted by proximity to initial target.
         List<Integer> sortedCommonSampleRates = null;
         int i = 0;
         do {
-            if (targetRange.contains(selectedSampleRate)) {
-                if (AudioSource.isSettingsSupported(selectedSampleRate, channelCount,
-                        sourceFormat)) {
-                    return selectedSampleRate;
-                } else {
-                    Logger.d(TAG, "Sample rate " + selectedSampleRate + "Hz is not supported by "
-                            + "audio source with channel count " + channelCount + " and source "
-                            + "format " + sourceFormat);
-                }
+            if (AudioSource.isSettingsSupported(selectedSampleRate, channelCount,
+                    sourceFormat)) {
+                return selectedSampleRate;
             } else {
-                Logger.d(TAG, "Sample rate " + selectedSampleRate + "Hz is not in target range "
-                        + targetRange);
+                Logger.d(TAG, "Sample rate " + selectedSampleRate + "Hz is not supported by "
+                        + "audio source with channel count " + channelCount + " and source "
+                        + "format " + sourceFormat);
             }
 
             // If the initial target isn't supported, sort the array of published common sample
@@ -242,15 +241,14 @@ public final class AudioConfigUtil {
         // No supported sample rate found. The default sample rate should work on most devices. May
         // consider throw an exception or have other way to notify users that the specified
         // sample rate can not be satisfied.
-        Logger.d(TAG, "No sample rate found in target range or supported by audio source. Falling"
+        Logger.d(TAG, "No sample rate found or supported by audio source. Falling"
                 + " back to default sample rate of " + AUDIO_SAMPLE_RATE_DEFAULT + "Hz");
         return AUDIO_SAMPLE_RATE_DEFAULT;
     }
 
-    static int scaleAndClampBitrate(int baseBitrate,
+    static int scaleBitrate(int baseBitrate,
             int actualChannelCount, int baseChannelCount,
-            int actualSampleRate, int baseSampleRate,
-            Range<Integer> clampedRange) {
+            int actualSampleRate, int baseSampleRate) {
         // Scale bitrate based on source number of channels relative to base channel count.
         Rational channelCountRatio = new Rational(actualChannelCount, baseChannelCount);
         // Scale bitrate based on source sample rate relative to profile sample rate.
@@ -266,14 +264,38 @@ public final class AudioConfigUtil {
                     baseChannelCount, actualSampleRate, baseSampleRate, resolvedBitrate);
         }
 
-        if (!AudioSpec.BITRATE_RANGE_AUTO.equals(clampedRange)) {
-            resolvedBitrate = clampedRange.clamp(resolvedBitrate);
-            if (Logger.isDebugEnabled(TAG)) {
-                debugString += String.format("\nClamped to range %s -> %dbps", clampedRange,
-                        resolvedBitrate);
-            }
-        }
         Logger.d(TAG, debugString);
         return resolvedBitrate;
+    }
+
+    @NonNull
+    static CaptureEncodeRates resolveSampleRates(
+            int targetEncodeSampleRate,
+            int channelCount,
+            int sourceFormat,
+            @Nullable Rational captureToEncodeRatio) {
+        int resolvedCaptureSampleRate;
+        int resolvedEncodeSampleRate;
+        if (captureToEncodeRatio == null) {
+            resolvedCaptureSampleRate = selectSampleRateOrNearestSupported(
+                    channelCount, sourceFormat, targetEncodeSampleRate);
+            resolvedEncodeSampleRate = resolvedCaptureSampleRate;
+        } else {
+            int scaledInitialTargetEncodeSampleRate = toCaptureRate(
+                    targetEncodeSampleRate, captureToEncodeRatio);
+            resolvedCaptureSampleRate = selectSampleRateOrNearestSupported(
+                    channelCount, sourceFormat, scaledInitialTargetEncodeSampleRate);
+            resolvedEncodeSampleRate = toEncodeRate(resolvedCaptureSampleRate,
+                    captureToEncodeRatio);
+        }
+
+        Logger.d(TAG, String.format(Locale.ENGLISH,
+                "Resolved capture/encode sample rate %dHz/%dHz, ["
+                        + "target sample rate: %d, channel count: %d, source format: %d, "
+                        + "capture to encode sample rate ratio: %s]",
+                resolvedCaptureSampleRate, resolvedEncodeSampleRate, targetEncodeSampleRate,
+                channelCount, sourceFormat, captureToEncodeRatio));
+
+        return new CaptureEncodeRates(resolvedCaptureSampleRate, resolvedEncodeSampleRate);
     }
 }

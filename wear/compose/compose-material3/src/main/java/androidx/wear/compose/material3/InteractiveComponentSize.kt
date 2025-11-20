@@ -16,16 +16,13 @@
 
 package androidx.wear.compose.material3
 
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
@@ -43,10 +40,12 @@ import kotlin.math.roundToInt
  * This modifier is not needed for touch target expansion to happen. It only affects layout, to make
  * sure there is adequate space for touch target expansion.
  */
+@Stable
 public fun Modifier.minimumInteractiveComponentSize(): Modifier =
     this then MinimumInteractiveModifier
 
 internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteractiveModifierNode>() {
+
     override fun create(): MinimumInteractiveModifierNode = MinimumInteractiveModifierNode()
 
     override fun update(node: MinimumInteractiveModifierNode) {}
@@ -62,31 +61,29 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
 
     override fun hashCode(): Int = System.identityHashCode(this)
 
-    override fun equals(other: Any?): Boolean = (other === this)
+    override fun equals(other: Any?) = (other === this)
 }
 
-internal class MinimumInteractiveModifierNode :
-    Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
-
-    @OptIn(ExperimentalWearMaterial3Api::class)
+internal class MinimumInteractiveModifierNode : Modifier.Node(), LayoutModifierNode {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
-        val enforcement = isAttached && currentValueOf(LocalMinimumInteractiveComponentEnforcement)
         val size = minimumInteractiveComponentSize
         val placeable = measurable.measure(constraints)
+        val enforcement = isAttached
+        val sizePx = size.roundToPx()
 
         // Be at least as big as the minimum dimension in both dimensions
         val width =
             if (enforcement) {
-                maxOf(placeable.width, size.roundToPx())
+                maxOf(placeable.width, sizePx)
             } else {
                 placeable.width
             }
         val height =
             if (enforcement) {
-                maxOf(placeable.height, size.roundToPx())
+                maxOf(placeable.height, sizePx)
             } else {
                 placeable.height
             }
@@ -98,21 +95,5 @@ internal class MinimumInteractiveModifierNode :
         }
     }
 }
-
-/**
- * CompositionLocal that configures whether Wear Material components that have a visual size that is
- * lower than the minimum touch target size for accessibility (such as Button) will include extra
- * space outside the component to ensure that they are accessible. If set to false there will be no
- * extra space, and so it is possible that if the component is placed near the edge of a layout /
- * near to another component without any padding, there will not be enough space for an accessible
- * touch target.
- */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalWearMaterial3Api
-@ExperimentalWearMaterial3Api
-public val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf {
-        true
-    }
 
 internal val minimumInteractiveComponentSize = 48.dp

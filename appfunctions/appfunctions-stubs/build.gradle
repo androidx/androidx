@@ -35,12 +35,13 @@ dependencies {
 }
 
 android {
+    compileSdk = 36
     namespace = "com.android.extensions.appfunctions"
 }
 
 androidx {
     name = "Android AppFunctions Extensions Stub"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2025"
     description = "Stub implementation of the Android AppFunctions Extensions."
 }

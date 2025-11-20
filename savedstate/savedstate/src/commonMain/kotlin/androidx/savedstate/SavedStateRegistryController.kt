@@ -27,10 +27,7 @@ import kotlin.jvm.JvmStatic
  * `SavedStateRegistryOwner` should call [performRestore] to restore state of [SavedStateRegistry]
  * and [performSave] to gather SavedState from it.
  */
-public expect class SavedStateRegistryController
-private constructor(
-    impl: SavedStateRegistryImpl,
-) {
+public expect class SavedStateRegistryController private constructor(impl: SavedStateRegistryImpl) {
 
     /** The [SavedStateRegistry] owned by this controller */
     public val savedStateRegistry: SavedStateRegistry

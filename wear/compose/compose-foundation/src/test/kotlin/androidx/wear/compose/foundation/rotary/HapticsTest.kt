@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -118,7 +119,7 @@ class ThrottleLatestTest {
     private suspend fun Channel<RotaryHapticsType>.sendEventsWithDelay(
         event: RotaryHapticsType,
         eventCount: Int,
-        delayMillis: Long
+        delayMillis: Long,
     ) {
         for (i in 0 until eventCount) {
             trySend(event)
@@ -130,9 +131,10 @@ class ThrottleLatestTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class HapticsTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     @Config(sdk = [33])

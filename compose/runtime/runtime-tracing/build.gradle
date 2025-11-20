@@ -22,13 +22,12 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -37,7 +36,6 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation(libs.kotlinStdlib)
     implementation("androidx.compose.runtime:runtime:1.3.3")
     implementation("androidx.tracing:tracing-perfetto:1.0.0")
     implementation("androidx.startup:startup-runtime:1.1.1")
@@ -49,8 +47,6 @@ dependencies {
 androidx {
     name = "Compose Runtime: Tracing"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
-    legacyDisableKotlinStrictApiMode = true
 }

@@ -23,18 +23,25 @@
  */
 
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.ui.graphics"
+        androidResources.enable = true
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -43,7 +50,6 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api(libs.androidx.annotation)
 
                 api(project(":compose:ui:ui-unit"))
@@ -81,7 +87,7 @@ androidXMultiplatform {
             dependsOn(commonStubsMain)
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependencies {
                 implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
                 implementation(project(":compose:ui:ui-test-junit4"))
@@ -94,13 +100,12 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
-                implementation(libs.robolectric)
                 implementation(project(":compose:test-utils"))
             }
         }
@@ -118,18 +123,15 @@ androidx {
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
+    enableRobolectric()
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
-androidxCompose {
-    composeCompilerPluginEnabled = false
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.graphics"
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
+// TODO(b/407640608): Task :compose:ui:ui-inspection:connectedCheck fails without this block
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xlambdas=class"
+        ]
     }
 }

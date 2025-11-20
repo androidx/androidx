@@ -29,9 +29,9 @@ internal fun QueryResults.Matched.fetchCounterData(): Pair<Int, Int> =
     Pair(
         resultBounds.getFlattenedIndex(
             queryResultsIndex.pageNum,
-            queryResultsIndex.resultBoundsIndex
+            queryResultsIndex.resultBoundsIndex,
         ),
-        resultBounds.countTotalElements()
+        resultBounds.countTotalElements(),
     )
 
 /**

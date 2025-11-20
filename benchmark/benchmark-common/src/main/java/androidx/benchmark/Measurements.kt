@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class Measurements(
     val singleMetrics: List<MetricResult>,
-    val sampledMetrics: List<MetricResult>
+    val sampledMetrics: List<MetricResult>,
 ) {
     fun isNotEmpty() = singleMetrics.isNotEmpty() || sampledMetrics.isNotEmpty()
 }

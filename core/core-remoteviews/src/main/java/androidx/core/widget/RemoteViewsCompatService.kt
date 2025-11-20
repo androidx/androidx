@@ -50,7 +50,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
     private class RemoteViewsCompatServiceViewFactory(
         private val mContext: Context,
         private val mAppWidgetId: Int,
-        private val mViewId: Int
+        private val mViewId: Int,
     ) : RemoteViewsFactory {
         private var mItems = EMPTY
 
@@ -95,7 +95,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                     ids = longArrayOf(),
                     views = emptyArray(),
                     hasStableIds = false,
-                    viewTypeCount = 1
+                    viewTypeCount = 1,
                 )
         }
     }
@@ -145,7 +145,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                 .edit()
                 .putString(
                     getKey(appWidgetId, viewId),
-                    serializeToHexString { parcel, _ -> writeToParcel(parcel) }
+                    serializeToHexString { parcel, _ -> writeToParcel(parcel) },
                 )
                 .apply()
         }
@@ -163,14 +163,14 @@ public class RemoteViewsCompatService : RemoteViewsService() {
 
             fun create(
                 context: Context,
-                items: RemoteCollectionItems
+                items: RemoteCollectionItems,
             ): RemoteViewsCompatServiceData {
                 val versionCode = getVersionCode(context)
                 check(versionCode != null) { "Couldn't obtain version code for app" }
                 return RemoteViewsCompatServiceData(
                     itemsBytes = serializeToBytes(items::writeToParcel),
                     buildVersion = Build.VERSION.INCREMENTAL,
-                    appVersion = versionCode
+                    appVersion = versionCode,
                 )
             }
 
@@ -181,7 +181,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
             internal fun load(
                 context: Context,
                 appWidgetId: Int,
-                viewId: Int
+                viewId: Int,
             ): RemoteCollectionItems? {
                 val prefs = getPrefs(context)
                 val hexString = prefs.getString(getKey(appWidgetId, viewId), /* defValue= */ null)
@@ -194,7 +194,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                     Log.w(
                         TAG,
                         "Android version code has changed, not using stored collection items for " +
-                            "widget $appWidgetId"
+                            "widget $appWidgetId",
                     )
                     return null
                 }
@@ -203,7 +203,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                     Log.w(
                         TAG,
                         "Couldn't get version code, not using stored collection items for widget " +
-                            appWidgetId
+                            appWidgetId,
                     )
                     return null
                 }
@@ -211,7 +211,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                     Log.w(
                         TAG,
                         "App version code has changed, not using stored collection items for " +
-                            "widget $appWidgetId"
+                            "widget $appWidgetId",
                     )
                     return null
                 }
@@ -221,7 +221,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                     Log.e(
                         TAG,
                         "Unable to deserialize stored collection items for widget $appWidgetId",
-                        t
+                        t,
                     )
                     null
                 }
@@ -237,7 +237,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                         Log.e(
                             TAG,
                             "Couldn't retrieve version code for " + context.packageManager,
-                            e
+                            e,
                         )
                         return null
                     }
@@ -266,10 +266,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
                 return deserializeFromBytes(Base64.decode(hexString, Base64.DEFAULT), creator)
             }
 
-            internal fun <P> deserializeFromBytes(
-                bytes: ByteArray,
-                creator: (Parcel) -> P,
-            ): P {
+            internal fun <P> deserializeFromBytes(bytes: ByteArray, creator: (Parcel) -> P): P {
                 val parcel = Parcel.obtain()
                 return try {
                     parcel.unmarshall(bytes, 0, bytes.size)
@@ -308,7 +305,7 @@ public class RemoteViewsCompatService : RemoteViewsService() {
             context: Context,
             appWidgetId: Int,
             viewId: Int,
-            items: RemoteCollectionItems
+            items: RemoteCollectionItems,
         ) {
             RemoteViewsCompatServiceData.create(context, items).save(context, appWidgetId, viewId)
         }

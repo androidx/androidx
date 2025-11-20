@@ -57,7 +57,7 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         BeginSignInRequest,
         SignInCredential,
         GetCredentialResponse,
-        GetCredentialException
+        GetCredentialException,
     >(context) {
 
     /** The callback object state, used in the protected handleResponse method. */
@@ -83,14 +83,14 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
                             getCredentialExceptionTypeToException,
                         executor = executor,
                         callback = callback,
-                        cancellationSignal
+                        cancellationSignal,
                     )
                 )
                     return
                 handleResponse(
                     resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
                     resultCode,
-                    resultData.getParcelable(RESULT_DATA_TAG)
+                    resultData.getParcelable(RESULT_DATA_TAG),
                 )
             }
         }
@@ -99,7 +99,7 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         request: GetCredentialRequest,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
         executor: Executor,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ) {
         this.cancellationSignal = cancellationSignal
         this.callback = callback
@@ -110,20 +110,44 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         }
 
         val convertedRequest: BeginSignInRequest = this.convertRequestToPlayServices(request)
-        val hiddenIntent = Intent(context, HiddenActivity::class.java)
-        hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
-        generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
-        try {
-            context.startActivity(hiddenIntent)
-        } catch (e: Exception) {
-            cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                this.executor.execute {
-                    this.callback.onError(
-                        GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)
-                    )
+        Identity.getSignInClient(context)
+            .beginSignIn(convertedRequest)
+            .addOnSuccessListener { result ->
+                if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
+                    return@addOnSuccessListener
+                }
+                val hiddenIntent = Intent(context, HiddenActivity::class.java)
+                generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
+                hiddenIntent.putExtra(EXTRA_FLOW_PENDING_INTENT, result.pendingIntent)
+                try {
+                    context.startActivity(hiddenIntent)
+                } catch (_: Exception) {
+                    cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                        this.executor.execute {
+                            this.callback.onError(
+                                GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)
+                            )
+                        }
+                    }
                 }
             }
+            .addOnFailureListener { e ->
+                val getException = fromGmsException(e)
+                cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                    this.executor.execute { this.callback.onError(getException) }
+                }
+            }
+    }
+
+    private fun fromGmsException(e: Throwable): GetCredentialException {
+        var errName = GET_NO_CREDENTIALS
+        if (e is ApiException && e.statusCode in retryables) {
+            errName = GET_INTERRUPTED
         }
+        return getCredentialExceptionTypeToException(
+            errName,
+            "During begin sign in, failure response from one tap: ${e.message}",
+        )
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
@@ -131,7 +155,7 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
             Log.w(
                 TAG,
                 "Returned request code ${CONTROLLER_REQUEST_CODE} which " +
-                    " does not match what was given $uniqueRequestCode"
+                    " does not match what was given $uniqueRequestCode",
             )
             return
         }
@@ -140,7 +164,7 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
                 { e -> this.executor.execute { this.callback.onError(e) } },
-                cancellationSignal
+                cancellationSignal,
             )
         )
             return

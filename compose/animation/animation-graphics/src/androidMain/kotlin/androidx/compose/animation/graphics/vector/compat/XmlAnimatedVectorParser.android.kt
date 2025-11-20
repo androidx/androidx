@@ -31,12 +31,12 @@ private const val TagAnimatedVectorTarget = "target"
 private fun parseAnimatedVectorTarget(
     res: Resources,
     theme: Resources.Theme?,
-    attrs: AttributeSet
+    attrs: AttributeSet,
 ): AnimatedVectorTarget {
     return attrs.attrs(
         res,
         theme,
-        AndroidVectorResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET
+        AndroidVectorResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET,
     ) { a ->
         AnimatedVectorTarget(
             a.getString(AndroidVectorResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_NAME)
@@ -46,9 +46,9 @@ private fun parseAnimatedVectorTarget(
                 res,
                 a.getResourceId(
                     AndroidVectorResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION,
-                    0
-                )
-            )
+                    0,
+                ),
+            ),
         )
     }
 }
@@ -56,7 +56,7 @@ private fun parseAnimatedVectorTarget(
 internal fun XmlPullParser.parseAnimatedImageVector(
     res: Resources,
     theme: Resources.Theme?,
-    attrs: AttributeSet
+    attrs: AttributeSet,
 ): AnimatedImageVector {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE) { a ->
         val drawableId =

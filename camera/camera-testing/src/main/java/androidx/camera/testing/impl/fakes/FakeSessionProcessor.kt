@@ -59,7 +59,7 @@ public class FakeSessionProcessor(
     private val inputFormatCapture: Int? = null,
     private val postviewSupportedSizes: Map<Int, List<Size>>? = null,
     private val supportedCameraOperations: Set<Int> = emptySet(),
-    private val extensionSpecificChars: List<Pair<CameraCharacteristics.Key<*>, Any>>? = emptyList()
+    private val extensionSpecificChars: List<Pair<CameraCharacteristics.Key<*>, Any>>? = emptyList(),
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
@@ -111,10 +111,10 @@ public class FakeSessionProcessor(
     @OptIn(ExperimentalGetImage::class)
     override fun initSession(
         cameraInfo: CameraInfo,
-        outputSurfaceConfig: OutputSurfaceConfiguration
+        outputSurfaceConfig: OutputSurfaceConfiguration?,
     ): SessionConfig {
         initSessionCalled.complete(SystemClock.elapsedRealtimeNanos())
-        initSessionOutputSurfaceConfiguration.complete(outputSurfaceConfig)
+        initSessionOutputSurfaceConfiguration.complete(outputSurfaceConfig!!)
         val sessionBuilder = SessionConfig.Builder()
 
         val previewSurfaceConfig = outputSurfaceConfig.previewOutputSurface
@@ -131,7 +131,7 @@ public class FakeSessionProcessor(
                     previewSurfaceConfig.size.width,
                     previewSurfaceConfig.size.height,
                     inputFormatPreview,
-                    2
+                    2,
                 )
             previewTransformedSurface = intermediaPreviewImageReader!!.surface!!
 
@@ -145,7 +145,7 @@ public class FakeSessionProcessor(
                         intermediaPreviewImageWriter!!.queueInputImage(imageDequeued)
                     }
                 },
-                CameraXExecutors.ioExecutor()
+                CameraXExecutors.ioExecutor(),
             )
         }
         previewProcessorSurface =
@@ -155,7 +155,7 @@ public class FakeSessionProcessor(
                 intermediaPreviewImageReader?.close()
                 intermediaPreviewImageWriter?.close()
             },
-            CameraXExecutors.directExecutor()
+            CameraXExecutors.directExecutor(),
         )
         sessionBuilder.addSurface(previewProcessorSurface)
 
@@ -169,7 +169,7 @@ public class FakeSessionProcessor(
                     imageCaptureSurfaceConfig.size.width,
                     imageCaptureSurfaceConfig.size.height,
                     inputFormatCapture,
-                    2
+                    2,
                 )
             captureTransformedSurface = intermediaCaptureImageReader!!.surface!!
 
@@ -181,7 +181,7 @@ public class FakeSessionProcessor(
                                 imageProxy!!,
                                 jpegQuality,
                                 rotationDegrees,
-                                imageCaptureSurfaceConfig.surface
+                                imageCaptureSurfaceConfig.surface,
                             )
                         } else {
                             val imageWriter =
@@ -191,7 +191,7 @@ public class FakeSessionProcessor(
                         }
                     }
                 },
-                CameraXExecutors.ioExecutor()
+                CameraXExecutors.ioExecutor(),
             )
         }
         captureProcessorSurface =
@@ -199,7 +199,7 @@ public class FakeSessionProcessor(
 
         captureProcessorSurface.terminationFuture.addListener(
             { intermediaCaptureImageReader?.close() },
-            CameraXExecutors.directExecutor()
+            CameraXExecutors.directExecutor(),
         )
         sessionBuilder.addSurface(captureProcessorSurface)
 
@@ -216,8 +216,12 @@ public class FakeSessionProcessor(
 
     override fun deInitSession() {
         deInitSessionCalled.complete(SystemClock.elapsedRealtimeNanos())
-        previewProcessorSurface.close()
-        captureProcessorSurface.close()
+        if (::previewProcessorSurface.isInitialized) {
+            previewProcessorSurface.close()
+        }
+        if (::captureProcessorSurface.isInitialized) {
+            captureProcessorSurface.close()
+        }
         imageAnalysisProcessorSurface?.close()
     }
 
@@ -263,7 +267,7 @@ public class FakeSessionProcessor(
 
     override fun startRepeating(
         tagBundle: TagBundle,
-        callback: SessionProcessor.CaptureCallback
+        callback: SessionProcessor.CaptureCallback,
     ): Int {
         startRepeatingCalled.complete(SystemClock.elapsedRealtimeNanos())
         val builder =
@@ -279,43 +283,43 @@ public class FakeSessionProcessor(
                 override fun onCaptureStarted(
                     request: RequestProcessor.Request,
                     frameNumber: Long,
-                    timestamp: Long
+                    timestamp: Long,
                 ) {}
 
                 override fun onCaptureProgressed(
                     request: RequestProcessor.Request,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {}
 
                 override fun onCaptureCompleted(
                     request: RequestProcessor.Request,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {
                     callback.onCaptureCompleted(
                         captureResult.timestamp,
                         FAKE_CAPTURE_SEQUENCE_ID,
                         object : CameraCaptureResult by captureResult {
                             override fun getTagBundle() = tagBundle
-                        }
+                        },
                     )
                     callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
                 }
 
                 override fun onCaptureFailed(
                     request: RequestProcessor.Request,
-                    captureFailure: CameraCaptureFailure
+                    captureFailure: CameraCaptureFailure,
                 ) {}
 
                 override fun onCaptureBufferLost(
                     request: RequestProcessor.Request,
                     frameNumber: Long,
-                    outputConfigId: Int
+                    outputConfigId: Int,
                 ) {}
 
                 override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {}
 
                 override fun onCaptureSequenceAborted(sequenceId: Int) {}
-            }
+            },
         )
         return FAKE_CAPTURE_SEQUENCE_ID
     }
@@ -328,7 +332,7 @@ public class FakeSessionProcessor(
     override fun startCapture(
         postviewEnabled: Boolean,
         tagBundle: TagBundle,
-        callback: SessionProcessor.CaptureCallback
+        callback: SessionProcessor.CaptureCallback,
     ): Int {
         startCaptureCalled.complete(SystemClock.elapsedRealtimeNanos())
         startCapturePostviewEnabled.complete(postviewEnabled)
@@ -352,14 +356,14 @@ public class FakeSessionProcessor(
             object : RequestProcessor.Callback {
                 override fun onCaptureCompleted(
                     request: RequestProcessor.Request,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {
                     callback.onCaptureCompleted(
                         captureResult.timestamp,
                         FAKE_CAPTURE_SEQUENCE_ID,
                         object : CameraCaptureResult by captureResult {
                             override fun getTagBundle() = tagBundle
-                        }
+                        },
                     )
                     callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
                 }
@@ -367,19 +371,19 @@ public class FakeSessionProcessor(
                 override fun onCaptureStarted(
                     request: RequestProcessor.Request,
                     frameNumber: Long,
-                    timestamp: Long
+                    timestamp: Long,
                 ) {
                     callback.onCaptureStarted(FAKE_CAPTURE_SEQUENCE_ID, timestamp)
                 }
 
                 override fun onCaptureProgressed(
                     request: RequestProcessor.Request,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {}
 
                 override fun onCaptureFailed(
                     request: RequestProcessor.Request,
-                    captureFailure: CameraCaptureFailure
+                    captureFailure: CameraCaptureFailure,
                 ) {
                     callback.onCaptureFailed(FAKE_CAPTURE_SEQUENCE_ID)
                 }
@@ -387,13 +391,13 @@ public class FakeSessionProcessor(
                 override fun onCaptureBufferLost(
                     request: RequestProcessor.Request,
                     frameNumber: Long,
-                    outputConfigId: Int
+                    outputConfigId: Int,
                 ) {}
 
                 override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {}
 
                 override fun onCaptureSequenceAborted(sequenceId: Int) {}
-            }
+            },
         )
         return FAKE_CAPTURE_SEQUENCE_ID
     }
@@ -401,7 +405,7 @@ public class FakeSessionProcessor(
     override fun startTrigger(
         config: Config,
         tagBundle: TagBundle,
-        callback: SessionProcessor.CaptureCallback
+        callback: SessionProcessor.CaptureCallback,
     ): Int {
         startTriggerCalled.complete(config)
         callback.onCaptureCompleted(
@@ -409,7 +413,7 @@ public class FakeSessionProcessor(
             FAKE_CAPTURE_SEQUENCE_ID,
             object : CameraCaptureResult by CameraCaptureResult.EmptyCameraCaptureResult() {
                 override fun getTagBundle() = tagBundle
-            }
+            },
         )
         callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
         return FAKE_CAPTURE_SEQUENCE_ID
@@ -477,7 +481,7 @@ public class FakeSessionProcessor(
 internal class RequestProcessorRequest(
     private val targetOutputConfigIds: List<Int>,
     private val parameters: Config,
-    private val templateId: Int
+    private val templateId: Int,
 ) : RequestProcessor.Request {
     override fun getTargetOutputConfigIds(): List<Int> {
         return targetOutputConfigIds
@@ -515,7 +519,7 @@ internal class RequestProcessorRequest(
             return RequestProcessorRequest(
                 targetOutputConfigIds.toList(),
                 OptionsBundle.from(parameters),
-                templateId
+                templateId,
             )
         }
     }

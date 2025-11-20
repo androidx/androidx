@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TrivialStartupBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode
+    private val compilationMode: CompilationMode,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -41,7 +41,7 @@ class TrivialStartupBenchmark(
             compilationMode = compilationMode,
             startupMode = startupMode,
             packageName = "androidx.compose.integration.macrobenchmark.target",
-            iterations = 1
+            iterations = 1,
         ) {
             action = "androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
         }
@@ -52,7 +52,7 @@ class TrivialStartupBenchmark(
         fun parameters() =
             createStartupCompilationParams(
                 startupModes = listOf(StartupMode.COLD),
-                compilationModes = listOf(CompilationMode.None())
+                compilationModes = listOf(CompilationMode.None()),
             )
     }
 }

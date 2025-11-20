@@ -45,7 +45,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link ResultManagerAutomotive}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(instrumentedPackages = {"androidx.car.app.activity"})
+@Config(instrumentedPackages = {"androidx.car.app.activity"}, sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ResultManagerAutomotiveTest {
     private final ComponentName mRendererComponent = new ComponentName(

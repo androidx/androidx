@@ -29,7 +29,7 @@ import androidx.compose.runtime.read
 
 internal class PersistentCompositionLocalHashMap(
     node: TrieNode<CompositionLocal<Any?>, ValueHolder<Any?>>,
-    size: Int
+    size: Int,
 ) :
     PersistentHashMap<CompositionLocal<Any?>, ValueHolder<Any?>>(node, size),
     PersistentCompositionLocalMap {
@@ -41,7 +41,7 @@ internal class PersistentCompositionLocalHashMap(
 
     override fun putValue(
         key: CompositionLocal<Any?>,
-        value: ValueHolder<Any?>
+        value: ValueHolder<Any?>,
     ): PersistentCompositionLocalMap {
         val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
         return PersistentCompositionLocalHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
@@ -71,7 +71,7 @@ internal class PersistentCompositionLocalHashMap(
         val Empty =
             PersistentCompositionLocalHashMap(
                 node = TrieNode.EMPTY as TrieNode<CompositionLocal<Any?>, ValueHolder<Any?>>,
-                size = 0
+                size = 0,
             )
     }
 }

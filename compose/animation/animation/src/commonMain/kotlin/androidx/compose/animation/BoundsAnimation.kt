@@ -26,14 +26,15 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
-@ExperimentalSharedTransitionApi
 internal class BoundsAnimation(
     val transitionScope: SharedTransitionScope,
     val transition: Transition<Boolean>,
     animation: Transition<Boolean>.DeferredAnimation<Rect, AnimationVector4D>,
-    boundsTransform: BoundsTransform
+    boundsTransform: BoundsTransform,
+    val momentumOffset: () -> Offset,
 ) {
     var animation: Transition<Boolean>.DeferredAnimation<Rect, AnimationVector4D> by
         mutableStateOf(animation)
@@ -70,17 +71,30 @@ internal class BoundsAnimation(
     val value: Rect?
         get() =
             if (transitionScope.isTransitionActive) {
-                animationState?.value
+                animationState?.value?.let {
+                    val offset = momentumOffset()
+                    if (offset != Offset.Zero) {
+                        it.translate(offset)
+                    } else it
+                }
             } else {
                 null
             }
 
-    fun animate(currentBounds: Rect, targetBounds: Rect) {
+    fun animate(
+        currentBounds: Rect,
+        targetBounds: Rect,
+        forcedBoundsTransform: BoundsTransform? = null,
+    ) {
         if (transitionScope.isTransitionActive) {
             if (animationState == null) {
                 // Only invoke bounds transform when animation is initialized. This means
                 // boundsTransform will not participate in interruption-handling animations.
-                animationSpec = boundsTransform.transform(currentBounds, targetBounds)
+                animationSpec =
+                    (forcedBoundsTransform ?: boundsTransform).createAnimationSpec(
+                        currentBounds,
+                        targetBounds,
+                    )
             }
             animationState =
                 animation.animate(transitionSpec = { animationSpec }) {

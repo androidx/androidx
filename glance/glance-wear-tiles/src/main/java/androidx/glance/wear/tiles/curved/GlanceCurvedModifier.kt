@@ -31,6 +31,7 @@ import androidx.glance.semantics.SemanticsPropertyReceiver
  * This plays the same role as [androidx.compose.ui.Modifier], but for the glance curved composable
  */
 @Stable
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public interface GlanceCurvedModifier {
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -113,9 +114,10 @@ public interface GlanceCurvedModifier {
  * A node in a [GlanceCurvedModifier] chain. A CombinedModifier always contains at least two
  * elements; a Modifier [outer] that wraps around the Modifier [inner].
  */
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public class CombinedGlanceCurvedModifier(
     private val outer: GlanceCurvedModifier,
-    private val inner: GlanceCurvedModifier
+    private val inner: GlanceCurvedModifier,
 ) : GlanceCurvedModifier {
     override fun <R> foldIn(initial: R, operation: (R, GlanceCurvedModifier.Element) -> R): R =
         inner.foldIn(outer.foldIn(initial, operation), operation)
@@ -143,7 +145,8 @@ public class CombinedGlanceCurvedModifier(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <reified T> GlanceCurvedModifier.findModifier(): T? =
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
+public inline fun <reified T> GlanceCurvedModifier.findModifier(): T? =
     this.foldIn<T?>(null) { acc, cur ->
         if (cur is T) {
             cur
@@ -157,7 +160,9 @@ inline fun <reified T> GlanceCurvedModifier.findModifier(): T? =
  * equivalent with the previous one, but without any modifiers of specified type.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCurvedModifier> =
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
+public inline fun <reified T> GlanceCurvedModifier.extractModifier():
+    Pair<T?, GlanceCurvedModifier> =
     if (any { it is T }) {
         foldIn<Pair<T?, GlanceCurvedModifier>>(null to GlanceCurvedModifier) { acc, cur ->
             if (cur is T) {
@@ -171,26 +176,34 @@ inline fun <reified T> GlanceCurvedModifier.extractModifier(): Pair<T?, GlanceCu
     }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class SweepAngleModifier(public val degrees: Float) : GlanceCurvedModifier.Element
 
 /** Sets the sweep angle of the curved element, in degrees */
-public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float) =
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
+public fun GlanceCurvedModifier.sweepAngleDegrees(degrees: Float): GlanceCurvedModifier =
     this.then(SweepAngleModifier(degrees))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class ThicknessModifier(public val thickness: Dp) : GlanceCurvedModifier.Element
 
 /** Sets the thickness of the curved element, in [Dp] */
-public fun GlanceCurvedModifier.thickness(thickness: Dp) = this.then(ThicknessModifier(thickness))
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
+public fun GlanceCurvedModifier.thickness(thickness: Dp): GlanceCurvedModifier =
+    this.then(ThicknessModifier(thickness))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class ActionCurvedModifier(public val action: Action) : GlanceCurvedModifier.Element
 
 /** Apply an [Action], to be executed in response to a user click */
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public fun GlanceCurvedModifier.clickable(onClick: Action): GlanceCurvedModifier =
     this.then(ActionCurvedModifier(onClick))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class SemanticsCurvedModifier(val configuration: SemanticsConfiguration) :
     GlanceCurvedModifier.Element
 
@@ -198,6 +211,7 @@ public data class SemanticsCurvedModifier(val configuration: SemanticsConfigurat
  * Associate accessibility semantics with an element. This should generally be used sparingly, amd
  * in mose cases should only be applied to the top-level layout element or clickable elements.
  */
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public fun GlanceCurvedModifier.semantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)
 ): GlanceCurvedModifier =

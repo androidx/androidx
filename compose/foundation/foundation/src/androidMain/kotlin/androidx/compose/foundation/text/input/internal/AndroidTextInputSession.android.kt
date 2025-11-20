@@ -54,7 +54,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     onImeAction: ((ImeAction) -> Unit)?,
     updateSelectionState: (() -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
-    viewConfiguration: ViewConfiguration?
+    viewConfiguration: ViewConfiguration?,
+    updateTouchMode: (Boolean) -> Unit,
 ): Nothing {
     platformSpecificTextInputSession(
         state = state,
@@ -65,7 +66,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
         updateSelectionState = updateSelectionState,
         composeImm = ComposeInputMethodManager(view),
         stylusHandwritingTrigger = stylusHandwritingTrigger,
-        viewConfiguration = viewConfiguration
+        viewConfiguration = viewConfiguration,
+        updateTouchMode = updateTouchMode,
     )
 }
 
@@ -79,7 +81,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     updateSelectionState: (() -> Unit)?,
     composeImm: ComposeInputMethodManager,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
-    viewConfiguration: ViewConfiguration?
+    viewConfiguration: ViewConfiguration?,
+    updateTouchMode: (Boolean) -> Unit,
 ): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
@@ -96,7 +99,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,
                         compositionStart = newComposition?.min ?: -1,
-                        compositionEnd = newComposition?.max ?: -1
+                        compositionEnd = newComposition?.max ?: -1,
                     )
                 }
             }
@@ -155,7 +158,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                                 gesture,
                                 layoutState,
                                 updateSelectionState,
-                                viewConfiguration
+                                viewConfiguration,
                             )
                         }
                         return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
@@ -163,16 +166,20 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
 
                     override fun previewHandwritingGesture(
                         gesture: PreviewableHandwritingGesture,
-                        cancellationSignal: CancellationSignal?
+                        cancellationSignal: CancellationSignal?,
                     ): Boolean {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                             return state.previewHandwritingGesture(
                                 gesture,
                                 layoutState,
-                                cancellationSignal
+                                cancellationSignal,
                             )
                         }
                         return false
+                    }
+
+                    override fun updateTouchMode(isInTouchMode: Boolean) {
+                        updateTouchMode.invoke(isInTouchMode)
                     }
                 }
 
@@ -181,7 +188,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 selection = state.visualText.selection,
                 imeOptions = imeOptions,
                 // only pass AllMimeTypes if we have a ReceiveContentConfiguration.
-                contentMimeTypes = receiveContentConfiguration?.let { ALL_MIME_TYPES }
+                contentMimeTypes = receiveContentConfiguration?.let { ALL_MIME_TYPES },
             )
             StatelessInputConnection(textInputSession, outAttrs)
         }

@@ -39,7 +39,7 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val longValues: Map<String, Long>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val doubleValues: Map<String, Double>,
     /** Set of [DataOrigin]s that contributed to the aggregation result. */
-    public val dataOrigins: Set<DataOrigin>
+    public val dataOrigins: Set<DataOrigin>,
 ) {
 
     /**
@@ -74,7 +74,7 @@ constructor(
         return AggregationResult(
             longValues + other.longValues,
             doubleValues + other.doubleValues,
-            dataOrigins + other.dataOrigins
+            dataOrigins + other.dataOrigins,
         )
     }
 

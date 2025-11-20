@@ -14,6 +14,6 @@ If you're looking for guidance instead, check out the
 
 The Compose testing cheat sheet is a quick reference of some of the most useful Compose test APIs.
 The cheat sheet is also
-<a href="https://developer.android.com/images/jetpack/compose/compose-testing-cheatsheet.pdf" class="external" target="_blank">downloadable in PDF format</a>.
+<a href="https://developer.android.com/static/develop/ui/compose/images/compose-testing-cheatsheet.pdf" class="external" target="_blank">downloadable in PDF format</a>.
 
-![Useful Compose testing APIs](https://developer.android.com/images/jetpack/compose/compose-testing-cheatsheet.png)
+![Useful Compose testing APIs](https://developer.android.com/static/develop/ui/compose/images/compose-testing-cheatsheet.png)

@@ -43,7 +43,7 @@ object ButtonDefaults {
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
             end = ButtonHorizontalPadding,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     val ButtonWithIconContentPadding =
@@ -51,7 +51,7 @@ object ButtonDefaults {
             start = ButtonWithIconHorizontalStartPadding,
             top = ButtonVerticalPadding,
             end = ButtonHorizontalPadding,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /** The default size of the icon when used inside any button. */
@@ -76,14 +76,14 @@ object ButtonDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -138,14 +138,14 @@ object ButtonDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -171,17 +171,17 @@ object ButtonDefaults {
                 border =
                     BorderStroke(
                         width = 1.5.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                     ),
-                shape = ContainerShape
-            )
+                shape = ContainerShape,
+            ),
     ) =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**
@@ -206,7 +206,7 @@ object OutlinedButtonDefaults {
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
             end = ButtonHorizontalPadding,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /** The default size of the icon when used inside any button. */
@@ -223,7 +223,7 @@ object OutlinedButtonDefaults {
             start = ButtonWithIconHorizontalStartPadding,
             top = ButtonVerticalPadding,
             end = ButtonHorizontalPadding,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /**
@@ -241,14 +241,14 @@ object OutlinedButtonDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -303,14 +303,14 @@ object OutlinedButtonDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -332,45 +332,45 @@ object OutlinedButtonDefaults {
                 border =
                     BorderStroke(
                         width = 1.5.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 1.65.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         pressedBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 1.5.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         disabledBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 1.5.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
-        focusedDisabledBorder: Border = disabledBorder
+        focusedDisabledBorder: Border = disabledBorder,
     ) =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**

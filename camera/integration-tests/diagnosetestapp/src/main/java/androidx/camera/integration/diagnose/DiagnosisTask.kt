@@ -36,6 +36,6 @@ abstract class DiagnosisTask(private val name: String) {
     abstract suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
         dataStore: DataStore,
-        context: Context
+        context: Context,
     )
 }

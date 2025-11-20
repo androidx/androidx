@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -56,7 +55,6 @@ import androidx.compose.ui.zIndex
  * Note that despite the items position changing due to the scroll, it does not affect or trigger an
  * animation.
  */
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
 fun LookaheadInScrollingColumn() {
@@ -76,7 +74,7 @@ fun LookaheadInScrollingColumn() {
                         lookaheadScope = this@movableContentWithReceiverOf,
                         boundsTransform = { _, _ ->
                             spring(stiffness = 50f, visibilityThreshold = Rect.VisibilityThreshold)
-                        }
+                        },
                     )
                     .clickable { displayInScroller = !displayInScroller }
                     .background(color, RoundedCornerShape(10.dp))
@@ -89,7 +87,7 @@ fun LookaheadInScrollingColumn() {
             Column(
                 modifier =
                     Modifier.fillMaxSize().verticalScroll(rememberScrollState(0)).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text("Click Yellow box to animate to/from scrolling list.")
                 repeat(6) {

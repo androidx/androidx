@@ -18,13 +18,13 @@ package androidx.collection
 
 import kotlin.random.Random
 
-internal class ArraySetCreateBenchmark(private val sourceSet: Set<Int>) : CollectionBenchmark {
+class ArraySetCreateBenchmark(private val sourceSet: Set<Int>) : CollectionBenchmark {
     override fun measuredBlock() {
         ArraySet(sourceSet)
     }
 }
 
-internal class ArraySetContainsElementBenchmark(sourceSet: Set<Int>) : CollectionBenchmark {
+class ArraySetContainsElementBenchmark(sourceSet: Set<Int>) : CollectionBenchmark {
     // Split the set into two lists, one with elements in the created set, one not.
     private val src = sourceSet.toList()
     private val inList = src.slice(0 until src.size / 2)
@@ -47,7 +47,7 @@ internal class ArraySetContainsElementBenchmark(sourceSet: Set<Int>) : Collectio
     }
 }
 
-internal class ArraySetIndexOfBenchmark(sourceSet: Set<Int>) : CollectionBenchmark {
+class ArraySetIndexOfBenchmark(sourceSet: Set<Int>) : CollectionBenchmark {
     // Split the set into two lists, one with elements in the created set, one not.
     private val src = sourceSet.toList()
     private val inList = src.slice(0 until src.size / 2)
@@ -70,7 +70,7 @@ internal class ArraySetIndexOfBenchmark(sourceSet: Set<Int>) : CollectionBenchma
     }
 }
 
-internal class ArraySetAddAllThenRemoveIndividuallyBenchmark(private val sourceSet: Set<Int>) :
+class ArraySetAddAllThenRemoveIndividuallyBenchmark(private val sourceSet: Set<Int>) :
     CollectionBenchmark {
     private val set = ArraySet<Int>(sourceSet.size)
 
@@ -82,7 +82,7 @@ internal class ArraySetAddAllThenRemoveIndividuallyBenchmark(private val sourceS
     }
 }
 
-internal fun createSourceSet(size: Int, sparse: Boolean): Set<Int> {
+fun createSourceSet(size: Int, sparse: Boolean): Set<Int> {
     return mutableSetOf<Int>().apply {
         val valueFactory: () -> Int =
             if (sparse) {

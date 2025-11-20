@@ -526,9 +526,21 @@ public final class CarAppExtender implements NotificationCompat.Extender {
          * <p>A notification may offer up to 2 actions. The system may not display some actions
          * in the compact notification UI (e.g. heads-up-notifications).
          *
-         * <p>If one or more action is added with this method, any action added by
-         * {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)} will be
-         * ignored.
+         * <p>If actions are added to a CarAppExtender, any actions directly added the notification
+         * being extended, for example via
+         * {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)}, are
+         * ignored when the notification is shown in a car. Effectively, these actions override the
+         * notification's actions in the car environment. For example:
+         *
+         * <pre>
+         * <code>
+         * notificationBuilder.addAction(action1)
+         * carExtenderBuilder.addAction(action2)
+         * notificationBuilder.extend(carExtenderBuilder.build())
+         * </code>
+         * </pre>
+         *
+         * <p>The mobile device will only show action1 and the car will only show action2.
          *
          * <p>This method is equivalent to
          * {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)} for the
@@ -548,6 +560,36 @@ public final class CarAppExtender implements NotificationCompat.Extender {
         public @NonNull Builder addAction(
                 @DrawableRes int icon, @NonNull CharSequence title, @NonNull PendingIntent intent) {
             mActions.add(new Action(icon, requireNonNull(title), requireNonNull(intent)));
+            return this;
+        }
+
+        /**
+         * Adds an {@link Action} to this notification.
+         *
+         * <p>Actions are typically displayed by the system as a button adjacent to the notification
+         * content.
+         *
+         * <p>A notification may offer up to 2 actions. The system may not display some actions
+         * in the compact notification UI (e.g. heads-up-notifications).
+         *
+         * <p>If actions are added to a CarAppExtender, any actions directly added the notification
+         * being extended, for example via
+         * {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}, are
+         * ignored when the notification is shown in a car. Effectively, these actions override the
+         * notification's actions in the car environment. For example:
+         *
+         * <pre>
+         * <code>
+         * notificationBuilder.addAction(action1)
+         * carExtenderBuilder.addAction(action2)
+         * notificationBuilder.extend(carExtenderBuilder.build())
+         * </code>
+         * </pre>
+         *
+         * <p>The mobile device will only show action1 and the car will only show action2.
+         */
+        public @NonNull Builder addAction(@NonNull Action action) {
+            mActions.add(requireNonNull(action));
             return this;
         }
 

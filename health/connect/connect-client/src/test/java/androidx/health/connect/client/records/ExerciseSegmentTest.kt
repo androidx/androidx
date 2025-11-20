@@ -20,6 +20,7 @@ import androidx.health.connect.client.records.ExerciseSegment.Companion.EXERCISE
 import androidx.health.connect.client.records.ExerciseSegment.Companion.SWIMMING_SEGMENTS
 import androidx.health.connect.client.records.ExerciseSegment.Companion.UNIVERSAL_SEGMENTS
 import androidx.health.connect.client.records.ExerciseSegment.Companion.UNIVERSAL_SESSION_TYPES
+import androidx.health.connect.client.records.ExerciseSegment.Companion.isSegmentTypeCompatibleWithSessionType
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -54,7 +55,7 @@ class ExerciseSegmentTest {
             ExerciseSessionRecord.EXERCISE_TYPE_CALISTHENICS,
             ExerciseSessionRecord.EXERCISE_TYPE_GYMNASTICS,
             ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
-            ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING
+            ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING,
         )
 
     private val swimmingSessionTypes =
@@ -66,13 +67,13 @@ class ExerciseSegmentTest {
     private val hikingSegments =
         setOf(
             ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR,
         )
 
     private val runningSegments =
         setOf(
             ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
         )
 
     private val exerciseClassSegments =
@@ -215,19 +216,19 @@ class ExerciseSegmentTest {
     fun isCompatible_exerciseClassSession_acceptClassSegments() {
         assertCompatibility(
             ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA,
         )
         assertCompatibility(
             ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
         )
         assertCompatibility(
             ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES,
         )
         assertCompatibility(
             ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS,
-            ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
         )
     }
 
@@ -282,18 +283,12 @@ class ExerciseSegmentTest {
     private fun assertCompatibility(
         sessionType: Int,
         segmentType: Int,
-        isCompatible: Boolean = true
+        isCompatible: Boolean = true,
     ) {
         assertEquals(
             expected = isCompatible,
-            actual =
-                ExerciseSegment(
-                        startTime = Instant.ofEpochMilli(1),
-                        endTime = Instant.ofEpochMilli(2),
-                        segmentType = segmentType
-                    )
-                    .isCompatibleWith(sessionType),
-            message = "$sessionType and $segmentType is not compatible"
+            actual = isSegmentTypeCompatibleWithSessionType(segmentType, sessionType),
+            message = "$sessionType and $segmentType is not compatible",
         )
     }
 }

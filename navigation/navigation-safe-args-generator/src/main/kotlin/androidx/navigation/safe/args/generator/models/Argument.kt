@@ -25,7 +25,7 @@ data class Argument(
     val name: String,
     val type: NavType,
     val defaultValue: WritableValue? = null,
-    val isNullable: Boolean = false
+    val isNullable: Boolean = false,
 ) {
     init {
         if (isNullable && !type.allowsNullable()) {

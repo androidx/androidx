@@ -25,6 +25,13 @@ import org.junit.runners.JUnit4
 class ImmutableParallelogramTest {
 
     @Test
+    fun toImmutable_returnsInstance() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterAndDimensions(ImmutableVec(10f, 0f), 6f, 4f)
+        assertThat(parallelogram.toImmutable()).isSameInstanceAs(parallelogram)
+    }
+
+    @Test
     fun fromCenterAndDimensions_constructsCorrectImmutableParallelogram() {
         val parallelogram =
             ImmutableParallelogram.fromCenterAndDimensions(ImmutableVec(10f, 0f), 6f, 4f)
@@ -32,43 +39,43 @@ class ImmutableParallelogramTest {
         assertThat(parallelogram.center).isEqualTo(ImmutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
-        assertThat(parallelogram.rotation).isZero()
-        assertThat(parallelogram.shearFactor).isZero()
+        assertThat(parallelogram.rotationDegrees).isZero()
+        assertThat(parallelogram.skew).isZero()
     }
 
     @Test
     fun fromCenterDimensionsAndRotation_constructsCorrectImmutableParallelogram() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsAndRotation(
+            ImmutableParallelogram.fromCenterDimensionsAndRotationInDegrees(
                 ImmutableVec(10f, 0f),
                 6f,
                 4f,
-                Angle.FULL_TURN_RADIANS,
+                Angle.FULL_TURN_DEGREES,
             )
 
         assertThat(parallelogram.center).isEqualTo(ImmutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
-        assertThat(parallelogram.rotation).isZero()
-        assertThat(parallelogram.shearFactor).isZero()
+        assertThat(parallelogram.rotationDegrees).isZero()
+        assertThat(parallelogram.skew).isZero()
     }
 
     @Test
-    fun fromCenterDimensionsRotationAndShear_constructsCorrectImmutableParallelogram() {
+    fun fromCenterDimensionsRotationInDegreesAndSkew_constructsCorrectImmutableParallelogram() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(10f, 0f),
                 6f,
                 4f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 1f,
             )
 
         assertThat(parallelogram.center).isEqualTo(ImmutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
-        assertThat(parallelogram.rotation).isWithin(1e-6f).of(Math.PI.toFloat())
-        assertThat(parallelogram.shearFactor).isEqualTo(1f)
+        assertThat(parallelogram.rotationDegrees).isEqualTo(180f)
+        assertThat(parallelogram.skew).isEqualTo(1f)
     }
 
     @Test
@@ -79,12 +86,10 @@ class ImmutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterAndDimensions(
                 center = ImmutableVec(0f, 0f),
                 width = 14f,
                 height = 4f,
-                rotation = Angle.ZERO,
-                shearFactor = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }
@@ -97,12 +102,12 @@ class ImmutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 center = ImmutableVec(3f, 3f),
                 width = 12.485281f,
                 height = 4f,
-                rotation = Angle.HALF_TURN_RADIANS / 4.0f,
-                shearFactor = 0f,
+                rotationDegrees = Angle.HALF_TURN_DEGREES / 4.0f,
+                skew = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }
@@ -110,11 +115,11 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenSameInstance_returnsTrueAndSameHashCode() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(10f, 10f),
                 12f,
                 2f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 0f,
             )
         assertThat(parallelogram).isEqualTo(parallelogram)
@@ -124,19 +129,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenSameValues_returnsTrueAndSameHashCode() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
 
@@ -148,11 +153,11 @@ class ImmutableParallelogramTest {
     fun equals_whenDifferentTypes_returnsFalse() {
         // An axis-aligned rectangle with center at (0,0) and width and height equal to 2
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(0f, 0f),
                 2f,
                 2f,
-                Angle.ZERO,
+                Angle.ZERO_DEGREES,
                 0f,
             )
         val other = ImmutableBox.fromTwoPoints(ImmutableVec(-1f, -1f), ImmutableVec(1f, 1f))
@@ -163,19 +168,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenDifferentCenter_returnsFalse() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(10f, -10.5f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
 
@@ -185,19 +190,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenDifferentWidth_returnsFalse() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 11f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
 
@@ -207,19 +212,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenDifferentHeight_returnsFalse() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
 
@@ -229,19 +234,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenDifferentRotation_returnsFalse() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.QUARTER_TURN_RADIANS,
+                Angle.QUARTER_TURN_DEGREES,
                 -3f,
             )
 
@@ -251,19 +256,19 @@ class ImmutableParallelogramTest {
     @Test
     fun equals_whenDifferentShearFactor_returnsFalse() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 -3f,
             )
         val other =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(-10f, 10f),
                 12f,
                 -7.5f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 0f,
             )
 
@@ -273,19 +278,19 @@ class ImmutableParallelogramTest {
     @Test
     fun getters_returnCorrectValues() {
         val parallelogram =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                 ImmutableVec(3f, -5f),
                 8f,
                 -1f,
-                Angle.HALF_TURN_RADIANS,
+                Angle.HALF_TURN_DEGREES,
                 0f,
             )
 
         assertThat(parallelogram.center).isEqualTo(ImmutableVec(3f, -5f))
         assertThat(parallelogram.width).isEqualTo(8f)
         assertThat(parallelogram.height).isEqualTo(-1f)
-        assertThat(parallelogram.rotation).isEqualTo(Angle.HALF_TURN_RADIANS)
-        assertThat(parallelogram.shearFactor).isEqualTo(0f)
+        assertThat(parallelogram.rotationDegrees).isEqualTo(Angle.HALF_TURN_DEGREES)
+        assertThat(parallelogram.skew).isEqualTo(0f)
     }
 
     @Test
@@ -305,11 +310,11 @@ class ImmutableParallelogramTest {
     @Test
     fun toString_returnsCorrectValue() {
         val parallelogramString =
-            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
                     ImmutableVec(3f, -5f),
                     8f,
                     -1f,
-                    Angle.HALF_TURN_RADIANS,
+                    Angle.HALF_TURN_DEGREES,
                     0.25f,
                 )
                 .toString()
@@ -319,7 +324,7 @@ class ImmutableParallelogramTest {
         assertThat(parallelogramString).contains("width")
         assertThat(parallelogramString).contains("height")
         assertThat(parallelogramString).contains("rotation")
-        assertThat(parallelogramString).contains("shearFactor")
+        assertThat(parallelogramString).contains("skew")
     }
 
     private val tolerance = 0.000001f

@@ -55,7 +55,7 @@ actual class PlatformTextStyle {
         includeFontPadding: Boolean = DefaultIncludeFontPadding
     ) : this(
         paragraphStyle = PlatformParagraphStyle(includeFontPadding = includeFontPadding),
-        spanStyle = null
+        spanStyle = null,
     )
 
     /**
@@ -93,7 +93,7 @@ actual class PlatformTextStyle {
 
 internal actual fun createPlatformTextStyle(
     spanStyle: PlatformSpanStyle?,
-    paragraphStyle: PlatformParagraphStyle?
+    paragraphStyle: PlatformParagraphStyle?,
 ): PlatformTextStyle {
     return PlatformTextStyle(spanStyle, paragraphStyle)
 }
@@ -149,7 +149,7 @@ actual class PlatformParagraphStyle {
      */
     constructor(
         emojiSupportMatch: EmojiSupportMatch = EmojiSupportMatch.Default,
-        includeFontPadding: Boolean = DefaultIncludeFontPadding
+        includeFontPadding: Boolean = DefaultIncludeFontPadding,
     ) {
         this.includeFontPadding = includeFontPadding
         this.emojiSupportMatch = emojiSupportMatch
@@ -169,7 +169,7 @@ actual class PlatformParagraphStyle {
     constructor() :
         this(
             includeFontPadding = DefaultIncludeFontPadding,
-            emojiSupportMatch = EmojiSupportMatch.Default
+            emojiSupportMatch = EmojiSupportMatch.Default,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -241,14 +241,14 @@ actual class PlatformSpanStyle {
 actual fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformParagraphStyle {
     if (start.includeFontPadding == stop.includeFontPadding) return start
 
     return PlatformParagraphStyle(
         emojiSupportMatch = lerpDiscrete(start.emojiSupportMatch, stop.emojiSupportMatch, fraction),
         includeFontPadding =
-            lerpDiscrete(start.includeFontPadding, stop.includeFontPadding, fraction)
+            lerpDiscrete(start.includeFontPadding, stop.includeFontPadding, fraction),
     )
 }
 
@@ -267,7 +267,7 @@ actual fun lerp(
 actual fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
-    fraction: Float
+    fraction: Float,
 ): PlatformSpanStyle {
     return start
 }

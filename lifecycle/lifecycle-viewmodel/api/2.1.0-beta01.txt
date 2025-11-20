@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   public class AndroidViewModel extends androidx.lifecycle.ViewModel {
@@ -12,8 +12,8 @@ package androidx.lifecycle {
   }
 
   public class ViewModelProvider {
-    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T>);
     method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(String, Class<T>);
   }

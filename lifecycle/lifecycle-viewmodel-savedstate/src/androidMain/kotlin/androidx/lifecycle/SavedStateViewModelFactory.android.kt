@@ -73,7 +73,7 @@ public actual class SavedStateViewModelFactory :
      */
     public constructor(
         application: Application?,
-        owner: SavedStateRegistryOwner
+        owner: SavedStateRegistryOwner,
     ) : this(application, owner, null)
 
     /**
@@ -97,7 +97,7 @@ public actual class SavedStateViewModelFactory :
     public constructor(
         application: Application?,
         owner: SavedStateRegistryOwner,
-        defaultArgs: Bundle?
+        defaultArgs: Bundle?,
     ) {
         savedStateRegistry = owner.savedStateRegistry
         lifecycle = owner.lifecycle
@@ -147,7 +147,7 @@ public actual class SavedStateViewModelFactory :
                         modelClass,
                         constructor,
                         application,
-                        extras.createSavedStateHandle()
+                        extras.createSavedStateHandle(),
                     )
                 } else {
                     newInstance(modelClass, constructor, extras.createSavedStateHandle())
@@ -202,7 +202,7 @@ public actual class SavedStateViewModelFactory :
                 savedStateRegistry!!,
                 lifecycle,
                 key,
-                defaultArgs
+                defaultArgs,
             )
         val viewModel: T =
             if (isAndroidViewModel && application != null) {
@@ -212,7 +212,7 @@ public actual class SavedStateViewModelFactory :
             }
         viewModel.addCloseable(
             LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER,
-            controller
+            controller,
         )
         return viewModel
     }
@@ -242,7 +242,7 @@ public actual class SavedStateViewModelFactory :
             LegacySavedStateHandleController.attachHandleIfNeeded(
                 viewModel,
                 savedStateRegistry!!,
-                lifecycle!!
+                lifecycle!!,
             )
         }
     }
@@ -251,7 +251,7 @@ public actual class SavedStateViewModelFactory :
 internal fun <T : ViewModel?> newInstance(
     modelClass: Class<T>,
     constructor: Constructor<T>,
-    vararg params: Any
+    vararg params: Any,
 ): T {
     return try {
         constructor.newInstance(*params)
@@ -272,12 +272,13 @@ private val VIEWMODEL_SIGNATURE = listOf<Class<*>>(SavedStateHandle::class.java)
 // if there is no such constructor, which is expensive
 internal fun <T> findMatchingConstructor(
     modelClass: Class<T>,
-    signature: List<Class<*>>
+    signature: List<Class<*>>,
 ): Constructor<T>? {
     for (constructor in modelClass.constructors) {
         val parameterTypes = constructor.parameterTypes.toList()
         if (signature == parameterTypes) {
-            @Suppress("UNCHECKED_CAST") return constructor as Constructor<T>
+            @Suppress("UNCHECKED_CAST")
+            return constructor as Constructor<T>
         }
         if (signature.size == parameterTypes.size && parameterTypes.containsAll(signature)) {
             throw UnsupportedOperationException(

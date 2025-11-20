@@ -34,7 +34,6 @@ import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.appindex.Action;
@@ -54,7 +53,6 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class ShortcutInfoChangeListenerImplTest {
     private AppIndex mFirebaseAppIndex;
     private UserActions mFirebaseUserActions;

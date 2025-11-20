@@ -40,7 +40,6 @@ import java.util.Locale.Category;
  * Provides friendly APIs to get the user's locale preferences. The data can refer to
  * external/cldr/common/main/en.xml.
  */
-@RequiresApi(VERSION_CODES.LOLLIPOP)
 public final class LocalePreferences {
     private static final String TAG = LocalePreferences.class.getSimpleName();
 

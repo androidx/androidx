@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.samples
 
+import android.content.res.Configuration
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -32,10 +33,15 @@ import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.FontWeightAdjustment
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.Keyboard
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.Locales
+import androidx.compose.ui.test.Navigation
 import androidx.compose.ui.test.RoundScreen
+import androidx.compose.ui.test.Touchscreen
+import androidx.compose.ui.test.UiMode
 import androidx.compose.ui.test.WindowInsets
+import androidx.compose.ui.test.WindowSize
 import androidx.compose.ui.test.then
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.DpRect
@@ -70,6 +76,15 @@ fun DeviceConfigurationOverrideFontScaleSample() {
 fun DeviceConfigurationOverrideForcedSizeSample() {
     DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(1280.dp, 800.dp))) {
         MyScreen() // will be rendered in the space for 1280dp by 800dp without clipping
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideWindowSizeSample() {
+    DeviceConfigurationOverride(DeviceConfigurationOverride.WindowSize(DpSize(1280.dp, 800.dp))) {
+        MyScreen() // will be rendered with an apparent window size of 1280dp by 800dp without
+        // clipping
     }
 }
 
@@ -115,6 +130,49 @@ fun DeviceConfigurationOverrideRoundScreenSample() {
 
 @Sampled
 @Composable
+fun DeviceConfigurationOverrideKeyboard() {
+    DeviceConfigurationOverride(
+        DeviceConfigurationOverride.Keyboard(Configuration.KEYBOARD_QWERTY)
+    ) {
+        LocalConfiguration.current.keyboard // will be Configuration.KEYBOARD_QWERTY
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideNavigation() {
+    DeviceConfigurationOverride(
+        DeviceConfigurationOverride.Navigation(
+            navigationType = Configuration.NAVIGATION_DPAD,
+            isHidden = false,
+        )
+    ) {
+        LocalConfiguration.current.navigation // will be Configuration.NAVIGATION_DPAD
+        LocalConfiguration.current.navigationHidden // will be Configuration.NAVIGATIONHIDDEN_NO
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideTouchscreen() {
+    DeviceConfigurationOverride(DeviceConfigurationOverride.Touchscreen(false)) {
+        LocalConfiguration.current.touchscreen // will be Configuration.TOUCHSCREEN_NOTOUCH
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideUiMode() {
+    DeviceConfigurationOverride(
+        DeviceConfigurationOverride.UiMode(Configuration.UI_MODE_TYPE_CAR)
+    ) {
+        // will be Configuration.UI_MODE_TYPE_CAR
+        LocalConfiguration.current.uiMode and Configuration.UI_MODE_TYPE_MASK
+    }
+}
+
+@Sampled
+@Composable
 fun DeviceConfigurationOverrideWindowInsetsSample() {
     fun IntRect.toAndroidXInsets() = androidx.core.graphics.Insets.of(left, top, right, bottom)
 
@@ -125,13 +183,13 @@ fun DeviceConfigurationOverrideWindowInsetsSample() {
                     WindowInsetsCompat.Type.captionBar(),
                     with(LocalDensity.current) { DpRect(0.dp, 64.dp, 0.dp, 0.dp).toRect() }
                         .roundToIntRect()
-                        .toAndroidXInsets()
+                        .toAndroidXInsets(),
                 )
                 .setInsets(
                     WindowInsetsCompat.Type.navigationBars(),
                     with(LocalDensity.current) { DpRect(24.dp, 0.dp, 48.dp, 24.dp).toRect() }
                         .roundToIntRect()
-                        .toAndroidXInsets()
+                        .toAndroidXInsets(),
                 )
                 .build()
         )

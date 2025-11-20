@@ -6,4 +6,4 @@ MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getStringS
 
 
 NullableCollection: androidx.datastore.migrations.SharedPreferencesView#getStringSet(String, java.util.Set<java.lang.String>):
-    Return type of method androidx.datastore.migrations.SharedPreferencesView.getStringSet(String,java.util.Set<java.lang.String>) is a nullable collection (`java.util.Set`); must be non-null
+    Return type of method androidx.datastore.migrations.SharedPreferencesView.getStringSet(String,java.util.Set<java.lang.String>) uses a nullable collection (`java.util.Set`); must be non-null

@@ -16,6 +16,4 @@
 
 package androidx.compose.integration.macrobenchmark.target.complexdifferenttypeslist.model.ui
 
-data class SquadViewTopPlayersUiModel(
-    val title: String,
-)
+data class SquadViewTopPlayersUiModel(val title: String)

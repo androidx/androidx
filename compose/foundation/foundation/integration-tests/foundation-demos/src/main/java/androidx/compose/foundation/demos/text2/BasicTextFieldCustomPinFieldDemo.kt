@@ -93,7 +93,7 @@ private fun VerifyPinScreen(viewModel: VerifyPinViewModel) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize().wrapContentHeight()
+        modifier = Modifier.fillMaxSize().wrapContentHeight(),
     ) {
         PinField(
             viewModel.pinState,
@@ -107,7 +107,7 @@ private fun VerifyPinScreen(viewModel: VerifyPinViewModel) {
                     }
                     scaleX = scale
                     scaleY = scale
-                }
+                },
         )
         AnimatedVisibility(visible = viewModel.isLoading) {
             CircularProgressIndicator(Modifier.padding(top = 8.dp))
@@ -178,7 +178,7 @@ private fun PinField(state: PinState, modifier: Modifier = Modifier, enabled: Bo
                 // Ignore inner field, we'll draw it ourselves.
                 PinContents(state)
             }
-        }
+        },
     )
 }
 

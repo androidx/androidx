@@ -34,7 +34,8 @@ fun LayoutModifier.tag(tagData: ByteArray): LayoutModifier =
  */
 fun LayoutModifier.tag(tag: String): LayoutModifier = tag(tag.toByteArray())
 
-internal class BaseMetadataElement(val tagData: ByteArray) : LayoutModifier.Element {
-    fun mergeTo(initial: ElementMetadata.Builder?): ElementMetadata.Builder =
-        (initial ?: ElementMetadata.Builder()).setTagData(tagData)
+internal class BaseMetadataElement(val tagData: ByteArray) :
+    BaseProtoLayoutModifiersElement<ElementMetadata.Builder> {
+    override fun mergeTo(initialBuilder: ElementMetadata.Builder?): ElementMetadata.Builder =
+        (initialBuilder ?: ElementMetadata.Builder()).setTagData(tagData)
 }

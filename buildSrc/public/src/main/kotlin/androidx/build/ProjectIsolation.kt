@@ -18,7 +18,6 @@ package androidx.build
 
 import org.gradle.api.configuration.BuildFeatures
 
-@Suppress("UnstableApiUsage")
 fun BuildFeatures.isIsolatedProjectsEnabled(): Boolean {
     return isolatedProjects.active.orElse(false).get()
 }

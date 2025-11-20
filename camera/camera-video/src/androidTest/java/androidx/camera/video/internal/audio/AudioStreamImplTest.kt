@@ -47,7 +47,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class AudioStreamImplTest {
 
     companion object {
@@ -74,7 +73,7 @@ class AudioStreamImplTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         assumeTrue(AudioStreamImpl.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
@@ -84,11 +83,12 @@ class AudioStreamImplTest {
             AudioStreamImpl(
                 AudioSettings.builder()
                     .setAudioSource(AUDIO_SOURCE)
-                    .setSampleRate(SAMPLE_RATE)
+                    .setCaptureSampleRate(SAMPLE_RATE)
+                    .setEncodeSampleRate(SAMPLE_RATE)
                     .setChannelCount(CHANNEL_COUNT)
                     .setAudioFormat(AUDIO_FORMAT)
                     .build(),
-                /*attributionContext=*/ null
+                /*attributionContext=*/ null,
             )
         audioStreamCallback = AudioStreamCallback()
         audioStream.setCallback(audioStreamCallback, ioExecutor())
@@ -211,7 +211,7 @@ class AudioStreamImplTest {
     }
 
     @RequiresDevice // b/264902324
-    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 28)
+    @SdkSuppress(maxSdkVersion = 28)
     @Test
     fun canReceiveOnSilenceStateChangedAfterStarted_belowApi29() {
         // Act.
@@ -248,12 +248,13 @@ class AudioStreamImplTest {
             onSilenceStateChanged: ((List<Boolean>) -> Unit)? = null,
         ) {
             val captor = onSilenceStateChanged?.let { ArgumentCaptor<Boolean>() }
+            @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
             onSilencedCallback.verifyAcceptCall(
                 java.lang.Boolean::class.java,
                 inOder,
                 timeoutMs,
                 callTimes,
-                captor
+                captor,
             )
             onSilenceStateChanged?.invoke(captor!!.allValues)
         }

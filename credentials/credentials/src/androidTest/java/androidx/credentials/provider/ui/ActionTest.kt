@@ -52,7 +52,7 @@ class ActionTest {
     fun constructor_emptyTitle_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty title to throw IllegalArgumentException",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             Action("", mPendingIntent, SUBTITLE)
         }

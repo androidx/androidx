@@ -41,7 +41,7 @@ import androidx.compose.ui.util.fastForEach
 class WindowSizeClass
 private constructor(
     val widthSizeClass: WindowWidthSizeClass,
-    val heightSizeClass: WindowHeightSizeClass
+    val heightSizeClass: WindowHeightSizeClass,
 ) {
     companion object {
         /**
@@ -54,12 +54,13 @@ private constructor(
          * @return [WindowSizeClass] corresponding to the given width and height
          */
         @ExperimentalMaterial3WindowSizeClassApi
+        @Suppress("PrimitiveInCollection")
         fun calculateFromSize(
             size: DpSize,
             supportedWidthSizeClasses: Set<WindowWidthSizeClass> =
                 WindowWidthSizeClass.DefaultSizeClasses,
             supportedHeightSizeClasses: Set<WindowHeightSizeClass> =
-                WindowHeightSizeClass.DefaultSizeClasses
+                WindowHeightSizeClass.DefaultSizeClasses,
         ): WindowSizeClass {
             val windowWidthSizeClass =
                 WindowWidthSizeClass.fromWidth(size.width, supportedWidthSizeClasses)
@@ -173,9 +174,10 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and a
          * given [Density] from [supportedSizeClasses].
          */
+        @Suppress("PrimitiveInCollection")
         internal fun fromWidth(
             width: Dp,
-            supportedSizeClasses: Set<WindowWidthSizeClass>
+            supportedSizeClasses: Set<WindowWidthSizeClass>,
         ): WindowWidthSizeClass {
             require(width >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }
@@ -272,9 +274,10 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and a
          * given [Density] from [supportedSizeClasses].
          */
+        @Suppress("PrimitiveInCollection")
         internal fun fromHeight(
             height: Dp,
-            supportedSizeClasses: Set<WindowHeightSizeClass>
+            supportedSizeClasses: Set<WindowHeightSizeClass>,
         ): WindowHeightSizeClass {
             require(height >= 0.dp) { "Width must not be negative" }
             require(supportedSizeClasses.isNotEmpty()) { "Must support at least one size class" }

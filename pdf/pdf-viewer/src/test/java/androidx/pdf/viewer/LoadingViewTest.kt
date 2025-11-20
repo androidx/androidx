@@ -20,7 +20,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.pdf.ActivityUtils
 import androidx.pdf.R
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Before
@@ -30,8 +29,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /** Tests for [LoadingView]. */
-@SmallTest
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class LoadingViewTest {
     private lateinit var loadingView: LoadingView
 

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("NOTHING_TO_INLINE", "RedundantVisibilityModifier", "FacadeClassJvmName")
 @file:OptIn(ExperimentalContracts::class)
 
 package androidx.collection
@@ -189,7 +190,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: Long) -> R
+        operation: (index: Int, acc: R, element: Long) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -219,7 +220,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: Long, acc: R) -> R
+        operation: (index: Int, element: Long, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -315,7 +316,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public inline fun elementAtOrElse(
         @IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> Long
+        defaultValue: (index: Int) -> Long,
     ): Long {
         if (index !in 0 until _size) {
             return defaultValue(index)
@@ -460,15 +461,17 @@ public sealed class LongList(initialCapacity: Int) {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        this@LongList.forEachIndexed { index, element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            this@LongList.forEachIndexed { index, element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(element)
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(element)
         }
         append(postfix)
     }
@@ -488,18 +491,20 @@ public sealed class LongList(initialCapacity: Int) {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Long) -> CharSequence
+        crossinline transform: (Long) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        this@LongList.forEachIndexed { index, element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            this@LongList.forEachIndexed { index, element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(element))
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(element))
         }
         append(postfix)
     }
@@ -581,7 +586,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
                 destination = content,
                 destinationOffset = index + 1,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         content[index] = element
@@ -607,7 +612,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
                 destination = content,
                 destinationOffset = index + elements.size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.copyInto(content, index)
@@ -634,14 +639,14 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
                 destination = content,
                 destinationOffset = index + elements._size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.content.copyInto(
             destination = content,
             destinationOffset = index,
             startIndex = 0,
-            endIndex = elements._size
+            endIndex = elements._size,
         )
         _size += elements._size
         return true
@@ -780,7 +785,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
                 destination = content,
                 destinationOffset = index,
                 startIndex = index + 1,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         _size--
@@ -806,7 +811,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
                     destination = content,
                     destinationOffset = start,
                     startIndex = end,
-                    endIndex = _size
+                    endIndex = _size,
                 )
             }
             _size -= (end - start)
@@ -946,9 +951,7 @@ public inline fun mutableLongListOf(vararg elements: Long): MutableLongList =
  *
  * @param builderAction Lambda in which the [MutableLongList] can be populated.
  */
-public inline fun buildLongList(
-    builderAction: MutableLongList.() -> Unit,
-): LongList {
+public inline fun buildLongList(builderAction: MutableLongList.() -> Unit): LongList {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableLongList().apply(builderAction)
 }

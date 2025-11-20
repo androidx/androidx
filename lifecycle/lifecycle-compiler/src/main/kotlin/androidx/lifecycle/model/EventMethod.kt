@@ -24,7 +24,7 @@ import javax.lang.model.element.TypeElement
 data class EventMethod(
     val method: ExecutableElement,
     val onLifecycleEvent: androidx.lifecycle.OnLifecycleEvent,
-    val type: TypeElement
+    val type: TypeElement,
 ) {
 
     fun packageName() = type.getPackageQName()

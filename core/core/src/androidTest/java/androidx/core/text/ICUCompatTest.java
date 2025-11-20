@@ -19,7 +19,6 @@ package androidx.core.text;
 import static org.junit.Assert.assertEquals;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -37,9 +36,7 @@ public class ICUCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testMaximizeAndGetScriptWithScriptTag() {
-        // Script tags were added to java.util.Locale only on API 21.
         assertEquals("Visp", ICUCompat.maximizeAndGetScript(Locale.forLanguageTag("en-Visp-US")));
     }
 

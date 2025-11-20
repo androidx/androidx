@@ -24,10 +24,12 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.collection.ArraySet;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +56,8 @@ public class VisibilityStoreMigrationHelperFromV1 {
 
     /**  Reads all stored deprecated Visibility Document in version 0 from icing. */
     static List<VisibilityDocumentV1> getVisibilityDocumentsInVersion1(
-            @NonNull AppSearchImpl appSearchImpl) throws AppSearchException {
+            @NonNull AppSearchImpl appSearchImpl,
+            CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         List<String> allPrefixedSchemaTypes = appSearchImpl.getAllPrefixedSchemaTypes();
         List<VisibilityDocumentV1> visibilityDocumentV1s =
                 new ArrayList<>(allPrefixedSchemaTypes.size());
@@ -70,7 +73,8 @@ public class VisibilityStoreMigrationHelperFromV1 {
                         VisibilityStore.DOCUMENT_VISIBILITY_DATABASE_NAME,
                         VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         allPrefixedSchemaTypes.get(i),
-                        /*typePropertyPaths=*/ Collections.emptyMap())));
+                        /*typePropertyPaths=*/ Collections.emptyMap(),
+                        callStatsBuilder)));
             } catch (AppSearchException e) {
                 if (e.getResultCode() == AppSearchResult.RESULT_NOT_FOUND) {
                     // TODO(b/172068212): This indicates some desync error. We were expecting a

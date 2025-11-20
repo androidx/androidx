@@ -41,7 +41,7 @@ class BanSynchronizedMethodsTest :
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val expected =
@@ -68,7 +68,7 @@ src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods i
                     fun someMethod() {}
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val expected =

@@ -37,6 +37,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowDrawable;
 
@@ -45,6 +46,7 @@ import java.util.Map;
 
 /** Unit tests for {@link WearableButtons}. */
 @RunWith(WearInputTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class WearableButtonsTest {
     private final Point mScreenSize = new Point(480, 480);

@@ -20,7 +20,6 @@ import android.os.Build
 import android.window.BackEvent.EDGE_LEFT
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,8 +33,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S_V2)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class OnBackPressedDispatcherInvokerTest {
 
     @get:Rule val rule = DetectLeaksAfterTestSuccess()
@@ -488,72 +486,5 @@ class OnBackPressedDispatcherInvokerTest {
         assertThat(cancelledCount).isEqualTo(1)
 
         assertThat(unregisterCount).isEqualTo(1)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun testDoubleStartCallbackCausesCancel() {
-        var registerCount = 0
-        var unregisterCount = 0
-        val invoker =
-            object : OnBackInvokedDispatcher {
-                override fun registerOnBackInvokedCallback(p0: Int, p1: OnBackInvokedCallback) {
-                    registerCount++
-                }
-
-                override fun unregisterOnBackInvokedCallback(p0: OnBackInvokedCallback) {
-                    unregisterCount++
-                }
-            }
-
-        val dispatcher = OnBackPressedDispatcher()
-
-        dispatcher.setOnBackInvokedDispatcher(invoker)
-
-        var cancelledCount = 0
-        val callback1 =
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackStarted(backEvent: BackEventCompat) {}
-
-                override fun handleOnBackProgressed(backEvent: BackEventCompat) {}
-
-                override fun handleOnBackPressed() {}
-
-                override fun handleOnBackCancelled() {
-                    cancelledCount++
-                }
-            }
-
-        dispatcher.addCallback(callback1)
-
-        assertThat(registerCount).isEqualTo(1)
-
-        dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
-
-        var startedCount2 = 0
-
-        val callback2 =
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                    startedCount2++
-                }
-
-                override fun handleOnBackProgressed(backEvent: BackEventCompat) {}
-
-                override fun handleOnBackPressed() {}
-
-                override fun handleOnBackCancelled() {}
-            }
-
-        dispatcher.addCallback(callback2)
-
-        dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, EDGE_LEFT))
-
-        assertThat(registerCount).isEqualTo(1)
-
-        assertThat(cancelledCount).isEqualTo(1)
-
-        assertThat(startedCount2).isEqualTo(1)
     }
 }

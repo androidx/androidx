@@ -48,11 +48,11 @@ object AlertDialogDismissBenchmark : MacrobenchmarkScreen {
                 Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Button(
                         onClick = { visible = true },
-                        modifier = Modifier.semantics { contentDescription = OPEN_ALERT_DIALOG }
+                        modifier = Modifier.semantics { contentDescription = OPEN_ALERT_DIALOG },
                     ) {
                         Text("Open")
                     }
@@ -65,9 +65,9 @@ object AlertDialogDismissBenchmark : MacrobenchmarkScreen {
                     confirmButton = {
                         AlertDialogDefaults.ConfirmButton(
                             onClick = { visible = false },
-                            modifier = Modifier.semantics { contentDescription = DIALOG_CONFIRM }
+                            modifier = Modifier.semantics { contentDescription = DIALOG_CONFIRM },
                         )
-                    }
+                    },
                 )
             }
         }
@@ -82,7 +82,7 @@ object AlertDialogDismissBenchmark : MacrobenchmarkScreen {
             SystemClock.sleep(500)
             device.findObject(By.desc(OPEN_ALERT_DIALOG)).click()
             SystemClock.sleep(500)
-            device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.8f, 400)
+            device.findObject(By.desc(DIALOG_CONTAINER)).swipe(Direction.RIGHT, 0.95f, 400)
             SystemClock.sleep(500)
         }
 

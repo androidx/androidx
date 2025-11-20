@@ -18,7 +18,6 @@ package androidx.activity.integration.testapp
 
 import android.app.Dialog
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.SystemBarStyle
@@ -32,9 +31,7 @@ import androidx.fragment.app.DialogFragment
 class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            installSplashScreen()
-        }
+        installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         findViewById<View>(R.id.default_config).setOnClickListener {
@@ -52,7 +49,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             val style =
                 SystemBarStyle.auto(
                     lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
-                    darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c)
+                    darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c),
                 )
             enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
@@ -64,7 +61,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
                 SystemBarStyle.auto(
                     lightScrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
                     darkScrim = Color.argb(0x64, 0x4a, 0x14, 0x8c),
-                    detectDarkMode = { false }
+                    detectDarkMode = { false },
                 )
             enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }
@@ -86,7 +83,7 @@ class EdgeToEdgeActivity : AppCompatActivity(R.layout.edge_to_edge_activity) {
             val style =
                 SystemBarStyle.light(
                     scrim = Color.argb(0x64, 0xff, 0xeb, 0x3b),
-                    darkScrim = Color.rgb(0xf5, 0x7f, 0x17)
+                    darkScrim = Color.rgb(0xf5, 0x7f, 0x17),
                 )
             enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
         }

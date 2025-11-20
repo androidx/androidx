@@ -35,6 +35,6 @@ val NavigationDemos =
             ComposableDemo("Navigation by DeepLink") { NavByDeepLinkDemo() },
             ComposableDemo("Navigation PopUpTo") { NavPopUpToDemo() },
             ComposableDemo("Navigation SingleTop") { NavSingleTopDemo() },
-            ComposableDemo("Size Transform Demo") { SizeTransformDemo() }
-        )
+            ComposableDemo("Size Transform Demo") { SizeTransformDemo() },
+        ),
     )

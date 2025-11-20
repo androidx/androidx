@@ -64,7 +64,7 @@ fun CustomFocusOrderDemo() {
                         Modifier.focusRequester(item1).focusProperties {
                             left = if (wrapAround) item2 else Default
                             up = if (wrapAround) item3 else Default
-                        }
+                        },
                 )
                 FocusableText(
                     text = "2",
@@ -72,7 +72,7 @@ fun CustomFocusOrderDemo() {
                         Modifier.focusRequester(item2).focusProperties {
                             right = if (wrapAround) item1 else Default
                             up = if (wrapAround) item4 else Default
-                        }
+                        },
                 )
             }
             Row(Modifier.fillMaxWidth(), SpaceEvenly) {
@@ -82,7 +82,7 @@ fun CustomFocusOrderDemo() {
                         Modifier.focusRequester(item3).focusProperties {
                             left = if (wrapAround) item4 else Default
                             down = if (wrapAround) item1 else Default
-                        }
+                        },
                 )
                 FocusableText(
                     text = "4",
@@ -90,7 +90,7 @@ fun CustomFocusOrderDemo() {
                         Modifier.focusRequester(item4).focusProperties {
                             right = if (wrapAround) item3 else Default
                             down = if (wrapAround) item2 else Default
-                        }
+                        },
                 )
             }
             DisposableEffect(Unit) {
@@ -117,6 +117,6 @@ private fun FocusableText(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 40.sp,
         textAlign = TextAlign.Center,
-        color = color
+        color = color,
     )
 }

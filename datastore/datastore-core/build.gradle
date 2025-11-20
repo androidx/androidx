@@ -22,34 +22,72 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-}
-
-android {
-    externalNativeBuild {
-        cmake {
-            path "src/androidMain/cpp/CMakeLists.txt"
-            version = libs.versions.cmake.get()
-        }
-    }
-    namespace = "androidx.datastore.core"
 }
 
 androidXMultiplatform {
+    def supportedKonanTargets = [
+            KonanTarget.ANDROID_ARM32,
+            KonanTarget.ANDROID_ARM64,
+            KonanTarget.ANDROID_X64,
+            KonanTarget.ANDROID_X86,
+    ]
+
+    // Define C++ compilation of shared_counter
+    def sharedCounterCompilation = createNativeCompilation("sharedCounter") {
+        configureEachTarget { nativeCompilation ->
+            // add C++ sources
+            nativeCompilation.sources.from(fileTree("src/androidMain/cpp/shared"))
+            nativeCompilation.freeArgs.addAll("-Wall", "-Werror", "-std=c++17")
+            // Konan target android_arm32's clang compiler triple is: arm-unknown-linux-androideabi
+            // This maps to an ARM architecture that lacks instructions for lock-free atomics causing
+            // compilation failure:
+            // error: static assertion failed due to requirement 'std::atomic<unsigned int>::is_always_lock_free': atomic<uint32_t> is not always lock-free
+            //     static_assert(std::atomic<uint32_t>::is_always_lock_free,
+            // Adding to the compiler that Android's architecture for arm_32 is armv7a fixes the compilation
+            if (nativeCompilation.konanTarget == KonanTarget.ANDROID_ARM32.INSTANCE) {
+                nativeCompilation.freeArgs.add("-march=armv7-a")
+            }
+        }
+        configureTargets(supportedKonanTargets.collect { it.INSTANCE })
+    }
+
+
+    // Define C++ compilation of JNI
+    def jniImplementation = createNativeCompilation("datastore_shared_counter") {
+        configureEachTarget { nativeCompilation ->
+            // add JNI headers as sources
+            nativeCompilation.addJniHeaders()
+            // statically include the output of sharedCounter compilation
+            nativeCompilation.include(sharedCounterCompilation)
+            // add our JNI sources
+            nativeCompilation.sources.from(fileTree("src/androidMain/cpp/jni"))
+            nativeCompilation.freeArgs.addAll("-Wall", "-Werror", "-std=c++17")
+        }
+        configureTargets(supportedKonanTargets.collect { it.INSTANCE })
+    }
+
+    androidLibrary {
+        namespace = "androidx.datastore.core"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        addNativeLibrariesToJniLibs(it, jniImplementation)
+    }
     jvm()
     mac()
     linux()
     ios()
     watchos()
     tvos()
-    androidTarget()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -60,7 +98,6 @@ androidXMultiplatform {
 
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.9.1")
             }
@@ -74,14 +111,17 @@ androidXMultiplatform {
             dependsOn(jvmAndroidMain)
         }
 
+        wasmJsMain {
+            dependsOn(commonMain)
+        }
+
         jvmMain {
             dependsOn(jvmAndroidMain)
         }
 
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 implementation(project(":datastore:datastore-core-okio"))
@@ -90,38 +130,53 @@ androidXMultiplatform {
             }
         }
 
-        jvmAndroidTest {
+        nonWebCommonTest {
             dependsOn(commonTest)
+        }
+
+        jvmAndroidTest {
+            dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
             }
+        }
+        // tests that are run on AndroidUnit and instrumented targets.
+        // similar to jvmAndroidTest, except, they don't run on JVM outside Robolectric.
+        androidUnitAndInstrumentedTest {
+            dependsOn(jvmAndroidTest)
         }
 
         jvmTest {
             dependsOn(jvmAndroidTest)
         }
 
-        androidUnitTest {
+        androidHostTest {
             dependsOn(jvmAndroidTest)
+            dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.protobufLite)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.robolectric)
+                implementation(libs.testExtJunit)
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependsOn(jvmAndroidTest)
+            dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
                 implementation("androidx.lifecycle:lifecycle-service:2.6.1")
+                implementation(libs.testExtJunit)
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
@@ -135,7 +190,7 @@ androidXMultiplatform {
             }
         }
         nativeTest {
-            dependsOn(commonTest)
+            dependsOn(nonWebCommonTest)
         }
 
         targets.configureEach { target ->
@@ -157,6 +212,4 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

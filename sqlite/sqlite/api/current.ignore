@@ -1,0 +1,51 @@
+// Baseline format: 1.0
+AddedClass: androidx.sqlite.SQLiteException:
+    Added typealias androidx.sqlite.SQLiteException
+
+
+AddedMethod: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration#Configuration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Callback,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
+RemovedFromKotlin: androidx.sqlite.SQLiteDriver#hasConnectionPool():
+    Source breaking change: method androidx.sqlite.SQLiteDriver.hasConnectionPool() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SimpleSQLiteQuery#getArgCount():
+    Source breaking change: method androidx.sqlite.db.SimpleSQLiteQuery.getArgCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SimpleSQLiteQuery#getSql():
+    Source breaking change: method androidx.sqlite.db.SimpleSQLiteQuery.getSql() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#getAttachedDbs():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.getAttachedDbs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#getMaximumSize():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.getMaximumSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#getPageSize():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.getPageSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#getPath():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.getPath() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#getVersion():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.getVersion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isDatabaseIntegrityOk():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isDatabaseIntegrityOk() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isDbLockedByCurrentThread():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isDbLockedByCurrentThread() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isExecPerConnectionSQLSupported():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isExecPerConnectionSQLSupported() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isOpen():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isOpen() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isReadOnly():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isReadOnly() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#isWriteAheadLoggingEnabled():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.isWriteAheadLoggingEnabled() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#setPageSize(long):
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.setPageSize(long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteDatabase#setVersion(int):
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteDatabase.setVersion(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteOpenHelper#getDatabaseName():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteOpenHelper.getDatabaseName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteOpenHelper#getReadableDatabase():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteOpenHelper.getReadableDatabase() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteOpenHelper#getWritableDatabase():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteOpenHelper.getWritableDatabase() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteQuery#getArgCount():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteQuery.getArgCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.sqlite.db.SupportSQLiteQuery#getSql():
+    Source breaking change: method androidx.sqlite.db.SupportSQLiteQuery.getSql() can no longer be resolved from Kotlin source

@@ -18,13 +18,13 @@ package androidx.fragment.app.strictmode
 import androidx.fragment.app.Fragment
 
 /** See [FragmentStrictMode.Policy.Builder.detectFragmentReuse]. */
-class FragmentReuseViolation
+public class FragmentReuseViolation
 internal constructor(
     fragment: Fragment,
     /** Gets the unique ID of the previous instance of the [Fragment] causing the Violation. */
-    val previousFragmentId: String
+    public val previousFragmentId: String,
 ) :
     Violation(
         fragment,
-        "Attempting to reuse fragment $fragment with previous ID $previousFragmentId"
+        "Attempting to reuse fragment $fragment with previous ID $previousFragmentId",
     )

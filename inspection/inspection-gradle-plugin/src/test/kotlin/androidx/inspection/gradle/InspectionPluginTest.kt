@@ -73,14 +73,14 @@ class InspectionPluginTest {
                         targetSdkVersion 30
                     }
                 }
-            """
+            """,
         )
         val output = gradleRunner.withArguments("dexInspectorRelease", "--stacktrace").build()
         assertEquals(output.task(":dexInspectorRelease")!!.outcome, TaskOutcome.SUCCESS)
         val artifact =
             File(
                 projectSetup.rootDir,
-                "build/androidx_inspection/dexedInspector/release/test-inspector.jar"
+                "build/androidx_inspection/dexedInspector/release/test-inspector.jar",
             )
         assertTrue { artifact.exists() }
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspector;")
@@ -98,7 +98,7 @@ class InspectionPluginTest {
                         "--find-usages",
                         artifact.absolutePath,
                         className,
-                        "<init>"
+                        "<init>",
                     )
                 )
         exec.waitFor()

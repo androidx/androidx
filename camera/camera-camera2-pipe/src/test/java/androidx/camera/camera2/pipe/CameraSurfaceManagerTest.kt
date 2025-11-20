@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe
 
 import android.graphics.ImageFormat
 import android.media.ImageReader
-import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 internal class CameraSurfaceManagerTest {
     private val surfaceManager = CameraSurfaceManager()
     private var activeInvokeCount = 0

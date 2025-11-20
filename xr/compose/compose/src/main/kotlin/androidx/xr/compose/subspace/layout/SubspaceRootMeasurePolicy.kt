@@ -24,15 +24,15 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 
 /**
- * MeasurePolicy applied at the root of the compose tree.
+ * SubspaceMeasurePolicy applied at the root of the compose tree.
  *
  * Based on [androidx.compose.ui.layout.RootMeasurePolicy].
  */
-internal class SubspaceRootMeasurePolicy() : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
+internal class SubspaceRootMeasurePolicy() : SubspaceMeasurePolicy {
+    override fun SubspaceMeasureScope.measure(
+        measurables: List<SubspaceMeasurable>,
         constraints: VolumeConstraints,
-    ): MeasureResult {
+    ): SubspaceMeasureResult {
         return when {
             measurables.isEmpty() -> {
                 layout(constraints.minWidth, constraints.minHeight, constraints.minDepth) {}

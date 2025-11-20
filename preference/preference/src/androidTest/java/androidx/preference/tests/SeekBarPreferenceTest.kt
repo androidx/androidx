@@ -77,7 +77,7 @@ class SeekBarPreferenceTest {
             assertEquals(3, seekBarPreference.value)
         }
         // The seekbar's progress should be set to 3
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(3)))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(3)))
     }
 
     @Test
@@ -91,7 +91,7 @@ class SeekBarPreferenceTest {
             assertEquals(3, seekBarPreference.value)
         }
         // The seekbar's progress should be 0, as we are currently at the min value
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(0)))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(0)))
     }
 
     @Test
@@ -105,39 +105,43 @@ class SeekBarPreferenceTest {
             assertEquals(7, seekBarPreference.value)
         }
         // The seekbar's progress should be equal to the max value
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(7)))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(7)))
     }
 
     @Test
     fun testSeekBarLabel_updatesWhenValueIsChanged() {
         // By default only the seekbar, not the label should be visible
-        onView(withId(R.id.seekbar)).check(matches(isDisplayed()))
-        onView(withId(R.id.seekbar_value)).check(matches(not(isDisplayed())))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar_value)).check(matches(not(isDisplayed())))
 
         // When we enable showing the value
         activityRule.runOnUiThread { seekBarPreference.showSeekBarValue = true }
 
         // Both the seekbar and the label should be visible
-        onView(withId(R.id.seekbar)).check(matches(isDisplayed()))
-        onView(allOf(withId(R.id.seekbar_value), withText("0"))).check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("0")))
+            .check(matches(isDisplayed()))
 
         // When we change the value
         activityRule.runOnUiThread { seekBarPreference.value = 5 }
 
         // The label should update to show the new value
-        onView(allOf(withId(R.id.seekbar_value), withText("5"))).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("5")))
+            .check(matches(isDisplayed()))
     }
 
     @Test
     fun testSeekBarLabel_updatesWhenSeekbarProgressChanges() {
         activityRule.runOnUiThread { seekBarPreference.showSeekBarValue = true }
-        onView(allOf(withId(R.id.seekbar_value), withText("0"))).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("0")))
+            .check(matches(isDisplayed()))
 
         // When the seekbar's progress changes
-        activityRule.activity.findViewById<SeekBar>(R.id.seekbar).progress = 5
+        activityRule.activity.findViewById<SeekBar>(androidx.preference.R.id.seekbar).progress = 5
 
         // The label should update to show the new value
-        onView(allOf(withId(R.id.seekbar_value), withText("5"))).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("5")))
+            .check(matches(isDisplayed()))
     }
 
     @Test
@@ -150,20 +154,22 @@ class SeekBarPreferenceTest {
         }
 
         // The label should display the saved value
-        onView(allOf(withId(R.id.seekbar_value), withText("3"))).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("3")))
+            .check(matches(isDisplayed()))
 
         // Since the value is also the minimum, the seekbar should have no progress
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(0)))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(0)))
 
         // Change the value to 5
         activityRule.runOnUiThread { seekBarPreference.value = 5 }
 
         // The label should display the saved value
-        onView(allOf(withId(R.id.seekbar_value), withText("5"))).check(matches(isDisplayed()))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("5")))
+            .check(matches(isDisplayed()))
 
         // However since the minimum is 3, the seekbar's progress should be offset by 3, and should
         // only have progressed to 2 (the current value - the minimum)
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(2)))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(2)))
     }
 
     @Test
@@ -184,15 +190,17 @@ class SeekBarPreferenceTest {
             }
         }
 
-        onView(allOf(withId(R.id.seekbar_value), withText("0"))).check(matches(isDisplayed()))
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(0)))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("0")))
+            .check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(0)))
 
         // Fully drag the seekbar from left to right
-        onView(withId(R.id.seekbar)).perform(dragSeekBar())
+        onView(withId(androidx.preference.R.id.seekbar)).perform(dragSeekBar())
 
         // The current value should be 5
-        onView(allOf(withId(R.id.seekbar_value), withText("5"))).check(matches(isDisplayed()))
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(5)))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("5")))
+            .check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(5)))
 
         activityRule.runOnUiThread {
             // SeekBarPreference should only attempt to update once, when the drag has stopped
@@ -220,15 +228,17 @@ class SeekBarPreferenceTest {
             }
         }
 
-        onView(allOf(withId(R.id.seekbar_value), withText("0"))).check(matches(isDisplayed()))
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(0)))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("0")))
+            .check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(0)))
 
         // Fully drag the seekbar from left to right
-        onView(withId(R.id.seekbar)).perform(dragSeekBar())
+        onView(withId(androidx.preference.R.id.seekbar)).perform(dragSeekBar())
 
         // The current value should be 5
-        onView(allOf(withId(R.id.seekbar_value), withText("5"))).check(matches(isDisplayed()))
-        onView(withId(R.id.seekbar)).check(matches(withSeekBarProgress(5)))
+        onView(allOf(withId(androidx.preference.R.id.seekbar_value), withText("5")))
+            .check(matches(isDisplayed()))
+        onView(withId(androidx.preference.R.id.seekbar)).check(matches(withSeekBarProgress(5)))
 
         activityRule.runOnUiThread {
             // SeekBarPreference should attempt to update every time the seekbar's progress changed.
@@ -265,7 +275,7 @@ class SeekBarPreferenceTest {
                 val posY = location[1]
                 floatArrayOf(posX.toFloat(), posY.toFloat())
             },
-            Press.PINPOINT
+            Press.PINPOINT,
         )
     }
 

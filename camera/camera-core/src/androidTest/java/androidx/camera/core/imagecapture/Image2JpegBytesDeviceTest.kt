@@ -31,7 +31,6 @@ import androidx.camera.core.processing.Packet
 import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
@@ -41,7 +40,6 @@ import org.junit.runner.RunWith
 /** Instrument test for [Image2JpegBytes]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class Image2JpegBytesDeviceTest {
 
     private val operation = Image2JpegBytes(DeviceQuirks.getAll())
@@ -62,7 +60,7 @@ class Image2JpegBytesDeviceTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 Matrix().also { it.setScale(-1F, 1F, 320F, 240F) },
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

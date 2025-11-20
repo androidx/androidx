@@ -75,7 +75,7 @@ class WorkUpdateTest {
         Trackers(
             context = env.context,
             taskExecutor = env.taskExecutor,
-            batteryChargingTracker = fakeChargingTracker
+            batteryChargingTracker = fakeChargingTracker,
         )
     val greedyScheduler = GreedyScheduler(env, trackers)
     val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
@@ -484,7 +484,7 @@ class WorkUpdateTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    @SdkSuppress(maxSdkVersion = 25)
     fun testUpdatePeriodicWorker_preservesConstraintTrackingWorker() = runTest {
         val originRequest =
             OneTimeWorkRequest.Builder(TestWorker::class).setInitialDelay(10, HOURS).build()

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,7 +69,6 @@ private const val LongWebLink =
     "https://developer.android.com/design/ui/mobile/guides/foundations/system-bars"
 private const val PhoneUri = "tel:+123456789"
 
-@SuppressLint("NullAnnotationGroup")
 @Composable
 fun Hyperlinks() {
     Column(
@@ -79,7 +77,7 @@ fun Hyperlinks() {
                 .widthIn(max = 400.dp)
                 .verticalScroll(rememberScrollState())
                 .padding(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Sample("State-based styling through builder") {
             BasicText(
@@ -93,8 +91,8 @@ fun Hyperlinks() {
                                 focusedStyle =
                                     SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
                                 hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline),
-                                pressedStyle = SpanStyle(color = Color.Red)
-                            )
+                                pressedStyle = SpanStyle(color = Color.Red),
+                            ),
                         )
                     ) {
                         append("DEVELOPER ANDROID COM LINK")
@@ -113,7 +111,7 @@ fun Hyperlinks() {
                             styles =
                                 TextLinkStyles(
                                     SpanStyle(Color.Blue, textDecoration = TextDecoration.Underline)
-                                )
+                                ),
                         )
                     ) {
                         append("VERY")
@@ -148,7 +146,7 @@ fun Hyperlinks() {
                 withStyle(
                     SpanStyle(
                         fontWeight = FontWeight.Bold,
-                        textDecoration = TextDecoration.Underline
+                        textDecoration = TextDecoration.Underline,
                     )
                 ) {
                     withLink(LinkAnnotation.Url(PhoneUri)) { append("+1 (234) 567890") }
@@ -198,7 +196,7 @@ fun Hyperlinks() {
                     withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                     append(" link.")
                 },
-                Modifier.clickable {}
+                Modifier.clickable {},
             )
         }
         Sample("Link inside selectable text") {
@@ -228,7 +226,7 @@ fun Hyperlinks() {
                     withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                     append(" link.")
                 },
-                inlineContent = mapOf("box" to inlineTextContent)
+                inlineContent = mapOf("box" to inlineTextContent),
             )
         }
         Sample("Invalid link not opened") {
@@ -242,7 +240,7 @@ fun Hyperlinks() {
                     }
                     append(" is invalid and won't be opened.")
                 },
-                color = Color.Red
+                color = Color.Red,
             )
         }
         Sample("RTL text") {
@@ -308,7 +306,6 @@ private class AnnotatedStringSaver(private val linkInteractionListener: LinkInte
 
     @OptIn(ExperimentalTextApi::class)
     @Suppress("UNCHECKED_CAST")
-    @SuppressLint("NullAnnotationGroup")
     override fun restore(value: Any): AnnotatedString? {
         with(AnnotatedString.Saver as Saver<AnnotatedString, Any>) {
             val result = this.restore(value)
@@ -334,7 +331,7 @@ private class AnnotatedStringSaver(private val linkInteractionListener: LinkInte
                             builder.addLink(
                                 linkRange.item as LinkAnnotation.Url,
                                 linkRange.start,
-                                linkRange.end
+                                linkRange.end,
                             )
                         }
                         is LinkAnnotation.Clickable -> {
@@ -342,7 +339,7 @@ private class AnnotatedStringSaver(private val linkInteractionListener: LinkInte
                                 LinkAnnotation.Clickable(
                                     (linkRange.item as LinkAnnotation.Clickable).tag,
                                     linkRange.item.styles,
-                                    linkInteractionListener
+                                    linkInteractionListener,
                                 )
                             builder.addLink(link, linkRange.start, linkRange.end)
                         }

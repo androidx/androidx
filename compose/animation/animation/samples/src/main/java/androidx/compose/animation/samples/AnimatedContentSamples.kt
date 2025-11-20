@@ -22,6 +22,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -29,15 +30,20 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.unveilIn
+import androidx.compose.animation.veilOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
@@ -88,7 +94,7 @@ fun AnimateIncrementDecrementSample() {
                         // the size transform is still needed from number getting longer
                     }
                     .using(SizeTransform(clip = false)) // Using default spring for the size change.
-            }
+            },
         ) { targetCount ->
             // This establishes a mapping between the target state and the content in the form of a
             // Composable function. IMPORTANT: The parameter of this content lambda should
@@ -142,7 +148,7 @@ fun SimpleAnimatedContentSample() {
 private enum class ContentState {
     Foo,
     Bar,
-    Baz
+    Baz,
 }
 
 @Suppress("UNUSED_VARIABLE")
@@ -170,7 +176,7 @@ fun AnimatedContentTransitionSpecSample() {
                             // timeframe between 150ms and duration (i.e. 500ms)
                             IntSize(
                                 initialSize.width,
-                                (initialSize.height + targetSize.height) / 2
+                                (initialSize.height + targetSize.height) / 2,
                             ) at 150
                         }
                     }
@@ -205,7 +211,7 @@ fun TransitionExtensionAnimatedContentSample() {
                         tween(durationMillis = 433, delayMillis = 67)
                     else -> tween(durationMillis = 150)
                 }
-            }
+            },
         ) {
             if (it == CartState.Expanded) 0.dp else 24.dp
         }
@@ -240,7 +246,7 @@ fun TransitionExtensionAnimatedContentSample() {
                                     // timeframe between 150ms and duration (i.e. 500ms)
                                     IntSize(
                                         initialSize.width,
-                                        (initialSize.height + targetSize.height) / 2
+                                        (initialSize.height + targetSize.height) / 2,
                                     ) at 150
                                 }
                             }
@@ -308,11 +314,39 @@ fun SlideIntoContainerSample() {
 
 private enum class CartState {
     Expanded,
-    Collapsed
+    Collapsed,
 }
 
 private enum class NestedMenuState {
     Level1,
     Level2,
-    Level3
+    Level3,
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Sampled
+@Composable
+fun AnimatedContentVeil() {
+    var visible by remember { mutableStateOf(true) }
+    Column {
+        Button(onClick = { visible = !visible }) { Text("Toggle") }
+        AnimatedContent(
+            targetState = visible,
+            transitionSpec = {
+                if (targetState) {
+                    (slideInHorizontally { it } togetherWith veilOut()).apply {
+                        targetContentZIndex = 1f
+                    }
+                } else {
+                    unveilIn() togetherWith slideOutHorizontally { it }
+                }
+            },
+        ) { isVisible ->
+            if (isVisible) {
+                Text(modifier = Modifier.fillMaxSize().background(Color.Red), text = "Page 2")
+            } else {
+                Text(modifier = Modifier.fillMaxSize(), text = "Page 1")
+            }
+        }
+    }
 }

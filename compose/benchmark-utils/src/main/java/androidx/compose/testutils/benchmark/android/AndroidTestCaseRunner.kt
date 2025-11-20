@@ -31,7 +31,7 @@ import androidx.annotation.UiThread
 @UiThread
 class AndroidTestCaseRunner<T : AndroidTestCase>(
     private val testCaseFactory: () -> T,
-    private val activity: Activity
+    private val activity: Activity,
 ) {
 
     val measuredWidth: Int

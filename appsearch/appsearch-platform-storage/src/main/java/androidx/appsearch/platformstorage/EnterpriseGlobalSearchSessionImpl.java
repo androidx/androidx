@@ -22,6 +22,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
@@ -36,6 +37,7 @@ import androidx.appsearch.platformstorage.converter.GenericDocumentToPlatformCon
 import androidx.appsearch.platformstorage.converter.GetSchemaResponseToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
@@ -53,7 +55,9 @@ import java.util.concurrent.Executor;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+        version = AppSearchVersionUtil.TExtensionVersions.V_BASE)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession {
     private final android.app.appsearch.EnterpriseGlobalSearchSession mPlatformSession;
     private final Executor mExecutor;

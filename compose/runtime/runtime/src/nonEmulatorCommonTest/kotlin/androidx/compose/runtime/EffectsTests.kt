@@ -192,9 +192,9 @@ class EffectsTests {
                 "Unmountable:start",
                 "Unmountable:end",
                 "compose:end",
-                "onCommit"
+                "onCommit",
             ),
-            logHistory
+            logHistory,
         )
         mount = false
         expectChanges()
@@ -207,9 +207,9 @@ class EffectsTests {
                 "onCommit",
                 "compose:start",
                 "compose:end",
-                "onDispose"
+                "onDispose",
             ),
-            logHistory
+            logHistory,
         )
     }
 
@@ -248,7 +248,7 @@ class EffectsTests {
 
         assertArrayEquals(
             listOf("onCommit:a1", "onCommit:a2", "onCommit:b2", "onCommit:b1"),
-            logHistory
+            logHistory,
         )
         mount = false
         log("recompose")
@@ -266,9 +266,9 @@ class EffectsTests {
                 "onDispose:a2",
                 "onDispose:a1",
                 "onCommit:a1",
-                "onCommit:b1"
+                "onCommit:b1",
             ),
-            logHistory
+            logHistory,
         )
     }
 
@@ -329,9 +329,9 @@ class EffectsTests {
                 "dispose b:0",
                 "dispose a:0",
                 "onCommit a:1",
-                "onCommit b:1"
+                "onCommit b:1",
             ),
-            logHistory
+            logHistory,
         )
     }
 
@@ -365,7 +365,7 @@ class EffectsTests {
 
         assertArrayEquals(
             listOf("onCommit:0", "recompose", "recompose (key -> 345)", "dispose:0", "onCommit:1"),
-            logHistory
+            logHistory,
         )
     }
 
@@ -420,9 +420,9 @@ class EffectsTests {
                 "dispose a:0",
                 "onCommit a:1",
                 "onCommit b:1",
-                "onCommit c:1"
+                "onCommit c:1",
             ),
-            logHistory
+            logHistory,
         )
     }
 
@@ -635,11 +635,11 @@ class EffectsTests {
 fun <T> assertArrayEquals(
     expected: Collection<T>,
     actual: Collection<T>,
-    transform: (T) -> String = { "$it" }
+    transform: (T) -> String = { "$it" },
 ) {
     assertEquals(
         expected.joinToString("\n", transform = transform),
-        actual.joinToString("\n", transform = transform)
+        actual.joinToString("\n", transform = transform),
     )
 }
 

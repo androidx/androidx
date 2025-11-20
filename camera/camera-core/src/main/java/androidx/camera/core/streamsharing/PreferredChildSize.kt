@@ -31,5 +31,5 @@ internal data class PreferredChildSize(
      * The original selected size from the child's preferred sizes before any scaling, cropping, or
      * rotating.
      */
-    val originalSelectedChildSize: Size
+    val originalSelectedChildSize: Size,
 )

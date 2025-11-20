@@ -43,6 +43,9 @@ import androidx.compose.ui.platform.InspectorInfo
  * Please refer to [TransferableContent.hasMediaType] and [TransferableContent.clipMetadata] to
  * learn more about how to do proper checks on the received item.
  *
+ * Note that only [androidx.compose.foundation.text.input.TextFieldState] override of the text field
+ * supports being a content receiver.
+ *
  * @param receiveContentListener Listener to respond to the receive event. This interface also
  *   includes a set of callbacks for certain Drag-and-Drop state changes. Please checkout
  *   [ReceiveContentListener] docs for an explanation of each callback.
@@ -90,7 +93,7 @@ internal class ReceiveContentNode(var receiveContentListener: ReceiveContentList
         delegate(
             ReceiveContentDragAndDropNode(
                 receiveContentConfiguration = receiveContentConfiguration,
-                dragAndDropRequestPermission = { dragAndDropRequestPermission(it) }
+                dragAndDropRequestPermission = { dragAndDropRequestPermission(it) },
             )
         )
     }

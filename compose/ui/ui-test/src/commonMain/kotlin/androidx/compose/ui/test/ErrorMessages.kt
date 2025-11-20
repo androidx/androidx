@@ -34,7 +34,7 @@ internal fun buildErrorMessageForCountMismatch(
     selector: SemanticsSelector?,
     foundNodes: List<SemanticsNode>,
     expectedCount: Int,
-    foundNodesUnmerged: List<SemanticsNode> = emptyList()
+    foundNodesUnmerged: List<SemanticsNode> = emptyList(),
 ): String {
     val sb = StringBuilder()
 
@@ -106,7 +106,7 @@ internal fun buildErrorMessageForCountMismatch(
 internal fun buildErrorMessageForNodeMissingInTree(
     errorMessage: String,
     selector: SemanticsSelector,
-    lastSeenSemantics: String
+    lastSeenSemantics: String,
 ): String {
     val sb = StringBuilder()
 
@@ -124,7 +124,7 @@ internal fun buildErrorMessageForNodeMissingInTree(
 internal fun buildErrorMessageForAssertAnyFail(
     selector: SemanticsSelector,
     nodes: List<SemanticsNode>,
-    assertionMatcher: SemanticsMatcher
+    assertionMatcher: SemanticsMatcher,
 ): String {
     val sb = StringBuilder()
 
@@ -143,7 +143,7 @@ internal fun buildErrorMessageForAssertAnyFail(
 internal fun buildErrorMessageForAssertAllFail(
     selector: SemanticsSelector,
     nodesNotMatching: List<SemanticsNode>,
-    assertionMatcher: SemanticsMatcher
+    assertionMatcher: SemanticsMatcher,
 ): String {
     val sb = StringBuilder()
 
@@ -163,7 +163,7 @@ internal fun buildErrorMessageForAssertAllFail(
 
 internal fun buildErrorMessageForAtLeastOneNodeExpected(
     errorMessage: String,
-    selector: SemanticsSelector
+    selector: SemanticsSelector,
 ): String {
     val sb = StringBuilder()
 
@@ -180,7 +180,7 @@ internal fun buildErrorMessageForAtLeastOneNodeExpected(
 internal fun buildGeneralErrorMessage(
     errorMessage: String,
     selector: SemanticsSelector,
-    node: SemanticsNode
+    node: SemanticsNode,
 ): String {
     val sb = StringBuilder()
 
@@ -199,7 +199,7 @@ internal fun buildGeneralErrorMessage(
 internal fun buildIndexErrorMessage(
     index: Int,
     selector: SemanticsSelector,
-    nodes: List<SemanticsNode>
+    nodes: List<SemanticsNode>,
 ): String {
     val sb = StringBuilder()
 

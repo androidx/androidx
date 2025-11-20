@@ -204,7 +204,7 @@ class LiveDataTest {
         assertThat(throwable, instanceOf(IllegalArgumentException::class.java))
         assertThat(
             throwable.message,
-            `is`("Cannot add the same observer with different lifecycles")
+            `is`("Cannot add the same observer with different lifecycles"),
         )
     }
 
@@ -797,7 +797,7 @@ class LiveDataTest {
         liveData.removeObserver(observer2)
         assertThat<List<Boolean>>(
             activeCalls,
-            equalTo(mutableListOf(true, false, true, false, true))
+            equalTo(mutableListOf(true, false, true, false, true)),
         )
     }
 

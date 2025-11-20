@@ -42,7 +42,7 @@ internal abstract class RectListNode(open var rect: ((LayoutCoordinates) -> Rect
                     boundsInRoot.left.roundToInt(),
                     boundsInRoot.top.roundToInt(),
                     boundsInRoot.right.roundToInt(),
-                    boundsInRoot.bottom.roundToInt()
+                    boundsInRoot.bottom.roundToInt(),
                 )
             } else {
                 calcBounds(coordinates, rect!!.invoke(coordinates))
@@ -74,7 +74,7 @@ internal abstract class RectListNode(open var rect: ((LayoutCoordinates) -> Rect
 
     private fun calcBounds(
         layoutCoordinates: LayoutCoordinates,
-        rect: Rect
+        rect: Rect,
     ): android.graphics.Rect {
         val root = layoutCoordinates.findRootCoordinates()
         val topLeft = root.localPositionOf(layoutCoordinates, rect.topLeft)
@@ -91,7 +91,7 @@ internal abstract class RectListNode(open var rect: ((LayoutCoordinates) -> Rect
             left.roundToInt(),
             top.roundToInt(),
             right.roundToInt(),
-            bottom.roundToInt()
+            bottom.roundToInt(),
         )
     }
 }

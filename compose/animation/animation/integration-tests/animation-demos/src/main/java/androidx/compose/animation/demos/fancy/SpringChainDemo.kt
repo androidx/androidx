@@ -61,7 +61,7 @@ fun SpringChainDemo() {
     ) {
         Text(
             modifier = Modifier.align(Alignment.Center),
-            text = "Since we are here, why not drag me around?"
+            text = "Since we are here, why not drag me around?",
         )
         val size = vibrantColors.size
         val followers = remember { Array<State<Offset>>(size) { mutableStateOf(Offset.Zero) } }
@@ -90,7 +90,7 @@ fun SpringChainDemo() {
                 .size(circleSize)
                 .clickable(
                     indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
+                    interactionSource = remember { MutableInteractionSource() },
                 ) {
                     expanded = !expanded
                 }
@@ -105,7 +105,7 @@ fun SpringChainDemo() {
                     Modifier.size(30.dp).align(Alignment.Center).graphicsLayer {
                         this.rotationZ = rotation
                     },
-                tint = Color.Gray
+                tint = Color.Gray,
             )
         }
     }
@@ -119,5 +119,5 @@ private val vibrantColors =
         Color(0xffffc7ed),
         Color(0xffffdcab),
         Color(0xffd5ffb0),
-        Color(0xffbaefff)
+        Color(0xffbaefff),
     )

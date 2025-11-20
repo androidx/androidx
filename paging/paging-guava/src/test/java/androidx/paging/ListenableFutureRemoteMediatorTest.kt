@@ -37,7 +37,7 @@ class ListenableFutureRemoteMediatorTest {
             object : ListenableFutureRemoteMediator<Int, Int>() {
                 override fun loadFuture(
                     loadType: LoadType,
-                    state: PagingState<Int, Int>
+                    state: PagingState<Int, Int>,
                 ): ListenableFuture<MediatorResult> {
                     fail("Unexpected call")
                 }
@@ -54,7 +54,7 @@ class ListenableFutureRemoteMediatorTest {
             object : ListenableFutureRemoteMediator<Int, Int>() {
                 override fun loadFuture(
                     loadType: LoadType,
-                    state: PagingState<Int, Int>
+                    state: PagingState<Int, Int>,
                 ): ListenableFuture<MediatorResult> {
                     fail("Unexpected call")
                 }

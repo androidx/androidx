@@ -57,8 +57,8 @@ package androidx.compose.ui.test {
 package androidx.compose.ui.test.junit4 {
 
   public final class AndroidComposeTestRule<R extends org.junit.rules.TestRule, A extends androidx.activity.ComponentActivity> implements androidx.compose.ui.test.junit4.ComposeContentTestRule {
-    ctor public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     ctor @androidx.compose.ui.test.ExperimentalTestApi public AndroidComposeTestRule(R activityRule, optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
+    ctor public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public A getActivity();
@@ -90,9 +90,9 @@ package androidx.compose.ui.test.junit4 {
   }
 
   public final class AndroidComposeTestRule_androidKt {
+    method public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule();
     method public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass);
     method @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext);
-    method public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule();
     method @androidx.compose.ui.test.ExperimentalTestApi public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
     method public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule();
     method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule(kotlin.coroutines.CoroutineContext effectContext);

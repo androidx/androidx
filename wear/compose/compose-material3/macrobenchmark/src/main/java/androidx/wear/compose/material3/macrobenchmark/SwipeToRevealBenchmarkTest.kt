@@ -28,5 +28,6 @@ class SwipeToRevealBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = SwipeToRevealBenchmark,
-        actionSuffix = "SWIPE_TO_REVEAL_ACTIVITY"
+        actionSuffix = "SWIPE_TO_REVEAL_ACTIVITY",
+        iterations = 3,
     )

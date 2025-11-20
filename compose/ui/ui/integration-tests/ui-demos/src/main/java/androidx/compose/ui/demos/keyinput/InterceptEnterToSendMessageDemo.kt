@@ -88,7 +88,7 @@ fun InterceptEnterToSendMessageDemo() {
                             false
                         }
                     },
-                textStyle = TextStyle(color = Color.Blue)
+                textStyle = TextStyle(color = Color.Blue),
             )
         }
     }
@@ -98,6 +98,6 @@ private fun TextFieldValue.insertString(value: String): TextFieldValue {
     val cursorLocation = selection.start + value.length
     return copy(
         annotatedString.replaceRange(selection.start, selection.end, value).toString(),
-        TextRange(cursorLocation, cursorLocation)
+        TextRange(cursorLocation, cursorLocation),
     )
 }

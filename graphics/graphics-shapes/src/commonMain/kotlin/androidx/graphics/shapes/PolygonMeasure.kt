@@ -30,7 +30,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
         measurer: Measurer,
         features: List<ProgressableFeature>,
         cubics: List<Cubic>,
-        outlineProgress: FloatList
+        outlineProgress: FloatList,
     ) {
         require(outlineProgress.size == cubics.size + 1) {
             "Outline progress size is expected to be the cubics size + 1"
@@ -99,7 +99,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
 
         internal fun updateProgressRange(
             startOutlineProgress: Float = this.startOutlineProgress,
-            endOutlineProgress: Float = this.endOutlineProgress
+            endOutlineProgress: Float = this.endOutlineProgress,
         ) {
             require(endOutlineProgress >= startOutlineProgress) {
                 "endOutlineProgress is expected to be equal or greater than startOutlineProgress"
@@ -221,7 +221,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
                 add(
                     ProgressableFeature(
                         positiveModulo(features[i].progress - cuttingPoint, 1f),
-                        features[i].feature
+                        features[i].feature,
                     )
                 )
             }
@@ -280,7 +280,7 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
                     add(
                         ProgressableFeature(
                             positiveModulo((outlineProgress[ix] + outlineProgress[ix + 1]) / 2, 1f),
-                            featureToCubic[i].first
+                            featureToCubic[i].first,
                         )
                     )
                 }

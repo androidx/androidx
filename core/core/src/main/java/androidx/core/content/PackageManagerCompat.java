@@ -197,12 +197,9 @@ public final class PackageManagerCompat {
     public static boolean areUnusedAppRestrictionsAvailable(
             @NonNull PackageManager packageManager) {
         boolean restrictionsBuiltIntoOs = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-        boolean isOsMThroughQ =
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        && (Build.VERSION.SDK_INT < Build.VERSION_CODES.R);
         boolean hasBackportFeature = getPermissionRevocationVerifierApp(packageManager) != null;
 
-        return restrictionsBuiltIntoOs || (isOsMThroughQ && hasBackportFeature);
+        return restrictionsBuiltIntoOs || hasBackportFeature;
     }
 
     /**

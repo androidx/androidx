@@ -51,11 +51,11 @@ class KeyframeSplineAnimationTest {
         // Change start/end value, the animation value and velocity should update to reflect it
         assertEquals(
             AnimationVector2D(0.5f, 1.25f),
-            animation.valueAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f))
+            animation.valueAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f)),
         )
         assertEquals(
             AnimationVector2D(-4f, -10f),
-            animation.velocityAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f))
+            animation.velocityAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f)),
         )
     }
 
@@ -91,7 +91,7 @@ class KeyframeSplineAnimationTest {
                     playTimeNanos = 1L,
                     initialValue = AnimationVector1D(0f),
                     targetValue = AnimationVector1D(0f),
-                    initialVelocity = AnimationVector1D(0f)
+                    initialVelocity = AnimationVector1D(0f),
                 )
                 .let { AnimationVector1D(it.value) } // Copy since vector is reused internally
         }
@@ -101,7 +101,7 @@ class KeyframeSplineAnimationTest {
                     playTimeNanos = 1000 * MillisToNanos,
                     initialValue = AnimationVector1D(0f),
                     targetValue = AnimationVector1D(0f),
-                    initialVelocity = AnimationVector1D(0f)
+                    initialVelocity = AnimationVector1D(0f),
                 )
                 .let { AnimationVector1D(it.value) } // Copy since vector is reused internally
         }
@@ -184,13 +184,13 @@ class KeyframeSplineAnimationTest {
             animation.valueAt(
                 playTimeMillis = 0L,
                 start = Offset(-1f, -1f), // Requested start is -1f, -1f
-                end = Offset(-1f, -1f) // Requested end is -1f, -1f
+                end = Offset(-1f, -1f), // Requested end is -1f, -1f
             )
         val endValue =
             animation.valueAt(
                 playTimeMillis = 500L,
                 start = Offset(-1f, -1f),
-                end = Offset(-1f, -1f)
+                end = Offset(-1f, -1f),
             )
         assertEquals(AnimationVector2D(0f, 0f), startValue)
         assertEquals(AnimationVector2D(2f, 2f), endValue)
@@ -298,7 +298,7 @@ class KeyframeSplineAnimationTest {
 
                 Offset(1f, 1f) at 100
                 Offset(2f, 2f) at 200
-            }
+            },
         )
 
         animationA = KeyframesWithSplineSpec(config, Float.NaN)
@@ -374,13 +374,13 @@ class KeyframeSplineAnimationTest {
         playTimeMillis: Long,
         start: Offset = Offset.Zero,
         end: Offset = Offset(2f, 2f),
-        initialVelocity: Offset = Offset.Zero
+        initialVelocity: Offset = Offset.Zero,
     ): AnimationVector2D =
         getValueFromMillis(
             playTimeMillis = playTimeMillis,
             start = AnimationVector2D(start.x, start.y),
             end = AnimationVector2D(end.x, end.y),
-            startVelocity = AnimationVector2D(initialVelocity.x, initialVelocity.y)
+            startVelocity = AnimationVector2D(initialVelocity.x, initialVelocity.y),
         )
 
     /**
@@ -392,12 +392,12 @@ class KeyframeSplineAnimationTest {
         playTimeMillis: Long,
         start: Offset = Offset.Zero,
         end: Offset = Offset(2f, 2f),
-        initialVelocity: Offset = Offset.Zero
+        initialVelocity: Offset = Offset.Zero,
     ): AnimationVector2D =
         getVelocityFromNanos(
             playTimeNanos = playTimeMillis * MillisToNanos,
             initialValue = AnimationVector2D(start.x, start.y),
             targetValue = AnimationVector2D(end.x, end.y),
-            initialVelocity = AnimationVector2D(initialVelocity.x, initialVelocity.y)
+            initialVelocity = AnimationVector2D(initialVelocity.x, initialVelocity.y),
         )
 }

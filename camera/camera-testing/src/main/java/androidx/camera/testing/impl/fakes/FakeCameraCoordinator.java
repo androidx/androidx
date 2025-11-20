@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.concurrent.CameraCoordinator;
+import androidx.camera.core.impl.CameraUpdateException;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -42,6 +43,8 @@ public class FakeCameraCoordinator implements CameraCoordinator {
     private @NonNull List<List<CameraSelector>> mConcurrentCameraSelectors;
     private @NonNull List<CameraInfo> mActiveConcurrentCameraInfos;
     private final @NonNull List<ConcurrentCameraModeListener> mConcurrentCameraModeListeners;
+    private boolean mShouldThrow = false;
+    private int mCameraUpdateCount = 0;
 
     @CameraOperatingMode private int mCameraOperatingMode;
 
@@ -129,5 +132,22 @@ public class FakeCameraCoordinator implements CameraCoordinator {
         mConcurrentCameraSelectors.clear();
         mActiveConcurrentCameraInfos.clear();
         mConcurrentCameraModeListeners.clear();
+    }
+
+    public int getCameraUpdateCount() {
+        return mCameraUpdateCount;
+    }
+
+    @Override
+    public void onCamerasUpdated(@NonNull List<String> cameraIds) throws
+            CameraUpdateException {
+        mCameraUpdateCount++;
+        if (mShouldThrow) {
+            throw new CameraUpdateException("Test failure");
+        }
+    }
+
+    public void setCamerasUpdateShouldThrow(boolean shouldThrow) {
+        mShouldThrow = shouldThrow;
     }
 }

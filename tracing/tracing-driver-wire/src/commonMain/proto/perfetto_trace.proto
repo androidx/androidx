@@ -1,0 +1,298 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+// NOTE: We get away with a copy of the proto definitions here only because in this module
+// we are using mutable types. Otherwise benchmark's definitions and this would collide and cause
+// builds to fail. Consider re-packaging this to a separate package in the future. b/392165540
+package perfetto.protos;
+
+///////////////////////////////////////////////////////////////////////////////
+// NOTE: THIS FILE IS A MANUALLY MINIFIED VERSION OF PERFETTO_TRACE.PROTO
+///////////////////////////////////////////////////////////////////////////////
+
+message EventName {
+  uint64 iid = 1;
+  string name = 2;
+}
+
+message InternedData {
+  repeated EventName event_names = 2;
+}
+
+message TracePacketDefaults {
+  uint32 timestamp_clock_id = 58;
+  TrackEventDefaults track_event_defaults = 11;
+}
+
+// A random unique ID that identifies the trace.
+// This message has been introduced in v32. Prior to that, the UUID was
+// only (optionally) present in the TraceConfig.trace_uuid_msb/lsb fields.
+message TraceUuid {
+  int64 msb = 1;
+  int64 lsb = 2;
+}
+
+message ProcessDescriptor {
+  int32 pid = 1; // Making this required to avoid boxing an Int
+  repeated string cmdline = 2;
+  string process_name = 6;
+  // Labels can be used to further describe properties of the work performed by
+  // the process. For example, these can be used by Chrome renderer process to
+  // provide titles of frames being rendered.
+  repeated string process_labels = 8;
+}
+
+message TrackEvent {
+  // non-interned variant.
+  repeated string categories = 22;
+  oneof name_field {
+    // non-interned variant.
+    string name = 23;
+  }
+  enum Type {
+    TYPE_SLICE_UNSPECIFIED = 0;
+    TYPE_SLICE_BEGIN = 1;
+    TYPE_SLICE_END = 2;
+    TYPE_INSTANT = 3;
+    TYPE_COUNTER = 4;
+  }
+  Type type = 9;
+  uint64 track_uuid = 11; // Making this required to avoid boxing
+  oneof counter_value_field {
+    int64 counter_value = 30;
+    double double_counter_value = 44;
+  }
+  repeated fixed64 flow_ids = 47 [packed = false];
+  // An opaque identifier to correlate this slice with other slices that are
+  // considered part of the same logical operation, even if they are not
+  // causally connected. Examples uses of a correlation id might be the number
+  // of frame going through various stages of rendering in a GPU, the id for an
+  // RPC request going through a distributed system, or the id of a network
+  // request going through various stages of processing by the kernel.
+  //
+  // NOTE: if the events *are* causually connected, you probably want to use
+  // flows instead of OR in addition to correlation ids.
+  //
+  // UIs can use this identifier to visually link these slices, for instance,
+  // by assigning them a consistent color or highlighting the entire correlated
+  // set when one slice is hovered.
+  //
+  // Only one field within this 'oneof' should be set to define the correlation.
+  oneof correlation_id_field {
+    // A 64-bit unsigned integer used as the correlation ID.
+    //
+    // Best for performance and compact traces if the identifier is naturally
+    // numerical or can be easily mapped to one by the trace producer.
+    uint64 correlation_id = 52;
+
+    // A string value used as the correlation ID.
+    //
+    // Offers maximum flexibility for human-readable or complex identifiers
+    // (e.g., GUIDs). Note: Using many unique, long strings may increase trace
+    // size. For frequently repeated string identifiers, consider
+    // 'correlation_id_string_iid'.
+    string correlation_id_str = 53;
+
+    // An interned string identifier (an IID) for correlation.
+    //
+    // This 64-bit ID refers to a string defined in the 'correlation_id_str'
+    // field within the packet sequence's InternedData. This approach combines
+    // the descriptiveness and uniqueness of strings with the efficiency of
+    // integer IDs for storage and comparison, especially for identifiers that
+    // repeat across many events.
+    uint64 correlation_id_str_iid = 54;
+  }
+
+  // ---------------------------------------------------------------------------
+  // TrackEvent arguments:
+  // ---------------------------------------------------------------------------
+
+  // Unstable key/value annotations shown in the trace viewer but not intended
+  // for metrics use.
+  repeated DebugAnnotation debug_annotations = 4;
+}
+
+// Proto representation of untyped key/value annotations provided in TRACE_EVENT
+// macros. Users of the Perfetto SDK should prefer to use the
+// perfetto::TracedValue API to fill these protos, rather than filling them
+// manually.
+//
+// Debug annotations are intended for debug use and are not considered a stable
+// API of the trace contents. Trace-based metrics that use debug annotation
+// values are prone to breakage, so please rely on typed TrackEvent fields for
+// these instead.
+//
+// DebugAnnotations support nested arrays and dictionaries. Each entry is
+// encoded as a single DebugAnnotation message. Only dictionary entries
+// set the "name" field. The TrackEvent message forms an implicit root
+// dictionary.
+//
+// Example TrackEvent with nested annotations:
+//   track_event {
+//     debug_annotations {
+//       name: "foo"
+//       dict_entries {
+//         name: "a"
+//         bool_value: true
+//       }
+//       dict_entries {
+//         name: "b"
+//         int_value: 123
+//       }
+//     }
+//     debug_annotations {
+//       name: "bar"
+//       array_values {
+//         string_value: "hello"
+//       }
+//       array_values {
+//         string_value: "world"
+//       }
+//     }
+//   }
+//
+// Next ID: 18.
+// Reserved ID: 15
+message DebugAnnotation {
+  // Name fields are set only for dictionary entries.
+  oneof name_field {
+    // interned DebugAnnotationName.
+    uint64 name_iid = 1;
+    // non-interned variant.
+    string name = 10;
+  }
+
+  oneof value {
+    bool bool_value = 2;
+    uint64 uint_value = 3;
+    int64 int_value = 4;
+    double double_value = 5;
+    // interned and non-interned variants of strings.
+    string string_value = 6;
+    // Corresponds to |debug_annotation_string_values| field in InternedData.
+    uint64 string_value_iid = 17;
+  }
+
+  repeated DebugAnnotation dict_entries = 11;
+  repeated DebugAnnotation array_values = 12;
+}
+
+message ThreadDescriptor {
+  int32 pid = 1;
+  int32 tid = 2;
+  string thread_name = 5;
+}
+
+message CounterDescriptor {
+  // Built-in counters, usually with special meaning in the client library,
+  // trace processor, legacy JSON format, or UI. Trace processor will infer a
+  // track name from the enum value if none is provided in TrackDescriptor.
+  enum BuiltinCounterType {
+    COUNTER_UNSPECIFIED = 0;
+
+    // Thread-scoped counters. The thread's track should be specified via
+    // |parent_uuid| in the TrackDescriptor for such a counter.
+
+    // implies UNIT_TIME_NS.
+    COUNTER_THREAD_TIME_NS = 1;
+
+    // implies UNIT_COUNT.
+    COUNTER_THREAD_INSTRUCTION_COUNT = 2;
+  }
+
+  // Type of the values for the counters - to supply lower granularity units,
+  // see also |unit_multiplier|.
+  enum Unit {
+    UNIT_UNSPECIFIED = 0;
+    UNIT_TIME_NS = 1;
+    UNIT_COUNT = 2;
+    UNIT_SIZE_BYTES = 3;
+  }
+
+  // For built-in counters (e.g. thread time). Custom user-specified counters
+  // (e.g. those emitted by TRACE_COUNTER macros of the client library)
+  // shouldn't set this, and instead provide a counter name via TrackDescriptor.
+  BuiltinCounterType type = 1;
+
+  // Names of categories of the counter (usually for user-specified counters).
+  // In the client library, categories are a way to turn groups of individual
+  // counters (or events) on or off.
+  repeated string categories = 2;
+
+  // Type of the counter's values. Built-in counters imply a value for this
+  // field.
+  Unit unit = 3;
+
+  // In order to use a unit not defined as a part of |Unit|, a free-form unit
+  // name can be used instead.
+  string unit_name = 6;
+
+  // Multiplication factor of this counter's values, e.g. to supply
+  // COUNTER_THREAD_TIME_NS timestamps in microseconds instead.
+  int64 unit_multiplier = 4;
+
+  // Whether values for this counter are provided as delta values. Only
+  // supported for counters that are emitted on a single packet-sequence (e.g.
+  // thread time). Counter values in subsequent packets on the current packet
+  // sequence will be interpreted as delta values from the sequence's most
+  // recent value for the counter. When incremental state is cleared, the
+  // counter value is considered to be reset to 0. Thus, the first value after
+  // incremental state is cleared is effectively an absolute value.
+  bool is_incremental = 5;
+}
+
+message TrackDescriptor {
+  uint64 uuid = 1;
+  string name = 2;
+  uint64 parent_uuid = 5;
+  ProcessDescriptor process = 3;
+  ThreadDescriptor thread = 4;
+  CounterDescriptor counter = 8;
+  bool disallow_merging_with_system_tracks = 9;
+}
+
+message TrackEventDefaults {
+  uint64 track_uuid = 11;
+}
+
+message TracePacket {
+  uint64 timestamp = 8;
+  uint32 timestamp_clock_id = 58;
+  oneof data {
+    TrackEvent track_event = 11;
+    TrackDescriptor track_descriptor = 60;
+    TraceUuid trace_uuid = 89;
+    bytes compressed_packets = 50; // kept for testing purposes
+  }
+  uint32 trusted_packet_sequence_id = 10;
+  InternedData interned_data = 12;
+
+  enum SequenceFlags {
+    SEQ_UNSPECIFIED = 0;
+    SEQ_INCREMENTAL_STATE_CLEARED = 1;
+    SEQ_NEEDS_INCREMENTAL_STATE = 2;
+  };
+  uint32 sequence_flags = 13;
+  bool incremental_state_cleared = 41;
+  TracePacketDefaults trace_packet_defaults = 59;
+  optional bool previous_packet_dropped = 42;
+}
+
+message Trace {
+  repeated TracePacket packet = 1;
+}

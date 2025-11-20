@@ -78,7 +78,7 @@ fun MultiDimensionalAnimationDemo() {
                 .clickable(
                     onClick = onClick,
                     indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
+                    interactionSource = remember { MutableInteractionSource() },
                 )
     ) {
         width = size.width
@@ -91,5 +91,5 @@ fun MultiDimensionalAnimationDemo() {
 private enum class AnimState {
     Collapsed,
     Expanded,
-    PutAway
+    PutAway,
 }

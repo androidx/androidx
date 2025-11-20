@@ -80,7 +80,7 @@ constructor(
     surfaceView: SurfaceView,
     callback: Callback<T>,
     @Suppress("ListenerLast") glRenderer: GLRenderer? = null,
-    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
+    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888,
 ) {
 
     private val mFrontBufferedCallbacks =
@@ -90,7 +90,7 @@ constructor(
                 width: Int,
                 height: Int,
                 bufferInfo: BufferInfo,
-                transform: FloatArray
+                transform: FloatArray,
             ) {
                 if (mPendingClear.compareAndSet(true, false)) {
                     waitForFrontBufferFence()
@@ -104,7 +104,7 @@ constructor(
                         height,
                         bufferInfo,
                         transform,
-                        param
+                        param,
                     )
                 }
                 if (result > 0) {
@@ -116,7 +116,7 @@ constructor(
                 targetSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction,
                 frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
+                syncFence: SyncFenceCompat?,
             ) {
                 mFrontBufferSyncStrategy.isVisible = true
                 mFrontLayerBuffer = frameBuffer
@@ -124,7 +124,7 @@ constructor(
                 transaction.setBuffer(
                     targetSurfaceControl,
                     frameBuffer.hardwareBuffer,
-                    syncFence
+                    syncFence,
                 ) { releaseFence ->
                     mFrontBufferReleaseFence?.close()
                     mFrontBufferReleaseFence = releaseFence
@@ -197,7 +197,7 @@ constructor(
                 width: Int,
                 height: Int,
                 bufferInfo: BufferInfo,
-                transform: FloatArray
+                transform: FloatArray,
             ) {
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 GLES20.glClearColor(0f, 0f, 0f, 0f)
@@ -208,7 +208,7 @@ constructor(
                     height,
                     bufferInfo,
                     transform,
-                    mSegments.poll() ?: emptyList()
+                    mSegments.poll() ?: emptyList(),
                 )
             }
 
@@ -216,7 +216,7 @@ constructor(
                 targetSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction,
                 frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
+                syncFence: SyncFenceCompat?,
             ) {
                 mFrontBufferSyncStrategy.isVisible = false
                 transaction.apply {
@@ -226,7 +226,7 @@ constructor(
                         callback.onMultiBufferedLayerRenderComplete(
                             frontSurfaceControl,
                             targetSurfaceControl,
-                            transaction
+                            transaction,
                         )
                     }
                 }
@@ -234,7 +234,7 @@ constructor(
 
             override fun onBufferReleased(
                 frameBuffer: FrameBuffer,
-                releaseFence: SyncFenceCompat?
+                releaseFence: SyncFenceCompat?,
             ) {
                 if (isValid()) {
                     mPendingClear.set(true)
@@ -261,7 +261,7 @@ constructor(
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
                 mSurfaceView?.let { surfaceView -> update(surfaceView, width, height) }
             }
@@ -278,7 +278,7 @@ constructor(
 
             override fun surfaceRedrawNeededAsync(
                 holder: SurfaceHolder,
-                drawingFinished: Runnable
+                drawingFinished: Runnable,
             ) {
                 requestDraw(drawingFinished)
             }
@@ -458,7 +458,7 @@ constructor(
             Log.w(
                 TAG,
                 "Invalid dimensions provided, width and height must be > 0. " +
-                    "width: $width height: $height"
+                    "width: $width height: $height",
             )
             return
         }
@@ -486,7 +486,7 @@ constructor(
                         width,
                         height,
                         transformHint,
-                        mMultiBufferedRenderCallbacks
+                        mMultiBufferedRenderCallbacks,
                     )
                     .setGLRenderer(mGLRenderer)
                     .setUsageFlags(FrontBufferUtils.BaseFlags)
@@ -499,7 +499,7 @@ constructor(
                         width,
                         height,
                         transformHint,
-                        mFrontBufferedCallbacks
+                        mFrontBufferedCallbacks,
                     )
                     .setGLRenderer(mGLRenderer)
                     .setMaxBuffers(1)
@@ -551,7 +551,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to front buffered layer when " +
-                    "GLFrontBufferedRenderer has been released"
+                    "GLFrontBufferedRenderer has been released",
             )
         }
     }
@@ -582,7 +582,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "GLFrontBufferedRenderer has been released"
+                    "GLFrontBufferedRenderer has been released",
             )
         }
     }
@@ -621,7 +621,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "GLFrontBufferedRenderer has been released"
+                    "GLFrontBufferedRenderer has been released",
             )
         }
     }
@@ -642,7 +642,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to cancel rendering to front buffer after " +
-                    "GLFrontBufferedRenderer has been released"
+                    "GLFrontBufferedRenderer has been released",
             )
         }
     }
@@ -659,7 +659,7 @@ constructor(
         } else {
             Log.w(
                 TAG,
-                "Attempt to execute runnable after GLFrontBufferedRenderer has " + "been released"
+                "Attempt to execute runnable after GLFrontBufferedRenderer has " + "been released",
             )
         }
     }
@@ -825,7 +825,7 @@ constructor(
             height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
-            param: T
+            param: T,
         )
 
         /**
@@ -902,7 +902,7 @@ constructor(
             height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
-            params: Collection<T>
+            params: Collection<T>,
         )
 
         /**
@@ -921,7 +921,7 @@ constructor(
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }
@@ -947,7 +947,7 @@ constructor(
         fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             multiBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }

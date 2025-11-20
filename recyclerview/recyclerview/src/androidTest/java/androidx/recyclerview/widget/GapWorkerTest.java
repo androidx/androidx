@@ -22,11 +22,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -171,7 +169,6 @@ public class GapWorkerTest {
         assertEquals(900, list.get(3).distanceToItem);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void gapWorkerWithoutLayout() {
         RecyclerView recyclerView = new RecyclerView(getContext());

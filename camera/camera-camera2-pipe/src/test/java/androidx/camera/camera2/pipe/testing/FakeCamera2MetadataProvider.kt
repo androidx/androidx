@@ -35,12 +35,12 @@ class FakeCamera2MetadataProvider(
 
     override suspend fun getCameraExtensionMetadata(
         cameraId: CameraId,
-        extension: Int
+        extension: Int,
     ): CameraExtensionMetadata = awaitCameraExtensionMetadata(cameraId, extension)
 
     override fun awaitCameraExtensionMetadata(
         cameraId: CameraId,
-        extension: Int
+        extension: Int,
     ): CameraExtensionMetadata = awaitCameraMetadata(cameraId).awaitExtensionMetadata(extension)
 
     override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> =

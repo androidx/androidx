@@ -6,7 +6,7 @@ BuilderSetStyle: androidx.work.testing.TestListenableWorkerBuilder#from(android.
 
 
 InvalidNullabilityOverride: androidx.work.testing.SynchronousExecutor#execute(Runnable) parameter #0:
-    Invalid nullability on parameter `command` in method `execute`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type java.lang.Runnable in parameter `command` in method `execute`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):

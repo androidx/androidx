@@ -18,17 +18,17 @@ package androidx.build.checkapi
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation.Companion.isResourceApiFilename
+import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.version
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import kotlin.io.path.name
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 enum class ApiType {
     CLASSAPI,
-    RESOURCEAPI
+    RESOURCEAPI,
 }
 
 /**
@@ -41,7 +41,8 @@ fun Project.getRequiredCompatibilityApiFile(): File? {
     return getRequiredCompatibilityApiFileFromDir(
         project.getApiFileDirectory(),
         project.version(),
-        ApiType.CLASSAPI
+        ApiType.CLASSAPI,
+        enforceVersionContinuity = isWriteVersionedApiFilesEnabled(),
     )
 }
 
@@ -68,16 +69,18 @@ fun getApiFileVersion(version: Version): Version {
                 "Did you mean $suggestedVersion?"
         )
     }
-    val extra = if (version.patch != 0) "" else version.extra ?: ""
-    return Version(version.major, version.minor, 0, extra)
+    return Version(
+        major = version.major,
+        minor = version.minor,
+        patch = 0,
+        preRelease = if (version.patch != 0) null else version.preRelease,
+        buildMetadata = null,
+    )
 }
 
 /** Whether it is allowed for an artifact to have this version */
 fun isValidArtifactVersion(version: Version): Boolean {
-    if (version.patch != 0 && (version.isAlpha() || version.isBeta() || version.isDev())) {
-        return false
-    }
-    return true
+    return !(version.patch != 0 && (version.isAlpha() || version.isBeta() || version.isDev()))
 }
 
 /**
@@ -88,34 +91,56 @@ fun isValidArtifactVersion(version: Version): Boolean {
 fun getRequiredCompatibilityApiFileFromDir(
     apiDir: File,
     apiVersion: Version,
-    apiType: ApiType
+    apiType: ApiType,
+    enforceVersionContinuity: Boolean = true,
 ): File? {
-    var highestPath: Path? = null
-    var highestVersion: Version? = null
-
     if (!apiDir.exists()) {
         return null
     }
-    // Find the path with highest version that is lower than the current API version.
-    Files.newDirectoryStream(apiDir.toPath()).forEach { path ->
-        val pathName = path.name
-        if (
-            (apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
-                (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
-        ) {
-            val pathVersion = Version.parseFilenameOrNull(pathName)
+
+    val stream = Files.newDirectoryStream(apiDir.toPath())
+    val versions =
+        stream.mapNotNull { path ->
+            val pathName = path.name
             if (
-                pathVersion != null &&
-                    (highestVersion == null || pathVersion > highestVersion!!) &&
-                    pathVersion <= apiVersion &&
-                    pathVersion.isFinalApi() &&
-                    pathVersion.major == apiVersion.major
+                (apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
+                    (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
             ) {
-                highestPath = path
-                highestVersion = pathVersion
+                val pathVersion = Version.parseFilenameOrNull(pathName)
+                if (pathVersion == null) return@mapNotNull null
+                return@mapNotNull pathVersion to path
+            }
+            return@mapNotNull null
+        }
+    stream.close()
+
+    val sortedVersions = versions.sortedBy { it.first }
+
+    if (enforceVersionContinuity) {
+        // Validate that we are not skipping major or minor versions.
+        sortedVersions.zipWithNext().forEach { (older, newer) ->
+            val olderVersion = older.first
+            val newerVersion = newer.first
+            check(olderVersion.major + 1 >= newerVersion.major) {
+                "Unexpected jump in version from $olderVersion to $newerVersion"
+            }
+            check(olderVersion.minor + 1 >= newerVersion.minor) {
+                "Unexpected jump in version from $olderVersion to $newerVersion"
+            }
+        }
+        sortedVersions.lastOrNull()?.let { (version, _) ->
+            check(version.major + 1 >= apiVersion.major) {
+                "Unexpected jump in version from $version to current version $apiVersion"
+            }
+            check(version.minor + 1 >= apiVersion.minor) {
+                "Unexpected jump in version from $version to current version $apiVersion"
             }
         }
     }
 
-    return highestPath?.toFile()
+    // Find the path with highest version that is the same major version as the current API version.
+    return sortedVersions
+        .lastOrNull { it.first.major == apiVersion.major && it.first <= apiVersion }
+        ?.second
+        ?.toFile()
 }

@@ -39,7 +39,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4::class)
 class JobSchedulerNamespaceTest {
     private val env = TestEnv(Configuration.Builder().build())

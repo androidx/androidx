@@ -55,15 +55,24 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     /** Returns a new vector multiplied by a scalar amount */
     public inline operator fun times(c: Float): Vector2 = Vector2(x * c, y * c)
 
-    /** Returns a new vector with the product of this vector and the [other] vector. */
-    public inline operator fun times(other: Vector2): Vector2 =
-        Vector2(this.x * other.x, this.y * other.y)
+    /**
+     * Returns a new vector with each component of this vector multiplied by each corresponding
+     * component of the [other] vector.
+     */
+    public inline fun scale(other: Vector2): Vector2 = Vector2(this.x * other.x, this.y * other.y)
 
     /** Returns a new vector with this vector divided by a scalar amount. */
     public inline operator fun div(c: Float): Vector2 = Vector2(x / c, y / c)
 
-    /** Returns a new vector with this vector divided by the [other] vector. */
-    public inline operator fun div(other: Vector2): Vector2 = Vector2(x / other.x, y / other.y)
+    /** Returns the component-wise multiplicative inverse of this vector. */
+    public fun inverse(): Vector2 {
+        if (this.x == 0f || this.y == 0f) {
+            throw IllegalArgumentException(
+                "Cannot take the multiplicative inverse if any component of the Vector2 is zero."
+            )
+        }
+        return Vector2(1 / this.x, 1 / this.y)
+    }
 
     /** Returns a normalized version of this vector. */
     public fun toNormalized(): Vector2 {

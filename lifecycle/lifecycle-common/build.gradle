@@ -30,21 +30,23 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm {
-        withJava()
-    }
+    jvm()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 
@@ -63,7 +65,7 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmCommonMain {
+        nonJvmMain {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.atomicFu)
@@ -72,10 +74,19 @@ androidXMultiplatform {
 
         targets.configureEach { target ->
             if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nonJvmCommonMain)
-                }
+                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
             }
+        }
+    }
+}
+
+dependencies {
+    constraints {
+        // Prevents symbols duplication with old versions of JetBrains' fork.
+        // Starting with version 2.9.5, this module is published as empty artifact with dependency
+        // to this androidx module.
+        commonMainImplementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5") {
+            because "prevents symbols duplication"
         }
     }
 }

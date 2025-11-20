@@ -22,14 +22,13 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -40,7 +39,6 @@ dependencies {
     api(project(":navigation:navigation-fragment"))
     api(project(":navigation:navigation-runtime"))
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.5.0")
     implementation("androidx.core:core-ktx:1.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
@@ -72,5 +70,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Add Compose destinations to Navigation with Fragments"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

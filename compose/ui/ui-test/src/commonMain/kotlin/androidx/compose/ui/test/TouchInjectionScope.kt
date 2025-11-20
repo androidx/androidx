@@ -252,7 +252,7 @@ interface TouchInjectionScope : InjectionScope {
     fun moveWithHistoryMultiPointer(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<List<Offset>>,
-        delayMillis: Long = eventPeriodMillis
+        delayMillis: Long = eventPeriodMillis,
     )
 
     /**
@@ -275,12 +275,12 @@ interface TouchInjectionScope : InjectionScope {
     fun moveWithHistory(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<Offset>,
-        delayMillis: Long = eventPeriodMillis
+        delayMillis: Long = eventPeriodMillis,
     ) =
         moveWithHistoryMultiPointer(
             relativeHistoricalTimes,
             listOf(historicalCoordinates),
-            delayMillis
+            delayMillis,
         )
 
     /**
@@ -332,7 +332,7 @@ internal class TouchInjectionScopeImpl(private val baseScope: MultiModalInjectio
     override fun moveWithHistoryMultiPointer(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<List<Offset>>,
-        delayMillis: Long
+        delayMillis: Long,
     ) {
         repeat(relativeHistoricalTimes.size) {
             check(relativeHistoricalTimes[it] < 0) {
@@ -389,7 +389,7 @@ fun TouchInjectionScope.click(position: Offset = center) {
  */
 fun TouchInjectionScope.longClick(
     position: Offset = center,
-    durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+    durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100,
 ) {
     require(durationMillis >= viewConfiguration.longPressTimeoutMillis) {
         "Long click must have a duration of at least ${viewConfiguration.longPressTimeoutMillis}ms"
@@ -416,7 +416,7 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
  */
 fun TouchInjectionScope.doubleClick(
     position: Offset = center,
-    delayMillis: Long = viewConfiguration.defaultDoubleTapDelayMillis
+    delayMillis: Long = viewConfiguration.defaultDoubleTapDelayMillis,
 ) {
     require(delayMillis >= viewConfiguration.doubleTapMinTimeMillis) {
         "Time between clicks in double click must be at least " +
@@ -466,7 +466,7 @@ fun TouchInjectionScope.swipe(start: Offset, end: Offset, durationMillis: Long =
 fun TouchInjectionScope.swipe(
     curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = 200,
-    keyTimes: List<Long> = emptyList()
+    keyTimes: List<Long> = emptyList(),
 ) {
     multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
 }
@@ -491,7 +491,7 @@ fun TouchInjectionScope.swipe(
 fun TouchInjectionScope.multiTouchSwipe(
     curves: List<(timeMillis: Long) -> Offset>,
     durationMillis: Long = 200,
-    keyTimes: List<Long> = emptyList()
+    keyTimes: List<Long> = emptyList(),
 ) {
     val startTime = 0L
     val endTime = durationMillis
@@ -541,7 +541,7 @@ fun TouchInjectionScope.multiTouchSwipe(
 private fun TouchInjectionScope.sendMultiTouchSwipeSegment(
     fs: List<(Long) -> Offset>,
     t0: Long,
-    tN: Long
+    tN: Long,
 ) {
     var step = 0
     // How many steps will we take between t0 and tN? At least 1, and a number that will
@@ -576,15 +576,15 @@ fun TouchInjectionScope.pinch(
     end0: Offset,
     start1: Offset,
     end1: Offset,
-    durationMillis: Long = 400
+    durationMillis: Long = 400,
 ) {
     val durationFloat = durationMillis.toFloat()
     multiTouchSwipe(
         listOf(
             { lerp(start0, end0, it / durationFloat) },
-            { lerp(start1, end1, it / durationFloat) }
+            { lerp(start1, end1, it / durationFloat) },
         ),
-        durationMillis
+        durationMillis,
     )
 }
 
@@ -619,7 +619,7 @@ fun TouchInjectionScope.swipeWithVelocity(
     end: Offset,
     /*@FloatRange(from = 0.0)*/
     endVelocity: Float,
-    durationMillis: Long = VelocityPathFinder.calculateDefaultDuration(start, end, endVelocity)
+    durationMillis: Long = VelocityPathFinder.calculateDefaultDuration(start, end, endVelocity),
 ) {
     require(endVelocity >= 0f) { "Velocity cannot be $endVelocity, it must be positive" }
     require(eventPeriodMillis < 40) {
@@ -649,7 +649,7 @@ fun TouchInjectionScope.swipeWithVelocity(
 fun TouchInjectionScope.swipeUp(
     startY: Float = bottom,
     endY: Float = top,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) {
     require(startY >= endY) { "startY=$startY needs to be greater than or equal to endY=$endY" }
     val start = Offset(centerX, startY)
@@ -670,7 +670,7 @@ fun TouchInjectionScope.swipeUp(
 fun TouchInjectionScope.swipeDown(
     startY: Float = top,
     endY: Float = bottom,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) {
     require(startY <= endY) { "startY=$startY needs to be less than or equal to endY=$endY" }
     val start = Offset(centerX, startY)
@@ -691,7 +691,7 @@ fun TouchInjectionScope.swipeDown(
 fun TouchInjectionScope.swipeLeft(
     startX: Float = right,
     endX: Float = left,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) {
     require(startX >= endX) { "startX=$startX needs to be greater than or equal to endX=$endX" }
     val start = Offset(startX, centerY)
@@ -712,7 +712,7 @@ fun TouchInjectionScope.swipeLeft(
 fun TouchInjectionScope.swipeRight(
     startX: Float = left,
     endX: Float = right,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) {
     require(startX <= endX) { "startX=$startX needs to be less than or equal to endX=$endX" }
     val start = Offset(startX, centerY)

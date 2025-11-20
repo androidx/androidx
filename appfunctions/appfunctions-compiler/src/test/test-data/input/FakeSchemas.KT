@@ -20,7 +20,6 @@ interface FakeAllPrimitiveParams {
         arg4: Double,
         arg5: String,
         arg6: Boolean,
-        arg7: ByteArray,
     )
 
     fun allPrimitiveArrayParams(
@@ -31,7 +30,8 @@ interface FakeAllPrimitiveParams {
         arg4: DoubleArray,
         arg5: List<String>,
         arg6: BooleanArray,
-        arg7: List<ByteArray>,
+        arg7: ByteArray,
+        arg8: List<String?>,
     )
 }
 
@@ -49,7 +49,6 @@ interface FakeAllNullablePrimitiveParamsWithDefaultValues {
         arg4: Double? = null,
         arg5: String? = null,
         arg6: Boolean? = null,
-        arg7: ByteArray? = null,
     )
 
     fun allNullablePrimitiveArrayParamsWithDefault(
@@ -60,7 +59,7 @@ interface FakeAllNullablePrimitiveParamsWithDefaultValues {
         arg4: DoubleArray? = doubleArrayOf(),
         arg5: List<String> = emptyList(),
         arg6: BooleanArray? = booleanArrayOf(),
-        arg7: List<ByteArray>? = emptyList(),
+        arg7: ByteArray? = byteArrayOf(),
     )
 }
 
@@ -126,10 +125,6 @@ interface FakeAllPrimitiveReturns {
         appFunctionContext: AppFunctionContext,
     ): Boolean?
 
-    fun byteArrayListReturn(
-        appFunctionContext: AppFunctionContext,
-    ): List<ByteArray>
-
     fun intArrayReturn(
         appFunctionContext: AppFunctionContext,
     ): IntArray
@@ -158,10 +153,6 @@ interface FakeAllPrimitiveReturns {
         appFunctionContext: AppFunctionContext,
     ): List<String>?
 
-    fun nullableByteArrayListReturn(
-        appFunctionContext: AppFunctionContext,
-    ): List<ByteArray>?
-
     fun nullableIntArrayReturn(
         appFunctionContext: AppFunctionContext,
     ): IntArray?
@@ -181,4 +172,8 @@ interface FakeAllPrimitiveReturns {
     fun nullableBooleanArrayReturn(
         appFunctionContext: AppFunctionContext,
     ): BooleanArray?
+
+    fun nullableStringItemListReturn(
+        appFunctionContext: AppFunctionContext,
+    ): List<String?>
 }

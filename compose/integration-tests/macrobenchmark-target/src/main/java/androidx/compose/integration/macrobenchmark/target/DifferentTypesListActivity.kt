@@ -109,7 +109,7 @@ private fun OddItem(index: Int) {
                 Text(
                     text = "Odd item $index",
                     fontStyle = FontStyle.Italic,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
                 Spacer(modifier = Modifier.weight(1f, fill = true))
                 Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.padding(16.dp))
@@ -125,7 +125,7 @@ private fun OddItem(index: Int) {
                                     .border(2.dp, Color.White)
                                     .padding(8.dp)
                                     .border(2.dp, Color.Green)
-                                    .padding(8.dp)
+                                    .padding(8.dp),
                         )
                     }
                 }

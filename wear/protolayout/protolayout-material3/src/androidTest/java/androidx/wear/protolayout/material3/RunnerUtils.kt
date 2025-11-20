@@ -19,72 +19,59 @@ package androidx.wear.protolayout.material3
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.util.DisplayMetrics
 import android.util.Log
 import androidx.test.core.app.ActivityScenario
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.material3.test.GoldenTestActivity
+import androidx.wear.protolayout.material3.test.GoldenTestActivity.VIEW_TAG
 import java.util.stream.Collectors
 
 object RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some
     // watch dimensions here.
     const val SCREEN_SIZE_SMALL: Int = 525 // ~199dp
+    private const val FIND_OBJECT_TIMEOUT_MILLIS: Int = 1000
+    private val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-    @SuppressLint("BanThreadSleep")
-    // TODO: b/355417923 - Avoid calling sleep.
     fun runSingleScreenshotTest(
         rule: AndroidXScreenshotTestRule,
         layout: LayoutElementBuilders.Layout,
         expected: String,
-        isRtlDirection: Boolean
+        isRtlDirection: Boolean,
     ) {
         val layoutPayload = layout.toByteArray()
 
         val startIntent =
             Intent(
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-                    .targetContext,
-                GoldenTestActivity::class.java
+                InstrumentationRegistry.getInstrumentation().targetContext,
+                GoldenTestActivity::class.java,
             )
         startIntent.putExtra("layout", layoutPayload)
         startIntent.putExtra(GoldenTestActivity.USE_RTL_DIRECTION, isRtlDirection)
 
         ActivityScenario.launch<GoldenTestActivity>(startIntent).use {
-            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-                .waitForIdleSync()
-            try {
-                // Wait 1s after launching the activity. This allows for the old white layout in the
-                // bootstrap activity to fully go away before proceeding.
-                Thread.sleep(100)
-            } catch (ex: Exception) {
-                if (ex is InterruptedException) {
-                    Thread.currentThread().interrupt()
-                }
-                Log.e("MaterialGoldenTest", "Error sleeping", ex)
-            }
-
-            val displayMetrics: DisplayMetrics =
-                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-                    .getTargetContext()
-                    .getResources()
-                    .getDisplayMetrics()
-
-            // RTL will put the View on the right side.
-            val screenWidthStart =
-                if (isRtlDirection) displayMetrics.widthPixels - SCREEN_SIZE_SMALL else 0
+            val objects =
+                uiDevice.wait(
+                    Until.findObjects(By.desc(VIEW_TAG)),
+                    FIND_OBJECT_TIMEOUT_MILLIS.toLong(),
+                )
+            checkNotNull(objects) { "Timed out waiting for the PL host view." }
+            check(objects.size == 1) { "Expected 1 PL host view, but found ${objects.size}" }
+            val plViewRect = objects[0].visibleBounds
 
             val bitmap =
                 Bitmap.createBitmap(
-                    androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-                        .getUiAutomation()
-                        .takeScreenshot(),
-                    screenWidthStart,
-                    0,
-                    SCREEN_SIZE_SMALL,
-                    SCREEN_SIZE_SMALL
+                    InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot(),
+                    plViewRect.left,
+                    plViewRect.top,
+                    plViewRect.width(),
+                    plViewRect.width(),
                 )
             // Increase the threshold of Structural Similarity Index for image comparison to 0.995,
             // so that we do not miss the image differences.
@@ -106,7 +93,7 @@ object RunnerUtils {
     fun convertToTestParameters(
         testCases: Map<String, LayoutElementBuilders.Layout>,
         isForRtr: Boolean,
-        isForLtr: Boolean
+        isForLtr: Boolean,
     ): List<Array<Any>> {
         return testCases.entries
             .stream()
@@ -120,6 +107,6 @@ object RunnerUtils {
     class TestCase(
         val layout: LayoutElementBuilders.Layout,
         val isForRtl: Boolean,
-        val isForLtr: Boolean
+        val isForLtr: Boolean,
     )
 }

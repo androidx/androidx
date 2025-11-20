@@ -47,7 +47,7 @@ fun AnimateFadeIn() {
         Modifier.graphicsLayer {
             alpha = animatedAlpha.value
             clip = true
-        }
+        },
     )
     LaunchedEffect(animatedAlpha) { animatedAlpha.animateTo(1f) }
 }
@@ -61,7 +61,7 @@ fun CompositingStrategyModulateAlpha() {
                 .background(Color.Black)
                 .graphicsLayer(
                     alpha = 0.5f,
-                    compositingStrategy = CompositingStrategy.ModulateAlpha
+                    compositingStrategy = CompositingStrategy.ModulateAlpha,
                 )
     ) {
         // Configuring an alpha less than 1.0 and specifying

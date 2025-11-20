@@ -32,22 +32,22 @@ import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 
 /** Interface representing an Image source which can be used with a Glance [Image] element. */
-interface ImageProvider
+public interface ImageProvider
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AndroidResourceImageProvider(@DrawableRes val resId: Int) : ImageProvider {
-    override fun toString() = "AndroidResourceImageProvider(resId=$resId)"
+public class AndroidResourceImageProvider(@DrawableRes public val resId: Int) : ImageProvider {
+    override fun toString(): String = "AndroidResourceImageProvider(resId=$resId)"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BitmapImageProvider(val bitmap: Bitmap) : ImageProvider {
-    override fun toString() =
+public class BitmapImageProvider(public val bitmap: Bitmap) : ImageProvider {
+    override fun toString(): String =
         "BitmapImageProvider(bitmap=Bitmap(${bitmap.width}px x ${bitmap.height}px))"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class IconImageProvider(val icon: Icon) : ImageProvider {
-    override fun toString() = "IconImageProvider(icon=$icon)"
+public class IconImageProvider(public val icon: Icon) : ImageProvider {
+    override fun toString(): String = "IconImageProvider(icon=$icon)"
 }
 
 /**
@@ -55,14 +55,15 @@ class IconImageProvider(val icon: Icon) : ImageProvider {
  *
  * @param resId The resource ID of the Drawable resource to be used.
  */
-fun ImageProvider(@DrawableRes resId: Int): ImageProvider = AndroidResourceImageProvider(resId)
+public fun ImageProvider(@DrawableRes resId: Int): ImageProvider =
+    AndroidResourceImageProvider(resId)
 
 /**
  * Image resource from a bitmap.
  *
  * @param bitmap The bitmap to be displayed.
  */
-fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
+public fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
 
 /**
  * Image resource from an icon.
@@ -70,38 +71,38 @@ fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
  * @param icon The icon to be displayed.
  */
 @RequiresApi(Build.VERSION_CODES.M)
-fun ImageProvider(icon: Icon): ImageProvider = IconImageProvider(icon)
+public fun ImageProvider(icon: Icon): ImageProvider = IconImageProvider(icon)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) interface ColorFilterParams
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface ColorFilterParams
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TintColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParams {
-    override fun toString() = "TintColorFilterParams(colorProvider=$colorProvider))"
+public class TintColorFilterParams(public val colorProvider: ColorProvider) : ColorFilterParams {
+    override fun toString(): String = "TintColorFilterParams(colorProvider=$colorProvider))"
 }
 
 /** Effects used to modify the color of an image. */
-class ColorFilter
+public class ColorFilter
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val colorFilterParams: ColorFilterParams
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val colorFilterParams: ColorFilterParams
 ) {
-    companion object {
+    public companion object {
         /**
          * Set a tinting option for the image using the platform-specific default blending mode.
          *
          * @param colorProvider Provider used to get the color for blending the source content.
          */
-        fun tint(colorProvider: ColorProvider): ColorFilter =
+        public fun tint(colorProvider: ColorProvider): ColorFilter =
             ColorFilter(TintColorFilterParams(colorProvider))
     }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableImage : Emittable {
+public class EmittableImage : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    var provider: ImageProvider? = null
-    var colorFilterParams: ColorFilterParams? = null
-    var alpha: Float? = null // null retains the source image's alpha
-    var contentScale: ContentScale = ContentScale.Fit
+    public var provider: ImageProvider? = null
+    public var colorFilterParams: ColorFilterParams? = null
+    public var alpha: Float? = null // null retains the source image's alpha
+    public var contentScale: ContentScale = ContentScale.Fit
 
     override fun copy(): Emittable =
         EmittableImage().also {
@@ -123,7 +124,7 @@ class EmittableImage : Emittable {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun EmittableImage.isDecorative(): Boolean {
+public fun EmittableImage.isDecorative(): Boolean {
     val semanticsConfiguration = modifier.findModifier<SemanticsModifier>()?.configuration
     return semanticsConfiguration
         ?.getOrNull(SemanticsProperties.ContentDescription)
@@ -146,13 +147,14 @@ fun EmittableImage.isDecorative(): Boolean {
  * @param colorFilter The effects to use to modify the color of an image.
  */
 @Composable
-fun Image(
+public fun Image(
     provider: ImageProvider,
     contentDescription: String?,
     modifier: GlanceModifier = GlanceModifier,
     contentScale: ContentScale = ContentScale.Fit,
     colorFilter: ColorFilter? = null,
-) = ImageElement(provider, contentDescription, modifier, contentScale, colorFilter, alpha = null)
+): Unit =
+    ImageElement(provider, contentDescription, modifier, contentScale, colorFilter, alpha = null)
 
 /**
  * A composable which lays out and draws the image specified in [provider]. This will attempt to lay
@@ -170,14 +172,14 @@ fun Image(
  * @param colorFilter The effects to use to modify the color of an image.
  */
 @Composable
-fun Image(
+public fun Image(
     provider: ImageProvider,
     contentDescription: String?,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float,
     modifier: GlanceModifier = GlanceModifier,
     contentScale: ContentScale = ContentScale.Fit,
     colorFilter: ColorFilter? = null,
-) = ImageElement(provider, contentDescription, modifier, contentScale, colorFilter, alpha)
+): Unit = ImageElement(provider, contentDescription, modifier, contentScale, colorFilter, alpha)
 
 @Composable
 internal fun ImageElement(
@@ -203,6 +205,6 @@ internal fun ImageElement(
             this.set(contentScale) { this.contentScale = it }
             this.set(colorFilter) { this.colorFilterParams = it?.colorFilterParams }
             this.set(alpha) { this.alpha = it }
-        }
+        },
     )
 }

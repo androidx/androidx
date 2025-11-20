@@ -134,7 +134,7 @@ class FragmentSavedStateActivity : RecreatedActivity() {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {
                 if (contract is ActivityResultContracts.GetContent) {
                     dispatchResult(requestCode, null)

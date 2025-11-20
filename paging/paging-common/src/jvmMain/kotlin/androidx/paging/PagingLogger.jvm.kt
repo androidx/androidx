@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 public actual object PagingLogger {
 
     public actual fun isLoggable(level: Int): Boolean {
-        return true
+        return false
     }
 
     // consider using java.util.logging APIs instead

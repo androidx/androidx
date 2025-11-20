@@ -107,11 +107,15 @@ public final class SystemRoutingActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_CODE_BLUETOOTH_CONNECT
                 && grantResults.length > 0) {
-            if (grantResults[0] == PERMISSION_GRANTED) {
-                onBluetoothPermissionGranted();
-            } else {
-                onBluetoothPermissionDenied();
+            if (grantResults[0] != PERMISSION_GRANTED) {
+                Toast.makeText(
+                                this,
+                                getString(R.string.system_routing_activity_bluetooth_denied),
+                                Toast.LENGTH_LONG)
+                        .show();
             }
+            initializeSystemRoutesSources();
+            refreshSystemRoutesList();
         }
     }
 
@@ -149,16 +153,6 @@ public final class SystemRoutingActivity extends AppCompatActivity {
     private void requestBluetoothPermission() {
         ActivityCompat.requestPermissions(this,
                 new String[]{BLUETOOTH_CONNECT, BLUETOOTH_SCAN}, REQUEST_CODE_BLUETOOTH_CONNECT);
-    }
-
-    private void onBluetoothPermissionGranted() {
-        initializeSystemRoutesSources();
-        refreshSystemRoutesList();
-    }
-
-    private void onBluetoothPermissionDenied() {
-        Toast.makeText(this, getString(R.string.system_routing_activity_bluetooth_denied),
-                Toast.LENGTH_LONG).show();
     }
 
     private void initializeSystemRoutesSources() {

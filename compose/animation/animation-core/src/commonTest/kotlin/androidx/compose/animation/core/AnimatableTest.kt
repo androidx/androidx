@@ -77,7 +77,7 @@ class AnimatableTest {
                 spring(dampingRatio = Spring.DampingRatioMediumBouncy),
                 Float.VectorConverter,
                 initialValue = 0f,
-                targetValue = 1f
+                targetValue = 1f,
             )
         val clock = SuspendAnimationTest.TestFrameClock()
         val interval = 50
@@ -111,7 +111,7 @@ class AnimatableTest {
         val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
             TwoWayConverter(
                 convertToVector = { AnimationVector2D(it.x, it.y) },
-                convertFromVector = { Offset(it.v1, it.v2) }
+                convertFromVector = { Offset(it.v1, it.v2) },
             )
         val anim =
             TargetBasedAnimation(tween(500), offsetToVector, initialValue = from, targetValue = to)
@@ -138,13 +138,13 @@ class AnimatableTest {
                             expectedValue.x,
                             value.x,
                             0.001f,
-                            "PlayTime Millis: $playTimeMillis"
+                            "PlayTime Millis: $playTimeMillis",
                         )
                         assertEquals(
                             expectedValue.y,
                             value.y,
                             0.001f,
-                            "PlayTime Millis: $playTimeMillis"
+                            "PlayTime Millis: $playTimeMillis",
                         )
                         playTimeMillis += interval
 
@@ -182,7 +182,7 @@ class AnimatableTest {
                             Float.VectorConverter,
                             animatable.value,
                             300f,
-                            animatable.velocity
+                            animatable.velocity,
                         )
                     assertEquals(100L, playTimeMillis)
                     var firstFrame = true
@@ -217,7 +217,7 @@ class AnimatableTest {
                     try {
                         animatable.animateTo(
                             200f,
-                            animationSpec = tween(200, easing = LinearEasing)
+                            animationSpec = tween(200, easing = LinearEasing),
                         ) {
                             assertTrue(isRunning)
                             assertEquals(targetValue, 200f)
@@ -279,7 +279,7 @@ class AnimatableTest {
             Animatable(
                 initialValue = IntSize(10, 10),
                 typeConverter = IntSize.VectorConverter,
-                visibilityThreshold = IntSize.VisibilityThreshold
+                visibilityThreshold = IntSize.VisibilityThreshold,
             )
 
         val values = mutableListOf<IntSize>()
@@ -299,7 +299,7 @@ class AnimatableTest {
                 keyframes {
                     durationMillis = 100
                     IntSize(-100, -100) at 0 using LinearEasing
-                }
+                },
             ) {
                 values.add(value)
             }
@@ -332,7 +332,7 @@ class AnimatableTest {
                 initialVelocity = 2f,
                 lastFrameTimeNanos = 4000L,
                 finishedTimeNanos = 3000L,
-                isRunning = true
+                isRunning = true,
             )
         val string = state.toString()
         assertThat(string).contains(AnimationState::class.simpleName!!)

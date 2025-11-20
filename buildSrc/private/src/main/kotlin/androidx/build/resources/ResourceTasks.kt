@@ -37,7 +37,7 @@ object ResourceTasks {
         project: Project,
         builtApiFile: Provider<RegularFile>,
         builtApiLocation: ApiLocation,
-        outputApiLocations: List<ApiLocation>
+        outputApiLocations: List<ApiLocation>,
     ) {
 
         val outputApiFiles = outputApiLocations.map { location -> location.resourceFile }
@@ -45,7 +45,7 @@ object ResourceTasks {
         val generateResourceApi =
             project.tasks.register(
                 GENERATE_RESOURCE_API_TASK,
-                GenerateResourceApiTask::class.java
+                GenerateResourceApiTask::class.java,
             ) { task ->
                 task.group = "API"
                 task.description = "Generates resource API files from source"
@@ -60,7 +60,7 @@ object ResourceTasks {
             project.getRequiredCompatibilityApiLocation()?.let { lastReleasedApiFile ->
                 project.tasks.register(
                     CHECK_RESOURCE_API_RELEASE_TASK,
-                    CheckResourceApiReleaseTask::class.java
+                    CheckResourceApiReleaseTask::class.java,
                 ) { task ->
                     task.referenceApiFile.set(lastReleasedApiFile.resourceFile)
                     task.apiLocation.set(generateResourceApi.flatMap { it.apiLocation })

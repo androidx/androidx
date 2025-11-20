@@ -116,7 +116,7 @@ class ActivityWindowInfoCallbackControllerTest {
             EmbeddedActivityWindowInfo(
                 isEmbedded = true,
                 parentHostBounds = mock(),
-                boundsInParentHost = mock()
+                boundsInParentHost = mock(),
             )
         doReturn(expectedInfo).whenever(controller).translate(extensionsInfo)
 
@@ -148,7 +148,7 @@ class ActivityWindowInfoCallbackControllerTest {
             EmbeddedActivityWindowInfo(
                 isEmbedded = false,
                 parentHostBounds = mock(),
-                boundsInParentHost = mock()
+                boundsInParentHost = mock(),
             )
         doReturn(expectedInfo2).whenever(controller).translate(extensionsInfo)
         extensionsCallback.accept(extensionsInfo)

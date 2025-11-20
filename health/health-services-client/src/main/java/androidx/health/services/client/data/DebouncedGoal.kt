@@ -32,7 +32,7 @@ private constructor(
      * The condition which specifies data type, threshold, comparison type and debounced params. The
      * condition must be met in order to trigger the goal.
      */
-    val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>,
+    val debouncedDataTypeCondition: DebouncedDataTypeCondition<T, *>
 ) {
 
     internal val proto: DataProto.DebouncedGoal =

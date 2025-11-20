@@ -16,129 +16,30 @@
 
 package androidx.core.content;
 
-import static android.content.Context.ACCESSIBILITY_SERVICE;
-import static android.content.Context.ACCOUNT_SERVICE;
-import static android.content.Context.ACTIVITY_SERVICE;
-import static android.content.Context.ALARM_SERVICE;
-import static android.content.Context.APPWIDGET_SERVICE;
-import static android.content.Context.APP_OPS_SERVICE;
-import static android.content.Context.AUDIO_SERVICE;
-import static android.content.Context.BATTERY_SERVICE;
-import static android.content.Context.BLUETOOTH_SERVICE;
-import static android.content.Context.CAMERA_SERVICE;
-import static android.content.Context.CAPTIONING_SERVICE;
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Context.CONNECTIVITY_SERVICE;
-import static android.content.Context.CONSUMER_IR_SERVICE;
-import static android.content.Context.DEVICE_POLICY_SERVICE;
-import static android.content.Context.DISPLAY_SERVICE;
-import static android.content.Context.DOWNLOAD_SERVICE;
-import static android.content.Context.DROPBOX_SERVICE;
-import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.content.Context.INPUT_SERVICE;
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
-import static android.content.Context.KEYGUARD_SERVICE;
-import static android.content.Context.LAUNCHER_APPS_SERVICE;
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.content.Context.LOCATION_SERVICE;
-import static android.content.Context.MEDIA_PROJECTION_SERVICE;
-import static android.content.Context.MEDIA_ROUTER_SERVICE;
-import static android.content.Context.MEDIA_SESSION_SERVICE;
-import static android.content.Context.NFC_SERVICE;
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.content.Context.NSD_SERVICE;
-import static android.content.Context.POWER_SERVICE;
-import static android.content.Context.PRINT_SERVICE;
-import static android.content.Context.RESTRICTIONS_SERVICE;
-import static android.content.Context.SEARCH_SERVICE;
-import static android.content.Context.SENSOR_SERVICE;
-import static android.content.Context.STORAGE_SERVICE;
-import static android.content.Context.TELECOM_SERVICE;
-import static android.content.Context.TELEPHONY_SERVICE;
-import static android.content.Context.TELEPHONY_SUBSCRIPTION_SERVICE;
-import static android.content.Context.TEXT_SERVICES_MANAGER_SERVICE;
-import static android.content.Context.TV_INPUT_SERVICE;
-import static android.content.Context.UI_MODE_SERVICE;
-import static android.content.Context.USAGE_STATS_SERVICE;
-import static android.content.Context.USB_SERVICE;
-import static android.content.Context.USER_SERVICE;
-import static android.content.Context.VIBRATOR_SERVICE;
-import static android.content.Context.WALLPAPER_SERVICE;
-import static android.content.Context.WIFI_P2P_SERVICE;
-import static android.content.Context.WIFI_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
 
-import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.AppOpsManager;
-import android.app.DownloadManager;
-import android.app.KeyguardManager;
-import android.app.NotificationManager;
-import android.app.SearchManager;
-import android.app.UiModeManager;
-import android.app.WallpaperManager;
-import android.app.admin.DevicePolicyManager;
-import android.app.job.JobScheduler;
-import android.app.usage.UsageStatsManager;
-import android.appwidget.AppWidgetManager;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
-import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.RestrictionsManager;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.LauncherApps;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.hardware.ConsumerIrManager;
-import android.hardware.SensorManager;
-import android.hardware.camera2.CameraManager;
 import android.hardware.display.DisplayManager;
-import android.hardware.input.InputManager;
-import android.hardware.usb.UsbManager;
-import android.location.LocationManager;
-import android.media.AudioManager;
-import android.media.MediaRouter;
-import android.media.projection.MediaProjectionManager;
-import android.media.session.MediaSessionManager;
-import android.media.tv.TvInputManager;
-import android.net.ConnectivityManager;
-import android.net.nsd.NsdManager;
-import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.nfc.NfcManager;
-import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.DropBoxManager;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.os.Process;
 import android.os.StatFs;
-import android.os.UserManager;
-import android.os.Vibrator;
-import android.os.storage.StorageManager;
-import android.print.PrintManager;
-import android.telecom.TelecomManager;
-import android.telephony.SubscriptionManager;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityManager;
-import android.view.accessibility.CaptioningManager;
-import android.view.inputmethod.InputMethodManager;
-import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -163,7 +64,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -172,9 +72,6 @@ import java.util.concurrent.Executor;
 @SuppressLint("PrivateConstructorForUtilityClass") // Already launched with public constructor
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
-
-    // Lock that provides similar functionality to ContextImpl.mSync.
-    private static final Object sSync = new Object();
 
     /**
      * This class should not be instantiated, but the constructor must be
@@ -489,11 +386,7 @@ public class ContextCompat {
      */
     @SuppressWarnings("deprecation")
     public static @Nullable Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.getDrawable(context, id);
-        } else {
-            return context.getResources().getDrawable(id);
-        }
+        return context.getDrawable(id);
     }
 
     /**
@@ -530,14 +423,9 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
-    @SuppressWarnings("deprecation")
     @ColorInt
     public static int getColor(@NonNull Context context, @ColorRes int id) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getColor(context, id);
-        } else {
-            return context.getResources().getColor(id);
-        }
+        return context.getColor(id);
     }
 
     /**
@@ -574,12 +462,7 @@ public class ContextCompat {
      * @see Context#getFilesDir()
      */
     public static @Nullable File getNoBackupFilesDir(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.getNoBackupFilesDir(context);
-        } else {
-            ApplicationInfo appInfo = context.getApplicationInfo();
-            return createFilesDir(new File(appInfo.dataDir, "no_backup"));
-        }
+        return context.getNoBackupFilesDir();
     }
 
     /**
@@ -598,31 +481,7 @@ public class ContextCompat {
      * @return The path of the directory holding application code cache files.
      */
     public static @NonNull File getCodeCacheDir(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            return Api21Impl.getCodeCacheDir(context);
-        } else {
-            ApplicationInfo appInfo = context.getApplicationInfo();
-            return createFilesDir(new File(appInfo.dataDir, "code_cache"));
-        }
-    }
-
-    private static File createFilesDir(File file) {
-        // In the platform, all operations on Context that involve creating files (codeCacheDir,
-        // noBackupFilesDir, etc.) are synchronized on a single lock owned by the Context. So, if
-        // we lock on a single static lock owned by ContextCompat then we're a bit too broad but
-        // at least we'll provide similar guarantees.
-        synchronized (sSync) {
-            if (!file.exists()) {
-                if (file.mkdirs()) {
-                    return file;
-                } else {
-                    // There used to be another check for file.exists() here, but that was a
-                    // side-effect of improper synchronization.
-                    Log.w(TAG, "Unable to create files subdir " + file.getPath());
-                }
-            }
-            return file;
-        }
+        return context.getCodeCacheDir();
     }
 
     /**
@@ -740,15 +599,9 @@ public class ContextCompat {
      * @return The service or null if the class is not a supported system service.
      * @see Context#getSystemService(Class)
      */
-    @SuppressWarnings("unchecked")
     public static <T> @Nullable T getSystemService(@NonNull Context context,
             @NonNull Class<T> serviceClass) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getSystemService(context, serviceClass);
-        }
-
-        String serviceName = getSystemServiceName(context, serviceClass);
-        return serviceName != null ? (T) context.getSystemService(serviceName) : null;
+        return context.getSystemService(serviceClass);
     }
 
     /**
@@ -843,10 +696,7 @@ public class ContextCompat {
      */
     public static @Nullable String getSystemServiceName(@NonNull Context context,
             @NonNull Class<?> serviceClass) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getSystemServiceName(context, serviceClass);
-        }
-        return LegacyServiceMapHolder.SERVICES.get(serviceClass);
+        return context.getSystemServiceName(serviceClass);
     }
 
     /**
@@ -978,109 +828,6 @@ public class ContextCompat {
                     + "application to receive broadcasts, please add it to your manifest");
         }
         return permission;
-    }
-
-    /** Nested class provides lazy initialization only when needed. */
-    private static final class LegacyServiceMapHolder {
-        static final HashMap<Class<?>, String> SERVICES = new HashMap<>();
-
-        static {
-            if (Build.VERSION.SDK_INT >= 22) {
-                SERVICES.put(SubscriptionManager.class, TELEPHONY_SUBSCRIPTION_SERVICE);
-                SERVICES.put(UsageStatsManager.class, USAGE_STATS_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 21) {
-                SERVICES.put(AppWidgetManager.class, APPWIDGET_SERVICE);
-                SERVICES.put(BatteryManager.class, BATTERY_SERVICE);
-                SERVICES.put(CameraManager.class, CAMERA_SERVICE);
-                SERVICES.put(JobScheduler.class, JOB_SCHEDULER_SERVICE);
-                SERVICES.put(LauncherApps.class, LAUNCHER_APPS_SERVICE);
-                SERVICES.put(MediaProjectionManager.class, MEDIA_PROJECTION_SERVICE);
-                SERVICES.put(MediaSessionManager.class, MEDIA_SESSION_SERVICE);
-                SERVICES.put(RestrictionsManager.class, RESTRICTIONS_SERVICE);
-                SERVICES.put(TelecomManager.class, TELECOM_SERVICE);
-                SERVICES.put(TvInputManager.class, TV_INPUT_SERVICE);
-            }
-
-            SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
-            SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
-            SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
-            SERVICES.put(PrintManager.class, PRINT_SERVICE);
-            SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
-            SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
-            SERVICES.put(UserManager.class, USER_SERVICE);
-
-            SERVICES.put(InputManager.class, INPUT_SERVICE);
-            SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
-            SERVICES.put(NsdManager.class, NSD_SERVICE);
-            SERVICES.put(AccessibilityManager.class, ACCESSIBILITY_SERVICE);
-            SERVICES.put(AccountManager.class, ACCOUNT_SERVICE);
-            SERVICES.put(ActivityManager.class, ACTIVITY_SERVICE);
-            SERVICES.put(AlarmManager.class, ALARM_SERVICE);
-            SERVICES.put(AudioManager.class, AUDIO_SERVICE);
-            SERVICES.put(ClipboardManager.class, CLIPBOARD_SERVICE);
-            SERVICES.put(ConnectivityManager.class, CONNECTIVITY_SERVICE);
-            SERVICES.put(DevicePolicyManager.class, DEVICE_POLICY_SERVICE);
-            SERVICES.put(DownloadManager.class, DOWNLOAD_SERVICE);
-            SERVICES.put(DropBoxManager.class, DROPBOX_SERVICE);
-            SERVICES.put(InputMethodManager.class, INPUT_METHOD_SERVICE);
-            SERVICES.put(KeyguardManager.class, KEYGUARD_SERVICE);
-            SERVICES.put(LayoutInflater.class, LAYOUT_INFLATER_SERVICE);
-            SERVICES.put(LocationManager.class, LOCATION_SERVICE);
-            SERVICES.put(NfcManager.class, NFC_SERVICE);
-            SERVICES.put(NotificationManager.class, NOTIFICATION_SERVICE);
-            SERVICES.put(PowerManager.class, POWER_SERVICE);
-            SERVICES.put(SearchManager.class, SEARCH_SERVICE);
-            SERVICES.put(SensorManager.class, SENSOR_SERVICE);
-            SERVICES.put(StorageManager.class, STORAGE_SERVICE);
-            SERVICES.put(TelephonyManager.class, TELEPHONY_SERVICE);
-            SERVICES.put(TextServicesManager.class, TEXT_SERVICES_MANAGER_SERVICE);
-            SERVICES.put(UiModeManager.class, UI_MODE_SERVICE);
-            SERVICES.put(UsbManager.class, USB_SERVICE);
-            SERVICES.put(Vibrator.class, VIBRATOR_SERVICE);
-            SERVICES.put(WallpaperManager.class, WALLPAPER_SERVICE);
-            SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
-            SERVICES.put(WifiManager.class, WIFI_SERVICE);
-            SERVICES.put(WindowManager.class, WINDOW_SERVICE);
-        }
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static Drawable getDrawable(Context obj, int id) {
-            return obj.getDrawable(id);
-        }
-
-        static File getNoBackupFilesDir(Context obj) {
-            return obj.getNoBackupFilesDir();
-        }
-
-        static File getCodeCacheDir(Context obj) {
-            return obj.getCodeCacheDir();
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static int getColor(Context obj, int id) {
-            return obj.getColor(id);
-        }
-
-        static <T> T getSystemService(Context obj, Class<T> serviceClass) {
-            return obj.getSystemService(serviceClass);
-        }
-
-        static String getSystemServiceName(Context obj, Class<?> serviceClass) {
-            return obj.getSystemServiceName(serviceClass);
-        }
     }
 
     @RequiresApi(24)

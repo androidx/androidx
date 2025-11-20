@@ -65,7 +65,6 @@ public class Person {
      *
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(22)
     public static @NonNull Person fromPersistableBundle(@NonNull PersistableBundle bundle) {
         return Api22Impl.fromPersistableBundle(bundle);
     }
@@ -125,7 +124,6 @@ public class Person {
      *
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(22)
     public @NonNull PersistableBundle toPersistableBundle() {
         return Api22Impl.toPersistableBundle(this);
     }
@@ -350,7 +348,6 @@ public class Person {
         }
     }
 
-    @RequiresApi(22)
     static class Api22Impl {
         private Api22Impl() {
             // This class is not instantiable.

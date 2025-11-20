@@ -103,7 +103,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult = measurable.measure(constraints).run { layout(width, height) { place(0, 0) } }
 
     /**
@@ -127,13 +127,13 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
      */
     fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult
 
     /** The function used to calculate minIntrinsicWidth for the approach pass changes. */
     fun ApproachIntrinsicMeasureScope.minApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int =
         if (node.coordinator!!.lookaheadDelegate!!.hasMeasureResult) {
             // Only invoke approachMeasure when the node has been measured in lookahead, otherwise
@@ -146,7 +146,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
                 },
                 this,
                 measurable,
-                height
+                height,
             )
         } else {
             measurable.minIntrinsicWidth(height)
@@ -155,7 +155,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /** The function used to calculate minIntrinsicHeight for the approach pass changes. */
     fun ApproachIntrinsicMeasureScope.minApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int =
         if (node.coordinator!!.lookaheadDelegate!!.hasMeasureResult) {
             // Only invoke approachMeasure when the node has been measured in lookahead, otherwise
@@ -168,7 +168,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
                 },
                 this,
                 measurable,
-                width
+                width,
             )
         } else {
             measurable.minIntrinsicHeight(width)
@@ -177,7 +177,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /** The function used to calculate maxIntrinsicWidth for the approach pass changes. */
     fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int =
         if (node.coordinator!!.lookaheadDelegate!!.hasMeasureResult) {
             // Only invoke approachMeasure when the node has been measured in lookahead, otherwise
@@ -190,7 +190,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
                 },
                 this,
                 measurable,
-                height
+                height,
             )
         } else {
             measurable.maxIntrinsicWidth(height)
@@ -199,7 +199,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /** The function used to calculate maxIntrinsicHeight for the approach pass changes. */
     fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int =
         if (node.coordinator!!.lookaheadDelegate!!.hasMeasureResult) {
             // Only invoke approachMeasure when the node has been measured in lookahead, otherwise
@@ -212,7 +212,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
                 },
                 this,
                 measurable,
-                width
+                width,
             )
         } else {
             measurable.maxIntrinsicHeight(width)

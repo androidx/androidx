@@ -39,11 +39,11 @@ class BenchmarkOperation {
                     .getCacheDir();
         } else if (Build.VERSION.SDK_INT >= 24) {
             // shaders started using device protected storage context once it was added in N
-            shaderDirectory = Api21ContextHelper.getCodeCacheDir(
-                    Api24ContextHelper.createDeviceProtectedStorageContext(context));
+            shaderDirectory = Api24ContextHelper.createDeviceProtectedStorageContext(context)
+                    .getCodeCacheDir();
         } else if (Build.VERSION.SDK_INT == 23) {
             // getCodeCacheDir was added in L, but not used by platform for shaders until M
-            shaderDirectory = Api21ContextHelper.getCodeCacheDir(context);
+            shaderDirectory = context.getCodeCacheDir();
         } else {
             shaderDirectory = context.getCacheDir();
         }
@@ -52,7 +52,6 @@ class BenchmarkOperation {
         } else {
             callback.onResultReceived(ProfileInstaller.RESULT_BENCHMARK_OPERATION_FAILURE, null);
         }
-
     }
 
     /**
@@ -75,14 +74,6 @@ class BenchmarkOperation {
             //noinspection ResultOfMethodCallIgnored
             file.delete();
             return true;
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private static class Api21ContextHelper {
-        static File getCodeCacheDir(Context context) {
-            // Code cache dir added in 21
-            return context.getCodeCacheDir();
         }
     }
 

@@ -17,8 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_AUTOMATICALLY_RECORDED
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.units.Pressure
 import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,7 +41,7 @@ class BloodPressureRecordTest {
                     diastolic = 112.millimetersOfMercury,
                     bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                     measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
             .isEqualTo(
@@ -54,7 +52,7 @@ class BloodPressureRecordTest {
                     diastolic = 112.millimetersOfMercury,
                     bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                     measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
     }
@@ -70,7 +68,7 @@ class BloodPressureRecordTest {
                 diastolic = 500.millimetersOfMercury,
                 bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                 measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
             )
         }
     }
@@ -86,7 +84,7 @@ class BloodPressureRecordTest {
                     diastolic = 112.millimetersOfMercury,
                     bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                     measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
             .isEqualTo(
@@ -97,7 +95,7 @@ class BloodPressureRecordTest {
                     diastolic = 112.millimetersOfMercury,
                     bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                     measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                 )
             )
     }
@@ -113,7 +111,7 @@ class BloodPressureRecordTest {
                 diastolic = 200.millimetersOfMercury,
                 bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                 measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
             )
         }
     }
@@ -149,13 +147,12 @@ class BloodPressureRecordTest {
                         diastolic = Pressure.millimetersOfMercury(112.0),
                         bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                         measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                        metadata =
-                            Metadata(recordingMethod = RECORDING_METHOD_AUTOMATICALLY_RECORDED),
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )
             .isEqualTo(
-                "BloodPressureRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, systolic=120.0 mmHg, diastolic=112.0 mmHg, bodyPosition=4, measurementLocation=1, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=2))"
+                "BloodPressureRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, systolic=120.0 mmHg, diastolic=112.0 mmHg, bodyPosition=4, measurementLocation=1, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
             )
     }
 }

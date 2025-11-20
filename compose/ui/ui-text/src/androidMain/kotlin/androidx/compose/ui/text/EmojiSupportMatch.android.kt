@@ -24,7 +24,7 @@ package androidx.compose.ui.text
  * This is only available on Android.
  */
 @kotlin.jvm.JvmInline
-value class EmojiSupportMatch private constructor(private val value: Int) {
+value class EmojiSupportMatch internal constructor(internal val value: Int) {
 
     override fun toString(): String {
         return when (value) {

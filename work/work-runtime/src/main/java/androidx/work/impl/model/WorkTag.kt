@@ -30,14 +30,14 @@ import androidx.room.Index
                 parentColumns = ["id"],
                 childColumns = ["work_spec_id"],
                 onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE
+                onUpdate = ForeignKey.CASCADE,
             )
         ],
     primaryKeys = ["tag", "work_spec_id"],
-    indices = [Index(value = ["work_spec_id"])]
+    indices = [Index(value = ["work_spec_id"])],
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class WorkTag(
-    @ColumnInfo(name = "tag") val tag: String,
-    @ColumnInfo(name = "work_spec_id") val workSpecId: String
+public class WorkTag(
+    @ColumnInfo(name = "tag") public val tag: String,
+    @ColumnInfo(name = "work_spec_id") public val workSpecId: String,
 )

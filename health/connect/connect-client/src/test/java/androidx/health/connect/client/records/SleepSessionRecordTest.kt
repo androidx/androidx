@@ -17,7 +17,6 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -36,7 +35,7 @@ class SleepSessionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     title = "title",
                     notes = "note",
                     stages =
@@ -45,7 +44,7 @@ class SleepSessionRecordTest {
                                 startTime = Instant.ofEpochMilli(1234),
                                 endTime = Instant.ofEpochMilli(1236),
                                 stage = SleepSessionRecord.STAGE_TYPE_DEEP,
-                            ),
+                            )
                         ),
                 )
             )
@@ -55,7 +54,7 @@ class SleepSessionRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                    metadata = Metadata.manualEntry(),
                     title = "title",
                     notes = "note",
                     stages =
@@ -64,7 +63,7 @@ class SleepSessionRecordTest {
                                 startTime = Instant.ofEpochMilli(1234),
                                 endTime = Instant.ofEpochMilli(1236),
                                 stage = SleepSessionRecord.STAGE_TYPE_DEEP,
-                            ),
+                            )
                         ),
                 )
             )
@@ -78,7 +77,7 @@ class SleepSessionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 title = "title",
                 notes = "note",
             )
@@ -93,7 +92,7 @@ class SleepSessionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1235L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 title = "title",
                 notes = "note",
                 stages =
@@ -103,7 +102,7 @@ class SleepSessionRecordTest {
                             endTime = Instant.ofEpochMilli(1235L),
                             stage = SleepSessionRecord.STAGE_TYPE_DEEP,
                         )
-                    )
+                    ),
             )
         }
 
@@ -113,7 +112,7 @@ class SleepSessionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1235L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 title = "title",
                 notes = "note",
                 stages =
@@ -123,7 +122,7 @@ class SleepSessionRecordTest {
                             endTime = Instant.ofEpochMilli(1236L),
                             stage = SleepSessionRecord.STAGE_TYPE_DEEP,
                         )
-                    )
+                    ),
             )
         }
     }
@@ -136,7 +135,7 @@ class SleepSessionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
                 title = "title",
                 notes = "note",
                 stages =
@@ -151,7 +150,7 @@ class SleepSessionRecordTest {
                             endTime = Instant.ofEpochMilli(1236L),
                             stage = SleepSessionRecord.STAGE_TYPE_DEEP,
                         ),
-                    )
+                    ),
             )
         }
     }
@@ -180,7 +179,7 @@ class SleepSessionRecordTest {
             SleepSessionRecord.Stage(
                 startTime = Instant.ofEpochMilli(1234L),
                 endTime = Instant.ofEpochMilli(1234L),
-                stage = SleepSessionRecord.STAGE_TYPE_AWAKE
+                stage = SleepSessionRecord.STAGE_TYPE_AWAKE,
             )
         }
     }
@@ -193,7 +192,7 @@ class SleepSessionRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                        metadata = Metadata.manualEntry(),
                         title = "title",
                         notes = "note",
                         stages =
@@ -202,7 +201,7 @@ class SleepSessionRecordTest {
                                     startTime = Instant.ofEpochMilli(1234),
                                     endTime = Instant.ofEpochMilli(1236),
                                     stage = SleepSessionRecord.STAGE_TYPE_DEEP,
-                                ),
+                                )
                             ),
                     )
                     .toString()

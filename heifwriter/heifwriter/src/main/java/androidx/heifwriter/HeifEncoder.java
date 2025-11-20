@@ -17,8 +17,6 @@
 package androidx.heifwriter;
 
 import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.util.Log;
@@ -53,9 +51,6 @@ final class HeifEncoder extends EncoderBase {
     protected static final int ENCODING_BLOCK_SIZE = 32;
     protected static final double MAX_COMPRESS_RATIO = 0.25f;
 
-    private static final MediaCodecList sMCL =
-        new MediaCodecList(MediaCodecList.REGULAR_CODECS);
-
     /**
      * Configure the heif encoding session. Should only be called once.
      *
@@ -71,43 +66,12 @@ final class HeifEncoder extends EncoderBase {
      * @param cb The callback to receive various messages from the heif encoder.
      */
     public HeifEncoder(int width, int height, boolean useGrid,
-            int quality, @InputMode int inputMode,
+            int quality, @InputMode int inputMode, @NonNull EncoderPreference preference,
             @Nullable Handler handler, @NonNull Callback cb) throws IOException {
-        super("HEIC", width, height, useGrid, quality, inputMode, handler, cb,
+        super("HEIC", width, height, useGrid, quality, inputMode, preference, handler, cb,
             /* useBitDepth10 */ false);
         mEncoder.setCallback(new HevcEncoderCallback(), mHandler);
         finishSettingUpEncoder(/* useBitDepth10 */ false);
-    }
-
-    protected static String findHevcFallback() {
-        String hevc = null; // first HEVC encoder
-        for (MediaCodecInfo info : sMCL.getCodecInfos()) {
-            if (!info.isEncoder()) {
-                continue;
-            }
-            MediaCodecInfo.CodecCapabilities caps = null;
-            try {
-                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_HEVC);
-            } catch (IllegalArgumentException e) { // mime is not supported
-                continue;
-            }
-            if (!caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)) {
-                continue;
-            }
-            if (caps.getEncoderCapabilities().isBitrateModeSupported(
-                MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
-                // Encoder that supports CQ mode is preferred over others,
-                // return the first encoder that supports CQ mode.
-                // (No need to check if it's hw based, it's already listed in
-                // order of preference.)
-                return info.getName();
-            }
-            if (hevc == null) {
-                hevc = info.getName();
-            }
-        }
-        // If no encoders support CQ, return the first HEVC encoder.
-        return hevc;
     }
 
     /**

@@ -39,7 +39,7 @@ class FastFloatParserTest {
                 abs(x.toBits() - bits) < 2,
                 "Expected: 0x$bits\n" +
                     "Actual:   0x${x.toBits()}\n" +
-                    "    in $line (toFloat() = ${number.toFloat()})"
+                    "    in $line (toFloat() = ${number.toFloat()})",
             )
         }
     }
@@ -3375,5 +3375,5 @@ private val FloatData =
         "7F800000 9e40000000",
         "7F800000 9e563",
         "7F800000 9e795",
-        "7F800000 9e904"
+        "7F800000 9e904",
     )

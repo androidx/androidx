@@ -18,7 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.stats.BaseStats;
 
 import org.jspecify.annotations.NonNull;
 
@@ -30,7 +30,7 @@ import org.jspecify.annotations.NonNull;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ClickStats {
+public class ClickStats extends BaseStats {
     private final long mTimestampMillis;
 
     private final long mTimeStayOnResultMillis;
@@ -42,7 +42,7 @@ public class ClickStats {
     private final boolean mIsGoodClick;
 
     ClickStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mTimestampMillis = builder.mTimestampMillis;
         mTimeStayOnResultMillis = builder.mTimeStayOnResultMillis;
         mResultRankInBlock = builder.mResultRankInBlock;
@@ -79,8 +79,28 @@ public class ClickStats {
         return mIsGoodClick;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format(
+                "ClickStats {\n"
+                        + "  timestampMillis=%d,\n"
+                        + "  timeStayOnResultMillis=%d,\n"
+                        + "  resultRankInBlock=%d,\n"
+                        + "  resultRankGlobal=%d,\n"
+                        + "  isGoodClick=%b\n"
+                        // Include BaseStats fields
+                        + super.toString()
+                        + "}",
+                mTimestampMillis,
+                mTimeStayOnResultMillis,
+                mResultRankInBlock,
+                mResultRankGlobal,
+                mIsGoodClick);
+    }
+
     /** Builder for {@link ClickStats} */
-    public static final class Builder {
+    public static final class Builder extends BaseStats.Builder<ClickStats.Builder> {
         private long mTimestampMillis;
 
         private long mTimeStayOnResultMillis;
@@ -143,6 +163,7 @@ public class ClickStats {
         }
 
         /** Builds a new {@link ClickStats} from the {@link ClickStats.Builder}. */
+        @Override
         public @NonNull ClickStats build() {
             return new ClickStats(/* builder= */ this);
         }

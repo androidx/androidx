@@ -27,33 +27,71 @@ class AngleTest {
 
     @Test
     fun degreesToRadians() {
-        assertThat(Angle.degreesToRadians(180f)).isEqualTo(Math.PI.toFloat())
+        assertThat(Angle.degreesToRadians(180f)).isEqualTo(PI.toFloat())
+        assertThat(Angle.degreesToRadians(Angle.ZERO_DEGREES)).isEqualTo(Angle.ZERO_RADIANS)
+        assertThat(Angle.degreesToRadians(Angle.HALF_TURN_DEGREES))
+            .isEqualTo(Angle.HALF_TURN_RADIANS)
+        assertThat(Angle.degreesToRadians(Angle.QUARTER_TURN_DEGREES))
+            .isEqualTo(Angle.QUARTER_TURN_RADIANS)
+        assertThat(Angle.degreesToRadians(Angle.FULL_TURN_DEGREES))
+            .isEqualTo(Angle.FULL_TURN_RADIANS)
     }
 
     @Test
     fun radiansToDegrees() {
-        assertThat(Angle.radiansToDegrees(Math.PI.toFloat())).isEqualTo(180f)
+        assertThat(Angle.radiansToDegrees(PI.toFloat())).isEqualTo(180f)
+        assertThat(Angle.radiansToDegrees(Angle.ZERO_RADIANS)).isEqualTo(Angle.ZERO_DEGREES)
+        assertThat(Angle.radiansToDegrees(Angle.HALF_TURN_RADIANS))
+            .isEqualTo(Angle.HALF_TURN_DEGREES)
+        assertThat(Angle.radiansToDegrees(Angle.QUARTER_TURN_RADIANS))
+            .isEqualTo(Angle.QUARTER_TURN_DEGREES)
+        assertThat(Angle.radiansToDegrees(Angle.FULL_TURN_RADIANS))
+            .isEqualTo(Angle.FULL_TURN_DEGREES)
     }
 
     @Test
     fun constants_areCorrect() {
-        assertThat(Angle.ZERO).isEqualTo(0f)
-        assertThat(Angle.HALF_TURN_RADIANS).isEqualTo(Math.PI.toFloat())
-        assertThat(Angle.FULL_TURN_RADIANS).isEqualTo((Math.PI * 2).toFloat())
-        assertThat(Angle.QUARTER_TURN_RADIANS).isEqualTo((Math.PI / 2).toFloat())
+        assertThat(Angle.ZERO_RADIANS).isEqualTo(0f)
+        assertThat(Angle.HALF_TURN_RADIANS).isEqualTo(PI.toFloat())
+        assertThat(Angle.FULL_TURN_RADIANS).isEqualTo((PI * 2).toFloat())
+        assertThat(Angle.QUARTER_TURN_RADIANS).isEqualTo((PI / 2).toFloat())
     }
 
     @Test
-    fun normalized_returnsValueFromJni() {
-        assertThat(Angle.normalized(Angle.ZERO)).isEqualTo(0f)
-        assertThat(Angle.normalized(-Angle.HALF_TURN_RADIANS)).isWithin(1e-6F).of(Math.PI.toFloat())
-    }
-
-    @Test
-    fun normalizedAboutZero_returnsValueFromJni() {
-        assertThat(Angle.normalizedAboutZero(Angle.ZERO)).isEqualTo(0f)
-        assertThat(Angle.normalizedAboutZero(Angle.FULL_TURN_RADIANS - Angle.QUARTER_TURN_RADIANS))
+    fun normalizedRadians_returnsValueFromJni() {
+        assertThat(Angle.normalizedRadians(Angle.ZERO_RADIANS)).isEqualTo(0f)
+        assertThat(Angle.normalizedRadians(-Angle.HALF_TURN_RADIANS))
             .isWithin(1e-6F)
-            .of(-Math.PI.toFloat() / 2F)
+            .of(PI.toFloat())
+    }
+
+    @Test
+    fun normalizedAboutZeroRadians_returnsValueFromJni() {
+        assertThat(Angle.normalizedAboutZeroRadians(Angle.ZERO_RADIANS)).isEqualTo(0f)
+        assertThat(
+                Angle.normalizedAboutZeroRadians(
+                    Angle.FULL_TURN_RADIANS - Angle.QUARTER_TURN_RADIANS
+                )
+            )
+            .isWithin(1e-6F)
+            .of(-PI.toFloat() / 2F)
+    }
+
+    @Test
+    fun normalizedDegrees_returnsValueFromJni() {
+        assertThat(Angle.normalizedDegrees(Angle.ZERO_DEGREES)).isEqualTo(0f)
+        assertThat(Angle.normalizedDegrees(-Angle.HALF_TURN_DEGREES)).isEqualTo(180f)
+    }
+
+    @Test
+    fun normalizedAboutZeroDegrees_returnsValueFromJni() {
+        assertThat(Angle.normalizedAboutZeroDegrees(Angle.ZERO_DEGREES)).isEqualTo(0f)
+        assertThat(
+                Angle.normalizedAboutZeroDegrees(
+                    Angle.FULL_TURN_DEGREES - Angle.QUARTER_TURN_DEGREES
+                )
+            )
+            .isWithin(1e-4F)
+            .of(-90f)
     }
 }

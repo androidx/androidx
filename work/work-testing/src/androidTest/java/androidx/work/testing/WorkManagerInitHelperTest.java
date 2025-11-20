@@ -27,6 +27,7 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.DefaultWorkerFactory;
 import androidx.work.NoOpInputMergerFactory;
@@ -90,6 +91,7 @@ public class WorkManagerInitHelperTest {
         assertThat(serialExecutor, instanceOf(SynchronousSerialExecutor.class));
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452724454
     @Test
     public void testWorkManagerInitialized_withFullConfiguration() {
         Configuration configuration = new Configuration.Builder()

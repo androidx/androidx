@@ -54,6 +54,7 @@ public class FullPageInterstitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_page_interstitial);
         setTitle(R.string.full_page_interstitial_activity_title);
+        WebkitHelpers.enableEdgeToEdge(this);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         mWebView = findViewById(R.id.full_page_webview);

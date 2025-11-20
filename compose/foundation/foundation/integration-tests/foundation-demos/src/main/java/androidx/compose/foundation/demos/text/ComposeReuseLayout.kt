@@ -75,7 +75,7 @@ fun TextReuseLayoutDemo() {
         Shadow(
             color = color,
             blurRadius = Float.MIN_VALUE,
-            offset = Offset(shadowDistance, shadowDistance)
+            offset = Offset(shadowDistance, shadowDistance),
         )
     val text = "ABC"
 

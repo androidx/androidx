@@ -49,7 +49,7 @@ class CredentialEntryTest {
             BeginGetPublicKeyCredentialOption(
                 Bundle.EMPTY,
                 "id",
-                "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}"
+                "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}",
             )
     }
 

@@ -31,35 +31,61 @@ import androidx.graphics.surface.SurfaceControlCompat
  */
 internal class BufferTransformHintResolver {
 
+    /** Equivalent to [android.view.AttachedSurfaceControl.getBufferTransformHint]. */
     fun getBufferTransformHint(view: View): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
             return TransformHintHelper.resolveBufferTransformHint(view)
         } else {
-            val orientation: String?
             return try {
-                orientation = JniBindings.nGetDisplayOrientation()
                 val rotation = view.display?.rotation
                 if (rotation != null) {
+                    val surfaceFlingerOrientation = JniBindings.nGetSurfaceFlingerOrientation()
                     val transform =
-                        getBufferTransformHintFromInstallOrientation(orientation, rotation)
-                    Log.v(TAG, "Obtained transform: $transform for orientation: $orientation")
+                        if (surfaceFlingerOrientation.isNotBlank()) {
+                            getBufferTransformHintFromSurfaceFlingerOrientation(
+                                surfaceFlingerOrientation,
+                                rotation,
+                            )
+                        } else {
+                            val minUiDefaultRotation = JniBindings.nGetMinUiRotation()
+                            getBufferTransformHintFromMinUiRotation(minUiDefaultRotation, rotation)
+                        }
+                    Log.v(TAG, "Obtained transform: $transform")
                     transform
                 } else {
                     Log.w(TAG, "Unable to obtain current display rotation")
                     UNKNOWN_TRANSFORM
                 }
             } catch (exception: Exception) {
-                Log.w(TAG, "Unable to obtain current display orientation")
+                Log.w(TAG, "Unable to obtain current display orientation", exception)
                 UNKNOWN_TRANSFORM
             }
         }
     }
 
-    internal fun getBufferTransformHintFromInstallOrientation(
+    internal fun getBufferTransformHintFromMinUiRotation(
+        minUiDefaultRotation: String,
+        rotation: Int,
+    ): Int {
+        val equivalentSurfaceFlingerOrientation =
+            when (minUiDefaultRotation) {
+                MINUI_ROTATION_NONE -> ORIENTATION_0
+                MINUI_ROTATION_RIGHT -> ORIENTATION_90
+                MINUI_ROTATION_DOWN -> ORIENTATION_180
+                MINUI_ROTATION_LEFT -> ORIENTATION_270
+                else -> return UNKNOWN_TRANSFORM
+            }
+        return getBufferTransformHintFromSurfaceFlingerOrientation(
+            equivalentSurfaceFlingerOrientation,
+            rotation,
+        )
+    }
+
+    internal fun getBufferTransformHintFromSurfaceFlingerOrientation(
         orientation: String,
-        rotation: Int
-    ): Int =
-        when (orientation) {
+        rotation: Int,
+    ): Int {
+        return when (orientation) {
             ORIENTATION_90 -> {
                 when (rotation) {
                     Surface.ROTATION_0 -> SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
@@ -101,6 +127,7 @@ internal class BufferTransformHintResolver {
                 UNKNOWN_TRANSFORM
             }
         }
+    }
 
     internal companion object {
 
@@ -113,12 +140,17 @@ internal class BufferTransformHintResolver {
         const val ORIENTATION_180 = "ORIENTATION_180"
         const val ORIENTATION_270 = "ORIENTATION_270"
 
+        const val MINUI_ROTATION_NONE = "ROTATION_NONE"
+        const val MINUI_ROTATION_RIGHT = "ROTATION_RIGHT"
+        const val MINUI_ROTATION_DOWN = "ROTATION_DOWN"
+        const val MINUI_ROTATION_LEFT = "ROTATION_LEFT"
+
         @RequiresApi(Build.VERSION_CODES.Q)
         internal fun configureTransformMatrix(
             matrix: Matrix,
             width: Float,
             height: Float,
-            @SurfaceControlCompat.Companion.BufferTransform transform: Int
+            @SurfaceControlCompat.Companion.BufferTransform transform: Int,
         ): Matrix =
             matrix.apply {
                 when (transform) {

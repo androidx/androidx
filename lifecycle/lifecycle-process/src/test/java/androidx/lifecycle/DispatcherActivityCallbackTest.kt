@@ -46,7 +46,7 @@ class DispatcherActivityCallbackTest {
     @SuppressLint("CommitTransaction")
     private fun checkReportFragment(
         callback: LifecycleDispatcher.DispatcherActivityCallback,
-        activity: Activity
+        activity: Activity,
     ) {
         val fm = mock(FragmentManager::class.java)
         val transaction = mock(FragmentTransaction::class.java)

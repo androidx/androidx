@@ -10,15 +10,11 @@ export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
 echo "Starting $0 at $(date)"
 
-cd "$(dirname $0)"
+BUILD_SCRIPT="impl/build.sh"
+HOST_TEST_TASKS="darwinBenchmarkResults allHostTests"
+EXTRA_PARAMS="--no-configuration-cache"
 
-# Setup simulators
-impl/androidx-native-mac-simulator-setup.sh
-
-impl/build.sh darwinBenchmarkResults allHostTests \
-    --no-configuration-cache \
-    -Pandroidx.ignoreTestFailures \
-    -Pandroidx.displayTestOutput=false \
-    "$@"
+"$(dirname "$0")/impl/androidx-native-mac-simulator-setup.sh"
+"$(dirname "$0")/impl/host_test_common_test_runner.sh" "$BUILD_SCRIPT" "$HOST_TEST_TASKS" "$EXTRA_PARAMS" "$@"
 
 echo "Completing $0 at $(date)"

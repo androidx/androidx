@@ -29,5 +29,5 @@ val PerformanceDemos =
         listOf(
             ComposableDemo("Recomposition") { RecompositionDemo() },
             ComposableDemo("Drawing") { DrawingDemo() },
-        )
+        ),
     )

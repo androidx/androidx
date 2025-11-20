@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfac
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
-import androidx.camera.camera2.pipe.testing.TestUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.TestUseCaseCamera
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.ImmediateSurface
@@ -46,6 +46,9 @@ import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.core.os.HandlerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -70,7 +73,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class UseCaseSurfaceManagerDeviceTest {
 
     @get:Rule
@@ -130,11 +132,12 @@ class UseCaseSurfaceManagerDeviceTest {
         // Act. Open CameraGraph
         testUseCaseCamera =
             TestUseCaseCamera(
-                context = ApplicationProvider.getApplicationContext(),
-                cameraId = cameraId,
-                useCases = useCases,
-                threads = useCaseThreads,
-            )
+                    context = ApplicationProvider.getApplicationContext(),
+                    cameraId = cameraId,
+                    useCases = useCases,
+                    threads = useCaseThreads,
+                )
+                .also { it.start() }
         assertThat(testSessionParameters.repeatingOutputDataLatch.await(3, TimeUnit.SECONDS))
             .isTrue()
         val cameraOpenedUsageCount = testSessionParameters.deferrableSurface.useCount
@@ -156,7 +159,7 @@ class UseCaseSurfaceManagerDeviceTest {
      * set the maximum SDK version to S_V2.
      */
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M, maxSdkVersion = Build.VERSION_CODES.S_V2)
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
     fun disconnectOpenedCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
@@ -170,11 +173,12 @@ class UseCaseSurfaceManagerDeviceTest {
             )
         testUseCaseCamera =
             TestUseCaseCamera(
-                context = ApplicationProvider.getApplicationContext(),
-                cameraId = cameraId,
-                useCases = useCases,
-                threads = useCaseThreads,
-            )
+                    context = ApplicationProvider.getApplicationContext(),
+                    cameraId = cameraId,
+                    useCases = useCases,
+                    threads = useCaseThreads,
+                )
+                .also { it.start() }
         val surfaceActiveCountDown = CountDownLatch(1)
         val surfaceInactiveCountDown = CountDownLatch(1)
         testUseCaseCamera.cameraPipe
@@ -182,13 +186,13 @@ class UseCaseSurfaceManagerDeviceTest {
             .addListener(
                 object : CameraSurfaceManager.SurfaceListener {
                     override fun onSurfaceActive(surface: Surface) {
-                        if (surface == testSessionParameters.deferrableSurface.surface.get()) {
+                        if (surface == testSessionParameters.surface) {
                             surfaceActiveCountDown.countDown()
                         }
                     }
 
                     override fun onSurfaceInactive(surface: Surface) {
-                        if (surface == testSessionParameters.deferrableSurface.surface.get()) {
+                        if (surface == testSessionParameters.surface) {
                             surfaceInactiveCountDown.countDown()
                         }
                     }
@@ -197,13 +201,33 @@ class UseCaseSurfaceManagerDeviceTest {
         assertThat(surfaceActiveCountDown.await(3, TimeUnit.SECONDS)).isTrue()
         val cameraOpenedUsageCount = testSessionParameters.deferrableSurface.useCount
 
-        // Act. Launch Camera2Activity to open the camera, it disconnects the CameraGraph.
-        ActivityScenario.launch<Camera2TestActivity>(
-                Intent(ApplicationProvider.getApplicationContext(), Camera2TestActivity::class.java)
-                    .apply { putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId) }
-            )
-            .close()
-        // Close the CameraGraph to ensure the usage count does go back down.
+        // Act. Launch Camera2TestActivity to open the camera and wait until it is ready.
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), Camera2TestActivity::class.java)
+                .apply { putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, cameraId) }
+
+        var completionIdlingResource: CountingIdlingResource? = null
+        var wasPreviewReady = false
+        try {
+            ActivityScenario.launch<Camera2TestActivity>(intent).use { scenario ->
+                var previewStartedIdlingResource: CountingIdlingResource? = null
+                scenario.onActivity { activity ->
+                    completionIdlingResource = activity.completionIdlingResource
+                    previewStartedIdlingResource = activity.previewStartedIdlingResource
+                    IdlingRegistry.getInstance().register(completionIdlingResource)
+                }
+                Espresso.onIdle()
+                wasPreviewReady = previewStartedIdlingResource!!.isIdleNow
+            }
+        } finally {
+            completionIdlingResource?.let { IdlingRegistry.getInstance().unregister(it) }
+        }
+
+        // Assume/skip the test if the activity failed to start the preview.
+        assumeTrue("Camera2TestActivity failed to start preview.", wasPreviewReady)
+
+        // Now that Camera2TestActivity has run and closed, the camera graph should be disconnected.
+        // Close the CameraGraph to ensure the usage count goes back down.
         testUseCaseCamera.useCaseCameraGraphConfig.graph.close()
         testUseCaseCamera.useCaseSurfaceManager.stopAsync().awaitWithTimeout()
         assertThat(surfaceInactiveCountDown.await(3, TimeUnit.SECONDS)).isTrue()
@@ -229,19 +253,20 @@ class UseCaseSurfaceManagerDeviceTest {
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         testUseCaseCamera =
             TestUseCaseCamera(
-                context = context,
-                cameraId = cameraId,
-                useCases = useCases,
-                threads = useCaseThreads,
-                cameraPipe = cameraPipe,
-                useCaseSurfaceManager =
-                    UseCaseSurfaceManager(
-                        useCaseThreads,
-                        cameraPipe,
-                        InactiveSurfaceCloserImpl(),
-                        SessionConfigAdapter(useCases = useCases)
-                    )
-            )
+                    context = context,
+                    cameraId = cameraId,
+                    useCases = useCases,
+                    threads = useCaseThreads,
+                    cameraPipe = cameraPipe,
+                    useCaseSurfaceManager =
+                        UseCaseSurfaceManager(
+                            useCaseThreads,
+                            cameraPipe,
+                            InactiveSurfaceCloserImpl(),
+                            SessionConfigAdapter(useCases = useCases),
+                        ),
+                )
+                .also { it.start() }
 
         // Act.
         testUseCaseCamera.useCaseCameraGraphConfig.graph.close()
@@ -279,14 +304,14 @@ class UseCaseSurfaceManagerDeviceTest {
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2).apply {
                 setOnImageAvailableListener(
                     onImageAvailableListener,
-                    HandlerCompat.createAsync(handlerThread.looper)
+                    HandlerCompat.createAsync(handlerThread.looper),
                 )
             }
 
+        val surface: Surface = imageReader.surface
+
         val deferrableSurface: DeferrableSurface =
-            ImmediateSurface(imageReader.surface).also {
-                DeferrableSurfaces.incrementAll(listOf(it))
-            }
+            ImmediateSurface(surface).also { DeferrableSurfaces.incrementAll(listOf(it)) }
 
         /** Latch to wait for first image data to appear. */
         val repeatingOutputDataLatch = CountDownLatch(1)
@@ -302,11 +327,11 @@ class UseCaseSurfaceManagerDeviceTest {
                     camera2ConfigBuilder
                         .setCaptureRequestOption<Int>(
                             CaptureRequest.CONTROL_AF_MODE,
-                            CaptureRequest.CONTROL_AF_MODE_AUTO
+                            CaptureRequest.CONTROL_AF_MODE_AUTO,
                         )
                         .setCaptureRequestOption<Int>(
                             CaptureRequest.CONTROL_AE_MODE,
-                            CaptureRequest.CONTROL_AE_MODE_ON
+                            CaptureRequest.CONTROL_AE_MODE_ON,
                         )
                     addImplementationOptions(camera2ConfigBuilder.build())
                 }

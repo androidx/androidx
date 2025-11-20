@@ -15,7 +15,9 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.kilograms
@@ -35,9 +37,17 @@ public class WeightRecord(
     override val metadata: Metadata,
 ) : InstantaneousRecord {
 
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        weight.requireNotLess(other = weight.zero(), name = "weight")
-        weight.requireNotMore(other = MAX_WEIGHT, name = "weight")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            weight.requireNotLess(other = weight.zero(), name = "weight")
+            weight.requireNotMore(other = MAX_WEIGHT, name = "weight")
+        }
     }
 
     override fun equals(other: Any?): Boolean {

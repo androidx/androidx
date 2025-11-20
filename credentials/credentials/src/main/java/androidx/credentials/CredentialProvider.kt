@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateException
 import java.util.concurrent.Executor
 
 /**
@@ -131,5 +132,19 @@ interface CredentialProvider {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
+    ) {}
+
+    /**
+     * Invoked on a request to signal an app user's credential state
+     *
+     * @param request the request for signaling the app user's credential state
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    fun onSignalCredentialState(
+        request: SignalCredentialStateRequest,
+        executor: Executor,
+        callback:
+            CredentialManagerCallback<SignalCredentialStateResponse, SignalCredentialStateException>,
     ) {}
 }

@@ -83,22 +83,22 @@ fun SampleGrid(cells: GridCells, modifier: GlanceModifier = GlanceModifier.fillM
                     GlanceModifier.background(GlanceTheme.colors.surfaceVariant)
                         .padding(8.dp)
                         .cornerRadius(28.dp)
-                        .clickable { Log.i("SampleGrid", "Clicked the clickable text!") }
+                        .clickable { Log.i("SampleGrid", "Clicked the clickable text!") },
             )
         }
         itemsIndexed(
             listOf(
                 GlanceAppWidgetDemoActivity::class.java,
-                ListClickDestinationActivity::class.java
+                ListClickDestinationActivity::class.java,
             )
         ) { index, activityClass ->
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+                horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
             ) {
                 Button(
                     text = "Activity ${index + 1}",
-                    onClick = actionStartActivity(Intent(LocalContext.current, activityClass))
+                    onClick = actionStartActivity(Intent(LocalContext.current, activityClass)),
                 )
             }
         }

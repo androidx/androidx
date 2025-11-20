@@ -1,0 +1,169 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.window.core:
+    Removed package androidx.window.core from compatibility checked API surface
+
+
+RemovedFromKotlin: androidx.window.RequiresWindowSdkExtension#version():
+    Source breaking change: method androidx.window.RequiresWindowSdkExtension.version() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.WindowSdkExtensions#getExtensionVersion():
+    Source breaking change: method androidx.window.WindowSdkExtensions.getExtensionVersion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.ActivityFilter#getComponentName():
+    Source breaking change: method androidx.window.embedding.ActivityFilter.getComponentName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.ActivityFilter#getIntentAction():
+    Source breaking change: method androidx.window.embedding.ActivityFilter.getIntentAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.ActivityRule#getAlwaysExpand():
+    Source breaking change: method androidx.window.embedding.ActivityRule.getAlwaysExpand() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.ActivityRule#getFilters():
+    Source breaking change: method androidx.window.embedding.ActivityRule.getFilters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.ActivityStack#isEmpty():
+    Source breaking change: method androidx.window.embedding.ActivityStack.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes#getColor():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.getColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes#getWidthDp():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.getWidthDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange#getMaxRatio():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange.getMaxRatio() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange#getMinRatio():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange.getMinRatio() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes.DraggableDividerAttributes#getDragRange():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.getDragRange() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.DividerAttributes.DraggableDividerAttributes#isDraggingToFullscreenAllowed():
+    Source breaking change: method androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.isDraggingToFullscreenAllowed() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddedActivityWindowInfo#getBoundsInParentHost():
+    Source breaking change: method androidx.window.embedding.EmbeddedActivityWindowInfo.getBoundsInParentHost() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddedActivityWindowInfo#getParentHostBounds():
+    Source breaking change: method androidx.window.embedding.EmbeddedActivityWindowInfo.getParentHostBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddedActivityWindowInfo#isEmbedded():
+    Source breaking change: method androidx.window.embedding.EmbeddedActivityWindowInfo.isEmbedded() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingAnimationBackground.ColorBackground#getColor():
+    Source breaking change: method androidx.window.embedding.EmbeddingAnimationBackground.ColorBackground.getColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingAnimationParams#getAnimationBackground():
+    Source breaking change: method androidx.window.embedding.EmbeddingAnimationParams.getAnimationBackground() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingAnimationParams#getChangeAnimation():
+    Source breaking change: method androidx.window.embedding.EmbeddingAnimationParams.getChangeAnimation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingAnimationParams#getCloseAnimation():
+    Source breaking change: method androidx.window.embedding.EmbeddingAnimationParams.getCloseAnimation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingAnimationParams#getOpenAnimation():
+    Source breaking change: method androidx.window.embedding.EmbeddingAnimationParams.getOpenAnimation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingBounds#getAlignment():
+    Source breaking change: method androidx.window.embedding.EmbeddingBounds.getAlignment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingBounds#getHeight():
+    Source breaking change: method androidx.window.embedding.EmbeddingBounds.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingBounds#getWidth():
+    Source breaking change: method androidx.window.embedding.EmbeddingBounds.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingConfiguration#getDimAreaBehavior():
+    Source breaking change: method androidx.window.embedding.EmbeddingConfiguration.getDimAreaBehavior() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingConfiguration#isAutoSaveEmbeddingState():
+    Source breaking change: method androidx.window.embedding.EmbeddingConfiguration.isAutoSaveEmbeddingState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.EmbeddingRule#getTag():
+    Source breaking change: method androidx.window.embedding.EmbeddingRule.getTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributes#getBounds():
+    Source breaking change: method androidx.window.embedding.OverlayAttributes.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributesCalculatorParams#getDefaultOverlayAttributes():
+    Source breaking change: method androidx.window.embedding.OverlayAttributesCalculatorParams.getDefaultOverlayAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributesCalculatorParams#getOverlayTag():
+    Source breaking change: method androidx.window.embedding.OverlayAttributesCalculatorParams.getOverlayTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributesCalculatorParams#getParentConfiguration():
+    Source breaking change: method androidx.window.embedding.OverlayAttributesCalculatorParams.getParentConfiguration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributesCalculatorParams#getParentWindowLayoutInfo():
+    Source breaking change: method androidx.window.embedding.OverlayAttributesCalculatorParams.getParentWindowLayoutInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayAttributesCalculatorParams#getParentWindowMetrics():
+    Source breaking change: method androidx.window.embedding.OverlayAttributesCalculatorParams.getParentWindowMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayCreateParams#getOverlayAttributes():
+    Source breaking change: method androidx.window.embedding.OverlayCreateParams.getOverlayAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayCreateParams#getTag():
+    Source breaking change: method androidx.window.embedding.OverlayCreateParams.getTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayInfo#getActivityStack():
+    Source breaking change: method androidx.window.embedding.OverlayInfo.getActivityStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayInfo#getCurrentOverlayAttributes():
+    Source breaking change: method androidx.window.embedding.OverlayInfo.getCurrentOverlayAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.OverlayInfo#getOverlayTag():
+    Source breaking change: method androidx.window.embedding.OverlayInfo.getOverlayTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributes#getAnimationParams():
+    Source breaking change: method androidx.window.embedding.SplitAttributes.getAnimationParams() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributes#getDividerAttributes():
+    Source breaking change: method androidx.window.embedding.SplitAttributes.getDividerAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributes#getLayoutDirection():
+    Source breaking change: method androidx.window.embedding.SplitAttributes.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributes#getSplitType():
+    Source breaking change: method androidx.window.embedding.SplitAttributes.getSplitType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#areDefaultConstraintsSatisfied():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#getDefaultSplitAttributes():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.getDefaultSplitAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#getParentConfiguration():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.getParentConfiguration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#getParentWindowLayoutInfo():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.getParentWindowLayoutInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#getParentWindowMetrics():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.getParentWindowMetrics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitAttributesCalculatorParams#getSplitRuleTag():
+    Source breaking change: method androidx.window.embedding.SplitAttributesCalculatorParams.getSplitRuleTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitController#getSplitSupportStatus():
+    Source breaking change: method androidx.window.embedding.SplitController.getSplitSupportStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitInfo#getPrimaryActivityStack():
+    Source breaking change: method androidx.window.embedding.SplitInfo.getPrimaryActivityStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitInfo#getSecondaryActivityStack():
+    Source breaking change: method androidx.window.embedding.SplitInfo.getSecondaryActivityStack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitInfo#getSplitAttributes():
+    Source breaking change: method androidx.window.embedding.SplitInfo.getSplitAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairFilter#getPrimaryActivityName():
+    Source breaking change: method androidx.window.embedding.SplitPairFilter.getPrimaryActivityName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairFilter#getSecondaryActivityIntentAction():
+    Source breaking change: method androidx.window.embedding.SplitPairFilter.getSecondaryActivityIntentAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairFilter#getSecondaryActivityName():
+    Source breaking change: method androidx.window.embedding.SplitPairFilter.getSecondaryActivityName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairRule#getClearTop():
+    Source breaking change: method androidx.window.embedding.SplitPairRule.getClearTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairRule#getFilters():
+    Source breaking change: method androidx.window.embedding.SplitPairRule.getFilters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairRule#getFinishPrimaryWithSecondary():
+    Source breaking change: method androidx.window.embedding.SplitPairRule.getFinishPrimaryWithSecondary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPairRule#getFinishSecondaryWithPrimary():
+    Source breaking change: method androidx.window.embedding.SplitPairRule.getFinishSecondaryWithPrimary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPinRule#isSticky():
+    Source breaking change: method androidx.window.embedding.SplitPinRule.isSticky() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPlaceholderRule#getFilters():
+    Source breaking change: method androidx.window.embedding.SplitPlaceholderRule.getFilters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPlaceholderRule#getFinishPrimaryWithPlaceholder():
+    Source breaking change: method androidx.window.embedding.SplitPlaceholderRule.getFinishPrimaryWithPlaceholder() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPlaceholderRule#getPlaceholderIntent():
+    Source breaking change: method androidx.window.embedding.SplitPlaceholderRule.getPlaceholderIntent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitPlaceholderRule#isSticky():
+    Source breaking change: method androidx.window.embedding.SplitPlaceholderRule.isSticky() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getDefaultSplitAttributes():
+    Source breaking change: method androidx.window.embedding.SplitRule.getDefaultSplitAttributes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getMaxAspectRatioInLandscape():
+    Source breaking change: method androidx.window.embedding.SplitRule.getMaxAspectRatioInLandscape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getMaxAspectRatioInPortrait():
+    Source breaking change: method androidx.window.embedding.SplitRule.getMaxAspectRatioInPortrait() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getMinHeightDp():
+    Source breaking change: method androidx.window.embedding.SplitRule.getMinHeightDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getMinSmallestWidthDp():
+    Source breaking change: method androidx.window.embedding.SplitRule.getMinSmallestWidthDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.embedding.SplitRule#getMinWidthDp():
+    Source breaking change: method androidx.window.embedding.SplitRule.getMinWidthDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.DisplayFeature#getBounds():
+    Source breaking change: method androidx.window.layout.DisplayFeature.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.FoldingFeature#getOcclusionType():
+    Source breaking change: method androidx.window.layout.FoldingFeature.getOcclusionType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.FoldingFeature#getOrientation():
+    Source breaking change: method androidx.window.layout.FoldingFeature.getOrientation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.FoldingFeature#getState():
+    Source breaking change: method androidx.window.layout.FoldingFeature.getState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.FoldingFeature#isSeparating():
+    Source breaking change: method androidx.window.layout.FoldingFeature.isSeparating() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowInfoTracker#getOrCreate(android.content.Context):
+    Source breaking change: method androidx.window.layout.WindowInfoTracker.getOrCreate(android.content.Context) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowInfoTracker#getSupportedPostures():
+    Source breaking change: method androidx.window.layout.WindowInfoTracker.getSupportedPostures() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowLayoutInfo#getDisplayFeatures():
+    Source breaking change: method androidx.window.layout.WindowLayoutInfo.getDisplayFeatures() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowMetrics#getBounds():
+    Source breaking change: method androidx.window.layout.WindowMetrics.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowMetrics#getDensity():
+    Source breaking change: method androidx.window.layout.WindowMetrics.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowMetrics#getHeightDp():
+    Source breaking change: method androidx.window.layout.WindowMetrics.getHeightDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.window.layout.WindowMetrics#getWidthDp():
+    Source breaking change: method androidx.window.layout.WindowMetrics.getWidthDp() can no longer be resolved from Kotlin source

@@ -37,9 +37,12 @@ constructor(
     public val startTime: Instant,
     public val endTime: Instant,
     public val zoneOffset: ZoneOffset,
+    shouldSkipValidation: Boolean = false,
 ) {
     init {
-        require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        if (!shouldSkipValidation) {
+            require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

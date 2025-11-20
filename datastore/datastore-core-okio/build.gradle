@@ -22,13 +22,13 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
@@ -38,6 +38,7 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -49,35 +50,27 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":datastore:datastore-core"))
-                api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.okio)
+                implementation(libs.kotlinSerializationJson)
             }
         }
         jvmMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-            }
+            dependsOn(commonMain)
         }
         commonTest {
             dependencies {
-                api(project(":kruth:kruth"))
-                api(libs.kotlinTestCommon)
-                api(libs.kotlinTestAnnotationsCommon)
-                api(libs.kotlinCoroutinesTest)
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-datastore"))
             }
         }
-        jvmTest {
+        nonWebCommonTest {
             dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(project(":internal-testutils-datastore"))
-                api(project(":kruth:kruth"))
-            }
+        }
+        jvmTest {
+            dependsOn(nonWebCommonTest)
         }
 
         nativeMain {
@@ -85,6 +78,17 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.atomicFu)
             }
+        }
+
+        wasmJsMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(commonTest)
         }
 
         targets.configureEach { target ->
@@ -102,5 +106,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -64,7 +64,7 @@ public class TestTileClient<T : TileService> : TileClient {
     public constructor(
         service: T,
         coroutineScope: CoroutineScope,
-        coroutineDispatcher: CoroutineDispatcher
+        coroutineDispatcher: CoroutineDispatcher,
     ) {
         val bindIntent = Intent(TileService.ACTION_BIND_TILE_PROVIDER)
         this.componentName = ComponentName(getApplicationContext(), service.javaClass)
@@ -77,7 +77,7 @@ public class TestTileClient<T : TileService> : TileClient {
                 getApplicationContext(),
                 componentName,
                 coroutineScope,
-                coroutineDispatcher
+                coroutineDispatcher,
             )
     }
 
@@ -118,7 +118,7 @@ public class TestTileClient<T : TileService> : TileClient {
 
     @Deprecated(
         "Use requestTileResourcesAsync instead.",
-        replaceWith = ReplaceWith("requestTileResourcesAsync")
+        replaceWith = ReplaceWith("requestTileResourcesAsync"),
     )
     @Suppress("deprecation")
     override fun requestResources(
@@ -156,7 +156,7 @@ public class TestTileClient<T : TileService> : TileClient {
                 .setComponentNameAndServiceForBindServiceForIntent(
                     controller.intent,
                     componentName,
-                    binder
+                    binder,
                 )
         }
     }

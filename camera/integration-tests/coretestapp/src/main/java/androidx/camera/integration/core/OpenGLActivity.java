@@ -50,6 +50,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -131,6 +132,8 @@ public class OpenGLActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.opengl_activity);
+
+        EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.root_layout, Collections.emptyList());
 
         Display display = null;
         if (Build.VERSION.SDK_INT >= 30) {

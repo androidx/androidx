@@ -26,9 +26,7 @@ object FakeState3AControlCreator {
         properties: CameraProperties = FakeCameraProperties(),
         requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
     ) =
-        State3AControl(
-                properties,
-                NoOpAutoFlashAEModeDisabler,
-            )
-            .apply { this.requestControl = requestControl }
+        State3AControl(properties, NoOpAutoFlashAEModeDisabler).apply {
+            this.requestControl = requestControl
+        }
 }

@@ -40,10 +40,18 @@ public final class CarFeatures {
     public static final String FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING =
             "com.android.car.background_audio_while_driving";
 
+    /**
+     * Flag value to check whether the system supports apps that use the
+     * CarAppLibrary Media category
+     */
+    public static final String FEATURE_CAR_APP_LIBRARY_MEDIA =
+            "android.software.car.templates_host.media";
+
     @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
             FEATURE_BACKGROUND_AUDIO_WHILE_DRIVING,
+            FEATURE_CAR_APP_LIBRARY_MEDIA,
     })
     public @interface CarFeature {}
 

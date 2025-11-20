@@ -60,7 +60,7 @@ internal class VignetteProcessor(context: Context?, vignetteEffect: Vignette, us
         glProgram!!.setBufferAttribute(
             "aFramePosition",
             GlUtil.getNormalizedCoordinateBounds(),
-            GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE
+            GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE,
         )
         val identityMatrix = GlUtil.create4x4IdentityMatrix()
         glProgram!!.setFloatsUniform("uTransformationMatrix", identityMatrix)

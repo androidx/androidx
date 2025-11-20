@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.Publish
 
@@ -30,16 +29,15 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     // Add dependencies here
-    implementation(project(":compose:ui:ui-unit"))
-    implementation(project(":compose:material3:adaptive:adaptive"))
-    implementation(project(":compose:material3:adaptive:adaptive-layout"))
-    implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.ui:ui-unit:1.8.0")
+    implementation("androidx.compose.material3:material3:1.4.0-beta01")
+    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha10")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0-alpha10")
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
 
     implementation(project(":xr:compose:compose"))
@@ -48,7 +46,7 @@ dependencies {
 android {
     compileSdk = 35
     defaultConfig {
-        minSdk = 34
+        minSdk = 24
     }
     namespace = "androidx.xr.compose.material3"
 }
@@ -58,7 +56,4 @@ androidx {
     description = "Compose Material3 components for XR"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

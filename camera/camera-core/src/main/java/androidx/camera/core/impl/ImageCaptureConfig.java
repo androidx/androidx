@@ -66,10 +66,8 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     public static final Option<ResolutionSelector> OPTION_POSTVIEW_RESOLUTION_SELECTOR =
             Option.create("camerax.core.useCase.postviewResolutionSelector",
                     ResolutionSelector.class);
-
     public static final Option<Boolean> OPTION_POSTVIEW_ENABLED =
-            Option.create("camerax.core.useCase.isPostviewEnabled",
-                    Boolean.class);
+            Option.create("camerax.core.useCase.isPostviewEnabled", Boolean.class);
 
     // *********************************************************************************************
 

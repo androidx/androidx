@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+AddedMethod: androidx.emoji2.emojipicker.EmojiPickerView#EmojiPickerView(android.content.Context, android.util.AttributeSet, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.emoji2.emojipicker.EmojiPickerView(android.content.Context,android.util.AttributeSet,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#getEmojiGridColumns():
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiPickerView.getEmojiGridColumns() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#getEmojiGridRows():
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiPickerView.getEmojiGridRows() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#setEmojiGridColumns(int):
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiPickerView.setEmojiGridColumns(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#setEmojiGridRows(float):
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiPickerView.setEmojiGridRows(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiViewItem#getEmoji():
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiViewItem.getEmoji() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiViewItem#getVariants():
+    Source breaking change: method androidx.emoji2.emojipicker.EmojiViewItem.getVariants() can no longer be resolved from Kotlin source

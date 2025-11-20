@@ -228,7 +228,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super A!,? extends java.lang.Object!>!, com.google.common.base.Function<? super E!,? extends java.lang.Object!>!);
     method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super E!,? extends java.lang.Object!>!);
     method public void doesNotContain(E!);
-    method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.equals() is not supported. Did you mean to call" + " containsExactlyElementsIn(expected) instead of equals(expected)?") public final boolean equals(Object?);
+    method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.equals() is not supported. Did you mean to call containsExactlyElementsIn(expected) instead of equals(expected)?") public final boolean equals(Object?);
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.hashCode() is not supported.") public final int hashCode();
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.toString() is not supported.") public final String toString();
   }

@@ -77,7 +77,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.FIELD,
-    AnnotationTarget.VALUE_PARAMETER
+    AnnotationTarget.VALUE_PARAMETER,
 )
 public annotation class RequiresPermission(
     /**
@@ -103,7 +103,7 @@ public annotation class RequiresPermission(
      * If true, the permission may not be required in all cases (e.g. it may only be enforced on
      * certain platforms, or for certain call parameters, etc.
      */
-    val conditional: Boolean = false
+    val conditional: Boolean = false,
 ) {
     /**
      * Specifies that the given permission is required for read operations.
@@ -118,7 +118,7 @@ public annotation class RequiresPermission(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.PROPERTY_GETTER,
         AnnotationTarget.PROPERTY_SETTER,
-        AnnotationTarget.VALUE_PARAMETER
+        AnnotationTarget.VALUE_PARAMETER,
     )
     public annotation class Read(val value: RequiresPermission = RequiresPermission())
 
@@ -135,7 +135,7 @@ public annotation class RequiresPermission(
         AnnotationTarget.FUNCTION,
         AnnotationTarget.PROPERTY_GETTER,
         AnnotationTarget.PROPERTY_SETTER,
-        AnnotationTarget.VALUE_PARAMETER
+        AnnotationTarget.VALUE_PARAMETER,
     )
     public annotation class Write(val value: RequiresPermission = RequiresPermission())
 }

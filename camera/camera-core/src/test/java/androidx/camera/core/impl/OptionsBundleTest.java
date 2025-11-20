@@ -23,8 +23,6 @@ import static androidx.camera.core.impl.Config.OptionPriority.REQUIRED;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.core.impl.Config.Option;
 
 import org.jspecify.annotations.NonNull;
@@ -42,7 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(sdk = {org.robolectric.annotation.Config.ALL_SDKS})
 public class OptionsBundleTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);

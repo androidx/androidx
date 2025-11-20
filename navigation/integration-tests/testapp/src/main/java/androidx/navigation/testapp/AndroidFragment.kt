@@ -36,7 +36,7 @@ class AndroidFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.android_fragment, container, false)
     }
@@ -64,7 +64,7 @@ class AndroidFragment : Fragment() {
                     NotificationChannel(
                         "deeplink",
                         "Deep Links",
-                        NotificationManager.IMPORTANCE_HIGH
+                        NotificationManager.IMPORTANCE_HIGH,
                     )
                 )
             }

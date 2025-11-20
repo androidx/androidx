@@ -28,6 +28,7 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
@@ -324,6 +325,15 @@ public class LocalStorage {
     }
 
     /**
+     * Returns the {@link Features} to check for the availability of certain features for this
+     * AppSearch storage.
+     */
+    @ExperimentalAppSearchApi
+    public static @NonNull Features getFeatures() {
+        return new FeaturesImpl();
+    }
+
+    /**
      * Returns the singleton instance of {@link LocalStorage}.
      *
      * <p>If the system is not initialized, it will be initialized using the provided
@@ -396,8 +406,10 @@ public class LocalStorage {
                 icingDir,
                 config,
                 initStatsBuilder,
+                /*callStatsBuilder=*/null,
                 /*visibilityChecker=*/ null,
                 revocableFileDescriptorStore,
+                /*icingSearchEngine=*/ null,
                 new JetpackOptimizeStrategy());
 
         if (logger != null) {
@@ -408,24 +420,24 @@ public class LocalStorage {
 
         executor.execute(() -> {
             long totalOptimizeLatencyStartMillis = SystemClock.elapsedRealtime();
-            OptimizeStats.Builder builder = null;
+            OptimizeStats.Builder optimizeStatsBuilder = null;
             try {
                 if (logger != null) {
-                    builder = new OptimizeStats.Builder();
+                    optimizeStatsBuilder = new OptimizeStats.Builder();
                 }
-                mAppSearchImpl.checkForOptimize(builder);
+                mAppSearchImpl.checkForOptimize(optimizeStatsBuilder, /*callStatsBuilder=*/ null);
             } catch (AppSearchException e) {
                 Log.w(TAG, "Error occurred when check for optimize", e);
             } finally {
-                if (builder != null) {
-                    OptimizeStats oStats = builder
+                if (optimizeStatsBuilder != null) {
+                    OptimizeStats oStats = optimizeStatsBuilder
                             .setTotalLatencyMillis(
                                     (int) (SystemClock.elapsedRealtime()
                                             - totalOptimizeLatencyStartMillis))
                             .build();
                     if (logger != null && oStats.getOriginalDocumentCount() > 0) {
                         // see if optimize has been run by checking originalDocumentCount
-                        logger.logStats(builder.build());
+                        logger.logStats(optimizeStatsBuilder.build());
                     }
                 }
             }

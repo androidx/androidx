@@ -43,7 +43,7 @@ class WindowPropertiesTest {
             assertTrue(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE
+                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE,
                 )
             )
         }
@@ -77,7 +77,7 @@ class WindowPropertiesTest {
                 getProperty(
                     activity,
                     WindowProperties
-                        .PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED
+                        .PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED,
                 )
             )
         }
@@ -95,7 +95,7 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE,
                 )
             )
         }
@@ -113,7 +113,7 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES,
                 )
             )
         }
@@ -131,7 +131,7 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE,
                 )
             )
         }
@@ -149,7 +149,7 @@ class WindowPropertiesTest {
             assertFalse(
                 getProperty(
                     activity,
-                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE,
                 )
             )
         }

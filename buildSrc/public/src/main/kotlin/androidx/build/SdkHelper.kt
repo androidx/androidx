@@ -22,24 +22,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 
-/** Writes the appropriate SDK path to local.properties file in specified location. */
-fun Project.writeSdkPathToLocalPropertiesFile() {
-    val sdkPath = project.getSdkPath()
-    if (sdkPath.exists()) {
-        val props = File(project.rootDir, "local.properties")
-        // Gradle always separates directories with '/' regardless of the OS, so convert here.
-        val gradlePath = sdkPath.absolutePath.replace(File.separator, "/")
-        val contents = "sdk.dir=$gradlePath\ncmake.dir=$gradlePath/native-build-tools"
-        props.printWriter().use { out -> out.println(contents) }
-    } else {
-        throw Exception(
-            "Unable to find SDK prebuilts at $sdkPath. If you are not using a " +
-                "standard repo-based checkout, please follow the checkout instructions at " +
-                "go/androidx-onboarding."
-        )
-    }
-}
-
 /** Returns a file tree representing the platform SDK suitable for use as a dependency. */
 fun Project.getSdkDependency(): FileTree =
     fileTree("${getSdkPath()}/platforms/android-${project.defaultAndroidConfig.compileSdk}/") {

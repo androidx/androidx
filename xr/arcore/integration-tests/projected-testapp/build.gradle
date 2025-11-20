@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.AndroidXConfig
+import androidx.build.ApkCopyHelperKt
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("com.android.application")
+    id("com.android.experimental.built-in-kotlin")
+}
+
+dependencies {
+    implementation(project(":xr:arcore:arcore"))
+    implementation(project(":xr:assets"))
+    implementation(project(":xr:arcore:arcore-projected"))
+    implementation(project(":xr:glimmer:glimmer"))
+
+    implementation("androidx.activity:activity:1.9.3")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.errorprone:error_prone_annotations:2.30.0")
+
+    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+}
+
+android {
+    compileSdk = 35
+    namespace = "androidx.xr.arcore.projected.testapp"
+
+    defaultConfig {
+        minSdk = 35
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+        }
+    }
+
+    adbOptions {
+        installOptions = ["-r", "-d", "-g"]
+    }
+}
+
+androidx {
+    name = "Projected perception runtime App"
+    type = SoftwareType.TEST_APPLICATION
+    inceptionYear = "2025"
+    description = "Test app that exercises the XR Projected Perception API."
+}
+
+// Making this APK available via Android Build so the QA team can
+// access it in a convenient manner.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")

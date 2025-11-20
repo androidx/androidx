@@ -10,19 +10,18 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
-    api(project(":core:core"))
+    api("androidx.core:core:1.16.0")
     implementation("androidx.collection:collection:1.4.2")
     compileOnly("androidx.fragment:fragment:1.7.0")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
-    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.1.0")
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -34,16 +33,12 @@ dependencies {
     androidTestImplementation(libs.opentest4j)
     androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
-    androidTestImplementation(project(":internal-testutils-runtime"), {
-        exclude group: "androidx.fragment", module: "fragment"
-    })
+    androidTestImplementation(project(":internal-testutils-runtime"))
 }
 
 android {
     compileSdk = 35
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }

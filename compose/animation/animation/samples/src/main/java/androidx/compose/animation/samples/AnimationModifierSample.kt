@@ -55,7 +55,7 @@ fun AnimateContent() {
             } else {
                 longText
             },
-            style = LocalTextStyle.current.copy(color = Color.White)
+            style = LocalTextStyle.current.copy(color = Color.White),
         )
     }
 }

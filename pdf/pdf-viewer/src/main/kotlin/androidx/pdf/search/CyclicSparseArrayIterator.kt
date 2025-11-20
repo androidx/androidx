@@ -30,7 +30,7 @@ import androidx.pdf.search.model.QueryResultsIndex
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class CyclicSparseArrayIterator(
     private val searchData: SparseArray<List<PageMatchBounds>>,
-    private val visiblePage: Int
+    private val visiblePage: Int,
 ) {
     /** represents list of all the pages where search results are present. */
     private val pageNumList: List<Int> = List(searchData.size()) { searchData.keyAt(it) }

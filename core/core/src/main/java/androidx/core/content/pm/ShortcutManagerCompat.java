@@ -840,16 +840,14 @@ public class ShortcutManagerCompat {
 
     private static ShortcutInfoCompatSaver<?> getShortcutInfoSaverInstance(Context context) {
         if (sShortcutInfoCompatSaver == null) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                try {
-                    ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                    Class<?> saver = Class.forName(
-                            "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
-                    Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
-                    sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(
-                            null, context);
-                } catch (Exception e) { /* Do nothing */ }
-            }
+            try {
+                ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
+                Class<?> saver = Class.forName(
+                        "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
+                Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
+                sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(
+                        null, context);
+            } catch (Exception e) { /* Do nothing */ }
 
             if (sShortcutInfoCompatSaver == null) {
                 // Implementation not available. Instantiate to the default no-op impl.
@@ -863,36 +861,34 @@ public class ShortcutManagerCompat {
     private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
         if (sShortcutInfoChangeListeners == null) {
             List<ShortcutInfoChangeListener> result = new ArrayList<>();
-            if (Build.VERSION.SDK_INT >= 21) {
-                PackageManager packageManager = context.getPackageManager();
-                Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
-                activityIntent.setPackage(context.getPackageName());
+            PackageManager packageManager = context.getPackageManager();
+            Intent activityIntent = new Intent(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
+            activityIntent.setPackage(context.getPackageName());
 
-                List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
-                        activityIntent, PackageManager.GET_META_DATA);
+            List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(
+                    activityIntent, PackageManager.GET_META_DATA);
 
-                for (ResolveInfo resolveInfo : resolveInfos) {
-                    ActivityInfo activityInfo = resolveInfo.activityInfo;
-                    if (activityInfo == null) {
-                        continue;
-                    }
-                    Bundle metaData = activityInfo.metaData;
-                    if (metaData == null) {
-                        continue;
-                    }
-                    String shortcutListenerImplName =
-                            metaData.getString(SHORTCUT_LISTENER_META_DATA_KEY);
-                    if (shortcutListenerImplName == null) {
-                        continue;
-                    }
-                    try {
-                        ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                        Class<?> listener = Class.forName(shortcutListenerImplName, false, loader);
-                        Method getInstanceMethod = listener.getMethod("getInstance", Context.class);
-                        result.add((ShortcutInfoChangeListener)
-                                getInstanceMethod.invoke(null, context));
-                    } catch (Exception e) { /* Do nothing */ }
+            for (ResolveInfo resolveInfo : resolveInfos) {
+                ActivityInfo activityInfo = resolveInfo.activityInfo;
+                if (activityInfo == null) {
+                    continue;
                 }
+                Bundle metaData = activityInfo.metaData;
+                if (metaData == null) {
+                    continue;
+                }
+                String shortcutListenerImplName =
+                        metaData.getString(SHORTCUT_LISTENER_META_DATA_KEY);
+                if (shortcutListenerImplName == null) {
+                    continue;
+                }
+                try {
+                    ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
+                    Class<?> listener = Class.forName(shortcutListenerImplName, false, loader);
+                    Method getInstanceMethod = listener.getMethod("getInstance", Context.class);
+                    result.add((ShortcutInfoChangeListener)
+                            getInstanceMethod.invoke(null, context));
+                } catch (Exception e) { /* Do nothing */ }
             }
 
             // Make sure the listeners are not already added while the loop is running.

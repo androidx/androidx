@@ -84,7 +84,7 @@ public class SidecarCompatUnitTest {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -97,13 +97,13 @@ public class SidecarCompatUnitTest {
                 // Horizontal fold.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width(), 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical fold.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height()),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -112,7 +112,7 @@ public class SidecarCompatUnitTest {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -125,13 +125,13 @@ public class SidecarCompatUnitTest {
                 // Horizontal hinge.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical hinge.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -140,7 +140,7 @@ public class SidecarCompatUnitTest {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -153,13 +153,13 @@ public class SidecarCompatUnitTest {
                 // Horizontal fold.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical fold.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -168,7 +168,7 @@ public class SidecarCompatUnitTest {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -296,7 +296,7 @@ public class SidecarCompatUnitTest {
                 listOf(
                     newDisplayFeature(
                         validFoldBound(WINDOW_BOUNDS),
-                        SidecarDisplayFeature.TYPE_FOLD
+                        SidecarDisplayFeature.TYPE_FOLD,
                     )
                 )
             return newWindowLayoutInfo(goodFeatures)

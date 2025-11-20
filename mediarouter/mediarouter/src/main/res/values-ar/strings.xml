@@ -37,7 +37,7 @@
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"شريط تمرير مستوى الصوت"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"لم يتم اختيار أي وسائط"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"لا تتوفر أي معلومات"</string>
-    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"جارٍ إرسال الشاشة"</string>
+    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"جارٍ بث محتوى الشاشة"</string>
     <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"تجميع"</string>
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"إضافة جهاز"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"تشغيل على مجموعة من الأجهزة"</string>

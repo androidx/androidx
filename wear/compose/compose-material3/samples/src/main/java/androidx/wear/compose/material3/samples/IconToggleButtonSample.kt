@@ -44,7 +44,7 @@ fun IconToggleButtonSample() {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconToggleButton(
             checked = firstChecked,
@@ -83,7 +83,7 @@ fun IconToggleButtonVariantSample() {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconToggleButton(
             checked = firstChecked,

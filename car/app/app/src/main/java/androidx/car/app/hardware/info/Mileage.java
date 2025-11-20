@@ -35,12 +35,35 @@ import java.util.Objects;
 @RequiresCarApi(3)
 @KeepFields
 public final class Mileage {
+    // This field is named "meters"; however, this field actually stores the value in kilometers.
+    // In order to not break backwards compatibility, we've kept the underlying field the same while
+    // introducing a new public API method that reflects the actual units that are returned.
     private final @Nullable CarValue<Float> mOdometerMeters;
 
     private final @NonNull CarValue<@CarDistanceUnit Integer> mDistanceDisplayUnit;
 
-    /** Returns the value of the odometer from the car hardware in meters. */
+    /**
+     * Returns the value of the odometer from the car hardware in KILOMETERS.
+     *
+     * Despite the name "meters", this method actually returns the odometer in kilometers. It was
+     * incorrectly introduced as meters and due to backwards compatibility concerns, can no longer
+     * be renamed or removed.
+     *
+     * @deprecated use {@link #getOdometerInKilometers()} which does the same as this method, except
+     * that the correct units are in the API name
+     */
+    @Deprecated
     public @NonNull CarValue<Float> getOdometerMeters() {
+        return getOdometerInKilometers();
+    }
+
+    /**
+     * Returns the value of the odometer from the car hardware in kilometers.
+     *
+     * The precision of this value depends on the hardware implementation. Some vehicles may return
+     * whole kilomters, while others may return down to tenths or hundredths of a kilometer.
+     */
+    public @NonNull CarValue<Float> getOdometerInKilometers() {
         return requireNonNull(mOdometerMeters);
     }
 
@@ -56,7 +79,7 @@ public final class Mileage {
     @Override
     public @NonNull String toString() {
         return "[ odometer: "
-                + getOdometerMeters()
+                + getOdometerInKilometers()
                 + ", distance display unit: "
                 + mDistanceDisplayUnit
                 + "]";
@@ -64,7 +87,7 @@ public final class Mileage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getOdometerMeters(), mDistanceDisplayUnit);
+        return Objects.hash(getOdometerInKilometers(), mDistanceDisplayUnit);
     }
 
     @Override
@@ -77,7 +100,7 @@ public final class Mileage {
         }
         Mileage otherMileage = (Mileage) other;
 
-        return Objects.equals(getOdometerMeters(), otherMileage.getOdometerMeters())
+        return Objects.equals(getOdometerInKilometers(), otherMileage.getOdometerInKilometers())
                 && Objects.equals(mDistanceDisplayUnit, otherMileage.mDistanceDisplayUnit);
     }
 
@@ -99,7 +122,9 @@ public final class Mileage {
                 CarValue.UNKNOWN_INTEGER;
 
         /**
-         * Sets the odometer value in meters.
+         * Sets the odometer value in KILOMETERS.
+         *
+         * The API name is staying as "meters" in order to not break backwards compatibility.
          *
          * @throws NullPointerException if {@code odometer} is {@code null}
          */

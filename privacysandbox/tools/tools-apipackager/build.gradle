@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -30,20 +29,18 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    implementation(libs.kotlinStdlibJdk8)
+    api(project(":privacysandbox:tools:tools"))
+    api(project(":privacysandbox:tools:tools-core"))
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.kotlinMetadataJvm) {
         exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
 
-    implementation(project(":privacysandbox:tools:tools"))
-    implementation(project(":privacysandbox:tools:tools-core"))
-
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }
@@ -53,5 +50,4 @@ androidx {
     type = SoftwareType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Packages API descriptions from SDKs compiled with Privacy Sandbox annotations."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

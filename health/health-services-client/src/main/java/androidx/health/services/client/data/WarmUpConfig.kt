@@ -21,9 +21,9 @@ import androidx.health.services.client.proto.DataProto
 /**
  * Defines configuration for an exercise tracked using Health Services.
  *
- * @constructor Creates a new WarmUpConfig for an exercise tracked using Health Services
  * @property exerciseType The active [ExerciseType] user is performing for this exercise
  * @property dataTypes [DeltaDataType]s which should be tracked during this exercise
+ * @constructor Creates a new WarmUpConfig for an exercise tracked using Health Services
  */
 @Suppress("ParcelCreator")
 public class WarmUpConfig(

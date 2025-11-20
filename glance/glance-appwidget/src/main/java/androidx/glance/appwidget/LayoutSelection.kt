@@ -42,10 +42,7 @@ internal data class LayoutInfo(@LayoutRes val layoutId: Int)
  * Information about a [RemoteViews] created from generated layouts, including the layout id, ids of
  * elements within, and other details about the layout contents.
  */
-internal data class RemoteViewsInfo(
-    val remoteViews: RemoteViews,
-    val view: InsertedViewInfo,
-)
+internal data class RemoteViewsInfo(val remoteViews: RemoteViews, val view: InsertedViewInfo)
 
 internal data class InsertedViewInfo(
     val mainViewId: Int = View.NO_ID,
@@ -164,10 +161,7 @@ private val LayoutMap =
         LayoutType.RadioButtonBackport to R.layout.glance_radio_button_backport,
     )
 
-internal data class SizeSelector(
-    val width: LayoutSize,
-    val height: LayoutSize,
-)
+internal data class SizeSelector(val width: LayoutSize, val height: LayoutSize)
 
 /** Make the selector for a view sub, that is transforming "Fixed" into "Wrap". */
 private fun LayoutSize.toViewStubSize() = if (this == LayoutSize.Fixed) LayoutSize.Wrap else this
@@ -195,7 +189,7 @@ internal val TopLevelLayoutsCount: Int =
 internal fun createRootView(
     translationContext: TranslationContext,
     modifier: GlanceModifier,
-    aliasIndex: Int
+    aliasIndex: Int,
 ): RemoteViewsInfo {
     val context = translationContext.context
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -225,7 +219,7 @@ internal fun createRootView(
                             emptyMap()
                         } else {
                             mapOf(0 to mapOf(sizeSelector to R.id.rootStubId))
-                        }
+                        },
                 ),
         )
     }
@@ -251,10 +245,7 @@ internal fun createRootView(
 }
 
 @IdRes
-private fun selectLayout33(
-    type: LayoutType,
-    modifier: GlanceModifier,
-): Int? {
+private fun selectLayout33(type: LayoutType, modifier: GlanceModifier): Int? {
     if (Build.VERSION.SDK_INT < 33) return null
     val align = modifier.findModifier<AlignmentModifier>()
     val expandWidth =
@@ -263,20 +254,11 @@ private fun selectLayout33(
         modifier.findModifier<HeightModifier>()?.let { it.height == Dimension.Expand } ?: false
     if (align != null) {
         return generatedBoxChildren[
-                BoxChildSelector(
-                    type,
-                    align.alignment.horizontal,
-                    align.alignment.vertical,
-                )]
+                BoxChildSelector(type, align.alignment.horizontal, align.alignment.vertical)]
             ?.layoutId
             ?: throw IllegalArgumentException("Cannot find $type with alignment ${align.alignment}")
     } else if (expandWidth || expandHeight) {
-        return generatedRowColumnChildren[
-                RowColumnChildSelector(
-                    type,
-                    expandWidth,
-                    expandHeight,
-                )]
+        return generatedRowColumnChildren[RowColumnChildSelector(type, expandWidth, expandHeight)]
             ?.layoutId ?: throw IllegalArgumentException("Cannot find $type with defaultWeight set")
     } else {
         return null
@@ -286,7 +268,7 @@ private fun selectLayout33(
 internal fun RemoteViews.insertView(
     translationContext: TranslationContext,
     type: LayoutType,
-    modifier: GlanceModifier
+    modifier: GlanceModifier,
 ): InsertedViewInfo {
     val childLayout =
         selectLayout33(type, modifier)
@@ -298,7 +280,7 @@ internal fun RemoteViews.insertView(
 private fun RemoteViews.insertViewInternal(
     translationContext: TranslationContext,
     @LayoutRes childLayout: Int,
-    modifier: GlanceModifier
+    modifier: GlanceModifier,
 ): InsertedViewInfo {
     val pos = translationContext.itemPosition
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
@@ -357,7 +339,7 @@ private fun RemoteViews.selectChild(
     translationContext: TranslationContext,
     pos: Int,
     width: LayoutSize,
-    height: LayoutSize
+    height: LayoutSize,
 ): Int {
     val child = makeViewStubSelector(width, height)
     @Suppress("PrimitiveInCollection")
@@ -374,7 +356,7 @@ private fun RemoteViews.selectChild(
                 translationContext,
                 it,
                 R.layout.glance_deleted_view,
-                R.id.deletedViewId
+                R.id.deletedViewId,
             )
         }
     return stubId
@@ -392,7 +374,7 @@ internal fun RemoteViews.insertContainerView(
         Log.e(
             GlanceAppWidgetTag,
             "Truncated $type container from $numChildren to 10 elements",
-            IllegalArgumentException("$type container cannot have more than 10 elements")
+            IllegalArgumentException("$type container cannot have more than 10 elements"),
         )
     }
     val children = numChildren.coerceAtMost(10)

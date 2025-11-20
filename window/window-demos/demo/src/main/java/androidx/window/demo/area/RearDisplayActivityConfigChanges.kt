@@ -76,7 +76,7 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
                 windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
                     infoLogAdapter.appendAndNotify(
                         getCurrentTimeString(),
-                        "number of areas: " + windowAreaInfos.size
+                        "number of areas: " + windowAreaInfos.size,
                     )
                     windowAreaInfos.forEach { windowAreaInfo ->
                         if (windowAreaInfo.type == WindowAreaInfo.Type.TYPE_REAR_FACING) {
@@ -87,7 +87,7 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
                                 getCurrentTimeString(),
                                 transferCapability.status.toString() +
                                     " : " +
-                                    windowAreaInfo.metrics.toString()
+                                    windowAreaInfo.metrics.toString(),
                             )
                             updateRearDisplayButton()
                         }
@@ -106,7 +106,7 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
                         it.token,
                         this,
                         executor,
-                        this
+                        this,
                     )
                 }
             }
@@ -129,7 +129,7 @@ class RearDisplayActivityConfigChanges : EdgeToEdgeActivity(), WindowAreaSession
         rearDisplaySession = session
         infoLogAdapter.appendAndNotify(
             getCurrentTimeString(),
-            "RearDisplay Session has been started"
+            "RearDisplay Session has been started",
         )
         updateRearDisplayButton()
     }

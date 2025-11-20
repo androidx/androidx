@@ -60,7 +60,7 @@ fun ContextualFlowColMaxLineDynamicSeeMore() {
         text =
             "ContextualFlowColumn (based on Subcompose)" +
                 " is great for Large Items & +N dynamic labels",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     val moreOrCollapseIndicator =
@@ -88,9 +88,9 @@ fun ContextualFlowColMaxLineDynamicSeeMore() {
             ContextualFlowColumnOverflow.expandOrCollapseIndicator(
                 minColumnsToShowCollapse = 4,
                 expandIndicator = moreOrCollapseIndicator,
-                collapseIndicator = moreOrCollapseIndicator
+                collapseIndicator = moreOrCollapseIndicator,
             ),
-        itemCount = totalCount
+        itemCount = totalCount,
     ) { index ->
         Box(
             modifier =
@@ -102,7 +102,7 @@ fun ContextualFlowColMaxLineDynamicSeeMore() {
             Text(
                 text = index.toString(),
                 fontSize = 18.sp,
-                modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                modifier = Modifier.padding(3.dp).align(Alignment.Center),
             )
         }
     }
@@ -118,7 +118,7 @@ fun ContextualFlowColumn_ItemPosition() {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         maxItemsInEachColumn = 4,
-        itemCount = 12
+        itemCount = 12,
     ) {
         val width = 50.dp.coerceAtMost(maxWidth)
         val height = Random.nextInt(80, 100).dp.coerceAtMost(maxHeightInLine)
@@ -132,7 +132,7 @@ fun ContextualFlowColumn_ItemPosition() {
                     "Ln: ${this@ContextualFlowColumn.lineIndex}" +
                         "\nPs: ${this@ContextualFlowColumn.indexInLine}",
                 fontSize = 18.sp,
-                modifier = Modifier.padding(3.dp)
+                modifier = Modifier.padding(3.dp),
             )
         }
     }

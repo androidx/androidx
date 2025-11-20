@@ -19,11 +19,8 @@ package androidx.media;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 
-@RequiresApi(21)
 class MediaSessionManagerImplApi21 extends MediaSessionManagerImplBase {
     MediaSessionManagerImplApi21(Context context) {
         super(context);

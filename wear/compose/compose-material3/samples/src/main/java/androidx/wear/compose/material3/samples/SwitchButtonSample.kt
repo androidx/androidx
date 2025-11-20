@@ -25,12 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.SplitSwitchButton
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 
 @Sampled
+@Preview
 @Composable
 fun SwitchButtonSample() {
     var checked by remember { mutableStateOf(true) }
@@ -47,6 +49,7 @@ fun SwitchButtonSample() {
 }
 
 @Sampled
+@Preview
 @Composable
 fun SplitSwitchButtonSample() {
     var checked by remember { mutableStateOf(true) }

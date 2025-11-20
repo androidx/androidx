@@ -63,11 +63,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -139,7 +139,11 @@ public class UiDevice implements Searchable {
     @Override
     public boolean hasObject(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Searching for node with selector: %s.", selector));
-        AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
+        AccessibilityNodeInfo node = ByMatcher.findMatch(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0])
+        );
         if (node != null) {
             node.recycle();
             return true;
@@ -155,7 +159,11 @@ public class UiDevice implements Searchable {
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 findObject(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Retrieving node with selector: %s.", selector));
-        AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
+        AccessibilityNodeInfo node = ByMatcher.findMatch(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0])
+        );
         if (node == null) {
             Log.d(TAG, String.format("Node not found with selector: %s.", selector));
             return null;
@@ -168,7 +176,11 @@ public class UiDevice implements Searchable {
     public @NonNull List<UiObject2> findObjects(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Retrieving nodes with selector: %s.", selector));
         List<UiObject2> ret = new ArrayList<>();
-        for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
+        for (AccessibilityNodeInfo node : ByMatcher.findMatches(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0]))
+        ) {
             UiObject2 object = UiObject2.create(this, selector, node);
             if (object != null) {
                 ret.add(object);
@@ -177,6 +189,60 @@ public class UiDevice implements Searchable {
         return ret;
     }
 
+    // Window searches
+
+    /** Returns whether there is a window match for the given {@code selector} criteria. */
+    public boolean hasWindow(@NonNull ByWindowSelector selector) {
+        waitForIdle();
+        AccessibilityWindowInfo window =
+                ByWindowMatcher.findMatch(
+                        this, selector,
+                        getWindows(getUiAutomation()).toArray(new AccessibilityWindowInfo[0]));
+        if (window != null) {
+            window.recycle();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the first top-level window that matches the {@code selector} criteria, or null if no
+     * matching windows are found.
+     */
+    public @Nullable UiWindow findWindow(@NonNull ByWindowSelector selector) {
+        waitForIdle();
+        AccessibilityWindowInfo window =
+                ByWindowMatcher.findMatch(
+                        this, selector,
+                        getWindows(getUiAutomation()).toArray(new AccessibilityWindowInfo[0]));
+        if (window == null) {
+            return null;
+        }
+        return UiWindow.create(this, window);
+    }
+
+    /**
+     * Returns all windows that match the {@code selector} criteria. For convenience the returned
+     * list
+     * is sorted in descending layer Z-order, ensuring the root of the topmost interactable
+     * window is
+     * reported first.
+     */
+    public @NonNull List<UiWindow> findWindows(@NonNull ByWindowSelector selector) {
+        waitForIdle();
+        List<UiWindow> ret = new ArrayList<>();
+        for (AccessibilityWindowInfo window :
+                ByWindowMatcher.findMatches(
+                        this,
+                        selector,
+                        getWindows(getUiAutomation()).toArray(new AccessibilityWindowInfo[0]))) {
+            UiWindow instance = UiWindow.create(this, window);
+            if (instance != null) {
+                ret.add(instance);
+            }
+        }
+        return ret;
+    }
 
     /**
      * Waits for given the {@code condition} to be met.
@@ -1263,7 +1329,19 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Take a screenshot of current window and store it as PNG
+     * Take a screenshot of the default display.
+     *
+     * <p>The screenshot is adjusted per screen rotation.
+     *
+     * @return The screenshot bitmap on success, {@code null} otherwise
+     * @see android.app.UiAutomation#takeScreenshot()
+     */
+    public @Nullable Bitmap takeScreenshot() {
+        return getUiAutomation().takeScreenshot();
+    }
+
+    /**
+     * Take a screenshot of the default display and store it as PNG
      *
      * Default scale of 1.0f (original size) and 90% quality is used
      * The screenshot is adjusted per screen rotation
@@ -1276,7 +1354,7 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Take a screenshot of current window and store it as PNG
+     * Take a screenshot of the default display and store it as PNG
      *
      * The screenshot is adjusted per screen rotation
      *
@@ -1288,7 +1366,7 @@ public class UiDevice implements Searchable {
     public boolean takeScreenshot(@NonNull File storePath, float scale, int quality) {
         Log.d(TAG, String.format("Taking screenshot (scale=%f, quality=%d) and storing at %s.",
                 scale, quality, storePath));
-        Bitmap screenshot = getUiAutomation().takeScreenshot();
+        Bitmap screenshot = takeScreenshot();
         if (screenshot == null) {
             Log.w(TAG, "Failed to take screenshot.");
             return false;
@@ -1400,11 +1478,16 @@ public class UiDevice implements Searchable {
         return uiAutomation.getWindows();
     }
 
-    /** Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window */
-    AccessibilityNodeInfo[] getWindowRoots() {
+    /**
+     * Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window.
+     * For convenience the returned list is sorted in descending window order, ensuring the root of
+     * the topmost visible window is reported first.
+     */
+    @NonNull
+    public List<AccessibilityNodeInfo> getWindowRoots() {
         waitForIdle();
 
-        Set<AccessibilityNodeInfo> roots = new HashSet<>();
+        LinkedHashSet<AccessibilityNodeInfo> roots = new LinkedHashSet<>();
         UiAutomation uiAutomation = getUiAutomation();
 
         // Ensure the active window root is included.
@@ -1423,7 +1506,7 @@ public class UiDevice implements Searchable {
             }
             roots.add(root);
         }
-        return roots.toArray(new AccessibilityNodeInfo[0]);
+        return new ArrayList<AccessibilityNodeInfo>(roots);
     }
 
     Instrumentation getInstrumentation() {
@@ -1505,6 +1588,21 @@ public class UiDevice implements Searchable {
 
     InteractionController getInteractionController() {
         return mInteractionController;
+    }
+
+    /**
+     * Performs accessibility checks on the given {@link AccessibilityNodeInfo} using the
+     * validators set in
+     * {@link Configurator#addUiAccessibilityValidator(UiAccessibilityValidator)}.
+     *
+     * @param node The {@link AccessibilityNodeInfo} to validate.
+     */
+    void performAccessibilityChecks(@NonNull AccessibilityNodeInfo node) {
+        Objects.requireNonNull(node);
+        for (UiAccessibilityValidator validator : Configurator.getInstance()
+                .getUiAccessibilityValidators()) {
+            validator.validate(node);
+        }
     }
 
     @RequiresApi(24)

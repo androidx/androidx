@@ -53,7 +53,7 @@ fun EllipsizeWithLetterSpacing() {
                             TextAlign.Start,
                             TextAlign.End,
                             TextAlign.Center,
-                            TextAlign.Justify
+                            TextAlign.Justify,
                         )) {
                         for (maxLines in arrayOf(1, 3)) {
                             SecondTagLine(
@@ -64,7 +64,7 @@ fun EllipsizeWithLetterSpacing() {
                                 text = text,
                                 maxLines = maxLines,
                                 textAlign = textAlign,
-                                textIndent = textIndent
+                                textIndent = textIndent,
                             )
                             Spacer(Modifier.padding(8.dp))
                         }
@@ -80,7 +80,7 @@ fun TextWithEllipsizeAndLetterSpacing(
     text: String,
     maxLines: Int,
     textAlign: TextAlign,
-    textIndent: TextIndent
+    textIndent: TextIndent,
 ) {
     BasicText(
         modifier = Modifier.background(Color.LightGray).requiredWidth(200.dp),
@@ -93,8 +93,8 @@ fun TextWithEllipsizeAndLetterSpacing(
                 textAlign = textAlign,
                 letterSpacing = fontSize / 3,
                 textDirection = TextDirection.Content,
-                textIndent = textIndent
-            )
+                textIndent = textIndent,
+            ),
     )
 }
 

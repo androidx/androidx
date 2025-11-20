@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -76,7 +75,7 @@ fun AnimateBoundsOnFloatingToolbarDemo() {
                 text = "Click on the Toolbar to animate",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.h6,
             )
             Text(text = sampleText)
         }
@@ -89,7 +88,6 @@ fun AnimateBoundsOnFloatingToolbarDemo() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
     var mode by remember { mutableStateOf(FabToolbarMode.Toolbar) }
@@ -101,7 +99,7 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
         animateDpAsState(
             targetValue = if (mode == FabToolbarMode.Fab) 12.dp else 0.dp,
             animationSpec = tween(animationDuration, easing = animEasing),
-            label = "Edit Icon Padding"
+            label = "Edit Icon Padding",
         )
 
     val myEditIcon = remember {
@@ -122,7 +120,7 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
                             boundsTransform = { _, _ ->
                                 tween(animationDuration, easing = animEasing)
                             },
-                        ),
+                        )
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Edit,
@@ -131,7 +129,7 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
                     modifier =
                         Modifier.background(MaterialTheme.colors.primary, RoundedCornerShape(16.dp))
                             .fillMaxSize()
-                            .padding(editIconPadding.coerceAtLeast(0.dp))
+                            .padding(editIconPadding.coerceAtLeast(0.dp)),
                 )
             }
         }
@@ -166,18 +164,18 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
                 Row(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalArrangement = Arrangement.spacedBy(26.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val iconSize = DpSize(30.dp, 20.dp)
                     Icon(
                         imageVector = Icons.Outlined.Share,
                         contentDescription = "Share",
-                        modifier = Modifier.size(iconSize)
+                        modifier = Modifier.size(iconSize),
                     )
                     Icon(
                         imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorite",
-                        modifier = Modifier.size(iconSize)
+                        modifier = Modifier.size(iconSize),
                     )
                     Box(modifier = Modifier.size(iconSize)) {
                         // Slot for the Edit Icon when position on the toolbar
@@ -201,9 +199,7 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
                     }
             }
         ) {
-            Box(
-                Modifier.align(Alignment.Center),
-            ) {
+            Box(Modifier.align(Alignment.Center)) {
                 // Slot 0 - Toolbar position
                 if (mode == FabToolbarMode.Toolbar) {
                     // The Toolbar container should also place the Edit Icon at this state
@@ -224,5 +220,5 @@ private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
 
 enum class FabToolbarMode {
     Fab,
-    Toolbar
+    Toolbar,
 }

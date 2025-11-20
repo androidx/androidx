@@ -57,7 +57,7 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
                 name = "offset"
                 properties["x"] = x
                 properties["y"] = y
-            }
+            },
         )
 
 /**
@@ -85,7 +85,7 @@ fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
                 name = "absoluteOffset"
                 properties["x"] = x
                 properties["y"] = y
-            }
+            },
         )
 
 /**
@@ -115,7 +115,7 @@ fun Modifier.offset(offset: Density.() -> IntOffset) =
             inspectorInfo = {
                 name = "offset"
                 properties["offset"] = offset
-            }
+            },
         )
 
 /**
@@ -144,14 +144,14 @@ fun Modifier.absoluteOffset(offset: Density.() -> IntOffset) =
             inspectorInfo = {
                 name = "absoluteOffset"
                 properties["offset"] = offset
-            }
+            },
         )
 
 private class OffsetElement(
     val x: Dp,
     val y: Dp,
     val rtlAware: Boolean,
-    val inspectorInfo: InspectorInfo.() -> Unit
+    val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<OffsetNode>() {
     override fun create(): OffsetNode {
         return OffsetNode(x, y, rtlAware)
@@ -198,7 +198,7 @@ private class OffsetNode(var x: Dp, var y: Dp, var rtlAware: Boolean) :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
@@ -214,7 +214,7 @@ private class OffsetNode(var x: Dp, var y: Dp, var rtlAware: Boolean) :
 private class OffsetPxElement(
     val offset: Density.() -> IntOffset,
     val rtlAware: Boolean,
-    val inspectorInfo: InspectorInfo.() -> Unit
+    val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<OffsetPxNode>() {
     override fun create(): OffsetPxNode {
         return OffsetPxNode(offset, rtlAware)
@@ -257,7 +257,7 @@ private class OffsetPxNode(var offset: Density.() -> IntOffset, var rtlAware: Bo
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {

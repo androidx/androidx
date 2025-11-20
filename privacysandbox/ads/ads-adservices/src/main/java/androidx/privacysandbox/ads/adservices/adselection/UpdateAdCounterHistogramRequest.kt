@@ -36,11 +36,11 @@ import androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters
  * @param callerAdTech The caller adtech entity's [AdTechIdentifier].
  */
 @ExperimentalFeatures.Ext8OptIn
-class UpdateAdCounterHistogramRequest
+public class UpdateAdCounterHistogramRequest
 public constructor(
-    val adSelectionId: Long,
-    @FrequencyCapFilters.AdEventType val adEventType: Int,
-    val callerAdTech: AdTechIdentifier
+    public val adSelectionId: Long,
+    @FrequencyCapFilters.AdEventType public val adEventType: Int,
+    public val callerAdTech: AdTechIdentifier,
 ) {
     init {
         require(adEventType != FrequencyCapFilters.AD_EVENT_TYPE_WIN) {
@@ -97,7 +97,7 @@ public constructor(
         return android.adservices.adselection.UpdateAdCounterHistogramRequest.Builder(
                 adSelectionId,
                 adEventType,
-                callerAdTech.convertToAdServices()
+                callerAdTech.convertToAdServices(),
             )
             .build()
     }

@@ -49,7 +49,7 @@ fun ChipDemo() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LazyColumn(
             contentPadding = PaddingValues(DefaultSpace),
-            verticalArrangement = Arrangement.spacedBy(DefaultSpace)
+            verticalArrangement = Arrangement.spacedBy(DefaultSpace),
         ) {
             item { Chips(chipEnabledState.value) }
             item { FilterChips(chipEnabledState.value) }
@@ -59,7 +59,7 @@ fun ChipDemo() {
             Spacer(Modifier.size(8.dp))
             Switch(
                 checked = chipEnabledState.value,
-                onCheckedChange = { chipEnabledState.value = it }
+                onCheckedChange = { chipEnabledState.value = it },
             )
         }
     }
@@ -77,7 +77,7 @@ private fun Chips(enabled: Boolean) {
             border = ChipDefaults.outlinedBorder,
             colors = ChipDefaults.outlinedChipColors(),
             enabled = enabled,
-            leadingIcon = { Icon(Icons.Filled.Settings, contentDescription = null) }
+            leadingIcon = { Icon(Icons.Filled.Settings, contentDescription = null) },
         ) {
             Text("Action chip")
         }
@@ -99,9 +99,9 @@ private fun FilterChips(enabled: Boolean) {
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "Localized Description",
-                    modifier = Modifier.size(ChipDefaults.SelectedIconSize)
+                    modifier = Modifier.size(ChipDefaults.SelectedIconSize),
                 )
-            }
+            },
         ) {
             Text("Filter chip")
         }
@@ -116,16 +116,16 @@ private fun FilterChips(enabled: Boolean) {
                 Icon(
                     Icons.Filled.Home,
                     contentDescription = "Localized Description",
-                    modifier = Modifier.size(ChipDefaults.LeadingIconSize)
+                    modifier = Modifier.size(ChipDefaults.LeadingIconSize),
                 )
             },
             selectedIcon = {
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "Localized Description",
-                    modifier = Modifier.size(ChipDefaults.SelectedIconSize)
+                    modifier = Modifier.size(ChipDefaults.SelectedIconSize),
                 )
-            }
+            },
         ) {
             Text("Filter chip")
         }

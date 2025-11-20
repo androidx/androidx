@@ -98,22 +98,34 @@ message Semantics {
   //
   // This field is bindable and will use the dynamic value (if set).
   StringProp state_description = 3;
+
+  // Whether this element should be marked as heading for accessibility.
+  // Defaults to false.
+  bool heading = 5;
 }
 
 // A modifier to apply padding around an element.
 message Padding {
   // The padding on the end of the content, depending on the layout direction,
   // in DP and the value of "rtl_aware".
+  // <p>Note that negative values are supported on schema versions of 1.6 or
+  // higher.
   DpProp end = 1;
 
   // The padding on the start of the content, depending on the layout direction,
   // in DP and the value of "rtl_aware".
+  // <p>Note that negative values are supported on schema versions of 1.6 or
+  // higher.
   DpProp start = 2;
 
   // The padding at the top, in DP.
+  // <p>Note that negative values are supported on schema versions of 1.6 or
+  // higher.
   DpProp top = 3;
 
   // The padding at the bottom, in DP.
+  // <p>Note that negative values are supported on schema versions of 1.6 or
+  // higher.
   DpProp bottom = 4;
 
   // Whether the start/end padding is aware of RTL support. If true, the values

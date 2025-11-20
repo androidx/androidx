@@ -32,7 +32,7 @@ abstract class ClearCredentialException
 @JvmOverloads
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null,
 ) : Exception(errorMessage?.toString()) {
     companion object {
         private const val EXTRA_CLEAR_CREDENTIAL_EXCEPTION_TYPE =

@@ -94,6 +94,6 @@ public fun RoundButton(
                     else Modifier
                 )
                 .background(color = backgroundColor(enabled), shape = shape),
-        content = content
+        content = content,
     )
 }

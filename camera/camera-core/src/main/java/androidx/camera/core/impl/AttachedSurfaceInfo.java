@@ -48,9 +48,13 @@ public abstract class AttachedSurfaceInfo {
             @NonNull DynamicRange dynamicRange,
             @NonNull List<UseCaseConfigFactory.CaptureType> captureTypes,
             @Nullable Config implementationOptions,
-            @Nullable Range<Integer> targetFrameRate) {
+            int sessionType,
+            @NonNull Range<Integer> targetFrameRate,
+            boolean isStrictFrameRateRequired,
+            int customMaxFrameRate) {
         return new AutoValue_AttachedSurfaceInfo(surfaceConfig, imageFormat, size,
-                dynamicRange, captureTypes, implementationOptions, targetFrameRate);
+                dynamicRange, captureTypes, implementationOptions, sessionType, targetFrameRate,
+                isStrictFrameRateRequired, customMaxFrameRate);
     }
 
     /**
@@ -61,11 +65,10 @@ public abstract class AttachedSurfaceInfo {
             @NonNull Config implementationOptions) {
         StreamSpec.Builder streamSpecBuilder =
                 StreamSpec.builder(getSize())
+                        .setSessionType(getSessionType())
+                        .setExpectedFrameRateRange(getTargetFrameRate())
                         .setDynamicRange(getDynamicRange())
                         .setImplementationOptions(implementationOptions);
-        if (getTargetFrameRate() != null) {
-            streamSpecBuilder.setExpectedFrameRateRange(getTargetFrameRate());
-        }
         return streamSpecBuilder.build();
     }
 
@@ -89,8 +92,17 @@ public abstract class AttachedSurfaceInfo {
     /** Returns the implementations of this surface. */
     public abstract @Nullable Config getImplementationOptions();
 
+    /** Returns the session type. */
+    public abstract int getSessionType();
+
     /** Returns the configuration target frame rate. */
-    public abstract @Nullable Range<Integer> getTargetFrameRate();
+    public abstract @NonNull Range<Integer> getTargetFrameRate();
+
+    /** Returns whether strict frame rate is required. */
+    public abstract boolean isStrictFrameRateRequired();
+
+    /** Returns the custom max frame rate. */
+    public abstract int getCustomMaxFrameRate();
 }
 
 

@@ -61,11 +61,7 @@ class RetryActivity : AppCompatActivity() {
             OneTimeWorkRequest.Builder(Worker::class.java)
                 .setConstraints(constraints)
                 .setInputData(
-                    workDataOf(
-                        NAME to name,
-                        TIME_TAKEN to timeTaken,
-                        ERROR_RATE to errorRate,
-                    )
+                    workDataOf(NAME to name, TIME_TAKEN to timeTaken, ERROR_RATE to errorRate)
                 )
                 .addTag("test")
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)

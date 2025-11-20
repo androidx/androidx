@@ -20,7 +20,6 @@ import android.media.CamcorderProfile.QUALITY_1080P
 import android.media.CamcorderProfile.QUALITY_2160P
 import android.media.CamcorderProfile.QUALITY_480P
 import android.media.CamcorderProfile.QUALITY_720P
-import android.os.Build
 import android.util.Size
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -40,7 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class QualityResolutionModifiedEncoderProfilesProviderTest {
 
     private val defaultProvider =
@@ -49,7 +48,7 @@ class QualityResolutionModifiedEncoderProfilesProviderTest {
                 QUALITY_2160P to PROFILES_2160P,
                 QUALITY_1080P to PROFILES_1080P,
                 QUALITY_720P to PROFILES_720P,
-                QUALITY_480P to PROFILES_480P
+                QUALITY_480P to PROFILES_480P,
             )
         )
 
@@ -105,9 +104,8 @@ class QualityResolutionModifiedEncoderProfilesProviderTest {
         return Quirks(listOf(FakeQuirk(resolutionMap)))
     }
 
-    class FakeQuirk(
-        private val resolutionMap: Map<Int, Size> = emptyMap(),
-    ) : StretchedVideoResolutionQuirk() {
+    class FakeQuirk(private val resolutionMap: Map<Int, Size> = emptyMap()) :
+        StretchedVideoResolutionQuirk() {
 
         override fun getAlternativeResolution(quality: Int): Size? {
             return resolutionMap[quality]

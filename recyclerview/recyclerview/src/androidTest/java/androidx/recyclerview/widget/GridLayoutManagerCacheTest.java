@@ -22,10 +22,7 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
-
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class GridLayoutManagerCacheTest extends BaseGridLayoutManagerTest {
 
     final Config mConfig;

@@ -16,13 +16,5 @@
 
 package androidx.core.view;
 
-import android.support.v4.BaseTestActivity;
-
-import androidx.core.test.R;
-
-public class DarkSystemBarsActivity extends BaseTestActivity {
-    @Override
-    protected int getContentViewLayoutResId() {
-        return R.layout.insets_compat_activity;
-    }
+public class DarkSystemBarsActivity extends InsetsCompatActivity {
 }

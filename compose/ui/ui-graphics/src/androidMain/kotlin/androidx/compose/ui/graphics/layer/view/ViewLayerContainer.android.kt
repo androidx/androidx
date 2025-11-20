@@ -74,6 +74,7 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
         // NO-OP
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407491706
     override fun invalidateChildInParent(location: IntArray?, dirty: Rect?): ViewParent? {
         return null
     }

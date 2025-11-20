@@ -25,5 +25,5 @@ val RecyclerViewDemos =
         listOf(
             FragmentDemo("Basic interop (enabled)", RecyclerViewInteropDemoFragment::class),
             FragmentDemo("Basic interop (disabled)", RecyclerViewInteropOffDemoFragment::class),
-        )
+        ),
     )

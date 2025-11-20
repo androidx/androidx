@@ -40,11 +40,8 @@ import kotlinx.coroutines.Job
 public const val DEFAULT_ZOOM_RATIO: Float = 1.0f
 
 @CameraScope
-public class ZoomControl
-@Inject
-constructor(
-    private val zoomCompat: ZoomCompat,
-) : UseCaseCameraControl {
+public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat) :
+    UseCaseCameraControl {
     // NOTE: minZoom may be lower than 1.0
     // NOTE: Default zoom ratio is 1.0 (DEFAULT_ZOOM_RATIO)
     public val minZoomRatio: Float = zoomCompat.minZoomRatio
@@ -59,12 +56,14 @@ constructor(
     public val zoomStateLiveData: LiveData<ZoomState>
         get() = _zoomState
 
+    private var isInitialized = false
+
     /** Linear zoom is between 0.0f and 1.0f */
     public fun toLinearZoom(zoomRatio: Float): Float =
         getLinearZoomFromZoomRatio(
             zoomRatio = zoomRatio,
             minZoomRatio = minZoomRatio,
-            maxZoomRatio = maxZoomRatio
+            maxZoomRatio = maxZoomRatio,
         )
 
     /** Zoom ratio is commonly used as the "1x, 2x, 5x" zoom ratio. Zoom ratio may be less than 1 */
@@ -72,7 +71,7 @@ constructor(
         getZoomRatioFromLinearZoom(
             linearZoom = linearZoom,
             minZoomRatio = minZoomRatio,
-            maxZoomRatio = maxZoomRatio
+            maxZoomRatio = maxZoomRatio,
         )
 
     private var _requestControl: UseCaseCameraRequestControl? = null
@@ -80,7 +79,10 @@ constructor(
         get() = _requestControl
         set(value) {
             _requestControl = value
-            applyZoomState(_zoomState.value ?: defaultZoomState, false)
+            val zoomState = _zoomState.value ?: defaultZoomState
+            val shouldUpdateParameters = isInitialized || zoomState.zoomRatio != DEFAULT_ZOOM_RATIO
+            applyZoomState(zoomState, false, shouldUpdateParameters)
+            isInitialized = true
         }
 
     private var updateSignal: CompletableDeferred<Unit>? = null
@@ -104,12 +106,7 @@ constructor(
             return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue =
-            ZoomValue(
-                ZoomValue.LinearZoom(linearZoom),
-                minZoomRatio,
-                maxZoomRatio,
-            )
+        val zoomValue = ZoomValue(ZoomValue.LinearZoom(linearZoom), minZoomRatio, maxZoomRatio)
         return applyZoomState(zoomValue)
     }
 
@@ -121,18 +118,14 @@ constructor(
             return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue =
-            ZoomValue(
-                zoomRatio,
-                minZoomRatio,
-                maxZoomRatio,
-            )
+        val zoomValue = ZoomValue(zoomRatio, minZoomRatio, maxZoomRatio)
         return applyZoomState(zoomValue)
     }
 
     public fun applyZoomState(
         zoomState: ZoomState,
         cancelPreviousTask: Boolean = true,
+        shouldUpdateParameters: Boolean = true,
     ): ListenableFuture<Void> {
         val signal = CompletableDeferred<Unit>()
 
@@ -153,7 +146,16 @@ constructor(
 
         setZoomState(zoomState)
 
-        requestControl?.let { zoomCompat.applyAsync(zoomState.zoomRatio, it).propagateTo(signal) }
+        requestControl?.let {
+            val zoomRatio = zoomState.zoomRatio
+            val deferred =
+                if (shouldUpdateParameters) {
+                    zoomCompat.applyAsync(zoomRatio, it)
+                } else {
+                    zoomCompat.resetAsync(it)
+                }
+            deferred.propagateTo(signal)
+        }
             ?: signal.completeExceptionally(
                 CameraControl.OperationCanceledException("Camera is not active.")
             )

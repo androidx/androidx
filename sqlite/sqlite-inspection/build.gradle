@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.inspection")
 }
 
@@ -37,7 +37,6 @@ dependencies {
     compileOnly(project(":inspection:inspection"))
 
     androidTestImplementation(project(":inspection:inspection-testing"))
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.truth)

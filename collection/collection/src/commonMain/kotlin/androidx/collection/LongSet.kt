@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Facade class name cannot be updated, the Kt name has been released
 @file:Suppress(
     "RedundantVisibilityModifier",
     "KotlinRedundantDiagnosticSuppress",
@@ -21,7 +22,8 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
+    "FacadeClassJvmName",
 )
 @file:OptIn(ExperimentalContracts::class)
 
@@ -109,9 +111,7 @@ public fun mutableLongSetOf(vararg elements: Long): MutableLongSet =
  *
  * @param builderAction Lambda in which the [MutableLongSet] can be populated.
  */
-public inline fun buildLongSet(
-    builderAction: MutableLongSet.() -> Unit,
-): LongSet {
+public inline fun buildLongSet(builderAction: MutableLongSet.() -> Unit): LongSet {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableLongSet().apply(builderAction)
 }
@@ -324,17 +324,19 @@ public sealed class LongSet {
         truncated: CharSequence = "...",
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@LongSet.forEach { element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@LongSet.forEach { element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(element)
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(element)
-            index++
         }
         append(postfix)
     }
@@ -354,20 +356,22 @@ public sealed class LongSet {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Long) -> CharSequence
+        crossinline transform: (Long) -> CharSequence,
     ): String = buildString {
         append(prefix)
-        var index = 0
-        this@LongSet.forEach { element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
+        run {
+            var index = 0
+            this@LongSet.forEach { element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                append(transform(element))
+                index++
             }
-            if (index != 0) {
-                append(separator)
-            }
-            append(transform(element))
-            index++
         }
         append(postfix)
     }

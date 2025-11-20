@@ -33,7 +33,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: suspend () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
-    @OptIn(ExperimentalPagingApi::class) remoteMediator: RemoteMediator<Key, Value>? = null
+    @OptIn(ExperimentalPagingApi::class) remoteMediator: RemoteMediator<Key, Value>? = null,
 ) {
     /**
      * Channel of refresh signals that would trigger a new instance of [PageFetcherSnapshot].
@@ -137,7 +137,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 PagingData(
                     flow = downstreamFlow,
                     uiReceiver = PagerUiReceiver(retryEvents),
-                    hintReceiver = PagerHintReceiver(generation.snapshot)
+                    hintReceiver = PagerHintReceiver(generation.snapshot),
                 )
             }
             .collect(::send)
@@ -153,7 +153,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
         job: Job,
-        accessor: RemoteMediatorAccessor<Key, Value>?
+        accessor: RemoteMediatorAccessor<Key, Value>?,
     ): Flow<PageEvent<Value>> {
         if (accessor == null) return pageEventFlow
 
@@ -170,6 +170,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         when (sourceEvent) {
                             is Insert -> {
                                 sourceStates.set(sourceEvent.sourceLoadStates)
+                                @Suppress("DATA_CLASS_INVISIBLE_COPY_USAGE_WARNING")
                                 sourceEvent.copy(
                                     sourceLoadStates = sourceEvent.sourceLoadStates,
                                     mediatorLoadStates = remoteState,
@@ -178,16 +179,13 @@ internal class PageFetcher<Key : Any, Value : Any>(
                             is Drop -> {
                                 sourceStates.set(
                                     type = sourceEvent.loadType,
-                                    state = LoadState.NotLoading.Incomplete
+                                    state = LoadState.NotLoading.Incomplete,
                                 )
                                 sourceEvent
                             }
                             is LoadStateUpdate -> {
                                 sourceStates.set(sourceEvent.source)
-                                LoadStateUpdate(
-                                    source = sourceEvent.source,
-                                    mediator = remoteState,
-                                )
+                                LoadStateUpdate(source = sourceEvent.source, mediator = remoteState)
                             }
                             is PageEvent.StaticList -> {
                                 throw IllegalStateException(
@@ -201,10 +199,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                             }
                         }
                     } else {
-                        LoadStateUpdate(
-                            source = sourceStates.snapshot(),
-                            mediator = remoteState,
-                        )
+                        LoadStateUpdate(source = sourceStates.snapshot(), mediator = remoteState)
                     }
                 }
                 .collect { send(it) }
@@ -247,7 +242,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     inner class PagerHintReceiver<Key : Any, Value : Any>
     constructor(
-        @get:VisibleForTesting internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
+        @get:VisibleForTesting internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>
     ) : HintReceiver {
 
         override fun accessHint(viewportHint: ViewportHint) {

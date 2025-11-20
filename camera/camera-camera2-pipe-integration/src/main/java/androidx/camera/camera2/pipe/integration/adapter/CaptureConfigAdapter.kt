@@ -106,13 +106,13 @@ constructor(
         if (configOptions.containsOption(CaptureConfig.OPTION_ROTATION)) {
             optionBuilder.setCaptureRequestOption(
                 CaptureRequest.JPEG_ORIENTATION,
-                configOptions.retrieveOption(CaptureConfig.OPTION_ROTATION)!!
+                configOptions.retrieveOption(CaptureConfig.OPTION_ROTATION)!!,
             )
         }
         if (configOptions.containsOption(CaptureConfig.OPTION_JPEG_QUALITY)) {
             optionBuilder.setCaptureRequestOption(
                 CaptureRequest.JPEG_QUALITY,
-                configOptions.retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)!!.toByte()
+                configOptions.retrieveOption(CaptureConfig.OPTION_JPEG_QUALITY)!!.toByte(),
             )
         }
 
@@ -180,7 +180,7 @@ constructor(
             override fun onComplete(
                 requestMetadata: RequestMetadata,
                 frameNumber: FrameNumber,
-                result: FrameInfo
+                result: FrameInfo,
             ) {
                 closeImageProxy()
             }
@@ -188,7 +188,7 @@ constructor(
             override fun onFailed(
                 requestMetadata: RequestMetadata,
                 frameNumber: FrameNumber,
-                requestFailure: RequestFailure
+                requestFailure: RequestFailure,
             ) {
                 closeImageProxy()
             }
@@ -200,7 +200,7 @@ constructor(
             override fun onTotalCaptureResult(
                 requestMetadata: RequestMetadata,
                 frameNumber: FrameNumber,
-                totalCaptureResult: FrameInfo
+                totalCaptureResult: FrameInfo,
             ) {
                 closeImageProxy()
             }

@@ -27,15 +27,14 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.benchmark")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     androidTestImplementation(project(":datastore:datastore-core"))
     androidTestImplementation(project(":datastore:datastore-guava"))
     androidTestImplementation(project(":internal-testutils-datastore"))
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

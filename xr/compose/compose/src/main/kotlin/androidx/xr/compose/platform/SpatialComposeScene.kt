@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.platform
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
@@ -24,7 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.CoreEntity
-import androidx.xr.scenecore.Session
+import androidx.xr.runtime.Session
 
 /**
  * A 3D scene represented via Compose elements and coordinated with SceneCore.
@@ -34,14 +35,15 @@ import androidx.xr.scenecore.Session
  *
  * @param parentCompositionContext the optional composition context when this is a sub-composition
  * @param rootEntity the optional [CoreEntity] to associate with the root of this composition
- * @property ownerActivity the [ComponentActivity] that owns this scene.
+ * @property lifecycleOwner the [ComponentActivity] that owns this scene.
  * @property jxrSession the [Session] used to interact with SceneCore.
  */
 internal class SpatialComposeScene(
     /** Context of the activity that this scene is rooted on. */
-    public val ownerActivity: ComponentActivity,
-    @InternalSubspaceApi public val jxrSession: Session,
-    parentCompositionContext: CompositionContext? = null,
+    val lifecycleOwner: LifecycleOwner,
+    val context: Context,
+    @InternalSubspaceApi val jxrSession: Session,
+    parentCompositionContext: CompositionContext,
     rootEntity: CoreEntity? = null,
 ) : DefaultLifecycleObserver, LifecycleOwner {
     init {
@@ -52,15 +54,15 @@ internal class SpatialComposeScene(
     internal val rootElement: SpatialComposeElement =
         SpatialComposeElement(this, parentCompositionContext, rootEntity)
 
-    public fun setContent(content: @Composable @SubspaceComposable () -> Unit) {
+    fun setContent(content: @Composable @SubspaceComposable () -> Unit) {
         rootElement.setContent(content)
     }
 
-    public fun dispose() {
+    fun dispose() {
         rootElement.disposeComposition()
         SceneManager.onSceneDisposed(this)
     }
 
     override val lifecycle: Lifecycle
-        get() = ownerActivity.lifecycle
+        get() = lifecycleOwner.lifecycle
 }

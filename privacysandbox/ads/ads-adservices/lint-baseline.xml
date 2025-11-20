@@ -1,5 +1,149 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(captor1.value == uri1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(captor2.value == inputEvent)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.topOriginUri == uri1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.sourceParams.size == 1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.appDestination == appDestination)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.sourceParams[0].registrationUri == uri1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(!actualRequest.sourceParams[0].isDebugKeyAllowed)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.triggerParams.size == 1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(actualRequest.triggerParams[0].registrationUri == uri1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(!actualRequest.triggerParams[0].isDebugKeyAllowed)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(actualResult == expectedResult)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(HashSet(request.domainUris) == HashSet(expectedRequest.domainUris))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(HashSet(request.originUris) == HashSet(expectedRequest.originUris))"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/measurement/MeasurementManagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        Truth.assertThat(request1.hashCode() == request2.hashCode())"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/signals/UpdateSignalsRequestTest.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: CustomAudience.FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS"
+        errorLine1="                    .setAuctionServerRequestFlags(request.getAuctionServerRequestFlags())"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/customaudience/CustomAudienceManagerImplCommon.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: CustomAudience.FLAG_AUCTION_SERVER_REQUEST_OMIT_ADS"
+        errorLine1="                    .setAuctionServerRequestFlags(request.getAuctionServerRequestFlags())"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/customaudience/CustomAudienceManagerImplCommon.kt"/>
+    </issue>
 
     <issue
         id="WrongConstant"
@@ -21,8 +165,8 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
-        errorLine1="                        request.reportingDestinations"
+        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER, ReportEventRequest.FLAG_REPORTING_DESTINATION_COMPONENT_SELLER, but could be ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
+        errorLine1="                        request.reportingDestinations,"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/privacysandbox/ads/adservices/adselection/ReportEventRequest.kt"/>
@@ -30,8 +174,8 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
-        errorLine1="                        request.reportingDestinations"
+        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER, ReportEventRequest.FLAG_REPORTING_DESTINATION_COMPONENT_SELLER, but could be ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
+        errorLine1="                        request.reportingDestinations,"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/privacysandbox/ads/adservices/adselection/ReportEventRequest.kt"/>

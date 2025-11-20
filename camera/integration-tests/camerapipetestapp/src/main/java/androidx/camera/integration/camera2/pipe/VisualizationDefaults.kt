@@ -32,7 +32,7 @@ object VisualizationDefaults {
             CameraMetadataKey.CONTROL_ZOOM_RATIO,
             CameraMetadataKey.JPEG_ORIENTATION,
             CameraMetadataKey.LENS_FILTER_DENSITY,
-            CameraMetadataKey.SENSOR_SENSITIVITY
+            CameraMetadataKey.SENSOR_SENSITIVITY,
         )
     val keysVisualizedAsValueGraph: Set<CameraMetadataKey> =
         setOf(CameraMetadataKey.LENS_FOCUS_DISTANCE)
@@ -41,7 +41,7 @@ object VisualizationDefaults {
         setOf(
             CameraMetadataKey.CONTROL_AE_MODE,
             CameraMetadataKey.CONTROL_AF_MODE,
-            CameraMetadataKey.CONTROL_AWB_MODE
+            CameraMetadataKey.CONTROL_AWB_MODE,
         )
 }
 
@@ -50,7 +50,7 @@ object ValueRanges {
     val absoluteRanges: Map<CameraMetadataKey, Pair<Number, Number>> =
         mapOf(
             CameraMetadataKey.LENS_FOCUS_DISTANCE to Pair(0f, 1f),
-            CameraMetadataKey.LENS_FOCAL_LENGTH to Pair(0f, 30f)
+            CameraMetadataKey.LENS_FOCAL_LENGTH to Pair(0f, 30f),
         )
 }
 
@@ -64,7 +64,7 @@ object StateDetails {
                     1 to "ON",
                     2 to "ON_AUTO_FLASH",
                     3 to "ON_AUTO_FLASH_REDEYE",
-                    4 to "ON_EXTERNAL_FLASH"
+                    4 to "ON_EXTERNAL_FLASH",
                 ),
             CameraMetadataKey.CONTROL_AF_MODE to
                 mapOf(
@@ -73,7 +73,7 @@ object StateDetails {
                     2 to "MACRO",
                     3 to "CONTINUOUS_VIDEO",
                     4 to "CONTINUOUS_PICTURE",
-                    5 to "EDOF"
+                    5 to "EDOF",
                 ),
             CameraMetadataKey.CONTROL_AWB_MODE to
                 mapOf(
@@ -85,9 +85,9 @@ object StateDetails {
                     5 to "DAYLIGHT",
                     6 to "CLOUDY_DAYLIGHT",
                     7 to "TWILIGHT",
-                    8 to "SHADE"
+                    8 to "SHADE",
                 ),
             CameraMetadataKey.COLOR_CORRECTION_ABERRATION_MODE to
-                mapOf(0 to "OFF", 1 to "FAST", 2 to "HIGH_QUALITY")
+                mapOf(0 to "OFF", 1 to "FAST", 2 to "HIGH_QUALITY"),
         )
 }

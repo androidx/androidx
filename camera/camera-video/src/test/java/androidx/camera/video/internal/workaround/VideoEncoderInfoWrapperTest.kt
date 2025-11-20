@@ -35,7 +35,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(Enclosed::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 object VideoEncoderInfoWrapperTest {
 
     private const val WIDTH_ALIGNMENT = 2
@@ -61,7 +61,7 @@ object VideoEncoderInfoWrapperTest {
 
     @RunWith(ParameterizedRobolectricTestRunner::class)
     @DoNotInstrument
-    @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+    @Config(sdk = [Config.ALL_SDKS])
     class ModelWrappingTest(
         private val brand: String,
         private val model: String,
@@ -78,30 +78,10 @@ object VideoEncoderInfoWrapperTest {
             )
             fun data() =
                 listOf(
-                    arrayOf(
-                        NONE_QUIRK_BRAND,
-                        NONE_QUIRK_MODEL,
-                        VALID_SIZE,
-                        false,
-                    ),
-                    arrayOf(
-                        NONE_QUIRK_BRAND,
-                        NONE_QUIRK_MODEL,
-                        SIZE_SHOULD_BE_VALID,
-                        true,
-                    ),
-                    arrayOf(
-                        "Nokia",
-                        "Nokia 1",
-                        VALID_SIZE,
-                        true,
-                    ),
-                    arrayOf(
-                        "motorola",
-                        "moto c",
-                        VALID_SIZE,
-                        true,
-                    ),
+                    arrayOf(NONE_QUIRK_BRAND, NONE_QUIRK_MODEL, VALID_SIZE, false),
+                    arrayOf(NONE_QUIRK_BRAND, NONE_QUIRK_MODEL, SIZE_SHOULD_BE_VALID, true),
+                    arrayOf("Nokia", "Nokia 1", VALID_SIZE, true),
+                    arrayOf("motorola", "moto c", VALID_SIZE, true),
                     // No necessary to test all models.
                 )
         }
@@ -123,7 +103,7 @@ object VideoEncoderInfoWrapperTest {
 
     @RunWith(RobolectricTestRunner::class)
     @DoNotInstrument
-    @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+    @Config(sdk = [Config.ALL_SDKS])
     class WrappingMethodTest {
 
         @Test
@@ -142,7 +122,7 @@ object VideoEncoderInfoWrapperTest {
             val videoEncoderInfo2 =
                 createFakeVideoEncoderInfoWrapper(
                     videoEncoderInfo,
-                    validSizeToCheck = sizeToBeValid
+                    validSizeToCheck = sizeToBeValid,
                 )
             assertThat(videoEncoderInfo2).isSameInstanceAs(videoEncoderInfo)
             assertThat(videoEncoderInfo2.isSizeSupported(sizeToBeValid.width, sizeToBeValid.height))
@@ -228,7 +208,7 @@ object VideoEncoderInfoWrapperTest {
                         widthAlignment = 16,
                         heightAlignment = 16,
                     ),
-                    validSizeToCheck = Size(1920, 1080) // 1080 not align to 16
+                    validSizeToCheck = Size(1920, 1080), // 1080 not align to 16
                 )
             assertThat(videoEncoderInfo.isSizeSupported(1920, 1080)).isTrue()
         }
@@ -245,7 +225,7 @@ object VideoEncoderInfoWrapperTest {
                         widthAlignment = 16,
                         heightAlignment = 16,
                     ),
-                    null
+                    null,
                 )
             assertThat(videoEncoderInfo.isSizeSupported(1920, 1080)).isTrue()
         }

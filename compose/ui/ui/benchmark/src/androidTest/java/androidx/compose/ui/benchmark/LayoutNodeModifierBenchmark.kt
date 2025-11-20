@@ -76,7 +76,7 @@ class LayoutNodeModifierBenchmark(private val numberOfModifiers: Int) {
                     Modifier.layoutId("Hello"),
                     Modifier.padding(10.dp),
                     Modifier.onGloballyPositioned { _ -> },
-                    Modifier.zIndex(1f)
+                    Modifier.zIndex(1f),
                 )
                 .subList(0, numberOfModifiers)
 

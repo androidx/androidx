@@ -422,4 +422,154 @@ public class By {
         return new BySelector().hasDescendant(descendantSelector, maxDepth);
     }
 
+    /**
+     * This nested class is used to create a {@link ByWindowSelector} that matches a window.
+     */
+    public static class Window {
+        private Window() { }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the type criteria.
+         *
+         * @see ByWindowSelector#type(int) ByWindowSelector.type(int)
+         */
+        public static @NonNull ByWindowSelector type(@ByWindowSelector.WindowType int type) {
+            return new ByWindowSelector().type(type);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the title criteria.
+         *
+         * @see ByWindowSelector#title(String) ByWindowSelector.title(String)
+         */
+        public static @NonNull ByWindowSelector title(@NonNull String title) {
+            return new ByWindowSelector().title(title);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the title criteria.
+         *
+         * @see ByWindowSelector#titleContains(String) ByWindowSelector.titleContains(String)
+         */
+        public static @NonNull ByWindowSelector titleContains(@NonNull String substring) {
+            return new ByWindowSelector().titleContains(substring);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the title criteria.
+         *
+         * @see ByWindowSelector#titleStartsWith(String) ByWindowSelector.titleStartsWith(String)
+         */
+        public static @NonNull ByWindowSelector titleStartsWith(@NonNull String prefix) {
+            return new ByWindowSelector().titleStartsWith(prefix);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the title criteria.
+         *
+         * @see ByWindowSelector#titleEndsWith(String) ByWindowSelector.titleEndsWith(String)
+         */
+        public static @NonNull ByWindowSelector titleEndsWith(@NonNull String suffix) {
+            return new ByWindowSelector().titleEndsWith(suffix);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the title criteria.
+         *
+         * @see ByWindowSelector#title(Pattern) ByWindowSelector.title(Pattern)
+         */
+        public static @NonNull ByWindowSelector title(@NonNull Pattern regex) {
+            return new ByWindowSelector().title(regex);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the window id criteria.
+         *
+         * <p>The window id can be obtained from {@link UiWindow#getId()}.
+         *
+         * @see ByWindowSelector#id(int) ByWindowSelector.id(int)
+         */
+        public static @NonNull ByWindowSelector id(int id) {
+            return new ByWindowSelector().id(id);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the layer (Z-order) criteria.
+         *
+         * <p>The layer ID can be obtained from {@link UiWindow#getLayer()}.
+         *
+         * @see ByWindowSelector#layer(int) ByWindowSelector.layer(int)
+         */
+        public static @NonNull ByWindowSelector layer(@IntRange(from = 0) int layer) {
+            return new ByWindowSelector().layer(layer);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the layer (Z-order) criteria.
+         *
+         * <p>The referenced layer ID can be obtained from {@link UiWindow#getLayer()}.
+         *
+         * @see ByWindowSelector#layerAbove(int) ByWindowSelector.layerAbove(int)
+         */
+        public static @NonNull ByWindowSelector layerAbove(@IntRange(from = 0) int referenceLayer) {
+            return new ByWindowSelector().layerAbove(referenceLayer);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the layer (Z-order) criteria.
+         *
+         * <p>The referenced layer ID can be obtained from {@link UiWindow#getLayer()}.
+         *
+         * @see ByWindowSelector#layerBelow(int) ByWindowSelector.layerBelow(int)
+         */
+        public static @NonNull ByWindowSelector layerBelow(@IntRange(from = 1) int referenceLayer) {
+            return new ByWindowSelector().layerBelow(referenceLayer);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the display ID criteria.
+         *
+         * @see ByWindowSelector#displayId(int) ByWindowSelector.displayId(int)
+         */
+        @RequiresApi(30)
+        public static @NonNull ByWindowSelector displayId(int displayId) {
+            return new ByWindowSelector().displayId(displayId);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the active criteria.
+         *
+         * @see ByWindowSelector#active(boolean) ByWindowSelector.active(boolean)
+         */
+        public static @NonNull ByWindowSelector active(boolean isActive) {
+            return new ByWindowSelector().active(isActive);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the focused criteria.
+         *
+         * @see ByWindowSelector#focused(boolean) ByWindowSelector.focused(boolean)
+         */
+        public static @NonNull ByWindowSelector focused(boolean isFocused) {
+            return new ByWindowSelector().focused(isFocused);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the package criteria.
+         *
+         * @see ByWindowSelector#pkg(String) ByWindowSelector.pkg(String)
+         */
+        public static @NonNull ByWindowSelector pkg(@NonNull String packageName) {
+            return new ByWindowSelector().pkg(packageName);
+        }
+
+        /**
+         * Constructs a new {@link ByWindowSelector} and sets the package criteria.
+         *
+         * @see ByWindowSelector#pkg(Pattern) ByWindowSelector.pkg(Pattern)
+         */
+        public static @NonNull ByWindowSelector pkg(@NonNull Pattern regex) {
+            return new ByWindowSelector().pkg(regex);
+        }
+    }
 }

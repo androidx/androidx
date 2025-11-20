@@ -17,22 +17,22 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    // Remove when b/442128557 is fixed
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":room:room-runtime"))
+    androidTestImplementation("androidx.room:room-runtime:2.7.2")
     androidTestImplementation(project(":sqlite:sqlite-inspection"))
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(libs.protobufLite)
-    kspAndroidTest(project(":room:room-compiler"))
+    kspAndroidTest("androidx.room:room-compiler:2.7.2")
 
 }
 

@@ -29,7 +29,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 }
 
 androidx {

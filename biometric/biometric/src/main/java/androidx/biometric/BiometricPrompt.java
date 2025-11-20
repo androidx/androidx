@@ -19,6 +19,7 @@ package androidx.biometric;
 import static android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.security.identity.IdentityCredential;
@@ -33,10 +34,20 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricManager.Authenticators;
+import androidx.biometric.internal.AuthenticationHandler;
+import androidx.biometric.internal.BiometricFragment;
+import androidx.biometric.internal.BiometricViewModel;
+import androidx.biometric.internal.CanceledFrom;
+import androidx.biometric.internal.viewmodel.AuthenticationViewModel;
+import androidx.biometric.internal.viewmodel.AuthenticationViewModelFactory;
+import androidx.biometric.utils.AuthenticatorUtils;
+import androidx.biometric.utils.CryptoObjectUtils;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -48,6 +59,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.security.Signature;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.crypto.Cipher;
@@ -67,6 +80,13 @@ import javax.crypto.Mac;
  * ongoing authentication session's callbacks to be received by the new fragment/activity instance.
  * Note that {@code cancelAuthentication()} should not be called, and {@code authenticate()} does
  * not need to be invoked during activity/fragment creation.
+ *
+ * <p>Note that if multiple instances of {@code BiometricPrompt} are created within a single
+ * Fragment or Activity, only the callback registered with the last created instance will be
+ * saved and receive authentication results. This behavior can lead to unexpected results if
+ * multiple independent biometric authentication flows are attempted within the same Fragment or
+ * Activity. It is highly recommended to avoid creating multiple BiometricPrompt instances in
+ * this scenario.
  */
 public class BiometricPrompt {
     private static final String TAG = "BiometricPromptCompat";
@@ -74,7 +94,8 @@ public class BiometricPrompt {
     /**
      * There is no error, and the user can successfully authenticate.
      */
-    static final int BIOMETRIC_SUCCESS = 0;
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int BIOMETRIC_SUCCESS = 0;
 
     /**
      * The hardware is unavailable. Try again later.
@@ -168,16 +189,24 @@ public class BiometricPrompt {
     public static final int ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
+     * The privacy setting has been enabled and will block use of the sensor.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int ERROR_SENSOR_PRIVACY_ENABLED = 18;
+
+    /**
      * Identity Check is currently not active.
      *
      * This device either doesn't have this feature enabled, or it's not considered in a
      * high-risk environment that requires extra security measures for accessing sensitive data.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int ERROR_IDENTITY_CHECK_NOT_ACTIVE = 20;
 
     /**
-     * Biometrics is not allowed to verify the user in apps.
+     * Biometrics is not allowed to verify the user in apps. It's for internal use only. This
+     * error code, introduced in API 35, was previously covered by ERROR_HW_UNAVAILABLE and
+     * doesn't need to be public. Therefore, for backward compatibility, this error will be
+     * converted to ERROR_HW_UNAVAILABLE.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int ERROR_NOT_ENABLED_FOR_APPS = 21;
@@ -187,20 +216,6 @@ public class BiometricPrompt {
      * set by {@link PromptInfo.Builder#setContentView}
      */
     public static final int ERROR_CONTENT_VIEW_MORE_OPTIONS_BUTTON = 22;
-
-    /**
-     * The error code returned after lock out error happens, the error dialog shows, and the
-     * users dismisses the dialog.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ERROR_LOCK_OUT_ERROR_DIALOG_DISMISSED = 23;
-
-    /**
-     * The error code returned after biometric hardware error happens, the error dialog shows,
-     * and the users dismisses the dialog.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ERROR_BIOMETRIC_HARDWARE_ERROR_DIALOG_DISMISSED = 24;
 
     /**
      * An error code that may be returned during authentication.
@@ -219,11 +234,11 @@ public class BiometricPrompt {
         ERROR_HW_NOT_PRESENT,
         ERROR_NEGATIVE_BUTTON,
         ERROR_NO_DEVICE_CREDENTIAL,
+        ERROR_SECURITY_UPDATE_REQUIRED,
+        ERROR_SENSOR_PRIVACY_ENABLED,
         ERROR_IDENTITY_CHECK_NOT_ACTIVE,
         ERROR_NOT_ENABLED_FOR_APPS,
-        ERROR_CONTENT_VIEW_MORE_OPTIONS_BUTTON,
-        ERROR_LOCK_OUT_ERROR_DIALOG_DISMISSED,
-        ERROR_BIOMETRIC_HARDWARE_ERROR_DIALOG_DISMISSED,
+        ERROR_CONTENT_VIEW_MORE_OPTIONS_BUTTON
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -256,19 +271,19 @@ public class BiometricPrompt {
      * The authentication type that was used, as reported by {@link AuthenticationResult}.
      */
     @IntDef({
-            AUTHENTICATION_RESULT_TYPE_UNKNOWN,
-            AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
-            AUTHENTICATION_RESULT_TYPE_BIOMETRIC
+        AUTHENTICATION_RESULT_TYPE_UNKNOWN,
+        AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
+        AUTHENTICATION_RESULT_TYPE_BIOMETRIC
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface AuthenticationResultType {
-    }
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface AuthenticationResultType {}
 
     /**
      * Tag used to identify the {@link BiometricFragment} attached to the client activity/fragment.
      */
     @VisibleForTesting
-    static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.BiometricFragment";
+    static final String BIOMETRIC_FRAGMENT_TAG = "androidx.biometric.internal.BiometricFragment";
 
     /**
      * A wrapper class for the crypto objects supported by {@link BiometricPrompt}.
@@ -346,7 +361,7 @@ public class BiometricPrompt {
          * Creates a crypto object that wraps the given presentation session object.
          *
          * @param presentationSession The presentation session to be associated with this crypto
-         *                            object.
+         *                           object.
          */
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public CryptoObject(
@@ -361,9 +376,9 @@ public class BiometricPrompt {
 
         /**
          * Create from an operation handle.
+         * @see CryptoObject#getOperationHandle()
          *
          * @param operationHandle the operation handle associated with this object.
-         * @see CryptoObject#getOperationHandle()
          */
         @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
         public CryptoObject(long operationHandle) {
@@ -449,22 +464,23 @@ public class BiometricPrompt {
          * this {@link androidx.biometric.BiometricPrompt.CryptoObject} to
          * {@link android.hardware.biometrics.BiometricPrompt}.
          */
-        long getOperationHandleCryptoObject() {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public long getOperationHandleCryptoObject() {
             return mOperationHandle;
         }
     }
 
     /**
      * A container for data passed to {@link AuthenticationCallback#onAuthenticationSucceeded(
-     *AuthenticationResult)} when the user has successfully authenticated.
+     * AuthenticationResult)} when the user has successfully authenticated.
      */
     public static class AuthenticationResult {
         private final CryptoObject mCryptoObject;
-        @AuthenticationResultType
-        private final int mAuthenticationType;
+        @AuthenticationResultType private final int mAuthenticationType;
 
-        AuthenticationResult(
-                CryptoObject crypto, @AuthenticationResultType int authenticationType) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public AuthenticationResult(@Nullable CryptoObject crypto,
+                @AuthenticationResultType int authenticationType) {
             mCryptoObject = crypto;
             mAuthenticationType = authenticationType;
         }
@@ -483,6 +499,7 @@ public class BiometricPrompt {
          * requested from and successfully provided by the user.
          *
          * @return An integer representing the type of authentication that was used.
+         *
          * @see #AUTHENTICATION_RESULT_TYPE_UNKNOWN
          * @see #AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL
          * @see #AUTHENTICATION_RESULT_TYPE_BIOMETRIC
@@ -507,8 +524,7 @@ public class BiometricPrompt {
          * @param errString A human-readable string that describes the error.
          */
         public void onAuthenticationError(
-                @AuthenticationError int errorCode, @NonNull CharSequence errString) {
-        }
+                @AuthenticationError int errorCode, @NonNull CharSequence errString) {}
 
         /**
          * Called when a biometric (e.g. fingerprint, face, etc.) is recognized, indicating that the
@@ -519,15 +535,13 @@ public class BiometricPrompt {
          *
          * @param result An object containing authentication-related data.
          */
-        public void onAuthenticationSucceeded(@NonNull AuthenticationResult result) {
-        }
+        public void onAuthenticationSucceeded(@NonNull AuthenticationResult result) {}
 
         /**
          * Called when a biometric (e.g. fingerprint, face, etc.) is presented but not recognized as
          * belonging to the user.
          */
-        public void onAuthenticationFailed() {
-        }
+        public void onAuthenticationFailed() {}
     }
 
     /**
@@ -539,8 +553,7 @@ public class BiometricPrompt {
          */
         public static class Builder {
             // Mutable options to be set on the builder.
-            @DrawableRes
-            private int mLogoRes = -1;
+            @DrawableRes private int mLogoRes = -1;
             private @Nullable Bitmap mLogoBitmap = null;
             private @Nullable String mLogoDescription = null;
             private @Nullable CharSequence mTitle = null;
@@ -550,8 +563,7 @@ public class BiometricPrompt {
             private @Nullable CharSequence mNegativeButtonText = null;
             private boolean mIsConfirmationRequired = true;
             private boolean mIsDeviceCredentialAllowed = false;
-            @BiometricManager.AuthenticatorTypes
-            private int mAllowedAuthenticators = 0;
+            @BiometricManager.AuthenticatorTypes private int mAllowedAuthenticators = 0;
 
             /**
              * Optional: Sets the drawable resource of the logo that will be shown on the prompt.
@@ -723,6 +735,7 @@ public class BiometricPrompt {
              *
              * @param deviceCredentialAllowed Whether this option should be enabled.
              * @return This builder.
+             *
              * @deprecated Use {@link #setAllowedAuthenticators(int)} instead.
              */
             @SuppressWarnings("deprecation")
@@ -772,6 +785,7 @@ public class BiometricPrompt {
              * Creates a {@link PromptInfo} object with the specified options.
              *
              * @return The {@link PromptInfo} object.
+             *
              * @throws IllegalArgumentException If any required option is not set, or if any
              *                                  illegal combination of options is present.
              */
@@ -812,8 +826,7 @@ public class BiometricPrompt {
         }
 
         // Immutable fields for the prompt info object.
-        @DrawableRes
-        private int mLogoRes;
+        @DrawableRes private int mLogoRes;
         private @Nullable Bitmap mLogoBitmap;
         private @Nullable String mLogoDescription;
         private final @NonNull CharSequence mTitle;
@@ -823,8 +836,7 @@ public class BiometricPrompt {
         private final @Nullable CharSequence mNegativeButtonText;
         private final boolean mIsConfirmationRequired;
         private final boolean mIsDeviceCredentialAllowed;
-        @BiometricManager.AuthenticatorTypes
-        private final int mAllowedAuthenticators;
+        @BiometricManager.AuthenticatorTypes private final int mAllowedAuthenticators;
 
         // Prevent direct instantiation.
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -893,6 +905,7 @@ public class BiometricPrompt {
          * Gets the title for the prompt.
          *
          * @return The title to be displayed on the prompt.
+         *
          * @see Builder#setTitle(CharSequence)
          */
         public @NonNull CharSequence getTitle() {
@@ -903,6 +916,7 @@ public class BiometricPrompt {
          * Gets the subtitle for the prompt.
          *
          * @return The subtitle to be displayed on the prompt.
+         *
          * @see Builder#setSubtitle(CharSequence)
          */
         public @Nullable CharSequence getSubtitle() {
@@ -913,6 +927,7 @@ public class BiometricPrompt {
          * Gets the description for the prompt.
          *
          * @return The description to be displayed on the prompt.
+         *
          * @see Builder#setDescription(CharSequence)
          */
         public @Nullable CharSequence getDescription() {
@@ -934,6 +949,7 @@ public class BiometricPrompt {
          *
          * @return The label to be used for the negative button on the prompt, or an empty string if
          * not set.
+         *
          * @see Builder#setNegativeButtonText(CharSequence)
          */
         public @NonNull CharSequence getNegativeButtonText() {
@@ -944,6 +960,7 @@ public class BiometricPrompt {
          * Checks if the confirmation required option is enabled for the prompt.
          *
          * @return Whether this option is enabled.
+         *
          * @see Builder#setConfirmationRequired(boolean)
          */
         public boolean isConfirmationRequired() {
@@ -954,7 +971,9 @@ public class BiometricPrompt {
          * Checks if the device credential allowed option is enabled for the prompt.
          *
          * @return Whether this option is enabled.
+         *
          * @see Builder#setDeviceCredentialAllowed(boolean)
+         *
          * @deprecated Will be removed with {@link Builder#setDeviceCredentialAllowed(boolean)}.
          */
         @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
@@ -968,6 +987,7 @@ public class BiometricPrompt {
          *
          * @return A bit field representing all valid authenticator types that may be invoked by
          * the prompt, or 0 if not set.
+         *
          * @see Builder#setAllowedAuthenticators(int)
          */
         @BiometricManager.AuthenticatorTypes
@@ -996,10 +1016,55 @@ public class BiometricPrompt {
     }
 
     /**
+     * A container for managing {@link LifecycleEventObserver} instances associated with a
+     * {@link Lifecycle}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static class LifecycleContainer {
+        private final Lifecycle mLifecycle;
+        private final List<LifecycleEventObserver> mObservers = new ArrayList<>();
+
+        public LifecycleContainer(@NonNull Lifecycle lifecycle) {
+            this.mLifecycle = lifecycle;
+        }
+
+        /**
+         * Adds an observer to the managed {@link Lifecycle}.
+         * <p>
+         * The observer will be added to the internal list and automatically registered
+         * with the {@link Lifecycle}.
+         * </p>
+         *
+         * @param observer The {@link LifecycleEventObserver} to be added.
+         */
+        public void addObserver(@NonNull LifecycleEventObserver observer) {
+            mLifecycle.addObserver(observer);
+            mObservers.add(observer);
+        }
+
+        /**
+         * Clears all observers from the container and removes them from the managed
+         * {@link Lifecycle}.
+         * <p>
+         * This method iterates through all registered observers, removes them from the
+         * {@link Lifecycle}, and then clears the internal list. This should be called when the
+         * container's purpose is fulfilled to prevent memory leaks.
+         * </p>
+         */
+        public void clearObservers() {
+            for (LifecycleEventObserver observer : mObservers) {
+                mLifecycle.removeObserver(observer);
+            }
+            mObservers.clear();
+        }
+    }
+
+    /**
      * The fragment manager that will be used to attach the prompt to the client activity.
      */
     private @Nullable FragmentManager mClientFragmentManager;
     private boolean mHostedInActivity;
+    private AuthenticationHandler mHelper;
 
     /**
      * Constructs a {@link BiometricPrompt}, which can be used to prompt the user to authenticate
@@ -1013,6 +1078,7 @@ public class BiometricPrompt {
      *
      * @param activity The activity of the client application that will host the prompt.
      * @param callback The object that will receive and process authentication events.
+     *
      * @see #BiometricPrompt(Fragment, AuthenticationCallback)
      * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
@@ -1029,10 +1095,7 @@ public class BiometricPrompt {
         }
 
         final FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        final BiometricViewModel viewModel =
-                new ViewModelProvider(activity).get(BiometricViewModel.class);
-        init(true /* hostedInActivity */, fragmentManager, viewModel, null /* executor */,
-                callback);
+        init(true /* hostedInActivity */, fragmentManager, activity, callback, null /* executor */);
     }
 
     /**
@@ -1047,6 +1110,7 @@ public class BiometricPrompt {
      *
      * @param fragment The fragment of the client application that will host the prompt.
      * @param callback The object that will receive and process authentication events.
+     *
      * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
      * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
@@ -1065,8 +1129,8 @@ public class BiometricPrompt {
         final BiometricViewModel viewModel =
                 new ViewModelProvider(fragment).get(BiometricViewModel.class);
         addObservers(fragment, viewModel);
-        init(false /* hostedInActivity */, fragmentManager, viewModel, null /* executor */,
-                callback);
+        init(false /* hostedInActivity */, fragmentManager, fragment, callback,
+                null /* executor */);
     }
 
     /**
@@ -1082,6 +1146,7 @@ public class BiometricPrompt {
      * @param activity The activity of the client application that will host the prompt.
      * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
      * @param callback The object that will receive and process authentication events.
+     *
      * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, Executor, AuthenticationCallback)
@@ -1104,9 +1169,7 @@ public class BiometricPrompt {
         }
 
         final FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        final BiometricViewModel viewModel =
-                new ViewModelProvider(activity).get(BiometricViewModel.class);
-        init(true /* hostedInActivity */, fragmentManager, viewModel, executor, callback);
+        init(true /* hostedInActivity */, fragmentManager, activity, callback, executor);
     }
 
     /**
@@ -1122,6 +1185,7 @@ public class BiometricPrompt {
      * @param fragment The fragment of the client application that will host the prompt.
      * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
      * @param callback The object that will receive and process authentication events.
+     *
      * @see #BiometricPrompt(FragmentActivity, AuthenticationCallback)
      * @see #BiometricPrompt(Fragment, AuthenticationCallback)
      * @see #BiometricPrompt(FragmentActivity, Executor, AuthenticationCallback)
@@ -1147,24 +1211,81 @@ public class BiometricPrompt {
         final BiometricViewModel viewModel =
                 new ViewModelProvider(fragment).get(BiometricViewModel.class);
         addObservers(fragment, viewModel);
-        init(false /* hostedInActivity */, fragmentManager, viewModel, executor, callback);
+        init(false /* hostedInActivity */, fragmentManager, fragment, callback, executor);
+    }
+
+    /**
+     * Constructs a {@link BiometricPrompt}, which can be used to prompt the user to authenticate
+     * with a biometric such as fingerprint or face. The prompt can be shown to the user by calling
+     * {@code authenticate()} and persists across device configuration changes by default.
+     *
+     * <p>If authentication is in progress, calling this constructor to recreate the prompt will
+     * also update the {@link AuthenticationCallback} for the current session. Thus, this method
+     * should be called by the client fragment each time the configuration changes
+     * (e.g. in {@code onCreate()}).
+     *
+     * @param viewModelStoreOwner The ViewModelStoreOwner of the client application that will
+     *                            host the prompt.
+     * @param callback            The object that will receive and process authentication events.
+     * @param executor The executor that will be used to run {@link AuthenticationCallback} methods.
+     * @param confirmCredentialActivityLauncher The {@link Runnable} to launch KeyguardManager's
+     *                                          ConfirmDeviceCredentialActivity.
+     */
+    BiometricPrompt(Context context, LifecycleOwner lifecycleOwner,
+            ViewModelStoreOwner viewModelStoreOwner,
+            Runnable confirmCredentialActivityLauncher,
+            @Nullable Executor executor,
+            AuthenticationCallback callback) {
+        init(context, lifecycleOwner, viewModelStoreOwner, confirmCredentialActivityLauncher,
+                executor, callback);
+    }
+
+    /**
+     * Initializes or updates the data needed by the prompt.
+     *
+     * @param context             The  {@link Context} used for calling framework API
+     * @param lifecycleOwner           The  {@link androidx.lifecycle.Lifecycle} to observer. If
+     *                            provided, it might be used to automatically manage resources or
+     *                            clean up listeners associated with the BiometricPrompt. Can be
+     *                            null.
+     * @param viewModelStoreOwner The {@link androidx.lifecycle.ViewModelStoreOwner} used for
+     *                            creating the internal {@link AuthenticationViewModel}.
+     * @param callback            The object that will receive and process authentication events.
+     * @param executor            The executor that will be used to run callback methods, or
+     *                            {@link null} if a default executor should be used.
+     * @param confirmCredentialActivityLauncher The {@link Runnable} to launch KeyguardManager's
+     *                                          ConfirmDeviceCredentialActivity.
+     */
+    private void init(Context context, LifecycleOwner lifecycleOwner,
+            ViewModelStoreOwner viewModelStoreOwner,
+            Runnable confirmCredentialActivityLauncher,
+            @Nullable Executor executor,
+            AuthenticationCallback callback) {
+        final AuthenticationViewModel viewModel = new ViewModelProvider(viewModelStoreOwner,
+                new AuthenticationViewModelFactory()).get(
+                AuthenticationViewModel.class);
+        mHelper = AuthenticationHandler.create(context, lifecycleOwner, viewModel,
+                confirmCredentialActivityLauncher, executor, callback);
     }
 
     /**
      * Initializes or updates the data needed by the prompt.
      *
      * @param fragmentManager The fragment manager that will be used to attach the prompt.
-     * @param viewModel       A biometric view model tied to the lifecycle of the client activity.
+     * @param viewModelStoreOwner The {@link androidx.lifecycle.ViewModelStoreOwner} used for
+     *                            creating the internal {@link BiometricViewModel}.
+     * @param callback        The object that will receive and process authentication events.
      * @param executor        The executor that will be used to run callback methods, or
      *                        {@link null} if a default executor should be used.
-     * @param callback        The object that will receive and process authentication events.
      */
     private void init(
             boolean hostedInActivity,
             @NonNull FragmentManager fragmentManager,
-            @NonNull BiometricViewModel viewModel,
-            @Nullable Executor executor,
-            @NonNull AuthenticationCallback callback) {
+            ViewModelStoreOwner viewModelStoreOwner,
+            @NonNull AuthenticationCallback callback, @Nullable Executor executor) {
+        final BiometricViewModel viewModel =
+                new ViewModelProvider(viewModelStoreOwner).get(BiometricViewModel.class);
+
         mHostedInActivity = hostedInActivity;
         mClientFragmentManager = fragmentManager;
 
@@ -1185,8 +1306,10 @@ public class BiometricPrompt {
      *
      * @param info   An object describing the appearance and behavior of the prompt.
      * @param crypto A crypto object to be associated with this authentication.
+     *
      * @throws IllegalArgumentException If any of the allowed authenticator types specified by
      *                                  {@code info} do not support crypto-based authentication.
+     *
      * @see #authenticate(PromptInfo)
      * @see PromptInfo.Builder#setAllowedAuthenticators(int)
      */
@@ -1222,6 +1345,7 @@ public class BiometricPrompt {
      * cancel authentication and dismiss the prompt, use {@link #cancelAuthentication()}.
      *
      * @param info An object describing the appearance and behavior of the prompt.
+     *
      * @see #authenticate(PromptInfo, CryptoObject)
      */
     @SuppressWarnings("ConstantConditions")
@@ -1240,6 +1364,10 @@ public class BiometricPrompt {
      * @param crypto A crypto object to be associated with this authentication.
      */
     private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
+        if (mHelper != null) {
+            mHelper.authenticate(info, crypto);
+            return;
+        }
         if (mClientFragmentManager == null) {
             Log.e(TAG, "Unable to start authentication. Client fragment manager was null.");
             return;
@@ -1261,6 +1389,10 @@ public class BiometricPrompt {
      * {@link PromptInfo.Builder#setDeviceCredentialAllowed(boolean)} for more details.
      */
     public void cancelAuthentication() {
+        if (mHelper != null) {
+            mHelper.cancelAuthentication(CanceledFrom.CLIENT);
+            return;
+        }
         if (mClientFragmentManager == null) {
             Log.e(TAG, "Unable to start authentication. Client fragment manager was null.");
             return;
@@ -1275,15 +1407,20 @@ public class BiometricPrompt {
         biometricFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_CLIENT);
     }
 
+    void destroy() {
+        mClientFragmentManager = null;
+    }
+
     /**
      * Gets the biometric view model instance using the host activity or fragment that was
      * given in the constructor.
      *
-     * @param fragment         The fragment hosting the prompt.
+     * @param fragment The fragment hosting the prompt.
      * @param hostedInActivity If one of the activity-based constructors was used.
      * @return A biometric view model tied to the lifecycle owner of the fragment.
      */
-    static @NonNull BiometricViewModel getViewModel(@NonNull Fragment fragment,
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static @NonNull BiometricViewModel getViewModel(@NonNull Fragment fragment,
             boolean hostedInActivity) {
         ViewModelStoreOwner owner = hostedInActivity ? fragment.getActivity() : null;
         if (owner == null) {

@@ -34,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.window.DialogProperties
 
 /**
- * <a href="https://m3.material.io/components/date-pickers/overview" class="external"
- * target="_blank">Material Design date picker dialog</a>.
+ * [Material Design date picker dialog](https://m3.material.io/components/date-pickers/overview)
  *
  * A dialog for displaying a [DatePicker]. Date pickers let people select a date.
  *
@@ -61,7 +61,7 @@ import androidx.compose.ui.window.DialogProperties
  * @param properties typically platform specific properties to further configure the dialog
  * @param content the content of the dialog (i.e. a [DatePicker], for example)
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 actual fun DatePickerDialog(
     onDismissRequest: () -> Unit,
@@ -72,12 +72,12 @@ actual fun DatePickerDialog(
     tonalElevation: Dp,
     colors: DatePickerColors,
     properties: DialogProperties,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     BasicAlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier.wrapContentHeight(),
-        properties = properties
+        properties = properties,
     ) {
         Surface(
             modifier =
@@ -98,14 +98,21 @@ actual fun DatePickerDialog(
                 Box(modifier = Modifier.align(Alignment.End).padding(DialogButtonsPadding)) {
                     ProvideContentColorTextStyle(
                         contentColor = DialogTokens.ActionLabelTextColor.value,
-                        textStyle = DialogTokens.ActionLabelTextFont.value
+                        textStyle = DialogTokens.ActionLabelTextFont.value,
                     ) {
+                        val buttonPaddingFromMICS =
+                            LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                                ButtonDefaults.MinHeight
                         AlertDialogFlowRow(
                             mainAxisSpacing = DialogButtonsMainAxisSpacing,
-                            crossAxisSpacing = DialogButtonsCrossAxisSpacing
+                            crossAxisSpacing =
+                                (DialogButtonsCrossAxisSpacing - buttonPaddingFromMICS).coerceIn(
+                                    0.dp,
+                                    DialogButtonsCrossAxisSpacing,
+                                ),
                         ) {
-                            dismissButton?.invoke()
                             confirmButton()
+                            dismissButton?.invoke()
                         }
                     }
                 }
@@ -116,4 +123,4 @@ actual fun DatePickerDialog(
 
 private val DialogButtonsPadding = PaddingValues(bottom = 8.dp, end = 6.dp)
 private val DialogButtonsMainAxisSpacing = 8.dp
-private val DialogButtonsCrossAxisSpacing = 12.dp
+private val DialogButtonsCrossAxisSpacing = 8.dp

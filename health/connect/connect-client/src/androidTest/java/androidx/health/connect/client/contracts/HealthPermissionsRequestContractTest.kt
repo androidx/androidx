@@ -44,7 +44,7 @@ class HealthPermissionsRequestContractTest {
         assertFailsWith<IllegalArgumentException> {
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.READ_STEPS, "NON_HEALTH_PERMISSION")
+                setOf(HealthPermission.READ_STEPS, "NON_HEALTH_PERMISSION"),
             )
         }
     }

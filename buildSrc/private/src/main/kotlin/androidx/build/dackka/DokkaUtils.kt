@@ -42,7 +42,7 @@ internal object DokkaUtils {
         override fun serialize(
             src: FileCollection,
             typeOfSrc: Type,
-            context: JsonSerializationContext
+            context: JsonSerializationContext,
         ): JsonElement {
             return context.serialize(src.files)
         }
@@ -58,7 +58,7 @@ internal object DokkaUtils {
         override fun serialize(
             src: File,
             typeOfSrc: Type,
-            context: JsonSerializationContext
+            context: JsonSerializationContext,
         ): JsonElement {
             return JsonPrimitive(src.canonicalPath)
         }

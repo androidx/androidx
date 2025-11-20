@@ -38,13 +38,13 @@ public class BloodPressureRecord(
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata,
     /**
-     * Systolic blood pressure measurement, in [Pressure] unit. Required field. Valid range: 20-200
-     * mmHg.
+     * Systolic blood pressure measurement, in [Pressure] unit. Required field. Valid range:
+     * 20-200mmHg. For SDK extension 17 or higher, Valid range: 20-300mmHg.
      */
     public val systolic: Pressure,
     /**
-     * Diastolic blood pressure measurement, in [Pressure] unit. Required field. Valid range: 10-180
-     * mmHg.
+     * Diastolic blood pressure measurement, in [Pressure] unit. Required field. Valid range:
+     * 10-180mmHg. For SDK extension 17 or higher, Valid range: 10-300mmHg.
      */
     public val diastolic: Pressure,
     /**
@@ -141,7 +141,7 @@ public class BloodPressureRecord(
                 MEASUREMENT_LOCATION_LEFT_WRIST,
                 MEASUREMENT_LOCATION_RIGHT_WRIST,
                 MEASUREMENT_LOCATION_LEFT_UPPER_ARM,
-                MEASUREMENT_LOCATION_RIGHT_UPPER_ARM
+                MEASUREMENT_LOCATION_RIGHT_UPPER_ARM,
             ]
     )
     annotation class MeasurementLocations
@@ -155,7 +155,7 @@ public class BloodPressureRecord(
                 BODY_POSITION_STANDING_UP,
                 BODY_POSITION_SITTING_DOWN,
                 BODY_POSITION_LYING_DOWN,
-                BODY_POSITION_RECLINING
+                BODY_POSITION_RECLINING,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -182,7 +182,7 @@ public class BloodPressureRecord(
                 MeasurementLocation.LEFT_UPPER_ARM to MEASUREMENT_LOCATION_LEFT_UPPER_ARM,
                 MeasurementLocation.LEFT_WRIST to MEASUREMENT_LOCATION_LEFT_WRIST,
                 MeasurementLocation.RIGHT_UPPER_ARM to MEASUREMENT_LOCATION_RIGHT_UPPER_ARM,
-                MeasurementLocation.RIGHT_WRIST to MEASUREMENT_LOCATION_RIGHT_WRIST
+                MeasurementLocation.RIGHT_WRIST to MEASUREMENT_LOCATION_RIGHT_WRIST,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -197,7 +197,7 @@ public class BloodPressureRecord(
                 BodyPosition.LYING_DOWN to BODY_POSITION_LYING_DOWN,
                 BodyPosition.RECLINING to BODY_POSITION_RECLINING,
                 BodyPosition.SITTING_DOWN to BODY_POSITION_SITTING_DOWN,
-                BodyPosition.STANDING_UP to BODY_POSITION_STANDING_UP
+                BodyPosition.STANDING_UP to BODY_POSITION_STANDING_UP,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)

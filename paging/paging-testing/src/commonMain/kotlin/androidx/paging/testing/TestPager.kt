@@ -132,7 +132,7 @@ public class TestPager<Key : Any, Value : Any>(
                     LoadParams.Refresh(
                         initialKey,
                         config.initialLoadSize,
-                        config.enablePlaceholders
+                        config.enablePlaceholders,
                     )
                 )
                 .also { result ->
@@ -233,7 +233,7 @@ public class TestPager<Key : Any, Value : Any>(
                 pages = pages.toList(),
                 anchorPosition = anchorPosition,
                 config = config,
-                leadingPlaceholderCount = getLeadingPlaceholderCount()
+                leadingPlaceholderCount = getLeadingPlaceholderCount(),
             )
         }
     }
@@ -285,7 +285,7 @@ public class TestPager<Key : Any, Value : Any>(
                         pages = pages.toList(),
                         anchorPosition = finalIndex,
                         config = config,
-                        leadingPlaceholderCount = getLeadingPlaceholderCount()
+                        leadingPlaceholderCount = getLeadingPlaceholderCount(),
                     )
                 }
             }

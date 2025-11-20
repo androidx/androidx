@@ -24,6 +24,58 @@ import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
+
+/** An immutable data class to hold a snapshot of the 3A state. */
+internal data class State3A(
+    val aeMode: AeMode? = null,
+    val afMode: AfMode? = null,
+    val awbMode: AwbMode? = null,
+    val flashMode: FlashMode? = null,
+    val aeRegions: List<MeteringRectangle>? = null,
+    val afRegions: List<MeteringRectangle>? = null,
+    val awbRegions: List<MeteringRectangle>? = null,
+    val aeLock: Boolean? = null,
+    val awbLock: Boolean? = null,
+)
+
+/** Converts a State3A object into a map of parameters for a [CaptureRequest]. */
+internal fun State3A.toCaptureRequestParameterMap(): Map<CaptureRequest.Key<*>, Any> {
+    return mutableMapOf<CaptureRequest.Key<*>, Any>().apply {
+        aeMode?.let { put(CaptureRequest.CONTROL_AE_MODE, it.value) }
+        afMode?.let { put(CaptureRequest.CONTROL_AF_MODE, it.value) }
+        awbMode?.let { put(CaptureRequest.CONTROL_AWB_MODE, it.value) }
+        flashMode?.let { put(CaptureRequest.FLASH_MODE, it.value) }
+        aeRegions?.let { put(CaptureRequest.CONTROL_AE_REGIONS, it.toTypedArray()) }
+        afRegions?.let { put(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
+        awbRegions?.let { put(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
+        aeLock?.let { put(CaptureRequest.CONTROL_AE_LOCK, it) }
+        awbLock?.let { put(CaptureRequest.CONTROL_AWB_LOCK, it) }
+    }
+}
+
+/** Checks if the AE lock state changed from unlocked to locked between two states. */
+internal fun State3A.wasAeLocked(current: State3A): Boolean {
+    // True if initial was effectively false AND current is effectively true.
+    return !(this.aeLock ?: false) && (current.aeLock ?: false)
+}
+
+/** Checks if the AE lock state changed from locked to unlocked between two states. */
+internal fun State3A.wasAeUnlocked(current: State3A): Boolean {
+    // True if initial was effectively true AND current is effectively false.
+    return (this.aeLock ?: false) && !(current.aeLock ?: false)
+}
+
+/** Checks if the AWB lock state changed from unlocked to locked between two states. */
+internal fun State3A.wasAwbLocked(current: State3A): Boolean {
+    return !(this.awbLock ?: false) && (current.awbLock ?: false)
+}
+
+/** Checks if the AWB lock state changed from locked to unlocked between two states. */
+internal fun State3A.wasAwbUnlocked(current: State3A): Boolean {
+    return (this.awbLock ?: false) && !(current.awbLock ?: false)
+}
 
 /**
  * Holds the most recent 3A state for a single CameraGraph.
@@ -39,42 +91,19 @@ import javax.inject.Inject
  */
 @CameraGraphScope
 internal class GraphState3A @Inject constructor() {
-    var aeMode: AeMode? = null
-        get() = synchronized(this) { field }
-        private set
+    private val _state = atomic(State3A())
 
-    var afMode: AfMode? = null
-        get() = synchronized(this) { field }
-        private set
+    /**
+     * The current, immutable 3A state. This property can be read to get the current state and
+     * assigned to overwrite the entire state atomically.
+     */
+    var current: State3A
+        get() = _state.value
+        set(value) {
+            _state.value = value
+        }
 
-    var awbMode: AwbMode? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var flashMode: FlashMode? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var aeRegions: List<MeteringRectangle>? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var afRegions: List<MeteringRectangle>? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var awbRegions: List<MeteringRectangle>? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var aeLock: Boolean? = null
-        get() = synchronized(this) { field }
-        private set
-
-    var awbLock: Boolean? = null
-        get() = synchronized(this) { field }
-        private set
-
+    /** Atomically updates the current state with the provided non-null values. */
     fun update(
         aeMode: AeMode? = null,
         afMode: AfMode? = null,
@@ -84,48 +113,24 @@ internal class GraphState3A @Inject constructor() {
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
         aeLock: Boolean? = null,
-        awbLock: Boolean? = null
+        awbLock: Boolean? = null,
     ) {
-        synchronized(this) {
-            aeMode?.let { this.aeMode = it }
-            afMode?.let { this.afMode = it }
-            awbMode?.let { this.awbMode = it }
-            flashMode?.let { this.flashMode = it }
-            aeRegions?.let { this.aeRegions = it.ifEmpty { null } }
-            afRegions?.let { this.afRegions = it.ifEmpty { null } }
-            awbRegions?.let { this.awbRegions = it.ifEmpty { null } }
-            aeLock?.let { this.aeLock = it }
-            awbLock?.let { this.awbLock = it }
+        _state.update { currentState ->
+            currentState.copy(
+                aeMode = aeMode ?: currentState.aeMode,
+                afMode = afMode ?: currentState.afMode,
+                awbMode = awbMode ?: currentState.awbMode,
+                flashMode = flashMode ?: currentState.flashMode,
+                aeRegions = aeRegions?.ifEmpty { null } ?: currentState.aeRegions,
+                afRegions = afRegions?.ifEmpty { null } ?: currentState.afRegions,
+                awbRegions = awbRegions?.ifEmpty { null } ?: currentState.awbRegions,
+                aeLock = aeLock ?: currentState.aeLock,
+                awbLock = awbLock ?: currentState.awbLock,
+            )
         }
     }
 
-    fun readState(): Map<CaptureRequest.Key<*>, Any> {
-        synchronized(this) {
-            val map = mutableMapOf<CaptureRequest.Key<*>, Any>()
-            aeMode?.let { map.put(CaptureRequest.CONTROL_AE_MODE, it.value) }
-            afMode?.let { map.put(CaptureRequest.CONTROL_AF_MODE, it.value) }
-            awbMode?.let { map.put(CaptureRequest.CONTROL_AWB_MODE, it.value) }
-            flashMode?.let { map.put(CaptureRequest.FLASH_MODE, it.value) }
-            aeRegions?.let { map.put(CaptureRequest.CONTROL_AE_REGIONS, it.toTypedArray()) }
-            afRegions?.let { map.put(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
-            awbRegions?.let { map.put(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
-            aeLock?.let { map.put(CaptureRequest.CONTROL_AE_LOCK, it) }
-            awbLock?.let { map.put(CaptureRequest.CONTROL_AWB_LOCK, it) }
-            return map
-        }
-    }
-
-    fun writeTo(map: MutableMap<Any, Any?>) {
-        synchronized(this) {
-            aeMode?.let { map[CaptureRequest.CONTROL_AE_MODE] = it.value }
-            afMode?.let { map[CaptureRequest.CONTROL_AF_MODE] = it.value }
-            awbMode?.let { map[CaptureRequest.CONTROL_AWB_MODE] = it.value }
-            flashMode?.let { map[CaptureRequest.FLASH_MODE] = it.value }
-            aeRegions?.let { map[CaptureRequest.CONTROL_AE_REGIONS] = it.toTypedArray() }
-            afRegions?.let { map[CaptureRequest.CONTROL_AF_REGIONS] = it.toTypedArray() }
-            awbRegions?.let { map[CaptureRequest.CONTROL_AWB_REGIONS] = it.toTypedArray() }
-            aeLock?.let { map[CaptureRequest.CONTROL_AE_LOCK] = it }
-            awbLock?.let { map[CaptureRequest.CONTROL_AWB_LOCK] = it }
-        }
-    }
+    /** Reads the current state and returns it as a map for building a [CaptureRequest]. */
+    fun toCaptureRequestParametersMap(): Map<CaptureRequest.Key<*>, Any> =
+        this.current.toCaptureRequestParameterMap()
 }

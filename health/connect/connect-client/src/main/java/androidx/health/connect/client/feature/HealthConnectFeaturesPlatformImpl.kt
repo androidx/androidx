@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(api = 34)
+@file:RequiresApi(api = Build.VERSION_CODES.R)
 
 package androidx.health.connect.client.feature
 
@@ -23,6 +23,8 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.HealthConnectFeatures
+import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_STATUS_AVAILABLE
+import androidx.health.connect.client.HealthConnectFeatures.Companion.FEATURE_STATUS_UNAVAILABLE
 import androidx.health.connect.client.HealthConnectFeatures.Companion.Feature
 import androidx.health.connect.client.HealthConnectFeatures.Companion.FeatureStatus
 
@@ -30,42 +32,47 @@ import androidx.health.connect.client.HealthConnectFeatures.Companion.FeatureSta
  * Implementation of [HealthConnectFeatures] that performs the availability checks of features in
  * Android Platform.
  */
-@ExperimentalFeatureAvailabilityApi
 internal class HealthConnectFeaturesPlatformImpl : HealthConnectFeatures {
 
     @FeatureStatus
-    override fun getFeatureStatus(@Feature feature: Int): Int {
-        return HealthConnectFeatures.FEATURE_TO_VERSION_INFO_MAP.getFeatureStatus(feature)
-    }
+    override fun getFeatureStatus(@Feature feature: Int): Int = Companion.getFeatureStatus(feature)
 
-    @VisibleForTesting
     internal companion object {
+        /**
+         * Checks whether the given feature is available.
+         *
+         * @param feature the feature to be checked. One of the "FEATURE_" constants in this class.
+         * @return one of [FEATURE_STATUS_UNAVAILABLE] or [FEATURE_STATUS_AVAILABLE]
+         */
+        fun getFeatureStatus(@Feature feature: Int): Int {
+            return HealthConnectFeatures.FEATURE_TO_VERSION_INFO_MAP.getFeatureStatus(feature)
+        }
+
         @VisibleForTesting
         internal fun Map<Int, HealthConnectVersionInfo>.getFeatureStatus(
             @Feature feature: Int
         ): Int {
             val minimumRequiredVersion =
-                this[feature]?.platformVersion
-                    ?: return HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
+                this[feature]?.platformVersion ?: return FEATURE_STATUS_UNAVAILABLE
 
             if (minimumRequiredVersion.buildVersionCode > Build.VERSION.SDK_INT) {
-                return HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
+                return FEATURE_STATUS_UNAVAILABLE
             }
 
             // If there is no sdkExtension for the feature, then it is supported across all
             // extension versions of the platform build version.
             if (minimumRequiredVersion.sdkExtensionVersion == null) {
-                return HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+                return FEATURE_STATUS_AVAILABLE
             }
 
             if (
                 minimumRequiredVersion.sdkExtensionVersion <=
                     SdkExtensions.getExtensionVersion(minimumRequiredVersion.buildVersionCode)
             ) {
-                return HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+                return FEATURE_STATUS_AVAILABLE
             }
 
-            return HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
+            return FEATURE_STATUS_UNAVAILABLE
         }
     }
 }

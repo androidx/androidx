@@ -29,9 +29,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     namespace = "androidx.car.app.sample.navigation.common"
 }
 
@@ -42,10 +39,9 @@ dependencies {
     implementation(project(":annotation:annotation-experimental"))
     implementation("androidx.lifecycle:lifecycle-livedata:2.3.1")
     implementation("androidx.activity:activity:1.2.3")
+    implementation(libs.jspecify)
 }
 
 androidx {
     type = SoftwareType.TEST_APPLICATION
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

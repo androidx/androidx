@@ -1,0 +1,121 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.wear.protolayout.material3.ButtonColors#getContainerColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ButtonColors.getContainerColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ButtonColors#getIconColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ButtonColors.getIconColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ButtonColors#getLabelColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ButtonColors.getLabelColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ButtonColors#getSecondaryLabelColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ButtonColors.getSecondaryLabelColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getBackgroundColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getBackgroundColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getContentColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getContentColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getGraphicIconColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getGraphicIconColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getGraphicProgressIndicatorColors():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getGraphicProgressIndicatorColors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getLabelColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getLabelColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getSecondaryIconColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getSecondaryIconColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getSecondaryTextColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getSecondaryTextColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getTimeColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getTimeColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CardColors#getTitleColor():
+    Source breaking change: method androidx.wear.protolayout.material3.CardColors.getTitleColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults#getRecommendedAnimationSpec():
+    Source breaking change: method androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.getRecommendedAnimationSpec() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getBackground():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getBackground() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getError():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getErrorContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getErrorContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getErrorDim():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getErrorDim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnBackground():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnBackground() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnError():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnError() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnErrorContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnErrorContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnPrimary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnPrimary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnPrimaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnPrimaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnSecondary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnSecondary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnSecondaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnSecondaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnSurface():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnSurface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnSurfaceVariant():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnSurfaceVariant() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnTertiary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnTertiary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOnTertiaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOnTertiaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOutline():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOutline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getOutlineVariant():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getOutlineVariant() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getPrimary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getPrimary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getPrimaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getPrimaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getPrimaryDim():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getPrimaryDim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSecondary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSecondary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSecondaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSecondaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSecondaryDim():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSecondaryDim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSurfaceContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSurfaceContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSurfaceContainerHigh():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSurfaceContainerHigh() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getSurfaceContainerLow():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getSurfaceContainerLow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getTertiary():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getTertiary() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getTertiaryContainer():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getTertiaryContainer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ColorScheme#getTertiaryDim():
+    Source breaking change: method androidx.wear.protolayout.material3.ColorScheme.getTertiaryDim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.MaterialScope#getColorScheme():
+    Source breaking change: method androidx.wear.protolayout.material3.MaterialScope.getColorScheme() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.MaterialScope#getDeviceConfiguration():
+    Source breaking change: method androidx.wear.protolayout.material3.MaterialScope.getDeviceConfiguration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.MaterialScope#getShapes():
+    Source breaking change: method androidx.wear.protolayout.material3.MaterialScope.getShapes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ProgressIndicatorColors#getIndicatorColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ProgressIndicatorColors.getIndicatorColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ProgressIndicatorColors#getTrackColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ProgressIndicatorColors.getTrackColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.ProgressIndicatorColors#getTrackOverflowColor():
+    Source breaking change: method androidx.wear.protolayout.material3.ProgressIndicatorColors.getTrackOverflowColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getExtraLarge():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getExtraLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getExtraSmall():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getExtraSmall() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getFull():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getFull() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getLarge():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getLarge() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getMedium():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getNone():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.protolayout.material3.Shapes#getSmall():
+    Source breaking change: method androidx.wear.protolayout.material3.Shapes.getSmall() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.wear.protolayout.material3.CardKt#iconDataCard(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.protolayout.ModifiersBuilders.Clickable, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>, androidx.wear.protolayout.modifiers.LayoutModifier, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>, androidx.wear.protolayout.DimensionBuilders.ContainerDimension, androidx.wear.protolayout.DimensionBuilders.ContainerDimension, androidx.wear.protolayout.ModifiersBuilders.Corner, androidx.wear.protolayout.material3.CardColors, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>, androidx.wear.protolayout.material3.DataCardStyle, int, androidx.wear.protolayout.ModifiersBuilders.Padding):
+    Binary breaking change: Removed method androidx.wear.protolayout.material3.CardKt.iconDataCard(androidx.wear.protolayout.material3.MaterialScope,androidx.wear.protolayout.ModifiersBuilders.Clickable,kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>,androidx.wear.protolayout.modifiers.LayoutModifier,kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>,kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>,androidx.wear.protolayout.DimensionBuilders.ContainerDimension,androidx.wear.protolayout.DimensionBuilders.ContainerDimension,androidx.wear.protolayout.ModifiersBuilders.Corner,androidx.wear.protolayout.material3.CardColors,kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.material3.MaterialScope,? extends androidx.wear.protolayout.LayoutElementBuilders.LayoutElement>,androidx.wear.protolayout.material3.DataCardStyle,int,androidx.wear.protolayout.ModifiersBuilders.Padding)
+RemovedMethod: androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion#getBottom():
+    Binary breaking change: Removed method androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion.getBottom()
+RemovedMethod: androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion#getTop():
+    Binary breaking change: Removed method androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion.getTop()

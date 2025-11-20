@@ -16,13 +16,11 @@
 package androidx.emoji.widget;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 
 /**
@@ -53,7 +51,6 @@ public class EmojiTextView extends TextView {
         init();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public EmojiTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();

@@ -338,21 +338,21 @@ public class Person extends Thing {
 
     @SuppressWarnings("unchecked")
     static class BuilderImpl<T extends BuilderImpl<T>> extends Thing.BuilderImpl<T> {
-        private String mGivenName;
-        private String mMiddleName;
-        private String mFamilyName;
-        private Uri mExternalUri;
-        private Uri mImageUri;
-        boolean mIsImportant;
-        boolean mIsBot;
+        protected String mGivenName;
+        protected String mMiddleName;
+        protected String mFamilyName;
+        protected Uri mExternalUri;
+        protected Uri mImageUri;
+        protected boolean mIsImportant;
+        protected boolean mIsBot;
         // Make sure the lists are not null.
-        private List<String> mNotes = Collections.emptyList();
+        protected List<String> mNotes = Collections.emptyList();
         @AdditionalName.NameType
-        private List<Long> mAdditionalNameTypes = Collections.emptyList();
-        private List<String> mAdditionalNames = Collections.emptyList();
-        private List<String> mAffiliations = Collections.emptyList();
-        private List<String> mRelations = Collections.emptyList();
-        private List<ContactPoint> mContactPoints = Collections.emptyList();
+        protected List<Long> mAdditionalNameTypes = Collections.emptyList();
+        protected List<String> mAdditionalNames = Collections.emptyList();
+        protected List<String> mAffiliations = Collections.emptyList();
+        protected List<String> mRelations = Collections.emptyList();
+        protected List<ContactPoint> mContactPoints = Collections.emptyList();
 
         BuilderImpl(@NonNull String namespace, @NonNull String id, @NonNull String name) {
             super(namespace, id);

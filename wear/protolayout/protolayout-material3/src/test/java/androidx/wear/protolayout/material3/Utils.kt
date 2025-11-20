@@ -27,7 +27,7 @@ internal fun enableDynamicTheme() {
     Settings.Global.putInt(
         ApplicationProvider.getApplicationContext<Context>().contentResolver,
         DYNAMIC_THEMING_SETTING_NAME,
-        /* dynamic theming is enabled */ 1
+        /* dynamic theming is enabled */ 1,
     )
 }
 

@@ -17,7 +17,8 @@
     "NOTHING_TO_INLINE",
     "RedundantVisibilityModifier",
     "UNCHECKED_CAST",
-    "KotlinRedundantDiagnosticSuppress"
+    "KotlinRedundantDiagnosticSuppress",
+    "FacadeClassJvmName",
 )
 @file:OptIn(ExperimentalContracts::class)
 
@@ -239,7 +240,7 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: E) -> R
+        operation: (index: Int, acc: R, element: E) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -269,7 +270,7 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: E, acc: R) -> R
+        operation: (index: Int, element: E, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -369,7 +370,7 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
      */
     public inline fun elementAtOrElse(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> E
+        defaultValue: (index: Int) -> E,
     ): E {
         if (index !in 0 until _size) {
             return defaultValue(index)
@@ -522,21 +523,23 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        transform: ((E) -> CharSequence)? = null
+        transform: ((E) -> CharSequence)? = null,
     ): String = buildString {
         append(prefix)
-        this@ObjectList.forEachIndexed { index, element ->
-            if (index == limit) {
-                append(truncated)
-                return@buildString
-            }
-            if (index != 0) {
-                append(separator)
-            }
-            if (transform == null) {
-                append(element)
-            } else {
-                append(transform(element))
+        run {
+            this@ObjectList.forEachIndexed { index, element ->
+                if (index != 0) {
+                    append(separator)
+                }
+                if (index == limit) {
+                    append(truncated)
+                    return@run
+                }
+                if (transform == null) {
+                    append(element)
+                } else {
+                    append(transform(element))
+                }
             }
         }
         append(postfix)
@@ -653,7 +656,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                 destination = content,
                 destinationOffset = index + 1,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         content[index] = element
@@ -669,7 +672,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
      */
     public fun addAll(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        @Suppress("ArrayReturn") elements: Array<E>
+        @Suppress("ArrayReturn") elements: Array<E>,
     ): Boolean {
         if (index !in 0.._size) {
             throwIndexOutOfBoundsInclusiveException(index)
@@ -682,7 +685,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                 destination = content,
                 destinationOffset = index + elements.size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.copyInto(content, index)
@@ -699,7 +702,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
      */
     public fun addAll(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: Collection<E>
+        elements: Collection<E>,
     ): Boolean {
         if (index !in 0.._size) {
             throwIndexOutOfBoundsInclusiveException(index)
@@ -712,7 +715,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                 destination = content,
                 destinationOffset = index + elements.size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.forEachIndexed { i, element -> content[index + i] = element }
@@ -729,7 +732,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
      */
     public fun addAll(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: ObjectList<E>
+        elements: ObjectList<E>,
     ): Boolean {
         if (index !in 0.._size) {
             throwIndexOutOfBoundsInclusiveException(index)
@@ -742,14 +745,14 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                 destination = content,
                 destinationOffset = index + elements._size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.content.copyInto(
             destination = content,
             destinationOffset = index,
             startIndex = 0,
-            endIndex = elements._size
+            endIndex = elements._size,
         )
         _size += elements._size
         return true
@@ -828,7 +831,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
             destination = content,
             destinationOffset = _size,
             startIndex = 0,
-            endIndex = elements._size
+            endIndex = elements._size,
         )
         _size += elements._size
     }
@@ -1063,7 +1066,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                 destination = content,
                 destinationOffset = index,
                 startIndex = index + 1,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         _size--
@@ -1079,7 +1082,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
      */
     public fun removeRange(
         @androidx.annotation.IntRange(from = 0) start: Int,
-        @androidx.annotation.IntRange(from = 0) end: Int
+        @androidx.annotation.IntRange(from = 0) end: Int,
     ) {
         if (start !in 0.._size || end !in 0.._size) {
             throwIndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
@@ -1093,7 +1096,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
                     destination = content,
                     destinationOffset = start,
                     startIndex = end,
-                    endIndex = _size
+                    endIndex = _size,
                 )
             }
             val newSize = _size - (end - start)
@@ -1327,7 +1330,7 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
     private class SubList<T>(
         private val list: MutableList<T>,
         private val start: Int,
-        private var end: Int
+        private var end: Int,
     ) : MutableList<T> {
         override val size: Int
             get() = end - start

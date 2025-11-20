@@ -19,6 +19,10 @@ package androidx.activity.result
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.MediaCapabilities
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10_PLUS
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.MediaCapabilities.Companion.TYPE_HLG10
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -57,7 +61,7 @@ class PickVisualMediaRequestTest {
         val request =
             PickVisualMediaRequest(
                 mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly,
-                maxItems = 5
+                maxItems = 5,
             )
 
         assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -81,7 +85,7 @@ class PickVisualMediaRequestTest {
         assertThrows(IllegalArgumentException::class.java) {
             request.createIntent(
                 context,
-                input = PickVisualMediaRequest(maxItems = 1 + defaultMaxItems)
+                input = PickVisualMediaRequest(maxItems = 1 + defaultMaxItems),
             )
         }
 
@@ -147,5 +151,50 @@ class PickVisualMediaRequestTest {
         // test given isOrderedSelection in PickVisualMediaRequest
         request = PickVisualMediaRequest(isOrderedSelection = true)
         assertThat(request.isOrderedSelection).isEqualTo(true)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun testPickVisualMediaRequest_mediaCapabilities() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.mediaCapabilitiesForTranscoding).isNull()
+
+        // test given mediaCapabilities in PickVisualMediaRequest
+        val mediaCapabilities =
+            MediaCapabilities.Builder()
+                .addSupportedHdrType(TYPE_HLG10)
+                .addSupportedHdrType(TYPE_HDR10)
+                .addSupportedHdrType(TYPE_HDR10_PLUS)
+                .build()
+        request = PickVisualMediaRequest(mediaCapabilitiesForTranscoding = mediaCapabilities)
+        assertThat(request.mediaCapabilitiesForTranscoding?.supportedHdrTypes)
+            .containsExactly(TYPE_HLG10, TYPE_HDR10, TYPE_HDR10_PLUS)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun testPickVisualMediaRequest_accentColorAndMediaCapabilities() {
+        // test default
+        var request = PickVisualMediaRequest()
+        assertThat(request.isCustomAccentColorApplied).isEqualTo(false)
+        assertThat(request.mediaCapabilitiesForTranscoding).isNull()
+
+        // test given accent color and mediaCapabilities in PickVisualMediaRequest
+        val mediaCapabilities =
+            MediaCapabilities.Builder()
+                .addSupportedHdrType(TYPE_HLG10)
+                .addSupportedHdrType(TYPE_HDR10)
+                .addSupportedHdrType(TYPE_HDR10_PLUS)
+                .build()
+        request =
+            PickVisualMediaRequest(
+                mediaCapabilitiesForTranscoding = mediaCapabilities,
+                accentColor = 0xffff0000,
+            )
+        assertThat(request.isCustomAccentColorApplied).isEqualTo(true)
+        assertThat(request.accentColor).isEqualTo(0xffff0000)
+        assertThat(request.mediaCapabilitiesForTranscoding?.supportedHdrTypes)
+            .containsExactly(TYPE_HLG10, TYPE_HDR10, TYPE_HDR10_PLUS)
     }
 }

@@ -37,7 +37,7 @@ actual fun AlertDialog(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit =
     AlertDialogImpl(
         onDismissRequest = onDismissRequest,
@@ -49,7 +49,7 @@ actual fun AlertDialog(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        properties = properties
+        properties = properties,
     )
 
 @Composable
@@ -62,7 +62,7 @@ actual fun AlertDialog(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit =
     AlertDialogImpl(
         onDismissRequest = onDismissRequest,
@@ -73,5 +73,5 @@ actual fun AlertDialog(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        properties = properties
+        properties = properties,
     )

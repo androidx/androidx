@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
 
@@ -47,6 +48,7 @@ import java.time.Instant;
 
 /** Tests for {@link ComplicationDataTimeline}. */
 @RunWith(ComplicationsTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class ComplicationDataTimelineTest {
     private static final ComplicationDataTimeline TIMELINE_A =
@@ -286,6 +288,6 @@ public class ComplicationDataTimelineTest {
     @SuppressWarnings("KotlinInternal")
     private android.support.wearable.complications.ComplicationData asWireComplicationData(
             ComplicationDataTimeline timeline) {
-        return timeline.asWireComplicationData$watchface_complications_data_source_release();
+        return timeline.asWireComplicationData$watchface_complications_data_source();
     }
 }

@@ -121,14 +121,14 @@ private data class BrushStyle(val value: ShaderBrush, override val alpha: Float)
 internal fun lerp(
     start: TextForegroundStyle,
     stop: TextForegroundStyle,
-    fraction: Float
+    fraction: Float,
 ): TextForegroundStyle {
     return if ((start !is BrushStyle && stop !is BrushStyle)) {
         TextForegroundStyle.from(lerpColor(start.color, stop.color, fraction))
     } else if (start is BrushStyle && stop is BrushStyle) {
         TextForegroundStyle.from(
             lerpDiscrete(start.brush, stop.brush, fraction),
-            lerp(start.alpha, stop.alpha, fraction)
+            lerp(start.alpha, stop.alpha, fraction),
         )
     } else {
         lerpDiscrete(start, stop, fraction)

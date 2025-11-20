@@ -39,14 +39,14 @@ class SquadShapes(
         topRounded: CornerBasedShape = this.topRounded,
         bottomRounded: CornerBasedShape = this.bottomRounded,
         leftRounded: CornerBasedShape = this.leftRounded,
-        rightRounded: CornerBasedShape = this.rightRounded
+        rightRounded: CornerBasedShape = this.rightRounded,
     ): SquadShapes =
         SquadShapes(
             allRounded = allRounded,
             topRounded = topRounded,
             bottomRounded = bottomRounded,
             leftRounded = leftRounded,
-            rightRounded = rightRounded
+            rightRounded = rightRounded,
         )
 
     override fun equals(other: Any?): Boolean {

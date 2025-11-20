@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [21])
+@Config(sdk = [23])
 class AppWidgetManagerCompatTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -128,7 +128,7 @@ class AppWidgetManagerCompatTest {
             createResponsiveSizeAppWidget(
                 appWidgetManager,
                 appWidgetId,
-                listOf(50 x 50, 75 x 75, 120 x 140)
+                listOf(50 x 50, 75 x 75, 120 x 140),
             ) { (width, height) ->
                 remoteViews { setTextViewText(R.id.text, "$width x $height") }
             }
@@ -147,7 +147,7 @@ class AppWidgetManagerCompatTest {
             createResponsiveSizeAppWidget(
                 appWidgetManager,
                 appWidgetId,
-                listOf(50 x 50, 75 x 75, 120 x 140)
+                listOf(50 x 50, 75 x 75, 120 x 140),
             ) { (width, height) ->
                 remoteViews { setTextViewText(R.id.text, "$width x $height") }
             }
@@ -166,7 +166,7 @@ class AppWidgetManagerCompatTest {
             createResponsiveSizeAppWidget(
                 appWidgetManager,
                 appWidgetId,
-                listOf(50 x 50, 75 x 75, 120 x 100)
+                listOf(50 x 50, 75 x 75, 120 x 100),
             ) { (width, height) ->
                 remoteViews { setTextViewText(R.id.text, "$width x $height") }
             }
@@ -225,13 +225,13 @@ class AppWidgetManagerCompatTest {
 
                 putInt(
                     OPTION_APPWIDGET_MIN_WIDTH,
-                    portrait?.width?.toInt() ?: landscape.width.toInt()
+                    portrait?.width?.toInt() ?: landscape.width.toInt(),
                 )
                 putInt(
                     OPTION_APPWIDGET_MAX_HEIGHT,
-                    portrait?.height?.toInt() ?: landscape.height.toInt()
+                    portrait?.height?.toInt() ?: landscape.height.toInt(),
                 )
-            }
+            },
         )
     }
 

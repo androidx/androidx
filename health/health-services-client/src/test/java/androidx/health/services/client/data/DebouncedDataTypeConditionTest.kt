@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class DebouncedDataTypeConditionTest {
     @Test
     fun sampleDataType_protoRoundTrip() {
@@ -34,7 +35,7 @@ class DebouncedDataTypeConditionTest {
                     120.0,
                     GREATER_THAN,
                     /* initialDelaySeconds= */ 60,
-                    /* durationAtThresholdSeconds=*/ 5
+                    /* durationAtThresholdSeconds=*/ 5,
                 )
                 .proto
         val debouncedDataTypeCondition = DebouncedDataTypeCondition.fromProto(proto)
@@ -50,7 +51,7 @@ class DebouncedDataTypeConditionTest {
                     4.0,
                     GREATER_THAN,
                     /* initialDelaySeconds= */ 60,
-                    /* durationAtThresholdSeconds=*/ 5
+                    /* durationAtThresholdSeconds=*/ 5,
                 )
                 .proto
         val debouncedDataTypeCondition = DebouncedDataTypeCondition.fromProto(proto)

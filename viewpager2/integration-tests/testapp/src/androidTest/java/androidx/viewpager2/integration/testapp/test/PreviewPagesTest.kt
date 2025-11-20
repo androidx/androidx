@@ -74,7 +74,7 @@ class PreviewPagesTest : BaseTest<PreviewPagesActivity>(PreviewPagesActivity::cl
         return onView(
             allOf(
                 withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
-                withTagValue(equalTo(position))
+                withTagValue(equalTo(position)),
             )
         )
     }

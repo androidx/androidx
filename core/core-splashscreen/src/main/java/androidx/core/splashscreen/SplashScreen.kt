@@ -94,8 +94,6 @@ import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
  *   , it will be cropped and scaled. The workaround is to respectively assign
  *   `windowSplashScreenAnimatedIcon` and `windowSplashScreenIconBackgroundColor` to the values of
  *   the adaptive icon `foreground` and `background`.
- * - On API 21-22, The icon isn't displayed until the application starts, only the background is
- *   visible.
  *
  * # Design
  * The splash screen icon uses the same specifications as
@@ -251,7 +249,7 @@ public class SplashScreen private constructor(activity: Activity) {
                 currentTheme.resolveAttribute(
                     R.attr.windowSplashScreenAnimatedIcon,
                     typedValue,
-                    true
+                    true,
                 )
             ) {
                 icon = AppCompatResources.getDrawable(activity, typedValue.resourceId)
@@ -266,7 +264,7 @@ public class SplashScreen private constructor(activity: Activity) {
 
         protected fun setPostSplashScreenTheme(
             currentTheme: Resources.Theme,
-            typedValue: TypedValue
+            typedValue: TypedValue,
         ) {
             if (currentTheme.resolveAttribute(R.attr.postSplashScreenTheme, typedValue, true)) {
                 finalThemeId = typedValue.resourceId
@@ -323,7 +321,7 @@ public class SplashScreen private constructor(activity: Activity) {
                         oldLeft: Int,
                         oldTop: Int,
                         oldRight: Int,
-                        oldBottom: Int
+                        oldBottom: Int,
                     ) {
                         if (!view.isAttachedToWindow) {
                             return

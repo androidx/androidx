@@ -26,7 +26,6 @@ import androidx.build.SdkHelperKt
 
 buildscript {
     SdkHelperKt.setSupportRootFolder(project, project.projectDir)
-    SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
 }
 
 apply plugin: AndroidXRootPlugin

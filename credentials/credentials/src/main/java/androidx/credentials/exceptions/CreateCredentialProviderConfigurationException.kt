@@ -28,7 +28,7 @@ class CreateCredentialProviderConfigurationException
 constructor(errorMessage: CharSequence? = null) :
     CreateCredentialException(
         TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION,
-        errorMessage
+        errorMessage,
     ) {
     internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =

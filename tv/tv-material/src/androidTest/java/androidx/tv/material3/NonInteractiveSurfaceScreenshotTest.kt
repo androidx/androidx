@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,10 +43,10 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalTvMaterial3Api::class)
 @MediumTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
@@ -94,7 +94,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = SurfaceDefaults.colors(containerColor = Color.Green)
+                    colors = SurfaceDefaults.colors(containerColor = Color.Green),
                 ) {}
             }
         }
@@ -107,7 +107,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = SurfaceDefaults.colors(contentColor = Color.Red)
+                    colors = SurfaceDefaults.colors(contentColor = Color.Red),
                 ) {}
             }
         }
@@ -120,11 +120,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    border =
-                        Border(
-                            border = BorderStroke(2.dp, Color.Red),
-                            inset = 4.dp,
-                        ),
+                    border = Border(border = BorderStroke(2.dp, Color.Red), inset = 4.dp),
                 ) {}
             }
         }
@@ -137,7 +133,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    glow = Glow(elevationColor = Color.Red, elevation = 2.dp)
+                    glow = Glow(elevationColor = Color.Red, elevation = 2.dp),
                 ) {}
             }
         }

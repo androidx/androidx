@@ -30,7 +30,7 @@ fun FavoriteIcon(size: Dp) {
     Icon(
         painter = painterResource(R.drawable.ic_favorite_rounded),
         contentDescription = "Favorite icon",
-        modifier = Modifier.size(size)
+        modifier = Modifier.size(size),
     )
 }
 
@@ -39,7 +39,7 @@ fun AvatarIcon() {
     Icon(
         painter = painterResource(R.drawable.ic_account_circle),
         contentDescription = "Account",
-        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+        modifier = Modifier.size(ButtonDefaults.LargeIconSize),
     )
 }
 
@@ -48,7 +48,7 @@ fun CheckIcon(modifier: Modifier = Modifier.size(ButtonDefaults.IconSize)) {
     Icon(
         painter = painterResource(R.drawable.ic_check_rounded),
         contentDescription = "Check",
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -57,7 +57,7 @@ fun WifiOnIcon(modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(R.drawable.ic_wifi_on),
         contentDescription = "Wifi on",
-        modifier = modifier.size(ButtonDefaults.IconSize)
+        modifier = modifier.size(ButtonDefaults.IconSize),
     )
 }
 
@@ -66,7 +66,7 @@ fun WifiOffIcon(modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(R.drawable.ic_wifi_off),
         contentDescription = "Wifi off",
-        modifier = modifier.size(ButtonDefaults.IconSize)
+        modifier = modifier.size(ButtonDefaults.IconSize),
     )
 }
 
@@ -75,7 +75,7 @@ fun HeadphoneIcon(size: Dp) {
     Icon(
         painter = painterResource(R.drawable.ic_headphones),
         contentDescription = "Headphone icon",
-        modifier = Modifier.size(size)
+        modifier = Modifier.size(size),
     )
 }
 
@@ -84,7 +84,7 @@ fun VolumeUpIcon(size: Dp) {
     Icon(
         painter = painterResource(R.drawable.ic_volume_up),
         contentDescription = "Volume up icon",
-        modifier = Modifier.size(size)
+        modifier = Modifier.size(size),
     )
 }
 
@@ -93,6 +93,6 @@ fun VolumeDownIcon(size: Dp) {
     Icon(
         painter = painterResource(R.drawable.ic_volume_down),
         contentDescription = "Volume down icon",
-        modifier = Modifier.size(size)
+        modifier = Modifier.size(size),
     )
 }

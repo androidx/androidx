@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.material3
 
+import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.wear.protolayout.LayoutElementBuilders.ArcLine
 import androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine
 import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
@@ -46,4 +48,22 @@ internal object Versions {
      * case, the progress indicator will fallback to use [ArcLine]
      */
     fun VersionInfo.hasDashedArcLineSupport() = major > 1 || (major == 1 && minor >= 403)
+
+    /** Returns whether the current OS version is higher or equal to B. */
+    @ChecksSdkIntAtLeast(api = 36, codename = "Baklava")
+    fun isAtLeastBaklava(): Boolean {
+        // API Baklava is 36 when released, but before releasing and API finalization, it's 35 with
+        // a name Baklava. We can't just check first character of codename, because alphabet is
+        // repeating from the start again.
+        return Build.VERSION.SDK_INT >= 36 ||
+            (
+            /* isAtLeastV */ Build.VERSION.SDK_INT == 35 &&
+                ("Baklava".uppercase() == Build.VERSION.CODENAME.uppercase()))
+    }
+
+    /**
+     * For renderer with version under 1.520, there is a bug in how ArcDirection is handled for Arc
+     * element, which was fixed in cl/846396463.
+     */
+    fun VersionInfo.hasArcDirectionFixed() = major > 1 || (major == 1 && minor >= 520)
 }

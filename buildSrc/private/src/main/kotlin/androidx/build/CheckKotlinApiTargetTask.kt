@@ -16,8 +16,10 @@
 package androidx.build
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
@@ -34,14 +36,19 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
     @get:Internal val projectPath: String = project.path
 
     @get:Input
-    val allDependencies: List<Pair<String, String>> =
-        project.configurations
-            .filter { it.isPublished() && it.isCanBeResolved }
-            .flatMap { config ->
-                config.resolvedConfiguration.firstLevelModuleDependencies.map {
-                    "${it.moduleName}:${it.moduleVersion}" to config.name
+    val allDependencies: Provider<List<Pair<String, String>>> =
+        project.provider {
+            project.configurations
+                .filter(project::shouldVerifyConfiguration)
+                .filter { it.isCanBeResolved && it.isPublished() }
+                .flatMap { config ->
+                    config.incoming.resolutionResult.allComponents.mapNotNull { component ->
+                        (component.id as? ModuleComponentIdentifier)?.let { id ->
+                            "${id.module}:${id.version}" to config.name
+                        }
+                    }
                 }
-            }
+        }
 
     @get:OutputFile abstract val outputFile: RegularFileProperty
 
@@ -49,12 +56,13 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
     fun check() {
         val incompatibleConfigurations =
             allDependencies
+                .get()
                 .asSequence()
                 .filter { it.first.startsWith("kotlin-stdlib:") }
                 .map { it.first.substringAfter(":") to it.second }
                 .map { KotlinVersion.fromVersion(it.first.substringBeforeLast('.')) to it.second }
-                .filter { it.first != kotlinTarget.get() }
-                .map { it.second }
+                .filter { it.first > kotlinTarget.get() }
+                .map { "${it.second} (${it.first})" }
                 .toList()
 
         val outputFile = outputFile.get().asFile
@@ -63,12 +71,13 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
         if (incompatibleConfigurations.isNotEmpty()) {
             val errorMessage =
                 incompatibleConfigurations.joinToString(
+                    separator = "\n - ",
                     prefix =
                         "The project's kotlin-stdlib target is ${kotlinTarget.get()} but these " +
-                            "configurations are pulling in different versions of kotlin-stdlib: ",
+                            "configurations are pulling in higher versions of kotlin-stdlib:\n - ",
                     postfix =
-                        "\nRun ./gradlew $projectPath:dependencies to see which dependency is " +
-                            "pulling in the incompatible kotlin-stdlib"
+                        "\n\nRun ./gradlew $projectPath:dependencies to see which dependency is " +
+                            "pulling in the incompatible kotlin-stdlib",
                 )
             outputFile.writeText("FAILURE: $errorMessage")
             throw IllegalStateException(errorMessage)

@@ -18,7 +18,6 @@ package androidx.camera.core.impl.utils;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
@@ -33,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class MainThreadAsyncHandlerTest {
 
     @Test
@@ -45,7 +44,8 @@ public class MainThreadAsyncHandlerTest {
         handler.post(() -> didRun.set(true));
 
         boolean ranBeforeTrigger = didRun.get();
-        ShadowLooper.runMainLooperOneTask();
+        // Drain the main looper's message queue to ensure our posted task is executed.
+        ShadowLooper.idleMainLooper();
         boolean ranAfterTrigger = didRun.get();
 
         assertThat(ranBeforeTrigger).isFalse();
@@ -53,7 +53,6 @@ public class MainThreadAsyncHandlerTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.LOLLIPOP_MR1) // Message#isAsynchronous() added in API 22
     public void sentMessageIsAsynchronous() {
         Message message = Message.obtain();
         boolean isAsyncBeforeSending = message.isAsynchronous();

@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.TextUnit
 class TextInColumnTestCase(
     private val texts: List<String>,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val color = mutableStateOf(Color.Black)

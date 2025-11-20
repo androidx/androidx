@@ -65,7 +65,7 @@ class TestUtils {
         fun isSubsetJson(
             superset: JSONObject,
             subset: JSONObject,
-            requiredKeys: JSONObject
+            requiredKeys: JSONObject,
         ): Boolean {
             val keys = requiredKeys.keys()
             for (key in keys) {
@@ -89,7 +89,7 @@ class TestUtils {
                         !isSubsetJson(
                             superValues as JSONObject,
                             values as JSONObject,
-                            requiredValues
+                            requiredValues,
                         )
                     ) {
                         return false
@@ -171,7 +171,7 @@ class TestUtils {
                 ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED,
                 ConnectionResult.SIGN_IN_FAILED,
                 ConnectionResult.SIGN_IN_REQUIRED,
-                ConnectionResult.TIMEOUT
+                ConnectionResult.TIMEOUT,
             )
     }
 }

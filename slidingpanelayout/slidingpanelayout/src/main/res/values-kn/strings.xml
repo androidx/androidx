@@ -18,6 +18,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="draggable_divider_handler" msgid="6322493056848795789">"ಎಳೆಯಬಹುದಾದ ವಿಭಾಜಕ ಹ್ಯಾಂಡ್ಲರ್"</string>
-    <string name="draggable_divider_handler_state_left_edge" msgid="6751784207652492919">"ಎಡ ಅಂಚಿನಲ್ಲಿ"</string>
-    <string name="draggable_divider_handler_state_right_edge" msgid="4219347123520652878">"ಬಲ ಅಂಚಿನಲ್ಲಿ"</string>
+    <string name="draggable_divider_handler_state_left_edge" msgid="7959832333955573682">"ಬಲಭಾಗದ ಪೇನ್‌ ಅನ್ನು ವಿಸ್ತರಿಸಲಾಗಿದೆ"</string>
+    <string name="draggable_divider_handler_state_right_edge" msgid="1679161196839751773">"ಎಡಭಾಗದ ಪೇನ್ ಅನ್ನು ವಿಸ್ತರಿಸಲಾಗಿದೆ"</string>
 </resources>

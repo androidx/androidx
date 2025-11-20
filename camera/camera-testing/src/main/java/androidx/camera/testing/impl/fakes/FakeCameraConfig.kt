@@ -28,10 +28,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 public class FakeCameraConfig(
     private val sessionProcessor: SessionProcessor? = null,
     private val postviewSupported: Boolean = false,
-    private val captureProcessProgressSupported: Boolean = false
+    private val captureProcessProgressSupported: Boolean = false,
+    private val compatibilityId: Identifier = Identifier.create(Any()),
 ) : CameraConfig {
     private val useCaseConfigFactory = UseCaseConfigFactory { _, _ -> null }
-    private val identifier = Identifier.create(Any())
 
     override fun getUseCaseConfigFactory(): UseCaseConfigFactory {
         return useCaseConfigFactory
@@ -46,7 +46,7 @@ public class FakeCameraConfig(
     }
 
     override fun getCompatibilityId(): Identifier {
-        return identifier
+        return compatibilityId
     }
 
     override fun getConfig(): Config {

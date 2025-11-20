@@ -37,6 +37,7 @@ public class SafeBrowsingActivity extends AppCompatActivity {
 
     private void setupLayout() {
         setContentView(R.layout.activity_safe_browsing);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.safebrowsing_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 

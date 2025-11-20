@@ -42,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SecondaryScrollableTabRow
@@ -50,6 +51,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabIndicatorScope
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,14 +88,14 @@ fun PrimaryTextTabs() {
                 Tab(
                     selected = state == index,
                     onClick = { state = index },
-                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Primary tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -104,13 +109,28 @@ fun PrimaryIconTabs() {
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
             icons.forEachIndexed { index, icon ->
-                Tab(
-                    selected = state == index,
-                    onClick = { state = index },
-                    icon = { Icon(icon, contentDescription = "Favorite") }
-                )
+                // Icon-only tab should have a tooltip associated with it.
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip { Text("Favorite") } },
+                    state = rememberTooltipState(),
+                ) {
+                    Tab(
+                        selected = state == index,
+                        onClick = { state = index },
+                        icon = { Icon(icon, contentDescription = "Favorite") },
+                    )
+                }
             }
         }
+        Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = "Icon tab ${state + 1} selected",
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
 }
 
@@ -127,14 +147,14 @@ fun SecondaryTextTabs() {
                 Tab(
                     selected = state == index,
                     onClick = { state = index },
-                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Secondary tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -152,14 +172,14 @@ fun TextTabs() {
                 Tab(
                     selected = state == index,
                     onClick = { state = index },
-                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Text tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -173,17 +193,27 @@ fun SecondaryIconTabs() {
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
             icons.forEachIndexed { index, icon ->
-                Tab(
-                    selected = state == index,
-                    onClick = { state = index },
-                    icon = { Icon(icon, contentDescription = "Favorite") }
-                )
+                // Icon-only tab should have a tooltip associated with it.
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip { Text("Favorite") } },
+                    state = rememberTooltipState(),
+                ) {
+                    Tab(
+                        selected = state == index,
+                        onClick = { state = index },
+                        icon = { Icon(icon, contentDescription = "Favorite") },
+                    )
+                }
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -197,7 +227,7 @@ fun TextAndIconTabs() {
         listOf(
             "Tab 1" to Icons.Filled.Favorite,
             "Tab 2" to Icons.Filled.Favorite,
-            "Tab 3 with lots of text" to Icons.Filled.Favorite
+            "Tab 3 with lots of text" to Icons.Filled.Favorite,
         )
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
@@ -206,14 +236,14 @@ fun TextAndIconTabs() {
                     selected = state == index,
                     onClick = { state = index },
                     text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-                    icon = { Icon(icon, contentDescription = null) }
+                    icon = { Icon(icon, contentDescription = null) },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Text and icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -227,7 +257,7 @@ fun LeadingIconTabs() {
         listOf(
             "Tab" to Icons.Filled.Favorite,
             "Tab & icon" to Icons.Filled.Favorite,
-            "Tab 3 with lots of text" to Icons.Filled.Favorite
+            "Tab 3 with lots of text" to Icons.Filled.Favorite,
         )
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
@@ -240,14 +270,14 @@ fun LeadingIconTabs() {
                             Text(title)
                         }
                     },
-                    icon = { Icon(icon, contentDescription = null) }
+                    icon = { Icon(icon, contentDescription = null) },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Leading icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -268,7 +298,7 @@ fun ScrollingPrimaryTextTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
     Column {
         PrimaryScrollableTabRow(selectedTabIndex = state) {
@@ -279,7 +309,7 @@ fun ScrollingPrimaryTextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling primary tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -300,7 +330,7 @@ fun ScrollingSecondaryTextTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
     Column {
         SecondaryScrollableTabRow(selectedTabIndex = state) {
@@ -311,7 +341,7 @@ fun ScrollingSecondaryTextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling secondary tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -332,7 +362,7 @@ fun ScrollingTextTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
     Column {
         PrimaryScrollableTabRow(selectedTabIndex = state) {
@@ -343,7 +373,7 @@ fun ScrollingTextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling text tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -364,7 +394,7 @@ fun FancyTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -383,9 +413,9 @@ fun FancyIndicatorTabs() {
             indicator = {
                 FancyIndicator(
                     MaterialTheme.colorScheme.primary,
-                    Modifier.tabIndicatorOffset(state)
+                    Modifier.tabIndicatorOffset(state),
                 )
-            }
+            },
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(selected = state == index, onClick = { state = index }, text = { Text(title) })
@@ -394,7 +424,7 @@ fun FancyIndicatorTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy indicator tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -410,7 +440,7 @@ fun FancyIndicatorContainerTabs() {
     Column {
         SecondaryTabRow(
             selectedTabIndex = state,
-            indicator = { FancyAnimatedIndicatorWithModifier(state) }
+            indicator = { FancyAnimatedIndicatorWithModifier(state) },
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(selected = state == index, onClick = { state = index }, text = { Text(title) })
@@ -419,7 +449,7 @@ fun FancyIndicatorContainerTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -476,7 +506,7 @@ fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
                                     spring(dampingRatio = 1f, stiffness = 1000f)
                                 } else {
                                     spring(dampingRatio = 1f, stiffness = 50f)
-                                }
+                                },
                         )
                     }
                 }
@@ -493,7 +523,7 @@ fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
                                     spring(dampingRatio = 1f, stiffness = 50f)
                                 } else {
                                     spring(dampingRatio = 1f, stiffness = 1000f)
-                                }
+                                },
                         )
                     }
                 }
@@ -519,7 +549,7 @@ fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
                 drawRoundRect(
                     color = indicatorColor,
                     cornerRadius = CornerRadius(5.dp.toPx()),
-                    style = Stroke(width = 2.dp.toPx())
+                    style = Stroke(width = 2.dp.toPx()),
                 )
             }
     )
@@ -541,13 +571,13 @@ fun ScrollingFancyIndicatorContainerTabs() {
             "Tab 7",
             "Tab 8",
             "Tab 9 with lots of text",
-            "Tab 10"
+            "Tab 10",
         )
 
     Column {
         SecondaryScrollableTabRow(
             selectedTabIndex = state,
-            indicator = { FancyAnimatedIndicatorWithModifier(state) }
+            indicator = { FancyAnimatedIndicatorWithModifier(state) },
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(selected = state == index, onClick = { state = index }, text = { Text(title) })
@@ -556,7 +586,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -567,7 +597,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
             Modifier.padding(10.dp).height(50.dp).fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
                 Modifier.size(10.dp)
@@ -581,7 +611,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         }
     }

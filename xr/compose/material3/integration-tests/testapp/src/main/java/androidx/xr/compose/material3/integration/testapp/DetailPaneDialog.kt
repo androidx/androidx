@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.SpatialDialog
 
 @Composable
@@ -50,7 +51,8 @@ internal fun DetailPaneDialog() {
 
 @Composable
 private fun SimpleDialog() {
-    DialogWithShowButton("Compose UI Dialog") { showDialog ->
+    val shouldEnableButton = !LocalSpatialCapabilities.current.isSpatialUiEnabled
+    DialogWithShowButton(enabled = shouldEnableButton, text = "Compose UI Dialog") { showDialog ->
         Dialog(onDismissRequest = { showDialog.value = false }) {
             Card(Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.5f)) {
                 Text("This is a simple Dialog with a Material Card inside.")
@@ -62,16 +64,17 @@ private fun SimpleDialog() {
 @Composable
 private fun MaterialAlertDialog() {
     val context = LocalContext.current
-    DialogWithShowButton("Material Alert Dialog") { showDialog ->
+    DialogWithShowButton(text = "Material Alert Dialog") { showDialog ->
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
+            title = { Text("AlertDialog") },
             text = { Text("This is a Material AlertDialog") },
             confirmButton = {
                 Button(
                     onClick = {
                         Toast.makeText(context, "Confirm button clicked", Toast.LENGTH_LONG).show()
                         showDialog.value = false
-                    },
+                    }
                 ) {
                     Text("Confirm")
                 }
@@ -82,22 +85,21 @@ private fun MaterialAlertDialog() {
 
 @Composable
 private fun XrElevatedDialog() {
-    DialogWithShowButton("XR ElevatedDialog") { showDialog ->
+    DialogWithShowButton(text = "XR ElevatedDialog") { showDialog ->
         SpatialDialog(onDismissRequest = { showDialog.value = false }) {
-            Card(Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.5f)) {
-                Text("This is an XR ElevatedDialog with a Material Card inside.")
-            }
+            Card { Text("This is an XR ElevatedDialog with a Material Card inside.") }
         }
     }
 }
 
 @Composable
 private fun DialogWithShowButton(
+    enabled: Boolean = true,
     text: String,
     content: @Composable (MutableState<Boolean>) -> Unit,
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    Button(onClick = { showDialog.value = true }) { Text(text) }
+    Button(onClick = { showDialog.value = true }, enabled = enabled) { Text(text) }
     if (showDialog.value) {
         content(showDialog)
     }

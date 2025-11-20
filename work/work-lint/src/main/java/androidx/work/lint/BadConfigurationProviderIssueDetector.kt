@@ -47,8 +47,8 @@ class BadConfigurationProviderIssueDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         BadConfigurationProviderIssueDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
             )
     }
 
@@ -83,7 +83,7 @@ class BadConfigurationProviderIssueDetector : Detector(), SourceCodeScanner {
             context.evaluator.inheritsFrom(
                 declaration.javaPsi,
                 "androidx.work.Configuration.Provider",
-                true
+                true,
             )
 
         if (isApplication) {
@@ -105,7 +105,7 @@ class BadConfigurationProviderIssueDetector : Detector(), SourceCodeScanner {
             context.report(
                 issue = ISSUE,
                 location = location,
-                message = "Expected Application subtype to implement Configuration.Provider"
+                message = "Expected Application subtype to implement Configuration.Provider",
             )
         }
     }

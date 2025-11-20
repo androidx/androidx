@@ -32,12 +32,12 @@ import androidx.navigation.compose.composable
 fun ComposeCameraNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    onStreamStateChange: (ComposeCameraScreen, PreviewView.StreamState) -> Unit = { _, _ -> }
+    onStreamStateChange: (ComposeCameraScreen, PreviewView.StreamState) -> Unit = { _, _ -> },
 ) {
     NavHost(
         navController = navController,
         startDestination = ComposeCameraScreen.ImageCapture.name,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable(ComposeCameraScreen.Viewfinder.name) { ViewfinderScreen() }
 

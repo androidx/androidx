@@ -18,7 +18,6 @@ package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -35,7 +34,7 @@ class MicrobenchmarkPhaseConfigTest {
         expectedMeasurements: Int,
         expectedIterations: Int?,
         expectedUsesProfiler: Boolean = false,
-        expectedProfilerIterations: Int = 0
+        expectedProfilerIterations: Int = 0,
     ) {
         var count = 0
         val output = runBlocking {
@@ -44,7 +43,7 @@ class MicrobenchmarkPhaseConfigTest {
                     TestDefinition(
                         "MicrobenchmarkPhaseConfigTest",
                         "MicrobenchmarkPhaseConfigTest",
-                        "methodName"
+                        "methodName",
                     ),
                     phaseConfig = config,
                     yieldThreadPeriodically = false,
@@ -62,10 +61,10 @@ class MicrobenchmarkPhaseConfigTest {
                             while (System.nanoTime() == start) {}
                             count++
                         }
-                    }
+                    },
                 )
             microbenchmark.executePhases()
-            microbenchmark.output()
+            microbenchmark.output(null)
         }
 
         val calculatedIterations =
@@ -183,7 +182,6 @@ class MicrobenchmarkPhaseConfigTest {
             expectedIterations = null, // iterations are dynamic
         )
 
-    @SdkSuppress(minSdkVersion = 22) // See b/300658578
     @Test
     fun profilerMethodTracing() =
         validateConfig(
@@ -204,7 +202,6 @@ class MicrobenchmarkPhaseConfigTest {
             expectedProfilerIterations = 1,
         )
 
-    @SdkSuppress(minSdkVersion = 22) // See b/300658578
     @Test
     fun profilerMethodTracing_perfCompareMode() =
         validateConfig(

@@ -33,35 +33,56 @@ import androidx.wear.protolayout.types.LayoutColor
 public class ProgressIndicatorColors(
     public val indicatorColor: LayoutColor,
     public val trackColor: LayoutColor,
-    public val trackOverflowColor: LayoutColor = trackColor
-)
+    public val trackOverflowColor: LayoutColor = trackColor,
+) {
+    /**
+     * Returns a copy of this [ProgressIndicatorColors], optionally overriding some of the values.
+     *
+     * @param indicatorColor Color used to draw the indicator of progress indicator.
+     * @param trackColor Color used to draw the track of progress indicator.
+     * @param trackOverflowColor Color used to draw the track for progress overflow (>1).
+     */
+    public fun copy(
+        indicatorColor: LayoutColor = this.indicatorColor,
+        trackColor: LayoutColor = this.trackColor,
+        trackOverflowColor: LayoutColor = this.trackOverflowColor,
+    ): ProgressIndicatorColors =
+        ProgressIndicatorColors(
+            indicatorColor = indicatorColor,
+            trackColor = trackColor,
+            trackOverflowColor = trackOverflowColor,
+        )
+}
 
 public object CircularProgressIndicatorDefaults {
     /**
      * Returns the recommended [ProgressIndicatorColors] object to be used when placing the progress
-     * indicator inside a graphic card with [CardDefaults.filledCardColors].
+     * indicator inside a graphic card with [CardDefaults.filledCardColors] from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledProgressIndicatorColors(): ProgressIndicatorColors =
         ProgressIndicatorColors(
             theme.colorScheme.onPrimary,
             theme.colorScheme.onPrimary.withOpacity(0.2F),
-            theme.colorScheme.onPrimary.withOpacity(0.6F)
+            theme.colorScheme.onPrimary.withOpacity(0.6F),
         )
 
     /**
      * Returns the recommended [ProgressIndicatorColors] object to be used when placing the progress
-     * indicator inside a graphic card with [CardDefaults.filledTonalCardColors].
+     * indicator inside a graphic card with [CardDefaults.filledTonalCardColors] from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledTonalProgressIndicatorColors(): ProgressIndicatorColors =
         ProgressIndicatorColors(
             theme.colorScheme.primary,
             theme.colorScheme.primary.withOpacity(0.2F),
-            theme.colorScheme.primary.withOpacity(0.6F)
+            theme.colorScheme.primary.withOpacity(0.6F),
         )
 
     /**
      * Returns the recommended [ProgressIndicatorColors] object to be used when placing the progress
-     * indicator inside a graphic card with [CardDefaults.filledVariantCardColors].
+     * indicator inside a graphic card with [CardDefaults.filledVariantCardColors] from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledVariantProgressIndicatorColors(): ProgressIndicatorColors =
         ProgressIndicatorColors(
@@ -110,6 +131,13 @@ public object CircularProgressIndicatorDefaults {
      * top of the track arc where there are multiple segments.
      */
     internal const val INDICATOR_STROKE_WIDTH_INCREMENT_PX: Float = 1.5f
+
+    /**
+     * Extra gap size in pixels between track arc segments to make the each track arc segment
+     * slightly shorter than the indicator arc segment on its top, so that it can be fully covered
+     * by the indicator on segment ends to prevent aliasing issue.
+     */
+    internal const val TRACK_GAP_SIZE_INCREMENT_PX: Float = 1f
 
     /** Default size for the fallback implementation. */
     @Dimension(DP) internal const val CPI_DEFAULT_DP_SIZE: Float = 52F

@@ -41,7 +41,7 @@ import kotlin.time.toKotlinDuration
 public class CompositionSignal(
 
     /** The composition signal atoms that describes the haptic elements to be played in sequence. */
-    public val atoms: List<Atom>,
+    public val atoms: List<Atom>
 ) : FiniteSignal() {
     init {
         require(atoms.isNotEmpty()) { "Haptic signals cannot be empty" }
@@ -164,7 +164,7 @@ public class CompositionSignal(
         @JvmOverloads
         @JvmStatic
         public fun thud(
-            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f,
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
         ): PrimitiveAtom = PrimitiveAtom.Thud.withAmplitudeScale(amplitudeScale)
 
         /**
@@ -273,16 +273,7 @@ public class CompositionSignal(
         /** Typedef for the [type] attribute. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(
-            LOW_TICK,
-            TICK,
-            CLICK,
-            SLOW_RISE,
-            QUICK_RISE,
-            QUICK_FALL,
-            SPIN,
-            THUD,
-        )
+        @IntDef(LOW_TICK, TICK, CLICK, SLOW_RISE, QUICK_RISE, QUICK_FALL, SPIN, THUD)
         public annotation class Type
 
         public companion object {
@@ -387,7 +378,7 @@ public class CompositionSignal(
          * @return A new [PrimitiveAtom] with the same effect type and the new amplitude scale.
          */
         public fun withAmplitudeScale(
-            @FloatRange(from = 0.0, to = 1.0) newAmplitudeScale: Float,
+            @FloatRange(from = 0.0, to = 1.0) newAmplitudeScale: Float
         ): PrimitiveAtom =
             if (amplitudeScale == newAmplitudeScale) {
                 this

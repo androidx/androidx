@@ -178,7 +178,7 @@ class ViewModelTest {
                 ViewModelProvider(
                     fragment.viewModelStore,
                     fragment.defaultViewModelProviderFactory,
-                    fragment.defaultViewModelCreationExtras
+                    fragment.defaultViewModelCreationExtras,
                 )["test", TestViewModel::class.java]
 
             recreate()

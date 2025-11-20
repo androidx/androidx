@@ -28,8 +28,8 @@ import android.net.Uri
  * @param trustedBiddingKeys the list of keys to query from the trusted key-value server holding
  *   bidding signals.
  */
-class TrustedBiddingData
-public constructor(val trustedBiddingUri: Uri, val trustedBiddingKeys: List<String>) {
+public class TrustedBiddingData
+public constructor(public val trustedBiddingUri: Uri, public val trustedBiddingKeys: List<String>) {
     /** @return `true` if two [TrustedBiddingData] objects contain the same information */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

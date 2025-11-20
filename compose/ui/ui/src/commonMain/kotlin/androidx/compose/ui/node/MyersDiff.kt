@@ -44,11 +44,7 @@ internal interface DiffCallback {
  * @param cb The callback that acts as a gateway to the backing list data
  * @return A LongStack that contains the diagonals which are used by [applyDiff] to update the list
  */
-private fun calculateDiff(
-    oldSize: Int,
-    newSize: Int,
-    cb: DiffCallback,
-): IntStack {
+private fun calculateDiff(oldSize: Int, newSize: Int, cb: DiffCallback): IntStack {
     val max = (oldSize + newSize + 1) / 2
     val diagonals = IntStack(max * 3)
     // instead of a recursive implementation, we keep our own stack to avoid potential stack
@@ -101,10 +97,7 @@ private fun calculateDiff(
     return diagonals
 }
 
-private fun applyDiff(
-    diagonals: IntStack,
-    callback: DiffCallback,
-) {
+private fun applyDiff(diagonals: IntStack, callback: DiffCallback) {
     var posX = 0
     var posY = 0
     var i = 0
@@ -215,14 +208,7 @@ private fun forward(
             // if backwards K is calculated and it passed me, found match
             if ((backwardsK >= -d + 1 && backwardsK <= d - 1) && backward[backwardsK] <= x) {
                 // match
-                fillSnake(
-                    startX,
-                    startY,
-                    x,
-                    y,
-                    false,
-                    snake,
-                )
+                fillSnake(startX, startY, x, y, false, snake)
                 return true
             }
         }
@@ -283,14 +269,7 @@ private fun backward(
             if (((forwardsK >= -d) && forwardsK <= d) && forward[forwardsK] >= x) {
                 // match
                 // assignment are reverse since we are a reverse snake
-                fillSnake(
-                    x,
-                    y,
-                    startX,
-                    startY,
-                    true,
-                    snake,
-                )
+                fillSnake(x, y, startX, startY, true, snake)
                 return true
             }
         }
@@ -423,12 +402,7 @@ private class IntStack(initialCapacity: Int) {
         return copy
     }
 
-    fun pushRange(
-        oldStart: Int,
-        oldEnd: Int,
-        newStart: Int,
-        newEnd: Int,
-    ) {
+    fun pushRange(oldStart: Int, oldEnd: Int, newStart: Int, newEnd: Int) {
         val i = lastIndex
         var stack = stack
         if (i + 4 >= stack.size) {
@@ -441,11 +415,7 @@ private class IntStack(initialCapacity: Int) {
         lastIndex = i + 4
     }
 
-    fun pushDiagonal(
-        x: Int,
-        y: Int,
-        size: Int,
-    ) {
+    fun pushDiagonal(x: Int, y: Int, size: Int) {
         val i = lastIndex
         var stack = stack
         if (i + 3 >= stack.size) {

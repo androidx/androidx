@@ -58,12 +58,11 @@ public interface UwbClientSessionScope {
      * @throws [IllegalStateException] if the ranging is inactive.
      *
      * Otherwise, this method will return successfully, then clients are expected to handle
-     * [RangingResult.RangingResultPeerDisconnected] with the controlee as parameter of the
-     * callback.
+     * [RangingResult.RangingResultFailure] with the controlee as parameter of the callback.
      */
     public suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     )
 }

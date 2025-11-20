@@ -48,7 +48,7 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
 @kotlin.jvm.Throws(HealthServicesException::class)
 public suspend fun PassiveMonitoringClient.setPassiveListenerService(
     service: Class<out PassiveListenerService>,
-    config: PassiveListenerConfig
+    config: PassiveListenerConfig,
 ) = setPassiveListenerServiceAsync(service, config).awaitWithException()
 
 /**

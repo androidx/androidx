@@ -79,7 +79,7 @@ interface ImageBitmap {
         width: Int = this.width,
         height: Int = this.height,
         bufferOffset: Int = 0,
-        stride: Int = width
+        stride: Int = width,
     )
 
     /**
@@ -118,7 +118,7 @@ fun ImageBitmap.toPixelMap(
     height: Int = this.height,
     buffer: IntArray = IntArray(width * height),
     bufferOffset: Int = 0,
-    stride: Int = width
+    stride: Int = width,
 ): PixelMap {
     readPixels(buffer, startX, startY, width, height, bufferOffset, stride)
     return PixelMap(buffer, width, height, bufferOffset, stride)
@@ -223,7 +223,7 @@ internal expect fun ActualImageBitmap(
     height: Int,
     config: ImageBitmapConfig,
     hasAlpha: Boolean,
-    colorSpace: ColorSpace
+    colorSpace: ColorSpace,
 ): ImageBitmap
 
 fun ImageBitmap(
@@ -231,7 +231,7 @@ fun ImageBitmap(
     height: Int,
     config: ImageBitmapConfig = ImageBitmapConfig.Argb8888,
     hasAlpha: Boolean = true,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
 ): ImageBitmap = ActualImageBitmap(width, height, config, hasAlpha, colorSpace)
 
 /**

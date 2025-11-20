@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_STILL_CAPT
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.integration.compat.quirk.AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureIntentPreviewQuirk.Companion.workaroundByCaptureIntentPreview
 import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCaptureFailedForVideoSnapshotQuirk
@@ -42,6 +43,7 @@ import dagger.Provides
  * @see ImageCaptureFailedWhenVideoCaptureIsBoundQuirk
  * @see TemporalNoiseQuirk
  * @see ImageCaptureFailedForVideoSnapshotQuirk
+ * @see AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk
  */
 public interface TemplateParamsOverride {
     /** Returns capture parameters used to override the default parameters of the input template. */

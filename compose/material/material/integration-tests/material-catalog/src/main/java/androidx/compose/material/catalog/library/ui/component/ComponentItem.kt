@@ -51,7 +51,7 @@ fun ComponentItem(
                 .gridItemBorder(
                     itemIndex = index,
                     cellsCount = cellsCount,
-                    color = compositeBorderColor()
+                    color = compositeBorderColor(),
                 )
                 .padding(ComponentItemPadding)
     ) {
@@ -65,12 +65,12 @@ fun ComponentItem(
                 } else {
                     null
                 },
-            contentScale = ContentScale.Inside
+            contentScale = ContentScale.Inside,
         )
         Text(
             text = component.name,
             modifier = Modifier.align(Alignment.BottomStart),
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
         )
     }
 }

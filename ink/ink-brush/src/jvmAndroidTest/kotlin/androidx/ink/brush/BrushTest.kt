@@ -32,7 +32,7 @@ class BrushTest {
     private val size = 10F
     private val epsilon = 1F
     private val color = Color(red = 230, green = 115, blue = 140, alpha = 255)
-    private val family = BrushFamily(uri = "/brush-family:inkpen:1")
+    private val family = BrushFamily(clientBrushFamilyId = "/brush-family:inkpen:1")
 
     @Test
     fun constructor_withValidArguments_returnsABrush() {
@@ -139,7 +139,7 @@ class BrushTest {
         val brush = Brush(family, color, size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(uri = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
         assertThat(brush == differentFamilyBrush).isFalse()
         assertThat(differentFamilyBrush == brush).isFalse()
         assertThat(brush != differentFamilyBrush).isTrue()
@@ -173,7 +173,7 @@ class BrushTest {
         val brush = Brush(family, color, size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(uri = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
         assertThat(differentFamilyBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
         val otherColor =
@@ -370,33 +370,33 @@ class BrushTest {
             BrushFamily(
                 tip =
                     BrushTip(
-                        0.1f,
-                        0.2f,
-                        0.3f,
-                        0.4f,
-                        0.5f,
-                        0.6f,
-                        0.7f,
-                        0.8f,
-                        9L,
-                        listOf(
-                            BrushBehavior(
-                                source = BrushBehavior.Source.TILT_IN_RADIANS,
-                                target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
-                                sourceValueRangeStart = 0.2f,
-                                sourceValueRangeEnd = .8f,
-                                targetModifierRangeStart = 1.1f,
-                                targetModifierRangeEnd = 1.7f,
-                                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.MIRROR,
-                                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                                responseTimeMillis = 1L,
-                                enabledToolTypes = setOf(InputToolType.STYLUS),
-                                isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
-                            )
-                        ),
+                        scaleX = 0.1f,
+                        scaleY = 0.2f,
+                        cornerRounding = 0.3f,
+                        slantDegrees = 0.4f,
+                        pinch = 0.5f,
+                        rotationDegrees = 0.6f,
+                        particleGapDistanceScale = 0.8f,
+                        particleGapDurationMillis = 9L,
+                        behaviors =
+                            listOf(
+                                BrushBehavior(
+                                    source = BrushBehavior.Source.TILT_IN_RADIANS,
+                                    target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
+                                    sourceValueRangeStart = 0.2f,
+                                    sourceValueRangeEnd = .8f,
+                                    targetModifierRangeStart = 1.1f,
+                                    targetModifierRangeEnd = 1.7f,
+                                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.MIRROR,
+                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
+                                    responseTimeMillis = 1L,
+                                    enabledToolTypes = setOf(InputToolType.STYLUS),
+                                    isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
+                                )
+                            ),
                     ),
                 paint = BrushPaint(),
-                uri = "/brush-family:marker:1",
+                clientBrushFamilyId = "/brush-family:marker:1",
             ),
             color,
             13F,

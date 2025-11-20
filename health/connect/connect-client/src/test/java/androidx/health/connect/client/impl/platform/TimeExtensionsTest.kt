@@ -22,7 +22,6 @@ import androidx.health.connect.client.impl.platform.aggregate.createInstantTimeR
 import androidx.health.connect.client.impl.platform.aggregate.createLocalTimeRange
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.metadata.Metadata
-import androidx.health.connect.client.records.metadata.Metadata.Companion.RECORDING_METHOD_MANUAL_ENTRY
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -98,7 +97,7 @@ class TimeExtensionsTest {
         timeRange =
             LocalTimeRange(
                 Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
-                Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
             )
         assertThat(Instant.ofEpochMilli(99).isWithin(timeRange, ZoneOffset.UTC)).isFalse()
         assertThat(Instant.ofEpochMilli(200).isWithin(timeRange, ZoneOffset.UTC)).isFalse()
@@ -142,7 +141,7 @@ class TimeExtensionsTest {
         timeRange =
             LocalTimeRange(
                 Instant.ofEpochMilli(100).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
-                Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC)
+                Instant.ofEpochMilli(200).toLocalTimeWithDefaultZoneFallback(ZoneOffset.UTC),
             )
         assertThat(Instant.ofEpochMilli(100).isWithin(timeRange, ZoneOffset.UTC)).isTrue()
         assertThat(Instant.ofEpochMilli(101).isWithin(timeRange, ZoneOffset.UTC)).isTrue()
@@ -158,7 +157,7 @@ class TimeExtensionsTest {
                 endTime = startTime.plusSeconds(10),
                 startZoneOffset = null,
                 endZoneOffset = null,
-                metadata = Metadata(recordingMethod = RECORDING_METHOD_MANUAL_ENTRY),
+                metadata = Metadata.manualEntry(),
             )
         assertThat(nutritionRecord.duration).isEqualTo(Duration.ofSeconds(10))
     }

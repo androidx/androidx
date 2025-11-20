@@ -84,8 +84,8 @@ internal class OverlayControllerTest {
                         ActivityStack(
                             emptyList(),
                             true,
-                            ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
-                        )
+                            ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN,
+                        ),
                 )
             doAnswer { invocationOnMock ->
                     @Suppress("UNCHECKED_CAST")

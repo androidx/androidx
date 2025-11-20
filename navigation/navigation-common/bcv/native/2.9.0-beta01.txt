@@ -1,0 +1,620 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigation:navigation-common>
+open annotation class androidx.navigation/NavDeepLinkDsl : kotlin/Annotation { // androidx.navigation/NavDeepLinkDsl|null[0]
+    constructor <init>() // androidx.navigation/NavDeepLinkDsl.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.navigation/NavDestinationDsl : kotlin/Annotation { // androidx.navigation/NavDestinationDsl|null[0]
+    constructor <init>() // androidx.navigation/NavDestinationDsl.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.navigation/NavOptionsDsl : kotlin/Annotation { // androidx.navigation/NavOptionsDsl|null[0]
+    constructor <init>() // androidx.navigation/NavOptionsDsl.<init>|<init>(){}[0]
+}
+
+abstract interface androidx.navigation/FloatingWindow // androidx.navigation/FloatingWindow|null[0]
+
+abstract interface androidx.navigation/NavViewModelStoreProvider { // androidx.navigation/NavViewModelStoreProvider|null[0]
+    abstract fun getViewModelStore(kotlin/String): androidx.lifecycle/ViewModelStore // androidx.navigation/NavViewModelStoreProvider.getViewModelStore|getViewModelStore(kotlin.String){}[0]
+}
+
+abstract interface androidx.navigation/SupportingPane // androidx.navigation/SupportingPane|null[0]
+
+abstract class <#A: androidx.navigation/NavDestination> androidx.navigation/Navigator { // androidx.navigation/Navigator|null[0]
+    constructor <init>() // androidx.navigation/Navigator.<init>|<init>(){}[0]
+    constructor <init>(kotlin/String) // androidx.navigation/Navigator.<init>|<init>(kotlin.String){}[0]
+
+    final val state // androidx.navigation/Navigator.state|{}state[0]
+        final fun <get-state>(): androidx.navigation/NavigatorState // androidx.navigation/Navigator.state.<get-state>|<get-state>(){}[0]
+
+    final var isAttached // androidx.navigation/Navigator.isAttached|{}isAttached[0]
+        final fun <get-isAttached>(): kotlin/Boolean // androidx.navigation/Navigator.isAttached.<get-isAttached>|<get-isAttached>(){}[0]
+
+    abstract fun createDestination(): #A // androidx.navigation/Navigator.createDestination|createDestination(){}[0]
+    open fun navigate(#A, androidx.savedstate/SavedState?, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?): androidx.navigation/NavDestination? // androidx.navigation/Navigator.navigate|navigate(1:0;androidx.savedstate.SavedState?;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    open fun navigate(kotlin.collections/List<androidx.navigation/NavBackStackEntry>, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?) // androidx.navigation/Navigator.navigate|navigate(kotlin.collections.List<androidx.navigation.NavBackStackEntry>;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    open fun onAttach(androidx.navigation/NavigatorState) // androidx.navigation/Navigator.onAttach|onAttach(androidx.navigation.NavigatorState){}[0]
+    open fun onLaunchSingleTop(androidx.navigation/NavBackStackEntry) // androidx.navigation/Navigator.onLaunchSingleTop|onLaunchSingleTop(androidx.navigation.NavBackStackEntry){}[0]
+    open fun onRestoreState(androidx.savedstate/SavedState) // androidx.navigation/Navigator.onRestoreState|onRestoreState(androidx.savedstate.SavedState){}[0]
+    open fun onSaveState(): androidx.savedstate/SavedState? // androidx.navigation/Navigator.onSaveState|onSaveState(){}[0]
+    open fun popBackStack(): kotlin/Boolean // androidx.navigation/Navigator.popBackStack|popBackStack(){}[0]
+    open fun popBackStack(androidx.navigation/NavBackStackEntry, kotlin/Boolean) // androidx.navigation/Navigator.popBackStack|popBackStack(androidx.navigation.NavBackStackEntry;kotlin.Boolean){}[0]
+
+    open annotation class Name : kotlin/Annotation { // androidx.navigation/Navigator.Name|null[0]
+        constructor <init>(kotlin/String) // androidx.navigation/Navigator.Name.<init>|<init>(kotlin.String){}[0]
+
+        final val value // androidx.navigation/Navigator.Name.value|{}value[0]
+            final fun <get-value>(): kotlin/String // androidx.navigation/Navigator.Name.value.<get-value>|<get-value>(){}[0]
+    }
+
+    abstract interface Extras // androidx.navigation/Navigator.Extras|null[0]
+}
+
+abstract class <#A: kotlin/Any?> androidx.navigation/CollectionNavType : androidx.navigation/NavType<#A> { // androidx.navigation/CollectionNavType|null[0]
+    constructor <init>(kotlin/Boolean) // androidx.navigation/CollectionNavType.<init>|<init>(kotlin.Boolean){}[0]
+
+    abstract fun emptyCollection(): #A // androidx.navigation/CollectionNavType.emptyCollection|emptyCollection(){}[0]
+    abstract fun serializeAsValues(#A): kotlin.collections/List<kotlin/String> // androidx.navigation/CollectionNavType.serializeAsValues|serializeAsValues(1:0){}[0]
+}
+
+abstract class <#A: kotlin/Any?> androidx.navigation/NavType { // androidx.navigation/NavType|null[0]
+    constructor <init>(kotlin/Boolean) // androidx.navigation/NavType.<init>|<init>(kotlin.Boolean){}[0]
+
+    open val isNullableAllowed // androidx.navigation/NavType.isNullableAllowed|{}isNullableAllowed[0]
+        open fun <get-isNullableAllowed>(): kotlin/Boolean // androidx.navigation/NavType.isNullableAllowed.<get-isNullableAllowed>|<get-isNullableAllowed>(){}[0]
+    open val name // androidx.navigation/NavType.name|{}name[0]
+        open fun <get-name>(): kotlin/String // androidx.navigation/NavType.name.<get-name>|<get-name>(){}[0]
+
+    abstract fun get(androidx.savedstate/SavedState, kotlin/String): #A? // androidx.navigation/NavType.get|get(androidx.savedstate.SavedState;kotlin.String){}[0]
+    abstract fun parseValue(kotlin/String): #A // androidx.navigation/NavType.parseValue|parseValue(kotlin.String){}[0]
+    abstract fun put(androidx.savedstate/SavedState, kotlin/String, #A) // androidx.navigation/NavType.put|put(androidx.savedstate.SavedState;kotlin.String;1:0){}[0]
+    final fun parseAndPut(androidx.savedstate/SavedState, kotlin/String, kotlin/String): #A // androidx.navigation/NavType.parseAndPut|parseAndPut(androidx.savedstate.SavedState;kotlin.String;kotlin.String){}[0]
+    final fun parseAndPut(androidx.savedstate/SavedState, kotlin/String, kotlin/String?, #A): #A // androidx.navigation/NavType.parseAndPut|parseAndPut(androidx.savedstate.SavedState;kotlin.String;kotlin.String?;1:0){}[0]
+    open fun parseValue(kotlin/String, #A): #A // androidx.navigation/NavType.parseValue|parseValue(kotlin.String;1:0){}[0]
+    open fun serializeAsValue(#A): kotlin/String // androidx.navigation/NavType.serializeAsValue|serializeAsValue(1:0){}[0]
+    open fun valueEquals(#A, #A): kotlin/Boolean // androidx.navigation/NavType.valueEquals|valueEquals(1:0;1:0){}[0]
+
+    final object Companion { // androidx.navigation/NavType.Companion|null[0]
+        final val BoolArrayType // androidx.navigation/NavType.Companion.BoolArrayType|{}BoolArrayType[0]
+            final fun <get-BoolArrayType>(): androidx.navigation/NavType<kotlin/BooleanArray?> // androidx.navigation/NavType.Companion.BoolArrayType.<get-BoolArrayType>|<get-BoolArrayType>(){}[0]
+        final val BoolListType // androidx.navigation/NavType.Companion.BoolListType|{}BoolListType[0]
+            final fun <get-BoolListType>(): androidx.navigation/NavType<kotlin.collections/List<kotlin/Boolean>?> // androidx.navigation/NavType.Companion.BoolListType.<get-BoolListType>|<get-BoolListType>(){}[0]
+        final val BoolType // androidx.navigation/NavType.Companion.BoolType|{}BoolType[0]
+            final fun <get-BoolType>(): androidx.navigation/NavType<kotlin/Boolean> // androidx.navigation/NavType.Companion.BoolType.<get-BoolType>|<get-BoolType>(){}[0]
+        final val FloatArrayType // androidx.navigation/NavType.Companion.FloatArrayType|{}FloatArrayType[0]
+            final fun <get-FloatArrayType>(): androidx.navigation/NavType<kotlin/FloatArray?> // androidx.navigation/NavType.Companion.FloatArrayType.<get-FloatArrayType>|<get-FloatArrayType>(){}[0]
+        final val FloatListType // androidx.navigation/NavType.Companion.FloatListType|{}FloatListType[0]
+            final fun <get-FloatListType>(): androidx.navigation/NavType<kotlin.collections/List<kotlin/Float>?> // androidx.navigation/NavType.Companion.FloatListType.<get-FloatListType>|<get-FloatListType>(){}[0]
+        final val FloatType // androidx.navigation/NavType.Companion.FloatType|{}FloatType[0]
+            final fun <get-FloatType>(): androidx.navigation/NavType<kotlin/Float> // androidx.navigation/NavType.Companion.FloatType.<get-FloatType>|<get-FloatType>(){}[0]
+        final val IntArrayType // androidx.navigation/NavType.Companion.IntArrayType|{}IntArrayType[0]
+            final fun <get-IntArrayType>(): androidx.navigation/NavType<kotlin/IntArray?> // androidx.navigation/NavType.Companion.IntArrayType.<get-IntArrayType>|<get-IntArrayType>(){}[0]
+        final val IntListType // androidx.navigation/NavType.Companion.IntListType|{}IntListType[0]
+            final fun <get-IntListType>(): androidx.navigation/NavType<kotlin.collections/List<kotlin/Int>?> // androidx.navigation/NavType.Companion.IntListType.<get-IntListType>|<get-IntListType>(){}[0]
+        final val IntType // androidx.navigation/NavType.Companion.IntType|{}IntType[0]
+            final fun <get-IntType>(): androidx.navigation/NavType<kotlin/Int> // androidx.navigation/NavType.Companion.IntType.<get-IntType>|<get-IntType>(){}[0]
+        final val LongArrayType // androidx.navigation/NavType.Companion.LongArrayType|{}LongArrayType[0]
+            final fun <get-LongArrayType>(): androidx.navigation/NavType<kotlin/LongArray?> // androidx.navigation/NavType.Companion.LongArrayType.<get-LongArrayType>|<get-LongArrayType>(){}[0]
+        final val LongListType // androidx.navigation/NavType.Companion.LongListType|{}LongListType[0]
+            final fun <get-LongListType>(): androidx.navigation/NavType<kotlin.collections/List<kotlin/Long>?> // androidx.navigation/NavType.Companion.LongListType.<get-LongListType>|<get-LongListType>(){}[0]
+        final val LongType // androidx.navigation/NavType.Companion.LongType|{}LongType[0]
+            final fun <get-LongType>(): androidx.navigation/NavType<kotlin/Long> // androidx.navigation/NavType.Companion.LongType.<get-LongType>|<get-LongType>(){}[0]
+        final val StringArrayType // androidx.navigation/NavType.Companion.StringArrayType|{}StringArrayType[0]
+            final fun <get-StringArrayType>(): androidx.navigation/NavType<kotlin/Array<kotlin/String>?> // androidx.navigation/NavType.Companion.StringArrayType.<get-StringArrayType>|<get-StringArrayType>(){}[0]
+        final val StringListType // androidx.navigation/NavType.Companion.StringListType|{}StringListType[0]
+            final fun <get-StringListType>(): androidx.navigation/NavType<kotlin.collections/List<kotlin/String>?> // androidx.navigation/NavType.Companion.StringListType.<get-StringListType>|<get-StringListType>(){}[0]
+        final val StringType // androidx.navigation/NavType.Companion.StringType|{}StringType[0]
+            final fun <get-StringType>(): androidx.navigation/NavType<kotlin/String?> // androidx.navigation/NavType.Companion.StringType.<get-StringType>|<get-StringType>(){}[0]
+
+        final fun fromArgType(kotlin/String?, kotlin/String?): androidx.navigation/NavType<*> // androidx.navigation/NavType.Companion.fromArgType|fromArgType(kotlin.String?;kotlin.String?){}[0]
+        final fun inferFromValue(kotlin/String): androidx.navigation/NavType<kotlin/Any> // androidx.navigation/NavType.Companion.inferFromValue|inferFromValue(kotlin.String){}[0]
+        final fun inferFromValueType(kotlin/Any?): androidx.navigation/NavType<kotlin/Any> // androidx.navigation/NavType.Companion.inferFromValueType|inferFromValueType(kotlin.Any?){}[0]
+    }
+}
+
+abstract class androidx.navigation/NavUri { // androidx.navigation/NavUri|null[0]
+    constructor <init>() // androidx.navigation/NavUri.<init>|<init>(){}[0]
+
+    abstract fun getFragment(): kotlin/String? // androidx.navigation/NavUri.getFragment|getFragment(){}[0]
+    abstract fun getPathSegments(): kotlin.collections/List<kotlin/String> // androidx.navigation/NavUri.getPathSegments|getPathSegments(){}[0]
+    abstract fun getQuery(): kotlin/String? // androidx.navigation/NavUri.getQuery|getQuery(){}[0]
+    abstract fun toString(): kotlin/String // androidx.navigation/NavUri.toString|toString(){}[0]
+    open fun getQueryParameterNames(): kotlin.collections/Set<kotlin/String> // androidx.navigation/NavUri.getQueryParameterNames|getQueryParameterNames(){}[0]
+    open fun getQueryParameters(kotlin/String): kotlin.collections/List<kotlin/String> // androidx.navigation/NavUri.getQueryParameters|getQueryParameters(kotlin.String){}[0]
+}
+
+abstract class androidx.navigation/NavigatorState { // androidx.navigation/NavigatorState|null[0]
+    constructor <init>() // androidx.navigation/NavigatorState.<init>|<init>(){}[0]
+
+    final val backStack // androidx.navigation/NavigatorState.backStack|{}backStack[0]
+        final fun <get-backStack>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/List<androidx.navigation/NavBackStackEntry>> // androidx.navigation/NavigatorState.backStack.<get-backStack>|<get-backStack>(){}[0]
+    final val transitionsInProgress // androidx.navigation/NavigatorState.transitionsInProgress|{}transitionsInProgress[0]
+        final fun <get-transitionsInProgress>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/Set<androidx.navigation/NavBackStackEntry>> // androidx.navigation/NavigatorState.transitionsInProgress.<get-transitionsInProgress>|<get-transitionsInProgress>(){}[0]
+
+    final var isNavigating // androidx.navigation/NavigatorState.isNavigating|{}isNavigating[0]
+        final fun <get-isNavigating>(): kotlin/Boolean // androidx.navigation/NavigatorState.isNavigating.<get-isNavigating>|<get-isNavigating>(){}[0]
+        final fun <set-isNavigating>(kotlin/Boolean) // androidx.navigation/NavigatorState.isNavigating.<set-isNavigating>|<set-isNavigating>(kotlin.Boolean){}[0]
+
+    abstract fun createBackStackEntry(androidx.navigation/NavDestination, androidx.savedstate/SavedState?): androidx.navigation/NavBackStackEntry // androidx.navigation/NavigatorState.createBackStackEntry|createBackStackEntry(androidx.navigation.NavDestination;androidx.savedstate.SavedState?){}[0]
+    open fun markTransitionComplete(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.markTransitionComplete|markTransitionComplete(androidx.navigation.NavBackStackEntry){}[0]
+    open fun onLaunchSingleTop(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.onLaunchSingleTop|onLaunchSingleTop(androidx.navigation.NavBackStackEntry){}[0]
+    open fun onLaunchSingleTopWithTransition(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.onLaunchSingleTopWithTransition|onLaunchSingleTopWithTransition(androidx.navigation.NavBackStackEntry){}[0]
+    open fun pop(androidx.navigation/NavBackStackEntry, kotlin/Boolean) // androidx.navigation/NavigatorState.pop|pop(androidx.navigation.NavBackStackEntry;kotlin.Boolean){}[0]
+    open fun popWithTransition(androidx.navigation/NavBackStackEntry, kotlin/Boolean) // androidx.navigation/NavigatorState.popWithTransition|popWithTransition(androidx.navigation.NavBackStackEntry;kotlin.Boolean){}[0]
+    open fun prepareForTransition(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.prepareForTransition|prepareForTransition(androidx.navigation.NavBackStackEntry){}[0]
+    open fun push(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.push|push(androidx.navigation.NavBackStackEntry){}[0]
+    open fun pushWithTransition(androidx.navigation/NavBackStackEntry) // androidx.navigation/NavigatorState.pushWithTransition|pushWithTransition(androidx.navigation.NavBackStackEntry){}[0]
+}
+
+final class <#A: kotlin/Any> androidx.navigation.serialization/RouteEncoder : kotlinx.serialization.encoding/AbstractEncoder { // androidx.navigation.serialization/RouteEncoder|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlin.collections/Map<kotlin/String, androidx.navigation/NavType<kotlin/Any?>>) // androidx.navigation.serialization/RouteEncoder.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlin.collections.Map<kotlin.String,androidx.navigation.NavType<kotlin.Any?>>){}[0]
+
+    final val serializersModule // androidx.navigation.serialization/RouteEncoder.serializersModule|{}serializersModule[0]
+        final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // androidx.navigation.serialization/RouteEncoder.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    final fun <#A1: kotlin/Any?> encodeSerializableValue(kotlinx.serialization/SerializationStrategy<#A1>, #A1) // androidx.navigation.serialization/RouteEncoder.encodeSerializableValue|encodeSerializableValue(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun encodeElement(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int): kotlin/Boolean // androidx.navigation.serialization/RouteEncoder.encodeElement|encodeElement(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int){}[0]
+    final fun encodeInline(kotlinx.serialization.descriptors/SerialDescriptor): kotlinx.serialization.encoding/Encoder // androidx.navigation.serialization/RouteEncoder.encodeInline|encodeInline(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
+    final fun encodeNull() // androidx.navigation.serialization/RouteEncoder.encodeNull|encodeNull(){}[0]
+    final fun encodeToArgMap(kotlin/Any): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> // androidx.navigation.serialization/RouteEncoder.encodeToArgMap|encodeToArgMap(kotlin.Any){}[0]
+    final fun encodeValue(kotlin/Any) // androidx.navigation.serialization/RouteEncoder.encodeValue|encodeValue(kotlin.Any){}[0]
+}
+
+final class androidx.navigation.internal/NavContext { // androidx.navigation.internal/NavContext|null[0]
+    constructor <init>() // androidx.navigation.internal/NavContext.<init>|<init>(){}[0]
+
+    final fun getApplication(): kotlin/Any? // androidx.navigation.internal/NavContext.getApplication|getApplication(){}[0]
+    final fun getResourceName(kotlin/Int): kotlin/String // androidx.navigation.internal/NavContext.getResourceName|getResourceName(kotlin.Int){}[0]
+}
+
+final class androidx.navigation/NamedNavArgument { // androidx.navigation/NamedNavArgument|null[0]
+    final val argument // androidx.navigation/NamedNavArgument.argument|{}argument[0]
+        final fun <get-argument>(): androidx.navigation/NavArgument // androidx.navigation/NamedNavArgument.argument.<get-argument>|<get-argument>(){}[0]
+    final val name // androidx.navigation/NamedNavArgument.name|{}name[0]
+        final fun <get-name>(): kotlin/String // androidx.navigation/NamedNavArgument.name.<get-name>|<get-name>(){}[0]
+
+    final fun component1(): kotlin/String // androidx.navigation/NamedNavArgument.component1|component1(){}[0]
+    final fun component2(): androidx.navigation/NavArgument // androidx.navigation/NamedNavArgument.component2|component2(){}[0]
+}
+
+final class androidx.navigation/NavArgument { // androidx.navigation/NavArgument|null[0]
+    final val defaultValue // androidx.navigation/NavArgument.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): kotlin/Any? // androidx.navigation/NavArgument.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
+    final val isDefaultValuePresent // androidx.navigation/NavArgument.isDefaultValuePresent|{}isDefaultValuePresent[0]
+        final fun <get-isDefaultValuePresent>(): kotlin/Boolean // androidx.navigation/NavArgument.isDefaultValuePresent.<get-isDefaultValuePresent>|<get-isDefaultValuePresent>(){}[0]
+    final val isNullable // androidx.navigation/NavArgument.isNullable|{}isNullable[0]
+        final fun <get-isNullable>(): kotlin/Boolean // androidx.navigation/NavArgument.isNullable.<get-isNullable>|<get-isNullable>(){}[0]
+    final val type // androidx.navigation/NavArgument.type|{}type[0]
+        final fun <get-type>(): androidx.navigation/NavType<kotlin/Any?> // androidx.navigation/NavArgument.type.<get-type>|<get-type>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavArgument.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigation/NavArgument.hashCode|hashCode(){}[0]
+    final fun putDefaultValue(kotlin/String, androidx.savedstate/SavedState) // androidx.navigation/NavArgument.putDefaultValue|putDefaultValue(kotlin.String;androidx.savedstate.SavedState){}[0]
+    final fun toString(): kotlin/String // androidx.navigation/NavArgument.toString|toString(){}[0]
+    final fun verify(kotlin/String, androidx.savedstate/SavedState): kotlin/Boolean // androidx.navigation/NavArgument.verify|verify(kotlin.String;androidx.savedstate.SavedState){}[0]
+
+    final class Builder { // androidx.navigation/NavArgument.Builder|null[0]
+        constructor <init>() // androidx.navigation/NavArgument.Builder.<init>|<init>(){}[0]
+
+        final fun <#A2: kotlin/Any?> setType(androidx.navigation/NavType<#A2>): androidx.navigation/NavArgument.Builder // androidx.navigation/NavArgument.Builder.setType|setType(androidx.navigation.NavType<0:0>){0§<kotlin.Any?>}[0]
+        final fun build(): androidx.navigation/NavArgument // androidx.navigation/NavArgument.Builder.build|build(){}[0]
+        final fun setDefaultValue(kotlin/Any?): androidx.navigation/NavArgument.Builder // androidx.navigation/NavArgument.Builder.setDefaultValue|setDefaultValue(kotlin.Any?){}[0]
+        final fun setIsNullable(kotlin/Boolean): androidx.navigation/NavArgument.Builder // androidx.navigation/NavArgument.Builder.setIsNullable|setIsNullable(kotlin.Boolean){}[0]
+    }
+}
+
+final class androidx.navigation/NavArgumentBuilder { // androidx.navigation/NavArgumentBuilder|null[0]
+    constructor <init>() // androidx.navigation/NavArgumentBuilder.<init>|<init>(){}[0]
+
+    final var defaultValue // androidx.navigation/NavArgumentBuilder.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): kotlin/Any? // androidx.navigation/NavArgumentBuilder.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
+        final fun <set-defaultValue>(kotlin/Any?) // androidx.navigation/NavArgumentBuilder.defaultValue.<set-defaultValue>|<set-defaultValue>(kotlin.Any?){}[0]
+    final var nullable // androidx.navigation/NavArgumentBuilder.nullable|{}nullable[0]
+        final fun <get-nullable>(): kotlin/Boolean // androidx.navigation/NavArgumentBuilder.nullable.<get-nullable>|<get-nullable>(){}[0]
+        final fun <set-nullable>(kotlin/Boolean) // androidx.navigation/NavArgumentBuilder.nullable.<set-nullable>|<set-nullable>(kotlin.Boolean){}[0]
+    final var type // androidx.navigation/NavArgumentBuilder.type|{}type[0]
+        final fun <get-type>(): androidx.navigation/NavType<*> // androidx.navigation/NavArgumentBuilder.type.<get-type>|<get-type>(){}[0]
+        final fun <set-type>(androidx.navigation/NavType<*>) // androidx.navigation/NavArgumentBuilder.type.<set-type>|<set-type>(androidx.navigation.NavType<*>){}[0]
+
+    final fun build(): androidx.navigation/NavArgument // androidx.navigation/NavArgumentBuilder.build|build(){}[0]
+}
+
+final class androidx.navigation/NavBackStackEntry : androidx.lifecycle/HasDefaultViewModelProviderFactory, androidx.lifecycle/LifecycleOwner, androidx.lifecycle/ViewModelStoreOwner, androidx.savedstate/SavedStateRegistryOwner { // androidx.navigation/NavBackStackEntry|null[0]
+    constructor <init>(androidx.navigation/NavBackStackEntry, androidx.savedstate/SavedState? = ...) // androidx.navigation/NavBackStackEntry.<init>|<init>(androidx.navigation.NavBackStackEntry;androidx.savedstate.SavedState?){}[0]
+
+    final val arguments // androidx.navigation/NavBackStackEntry.arguments|{}arguments[0]
+        final fun <get-arguments>(): androidx.savedstate/SavedState? // androidx.navigation/NavBackStackEntry.arguments.<get-arguments>|<get-arguments>(){}[0]
+    final val defaultViewModelCreationExtras // androidx.navigation/NavBackStackEntry.defaultViewModelCreationExtras|{}defaultViewModelCreationExtras[0]
+        final fun <get-defaultViewModelCreationExtras>(): androidx.lifecycle.viewmodel/CreationExtras // androidx.navigation/NavBackStackEntry.defaultViewModelCreationExtras.<get-defaultViewModelCreationExtras>|<get-defaultViewModelCreationExtras>(){}[0]
+    final val defaultViewModelProviderFactory // androidx.navigation/NavBackStackEntry.defaultViewModelProviderFactory|{}defaultViewModelProviderFactory[0]
+        final fun <get-defaultViewModelProviderFactory>(): androidx.lifecycle/ViewModelProvider.Factory // androidx.navigation/NavBackStackEntry.defaultViewModelProviderFactory.<get-defaultViewModelProviderFactory>|<get-defaultViewModelProviderFactory>(){}[0]
+    final val id // androidx.navigation/NavBackStackEntry.id|{}id[0]
+        final fun <get-id>(): kotlin/String // androidx.navigation/NavBackStackEntry.id.<get-id>|<get-id>(){}[0]
+    final val lifecycle // androidx.navigation/NavBackStackEntry.lifecycle|{}lifecycle[0]
+        final fun <get-lifecycle>(): androidx.lifecycle/Lifecycle // androidx.navigation/NavBackStackEntry.lifecycle.<get-lifecycle>|<get-lifecycle>(){}[0]
+    final val savedStateHandle // androidx.navigation/NavBackStackEntry.savedStateHandle|{}savedStateHandle[0]
+        final fun <get-savedStateHandle>(): androidx.lifecycle/SavedStateHandle // androidx.navigation/NavBackStackEntry.savedStateHandle.<get-savedStateHandle>|<get-savedStateHandle>(){}[0]
+    final val savedStateRegistry // androidx.navigation/NavBackStackEntry.savedStateRegistry|{}savedStateRegistry[0]
+        final fun <get-savedStateRegistry>(): androidx.savedstate/SavedStateRegistry // androidx.navigation/NavBackStackEntry.savedStateRegistry.<get-savedStateRegistry>|<get-savedStateRegistry>(){}[0]
+    final val viewModelStore // androidx.navigation/NavBackStackEntry.viewModelStore|{}viewModelStore[0]
+        final fun <get-viewModelStore>(): androidx.lifecycle/ViewModelStore // androidx.navigation/NavBackStackEntry.viewModelStore.<get-viewModelStore>|<get-viewModelStore>(){}[0]
+
+    final var destination // androidx.navigation/NavBackStackEntry.destination|{}destination[0]
+        final fun <get-destination>(): androidx.navigation/NavDestination // androidx.navigation/NavBackStackEntry.destination.<get-destination>|<get-destination>(){}[0]
+        final fun <set-destination>(androidx.navigation/NavDestination) // androidx.navigation/NavBackStackEntry.destination.<set-destination>|<set-destination>(androidx.navigation.NavDestination){}[0]
+    final var maxLifecycle // androidx.navigation/NavBackStackEntry.maxLifecycle|{}maxLifecycle[0]
+        final fun <get-maxLifecycle>(): androidx.lifecycle/Lifecycle.State // androidx.navigation/NavBackStackEntry.maxLifecycle.<get-maxLifecycle>|<get-maxLifecycle>(){}[0]
+        final fun <set-maxLifecycle>(androidx.lifecycle/Lifecycle.State) // androidx.navigation/NavBackStackEntry.maxLifecycle.<set-maxLifecycle>|<set-maxLifecycle>(androidx.lifecycle.Lifecycle.State){}[0]
+
+    final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.navigation/NavBackStackEntry.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
+    final fun saveState(androidx.savedstate/SavedState) // androidx.navigation/NavBackStackEntry.saveState|saveState(androidx.savedstate.SavedState){}[0]
+    final fun updateState() // androidx.navigation/NavBackStackEntry.updateState|updateState(){}[0]
+
+    final object Companion { // androidx.navigation/NavBackStackEntry.Companion|null[0]
+        final fun create(androidx.navigation.internal/NavContext?, androidx.navigation/NavDestination, androidx.savedstate/SavedState? = ..., androidx.lifecycle/Lifecycle.State = ..., androidx.navigation/NavViewModelStoreProvider? = ..., kotlin/String = ..., androidx.savedstate/SavedState? = ...): androidx.navigation/NavBackStackEntry // androidx.navigation/NavBackStackEntry.Companion.create|create(androidx.navigation.internal.NavContext?;androidx.navigation.NavDestination;androidx.savedstate.SavedState?;androidx.lifecycle.Lifecycle.State;androidx.navigation.NavViewModelStoreProvider?;kotlin.String;androidx.savedstate.SavedState?){}[0]
+    }
+}
+
+final class androidx.navigation/NavDeepLink { // androidx.navigation/NavDeepLink|null[0]
+    constructor <init>(kotlin/String) // androidx.navigation/NavDeepLink.<init>|<init>(kotlin.String){}[0]
+
+    final val action // androidx.navigation/NavDeepLink.action|{}action[0]
+        final fun <get-action>(): kotlin/String? // androidx.navigation/NavDeepLink.action.<get-action>|<get-action>(){}[0]
+    final val mimeType // androidx.navigation/NavDeepLink.mimeType|{}mimeType[0]
+        final fun <get-mimeType>(): kotlin/String? // androidx.navigation/NavDeepLink.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
+    final val uriPattern // androidx.navigation/NavDeepLink.uriPattern|{}uriPattern[0]
+        final fun <get-uriPattern>(): kotlin/String? // androidx.navigation/NavDeepLink.uriPattern.<get-uriPattern>|<get-uriPattern>(){}[0]
+
+    final var isExactDeepLink // androidx.navigation/NavDeepLink.isExactDeepLink|{}isExactDeepLink[0]
+        final fun <get-isExactDeepLink>(): kotlin/Boolean // androidx.navigation/NavDeepLink.isExactDeepLink.<get-isExactDeepLink>|<get-isExactDeepLink>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavDeepLink.equals|equals(kotlin.Any?){}[0]
+    final fun getMatchingArguments(androidx.navigation/NavUri, kotlin.collections/Map<kotlin/String, androidx.navigation/NavArgument?>): androidx.savedstate/SavedState? // androidx.navigation/NavDeepLink.getMatchingArguments|getMatchingArguments(androidx.navigation.NavUri;kotlin.collections.Map<kotlin.String,androidx.navigation.NavArgument?>){}[0]
+    final fun getMimeTypeMatchRating(kotlin/String): kotlin/Int // androidx.navigation/NavDeepLink.getMimeTypeMatchRating|getMimeTypeMatchRating(kotlin.String){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigation/NavDeepLink.hashCode|hashCode(){}[0]
+
+    final class Builder { // androidx.navigation/NavDeepLink.Builder|null[0]
+        constructor <init>() // androidx.navigation/NavDeepLink.Builder.<init>|<init>(){}[0]
+
+        final fun <#A2: kotlin/Any> setUriPattern(kotlin.reflect/KClass<#A2>, kotlin/String, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): androidx.navigation/NavDeepLink.Builder // androidx.navigation/NavDeepLink.Builder.setUriPattern|setUriPattern(kotlin.reflect.KClass<0:0>;kotlin.String;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){0§<kotlin.Any>}[0]
+        final fun build(): androidx.navigation/NavDeepLink // androidx.navigation/NavDeepLink.Builder.build|build(){}[0]
+        final fun setAction(kotlin/String): androidx.navigation/NavDeepLink.Builder // androidx.navigation/NavDeepLink.Builder.setAction|setAction(kotlin.String){}[0]
+        final fun setMimeType(kotlin/String): androidx.navigation/NavDeepLink.Builder // androidx.navigation/NavDeepLink.Builder.setMimeType|setMimeType(kotlin.String){}[0]
+        final fun setUriPattern(kotlin/String): androidx.navigation/NavDeepLink.Builder // androidx.navigation/NavDeepLink.Builder.setUriPattern|setUriPattern(kotlin.String){}[0]
+        final inline fun <#A2: reified kotlin/Any> setUriPattern(kotlin/String, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): androidx.navigation/NavDeepLink.Builder // androidx.navigation/NavDeepLink.Builder.setUriPattern|setUriPattern(kotlin.String;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){0§<kotlin.Any>}[0]
+    }
+}
+
+final class androidx.navigation/NavDeepLinkDslBuilder { // androidx.navigation/NavDeepLinkDslBuilder|null[0]
+    constructor <init>() // androidx.navigation/NavDeepLinkDslBuilder.<init>|<init>(){}[0]
+
+    final var action // androidx.navigation/NavDeepLinkDslBuilder.action|{}action[0]
+        final fun <get-action>(): kotlin/String? // androidx.navigation/NavDeepLinkDslBuilder.action.<get-action>|<get-action>(){}[0]
+        final fun <set-action>(kotlin/String?) // androidx.navigation/NavDeepLinkDslBuilder.action.<set-action>|<set-action>(kotlin.String?){}[0]
+    final var mimeType // androidx.navigation/NavDeepLinkDslBuilder.mimeType|{}mimeType[0]
+        final fun <get-mimeType>(): kotlin/String? // androidx.navigation/NavDeepLinkDslBuilder.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
+        final fun <set-mimeType>(kotlin/String?) // androidx.navigation/NavDeepLinkDslBuilder.mimeType.<set-mimeType>|<set-mimeType>(kotlin.String?){}[0]
+    final var uriPattern // androidx.navigation/NavDeepLinkDslBuilder.uriPattern|{}uriPattern[0]
+        final fun <get-uriPattern>(): kotlin/String? // androidx.navigation/NavDeepLinkDslBuilder.uriPattern.<get-uriPattern>|<get-uriPattern>(){}[0]
+        final fun <set-uriPattern>(kotlin/String?) // androidx.navigation/NavDeepLinkDslBuilder.uriPattern.<set-uriPattern>|<set-uriPattern>(kotlin.String?){}[0]
+}
+
+final class androidx.navigation/NavOptions { // androidx.navigation/NavOptions|null[0]
+    constructor <init>() // androidx.navigation/NavOptions.<init>|<init>(){}[0]
+
+    final val popUpToId // androidx.navigation/NavOptions.popUpToId|{}popUpToId[0]
+        final fun <get-popUpToId>(): kotlin/Int // androidx.navigation/NavOptions.popUpToId.<get-popUpToId>|<get-popUpToId>(){}[0]
+
+    final var popUpToRoute // androidx.navigation/NavOptions.popUpToRoute|{}popUpToRoute[0]
+        final fun <get-popUpToRoute>(): kotlin/String? // androidx.navigation/NavOptions.popUpToRoute.<get-popUpToRoute>|<get-popUpToRoute>(){}[0]
+        final fun <set-popUpToRoute>(kotlin/String?) // androidx.navigation/NavOptions.popUpToRoute.<set-popUpToRoute>|<set-popUpToRoute>(kotlin.String?){}[0]
+    final var popUpToRouteClass // androidx.navigation/NavOptions.popUpToRouteClass|{}popUpToRouteClass[0]
+        final fun <get-popUpToRouteClass>(): kotlin.reflect/KClass<*>? // androidx.navigation/NavOptions.popUpToRouteClass.<get-popUpToRouteClass>|<get-popUpToRouteClass>(){}[0]
+        final fun <set-popUpToRouteClass>(kotlin.reflect/KClass<*>?) // androidx.navigation/NavOptions.popUpToRouteClass.<set-popUpToRouteClass>|<set-popUpToRouteClass>(kotlin.reflect.KClass<*>?){}[0]
+    final var popUpToRouteObject // androidx.navigation/NavOptions.popUpToRouteObject|{}popUpToRouteObject[0]
+        final fun <get-popUpToRouteObject>(): kotlin/Any? // androidx.navigation/NavOptions.popUpToRouteObject.<get-popUpToRouteObject>|<get-popUpToRouteObject>(){}[0]
+        final fun <set-popUpToRouteObject>(kotlin/Any?) // androidx.navigation/NavOptions.popUpToRouteObject.<set-popUpToRouteObject>|<set-popUpToRouteObject>(kotlin.Any?){}[0]
+
+    final fun isPopUpToInclusive(): kotlin/Boolean // androidx.navigation/NavOptions.isPopUpToInclusive|isPopUpToInclusive(){}[0]
+    final fun shouldLaunchSingleTop(): kotlin/Boolean // androidx.navigation/NavOptions.shouldLaunchSingleTop|shouldLaunchSingleTop(){}[0]
+    final fun shouldPopUpToSaveState(): kotlin/Boolean // androidx.navigation/NavOptions.shouldPopUpToSaveState|shouldPopUpToSaveState(){}[0]
+    final fun shouldRestoreState(): kotlin/Boolean // androidx.navigation/NavOptions.shouldRestoreState|shouldRestoreState(){}[0]
+
+    final class Builder { // androidx.navigation/NavOptions.Builder|null[0]
+        constructor <init>() // androidx.navigation/NavOptions.Builder.<init>|<init>(){}[0]
+
+        final fun <#A2: kotlin/Any> setPopUpTo(#A2, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(0:0;kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+        final fun <#A2: kotlin/Any> setPopUpTo(kotlin.reflect/KClass<#A2>, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.reflect.KClass<0:0>;kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+        final fun build(): androidx.navigation/NavOptions // androidx.navigation/NavOptions.Builder.build|build(){}[0]
+        final fun setLaunchSingleTop(kotlin/Boolean): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setLaunchSingleTop|setLaunchSingleTop(kotlin.Boolean){}[0]
+        final fun setPopUpTo(kotlin/String?, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
+        final fun setRestoreState(kotlin/Boolean): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setRestoreState|setRestoreState(kotlin.Boolean){}[0]
+        final inline fun <#A2: reified kotlin/Any> setPopUpTo(kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
+    }
+}
+
+final class androidx.navigation/NavOptionsBuilder { // androidx.navigation/NavOptionsBuilder|null[0]
+    constructor <init>() // androidx.navigation/NavOptionsBuilder.<init>|<init>(){}[0]
+
+    final var launchSingleTop // androidx.navigation/NavOptionsBuilder.launchSingleTop|{}launchSingleTop[0]
+        final fun <get-launchSingleTop>(): kotlin/Boolean // androidx.navigation/NavOptionsBuilder.launchSingleTop.<get-launchSingleTop>|<get-launchSingleTop>(){}[0]
+        final fun <set-launchSingleTop>(kotlin/Boolean) // androidx.navigation/NavOptionsBuilder.launchSingleTop.<set-launchSingleTop>|<set-launchSingleTop>(kotlin.Boolean){}[0]
+    final var popUpToRoute // androidx.navigation/NavOptionsBuilder.popUpToRoute|{}popUpToRoute[0]
+        final fun <get-popUpToRoute>(): kotlin/String? // androidx.navigation/NavOptionsBuilder.popUpToRoute.<get-popUpToRoute>|<get-popUpToRoute>(){}[0]
+        final fun <set-popUpToRoute>(kotlin/String?) // androidx.navigation/NavOptionsBuilder.popUpToRoute.<set-popUpToRoute>|<set-popUpToRoute>(kotlin.String?){}[0]
+    final var popUpToRouteClass // androidx.navigation/NavOptionsBuilder.popUpToRouteClass|{}popUpToRouteClass[0]
+        final fun <get-popUpToRouteClass>(): kotlin.reflect/KClass<*>? // androidx.navigation/NavOptionsBuilder.popUpToRouteClass.<get-popUpToRouteClass>|<get-popUpToRouteClass>(){}[0]
+        final fun <set-popUpToRouteClass>(kotlin.reflect/KClass<*>?) // androidx.navigation/NavOptionsBuilder.popUpToRouteClass.<set-popUpToRouteClass>|<set-popUpToRouteClass>(kotlin.reflect.KClass<*>?){}[0]
+    final var popUpToRouteObject // androidx.navigation/NavOptionsBuilder.popUpToRouteObject|{}popUpToRouteObject[0]
+        final fun <get-popUpToRouteObject>(): kotlin/Any? // androidx.navigation/NavOptionsBuilder.popUpToRouteObject.<get-popUpToRouteObject>|<get-popUpToRouteObject>(){}[0]
+        final fun <set-popUpToRouteObject>(kotlin/Any?) // androidx.navigation/NavOptionsBuilder.popUpToRouteObject.<set-popUpToRouteObject>|<set-popUpToRouteObject>(kotlin.Any?){}[0]
+    final var restoreState // androidx.navigation/NavOptionsBuilder.restoreState|{}restoreState[0]
+        final fun <get-restoreState>(): kotlin/Boolean // androidx.navigation/NavOptionsBuilder.restoreState.<get-restoreState>|<get-restoreState>(){}[0]
+        final fun <set-restoreState>(kotlin/Boolean) // androidx.navigation/NavOptionsBuilder.restoreState.<set-restoreState>|<set-restoreState>(kotlin.Boolean){}[0]
+
+    final fun <#A1: kotlin/Any> popUpTo(#A1, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(0:0;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> popUpTo(kotlin.reflect/KClass<#A1>, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit>) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.reflect.KClass<0:0>;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun popUpTo(kotlin/String, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.String;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){}[0]
+    final inline fun <#A1: reified kotlin/Any> popUpTo(noinline kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+}
+
+final class androidx.navigation/NoOpNavigator : androidx.navigation/Navigator<androidx.navigation/NavDestination> { // androidx.navigation/NoOpNavigator|null[0]
+    constructor <init>() // androidx.navigation/NoOpNavigator.<init>|<init>(){}[0]
+
+    final fun createDestination(): androidx.navigation/NavDestination // androidx.navigation/NoOpNavigator.createDestination|createDestination(){}[0]
+    final fun navigate(androidx.navigation/NavDestination, androidx.savedstate/SavedState?, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?): androidx.navigation/NavDestination // androidx.navigation/NoOpNavigator.navigate|navigate(androidx.navigation.NavDestination;androidx.savedstate.SavedState?;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+    final fun popBackStack(): kotlin/Boolean // androidx.navigation/NoOpNavigator.popBackStack|popBackStack(){}[0]
+}
+
+final class androidx.navigation/PopUpToBuilder { // androidx.navigation/PopUpToBuilder|null[0]
+    constructor <init>() // androidx.navigation/PopUpToBuilder.<init>|<init>(){}[0]
+
+    final var inclusive // androidx.navigation/PopUpToBuilder.inclusive|{}inclusive[0]
+        final fun <get-inclusive>(): kotlin/Boolean // androidx.navigation/PopUpToBuilder.inclusive.<get-inclusive>|<get-inclusive>(){}[0]
+        final fun <set-inclusive>(kotlin/Boolean) // androidx.navigation/PopUpToBuilder.inclusive.<set-inclusive>|<set-inclusive>(kotlin.Boolean){}[0]
+    final var saveState // androidx.navigation/PopUpToBuilder.saveState|{}saveState[0]
+        final fun <get-saveState>(): kotlin/Boolean // androidx.navigation/PopUpToBuilder.saveState.<get-saveState>|<get-saveState>(){}[0]
+        final fun <set-saveState>(kotlin/Boolean) // androidx.navigation/PopUpToBuilder.saveState.<set-saveState>|<set-saveState>(kotlin.Boolean){}[0]
+}
+
+open class <#A: out androidx.navigation/NavDestination> androidx.navigation/NavDestinationBuilder { // androidx.navigation/NavDestinationBuilder|null[0]
+    constructor <init>(androidx.navigation/Navigator<out #A>, kotlin.reflect/KClass<*>?, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>>) // androidx.navigation/NavDestinationBuilder.<init>|<init>(androidx.navigation.Navigator<out|1:0>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){}[0]
+    constructor <init>(androidx.navigation/Navigator<out #A>, kotlin/String?) // androidx.navigation/NavDestinationBuilder.<init>|<init>(androidx.navigation.Navigator<out|1:0>;kotlin.String?){}[0]
+
+    final val navigator // androidx.navigation/NavDestinationBuilder.navigator|{}navigator[0]
+        final fun <get-navigator>(): androidx.navigation/Navigator<out #A> // androidx.navigation/NavDestinationBuilder.navigator.<get-navigator>|<get-navigator>(){}[0]
+    final val route // androidx.navigation/NavDestinationBuilder.route|{}route[0]
+        final fun <get-route>(): kotlin/String? // androidx.navigation/NavDestinationBuilder.route.<get-route>|<get-route>(){}[0]
+
+    final var label // androidx.navigation/NavDestinationBuilder.label|{}label[0]
+        final fun <get-label>(): kotlin/CharSequence? // androidx.navigation/NavDestinationBuilder.label.<get-label>|<get-label>(){}[0]
+        final fun <set-label>(kotlin/CharSequence?) // androidx.navigation/NavDestinationBuilder.label.<set-label>|<set-label>(kotlin.CharSequence?){}[0]
+
+    final fun <#A1: kotlin/Any> deepLink(kotlin.reflect/KClass<#A1>, kotlin/String, kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit>) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(kotlin.reflect.KClass<0:0>;kotlin.String;kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun argument(kotlin/String, androidx.navigation/NavArgument) // androidx.navigation/NavDestinationBuilder.argument|argument(kotlin.String;androidx.navigation.NavArgument){}[0]
+    final fun argument(kotlin/String, kotlin/Function1<androidx.navigation/NavArgumentBuilder, kotlin/Unit>) // androidx.navigation/NavDestinationBuilder.argument|argument(kotlin.String;kotlin.Function1<androidx.navigation.NavArgumentBuilder,kotlin.Unit>){}[0]
+    final fun deepLink(androidx.navigation/NavDeepLink) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(androidx.navigation.NavDeepLink){}[0]
+    final fun deepLink(kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit>) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){}[0]
+    final fun deepLink(kotlin/String) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(kotlin.String){}[0]
+    final inline fun <#A1: reified kotlin/Any> deepLink(kotlin/String) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(kotlin.String){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any> deepLink(kotlin/String, noinline kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit>) // androidx.navigation/NavDestinationBuilder.deepLink|deepLink(kotlin.String;kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    open fun build(): #A // androidx.navigation/NavDestinationBuilder.build|build(){}[0]
+    open fun instantiateDestination(): #A // androidx.navigation/NavDestinationBuilder.instantiateDestination|instantiateDestination(){}[0]
+}
+
+open class androidx.navigation/NavDeepLinkRequest { // androidx.navigation/NavDeepLinkRequest|null[0]
+    constructor <init>(androidx.navigation/NavUri?, kotlin/String?, kotlin/String?) // androidx.navigation/NavDeepLinkRequest.<init>|<init>(androidx.navigation.NavUri?;kotlin.String?;kotlin.String?){}[0]
+
+    open val action // androidx.navigation/NavDeepLinkRequest.action|{}action[0]
+        open fun <get-action>(): kotlin/String? // androidx.navigation/NavDeepLinkRequest.action.<get-action>|<get-action>(){}[0]
+    open val mimeType // androidx.navigation/NavDeepLinkRequest.mimeType|{}mimeType[0]
+        open fun <get-mimeType>(): kotlin/String? // androidx.navigation/NavDeepLinkRequest.mimeType.<get-mimeType>|<get-mimeType>(){}[0]
+    open val uri // androidx.navigation/NavDeepLinkRequest.uri|{}uri[0]
+        open fun <get-uri>(): androidx.navigation/NavUri? // androidx.navigation/NavDeepLinkRequest.uri.<get-uri>|<get-uri>(){}[0]
+
+    open fun toString(): kotlin/String // androidx.navigation/NavDeepLinkRequest.toString|toString(){}[0]
+
+    final class Builder { // androidx.navigation/NavDeepLinkRequest.Builder|null[0]
+        final fun build(): androidx.navigation/NavDeepLinkRequest // androidx.navigation/NavDeepLinkRequest.Builder.build|build(){}[0]
+        final fun setAction(kotlin/String): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.setAction|setAction(kotlin.String){}[0]
+        final fun setMimeType(kotlin/String): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.setMimeType|setMimeType(kotlin.String){}[0]
+        final fun setUri(androidx.navigation/NavUri): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.setUri|setUri(androidx.navigation.NavUri){}[0]
+
+        final object Companion { // androidx.navigation/NavDeepLinkRequest.Builder.Companion|null[0]
+            final fun fromAction(kotlin/String): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.Companion.fromAction|fromAction(kotlin.String){}[0]
+            final fun fromMimeType(kotlin/String): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.Companion.fromMimeType|fromMimeType(kotlin.String){}[0]
+            final fun fromUri(androidx.navigation/NavUri): androidx.navigation/NavDeepLinkRequest.Builder // androidx.navigation/NavDeepLinkRequest.Builder.Companion.fromUri|fromUri(androidx.navigation.NavUri){}[0]
+        }
+    }
+}
+
+open class androidx.navigation/NavDestination { // androidx.navigation/NavDestination|null[0]
+    constructor <init>(androidx.navigation/Navigator<out androidx.navigation/NavDestination>) // androidx.navigation/NavDestination.<init>|<init>(androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
+    constructor <init>(kotlin/String) // androidx.navigation/NavDestination.<init>|<init>(kotlin.String){}[0]
+
+    final val arguments // androidx.navigation/NavDestination.arguments|{}arguments[0]
+        final fun <get-arguments>(): kotlin.collections/Map<kotlin/String, androidx.navigation/NavArgument> // androidx.navigation/NavDestination.arguments.<get-arguments>|<get-arguments>(){}[0]
+    final val navigatorName // androidx.navigation/NavDestination.navigatorName|{}navigatorName[0]
+        final fun <get-navigatorName>(): kotlin/String // androidx.navigation/NavDestination.navigatorName.<get-navigatorName>|<get-navigatorName>(){}[0]
+    open val displayName // androidx.navigation/NavDestination.displayName|{}displayName[0]
+        open fun <get-displayName>(): kotlin/String // androidx.navigation/NavDestination.displayName.<get-displayName>|<get-displayName>(){}[0]
+
+    final var id // androidx.navigation/NavDestination.id|{}id[0]
+        final fun <get-id>(): kotlin/Int // androidx.navigation/NavDestination.id.<get-id>|<get-id>(){}[0]
+        final fun <set-id>(kotlin/Int) // androidx.navigation/NavDestination.id.<set-id>|<set-id>(kotlin.Int){}[0]
+    final var label // androidx.navigation/NavDestination.label|{}label[0]
+        final fun <get-label>(): kotlin/CharSequence? // androidx.navigation/NavDestination.label.<get-label>|<get-label>(){}[0]
+        final fun <set-label>(kotlin/CharSequence?) // androidx.navigation/NavDestination.label.<set-label>|<set-label>(kotlin.CharSequence?){}[0]
+    final var parent // androidx.navigation/NavDestination.parent|{}parent[0]
+        final fun <get-parent>(): androidx.navigation/NavGraph? // androidx.navigation/NavDestination.parent.<get-parent>|<get-parent>(){}[0]
+        final fun <set-parent>(androidx.navigation/NavGraph?) // androidx.navigation/NavDestination.parent.<set-parent>|<set-parent>(androidx.navigation.NavGraph?){}[0]
+    final var route // androidx.navigation/NavDestination.route|{}route[0]
+        final fun <get-route>(): kotlin/String? // androidx.navigation/NavDestination.route.<get-route>|<get-route>(){}[0]
+        final fun <set-route>(kotlin/String?) // androidx.navigation/NavDestination.route.<set-route>|<set-route>(kotlin.String?){}[0]
+
+    final fun addArgument(kotlin/String, androidx.navigation/NavArgument) // androidx.navigation/NavDestination.addArgument|addArgument(kotlin.String;androidx.navigation.NavArgument){}[0]
+    final fun addDeepLink(androidx.navigation/NavDeepLink) // androidx.navigation/NavDestination.addDeepLink|addDeepLink(androidx.navigation.NavDeepLink){}[0]
+    final fun addDeepLink(kotlin/String) // androidx.navigation/NavDestination.addDeepLink|addDeepLink(kotlin.String){}[0]
+    final fun addInDefaultArgs(androidx.savedstate/SavedState?): androidx.savedstate/SavedState? // androidx.navigation/NavDestination.addInDefaultArgs|addInDefaultArgs(androidx.savedstate.SavedState?){}[0]
+    final fun buildDeepLinkDestinations(androidx.navigation/NavDestination? = ...): kotlin.collections/List<androidx.navigation/NavDestination> // androidx.navigation/NavDestination.buildDeepLinkDestinations|buildDeepLinkDestinations(androidx.navigation.NavDestination?){}[0]
+    final fun hasRoute(kotlin/String, androidx.savedstate/SavedState?): kotlin/Boolean // androidx.navigation/NavDestination.hasRoute|hasRoute(kotlin.String;androidx.savedstate.SavedState?){}[0]
+    final fun matchRoute(kotlin/String): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavDestination.matchRoute|matchRoute(kotlin.String){}[0]
+    final fun removeArgument(kotlin/String) // androidx.navigation/NavDestination.removeArgument|removeArgument(kotlin.String){}[0]
+    open fun hasDeepLink(androidx.navigation/NavDeepLinkRequest): kotlin/Boolean // androidx.navigation/NavDestination.hasDeepLink|hasDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
+    open fun hasDeepLink(androidx.navigation/NavUri): kotlin/Boolean // androidx.navigation/NavDestination.hasDeepLink|hasDeepLink(androidx.navigation.NavUri){}[0]
+    open fun matchDeepLink(androidx.navigation/NavDeepLinkRequest): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavDestination.matchDeepLink|matchDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
+
+    open annotation class ClassType : kotlin/Annotation { // androidx.navigation/NavDestination.ClassType|null[0]
+        constructor <init>(kotlin.reflect/KClass<*>) // androidx.navigation/NavDestination.ClassType.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
+
+        final val value // androidx.navigation/NavDestination.ClassType.value|{}value[0]
+            final fun <get-value>(): kotlin.reflect/KClass<*> // androidx.navigation/NavDestination.ClassType.value.<get-value>|<get-value>(){}[0]
+    }
+
+    final class DeepLinkMatch : kotlin/Comparable<androidx.navigation/NavDestination.DeepLinkMatch> { // androidx.navigation/NavDestination.DeepLinkMatch|null[0]
+        constructor <init>(androidx.navigation/NavDestination, androidx.savedstate/SavedState?, kotlin/Boolean, kotlin/Int, kotlin/Boolean, kotlin/Int) // androidx.navigation/NavDestination.DeepLinkMatch.<init>|<init>(androidx.navigation.NavDestination;androidx.savedstate.SavedState?;kotlin.Boolean;kotlin.Int;kotlin.Boolean;kotlin.Int){}[0]
+
+        final val destination // androidx.navigation/NavDestination.DeepLinkMatch.destination|{}destination[0]
+            final fun <get-destination>(): androidx.navigation/NavDestination // androidx.navigation/NavDestination.DeepLinkMatch.destination.<get-destination>|<get-destination>(){}[0]
+        final val matchingArgs // androidx.navigation/NavDestination.DeepLinkMatch.matchingArgs|{}matchingArgs[0]
+            final fun <get-matchingArgs>(): androidx.savedstate/SavedState? // androidx.navigation/NavDestination.DeepLinkMatch.matchingArgs.<get-matchingArgs>|<get-matchingArgs>(){}[0]
+
+        final fun compareTo(androidx.navigation/NavDestination.DeepLinkMatch): kotlin/Int // androidx.navigation/NavDestination.DeepLinkMatch.compareTo|compareTo(androidx.navigation.NavDestination.DeepLinkMatch){}[0]
+        final fun hasMatchingArgs(androidx.savedstate/SavedState?): kotlin/Boolean // androidx.navigation/NavDestination.DeepLinkMatch.hasMatchingArgs|hasMatchingArgs(androidx.savedstate.SavedState?){}[0]
+    }
+
+    final object Companion { // androidx.navigation/NavDestination.Companion|null[0]
+        final val hierarchy // androidx.navigation/NavDestination.Companion.hierarchy|@androidx.navigation.NavDestination{}hierarchy[0]
+            final fun (androidx.navigation/NavDestination).<get-hierarchy>(): kotlin.sequences/Sequence<androidx.navigation/NavDestination> // androidx.navigation/NavDestination.Companion.hierarchy.<get-hierarchy>|<get-hierarchy>@androidx.navigation.NavDestination(){}[0]
+
+        final fun <#A2: kotlin/Any> (androidx.navigation/NavDestination).hasRoute(kotlin.reflect/KClass<#A2>): kotlin/Boolean // androidx.navigation/NavDestination.Companion.hasRoute|hasRoute@androidx.navigation.NavDestination(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+        final fun createRoute(kotlin/String?): kotlin/String // androidx.navigation/NavDestination.Companion.createRoute|createRoute(kotlin.String?){}[0]
+        final fun getDisplayName(androidx.navigation.internal/NavContext, kotlin/Int): kotlin/String // androidx.navigation/NavDestination.Companion.getDisplayName|getDisplayName(androidx.navigation.internal.NavContext;kotlin.Int){}[0]
+        final inline fun <#A2: reified kotlin/Any> (androidx.navigation/NavDestination).hasRoute(): kotlin/Boolean // androidx.navigation/NavDestination.Companion.hasRoute|hasRoute@androidx.navigation.NavDestination(){0§<kotlin.Any>}[0]
+    }
+}
+
+open class androidx.navigation/NavGraph : androidx.navigation/NavDestination, kotlin.collections/Iterable<androidx.navigation/NavDestination> { // androidx.navigation/NavGraph|null[0]
+    constructor <init>(androidx.navigation/Navigator<out androidx.navigation/NavGraph>) // androidx.navigation/NavGraph.<init>|<init>(androidx.navigation.Navigator<out|androidx.navigation.NavGraph>){}[0]
+
+    final val nodes // androidx.navigation/NavGraph.nodes|{}nodes[0]
+        final fun <get-nodes>(): androidx.collection/SparseArrayCompat<androidx.navigation/NavDestination> // androidx.navigation/NavGraph.nodes.<get-nodes>|<get-nodes>(){}[0]
+    final val startDestDisplayName // androidx.navigation/NavGraph.startDestDisplayName|{}startDestDisplayName[0]
+        final fun <get-startDestDisplayName>(): kotlin/String // androidx.navigation/NavGraph.startDestDisplayName.<get-startDestDisplayName>|<get-startDestDisplayName>(){}[0]
+    open val displayName // androidx.navigation/NavGraph.displayName|{}displayName[0]
+        open fun <get-displayName>(): kotlin/String // androidx.navigation/NavGraph.displayName.<get-displayName>|<get-displayName>(){}[0]
+
+    final var startDestinationId // androidx.navigation/NavGraph.startDestinationId|{}startDestinationId[0]
+        final fun <get-startDestinationId>(): kotlin/Int // androidx.navigation/NavGraph.startDestinationId.<get-startDestinationId>|<get-startDestinationId>(){}[0]
+    final var startDestinationRoute // androidx.navigation/NavGraph.startDestinationRoute|{}startDestinationRoute[0]
+        final fun <get-startDestinationRoute>(): kotlin/String? // androidx.navigation/NavGraph.startDestinationRoute.<get-startDestinationRoute>|<get-startDestinationRoute>(){}[0]
+
+    final fun <#A1: kotlin/Any> setStartDestination(#A1) // androidx.navigation/NavGraph.setStartDestination|setStartDestination(0:0){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> setStartDestination(kotlin.reflect/KClass<#A1>) // androidx.navigation/NavGraph.setStartDestination|setStartDestination(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any?> findNode(#A1?): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(0:0?){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> setStartDestination(kotlinx.serialization/KSerializer<#A1>, kotlin/Function1<androidx.navigation/NavDestination, kotlin/String>) // androidx.navigation/NavGraph.setStartDestination|setStartDestination(kotlinx.serialization.KSerializer<0:0>;kotlin.Function1<androidx.navigation.NavDestination,kotlin.String>){0§<kotlin.Any?>}[0]
+    final fun addAll(androidx.navigation/NavGraph) // androidx.navigation/NavGraph.addAll|addAll(androidx.navigation.NavGraph){}[0]
+    final fun addDestination(androidx.navigation/NavDestination) // androidx.navigation/NavGraph.addDestination|addDestination(androidx.navigation.NavDestination){}[0]
+    final fun addDestinations(kotlin.collections/Collection<androidx.navigation/NavDestination?>) // androidx.navigation/NavGraph.addDestinations|addDestinations(kotlin.collections.Collection<androidx.navigation.NavDestination?>){}[0]
+    final fun addDestinations(kotlin/Array<out androidx.navigation/NavDestination>...) // androidx.navigation/NavGraph.addDestinations|addDestinations(kotlin.Array<out|androidx.navigation.NavDestination>...){}[0]
+    final fun clear() // androidx.navigation/NavGraph.clear|clear(){}[0]
+    final fun findNode(kotlin.reflect/KClass<*>): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(kotlin.reflect.KClass<*>){}[0]
+    final fun findNode(kotlin/Int): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(kotlin.Int){}[0]
+    final fun findNode(kotlin/String, kotlin/Boolean): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(kotlin.String;kotlin.Boolean){}[0]
+    final fun findNode(kotlin/String?): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(kotlin.String?){}[0]
+    final fun findNodeComprehensive(kotlin/Int, androidx.navigation/NavDestination?, kotlin/Boolean, androidx.navigation/NavDestination? = ...): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNodeComprehensive|findNodeComprehensive(kotlin.Int;androidx.navigation.NavDestination?;kotlin.Boolean;androidx.navigation.NavDestination?){}[0]
+    final fun matchDeepLinkComprehensive(androidx.navigation/NavDeepLinkRequest, kotlin/Boolean, kotlin/Boolean, androidx.navigation/NavDestination): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavGraph.matchDeepLinkComprehensive|matchDeepLinkComprehensive(androidx.navigation.NavDeepLinkRequest;kotlin.Boolean;kotlin.Boolean;androidx.navigation.NavDestination){}[0]
+    final fun matchRouteComprehensive(kotlin/String, kotlin/Boolean, kotlin/Boolean, androidx.navigation/NavDestination): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavGraph.matchRouteComprehensive|matchRouteComprehensive(kotlin.String;kotlin.Boolean;kotlin.Boolean;androidx.navigation.NavDestination){}[0]
+    final fun remove(androidx.navigation/NavDestination) // androidx.navigation/NavGraph.remove|remove(androidx.navigation.NavDestination){}[0]
+    final fun setStartDestination(kotlin/String) // androidx.navigation/NavGraph.setStartDestination|setStartDestination(kotlin.String){}[0]
+    final inline fun <#A1: reified kotlin/Any> setStartDestination() // androidx.navigation/NavGraph.setStartDestination|setStartDestination(){0§<kotlin.Any>}[0]
+    final inline fun <#A1: reified kotlin/Any?> findNode(): androidx.navigation/NavDestination? // androidx.navigation/NavGraph.findNode|findNode(){0§<kotlin.Any?>}[0]
+    open fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavGraph.equals|equals(kotlin.Any?){}[0]
+    open fun hashCode(): kotlin/Int // androidx.navigation/NavGraph.hashCode|hashCode(){}[0]
+    open fun iterator(): kotlin.collections/MutableIterator<androidx.navigation/NavDestination> // androidx.navigation/NavGraph.iterator|iterator(){}[0]
+    open fun matchDeepLink(androidx.navigation/NavDeepLinkRequest): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavGraph.matchDeepLink|matchDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
+    open fun toString(): kotlin/String // androidx.navigation/NavGraph.toString|toString(){}[0]
+
+    final object Companion { // androidx.navigation/NavGraph.Companion|null[0]
+        final fun (androidx.navigation/NavGraph).childHierarchy(): kotlin.sequences/Sequence<androidx.navigation/NavDestination> // androidx.navigation/NavGraph.Companion.childHierarchy|childHierarchy@androidx.navigation.NavGraph(){}[0]
+        final fun (androidx.navigation/NavGraph).findStartDestination(): androidx.navigation/NavDestination // androidx.navigation/NavGraph.Companion.findStartDestination|findStartDestination@androidx.navigation.NavGraph(){}[0]
+    }
+}
+
+open class androidx.navigation/NavGraphBuilder : androidx.navigation/NavDestinationBuilder<androidx.navigation/NavGraph> { // androidx.navigation/NavGraphBuilder|null[0]
+    constructor <init>(androidx.navigation/NavigatorProvider, kotlin.reflect/KClass<*>, kotlin.reflect/KClass<*>?, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>>) // androidx.navigation/NavGraphBuilder.<init>|<init>(androidx.navigation.NavigatorProvider;kotlin.reflect.KClass<*>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){}[0]
+    constructor <init>(androidx.navigation/NavigatorProvider, kotlin/Any, kotlin.reflect/KClass<*>?, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>>) // androidx.navigation/NavGraphBuilder.<init>|<init>(androidx.navigation.NavigatorProvider;kotlin.Any;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){}[0]
+    constructor <init>(androidx.navigation/NavigatorProvider, kotlin/String, kotlin/String?) // androidx.navigation/NavGraphBuilder.<init>|<init>(androidx.navigation.NavigatorProvider;kotlin.String;kotlin.String?){}[0]
+
+    final val provider // androidx.navigation/NavGraphBuilder.provider|{}provider[0]
+        final fun <get-provider>(): androidx.navigation/NavigatorProvider // androidx.navigation/NavGraphBuilder.provider.<get-provider>|<get-provider>(){}[0]
+
+    final fun (androidx.navigation/NavDestination).unaryPlus() // androidx.navigation/NavGraphBuilder.unaryPlus|unaryPlus@androidx.navigation.NavDestination(){}[0]
+    final fun <#A1: androidx.navigation/NavDestination> destination(androidx.navigation/NavDestinationBuilder<#A1>) // androidx.navigation/NavGraphBuilder.destination|destination(androidx.navigation.NavDestinationBuilder<0:0>){0§<androidx.navigation.NavDestination>}[0]
+    final fun addDestination(androidx.navigation/NavDestination) // androidx.navigation/NavGraphBuilder.addDestination|addDestination(androidx.navigation.NavDestination){}[0]
+}
+
+open class androidx.navigation/NavGraphNavigator : androidx.navigation/Navigator<androidx.navigation/NavGraph> { // androidx.navigation/NavGraphNavigator|null[0]
+    constructor <init>(androidx.navigation/NavigatorProvider) // androidx.navigation/NavGraphNavigator.<init>|<init>(androidx.navigation.NavigatorProvider){}[0]
+
+    final val backStack // androidx.navigation/NavGraphNavigator.backStack|{}backStack[0]
+        final fun <get-backStack>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/List<androidx.navigation/NavBackStackEntry>> // androidx.navigation/NavGraphNavigator.backStack.<get-backStack>|<get-backStack>(){}[0]
+
+    open fun createDestination(): androidx.navigation/NavGraph // androidx.navigation/NavGraphNavigator.createDestination|createDestination(){}[0]
+    open fun navigate(kotlin.collections/List<androidx.navigation/NavBackStackEntry>, androidx.navigation/NavOptions?, androidx.navigation/Navigator.Extras?) // androidx.navigation/NavGraphNavigator.navigate|navigate(kotlin.collections.List<androidx.navigation.NavBackStackEntry>;androidx.navigation.NavOptions?;androidx.navigation.Navigator.Extras?){}[0]
+}
+
+open class androidx.navigation/NavigatorProvider { // androidx.navigation/NavigatorProvider|null[0]
+    constructor <init>() // androidx.navigation/NavigatorProvider.<init>|<init>(){}[0]
+
+    final val navigators // androidx.navigation/NavigatorProvider.navigators|{}navigators[0]
+        final fun <get-navigators>(): kotlin.collections/Map<kotlin/String, androidx.navigation/Navigator<out androidx.navigation/NavDestination>> // androidx.navigation/NavigatorProvider.navigators.<get-navigators>|<get-navigators>(){}[0]
+
+    final fun addNavigator(androidx.navigation/Navigator<out androidx.navigation/NavDestination>): androidx.navigation/Navigator<out androidx.navigation/NavDestination>? // androidx.navigation/NavigatorProvider.addNavigator|addNavigator(androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
+    open fun <#A1: androidx.navigation/Navigator<*>> getNavigator(kotlin/String): #A1 // androidx.navigation/NavigatorProvider.getNavigator|getNavigator(kotlin.String){0§<androidx.navigation.Navigator<*>>}[0]
+    open fun addNavigator(kotlin/String, androidx.navigation/Navigator<out androidx.navigation/NavDestination>): androidx.navigation/Navigator<out androidx.navigation/NavDestination>? // androidx.navigation/NavigatorProvider.addNavigator|addNavigator(kotlin.String;androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
+}
+
+final fun (androidx.navigation/NavGraph).androidx.navigation/contains(kotlin/String): kotlin/Boolean // androidx.navigation/contains|contains@androidx.navigation.NavGraph(kotlin.String){}[0]
+final fun <#A: kotlin/Any> (androidx.lifecycle/SavedStateHandle).androidx.navigation/toRoute(kotlin.reflect/KClass<#A>, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): #A // androidx.navigation/toRoute|toRoute@androidx.lifecycle.SavedStateHandle(kotlin.reflect.KClass<0:0>;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.navigation/NavGraph).androidx.navigation/contains(#A): kotlin/Boolean // androidx.navigation/contains|contains@androidx.navigation.NavGraph(0:0){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin.reflect/KClass<#A>, kotlin.reflect/KClass<*>, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.reflect.KClass<0:0>;kotlin.reflect.KClass<*>;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin.reflect/KClass<#A>, kotlin/Any, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.reflect.KClass<0:0>;kotlin.Any;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> androidx.navigation.serialization/generateRouteWithArgs(#A, kotlin.collections/Map<kotlin/String, androidx.navigation/NavType<kotlin/Any?>>): kotlin/String // androidx.navigation.serialization/generateRouteWithArgs|generateRouteWithArgs(0:0;kotlin.collections.Map<kotlin.String,androidx.navigation.NavType<kotlin.Any?>>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> androidx.navigation/navDeepLink(kotlin.reflect/KClass<#A>, kotlin/String, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit>): androidx.navigation/NavDeepLink // androidx.navigation/navDeepLink|navDeepLink(kotlin.reflect.KClass<0:0>;kotlin.String;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any?> (androidx.navigation/NavBackStackEntry).androidx.navigation/toRoute(kotlin.reflect/KClass<*>): #A // androidx.navigation/toRoute|toRoute@androidx.navigation.NavBackStackEntry(kotlin.reflect.KClass<*>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization/KSerializer<#A>).androidx.navigation.serialization/decodeArguments(androidx.lifecycle/SavedStateHandle, kotlin.collections/Map<kotlin/String, androidx.navigation/NavType<*>>): #A // androidx.navigation.serialization/decodeArguments|decodeArguments@kotlinx.serialization.KSerializer<0:0>(androidx.lifecycle.SavedStateHandle;kotlin.collections.Map<kotlin.String,androidx.navigation.NavType<*>>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization/KSerializer<#A>).androidx.navigation.serialization/decodeArguments(androidx.savedstate/SavedState, kotlin.collections/Map<kotlin/String, androidx.navigation/NavType<*>>): #A // androidx.navigation.serialization/decodeArguments|decodeArguments@kotlinx.serialization.KSerializer<0:0>(androidx.savedstate.SavedState;kotlin.collections.Map<kotlin.String,androidx.navigation.NavType<*>>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization/KSerializer<#A>).androidx.navigation.serialization/generateHashCode(): kotlin/Int // androidx.navigation.serialization/generateHashCode|generateHashCode@kotlinx.serialization.KSerializer<0:0>(){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization/KSerializer<#A>).androidx.navigation.serialization/generateNavArguments(kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): kotlin.collections/List<androidx.navigation/NamedNavArgument> // androidx.navigation.serialization/generateNavArguments|generateNavArguments@kotlinx.serialization.KSerializer<0:0>(kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){0§<kotlin.Any?>}[0]
+final fun androidx.navigation/NavUri(kotlin/String): androidx.navigation/NavUri // androidx.navigation/NavUri|NavUri(kotlin.String){}[0]
+final fun androidx.navigation/navArgument(kotlin/String, kotlin/Function1<androidx.navigation/NavArgumentBuilder, kotlin/Unit>): androidx.navigation/NamedNavArgument // androidx.navigation/navArgument|navArgument(kotlin.String;kotlin.Function1<androidx.navigation.NavArgumentBuilder,kotlin.Unit>){}[0]
+final fun androidx.navigation/navDeepLink(kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit>): androidx.navigation/NavDeepLink // androidx.navigation/navDeepLink|navDeepLink(kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){}[0]
+final fun androidx.navigation/navOptions(kotlin/Function1<androidx.navigation/NavOptionsBuilder, kotlin/Unit>): androidx.navigation/NavOptions // androidx.navigation/navOptions|navOptions(kotlin.Function1<androidx.navigation.NavOptionsBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavGraph).androidx.navigation/get(kotlin/String): androidx.navigation/NavDestination // androidx.navigation/get|get@androidx.navigation.NavGraph(kotlin.String){}[0]
+final inline fun (androidx.navigation/NavGraph).androidx.navigation/minusAssign(androidx.navigation/NavDestination) // androidx.navigation/minusAssign|minusAssign@androidx.navigation.NavGraph(androidx.navigation.NavDestination){}[0]
+final inline fun (androidx.navigation/NavGraph).androidx.navigation/plusAssign(androidx.navigation/NavDestination) // androidx.navigation/plusAssign|plusAssign@androidx.navigation.NavGraph(androidx.navigation.NavDestination){}[0]
+final inline fun (androidx.navigation/NavGraph).androidx.navigation/plusAssign(androidx.navigation/NavGraph) // androidx.navigation/plusAssign|plusAssign@androidx.navigation.NavGraph(androidx.navigation.NavGraph){}[0]
+final inline fun (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin/String, kotlin/String, kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.String;kotlin.String;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavigatorProvider).androidx.navigation/navigation(kotlin.reflect/KClass<*>, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/navigation|navigation@androidx.navigation.NavigatorProvider(kotlin.reflect.KClass<*>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavigatorProvider).androidx.navigation/navigation(kotlin/Any, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/navigation|navigation@androidx.navigation.NavigatorProvider(kotlin.Any;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavigatorProvider).androidx.navigation/navigation(kotlin/String, kotlin/String? = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/navigation|navigation@androidx.navigation.NavigatorProvider(kotlin.String;kotlin.String?;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
+final inline fun (androidx.navigation/NavigatorProvider).androidx.navigation/plusAssign(androidx.navigation/Navigator<out androidx.navigation/NavDestination>) // androidx.navigation/plusAssign|plusAssign@androidx.navigation.NavigatorProvider(androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
+final inline fun (androidx.navigation/NavigatorProvider).androidx.navigation/set(kotlin/String, androidx.navigation/Navigator<out androidx.navigation/NavDestination>): androidx.navigation/Navigator<out androidx.navigation/NavDestination>? // androidx.navigation/set|set@androidx.navigation.NavigatorProvider(kotlin.String;androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
+final inline fun <#A: androidx.navigation/Navigator<out androidx.navigation/NavDestination>> (androidx.navigation/NavigatorProvider).androidx.navigation/get(kotlin.reflect/KClass<#A>): #A // androidx.navigation/get|get@androidx.navigation.NavigatorProvider(kotlin.reflect.KClass<0:0>){0§<androidx.navigation.Navigator<out|androidx.navigation.NavDestination>>}[0]
+final inline fun <#A: androidx.navigation/Navigator<out androidx.navigation/NavDestination>> (androidx.navigation/NavigatorProvider).androidx.navigation/get(kotlin/String): #A // androidx.navigation/get|get@androidx.navigation.NavigatorProvider(kotlin.String){0§<androidx.navigation.Navigator<out|androidx.navigation.NavDestination>>}[0]
+final inline fun <#A: kotlin/Any> (androidx.navigation/NavGraph).androidx.navigation/get(#A): androidx.navigation/NavDestination // androidx.navigation/get|get@androidx.navigation.NavGraph(0:0){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.lifecycle/SavedStateHandle).androidx.navigation/toRoute(kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): #A // androidx.navigation/toRoute|toRoute@androidx.lifecycle.SavedStateHandle(kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraph).androidx.navigation/contains(kotlin.reflect/KClass<#A>): kotlin/Boolean // androidx.navigation/contains|contains@androidx.navigation.NavGraph(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraph).androidx.navigation/get(kotlin.reflect/KClass<#A>): androidx.navigation/NavDestination // androidx.navigation/get|get@androidx.navigation.NavGraph(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin.reflect/KClass<*>, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., noinline kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.reflect.KClass<*>;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin/Any, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., noinline kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.Any;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> androidx.navigation/navDeepLink(kotlin/String, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., noinline kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit> = ...): androidx.navigation/NavDeepLink // androidx.navigation/navDeepLink|navDeepLink(kotlin.String;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any?> (androidx.navigation/NavBackStackEntry).androidx.navigation/toRoute(): #A // androidx.navigation/toRoute|toRoute@androidx.navigation.NavBackStackEntry(){0§<kotlin.Any?>}[0]
+final inline fun androidx.navigation/implementedInJetBrainsFork(): kotlin/Nothing // androidx.navigation/implementedInJetBrainsFork|implementedInJetBrainsFork(){}[0]

@@ -58,13 +58,13 @@ public interface TwoWayConverter<T, V : AnimationVector> {
  */
 public fun <T, V : AnimationVector> TwoWayConverter(
     convertToVector: (T) -> V,
-    convertFromVector: (V) -> T
+    convertFromVector: (V) -> T,
 ): TwoWayConverter<T, V> = TwoWayConverterImpl(convertToVector, convertFromVector)
 
 /** Type converter to convert type [T] to and from a [AnimationVector1D]. */
 private class TwoWayConverterImpl<T, V : AnimationVector>(
     override val convertToVector: (T) -> V,
-    override val convertFromVector: (V) -> T
+    override val convertFromVector: (V) -> T,
 ) : TwoWayConverter<T, V>
 
 internal inline fun lerp(start: Float, stop: Float, fraction: Float) =
@@ -119,35 +119,35 @@ public val IntSize.Companion.VectorConverter: TwoWayConverter<IntSize, Animation
 private val DpToVector: TwoWayConverter<Dp, AnimationVector1D> =
     TwoWayConverter(
         convertToVector = { AnimationVector1D(it.value) },
-        convertFromVector = { Dp(it.value) }
+        convertFromVector = { Dp(it.value) },
     )
 
 /** A type converter that converts a [DpOffset] to a [AnimationVector2D], and vice versa. */
 private val DpOffsetToVector: TwoWayConverter<DpOffset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
-        convertFromVector = { DpOffset(it.v1.dp, it.v2.dp) }
+        convertFromVector = { DpOffset(it.v1.dp, it.v2.dp) },
     )
 
 /** A type converter that converts a [Size] to a [AnimationVector2D], and vice versa. */
 private val SizeToVector: TwoWayConverter<Size, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.width, it.height) },
-        convertFromVector = { Size(it.v1, it.v2) }
+        convertFromVector = { Size(it.v1, it.v2) },
     )
 
 /** A type converter that converts a [Offset] to a [AnimationVector2D], and vice versa. */
 private val OffsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x, it.y) },
-        convertFromVector = { Offset(it.v1, it.v2) }
+        convertFromVector = { Offset(it.v1, it.v2) },
     )
 
 /** A type converter that converts a [IntOffset] to a [AnimationVector2D], and vice versa. */
 private val IntOffsetToVector: TwoWayConverter<IntOffset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x.toFloat(), it.y.toFloat()) },
-        convertFromVector = { IntOffset(it.v1.fastRoundToInt(), it.v2.fastRoundToInt()) }
+        convertFromVector = { IntOffset(it.v1.fastRoundToInt(), it.v2.fastRoundToInt()) },
     )
 
 /**
@@ -161,14 +161,14 @@ private val IntSizeToVector: TwoWayConverter<IntSize, AnimationVector2D> =
         {
             IntSize(
                 width = it.v1.fastRoundToInt().fastCoerceAtLeast(0),
-                height = it.v2.fastRoundToInt().fastCoerceAtLeast(0)
+                height = it.v2.fastRoundToInt().fastCoerceAtLeast(0),
             )
-        }
+        },
     )
 
 /** A type converter that converts a [Rect] to a [AnimationVector4D], and vice versa. */
 private val RectToVector: TwoWayConverter<Rect, AnimationVector4D> =
     TwoWayConverter(
         convertToVector = { AnimationVector4D(it.left, it.top, it.right, it.bottom) },
-        convertFromVector = { Rect(it.v1, it.v2, it.v3, it.v4) }
+        convertFromVector = { Rect(it.v1, it.v2, it.v3, it.v4) },
     )

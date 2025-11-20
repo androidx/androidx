@@ -52,6 +52,15 @@ import java.util.Collections
  */
 class RemoteEntry(val pendingIntent: PendingIntent) {
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var isAutoSelect: Boolean = false
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    constructor(pendingIntent: PendingIntent, isAutoSelect: Boolean) : this(pendingIntent) {
+        this@RemoteEntry.isAutoSelect = isAutoSelect
+    }
+
     /**
      * A builder for [RemoteEntry]
      *
@@ -82,6 +91,9 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
 
+        private const val SLICE_HINT_IS_AUTO_SELECT =
+            "androidx.credentials.provider.remoteEntry.SLICE_HINT_IS_AUTO_SELECT"
+
         private const val SLICE_SPEC_TYPE = "RemoteEntry"
 
         private const val REVISION_ID = 1
@@ -103,8 +115,16 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/ null
+                /*subType=*/ null,
             )
+            if (remoteEntry.isAutoSelect) {
+                sliceBuilder.addInt(
+                    /*true=*/ 1,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_IS_AUTO_SELECT),
+                )
+            }
+
             return sliceBuilder.build()
         }
 
@@ -119,13 +139,16 @@ class RemoteEntry(val pendingIntent: PendingIntent) {
         @JvmStatic
         fun fromSlice(slice: Slice): RemoteEntry? {
             var pendingIntent: PendingIntent? = null
+            var isAutoSelect = false
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
+                } else if (it.hasHint(SLICE_HINT_IS_AUTO_SELECT)) {
+                    isAutoSelect = true
                 }
             }
             return try {
-                RemoteEntry(pendingIntent!!)
+                RemoteEntry(pendingIntent!!, isAutoSelect)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null

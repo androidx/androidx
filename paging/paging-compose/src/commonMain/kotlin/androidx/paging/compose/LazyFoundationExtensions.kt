@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package androidx.paging.compose
 
-import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.paging.PagingConfig
+import kotlin.jvm.JvmSuppressWildcards
 
 /**
  * Returns a factory of stable and unique keys representing the item.
@@ -26,8 +26,8 @@ import androidx.paging.PagingConfig
  * to a placeholder key. If [PagingConfig.enablePlaceholders] is true, LazyPagingItems may return
  * null items. Null items will also automatically default to a placeholder key.
  *
- * This factory can be applied to Lazy foundations such as [LazyGridScope.items] or Pagers.
- * Examples:
+ * This factory can be applied to Lazy foundations such as compose foundation's `LazyGridScope` or
+ * Pagers. Examples:
  *
  * @sample androidx.paging.compose.samples.PagingWithHorizontalPager
  * @sample androidx.paging.compose.samples.PagingWithLazyGrid
@@ -58,7 +58,7 @@ public fun <T : Any> LazyPagingItems<T>.itemKey(
  * LazyPagingItems may return null items. Null items will automatically default to placeholder
  * contentType.
  *
- * This factory can be applied to Lazy foundations such as [LazyGridScope.items] or Pagers.
+ * This factory can be applied to Lazy foundations such as `LazyGridScope.items` or Pagers.
  * Examples:
  *
  * @sample androidx.paging.compose.samples.PagingWithLazyGrid

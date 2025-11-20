@@ -50,7 +50,7 @@ class PersistAdSelectionResultRequestTest {
             PersistAdSelectionResultRequest(
                 1234L,
                 AdTechIdentifier("1234"),
-                byteArrayOf(0x01, 0x02, 0x03, 0x04)
+                byteArrayOf(0x01, 0x02, 0x03, 0x04),
             )
 
         Truth.assertThat(persistAdSelectionResultRequest == persistAdSelectionResultRequest2)

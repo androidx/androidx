@@ -57,6 +57,7 @@ import androidx.wear.protolayout.ModifiersBuilders.ArcModifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Shadow;
 import androidx.wear.protolayout.ModifiersBuilders.SpanModifiers;
+import androidx.wear.protolayout.ResourceBuilders.ImageResource;
 import androidx.wear.protolayout.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.TypeBuilders.Int32Prop;
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
@@ -71,7 +72,6 @@ import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.protolayout.proto.TypesProto;
 import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException;
 
@@ -334,17 +334,14 @@ public final class LayoutElementBuilders {
      * RTL.
      */
     @RequiresSchemaVersion(major = 1, minor = 300)
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int ARC_DIRECTION_NORMAL = 0;
 
     /** Draws an element in Clockwise direction, independently of layout direction. */
     @RequiresSchemaVersion(major = 1, minor = 300)
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int ARC_DIRECTION_CLOCKWISE = 1;
 
     /** Draws an element in Counter Clockwise direction, independently of layout direction. */
     @RequiresSchemaVersion(major = 1, minor = 300)
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
 
     /** An extensible {@code FontWeight} property. */
@@ -1060,6 +1057,10 @@ public final class LayoutElementBuilders {
              * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} and
              * {@link FontSetting#width} setting will always be available.
              *
+             * <p>Consider providing a fallback values with {@link #setWeight} for devices that
+             * don't support variable fonts. For example, using {@link #FONT_WEIGHT_MEDIUM} for
+             * weight axis with value greater or equal to {@code 500}.
+             *
              * @throws IllegalArgumentException if the number of the given Setting is larger than
              *     10.
              */
@@ -1150,7 +1151,7 @@ public final class LayoutElementBuilders {
          * href="https://fonts.google.com/knowledge/glossary/rond_axis">here</a>.
          *
          * @param value roundness, usually in 0..100, but actual range and availability can depend
-         *  on the font used
+         *     on the font used
          */
         @RequiresSchemaVersion(major = 1, minor = 400)
         static @NonNull FontSetting roundness(int value) {
@@ -1604,11 +1605,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-         * affected layout element through {@code
-         * setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@code build()}
-         * fails.
          */
         public @Nullable StringProp getText() {
             if (mImpl.hasText()) {
@@ -1785,11 +1781,6 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@code build()}
-             * fails.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setText(@NonNull StringProp text) {
@@ -1950,12 +1941,6 @@ public final class LayoutElementBuilders {
 
             @Override
             public @NonNull Text build() {
-                TypesProto.StringProp text = mImpl.getText();
-                if (text.hasDynamicValue() && !text.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "text with dynamic value requires "
-                                    + "layoutConstraintsForDynamicText to be present.");
-                }
                 return new Text(mImpl.build(), mFingerprint);
             }
         }
@@ -2257,36 +2242,6 @@ public final class LayoutElementBuilders {
                     LayoutElementProto.Image.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-48009959);
 
-            /** Creates an instance of {@link Builder}. */
-            public Builder() {}
-
-            /**
-             * Sets the resource_id of the image to render. This must exist in the supplied resource
-             * bundle.
-             *
-             * <p>Note that this field only supports static values.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 0)
-            public @NonNull Builder setResourceId(@NonNull StringProp resourceId) {
-                if (resourceId.getDynamicValue() != null) {
-                    throw new IllegalArgumentException(
-                            "Image.Builder.setResourceId doesn't support dynamic values.");
-                }
-                mImpl.setResourceId(resourceId.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
-             * Sets the resource_id of the image to render. This must exist in the supplied resource
-             * bundle.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 0)
-            public @NonNull Builder setResourceId(@NonNull String resourceId) {
-                return setResourceId(new StringProp.Builder(resourceId).build());
-            }
-
             /** Sets the width of this image. If not defined, the image will not be rendered. */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setWidth(@NonNull ImageDimension width) {
@@ -2350,6 +2305,145 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            private @Nullable ProtoLayoutScope mScope;
+            private boolean mIsResourceIdApiUsed = false;
+            private boolean mIsImageResourceApiUsed = false;
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * <p>Note that, when using this constructor, it should be paired with {@link
+             * #setResourceId}, and resource used for it needs to be manually registered in {@code
+             * TileService#onTileResourcesRequest} for Tiles. This constructor can't be mixed with
+             * {@link #setImageResource}, otherwise an exception will be thrown.
+             *
+             * @deprecated Use {@link #Builder(ProtoLayoutScope)} constructor which supports
+             *     automatic resource registration, paired with {@link #setImageResource}.
+             */
+            @Deprecated
+            public Builder() {}
+
+            /**
+             * Creates an instance of {@link Builder} with automatic resource registration used.
+             *
+             * <p>Note that, when using this constructor, it should be paired with {@link
+             * #setImageResource}. Additionally, {@code Resources} object shouldn't be provided in
+             * {@code TileService#onTileResourcesRequest} method for your Tile as resources would be
+             * automatically registered. This constructor can't be mixed with {@link
+             * #setResourceId}, otherwise an exception will be thrown.
+             *
+             * <p>When using this constructor and automatic resource registration, there's no need
+             * to provide resources version in {@code Tile.Builder.setResourcesVersion}, as {@link
+             * ProtoLayoutScope} will handle versioning and changes of the resources automatically.
+             * However, setting custom version in {@code Tile.Builder.setResourcesVersion} is still
+             * supported.
+             */
+            public Builder(@NonNull ProtoLayoutScope scope) {
+                this.mScope = scope;
+            }
+
+            /**
+             * Sets the specific resource of the image to render. This method will automatically
+             * assign the ID and add the given resource in the resources bundle.
+             *
+             * @param resource An Image resource, used in the layout in the place of this {@link
+             *     Image} element.
+             * @throws IllegalStateException if this method is called without {@link
+             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId} was already called.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            @SuppressWarnings("MissingGetterMatchingBuilder")
+            public @NonNull Builder setImageResource(@NonNull ImageResource resource) {
+                return setImageResource(resource, String.valueOf(resource.hashCode()));
+            }
+
+            /**
+             * Sets the specific resource of the image to render. This method will automatically add
+             * the given resource in the resources bundle.
+             *
+             * @param resource An Image resource, used in the layout in the place of this {@link
+             *     Image} element.
+             * @param resourceId The ID of the resource
+             * @throws IllegalStateException if this method is called without {@link
+             *     #Builder(ProtoLayoutScope)} or after {@link #setResourceId} was already called.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            @SuppressWarnings("MissingGetterMatchingBuilder")
+            public @NonNull Builder setImageResource(
+                    @NonNull ImageResource resource, @NonNull String resourceId) {
+                if (mIsResourceIdApiUsed) {
+                    throw new IllegalStateException(
+                            "Image.Builder.setImageResource can't be mixed with setResourceId"
+                                    + " method.");
+                }
+                if (mScope == null) {
+                    throw new IllegalStateException(
+                            "Image.Builder.setImageResource needs to be called with constructor"
+                                    + " that accepts ProtoLayoutScope.");
+                }
+                mIsImageResourceApiUsed = true;
+                setResourceIdInternal(new StringProp.Builder(resourceId).build());
+                mScope.registerResource(resourceId, resource);
+                return this;
+            }
+
+            /**
+             * Sets the resource_id of the image to render. This must exist in the supplied resource
+             * bundle.
+             *
+             * @throws IllegalStateException if this method is called with {@link
+             *     #Builder(ProtoLayoutScope)} or after {@link #setImageResource(ImageResource)} was
+             *     already called.
+             * @deprecated Use {@link #setImageResource} paired with {@link
+             *     #Builder(ProtoLayoutScope)} for automatic resource registration.
+             */
+            @Deprecated
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            public @NonNull Builder setResourceId(@NonNull String resourceId) {
+                return setResourceId(new StringProp.Builder(resourceId).build());
+            }
+
+            /**
+             * Sets the resource_id of the image to render. This must exist in the supplied resource
+             * bundle.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @throws IllegalStateException if this method is called with {@link
+             *     #Builder(ProtoLayoutScope)} or after {@link #setImageResource(ImageResource)} was
+             *     already called.
+             * @deprecated Use {@link #setImageResource} paired with {@link
+             *     #Builder(ProtoLayoutScope)} for automatic resource registration.
+             */
+            @Deprecated
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            public @NonNull Builder setResourceId(@NonNull StringProp resourceId) {
+                if (mScope != null || mIsImageResourceApiUsed) {
+                    throw new IllegalStateException(
+                            "Image.Builder.setResourceId can't be mixed with constructor that"
+                                    + " accepts ProtoLayoutScope or with setImageResource.");
+                }
+                mIsResourceIdApiUsed = true;
+                return setResourceIdInternal(resourceId);
+            }
+
+            /**
+             * Sets the resource_id of the image to the proto.
+             *
+             * <p>Note that this field only supports static values.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            private @NonNull Builder setResourceIdInternal(@NonNull StringProp resourceId) {
+                if (resourceId.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Image.Builder.setResourceId doesn't support dynamic values.");
+                }
+                mImpl.setResourceId(resourceId.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(resourceId.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
             @Override
             public @NonNull Image build() {
                 return new Image(mImpl.build(), mFingerprint);
@@ -2375,11 +2469,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-         * affected layout element through {@code
-         * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
-         * build()} fails.
          */
         public @Nullable SpacerDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -2394,11 +2483,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-         * affected layout element through {@code
-         * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
-         * build()} fails.
          */
         public @Nullable SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -2499,11 +2583,6 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
-             * build()} fails.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setWidth(@NonNull SpacerDimension width) {
@@ -2540,11 +2619,6 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
-             * build()} fails.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setHeight(@NonNull SpacerDimension height) {
@@ -2589,18 +2663,6 @@ public final class LayoutElementBuilders {
 
             @Override
             public @NonNull Spacer build() {
-                DimensionProto.DpProp width = mImpl.getWidth().getLinearDimension();
-                if (width.hasDynamicValue() && !width.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "width with dynamic value requires "
-                                    + "layoutConstraintsForDynamicWidth to be present.");
-                }
-                DimensionProto.DpProp height = mImpl.getHeight().getLinearDimension();
-                if (height.hasDynamicValue() && !height.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "height with dynamic value requires "
-                                    + "layoutConstraintsForDynamicHeight to be present.");
-                }
                 return new Spacer(mImpl.build(), mFingerprint);
             }
         }
@@ -4427,11 +4489,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-         * affected layout element through {@code
-         * setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code build()}
-         * fails.
          */
         public @Nullable DegreesProp getLength() {
             if (mImpl.hasLength()) {
@@ -4581,11 +4638,6 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code
-             * setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code
-             * build()} fails.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setLength(@NonNull DegreesProp length) {
@@ -4711,13 +4763,6 @@ public final class LayoutElementBuilders {
 
             @Override
             public @NonNull ArcLine build() {
-                DimensionProto.DegreesProp length = mImpl.getLength();
-                if (length.hasDynamicValue() && !length.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "length with dynamic value requires "
-                                    + "layoutConstraintsForDynamicLength to be present.");
-                }
-
                 String onlyOpaqueMsg = "Only opaque colors are supported";
                 String alphaChangeMsg =
                         "Any transparent colors will have their alpha component set to 0xFF"
@@ -4983,10 +5028,6 @@ public final class LayoutElementBuilders {
             /**
              * Sets the length of this line in degrees, including gaps. If not defined, defaults to
              * 0.
-             *
-             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
-             * affected layout element through {@code setLayoutConstraintsForDynamicLength
-             * (AngularLayoutConstraint)} otherwise {@code build()} fails.
              */
             @RequiresSchemaVersion(major = 1, minor = 500)
             public @NonNull Builder setLength(@NonNull DegreesProp length) {
@@ -5078,13 +5119,6 @@ public final class LayoutElementBuilders {
             @SuppressLint("ProtoLayoutMinSchema")
             @Override
             public @NonNull DashedArcLine build() {
-                DimensionProto.DegreesProp length = mImpl.getLength();
-                if (length.hasDynamicValue() && !length.hasValueForLayout()) {
-                    throw new IllegalStateException(
-                            "length with dynamic value requires "
-                                    + "layoutConstraintsForDynamicLength to be present.");
-                }
-
                 return new DashedArcLine(mImpl.build(), mFingerprint);
             }
         }
@@ -5414,9 +5448,9 @@ public final class LayoutElementBuilders {
                 DimensionProto.AngularDimension angularDimensionProto =
                         angularLength.toAngularDimensionProto();
                 if ((angularDimensionProto.hasDegrees()
-                        && angularDimensionProto.getDegrees().hasDynamicValue())
+                                && angularDimensionProto.getDegrees().hasDynamicValue())
                         || (angularDimensionProto.hasDp()
-                        && angularDimensionProto.getDp().hasDynamicValue())) {
+                                && angularDimensionProto.getDp().hasDynamicValue())) {
                     throw new IllegalArgumentException(
                             "ArcSpacer.Builder.setAngularLength doesn't support dynamic values.");
                 }
@@ -6728,7 +6762,7 @@ public final class LayoutElementBuilders {
                 return content.getArc().hasModifiers()
                         && content.getArc().getModifiers().hasTransformation();
             case EXTENSION:
-            // fall through
+                // fall through
             case INNER_NOT_SET:
                 return false;
         }

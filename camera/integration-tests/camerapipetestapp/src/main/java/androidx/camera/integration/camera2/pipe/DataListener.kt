@@ -25,7 +25,7 @@ class DataListener(
     private val dataManager: DataManager,
     private val dataTransformationsKeyValue: DataTransformationsKeyValue,
     private val dataTransformations1D: DataTransformations1D,
-    private val dataGenerationBeginTime: Long
+    private val dataGenerationBeginTime: Long,
 ) {
 
     /** Receives CaptureResults and metadata from CameraPipe */
@@ -51,7 +51,7 @@ class DataListener(
         key: CameraMetadataKey,
         frameNumber: Long,
         timestampNanos: Long,
-        keyData: Any?
+        keyData: Any?,
     ) {
         val timeArrivedNanos = System.nanoTime() - dataGenerationBeginTime
 

@@ -22,8 +22,7 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.textAsString
 import androidx.testutils.STARTUP_MODES
 import androidx.testutils.getStartupMetrics
 import org.junit.Rule
@@ -62,7 +61,7 @@ class StartupPressHomeBenchmark(
                 if (!pressHomeInMeasure) {
                     pressHome()
                 }
-            }
+            },
         ) {
             if (pressHomeInMeasure) {
                 pressHome()
@@ -77,8 +76,8 @@ class StartupPressHomeBenchmark(
                 }
             )
 
-            val fullDisplayComplete = device.wait(Until.hasObject(By.text("FULL DISPLAY")), 3000)
-            check(fullDisplayComplete)
+            // Throws if not found
+            onElement { textAsString() == "FULL DISPLAY" }
         }
 
     companion object {

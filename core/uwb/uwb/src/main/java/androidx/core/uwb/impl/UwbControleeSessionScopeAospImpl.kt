@@ -24,7 +24,7 @@ import androidx.core.uwb.backend.IUwbClient
 internal class UwbControleeSessionScopeAospImpl(
     uwbClient: IUwbClient,
     override val rangingCapabilities: RangingCapabilities,
-    override val localAddress: UwbAddress
+    override val localAddress: UwbAddress,
 ) :
     UwbClientSessionScopeAospImpl(uwbClient, rangingCapabilities, localAddress),
     UwbControleeSessionScope

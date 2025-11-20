@@ -81,7 +81,7 @@ class PublicKeyCredentialControllerUtilityTest {
             PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CLIENT_EXTENSION_RESULTS to
                 "clientExtensionResults",
             PublicKeyCredentialControllerUtility.Companion.JSON_KEY_CRED_PROPS to "credProps",
-            PublicKeyCredentialControllerUtility.Companion.JSON_KEY_RK to "rk"
+            PublicKeyCredentialControllerUtility.Companion.JSON_KEY_RK to "rk",
         )
 
     private val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
@@ -166,7 +166,7 @@ class PublicKeyCredentialControllerUtilityTest {
             byteArrayClientDataJson,
             byteArrayAttestationObject,
             transportArray,
-            json
+            json,
         )
 
         var response = json.getJSONObject(PublicKeyCredentialControllerUtility.JSON_KEY_RESPONSE)

@@ -43,16 +43,13 @@ fun ScrollAwaySample() {
     val state = rememberScalingLazyListState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        ScalingLazyColumn(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-        ) {
+        ScalingLazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
             item {
                 ListHeader {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "ScalingLazyColumn",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -73,13 +70,13 @@ fun ScrollAwaySample() {
                     scrollInfoProvider = ScrollInfoProvider(state),
                     screenStage = {
                         if (state.isScrollInProgress) ScreenStage.Scrolling else ScreenStage.Idle
-                    }
+                    },
                 ),
             content = { time ->
                 curvedText("ScrollAway")
                 timeTextSeparator()
                 curvedText(time)
-            }
+            },
         )
     }
 }

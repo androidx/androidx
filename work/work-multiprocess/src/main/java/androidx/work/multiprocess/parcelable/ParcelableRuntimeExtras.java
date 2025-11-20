@@ -26,7 +26,6 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.WorkerParameters;
 
@@ -148,7 +147,6 @@ public class ParcelableRuntimeExtras implements Parcelable {
         return mRuntimeExtras;
     }
 
-    @RequiresApi(21)
     static class Api21Impl {
         private Api21Impl() {
             // This class is not instantiable.

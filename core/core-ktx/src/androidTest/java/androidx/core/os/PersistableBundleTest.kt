@@ -19,7 +19,6 @@ package androidx.core.os
 import android.content.Context
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -29,10 +28,9 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = 21)
+@Suppress("DEPRECATION") // persistableBundleOf()
 @SmallTest
 class PersistableBundleTest {
-    @Suppress("DEPRECATION")
     @Test
     fun persistableBundleOfValid() {
         val bundle =
@@ -46,7 +44,7 @@ class PersistableBundleTest {
                 "doubleArray" to doubleArrayOf(1.0, 2.0, 3.0),
                 "intArray" to intArrayOf(1, 2, 3),
                 "longArray" to longArrayOf(1L, 2L, 3L),
-                "stringArray" to arrayOf("hey")
+                "stringArray" to arrayOf("hey"),
             )
 
         assertEquals(10, bundle.size())
@@ -66,7 +64,6 @@ class PersistableBundleTest {
         assertThat(bundle["stringArray"] as Array<*>).asList().containsExactly("hey")
     }
 
-    @SdkSuppress(minSdkVersion = 22)
     @Suppress("DEPRECATION")
     @Test
     fun persistableBundleOfValidApi22() {
@@ -114,7 +111,7 @@ class PersistableBundleTest {
                 "doubleArray" to doubleArrayOf(1.0, 2.0, 3.0),
                 "intArray" to intArrayOf(1, 2, 3),
                 "longArray" to longArrayOf(1L, 2L, 3L),
-                "stringArray" to arrayOf("hey")
+                "stringArray" to arrayOf("hey"),
             )
         val bundle = map.toPersistableBundle()
 

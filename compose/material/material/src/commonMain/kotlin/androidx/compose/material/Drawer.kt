@@ -80,7 +80,7 @@ enum class DrawerValue {
     Closed,
 
     /** The state of the drawer when it is open. */
-    Open
+    Open,
 }
 
 /** Possible values of [BottomDrawerState]. */
@@ -92,7 +92,7 @@ enum class BottomDrawerValue {
     Open,
 
     /** The state of the bottom drawer when it is expanded (i.e. at 100% height). */
-    Expanded
+    Expanded,
 }
 
 /**
@@ -106,7 +106,7 @@ enum class BottomDrawerValue {
 @Stable
 class DrawerState(
     initialValue: DrawerValue,
-    confirmStateChange: (DrawerValue) -> Boolean = { true }
+    confirmStateChange: (DrawerValue) -> Boolean = { true },
 ) {
 
     internal val anchoredDraggableState =
@@ -171,11 +171,11 @@ class DrawerState(
         message =
             "This method has been replaced by the open and close methods. The animation " +
                 "spec is now an implementation detail of ModalDrawer.",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.ERROR,
     )
     suspend fun animateTo(
         targetValue: DrawerValue,
-        @Suppress("UNUSED_PARAMETER") anim: AnimationSpec<Float>
+        @Suppress("UNUSED_PARAMETER") anim: AnimationSpec<Float>,
     ) {
         anchoredDraggableState.animateTo(targetValue)
     }
@@ -196,9 +196,7 @@ class DrawerState(
      * finishes. If an animation is running, this is the target value of that animation. Finally, if
      * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
-    @get:ExperimentalMaterialApi
     val targetValue: DrawerValue
         get() = anchoredDraggableState.targetValue
 
@@ -208,9 +206,7 @@ class DrawerState(
      *
      * @see [AnchoredDraggableState.offset] for more information.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalMaterialApi
-    @get:ExperimentalMaterialApi
     val offset: Float
         get() = anchoredDraggableState.offset
 
@@ -229,7 +225,7 @@ class DrawerState(
         fun Saver(confirmStateChange: (DrawerValue) -> Boolean) =
             Saver<DrawerState, DrawerValue>(
                 save = { it.currentValue },
-                restore = { DrawerState(it, confirmStateChange) }
+                restore = { DrawerState(it, confirmStateChange) },
             )
     }
 }
@@ -249,7 +245,7 @@ class BottomDrawerState(
     initialValue: BottomDrawerValue,
     density: Density,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true },
-    animationSpec: AnimationSpec<Float> = DrawerDefaults.AnimationSpec
+    animationSpec: AnimationSpec<Float> = DrawerDefaults.AnimationSpec,
 ) {
     internal val anchoredDraggableState =
         AnchoredDraggableState(
@@ -295,7 +291,7 @@ class BottomDrawerState(
      */
     @Deprecated(
         message = "Please use the progress function to query progress explicitly between targets.",
-        replaceWith = ReplaceWith("progress(from = , to = )")
+        replaceWith = ReplaceWith("progress(from = , to = )"),
     ) // TODO: Remove in the future b/323882175
     @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
@@ -316,7 +312,7 @@ class BottomDrawerState(
         val currentOffset =
             anchoredDraggableState.offset.coerceIn(
                 min(fromOffset, toOffset), // fromOffset might be > toOffset
-                max(fromOffset, toOffset)
+                max(fromOffset, toOffset),
             )
         val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
         return if (fraction.isNaN()) 1f else abs(fraction)
@@ -352,7 +348,7 @@ class BottomDrawerState(
 
     internal suspend fun animateTo(
         target: BottomDrawerValue,
-        velocity: Float = anchoredDraggableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity,
     ) = anchoredDraggableState.animateTo(target, velocity)
 
     internal suspend fun snapTo(target: BottomDrawerValue) = anchoredDraggableState.snapTo(target)
@@ -373,11 +369,11 @@ class BottomDrawerState(
         fun Saver(
             density: Density,
             confirmStateChange: (BottomDrawerValue) -> Boolean,
-            animationSpec: AnimationSpec<Float>
+            animationSpec: AnimationSpec<Float>,
         ) =
             Saver<BottomDrawerState, BottomDrawerValue>(
                 save = { it.anchoredDraggableState.currentValue },
-                restore = { BottomDrawerState(it, density, confirmStateChange, animationSpec) }
+                restore = { BottomDrawerState(it, density, confirmStateChange, animationSpec) },
             )
     }
 }
@@ -391,7 +387,7 @@ class BottomDrawerState(
 @Composable
 fun rememberDrawerState(
     initialValue: DrawerValue,
-    confirmStateChange: (DrawerValue) -> Boolean = { true }
+    confirmStateChange: (DrawerValue) -> Boolean = { true },
 ): DrawerState {
     return rememberSaveable(saver = DrawerState.Saver(confirmStateChange)) {
         DrawerState(initialValue, confirmStateChange)
@@ -415,15 +411,15 @@ fun rememberBottomDrawerState(
     val density = LocalDensity.current
     return rememberSaveable(
         density,
-        saver = BottomDrawerState.Saver(density, confirmStateChange, animationSpec)
+        saver = BottomDrawerState.Saver(density, confirmStateChange, animationSpec),
     ) {
         BottomDrawerState(initialValue, density, confirmStateChange, animationSpec)
     }
 }
 
 /**
- * <a href="https://material.io/components/navigation-drawer#modal-drawer" class="external"
- * target="_blank">Material Design modal navigation drawer</a>.
+ * [Material Design modal navigation
+ * drawer](https://material.io/components/navigation-drawer#modal-drawer)
  *
  * Modal navigation drawers block interaction with the rest of an app’s content with a scrim. They
  * are elevated above most of the app’s UI and don’t affect the screen’s layout grid.
@@ -462,7 +458,7 @@ fun ModalDrawer(
     drawerBackgroundColor: Color = DrawerDefaults.backgroundColor,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     scrimColor: Color = DrawerDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -490,7 +486,7 @@ fun ModalDrawer(
                 state = drawerState.anchoredDraggableState,
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
-                reverseDirection = isRtl
+                reverseDirection = isRtl,
             )
         ) {
             Box { content() }
@@ -507,7 +503,7 @@ fun ModalDrawer(
                     }
                 },
                 fraction = { calculateFraction(minValue, maxValue, drawerState.requireOffset()) },
-                color = scrimColor
+                color = scrimColor,
             )
             val navigationMenu = getString(Strings.NavigationMenu)
             Surface(
@@ -517,7 +513,7 @@ fun ModalDrawer(
                                 minWidth = modalDrawerConstraints.minWidth.toDp(),
                                 minHeight = modalDrawerConstraints.minHeight.toDp(),
                                 maxWidth = modalDrawerConstraints.maxWidth.toDp(),
-                                maxHeight = modalDrawerConstraints.maxHeight.toDp()
+                                maxHeight = modalDrawerConstraints.maxHeight.toDp(),
                             )
                         }
                         .offset { IntOffset(drawerState.requireOffset().roundToInt(), 0) }
@@ -540,7 +536,7 @@ fun ModalDrawer(
                 shape = drawerShape,
                 color = drawerBackgroundColor,
                 contentColor = drawerContentColor,
-                elevation = drawerElevation
+                elevation = drawerElevation,
             ) {
                 Column(Modifier.fillMaxSize(), content = drawerContent)
             }
@@ -549,8 +545,8 @@ fun ModalDrawer(
 }
 
 /**
- * <a href="https://material.io/components/navigation-drawer#bottom-drawer" class="external"
- * target="_blank">Material Design bottom navigation drawer</a>.
+ * [Material Design bottom navigation
+ * drawer](https://material.io/components/navigation-drawer#bottom-drawer)
  *
  * Bottom navigation drawers are modal drawers that are anchored to the bottom of the screen instead
  * of the left or right edge. They are only used with bottom app bars.
@@ -589,7 +585,7 @@ fun BottomDrawer(
     drawerBackgroundColor: Color = DrawerDefaults.backgroundColor,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     scrimColor: Color = DrawerDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -599,7 +595,7 @@ fun BottomDrawer(
             with(LocalDensity.current) {
                 Modifier.sizeIn(
                     maxWidth = constraints.maxWidth.toDp(),
-                    maxHeight = constraints.maxHeight.toDp()
+                    maxHeight = constraints.maxHeight.toDp(),
                 )
             }
         val nestedScroll =
@@ -616,7 +612,7 @@ fun BottomDrawer(
                     state = drawerState.anchoredDraggableState,
                     orientation = Orientation.Vertical,
                     enabled = gesturesEnabled,
-                    reverseDirection = isRtl
+                    reverseDirection = isRtl,
                 )
 
         Box(swipeable) {
@@ -628,7 +624,7 @@ fun BottomDrawer(
                         scope.launch { drawerState.close() }
                     }
                 },
-                visible = drawerState.targetValue != Closed
+                visible = drawerState.targetValue != Closed,
             )
             val navigationMenu = getString(Strings.NavigationMenu)
             Surface(
@@ -687,7 +683,7 @@ fun BottomDrawer(
                 shape = drawerShape,
                 color = drawerBackgroundColor,
                 contentColor = drawerContentColor,
-                elevation = drawerElevation
+                elevation = drawerElevation,
             ) {
                 Column(content = drawerContent)
             }
@@ -801,7 +797,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             return if (source == NestedScrollSource.UserInput) {
                 state.dispatchRawDelta(available.toFloat()).toOffset()
@@ -830,7 +826,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Float.toOffset(): Offset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) this else 0f,
-                y = if (orientation == Orientation.Vertical) this else 0f
+                y = if (orientation == Orientation.Vertical) this else 0f,
             )
 
         @JvmName("velocityToFloat")

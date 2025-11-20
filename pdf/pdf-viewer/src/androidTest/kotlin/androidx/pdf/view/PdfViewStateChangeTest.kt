@@ -19,7 +19,6 @@ package androidx.pdf.view
 import android.graphics.Point
 import android.net.Uri
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -106,7 +105,7 @@ class PdfViewStateChangeTest {
         val pdfDocument =
             FakePdfDocument(
                 pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
-                uri = Uri.parse("content://my.app/my.pdf")
+                uri = Uri.parse("content://my.app/my.pdf"),
             )
         // Don't supply PdfDocument to setupPdfView, as it will cause that document to be set each
         // time our Activity is created. In this case, we'd like to test recreating the Activity
@@ -135,7 +134,7 @@ class PdfViewStateChangeTest {
             val differentDocument =
                 FakePdfDocument(
                     pages = List(15) { Point(VIEW_AND_PAGE_WIDTH, 150) },
-                    uri = Uri.parse("content://another.app/pdf.pdf")
+                    uri = Uri.parse("content://another.app/pdf.pdf"),
                 )
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also {
@@ -175,7 +174,7 @@ class PdfViewStateChangeTest {
         val pdfDocument =
             FakePdfDocument(
                 pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
-                uri = Uri.parse("content://my.app/my.pdf")
+                uri = Uri.parse("content://my.app/my.pdf"),
             )
         withContext(Dispatchers.Main) {
             setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, pdfDocument)
@@ -191,7 +190,7 @@ class PdfViewStateChangeTest {
             val differentDocument =
                 FakePdfDocument(
                     List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
-                    uri = Uri.parse("content://browser/downloads/menu.pdf")
+                    uri = Uri.parse("content://browser/downloads/menu.pdf"),
                 )
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also {
@@ -220,15 +219,15 @@ private suspend fun scrollToPage(pageNum: Int, pdfDocument: FakePdfDocument) {
 /** Create, measure, and layout a [PdfView] at the specified [width] and [height] */
 private fun setupPdfView(width: Int, height: Int, fakePdfDocument: FakePdfDocument?) {
     PdfViewTestActivity.onCreateCallback = { activity ->
-        val container = FrameLayout(activity)
-        container.addView(
-            PdfView(activity).apply {
-                pdfDocument = fakePdfDocument
-                id = PDF_VIEW_ID
-            },
-            ViewGroup.LayoutParams(width, height)
-        )
-        activity.setContentView(container)
+        with(activity) {
+            container.addView(
+                PdfView(activity).apply {
+                    pdfDocument = fakePdfDocument
+                    id = PDF_VIEW_ID
+                },
+                ViewGroup.LayoutParams(width, height),
+            )
+        }
     }
 }
 

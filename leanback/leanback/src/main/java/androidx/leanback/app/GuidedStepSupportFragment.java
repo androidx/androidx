@@ -526,8 +526,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     ) {
         GuidedStepSupportFragment current = getCurrentGuidedStepSupportFragment(fragmentManager);
         boolean inGuidedStep = current != null;
-        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT < 23
-                && !inGuidedStep) {
+        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT < 23 && !inGuidedStep) {
             // workaround b/22631964 for framework fragment
             fragmentManager.beginTransaction()
                 .replace(id, new DummyFragment(), TAG_LEAN_BACK_ACTIONS_FRAGMENT)
@@ -584,10 +583,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private static void addNonNullSharedElementTransition (FragmentTransaction ft, View subView,
                                                            String transitionName)
     {
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (subView != null) {
-                ft.addSharedElement(subView, transitionName);
-            }
+        if (subView != null) {
+            ft.addSharedElement(subView, transitionName);
         }
     }
 
@@ -926,59 +923,57 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * class).
      */
     protected void onProvideFragmentTransitions() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final int uiStyle = getUiStyle();
-            if (uiStyle == UI_STYLE_REPLACE) {
-                Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END);
-                TransitionHelper.exclude(enterTransition, R.id.guidedstep_background, true);
-                TransitionHelper.exclude(enterTransition, R.id.guidedactions_sub_list_background,
-                        true);
-                setEnterTransition(enterTransition);
+        final int uiStyle = getUiStyle();
+        if (uiStyle == UI_STYLE_REPLACE) {
+            Object enterTransition = TransitionHelper.createFadeAndShortSlide(Gravity.END);
+            TransitionHelper.exclude(enterTransition, R.id.guidedstep_background, true);
+            TransitionHelper.exclude(enterTransition, R.id.guidedactions_sub_list_background,
+                    true);
+            setEnterTransition(enterTransition);
 
+            Object fade = TransitionHelper.createFadeTransition(
+                    TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
+            TransitionHelper.include(fade, R.id.guidedactions_sub_list_background);
+            Object changeBounds = TransitionHelper.createChangeBounds(false);
+            Object sharedElementTransition = TransitionHelper.createTransitionSet(false);
+            TransitionHelper.addTransition(sharedElementTransition, fade);
+            TransitionHelper.addTransition(sharedElementTransition, changeBounds);
+            setSharedElementEnterTransition(sharedElementTransition);
+        } else if (uiStyle == UI_STYLE_ENTRANCE) {
+            if (entranceTransitionType == SLIDE_FROM_SIDE) {
                 Object fade = TransitionHelper.createFadeTransition(
                         TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
-                TransitionHelper.include(fade, R.id.guidedactions_sub_list_background);
-                Object changeBounds = TransitionHelper.createChangeBounds(false);
-                Object sharedElementTransition = TransitionHelper.createTransitionSet(false);
-                TransitionHelper.addTransition(sharedElementTransition, fade);
-                TransitionHelper.addTransition(sharedElementTransition, changeBounds);
-                setSharedElementEnterTransition(sharedElementTransition);
-            } else if (uiStyle == UI_STYLE_ENTRANCE) {
-                if (entranceTransitionType == SLIDE_FROM_SIDE) {
-                    Object fade = TransitionHelper.createFadeTransition(
-                            TransitionHelper.FADE_IN | TransitionHelper.FADE_OUT);
-                    TransitionHelper.include(fade, R.id.guidedstep_background);
-                    Object slideFromSide = TransitionHelper.createFadeAndShortSlide(
-                            Gravity.END | Gravity.START);
-                    TransitionHelper.include(slideFromSide, R.id.content_fragment);
-                    TransitionHelper.include(slideFromSide, R.id.action_fragment_root);
-                    Object enterTransition = TransitionHelper.createTransitionSet(false);
-                    TransitionHelper.addTransition(enterTransition, fade);
-                    TransitionHelper.addTransition(enterTransition, slideFromSide);
-                    setEnterTransition(enterTransition);
-                } else {
-                    Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(
-                            Gravity.BOTTOM);
-                    TransitionHelper.include(slideFromBottom, R.id.guidedstep_background_view_root);
-                    Object enterTransition = TransitionHelper.createTransitionSet(false);
-                    TransitionHelper.addTransition(enterTransition, slideFromBottom);
-                    setEnterTransition(enterTransition);
-                }
-                // No shared element transition
-                setSharedElementEnterTransition(null);
-            } else if (uiStyle == UI_STYLE_ACTIVITY_ROOT) {
-                // for Activity root, we don't need enter transition, use activity transition
-                setEnterTransition(null);
-                // No shared element transition
-                setSharedElementEnterTransition(null);
+                TransitionHelper.include(fade, R.id.guidedstep_background);
+                Object slideFromSide = TransitionHelper.createFadeAndShortSlide(
+                        Gravity.END | Gravity.START);
+                TransitionHelper.include(slideFromSide, R.id.content_fragment);
+                TransitionHelper.include(slideFromSide, R.id.action_fragment_root);
+                Object enterTransition = TransitionHelper.createTransitionSet(false);
+                TransitionHelper.addTransition(enterTransition, fade);
+                TransitionHelper.addTransition(enterTransition, slideFromSide);
+                setEnterTransition(enterTransition);
+            } else {
+                Object slideFromBottom = TransitionHelper.createFadeAndShortSlide(
+                        Gravity.BOTTOM);
+                TransitionHelper.include(slideFromBottom, R.id.guidedstep_background_view_root);
+                Object enterTransition = TransitionHelper.createTransitionSet(false);
+                TransitionHelper.addTransition(enterTransition, slideFromBottom);
+                setEnterTransition(enterTransition);
             }
-            // exitTransition is same for all style
-            Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
-            TransitionHelper.exclude(exitTransition, R.id.guidedstep_background, true);
-            TransitionHelper.exclude(exitTransition, R.id.guidedactions_sub_list_background,
-                    true);
-            setExitTransition(exitTransition);
+            // No shared element transition
+            setSharedElementEnterTransition(null);
+        } else if (uiStyle == UI_STYLE_ACTIVITY_ROOT) {
+            // for Activity root, we don't need enter transition, use activity transition
+            setEnterTransition(null);
+            // No shared element transition
+            setSharedElementEnterTransition(null);
         }
+        // exitTransition is same for all style
+        Object exitTransition = TransitionHelper.createFadeAndShortSlide(Gravity.START);
+        TransitionHelper.exclude(exitTransition, R.id.guidedstep_background, true);
+        TransitionHelper.exclude(exitTransition, R.id.guidedactions_sub_list_background,
+                true);
+        setExitTransition(exitTransition);
     }
 
     /**

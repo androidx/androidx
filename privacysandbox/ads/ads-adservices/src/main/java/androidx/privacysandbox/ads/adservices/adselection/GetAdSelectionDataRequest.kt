@@ -38,34 +38,61 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
  *   [IllegalArgumentException]. See <a
  *   href="https://developers.google.com/privacy-sandbox/relevance/aggregation-service#coordinator">
  *   Developer Guide</a> for more details.
+ * @param sellerConfiguration the seller ad tech's requested payload configuration, set by the
+ *   calling SDK, to optimize the payload.
  */
-@OptIn(ExperimentalFeatures.Ext12OptIn::class)
+@OptIn(ExperimentalFeatures.Ext12OptIn::class, ExperimentalFeatures.Ext14OptIn::class)
 @ExperimentalFeatures.Ext10OptIn
-class GetAdSelectionDataRequest
+public class GetAdSelectionDataRequest
 @JvmOverloads
 public constructor(
-    val seller: AdTechIdentifier,
-    @property:ExperimentalFeatures.Ext12OptIn val coordinatorOriginUri: Uri? = null
+    public val seller: AdTechIdentifier,
+    // Note: public experimental properties are not allowed because the accessors will not appear
+    // experimental to Java clients. There are public accessors for these properties below.
+    @property:ExperimentalFeatures.Ext12OptIn private val coordinatorOriginUri: Uri? = null,
+    @property:ExperimentalFeatures.Ext14OptIn
+    private val sellerConfiguration: SellerConfiguration? = null,
 ) {
     /** Checks whether two [GetAdSelectionDataRequest] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GetAdSelectionDataRequest) return false
         return this.seller == other.seller &&
-            this.coordinatorOriginUri == other.coordinatorOriginUri
+            this.coordinatorOriginUri == other.coordinatorOriginUri &&
+            this.sellerConfiguration == other.sellerConfiguration
     }
 
     /** Returns the hash of the [GetAdSelectionDataRequest] object's data. */
     override fun hashCode(): Int {
         var hash = seller.hashCode()
         hash = 31 * hash + coordinatorOriginUri.hashCode()
+        hash = 31 * hash + sellerConfiguration.hashCode()
         return hash
     }
 
     /** Overrides the toString method. */
     override fun toString(): String {
         return "GetAdSelectionDataRequest: seller=$seller, " +
-            "coordinatorOriginUri=$coordinatorOriginUri"
+            "coordinatorOriginUri=$coordinatorOriginUri, " +
+            "sellerConfiguration=$sellerConfiguration"
+    }
+
+    /**
+     * Gets the coordinator origin Uri from which GetAdSelectionData API should fetch the decryption
+     * key.
+     */
+    @ExperimentalFeatures.Ext12OptIn
+    public fun getCoordinatorOriginUri(): Uri? {
+        return coordinatorOriginUri
+    }
+
+    /**
+     * Gets the seller ad tech's requested payload configuration, set by the calling SDK, to
+     * optimize the payload.
+     */
+    @ExperimentalFeatures.Ext12OptIn
+    public fun getSellerConfiguration(): SellerConfiguration? {
+        return sellerConfiguration
     }
 
     @SuppressLint("NewApi")
@@ -74,11 +101,31 @@ public constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 10)
     internal fun convertToAdServices(): android.adservices.adselection.GetAdSelectionDataRequest {
         if (
+            AdServicesInfo.adServicesVersion() >= 14 || AdServicesInfo.extServicesVersionS() >= 14
+        ) {
+            return Ext14Impl.convertGetAdSelectionDataRequest(this)
+        } else if (
             AdServicesInfo.adServicesVersion() >= 12 || AdServicesInfo.extServicesVersionS() >= 12
         ) {
             return Ext12Impl.convertGetAdSelectionDataRequest(this)
         }
         return Ext10Impl.convertGetAdSelectionDataRequest(this)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 14)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 14)
+    private class Ext14Impl private constructor() {
+        companion object {
+            fun convertGetAdSelectionDataRequest(
+                request: GetAdSelectionDataRequest
+            ): android.adservices.adselection.GetAdSelectionDataRequest {
+                return android.adservices.adselection.GetAdSelectionDataRequest.Builder()
+                    .setSeller(request.seller.convertToAdServices())
+                    .setCoordinatorOriginUri(request.coordinatorOriginUri)
+                    .setSellerConfiguration(request.sellerConfiguration?.convertToAdServices())
+                    .build()
+            }
+        }
     }
 
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 12)

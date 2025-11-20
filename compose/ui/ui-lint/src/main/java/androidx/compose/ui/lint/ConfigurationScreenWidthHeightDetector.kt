@@ -26,8 +26,10 @@ import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintMap
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -39,6 +41,7 @@ import java.util.EnumSet
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.UVariable
+import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.matchesQualified
 import org.jetbrains.uast.skipParenthesizedExprDown
 import org.w3c.dom.Element
@@ -52,18 +55,9 @@ import org.w3c.dom.Element
 class ConfigurationScreenWidthHeightDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UQualifiedReferenceExpression::class.java)
 
-    var isWearProject = false
-
-    override fun beforeCheckEachProject(context: Context) {
-        super.beforeCheckEachProject(context)
-        isWearProject = isWearProject(context)
-    }
-
     override fun createUastHandler(context: JavaContext): UElementHandler =
         object : UElementHandler() {
             override fun visitQualifiedReferenceExpression(node: UQualifiedReferenceExpression) {
-                // b/333784604 Ignore wear since this is the recommended API on wear
-                if (isWearProject) return
                 val resolved = node.resolve() as? PsiMember ?: return
                 val name = resolved.name
                 if (name != ScreenWidthDp && name != ScreenHeightDp) return
@@ -91,19 +85,43 @@ class ConfigurationScreenWidthHeightDetector : Detector(), SourceCodeScanner {
                     (node.receiver.skipParenthesizedExprDown().tryResolveUDeclaration()
                             as? UVariable)
                         ?.uastInitializer ?: return
-                if (configurationSource.matchesQualified("LocalConfiguration.current")) {
+                if (
+                    configurationSource.matchesQualified("LocalConfiguration.current") ||
+                        configurationSource.matchesQualified(
+                            "androidx.compose.ui.platform.LocalConfiguration.current"
+                        )
+                ) {
                     report(name, context, node)
                 }
             }
         }
 
+    /** b/333784604 Ignore wear since this is the recommended API on wear */
+    override fun filterIncident(context: Context, incident: Incident, map: LintMap): Boolean {
+        return !isWearProject(context)
+    }
+
     private fun report(referencedFieldName: String, context: JavaContext, node: UElement) {
-        context.report(
-            ConfigurationScreenWidthHeight,
-            node,
-            context.getNameLocation(node),
-            "Using Configuration.$referencedFieldName instead of LocalWindowInfo.current.containerSize",
-        )
+        // b/333784604 Ignore wear since this is the recommended API on wear. We check in
+        // filterIncident to see if the main project is wear, but this won't work for isolated
+        // libraries that have wear dependencies, yet aren't part of an app project that targets
+        // wear. As a best effort for this case, we just see if there are any wear imports in
+        // the file with the error, and avoid reporting in that case.
+        val hasWearImport =
+            node.getContainingUFile()?.imports?.any { import ->
+                val importString = import.importReference?.asSourceString()
+                importString?.contains(WearPackage) == true
+            } == true
+        if (hasWearImport) return
+        val incident =
+            Incident(
+                issue = ConfigurationScreenWidthHeight,
+                scope = node,
+                location = context.getNameLocation(node),
+                message =
+                    "Using Configuration.$referencedFieldName instead of LocalWindowInfo.current.containerSize",
+            )
+        context.report(incident, map())
     }
 
     companion object {
@@ -122,20 +140,19 @@ class ConfigurationScreenWidthHeightDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ConfigurationScreenWidthHeightDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }
+
+private const val WearPackage = "androidx.wear"
 
 // TODO: b/386335480 use lint API when available
 // This is copied from Lint's WearDetector until it is made public / an equivalent API is provided
 
 private fun isWearProject(context: Context) =
-    containsWearFeature(
-        if (context.isGlobalAnalysis()) context.mainProject.mergedManifest?.documentElement
-        else context.project.mergedManifest?.documentElement
-    )
+    containsWearFeature(context.mainProject.mergedManifest?.documentElement)
 
 private fun containsWearFeature(manifest: Element?): Boolean {
     if (manifest == null) {

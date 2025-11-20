@@ -182,7 +182,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
             "nested_deep_link/$TEST_ARG_VALUE/",
             TEST_ARG_VALUE,
             R.id.nested_deep_link_test,
-            3
+            3,
         )
     }
 
@@ -206,7 +206,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         fullPath: String,
         expectedValue: String,
         @IdRes destId: Int,
-        expectedStackSize: Int
+        expectedStackSize: Int,
     ) {
         val deepLinkUri = Uri.parse("http://www.example.com/$fullPath")
         val intent =
@@ -242,7 +242,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
     private fun launchDeepLink(
         @NavigationRes graphId: Int,
         @IdRes destId: Int,
-        args: Bundle?
+        args: Bundle?,
     ): BaseNavigationActivity {
         val intents =
             NavDeepLinkBuilder(instrumentation.targetContext)

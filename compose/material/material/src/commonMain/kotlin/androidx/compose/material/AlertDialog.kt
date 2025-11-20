@@ -46,8 +46,7 @@ import androidx.compose.ui.window.DialogProperties
 import kotlin.math.max
 
 /**
- * <a href="https://material.io/components/dialogs#alert-dialog" class="external"
- * target="_blank">Material Design alert dialog</a>.
+ * [Material Design alert dialog](https://material.io/components/dialogs#alert-dialog)
  *
  * Alert dialogs interrupt users with urgent information, details, or actions.
  *
@@ -91,12 +90,11 @@ expect fun AlertDialog(
     shape: Shape = MaterialTheme.shapes.medium,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(backgroundColor),
-    properties: DialogProperties = DialogProperties()
+    properties: DialogProperties = DialogProperties(),
 )
 
 /**
- * <a href="https://material.io/components/dialogs#alert-dialog" class="external"
- * target="_blank">Material Design alert dialog</a>.
+ * [Material Design alert dialog](https://material.io/components/dialogs#alert-dialog)
  *
  * Alert dialogs interrupt users with urgent information, details, or actions.
  *
@@ -130,7 +128,7 @@ expect fun AlertDialog(
     shape: Shape = MaterialTheme.shapes.medium,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(backgroundColor),
-    properties: DialogProperties = DialogProperties()
+    properties: DialogProperties = DialogProperties(),
 )
 
 @Suppress("NOTHING_TO_INLINE")
@@ -145,7 +143,7 @@ internal inline fun AlertDialogImpl(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit =
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -164,7 +162,7 @@ internal inline fun AlertDialogImpl(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        properties = properties
+        properties = properties,
     )
 
 @Suppress("NOTHING_TO_INLINE")
@@ -178,7 +176,7 @@ internal inline fun AlertDialogImpl(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit =
     Dialog(onDismissRequest = onDismissRequest, properties = properties) {
         AlertDialogContent(
@@ -188,7 +186,7 @@ internal inline fun AlertDialogImpl(
             text = text,
             shape = shape,
             backgroundColor = backgroundColor,
-            contentColor = contentColor
+            contentColor = contentColor,
         )
     }
 
@@ -206,7 +204,7 @@ internal fun AlertDialogContent(
         modifier = modifier,
         shape = shape,
         color = backgroundColor,
-        contentColor = contentColor
+        contentColor = contentColor,
     ) {
         Column {
             AlertDialogBaselineLayout(
@@ -229,7 +227,7 @@ internal fun AlertDialogContent(
                                 ProvideTextStyle(textStyle, text)
                             }
                         }
-                    }
+                    },
             )
             buttons()
         }
@@ -246,7 +244,7 @@ internal fun AlertDialogContent(
 @Composable
 internal fun ColumnScope.AlertDialogBaselineLayout(
     title: @Composable (() -> Unit)?,
-    text: @Composable (() -> Unit)?
+    text: @Composable (() -> Unit)?,
 ) {
     Layout(
         {
@@ -257,7 +255,7 @@ internal fun ColumnScope.AlertDialogBaselineLayout(
                 Box(TextPadding.layoutId("text").align(Alignment.Start)) { text() }
             }
         },
-        Modifier.weight(1f, false)
+        Modifier.weight(1f, false),
     ) { measurables, constraints ->
         // Measure with loose constraints for height as we don't want the text to take up more
         // space than it needs
@@ -348,7 +346,7 @@ internal fun ColumnScope.AlertDialogBaselineLayout(
 internal fun AlertDialogFlowRow(
     mainAxisSpacing: Dp,
     crossAxisSpacing: Dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout(content) { measurables, constraints ->
         val sequences = mutableListOf<List<Placeable>>()

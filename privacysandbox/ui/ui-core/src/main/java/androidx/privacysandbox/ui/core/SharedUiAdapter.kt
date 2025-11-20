@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ui.core
 
-import android.annotation.SuppressLint
 import java.util.concurrent.Executor
 
 /**
@@ -24,19 +23,19 @@ import java.util.concurrent.Executor
  * the client is displaying shared UI, i.e. UI that can contain both client-owned and provider-owned
  * elements.
  */
-@SuppressLint("NullAnnotationGroup")
+@Deprecated("This library is no longer supported.")
 @ExperimentalFeatures.SharedUiPresentationApi
-interface SharedUiAdapter {
+public interface SharedUiAdapter {
 
     /**
      * Opens a new session to maintain connection with a UI provider. [client] will receive all
      * incoming communication from the provider. All incoming calls to [client] will be made through
      * the provided [clientExecutor].
      */
-    fun openSession(clientExecutor: Executor, client: SessionClient)
+    public fun openSession(clientExecutor: Executor, client: SessionClient)
 
     /** A single session with the UI provider. */
-    interface Session : AutoCloseable {
+    public interface Session : AutoCloseable {
         /**
          * Closes this session, indicating that the remote provider should dispose of associated
          * resources and that the [SessionClient] should not receive further callback events.
@@ -45,18 +44,18 @@ interface SharedUiAdapter {
     }
 
     /** The client of a single session that will receive callback events from an active session. */
-    interface SessionClient {
+    public interface SessionClient {
         /**
          * Called to report that the session was opened successfully, delivering the [Session]
          * handle that should be used to communicate with the provider.
          */
-        fun onSessionOpened(session: Session)
+        public fun onSessionOpened(session: Session)
 
         /**
          * Called to report a terminal error in the session. No further events will be reported to
          * this [SessionClient] and any further or currently pending calls to the [Session] that may
          * have been in flight may be ignored.
          */
-        fun onSessionError(throwable: Throwable)
+        public fun onSessionError(throwable: Throwable)
     }
 }

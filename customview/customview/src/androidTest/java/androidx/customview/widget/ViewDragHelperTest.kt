@@ -70,6 +70,6 @@ fun obtainMotionEvent(action: Int, pointerId: Int): MotionEvent {
         0,
         0,
         0,
-        0
+        0,
     )
 }

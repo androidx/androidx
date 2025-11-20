@@ -16,348 +16,242 @@
 
 package androidx.xr.scenecore
 
-import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
+import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.Config.PlaneTrackingMode
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.internal.JxrRuntime
+import androidx.xr.runtime.internal.LifecycleManager
+import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedResolutionResult
+import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
+import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
+import androidx.xr.scenecore.testing.FakeActivityPanelEntity
+import androidx.xr.scenecore.testing.FakeAnchorEntity
+import androidx.xr.scenecore.testing.FakeEntity
+import androidx.xr.scenecore.testing.FakeGltfEntity
+import androidx.xr.scenecore.testing.FakeGltfModelResource
+import androidx.xr.scenecore.testing.FakePanelEntity
+import androidx.xr.scenecore.testing.FakeRenderingRuntimeFactory
+import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
+import androidx.xr.scenecore.testing.FakeSurfaceEntity
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.MoreExecutors.directExecutor
-import java.util.UUID
-import java.util.concurrent.Executor
-import java.util.function.Consumer
+import java.nio.file.Paths
+import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 // TODO: b/329902726 - Add a fake runtime and verify CPM integration.
 // TODO: b/369199417 - Update EntityTest once createGltfResourceAsync is default.
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class EntityTest {
-    private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
-    private val mockPlatformAdapter = mock<JxrPlatformAdapter>()
-    private val mockGltfModelEntityImpl = mock<JxrPlatformAdapter.GltfEntity>()
-    private val mockPanelEntityImpl = mock<JxrPlatformAdapter.PanelEntity>()
-    private val mockAnchorEntityImpl = mock<JxrPlatformAdapter.AnchorEntity>()
-    private val mockActivityPanelEntity = mock<JxrPlatformAdapter.ActivityPanelEntity>()
-    private val mockContentlessEntity = mock<JxrPlatformAdapter.Entity>()
-    private val mockStereoSurfaceEntity = mock<JxrPlatformAdapter.StereoSurfaceEntity>()
-    private val entityManager = EntityManager()
+    private val mFakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
+    private val activity =
+        Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
+    private lateinit var fakeSceneRuntime: SceneRuntime
+    private lateinit var fakeRenderingRuntime: RenderingRuntime
+    private lateinit var entityManager: EntityManager
     private lateinit var session: Session
+
+    private lateinit var lifecycleManager: LifecycleManager
     private lateinit var activitySpace: ActivitySpace
     private lateinit var gltfModel: GltfModel
     private lateinit var gltfModelEntity: GltfModelEntity
     private lateinit var panelEntity: PanelEntity
     private lateinit var anchorEntity: AnchorEntity
     private lateinit var activityPanelEntity: ActivityPanelEntity
-    private lateinit var contentlessEntity: Entity
-    private lateinit var stereoSurfaceEntity: StereoSurfaceEntity
+    private lateinit var groupEntity: Entity
+    private lateinit var surfaceEntity: SurfaceEntity
 
-    interface FakeComponent : Component
+    private class TestComponent(val canBeAttached: Boolean) : Component {
+        var onAttached: Int = 0
+            private set
 
-    interface SubtypeFakeComponent : FakeComponent
+        var onDetached: Int = 0
+            private set
 
-    // Introduce a test Runtime ActivitySpace to test the bounds changed callback.
-    class TestRtActivitySpace : JxrPlatformAdapter.ActivitySpace {
-        private var boundsChangedListener:
-            JxrPlatformAdapter.ActivitySpace.OnBoundsChangedListener? =
-            null
-        var getBoundsCalled: Boolean = false
-        var setScaleCalled: Boolean = false
-        var getScaleCalled: Boolean = false
-        var setAlphaCalled: Boolean = false
-        var getAlphaCalled: Boolean = false
-        var setHiddenCalled: Boolean = false
-        var getHiddenCalled: Boolean = false
-        var getActivitySpaceAlphaCalled: Boolean = false
-        var getWorldSpaceScaleCalled: Boolean = false
-        var getActivitySpaceScaleCalled: Boolean = false
-
-        override fun setPose(pose: Pose) {}
-
-        override fun getPose(): Pose {
-            return Pose()
+        override fun onAttach(entity: Entity): Boolean {
+            onAttached++
+            return canBeAttached
         }
 
-        override fun getActivitySpacePose(): Pose {
-            return Pose()
+        override fun onDetach(entity: Entity) {
+            onDetached++
         }
-
-        override fun transformPoseTo(
-            pose: Pose,
-            destination: JxrPlatformAdapter.ActivityPose
-        ): Pose {
-            return Pose()
-        }
-
-        override fun setSize(dimensions: JxrPlatformAdapter.Dimensions) {}
-
-        override fun getAlpha(): Float = 1.0f.apply { getAlphaCalled = true }
-
-        override fun setAlpha(alpha: Float) {
-            setAlphaCalled = true
-        }
-
-        override fun isHidden(includeParents: Boolean): Boolean =
-            false.apply { getHiddenCalled = true }
-
-        override fun setHidden(hidden: Boolean) {
-            setHiddenCalled = true
-        }
-
-        override fun getActivitySpaceAlpha(): Float =
-            1.0f.apply { getActivitySpaceAlphaCalled = true }
-
-        override fun setScale(scale: Vector3) {
-            setScaleCalled = true
-        }
-
-        override fun getScale(): Vector3 {
-            getScaleCalled = true
-            return Vector3()
-        }
-
-        override fun getWorldSpaceScale(): Vector3 {
-            getWorldSpaceScaleCalled = true
-            return Vector3()
-        }
-
-        override fun getActivitySpaceScale(): Vector3 {
-            getActivitySpaceScaleCalled = true
-            return Vector3()
-        }
-
-        override fun addInputEventListener(
-            executor: Executor,
-            consumer: JxrPlatformAdapter.InputEventListener,
-        ) {}
-
-        override fun removeInputEventListener(consumer: JxrPlatformAdapter.InputEventListener) {}
-
-        override fun getParent(): JxrPlatformAdapter.Entity? {
-            return null
-        }
-
-        override fun setParent(parent: JxrPlatformAdapter.Entity?) {}
-
-        override fun addChild(child: JxrPlatformAdapter.Entity) {}
-
-        override fun addChildren(children: List<JxrPlatformAdapter.Entity>) {}
-
-        override fun getChildren(): List<JxrPlatformAdapter.Entity> {
-            return emptyList()
-        }
-
-        override fun setContentDescription(text: String) {}
-
-        override fun dispose() {}
-
-        override fun addComponent(component: JxrPlatformAdapter.Component): Boolean = false
-
-        override fun removeComponent(component: JxrPlatformAdapter.Component) {}
-
-        override fun removeAllComponents() {}
-
-        override fun getBounds(): JxrPlatformAdapter.Dimensions =
-            JxrPlatformAdapter.Dimensions(1f, 1f, 1f).apply { getBoundsCalled = true }
-
-        override fun addOnBoundsChangedListener(
-            listener: JxrPlatformAdapter.ActivitySpace.OnBoundsChangedListener
-        ) {
-            boundsChangedListener = listener
-        }
-
-        override fun removeOnBoundsChangedListener(
-            listener: JxrPlatformAdapter.ActivitySpace.OnBoundsChangedListener
-        ) {
-            boundsChangedListener = null
-        }
-
-        fun sendBoundsChanged(dimensions: JxrPlatformAdapter.Dimensions) {
-            boundsChangedListener?.onBoundsChanged(dimensions)
-        }
-
-        override fun setOnSpaceUpdatedListener(
-            listener: JxrPlatformAdapter.SystemSpaceEntity.OnSpaceUpdatedListener?,
-            executor: Executor?,
-        ) {}
     }
 
-    private val testActivitySpace = TestRtActivitySpace()
+    private open class FakeComponent(open val canBeAttached: Boolean) : Component {
+        var onAttached: Int = 0
+            private set
 
+        var onDetached: Int = 0
+            private set
+
+        override fun onAttach(entity: Entity): Boolean {
+            onAttached++
+            return canBeAttached
+        }
+
+        override fun onDetach(entity: Entity) {
+            onDetached++
+        }
+    }
+
+    private class SubtypeFakeComponent(override val canBeAttached: Boolean) :
+        FakeComponent(canBeAttached)
+
+    @RequiresApi(Build.VERSION_CODES.O)
     @Before
-    fun setUp() {
-        whenever(mockPlatformAdapter.spatialEnvironment).thenReturn(mock())
-        whenever(mockPlatformAdapter.activitySpace).thenReturn(testActivitySpace)
-        whenever(mockPlatformAdapter.activitySpaceRootImpl).thenReturn(mock())
-        whenever(mockPlatformAdapter.headActivityPose).thenReturn(mock())
-        whenever(mockPlatformAdapter.perceptionSpaceActivityPose).thenReturn(mock())
-        whenever(mockPlatformAdapter.loadGltfByAssetNameSplitEngine(Mockito.anyString()))
-            .thenReturn(Futures.immediateFuture(mock()))
-        whenever(mockPlatformAdapter.createGltfEntity(any(), any(), any()))
-            .thenReturn(mockGltfModelEntityImpl)
-        whenever(
-                mockPlatformAdapter.createPanelEntity(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
+    fun setUp() = runBlocking {
+        val runtimes = mutableListOf<JxrRuntime>()
+        val fakeRuntimeFactory = FakeSceneRuntimeFactory()
+        fakeSceneRuntime = fakeRuntimeFactory.create(activity)
+        runtimes.add(fakeSceneRuntime)
+        val fakeRenderingRuntimeFactory = FakeRenderingRuntimeFactory()
+        fakeRenderingRuntime = fakeRenderingRuntimeFactory.create(runtimes, activity)
+        runtimes.add(fakeRenderingRuntime)
+
+        session =
+            Session(
+                activity,
+                runtimes =
+                    listOf(
+                        mFakePerceptionRuntimeFactory.createRuntime(activity),
+                        fakeSceneRuntime,
+                        fakeRenderingRuntime,
+                    ),
             )
-            .thenReturn(mockPanelEntityImpl)
-        whenever(mockPlatformAdapter.createAnchorEntity(any(), any(), any(), any()))
-            .thenReturn(mockAnchorEntityImpl)
-        whenever(mockAnchorEntityImpl.state)
-            .thenReturn(JxrPlatformAdapter.AnchorEntity.State.UNANCHORED)
-        whenever(mockAnchorEntityImpl.persistState)
-            .thenReturn(JxrPlatformAdapter.AnchorEntity.PersistState.PERSIST_NOT_REQUESTED)
-        whenever(mockPlatformAdapter.createActivityPanelEntity(any(), any(), any(), any(), any()))
-            .thenReturn(mockActivityPanelEntity)
-        whenever(mockPlatformAdapter.createEntity(any(), any(), any()))
-            .thenReturn(mockContentlessEntity)
-        whenever(mockPlatformAdapter.createStereoSurfaceEntity(any(), any(), any(), any()))
-            .thenReturn(mockStereoSurfaceEntity)
-        whenever(mockPlatformAdapter.getMainPanelEntity()).thenReturn(mockPanelEntityImpl)
-        session = Session.create(activity, mockPlatformAdapter)
-        activitySpace = ActivitySpace.create(mockPlatformAdapter, entityManager)
-        gltfModel = GltfModel.create(session, "test.glb").get()
-        gltfModelEntity = GltfModelEntity.create(mockPlatformAdapter, entityManager, gltfModel)
+        lifecycleManager = session.perceptionRuntime.lifecycleManager
+        session.configure(
+            Config(
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                headTracking = Config.HeadTrackingMode.LAST_KNOWN,
+            )
+        )
+        entityManager = session.scene.entityManager
+        activitySpace = ActivitySpace.create(fakeSceneRuntime, entityManager)
+        gltfModel = GltfModel.create(session, Paths.get("test.glb"))
+        gltfModelEntity =
+            GltfModelEntity.create(fakeSceneRuntime, fakeRenderingRuntime, entityManager, gltfModel)
         panelEntity =
             PanelEntity.create(
-                mockPlatformAdapter,
-                entityManager = entityManager,
-                TextView(activity),
-                Dimensions(720f, 480f),
-                Dimensions(0.1f, 0.1f, 0.1f),
-                "test",
-                activity,
+                session,
+                view = TextView(activity),
+                pixelDimensions = IntSize2d(720, 480),
+                name = "test",
             )
         anchorEntity =
             AnchorEntity.create(
-                mockPlatformAdapter,
-                entityManager,
-                Dimensions(),
-                PlaneType.ANY,
-                PlaneSemantic.ANY,
+                session,
+                FloatSize2d(),
+                PlaneOrientation.ANY,
+                PlaneSemanticType.ANY,
                 10.seconds.toJavaDuration(),
             )
-        activityPanelEntity =
-            ActivityPanelEntity.create(
-                mockPlatformAdapter,
-                entityManager = entityManager,
-                PixelDimensions(640, 480),
-                "test",
-                activity,
-            )
-        contentlessEntity = ContentlessEntity.create(mockPlatformAdapter, entityManager, "test")
-        stereoSurfaceEntity =
-            StereoSurfaceEntity.create(
-                mockPlatformAdapter,
-                entityManager,
-                StereoSurfaceEntity.StereoMode.SIDE_BY_SIDE,
+        activityPanelEntity = ActivityPanelEntity.create(session, IntSize2d(640, 480), "test")
+        groupEntity = GroupEntity.create(session, "test")
+        surfaceEntity =
+            SurfaceEntity.create(
+                session,
                 Pose.Identity,
-                StereoSurfaceEntity.CanvasShape.Quad(1.0f, 1.0f),
+                SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
+                SurfaceEntity.StereoMode.SIDE_BY_SIDE,
             )
     }
 
     @Test
     fun anchorEntityCreateWithNullTimeout_passesNullToImpl() {
-        whenever(mockPlatformAdapter.createAnchorEntity(any(), any(), any(), any()))
-            .thenReturn(mockAnchorEntityImpl)
         anchorEntity =
-            AnchorEntity.create(
-                mockPlatformAdapter,
-                entityManager,
-                Dimensions(),
-                PlaneType.ANY,
-                PlaneSemantic.ANY,
-            )
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
 
         assertThat(anchorEntity).isNotNull()
     }
 
     @Test
-    fun allEntitySetParent_callsRuntimeEntityImplSetParent() {
-        panelEntity.setParent(activitySpace)
-        gltfModelEntity.setParent(activitySpace)
-        anchorEntity.setParent(activitySpace)
-        activityPanelEntity.setParent(activitySpace)
+    fun anchorEntity_planeTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
-        verify(mockPanelEntityImpl).parent = session.platformAdapter.activitySpace
-        verify(mockGltfModelEntityImpl).parent = session.platformAdapter.activitySpace
-        verify(mockAnchorEntityImpl).parent = session.platformAdapter.activitySpace
-        verify(mockActivityPanelEntity).parent = session.platformAdapter.activitySpace
+        assertFailsWith<IllegalStateException> {
+            AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
+        }
+    }
+
+    @Test
+    fun allEntitySetParent_callsRuntimeEntityImplSetParent() {
+        panelEntity.parent = activitySpace
+        gltfModelEntity.parent = activitySpace
+        anchorEntity.parent = activitySpace
+        activityPanelEntity.parent = activitySpace
+
+        assertThat((panelEntity.rtEntity as FakeEntity).parent)
+            .isEqualTo(fakeSceneRuntime.activitySpace)
+        assertThat((gltfModelEntity.rtEntity as FakeEntity).parent)
+            .isEqualTo(fakeSceneRuntime.activitySpace)
+        assertThat((anchorEntity.rtEntity as FakeEntity).parent)
+            .isEqualTo(fakeSceneRuntime.activitySpace)
+        assertThat((activityPanelEntity.rtEntity as FakeEntity).parent)
+            .isEqualTo(fakeSceneRuntime.activitySpace)
     }
 
     @Test
     fun allEntitySetParentNull_SetsNullParent() {
-        panelEntity.setParent(null)
-        gltfModelEntity.setParent(null)
-        anchorEntity.setParent(null)
-        activityPanelEntity.setParent(null)
+        panelEntity.parent = null
+        gltfModelEntity.parent = null
+        anchorEntity.parent = null
+        activityPanelEntity.parent = null
 
-        verify(mockPanelEntityImpl).parent = null
-        verify(mockGltfModelEntityImpl).parent = null
-        verify(mockAnchorEntityImpl).parent = null
-        verify(mockActivityPanelEntity).parent = null
+        assertThat((panelEntity.rtEntity as FakeEntity).parent).isNull()
+        assertThat((gltfModelEntity.rtEntity as FakeEntity).parent).isNull()
+        assertThat((anchorEntity.rtEntity as FakeEntity).parent).isNull()
+        assertThat((activityPanelEntity.rtEntity as FakeEntity).parent).isNull()
     }
 
     @Test
     fun allEntityGetParent_callsRuntimeEntityImplGetParent() {
-        val rtActivitySpace = session.platformAdapter.activitySpace
-        whenever(mockActivityPanelEntity.parent).thenReturn(rtActivitySpace)
-        whenever(mockPanelEntityImpl.parent).thenReturn(mockActivityPanelEntity)
-        whenever(mockGltfModelEntityImpl.parent).thenReturn(mockPanelEntityImpl)
-        whenever(mockContentlessEntity.parent).thenReturn(mockGltfModelEntityImpl)
-        whenever(mockAnchorEntityImpl.parent).thenReturn(mockContentlessEntity)
+        panelEntity.parent = activityPanelEntity
+        gltfModelEntity.parent = panelEntity
+        groupEntity.parent = gltfModelEntity
+        anchorEntity.parent = groupEntity
 
-        assertThat(activityPanelEntity.getParent()).isEqualTo(activitySpace)
-        assertThat(panelEntity.getParent()).isEqualTo(activityPanelEntity)
-        assertThat(gltfModelEntity.getParent()).isEqualTo(panelEntity)
-        assertThat(contentlessEntity.getParent()).isEqualTo(gltfModelEntity)
-        assertThat(anchorEntity.getParent()).isEqualTo(contentlessEntity)
-
-        verify(mockActivityPanelEntity).parent
-        verify(mockPanelEntityImpl).parent
-        verify(mockGltfModelEntityImpl).parent
-        verify(mockContentlessEntity).parent
-        verify(mockAnchorEntityImpl).parent
+        assertThat(activityPanelEntity.parent).isEqualTo(activitySpace)
+        assertThat(panelEntity.parent).isEqualTo(activityPanelEntity)
+        assertThat(gltfModelEntity.parent).isEqualTo(panelEntity)
+        assertThat(groupEntity.parent).isEqualTo(gltfModelEntity)
+        assertThat(anchorEntity.parent).isEqualTo(groupEntity)
     }
 
     @Test
     fun allEntityGetParent_nullParent_callsRuntimeEntityImplGetParent() {
-        whenever(mockActivityPanelEntity.parent).thenReturn(null)
-        whenever(mockPanelEntityImpl.parent).thenReturn(null)
-        whenever(mockGltfModelEntityImpl.parent).thenReturn(null)
-        whenever(mockContentlessEntity.parent).thenReturn(null)
-        whenever(mockAnchorEntityImpl.parent).thenReturn(null)
+        activityPanelEntity.parent = null
+        panelEntity.parent = null
+        gltfModelEntity.parent = null
+        groupEntity.parent = null
+        anchorEntity.parent = null
 
-        assertThat(activityPanelEntity.getParent()).isEqualTo(null)
-        assertThat(panelEntity.getParent()).isEqualTo(null)
-        assertThat(gltfModelEntity.getParent()).isEqualTo(null)
-        assertThat(contentlessEntity.getParent()).isEqualTo(null)
-        assertThat(anchorEntity.getParent()).isEqualTo(null)
-
-        verify(mockActivityPanelEntity).parent
-        verify(mockPanelEntityImpl).parent
-        verify(mockGltfModelEntityImpl).parent
-        verify(mockContentlessEntity).parent
-        verify(mockAnchorEntityImpl).parent
+        assertThat(activityPanelEntity.parent).isEqualTo(null)
+        assertThat(panelEntity.parent).isEqualTo(null)
+        assertThat(gltfModelEntity.parent).isEqualTo(null)
+        assertThat(groupEntity.parent).isEqualTo(null)
+        assertThat(anchorEntity.parent).isEqualTo(null)
     }
 
     @Test
@@ -366,314 +260,208 @@ class EntityTest {
         panelEntity.addChild(gltfModelEntity)
         gltfModelEntity.addChild(activityPanelEntity)
 
-        verify(mockAnchorEntityImpl).addChild(mockPanelEntityImpl)
-        verify(mockPanelEntityImpl).addChild(mockGltfModelEntityImpl)
-        verify(mockGltfModelEntityImpl).addChild(mockActivityPanelEntity)
+        assertThat(panelEntity.parent).isEqualTo(anchorEntity)
+        assertThat(gltfModelEntity.parent).isEqualTo(panelEntity)
+        assertThat(activityPanelEntity.parent).isEqualTo(gltfModelEntity)
     }
 
     @Test
-    fun allEntitySetPose_callsRuntimeEntityImplSetPose() {
+    fun allEntitySetPose_allEntityGetPose_poseSetCorrectly() {
         val pose = Pose.Identity
 
         panelEntity.setPose(pose)
-        gltfModelEntity.setPose(pose)
-        anchorEntity.setPose(pose)
-        activityPanelEntity.setPose(pose)
-
-        verify(mockPanelEntityImpl).setPose(any())
-        verify(mockGltfModelEntityImpl).setPose(any())
-        verify(mockAnchorEntityImpl).setPose(any())
-        verify(mockActivityPanelEntity).setPose(any())
-    }
-
-    @Test
-    fun allEntityGetPose_callsRuntimeEntityImplGetPose() {
-        whenever(mockPanelEntityImpl.pose).thenReturn(Pose())
-        whenever(mockGltfModelEntityImpl.pose).thenReturn(Pose())
-        whenever(mockAnchorEntityImpl.pose).thenReturn(Pose())
-        whenever(mockActivityPanelEntity.pose).thenReturn(Pose())
-        val pose = Pose.Identity
+        gltfModelEntity.setPose(pose, Space.PARENT)
+        assertThrows(UnsupportedOperationException::class.java) {
+            anchorEntity.setPose(pose, Space.ACTIVITY)
+        }
+        activityPanelEntity.setPose(pose, Space.REAL_WORLD)
 
         assertThat(panelEntity.getPose()).isEqualTo(pose)
-        assertThat(gltfModelEntity.getPose()).isEqualTo(pose)
-        assertThat(anchorEntity.getPose()).isEqualTo(pose)
-        assertThat(activityPanelEntity.getPose()).isEqualTo(pose)
-
-        verify(mockPanelEntityImpl).getPose()
-        verify(mockGltfModelEntityImpl).getPose()
-        verify(mockAnchorEntityImpl).getPose()
-        verify(mockActivityPanelEntity).getPose()
+        assertThat(gltfModelEntity.getPose(Space.PARENT)).isEqualTo(pose)
+        assertThat(anchorEntity.getPose(Space.ACTIVITY)).isEqualTo(pose)
+        assertThat(activityPanelEntity.getPose(Space.REAL_WORLD)).isEqualTo(pose)
     }
 
     @Test
     fun allEntityGetActivitySpacePose_callsRuntimeEntityImplGetActivitySpacePose() {
-        whenever(mockPanelEntityImpl.activitySpacePose).thenReturn(Pose())
-        whenever(mockGltfModelEntityImpl.activitySpacePose).thenReturn(Pose())
-        whenever(mockAnchorEntityImpl.activitySpacePose).thenReturn(Pose())
-        whenever(mockActivityPanelEntity.activitySpacePose).thenReturn(Pose())
-        val pose = Pose.Identity
-
-        assertThat(panelEntity.getActivitySpacePose()).isEqualTo(pose)
-        assertThat(gltfModelEntity.getActivitySpacePose()).isEqualTo(pose)
-        assertThat(anchorEntity.getActivitySpacePose()).isEqualTo(pose)
-        assertThat(activityPanelEntity.getActivitySpacePose()).isEqualTo(pose)
-
-        verify(mockPanelEntityImpl).activitySpacePose
-        verify(mockGltfModelEntityImpl).activitySpacePose
-        verify(mockAnchorEntityImpl).activitySpacePose
-        verify(mockActivityPanelEntity).activitySpacePose
+        check(panelEntity.activitySpacePose == Pose.Identity)
+        check(gltfModelEntity.activitySpacePose == Pose.Identity)
+        check(anchorEntity.activitySpacePose == Pose.Identity)
+        check(activityPanelEntity.activitySpacePose == Pose.Identity)
     }
 
     @Test
-    fun allEntitySetAlpha_callsRuntimeEntityImplSetAlpha() {
+    fun allEntitySetAlpha_allEntityGetAlpha_alphaSetCorrectly() {
         val alpha = 0.1f
 
         panelEntity.setAlpha(alpha)
-        gltfModelEntity.setAlpha(alpha)
-        anchorEntity.setAlpha(alpha)
-        activityPanelEntity.setAlpha(alpha)
-        contentlessEntity.setAlpha(alpha)
+        gltfModelEntity.setAlpha(alpha, Space.PARENT)
+        anchorEntity.setAlpha(alpha, Space.ACTIVITY)
+        activityPanelEntity.setAlpha(alpha, Space.REAL_WORLD)
+        groupEntity.setAlpha(alpha)
         activitySpace.setAlpha(alpha)
 
-        verify(mockPanelEntityImpl).setAlpha(any())
-        verify(mockGltfModelEntityImpl).setAlpha(any())
-        verify(mockAnchorEntityImpl).setAlpha(any())
-        verify(mockActivityPanelEntity).setAlpha(any())
-        verify(mockContentlessEntity).setAlpha(any())
-        assertThat(testActivitySpace.setAlphaCalled).isTrue()
+        assertThat(panelEntity.getAlpha()).isEqualTo(alpha)
+        assertThat(gltfModelEntity.getAlpha(Space.PARENT)).isEqualTo(alpha)
+        assertThat(anchorEntity.getAlpha(Space.ACTIVITY)).isEqualTo(alpha)
+        assertThat(activityPanelEntity.getAlpha(Space.REAL_WORLD)).isEqualTo(alpha)
+        assertThat(activitySpace.getAlpha()).isEqualTo(alpha)
     }
 
     @Test
-    fun allEntityGetAlpha_callsRuntimeEntityImplGetAlpha() {
-        whenever(mockPanelEntityImpl.getAlpha()).thenReturn(0.1f)
-        whenever(mockGltfModelEntityImpl.getAlpha()).thenReturn(0.1f)
-        whenever(mockAnchorEntityImpl.getAlpha()).thenReturn(0.1f)
-        whenever(mockActivityPanelEntity.getAlpha()).thenReturn(0.1f)
+    fun allEntitySetEnabled_callsRuntimeEntityImplSetHidden() {
+        panelEntity.setEnabled(false)
+        gltfModelEntity.setEnabled(false)
+        anchorEntity.setEnabled(false)
+        activityPanelEntity.setEnabled(true)
+        groupEntity.setEnabled(true)
+        activitySpace.setEnabled(true)
 
-        assertThat(panelEntity.getAlpha()).isEqualTo(0.1f)
-        assertThat(gltfModelEntity.getAlpha()).isEqualTo(0.1f)
-        assertThat(anchorEntity.getAlpha()).isEqualTo(0.1f)
-        assertThat(activityPanelEntity.getAlpha()).isEqualTo(0.1f)
-
-        assertThat(activitySpace.getAlpha()).isEqualTo(1.0f)
-        assertThat(testActivitySpace.getAlphaCalled).isTrue()
-
-        verify(mockPanelEntityImpl).getAlpha()
-        verify(mockGltfModelEntityImpl).getAlpha()
-        verify(mockAnchorEntityImpl).getAlpha()
-        verify(mockActivityPanelEntity).getAlpha()
+        assertThat(panelEntity.isEnabled()).isFalse()
+        assertThat(gltfModelEntity.isEnabled()).isFalse()
+        assertThat(anchorEntity.isEnabled()).isFalse()
+        assertThat(activityPanelEntity.isEnabled()).isTrue()
+        assertThat(groupEntity.isEnabled()).isTrue()
+        assertThat(activitySpace.isEnabled()).isTrue()
     }
 
     @Test
-    fun allEntitySetHiddened_callsRuntimeEntityImplSetHidden() {
-        panelEntity.setHidden(true)
-        gltfModelEntity.setHidden(true)
-        anchorEntity.setHidden(true)
-        activityPanelEntity.setHidden(false)
-        contentlessEntity.setHidden(false)
-        activitySpace.setHidden(false)
-
-        verify(mockPanelEntityImpl).setHidden(true)
-        verify(mockGltfModelEntityImpl).setHidden(true)
-        verify(mockAnchorEntityImpl).setHidden(true)
-        verify(mockActivityPanelEntity).setHidden(false)
-        verify(mockContentlessEntity).setHidden(false)
-        assertThat(testActivitySpace.setHiddenCalled).isTrue()
-    }
-
-    @Test
-    fun allEntityGetActivitySpaceAlpha_callsRuntimeEntityImplGetActivitySpaceAlpha() {
-        whenever(mockPanelEntityImpl.activitySpaceAlpha).thenReturn(0.1f)
-        whenever(mockGltfModelEntityImpl.activitySpaceAlpha).thenReturn(0.1f)
-        whenever(mockAnchorEntityImpl.activitySpaceAlpha).thenReturn(0.1f)
-        whenever(mockActivityPanelEntity.activitySpaceAlpha).thenReturn(0.1f)
-
-        assertThat(panelEntity.getActivitySpaceAlpha()).isEqualTo(0.1f)
-        assertThat(gltfModelEntity.getActivitySpaceAlpha()).isEqualTo(0.1f)
-        assertThat(anchorEntity.getActivitySpaceAlpha()).isEqualTo(0.1f)
-        assertThat(activityPanelEntity.getActivitySpaceAlpha()).isEqualTo(0.1f)
-
-        assertThat(activitySpace.getActivitySpaceAlpha()).isEqualTo(1.0f)
-        assertThat(testActivitySpace.getActivitySpaceAlphaCalled).isTrue()
-
-        verify(mockPanelEntityImpl).activitySpaceAlpha
-        verify(mockGltfModelEntityImpl).activitySpaceAlpha
-        verify(mockAnchorEntityImpl).activitySpaceAlpha
-        verify(mockActivityPanelEntity).activitySpaceAlpha
-    }
-
-    @Test
-    fun allEntitySetScale_callsRuntimeEntityImplSetScale() {
+    fun allEntitySetScale_float_allEntityGetScale_scaleSetCorrectly() {
         val scale = 0.1f
 
         panelEntity.setScale(scale)
-        gltfModelEntity.setScale(scale)
-        // Note that in production we expect this to raise an exception, but that should be handled
-        // by the runtime Entity.
-        anchorEntity.setScale(scale)
-        activityPanelEntity.setScale(scale)
-        contentlessEntity.setScale(scale)
-        // Note that in production we expect this to do nothing.
-        activitySpace.setScale(scale)
+        gltfModelEntity.setScale(scale, Space.PARENT)
 
-        verify(mockPanelEntityImpl).setScale(any())
-        verify(mockGltfModelEntityImpl).setScale(any())
-        verify(mockAnchorEntityImpl).setScale(any())
-        verify(mockActivityPanelEntity).setScale(any())
-        verify(mockContentlessEntity).setScale(any())
-        assertThat(testActivitySpace.setScaleCalled).isTrue()
+        // We expect this to raise an exception
+        assertThrows(UnsupportedOperationException::class.java) {
+            anchorEntity.setScale(scale, Space.ACTIVITY)
+        }
+        activityPanelEntity.setScale(scale, Space.REAL_WORLD)
+        groupEntity.setScale(scale)
+        assertThrows(UnsupportedOperationException::class.java) { activitySpace.setScale(scale) }
+
+        assertThat(panelEntity.getScale()).isEqualTo(scale)
+        assertThat(gltfModelEntity.getScale(Space.PARENT)).isEqualTo(scale)
+        assertThat(anchorEntity.getScale(Space.ACTIVITY)).isEqualTo(1f)
+        assertThat(activityPanelEntity.getScale(Space.REAL_WORLD)).isEqualTo(scale)
+
+        assertThrows(IllegalArgumentException::class.java) { activitySpace.getScale() }
     }
 
     @Test
-    fun allEntityGetScale_callsRuntimeEntityImplGetScale() {
-        val runtimeScale = Vector3(0.1f, 0.1f, 0.1f)
+    fun allEntitySetScale_vector_allEntityGetScale_scaleSetCorrectly() {
+        val scale = Vector3(0.1f, 0.1f, 0.1f)
         val sdkScale = 0.1f
 
-        whenever(mockPanelEntityImpl.getScale()).thenReturn(runtimeScale)
-        whenever(mockGltfModelEntityImpl.getScale()).thenReturn(runtimeScale)
-        whenever(mockAnchorEntityImpl.getScale()).thenReturn(runtimeScale)
-        whenever(mockActivityPanelEntity.getScale()).thenReturn(runtimeScale)
+        panelEntity.setScale(scale)
+        gltfModelEntity.setScale(scale, Space.PARENT)
+
+        // We expect this to raise an exception
+        assertThrows(UnsupportedOperationException::class.java) {
+            anchorEntity.setScale(scale, Space.ACTIVITY)
+        }
+        activityPanelEntity.setScale(scale, Space.REAL_WORLD)
+        groupEntity.setScale(scale)
+        assertThrows(UnsupportedOperationException::class.java) { activitySpace.setScale(scale) }
 
         assertThat(panelEntity.getScale()).isEqualTo(sdkScale)
-        assertThat(gltfModelEntity.getScale()).isEqualTo(sdkScale)
-        assertThat(anchorEntity.getScale()).isEqualTo(sdkScale)
-        assertThat(activityPanelEntity.getScale()).isEqualTo(sdkScale)
-
-        // This is unrealistic, but we want to make sure the SDK delegates to the runtimeImpl.
-        assertThat(activitySpace.getScale()).isEqualTo(0f)
-        assertThat(testActivitySpace.getScaleCalled).isTrue()
-
-        verify(mockPanelEntityImpl).getScale()
-        verify(mockGltfModelEntityImpl).getScale()
-        verify(mockAnchorEntityImpl).getScale()
-        verify(mockActivityPanelEntity).getScale()
-    }
-
-    @Test
-    fun allEntityGetWorldSpaceScale_callsRuntimeEntityImplGetWorldSpaceScale() {
-        val runtimeScale = Vector3(0.1f, 0.1f, 0.1f)
-        val sdkScale = 0.1f
-
-        whenever(mockPanelEntityImpl.getWorldSpaceScale()).thenReturn(runtimeScale)
-        whenever(mockGltfModelEntityImpl.getWorldSpaceScale()).thenReturn(runtimeScale)
-        whenever(mockAnchorEntityImpl.getWorldSpaceScale()).thenReturn(runtimeScale)
-        whenever(mockActivityPanelEntity.getWorldSpaceScale()).thenReturn(runtimeScale)
-
-        assertThat(panelEntity.getWorldSpaceScale()).isEqualTo(sdkScale)
-        assertThat(gltfModelEntity.getWorldSpaceScale()).isEqualTo(sdkScale)
-        assertThat(anchorEntity.getWorldSpaceScale()).isEqualTo(sdkScale)
-        assertThat(activityPanelEntity.getWorldSpaceScale()).isEqualTo(sdkScale)
-
-        // This is unrealistic, but we want to make sure the SDK delegates to the runtimeImpl.
-        assertThat(activitySpace.getWorldSpaceScale()).isEqualTo(0f)
-        assertThat(testActivitySpace.getWorldSpaceScaleCalled).isTrue()
-
-        verify(mockPanelEntityImpl).getWorldSpaceScale()
-        verify(mockGltfModelEntityImpl).getWorldSpaceScale()
-        verify(mockAnchorEntityImpl).getWorldSpaceScale()
-        verify(mockActivityPanelEntity).getWorldSpaceScale()
+        assertThat(gltfModelEntity.getScale(Space.PARENT)).isEqualTo(sdkScale)
+        assertThat(anchorEntity.getScale(Space.ACTIVITY)).isEqualTo(1.0f)
+        assertThat(activityPanelEntity.getScale(Space.REAL_WORLD)).isEqualTo(sdkScale)
+        assertThrows(IllegalArgumentException::class.java) { activitySpace.getScale() }
     }
 
     @Test
     fun allEntityTransformPoseTo_callsRuntimeEntityImplTransformPoseTo() {
-        whenever(mockPanelEntityImpl.transformPoseTo(any(), any())).thenReturn(Pose())
-        whenever(mockGltfModelEntityImpl.transformPoseTo(any(), any())).thenReturn(Pose())
-        whenever(mockAnchorEntityImpl.transformPoseTo(any(), any())).thenReturn(Pose())
-        whenever(mockActivityPanelEntity.transformPoseTo(any(), any())).thenReturn(Pose())
-        whenever(mockContentlessEntity.transformPoseTo(any(), any())).thenReturn(Pose())
         val pose = Pose.Identity
 
         assertThat(panelEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
         assertThat(gltfModelEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
         assertThat(anchorEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
         assertThat(activityPanelEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
-        assertThat(contentlessEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
-
-        verify(mockPanelEntityImpl).transformPoseTo(any(), any())
-        verify(mockGltfModelEntityImpl).transformPoseTo(any(), any())
-        verify(mockAnchorEntityImpl).transformPoseTo(any(), any())
-        verify(mockActivityPanelEntity).transformPoseTo(any(), any())
-        verify(mockContentlessEntity).transformPoseTo(any(), any())
+        assertThat(groupEntity.transformPoseTo(pose, panelEntity)).isEqualTo(pose)
     }
 
     @Test
-    fun allEntitySetSize_callsRuntimeEntityImplSetSize() {
-        val dimensions = Dimensions(0.3f, 0.2f, 0.1f)
+    fun allPanelEntitySetSizeInPixels_allPanelEntityGetSizeInPixels_correctSize() {
+        val dimensions = IntSize2d(320, 240)
+        val pixelDimensions = RtPixelDimensions(320, 240)
+        val expectedPixelDimensions = pixelDimensions.toIntSize2d()
+        panelEntity.sizeInPixels = dimensions
+        activityPanelEntity.sizeInPixels = dimensions
 
-        panelEntity.setSize(dimensions)
-        gltfModelEntity.setSize(dimensions)
-        anchorEntity.setSize(dimensions)
-        activityPanelEntity.setSize(dimensions)
-
-        verify(mockPanelEntityImpl).setSize(any())
-        verify(mockGltfModelEntityImpl).setSize(any())
-        verify(mockAnchorEntityImpl).setSize(any())
-        verify(mockActivityPanelEntity).setSize(any())
+        assertThat(panelEntity.sizeInPixels).isEqualTo(expectedPixelDimensions)
+        assertThat(activityPanelEntity.sizeInPixels).isEqualTo(expectedPixelDimensions)
     }
 
     @Test
-    fun allNonPanelEntityGetSize_returnsSize() {
-        val dimensions = Dimensions(0.3f, 0.2f, 0.1f)
+    fun panelEntityGetPerceivedResolution_callsRuntimeAndConverts() {
+        // Arrange
+        val runtimePixelDimensions = RtPixelDimensions(100, 200)
+        val runtimeResult = RtPerceivedResolutionResult.Success(runtimePixelDimensions)
+        (panelEntity.rtEntity as FakePanelEntity).setPerceivedResolution(runtimeResult)
 
-        gltfModelEntity.setSize(dimensions)
-        anchorEntity.setSize(dimensions)
+        val result = panelEntity.getPerceivedResolution()
+        assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
+        val successResult = result as PerceivedResolutionResult.Success
+        assertThat(successResult.perceivedResolution.width).isEqualTo(100)
+        assertThat(successResult.perceivedResolution.height).isEqualTo(200)
 
-        assertThat(gltfModelEntity.getSize()).isEqualTo(dimensions)
-        assertThat(anchorEntity.getSize()).isEqualTo(dimensions)
+        val runtimeResult2 = RtPerceivedResolutionResult.InvalidCameraView()
+        (panelEntity.rtEntity as FakePanelEntity).setPerceivedResolution(runtimeResult2)
+        assertThat(panelEntity.getPerceivedResolution())
+            .isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+
+        val runtimeResult3 = RtPerceivedResolutionResult.EntityTooClose()
+        (panelEntity.rtEntity as FakePanelEntity).setPerceivedResolution(runtimeResult3)
+        assertThat(panelEntity.getPerceivedResolution())
+            .isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
     }
 
     @Test
-    fun allPanelEntityGetSize_callsRuntimeEntityImplGetSize() {
-        val dimensions = JxrPlatformAdapter.Dimensions(320.0f, 240.0f, 0.0f)
-        val expectedDimensions = dimensions.toDimensions()
+    fun activityPanelEntityGetPerceivedResolution_callsRuntimeAndConverts() {
+        // Arrange
+        val runtimePixelDimensions = RtPixelDimensions(100, 200)
+        val runtimeResult = RtPerceivedResolutionResult.Success(runtimePixelDimensions)
+        (activityPanelEntity.rtEntity as FakeActivityPanelEntity).setPerceivedResolution(
+            runtimeResult
+        )
 
-        whenever(mockPanelEntityImpl.getSize()).thenReturn(dimensions)
-        whenever(mockActivityPanelEntity.getSize()).thenReturn(dimensions)
-
-        assertThat(panelEntity.getSize()).isEqualTo(expectedDimensions)
-        assertThat(activityPanelEntity.getSize()).isEqualTo(expectedDimensions)
-
-        verify(mockPanelEntityImpl).getSize()
-        verify(mockActivityPanelEntity).getSize()
+        val result = activityPanelEntity.getPerceivedResolution()
+        assertThat(result).isInstanceOf(PerceivedResolutionResult.Success::class.java)
+        val successResult = result as PerceivedResolutionResult.Success
+        assertThat(successResult.perceivedResolution.width).isEqualTo(100)
+        assertThat(successResult.perceivedResolution.height).isEqualTo(200)
     }
 
     @Test
-    fun allPanelEntityGetPixelDensity_callsRuntimeEntityImplGetPixelDensity() {
-        val pixelDensity = Vector3(14.0f, 14.0f, 14.0f)
-        val expectedPixelDensity = pixelDensity
-        whenever(mockPanelEntityImpl.getPixelDensity()).thenReturn(pixelDensity)
-        whenever(mockActivityPanelEntity.getPixelDensity()).thenReturn(pixelDensity)
+    fun panelEntity_getPerceivedResolution_deviceTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.DISABLED))
 
-        assertThat(panelEntity.getPixelDensity()).isEqualTo(expectedPixelDensity)
-        assertThat(activityPanelEntity.getPixelDensity()).isEqualTo(expectedPixelDensity)
-
-        verify(mockPanelEntityImpl).getPixelDensity()
-        verify(mockActivityPanelEntity).getPixelDensity()
+        val exception =
+            assertFailsWith<IllegalStateException> { panelEntity.getPerceivedResolution() }
+        assertThat(exception.message)
+            .isEqualTo("Config.DeviceTrackingMode is not set to LastKnown.")
     }
 
     @Test
-    fun allPanelEntitySetPixelDimensions_callsRuntimeEntityImplSetPixelDimensions() {
-        val dimensions = PixelDimensions(320, 240)
-        panelEntity.setPixelDimensions(dimensions)
-        activityPanelEntity.setPixelDimensions(dimensions)
+    fun surfaceEntity_getPerceivedResolution_deviceTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.DISABLED))
 
-        verify(mockPanelEntityImpl).setPixelDimensions(any())
-        verify(mockActivityPanelEntity).setPixelDimensions(any())
+        val exception =
+            assertFailsWith<IllegalStateException> { surfaceEntity.getPerceivedResolution() }
+        assertThat(exception.message)
+            .isEqualTo("Config.DeviceTrackingMode is not set to LastKnown.")
     }
 
     @Test
-    fun allPanelEntityGetPixelDimensions_callsRuntimeEntityImplGetPixelDimensions() {
-        val pixelDimensions = JxrPlatformAdapter.PixelDimensions(320, 240)
-        val expectedPixelDimensions = pixelDimensions.toPixelDimensions()
+    fun activityPanelEntity_getPerceivedResolution_deviceTrackingDisabled_throwsIllegalStateException() {
+        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.DISABLED))
 
-        whenever(mockPanelEntityImpl.getPixelDimensions()).thenReturn(pixelDimensions)
-        whenever(mockActivityPanelEntity.getPixelDimensions()).thenReturn(pixelDimensions)
-
-        assertThat(panelEntity.getPixelDimensions()).isEqualTo(expectedPixelDimensions)
-        assertThat(activityPanelEntity.getPixelDimensions()).isEqualTo(expectedPixelDimensions)
-
-        verify(mockPanelEntityImpl).getPixelDimensions()
-        verify(mockActivityPanelEntity).getPixelDimensions()
+        val exception =
+            assertFailsWith<IllegalStateException> { activityPanelEntity.getPerceivedResolution() }
+        assertThat(exception.message)
+            .isEqualTo("Config.DeviceTrackingMode is not set to LastKnown.")
     }
 
     @Test
@@ -683,493 +471,597 @@ class EntityTest {
         anchorEntity.dispose()
         activityPanelEntity.dispose()
 
-        verify(mockGltfModelEntityImpl).dispose()
-        verify(mockPanelEntityImpl).dispose()
-        verify(mockAnchorEntityImpl).dispose()
-        verify(mockActivityPanelEntity).dispose()
+        assertThat(gltfModelEntity.rtEntity).isNull()
+        assertThat(panelEntity.rtEntity).isNull()
+        assertThat(anchorEntity.rtEntity).isNull()
+        assertThat(activityPanelEntity.rtEntity).isNull()
     }
 
     @Test
     fun activityPanelEntityLaunchActivity_callsImplLaunchActivity() {
-        val launchIntent = Intent(activity.applicationContext, Activity::class.java)
-        activityPanelEntity.launchActivity(launchIntent, null)
+        val launchIntent = Intent(activity.applicationContext, ComponentActivity::class.java)
+        activityPanelEntity.startActivity(launchIntent)
 
-        verify(mockActivityPanelEntity).launchActivity(launchIntent, null)
+        assertThat((activityPanelEntity.rtEntity as FakeActivityPanelEntity).launchIntent)
+            .isEqualTo(launchIntent)
     }
 
     @Test
-    fun activityPanelEntityMoveActivity_callsImplMoveActivity() {
-        activityPanelEntity.moveActivity(activity)
+    fun activityPanelEntityTransferActivity_callsImplMoveActivity() {
+        activityPanelEntity.transferActivity(activity)
 
-        verify(mockActivityPanelEntity).moveActivity(any())
-    }
-
-    @Test
-    fun activitySpaceGetBounds_callsImplGetBounds() {
-        val activitySpace = ActivitySpace.create(mockPlatformAdapter, entityManager)
-        val bounds = activitySpace.getBounds()
-        assertThat(bounds).isNotNull()
-        assertThat(testActivitySpace.getBoundsCalled).isTrue()
-    }
-
-    @Test
-    fun activitySpaceSetBoundsListener_receivesBoundsChangedCallback() {
-        val activitySpace = ActivitySpace.create(mockPlatformAdapter, entityManager)
-        var called = false
-        val boundsChangedListener =
-            Consumer<Dimensions> { newBounds ->
-                assertThat(newBounds.width).isEqualTo(0.3f)
-                assertThat(newBounds.height).isEqualTo(0.2f)
-                assertThat(newBounds.depth).isEqualTo(0.1f)
-                called = true
-            }
-
-        activitySpace.addBoundsChangedListener(directExecutor(), boundsChangedListener)
-        testActivitySpace.sendBoundsChanged(JxrPlatformAdapter.Dimensions(0.3f, 0.2f, 0.1f))
-        assertThat(called).isTrue()
-
-        called = false
-        activitySpace.removeBoundsChangedListener(boundsChangedListener)
-        testActivitySpace.sendBoundsChanged(JxrPlatformAdapter.Dimensions(0.5f, 0.5f, 0.5f))
-        assertThat(called).isFalse()
-    }
-
-    @Test
-    fun setOnSpaceUpdatedListener_withNullParams_callsRuntimeSetOnSpaceUpdatedListener() {
-        val mockRtActivitySpace = mock<JxrPlatformAdapter.ActivitySpace>()
-        whenever(mockPlatformAdapter.activitySpace).thenReturn(mockRtActivitySpace)
-        val activitySpace = ActivitySpace.create(mockPlatformAdapter, entityManager)
-
-        activitySpace.setOnSpaceUpdatedListener(null)
-        verify(mockRtActivitySpace).setOnSpaceUpdatedListener(null, null)
-    }
-
-    @Test
-    fun setOnSpaceUpdatedListener_receivesRuntimeSetOnSpaceUpdatedListenerCallbacks() {
-        val mockRtActivitySpace = mock<JxrPlatformAdapter.ActivitySpace>()
-        whenever(mockPlatformAdapter.activitySpace).thenReturn(mockRtActivitySpace)
-        val activitySpace = ActivitySpace.create(mockPlatformAdapter, entityManager)
-
-        var listenerCalled = false
-        val captor = argumentCaptor<JxrPlatformAdapter.SystemSpaceEntity.OnSpaceUpdatedListener>()
-        activitySpace.setOnSpaceUpdatedListener({ listenerCalled = true }, directExecutor())
-        verify(mockRtActivitySpace).setOnSpaceUpdatedListener(captor.capture(), any())
-        captor.firstValue.onSpaceUpdated()
-        assertThat(listenerCalled).isTrue()
-    }
-
-    @Test
-    fun setOnSpaceUpdatedListener_anchorEntity_withNullParams_callsRuntimeSetOnSpaceUpdatedListener() {
-        anchorEntity.setOnSpaceUpdatedListener(null)
-        verify(mockAnchorEntityImpl).setOnSpaceUpdatedListener(null, null)
-    }
-
-    @Test
-    fun setOnSpaceUpdatedListener_anchorEntity_receivesRuntimeSetOnSpaceUpdatedListenerCallbacks() {
-        var listenerCalled = false
-        val captor = argumentCaptor<JxrPlatformAdapter.SystemSpaceEntity.OnSpaceUpdatedListener>()
-        anchorEntity.setOnSpaceUpdatedListener({ listenerCalled = true }, directExecutor())
-
-        verify(mockAnchorEntityImpl).setOnSpaceUpdatedListener(captor.capture(), any())
-        assertThat(listenerCalled).isFalse()
-        captor.firstValue.onSpaceUpdated()
-        assertThat(listenerCalled).isTrue()
+        assertThat((activityPanelEntity.rtEntity as FakeActivityPanelEntity).movedActivity)
+            .isEqualTo(activity)
     }
 
     @Test
     fun mainPanelEntity_isMainPanelEntity() {
-        val mainPanelEntity = session.mainPanelEntity
+        val mainPanelEntity = session.scene.mainPanelEntity
         assertThat(mainPanelEntity.isMainPanelEntity).isTrue()
     }
 
     @Test
     fun mainPanelEntity_isSingleton() {
-        val mainPanelEntity = session.mainPanelEntity
-        val mainPanelEntity2 = session.mainPanelEntity
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val mainPanelEntity2 = session.scene.mainPanelEntity
 
         assertThat(mainPanelEntity2).isSameInstanceAs(mainPanelEntity)
-        verify(mockPlatformAdapter, times(1)).mainPanelEntity
     }
 
     @Test
-    fun contentlessEntity_isCreated() {
-        val entity = ContentlessEntity.create(session, "test")
+    fun groupEntity_isCreated() {
+        val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
     }
 
     @Test
-    fun contentlessEntity_canSetPose() {
-        val entity = ContentlessEntity.create(session, "test")
-        val setPose = Pose.Identity
+    fun groupEntity_canSetPose_canGetPose() {
+        val entity = GroupEntity.create(session, "test")
+        val setPose = Pose(Vector3(1f, 2f, 3f))
         entity.setPose(setPose)
+        val pose = entity.getPose()
 
-        val captor = argumentCaptor<Pose>()
-        verify(mockContentlessEntity).setPose(captor.capture())
-
-        val pose = captor.firstValue
         assertThat(pose.translation.x).isEqualTo(setPose.translation.x)
         assertThat(pose.translation.y).isEqualTo(setPose.translation.y)
         assertThat(pose.translation.z).isEqualTo(setPose.translation.z)
     }
 
     @Test
-    fun contentlessEntity_canGetPose() {
-        whenever(mockContentlessEntity.pose).thenReturn(Pose())
-
-        val entity = ContentlessEntity.create(session, "test")
+    fun groupEntity_canGetActivitySpacePose() {
+        val entity = GroupEntity.create(session, "test")
         val pose = Pose.Identity
 
-        assertThat(entity.getPose()).isEqualTo(pose)
-        verify(mockContentlessEntity).getPose()
-    }
-
-    @Test
-    fun contentlessEntity_canGetActivitySpacePose() {
-        whenever(mockContentlessEntity.activitySpacePose).thenReturn(Pose())
-
-        val entity = ContentlessEntity.create(session, "test")
-        val pose = Pose.Identity
-
-        assertThat(entity.getActivitySpacePose()).isEqualTo(pose)
-        verify(mockContentlessEntity).activitySpacePose
+        assertThat(entity.activitySpacePose).isEqualTo(pose)
     }
 
     @Test
     fun allEntity_addComponentInvokesOnAttach() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(true)
+        val component = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(panelEntity)
-
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(gltfModelEntity)
-
         assertThat(anchorEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(anchorEntity)
-
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(activityPanelEntity)
     }
 
     @Test
     fun allEntity_addComponentFailsIfOnAttachFails() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(false)
+        val component = TestComponent(false)
 
         assertThat(panelEntity.addComponent(component)).isFalse()
-        verify(component).onAttach(panelEntity)
-
         assertThat(gltfModelEntity.addComponent(component)).isFalse()
-        verify(component).onAttach(gltfModelEntity)
-
         assertThat(anchorEntity.addComponent(component)).isFalse()
-        verify(component).onAttach(anchorEntity)
-
         assertThat(activityPanelEntity.addComponent(component)).isFalse()
-        verify(component).onAttach(activityPanelEntity)
     }
 
     @Test
     fun allEntity_removeComponentInvokesOnDetach() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(true)
+        val component = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(panelEntity)
-
-        assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(gltfModelEntity)
-
-        assertThat(anchorEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(anchorEntity)
-
-        assertThat(activityPanelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(activityPanelEntity)
 
         panelEntity.removeComponent(component)
-        verify(component).onDetach(panelEntity)
+
+        assertThat(component.onDetached).isEqualTo(1)
+
+        assertThat(gltfModelEntity.addComponent(component)).isTrue()
 
         gltfModelEntity.removeComponent(component)
-        verify(component).onDetach(gltfModelEntity)
+
+        assertThat(component.onDetached).isEqualTo(2)
+
+        assertThat(anchorEntity.addComponent(component)).isTrue()
 
         anchorEntity.removeComponent(component)
-        verify(component).onDetach(anchorEntity)
+
+        assertThat(component.onDetached).isEqualTo(3)
+
+        assertThat(activityPanelEntity.addComponent(component)).isTrue()
 
         activityPanelEntity.removeComponent(component)
-        verify(component).onDetach(activityPanelEntity)
+
+        assertThat(component.onDetached).isEqualTo(4)
     }
 
     @Test
     fun allEntity_addingSameComponentTypeAgainSucceeds() {
-        val component1 = mock<Component>()
-        val component2 = mock<Component>()
-        whenever(component1.onAttach(any())).thenReturn(true)
-        whenever(component2.onAttach(any())).thenReturn(true)
+        val component1 = TestComponent(true)
+        val component2 = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component1)).isTrue()
         assertThat(panelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(panelEntity)
-        verify(component2).onAttach(panelEntity)
 
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(gltfModelEntity)
-        verify(component2).onAttach(panelEntity)
 
         assertThat(anchorEntity.addComponent(component1)).isTrue()
         assertThat(anchorEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(anchorEntity)
-        verify(component2).onAttach(panelEntity)
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(activityPanelEntity)
-        verify(component2).onAttach(panelEntity)
     }
 
     @Test
     fun allEntity_addDifferentComponentTypesInvokesOnAttachOnAll() {
-        val component1 = mock<Component>()
-        val component2 = mock<FakeComponent>()
-        whenever(component1.onAttach(any())).thenReturn(true)
-        whenever(component2.onAttach(any())).thenReturn(true)
+        val component1 = TestComponent(true)
+        val component2 = FakeComponent(true)
 
         assertThat(panelEntity.addComponent(component1)).isTrue()
         assertThat(panelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(panelEntity)
-        verify(component2).onAttach(panelEntity)
 
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(gltfModelEntity)
-        verify(component2).onAttach(gltfModelEntity)
 
         assertThat(anchorEntity.addComponent(component1)).isTrue()
         assertThat(anchorEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(anchorEntity)
-        verify(component2).onAttach(anchorEntity)
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(activityPanelEntity)
-        verify(component2).onAttach(activityPanelEntity)
     }
 
     @Test
     fun allEntity_removeAllComponentsInvokesOnDetachOnAll() {
-        val component1 = mock<Component>()
-        val component2 = mock<FakeComponent>()
-        whenever(component1.onAttach(any())).thenReturn(true)
-        whenever(component2.onAttach(any())).thenReturn(true)
+        val component1 = TestComponent(true)
+        val component2 = FakeComponent(true)
 
         assertThat(panelEntity.addComponent(component1)).isTrue()
         assertThat(panelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(panelEntity)
-        verify(component2).onAttach(panelEntity)
+
+        panelEntity.removeAllComponents()
+
+        assertThat(component1.onDetached).isEqualTo(1)
+        assertThat(component2.onDetached).isEqualTo(1)
 
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(gltfModelEntity)
-        verify(component2).onAttach(gltfModelEntity)
+
+        gltfModelEntity.removeAllComponents()
+
+        assertThat(component1.onDetached).isEqualTo(2)
+        assertThat(component2.onDetached).isEqualTo(2)
 
         assertThat(anchorEntity.addComponent(component1)).isTrue()
         assertThat(anchorEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(anchorEntity)
-        verify(component2).onAttach(anchorEntity)
+
+        anchorEntity.removeAllComponents()
+
+        assertThat(component1.onDetached).isEqualTo(3)
+        assertThat(component2.onDetached).isEqualTo(3)
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(activityPanelEntity)
-        verify(component2).onAttach(activityPanelEntity)
-
-        panelEntity.removeAllComponents()
-        verify(component1).onDetach(panelEntity)
-        verify(component2).onDetach(panelEntity)
-
-        gltfModelEntity.removeAllComponents()
-        verify(component1).onDetach(gltfModelEntity)
-        verify(component2).onDetach(gltfModelEntity)
-
-        anchorEntity.removeAllComponents()
-        verify(component1).onDetach(anchorEntity)
-        verify(component2).onDetach(anchorEntity)
 
         activityPanelEntity.removeAllComponents()
-        verify(component1).onDetach(activityPanelEntity)
-        verify(component2).onDetach(activityPanelEntity)
+
+        assertThat(component1.onDetached).isEqualTo(4)
+        assertThat(component2.onDetached).isEqualTo(4)
     }
 
     @Test
     fun allEntity_addSameComponentMultipleTimesInvokesOnAttachMutipleTimes() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(true)
+        val component = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component)).isTrue()
         assertThat(panelEntity.addComponent(component)).isTrue()
-        verify(component, times(2)).onAttach(panelEntity)
+        assertThat(component.onAttached).isEqualTo(2)
 
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        verify(component, times(2)).onAttach(gltfModelEntity)
+        assertThat(component.onAttached).isEqualTo(4)
 
         assertThat(anchorEntity.addComponent(component)).isTrue()
         assertThat(anchorEntity.addComponent(component)).isTrue()
-        verify(component, times(2)).onAttach(anchorEntity)
+        assertThat(component.onAttached).isEqualTo(6)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
-        verify(component, times(2)).onAttach(activityPanelEntity)
+        assertThat(component.onAttached).isEqualTo(8)
     }
 
     @Test
     fun allEntity_removeSameComponentMultipleTimesInvokesOnDetachOnce() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(true)
+        val component = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(panelEntity)
 
         panelEntity.removeComponent(component)
         panelEntity.removeComponent(component)
-        verify(component).onDetach(panelEntity)
+        assertThat(component.onDetached).isEqualTo(1)
 
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(gltfModelEntity)
 
         gltfModelEntity.removeComponent(component)
         gltfModelEntity.removeComponent(component)
-        verify(component).onDetach(gltfModelEntity)
+
+        assertThat(component.onDetached).isEqualTo(2)
 
         assertThat(anchorEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(anchorEntity)
 
         anchorEntity.removeComponent(component)
         anchorEntity.removeComponent(component)
-        verify(component).onDetach(anchorEntity)
+
+        assertThat(component.onDetached).isEqualTo(3)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(activityPanelEntity)
 
         activityPanelEntity.removeComponent(component)
         activityPanelEntity.removeComponent(component)
-        verify(component).onDetach(activityPanelEntity)
-    }
 
-    @Test
-    fun anchorEntity_canGetDefaultPersistState() {
-        assertThat(anchorEntity.getPersistState())
-            .isEqualTo(AnchorEntity.PersistState.PERSIST_NOT_REQUESTED)
-    }
-
-    @Test
-    fun anchorEntity_createPersistAnchorSuccess() {
-        whenever(mockPlatformAdapter.createPersistedAnchorEntity(any(), any()))
-            .thenReturn(mockAnchorEntityImpl)
-        val persistAnchorEntity =
-            AnchorEntity.create(mockPlatformAdapter, entityManager, UUID.randomUUID())
-        assertThat(persistAnchorEntity).isNotNull()
+        assertThat(component.onDetached).isEqualTo(4)
     }
 
     @Test
     fun allEntity_disposeRemovesAllComponents() {
-        val component = mock<Component>()
-        whenever(component.onAttach(any())).thenReturn(true)
+        val component = TestComponent(true)
 
         assertThat(panelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(panelEntity)
 
         panelEntity.dispose()
-        verify(component).onDetach(panelEntity)
+
+        assertThat(component.onDetached).isEqualTo(1)
 
         assertThat(gltfModelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(gltfModelEntity)
 
         gltfModelEntity.dispose()
-        verify(component).onDetach(gltfModelEntity)
+
+        assertThat(component.onDetached).isEqualTo(2)
 
         assertThat(anchorEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(anchorEntity)
 
         anchorEntity.dispose()
-        verify(component).onDetach(anchorEntity)
+
+        assertThat(component.onDetached).isEqualTo(3)
 
         assertThat(activityPanelEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(activityPanelEntity)
 
         activityPanelEntity.dispose()
-        verify(component).onDetach(activityPanelEntity)
+
+        assertThat(component.onDetached).isEqualTo(4)
     }
 
     @Test
     fun allEntity_getComponentsReturnsAttachedComponents() {
-        val component1 = mock<Component>()
-        val component2 = mock<FakeComponent>()
-        whenever(component1.onAttach(any())).thenReturn(true)
-        whenever(component2.onAttach(any())).thenReturn(true)
+        val component1 = TestComponent(true)
+        val component2 = FakeComponent(true)
 
         assertThat(panelEntity.addComponent(component1)).isTrue()
         assertThat(panelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(panelEntity)
-        verify(component2).onAttach(panelEntity)
         assertThat(panelEntity.getComponents()).containsExactly(component1, component2)
 
         assertThat(gltfModelEntity.addComponent(component1)).isTrue()
         assertThat(gltfModelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(gltfModelEntity)
-        verify(component2).onAttach(gltfModelEntity)
         assertThat(gltfModelEntity.getComponents()).containsExactly(component1, component2)
 
         assertThat(anchorEntity.addComponent(component1)).isTrue()
         assertThat(anchorEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(anchorEntity)
-        verify(component2).onAttach(anchorEntity)
         assertThat(anchorEntity.getComponents()).containsExactly(component1, component2)
 
         assertThat(activityPanelEntity.addComponent(component1)).isTrue()
         assertThat(activityPanelEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(activityPanelEntity)
-        verify(component2).onAttach(activityPanelEntity)
         assertThat(activityPanelEntity.getComponents()).containsExactly(component1, component2)
     }
 
     @Test
     fun getComponentsOfType_returnsAttachedComponents() {
-        val component1 = mock<Component>()
-        val component2 = mock<FakeComponent>()
-        val component3 = mock<SubtypeFakeComponent>()
-        whenever(component1.onAttach(any())).thenReturn(true)
-        whenever(component2.onAttach(any())).thenReturn(true)
-        whenever(component3.onAttach(any())).thenReturn(true)
+        val component1 = TestComponent(true)
+        val component2 = FakeComponent(true)
+        val component3 = SubtypeFakeComponent(true)
 
         assertThat(panelEntity.addComponent(component1)).isTrue()
         assertThat(panelEntity.addComponent(component2)).isTrue()
         assertThat(panelEntity.addComponent(component3)).isTrue()
-        verify(component1).onAttach(panelEntity)
-        verify(component2).onAttach(panelEntity)
-        verify(component3).onAttach(panelEntity)
         assertThat(panelEntity.getComponentsOfType(FakeComponent::class.java))
             .containsExactly(component2, component3)
     }
 
     @Test
-    fun StereoSurfaceEntity_redirectsCallsToRtEntity() {
-        stereoSurfaceEntity.stereoMode = StereoSurfaceEntity.StereoMode.TOP_BOTTOM
-        verify(mockStereoSurfaceEntity).setStereoMode(StereoSurfaceEntity.StereoMode.TOP_BOTTOM)
+    fun surfaceEntity_redirectsCallsToRtEntity() {
+        surfaceEntity.stereoMode = SurfaceEntity.StereoMode.TOP_BOTTOM
 
-        @Suppress("UNUSED_VARIABLE") var unusedMode = stereoSurfaceEntity.stereoMode
-        verify(mockStereoSurfaceEntity).getStereoMode()
+        assertThat((surfaceEntity.rtEntity as FakeSurfaceEntity).stereoMode).isEqualTo(1)
 
-        stereoSurfaceEntity.canvasShape = StereoSurfaceEntity.CanvasShape.Vr360Sphere(1.0f)
-        verify(mockStereoSurfaceEntity).setCanvasShape(any())
+        surfaceEntity.shape = SurfaceEntity.Shape.Sphere(1.0f)
 
-        // no equivalent test for getter - that just returns the Kotlin object for now.
+        val rtSurfaceEntity = surfaceEntity.rtEntity as FakeSurfaceEntity
+        assertThat(rtSurfaceEntity.shape).isInstanceOf(RtSurfaceEntity.Shape.Sphere::class.java)
+
+        val shape = rtSurfaceEntity.shape as RtSurfaceEntity.Shape.Sphere
+        assertThat(shape.radius).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun surfaceEntity_getPerceivedResolution_callsRuntimeAndConverts() {
+        // Arrange
+        val runtimePixelDimensions = RtPixelDimensions(100, 200)
+        val runtimeResult = RtPerceivedResolutionResult.Success(runtimePixelDimensions)
+        (surfaceEntity.rtEntity as FakeSurfaceEntity).setPerceivedResolution(runtimeResult)
+
+        val scenecoreResult = surfaceEntity.getPerceivedResolution()
+        assertThat(scenecoreResult).isInstanceOf(PerceivedResolutionResult.Success::class.java)
+        val successResult = scenecoreResult as PerceivedResolutionResult.Success
+        assertThat(successResult.perceivedResolution.width).isEqualTo(100)
+        assertThat(successResult.perceivedResolution.height).isEqualTo(200)
     }
 
     @Test
     fun setCornerRadius() {
         val radius = 2.0f
-        panelEntity.setCornerRadius(radius)
-        verify(mockPanelEntityImpl).cornerRadius = radius
+        panelEntity.cornerRadius = radius
+
+        assertThat((panelEntity.rtEntity as FakePanelEntity).cornerRadius).isEqualTo(radius)
+    }
+
+    @Test
+    @OptIn(ExperimentalPanelCoordinateApi::class)
+    fun transformPixelCoordinatesToPose_callsRuntime() {
+        val input = Vector2(100f, 100f)
+
+        var sizeInPixels = (panelEntity.rtEntity as FakePanelEntity).sizeInPixels
+        var size = (panelEntity.rtEntity as FakePanelEntity).size
+        var u = input.x / sizeInPixels.width
+        var v = input.y / sizeInPixels.height
+        var coordinates = Vector2(u * 2 - 1, (1 - v) * 2 - 1)
+        var xInLocal3DSpace = coordinates.x * size.width / 2f
+        var yInLocal3DSpace = coordinates.y * size.height / 2f
+        val expectedPose = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+        val pose = panelEntity.transformPixelCoordinatesToPose(input)
+
+        assertThat(pose).isEqualTo(expectedPose)
+
+        val input2 = Vector2(200f, 200f)
+
+        sizeInPixels = (activityPanelEntity.rtEntity as FakeActivityPanelEntity).sizeInPixels
+        size = (activityPanelEntity.rtEntity as FakeActivityPanelEntity).size
+        u = input2.x / sizeInPixels.width
+        v = input2.y / sizeInPixels.height
+        coordinates = Vector2(u * 2 - 1, (1 - v) * 2 - 1)
+        xInLocal3DSpace = coordinates.x * size.width / 2f
+        yInLocal3DSpace = coordinates.y * size.height / 2f
+        val expectedPose2 = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+        val pose2 = activityPanelEntity.transformPixelCoordinatesToPose(input2)
+
+        assertThat(pose2).isEqualTo(expectedPose2)
+    }
+
+    @Test
+    @OptIn(ExperimentalPanelCoordinateApi::class)
+    fun transformNormalizedCoordinatesToPose_callsRuntime() {
+        val input = Vector2(1f, 1f)
+
+        var size = (panelEntity.rtEntity as FakePanelEntity).size
+        var xInLocal3DSpace = input.x * size.width / 2f
+        var yInLocal3DSpace = input.y * size.height / 2f
+        val expectedPose = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+        val pose = panelEntity.transformNormalizedCoordinatesToPose(input)
+
+        assertThat(pose).isEqualTo(expectedPose)
+
+        val input2 = Vector2(2f, 2f)
+
+        size = (activityPanelEntity.rtEntity as FakeActivityPanelEntity).size
+        xInLocal3DSpace = input2.x * size.width / 2f
+        yInLocal3DSpace = input2.y * size.height / 2f
+        val expectedPose2 = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+        val pose2 = activityPanelEntity.transformNormalizedCoordinatesToPose(input2)
+
+        assertThat(pose2).isEqualTo(expectedPose2)
+    }
+
+    @Test
+    fun createGltfResourceAsync_callsRuntimeLoadGltf() {
+        runBlocking {
+            @Suppress("NewApi") val gltfModel = GltfModel.create(session, Paths.get("intest.glb"))
+
+            assertThat((gltfModel.model as FakeGltfModelResource).assetName).isEqualTo("intest.glb")
+        }
+    }
+
+    @Test
+    fun createGltfEntity_callsRuntimeCreateGltfEntity() {
+        runBlocking {
+            @Suppress("NewApi") val gltfModel = GltfModel.create(session, Paths.get("intest.glb"))
+            val gltfEntity = GltfModelEntity.create(session, gltfModel)
+
+            assertThat((gltfModel.model as FakeGltfModelResource).assetName).isEqualTo("intest.glb")
+            assertThat(gltfEntity.rtEntity).isInstanceOf(FakeGltfEntity::class.java)
+        }
+    }
+
+    @Test
+    fun createPanelEntity_callsRuntimeCreatePanelEntity() {
+        val view = TextView(activity)
+        @Suppress("UNUSED_VARIABLE")
+        val panelEntity = PanelEntity.create(session, view, IntSize2d(640, 480), "test")
+
+        assertThat((panelEntity.rtEntity as FakePanelEntity).sizeInPixels)
+            .isEqualTo(IntSize2d(640, 480).toRtPixelDimensions())
+    }
+
+    @Test
+    fun createAnchorEntity_callsRuntimeCreateAnchorEntity() {
+        val anchorEntity = fakeSceneRuntime.createAnchorEntity()
+
+        assertThat(anchorEntity).isInstanceOf(FakeAnchorEntity::class.java)
+    }
+
+    @Test
+    fun createActivityPanelEntity_callsRuntimeCreateActivityPanelEntity() {
+        @Suppress("UNUSED_VARIABLE")
+        val activityPanelEntity = ActivityPanelEntity.create(session, IntSize2d(320, 240), "test")
+
+        assertThat((activityPanelEntity.rtEntity as FakeActivityPanelEntity).sizeInPixels)
+            .isEqualTo(IntSize2d(320, 240).toRtPixelDimensions())
+    }
+
+    @Test
+    fun anyEntity_useAfterDisposeRaisesDisposedException() {
+        panelEntity.dispose()
+        surfaceEntity.dispose()
+        anchorEntity.dispose()
+        groupEntity.dispose()
+        activityPanelEntity.dispose()
+        gltfModelEntity.dispose()
+        activitySpace.dispose()
+
+        assertFailsWith<Entity.DisposedException> { surfaceEntity.stereoMode }
+        assertFailsWith<Entity.DisposedException> { panelEntity.sizeInPixels }
+        assertFailsWith<Entity.DisposedException> { groupEntity.getScale() }
+        assertFailsWith<Entity.DisposedException> { activityPanelEntity.getPerceivedResolution() }
+
+        assertFailsWith<Entity.DisposedException> { gltfModelEntity.getScale() }
+        assertFailsWith<Entity.DisposedException> { gltfModelEntity.setPose(Pose.Identity) }
+        assertFailsWith<Entity.DisposedException> { activitySpace.getAlpha() }
+
+        val component = TestComponent(true)
+
+        assertFailsWith<Entity.DisposedException> { panelEntity.addComponent(component) }
+        assertFailsWith<Entity.DisposedException> { panelEntity.removeComponent(component) }
+    }
+
+    @Test
+    fun allEntity_disposeTwiceDoesNotCrash() {
+        panelEntity.dispose()
+        panelEntity.dispose()
+        surfaceEntity.dispose()
+        surfaceEntity.dispose()
+        anchorEntity.dispose()
+        anchorEntity.dispose()
+        groupEntity.dispose()
+        groupEntity.dispose()
+        activityPanelEntity.dispose()
+        activityPanelEntity.dispose()
+        gltfModelEntity.dispose()
+        gltfModelEntity.dispose()
+        activitySpace.dispose()
+        activitySpace.dispose()
+    }
+
+    @Test
+    fun getChildren_noChildren_returnsEmptyList() {
+        // Call the getChildren method on the wrapper entity.
+        val children = groupEntity.children
+
+        // Verify the returned list is empty and the underlying property was accessed.
+        assertThat(children).isEmpty()
+    }
+
+    @Test
+    fun getChildren_withChildren_returnsAllChildren() {
+        // Configure the parent to have two children.
+        // The corresponding wrapper entities (panelEntity, gltfModelEntity) were created in setUp.
+        panelEntity.parent = groupEntity
+        gltfModelEntity.parent = groupEntity
+
+        // Call getChildren on the parent entity.
+        val children = groupEntity.children
+
+        // Verify the returned list contains the correct wrapper entities in order.
+        assertThat(children).containsExactly(panelEntity, gltfModelEntity).inOrder()
+    }
+
+    @Test
+    fun dispose_recursivelyDisposesChildren() {
+        // Set up a parent (groupEntity) with a child (panelEntity).
+        panelEntity.parent = groupEntity
+
+        // Dispose of the parent entity.
+        groupEntity.dispose()
+
+        // Verify that dispose() was called on both the parent's and the child's runtime
+        // entities.
+        assertThat((groupEntity as GroupEntity).rtEntity).isNull()
+        assertThat(panelEntity.rtEntity).isNull()
+    }
+
+    @Test
+    fun dispose_doesNotDisposeMainPanelEntityIfChild() {
+        // Get the mainPanelEntity.
+        val mainPanel = session.scene.mainPanelEntity
+
+        // Set the mainPanel as a child of the group.
+        mainPanel.parent = groupEntity
+
+        // Dispose of the group entity.
+        groupEntity.dispose()
+
+        // Verify that the group entity's runtime was disposed.
+        assertThat((groupEntity as GroupEntity).rtEntity).isNull()
+        // Verify that the mainPanelEntity's runtime was NOT disposed, even though it was a child.
+        assertThat(mainPanel.rtEntity).isNotNull()
+    }
+
+    @Test
+    fun dispose_doesNotDisposeMainPanelEntityButDisposesItsChildren() {
+        // Get the mainPanelEntity.
+        val mainPanel = session.scene.mainPanelEntity
+
+        // Set the mainPanel as a child of the group.
+        mainPanel.parent = groupEntity
+
+        // Set childOfMainPanel as a child of mainPanel.
+        panelEntity.parent = mainPanel
+
+        // Dispose of the group entity.
+        groupEntity.dispose()
+
+        // Verify that the group entity's runtime was disposed.
+        assertThat((groupEntity as GroupEntity).rtEntity).isNull()
+        // Verify that the mainPanelEntity's runtime was NOT disposed.
+        assertThat(mainPanel.rtEntity).isNotNull()
+        // Verify that the child of the mainPanelEntity WAS disposed.
+        assertThat(panelEntity.rtEntity).isNull()
+
+        // Verify that the mainPanelEntity's parent is now null.
+        assertThat(mainPanel.parent).isNull()
+    }
+
+    @Test
+    fun isDisposed_falseForNewEntity() {
+        assertThat(panelEntity.isDisposed).isFalse()
+        assertThat(surfaceEntity.isDisposed).isFalse()
+        assertThat(anchorEntity.isDisposed).isFalse()
+        assertThat(groupEntity.isDisposed).isFalse()
+        assertThat(activityPanelEntity.isDisposed).isFalse()
+        assertThat(gltfModelEntity.isDisposed).isFalse()
+        assertThat(activitySpace.isDisposed).isFalse()
+    }
+
+    @Test
+    fun isDisposed_trueAfterDispose() {
+        panelEntity.dispose()
+        surfaceEntity.dispose()
+        anchorEntity.dispose()
+        groupEntity.dispose()
+        activityPanelEntity.dispose()
+        gltfModelEntity.dispose()
+        activitySpace.dispose()
+
+        assertThat(panelEntity.isDisposed).isTrue()
+        assertThat(surfaceEntity.isDisposed).isTrue()
+        assertThat(anchorEntity.isDisposed).isTrue()
+        assertThat(groupEntity.isDisposed).isTrue()
+        assertThat(activityPanelEntity.isDisposed).isTrue()
+        assertThat(gltfModelEntity.isDisposed).isTrue()
+        assertThat(activitySpace.isDisposed).isTrue()
     }
 }

@@ -74,7 +74,7 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
     }
 
     public AppCompatRadioButton(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         ThemeUtils.checkAppCompatTheme(this, getContext());
 

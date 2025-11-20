@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * [androidx.work.ListenableWorker.Result]. After this time has expired, the Worker will be
  * signalled to stop.
  */
-abstract class Worker(context: Context, workerParams: WorkerParameters) :
+public abstract class Worker(context: Context, workerParams: WorkerParameters) :
     ListenableWorker(context, workerParams) {
 
     /**
@@ -58,7 +58,7 @@ abstract class Worker(context: Context, workerParams: WorkerParameters) :
      *   work will not execute if you use [androidx.work.ListenableWorker.Result.failure] or
      *   [androidx.work.ListenableWorker.Result.failure]
      */
-    @WorkerThread abstract fun doWork(): Result
+    @WorkerThread public abstract fun doWork(): Result
 
     final override fun startWork(): ListenableFuture<Result> =
         backgroundExecutor.future { doWork() }
@@ -82,7 +82,7 @@ abstract class Worker(context: Context, workerParams: WorkerParameters) :
      * @throws IllegalStateException if it is not overridden and worker tries to go to foreground
      */
     @WorkerThread
-    open fun getForegroundInfo(): ForegroundInfo {
+    public open fun getForegroundInfo(): ForegroundInfo {
         throw IllegalStateException(
             "Expedited WorkRequests require a Worker to provide an implementation for " +
                 "`getForegroundInfo()`"

@@ -976,7 +976,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_addedWithNonEmptyList()
             throws Throwable {
         final RecyclerView recyclerView = setupBasic(new Config(3, 1));

@@ -22,10 +22,8 @@ package androidx.health.connect.client.units
  * - Fahrenheit - see [TemperatureDelta.fahrenheit]
  */
 class TemperatureDelta
-private constructor(
-    private val value: Double,
-    private val temperatureUnit: TemperatureUnit,
-) : Comparable<TemperatureDelta> {
+private constructor(private val value: Double, private val temperatureUnit: TemperatureUnit) :
+    Comparable<TemperatureDelta> {
 
     /** Returns the TemperatureDelta in Celsius degrees. */
     @get:JvmName("getCelsius")

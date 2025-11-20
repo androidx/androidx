@@ -23,14 +23,11 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
-@RequiresApi(21)
 class TreeDocumentFile extends DocumentFile {
     private Context mContext;
     private Uri mUri;

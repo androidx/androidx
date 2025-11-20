@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -60,7 +59,6 @@ import androidx.leanback.widget.SinglePresenterSelector;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.AnimationTest;
 
@@ -450,7 +448,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void rowNotifyItemRangeChange() throws InterruptedException {
         SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -460,7 +457,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
                 .getRowsFragment().getVerticalGridView();
         for (int i = 0; i < verticalGridView.getChildCount(); i++) {
             HorizontalGridView horizontalGridView = verticalGridView.getChildAt(i)
-                    .findViewById(R.id.row_content);
+                    .findViewById(androidx.leanback.R.id.row_content);
             for (int j = 0; j < horizontalGridView.getChildCount(); j++) {
                 assertEquals(horizontalGridView.getPaddingTop(),
                         horizontalGridView.getChildAt(j).getTop());
@@ -506,7 +503,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void rowNotifyItemRangeChangeWithTransition() throws InterruptedException {
         SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -516,7 +512,7 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
                 .getRowsFragment().getVerticalGridView();
         for (int i = 0; i < verticalGridView.getChildCount(); i++) {
             HorizontalGridView horizontalGridView = verticalGridView.getChildAt(i)
-                    .findViewById(R.id.row_content);
+                    .findViewById(androidx.leanback.R.id.row_content);
             for (int j = 0; j < horizontalGridView.getChildCount(); j++) {
                 assertEquals(horizontalGridView.getPaddingTop(),
                         horizontalGridView.getChildAt(j).getTop());
@@ -629,7 +625,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentSetNullAdapter() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -669,7 +664,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNotSame(wrappedAdapter, fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentChangeAdapter() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -697,7 +691,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(fragment.mMainFragmentListRowDataAdapter.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentChangeAdapterToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -727,7 +720,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(adapter2.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyDataChangeListRowToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -754,7 +746,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNull(fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyItemChangeListRowToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -780,7 +771,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNull(fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyDataChangeListRowToListRow() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -809,7 +799,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertSame(wrappedAdapter, fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyItemChangeListRowToListRow() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -837,7 +826,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertSame(wrappedAdapter, fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentChangeAdapterPageToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -863,7 +851,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(adapter2.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyChangePageToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -887,7 +874,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNull(fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyItemChangePageToPage() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -910,7 +896,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNull(fragment.mMainFragmentListRowDataAdapter);
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentChangeAdapterPageToListRow() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -936,7 +921,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(fragment.mMainFragmentListRowDataAdapter.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyDataChangePageToListRow() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -961,7 +945,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(fragment.mMainFragmentListRowDataAdapter.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentNotifyItemChangePageToListRow() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -985,7 +968,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertTrue(fragment.mMainFragmentListRowDataAdapter.hasObserver());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void browseFragmentRestore() throws InterruptedException {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -1212,7 +1194,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mixedBrowseFragmentRestoreToListRow() throws Throwable {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(
@@ -1294,14 +1275,12 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         activity2.finish();
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mixedBrowseFragmentRestoreToSampleRowsFragmentHideFastLane() throws Throwable {
         mixedBrowseFragmentRestoreToSampleRowsFragment(true);
 
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mixedBrowseFragmentRestoreToSampleRowsFragmentShowFastLane() throws Throwable {
         mixedBrowseFragmentRestoreToSampleRowsFragment(false);
@@ -1361,14 +1340,12 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         activity2.finish();
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mixedBrowseFragmentRestoreToSampleFragmentHideFastLane() throws Throwable {
         mixedBrowseFragmentRestoreToSampleFragment(true);
 
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void mixedBrowseFragmentRestoreToSampleFragmentShowFastLane() throws Throwable {
         mixedBrowseFragmentRestoreToSampleFragment(false);
@@ -1413,7 +1390,6 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
     @Test
     public void viewLeakTest() throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(F_LeakFragment.class,

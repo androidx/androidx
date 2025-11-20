@@ -26,23 +26,25 @@ interface IntrinsicMeasurable {
 
     /**
      * Calculates the minimum width that the layout can be such that the content of the layout will
-     * be painted correctly.
+     * be painted correctly. There should be no side-effects from a call to [minIntrinsicWidth].
      */
     fun minIntrinsicWidth(height: Int): Int
 
     /**
      * Calculates the smallest width beyond which increasing the width never decreases the height.
+     * There should be no side-effects from a call to [maxIntrinsicWidth].
      */
     fun maxIntrinsicWidth(height: Int): Int
 
     /**
      * Calculates the minimum height that the layout can be such that the content of the layout will
-     * be painted correctly.
+     * be painted correctly. There should be no side-effects from a call to [minIntrinsicHeight].
      */
     fun minIntrinsicHeight(width: Int): Int
 
     /**
      * Calculates the smallest height beyond which increasing the height never decreases the width.
+     * There should be no side-effects from a call to [maxIntrinsicHeight].
      */
     fun maxIntrinsicHeight(width: Int): Int
 }

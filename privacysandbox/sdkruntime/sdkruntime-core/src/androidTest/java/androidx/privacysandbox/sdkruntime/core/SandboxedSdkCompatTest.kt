@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.SandboxedSdk
@@ -82,7 +84,9 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 34)
+    // TODO(b/315321962) Migrate to Robolectric to remove usage of dexmakerMockito.
+    // maxSdkVersion due to b/430688215
+    @SdkSuppress(minSdkVersion = 34, maxSdkVersion = 34)
     fun getSdkInfo_whenCreatedFromSandboxedSdk_returnsSdkInfo() {
         val sdkName = "sdkName"
         val sdkVersion = 1L

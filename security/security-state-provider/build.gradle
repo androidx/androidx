@@ -26,17 +26,16 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     implementation(libs.kotlinSerializationJson)
-    implementation(project(":security:security-state"))
+    implementation("androidx.security:security-state:1.0.0-beta01")
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
@@ -53,4 +52,5 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_STATE_PROVIDER
     inceptionYear = "2024"
     description = "publish security state of updateable components."
+    enableRobolectric()
 }

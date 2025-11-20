@@ -107,6 +107,12 @@ class ExtensionsConfig implements CameraConfig {
         }
 
         @Override
+        public Builder setPostviewFormatSelector(PostviewFormatSelector postviewFormatSelector) {
+            mConfig.insertOption(OPTION_POSTVIEW_FORMAT_SELECTOR, postviewFormatSelector);
+            return this;
+        }
+
+        @Override
         public @NonNull Builder setCaptureProcessProgressSupported(boolean supported) {
             mConfig.insertOption(OPTION_CAPTURE_PROCESS_PROGRESS_SUPPORTED, supported);
             return this;

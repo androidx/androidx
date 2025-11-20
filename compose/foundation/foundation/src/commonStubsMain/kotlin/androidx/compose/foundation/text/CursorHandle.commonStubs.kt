@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.DpSize
 internal actual fun CursorHandle(
     offsetProvider: OffsetProvider,
     modifier: Modifier,
-    minTouchTargetSize: DpSize
+    minTouchTargetSize: DpSize,
 ) {
     /* Not implemented. */
 }

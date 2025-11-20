@@ -50,7 +50,7 @@ public class CompositeTileUpdateRequesterTest {
 
         mCompositeTileUpdateRequesterUnderTest =
                 new CompositeTileUpdateRequester(
-                    ImmutableList.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
+                        ImmutableList.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
     }
 
     @Test

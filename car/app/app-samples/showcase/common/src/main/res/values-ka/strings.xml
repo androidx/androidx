@@ -231,6 +231,17 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"შეტყობინების შაბლონის დემო"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"შეტყობინება.\nმეტი ტექსტი მეორე ხაზზეა."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"მოკლე შეტყობინების შაბლონის დემო"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"სექციებად დაყოფილი ერთეულის შაბლონის დემო"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"სექციებად დაყოფილი ერთეულის AlphaJump-ის ჩართული დემო"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"არჩევანის ღილაკის სექცია"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"სექციის გადართვა"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ბევრი მწკრივის სექცია"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ბადის ერთეულის სექცია"</string>
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ერთეულების სიის დემონსტრაცია სექციებში"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"სია 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"სია 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ქვეტექსტი თითოეული სიის ქვეშ"</string>
+    <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"სურათისა და მოქმედებების დემოს დასრულება"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"პანელის შაბლონის დემო"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ადგილების სიის შაბლონის დემო"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ადგილების დათვალიერება"</string>
@@ -325,10 +336,6 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ასევე შეიძლება მწკრივის არჩევა"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"არჩეულია მეორადი მოქმედება"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"არჩეულია მწკრივის პირველადი მოქმედება"</string>
-    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ერთეულების სიის დემონსტრაცია სექციებში"</string>
-    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"სია 1"</string>
-    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"სია 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ქვეტექსტი თითოეული სიის ქვეშ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ცარიელი სია სადემონსტრაციოდ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"სია ცარიელია"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"სხვადასხვა შაბლონური დემოები"</string>

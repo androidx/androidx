@@ -18,13 +18,14 @@ package androidx.compose.foundation.internal
 
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 
-internal actual fun ClipEntry.readText(): String? {
+internal actual suspend fun ClipEntry.readText(): String? {
     implementedInJetBrainsFork()
 }
 
-internal actual fun ClipEntry.readAnnotatedString(): AnnotatedString? {
+internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {
     implementedInJetBrainsFork()
 }
 
@@ -33,5 +34,13 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 }
 
 internal actual fun ClipEntry?.hasText(): Boolean {
+    implementedInJetBrainsFork()
+}
+
+internal actual fun Clipboard.isReadSupported(): Boolean {
+    implementedInJetBrainsFork()
+}
+
+internal actual fun Clipboard.isWriteSupported(): Boolean {
     implementedInJetBrainsFork()
 }

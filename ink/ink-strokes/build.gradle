@@ -19,19 +19,19 @@ import androidx.build.PlatformIdentifier
 
 plugins {
   id("AndroidXPlugin")
-  id("com.android.library")
 }
 
 androidXMultiplatform {
   jvm()
-  androidTarget()
+  androidLibrary {
+    namespace = "androidx.ink.strokes"
+  }
 
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
     commonMain {
       dependencies {
-        api(libs.kotlinStdlib)
 
         implementation("androidx.annotation:annotation:1.8.0")
       }
@@ -71,7 +71,7 @@ androidXMultiplatform {
       dependsOn(jvmAndroidMain)
     }
 
-    androidInstrumentedTest {
+    androidDeviceTest {
       dependsOn(jvmAndroidTest)
       dependencies {
         implementation(libs.testExtJunit)
@@ -83,10 +83,6 @@ androidXMultiplatform {
       }
     }
   }
-}
-
-android {
-  namespace = "androidx.ink.strokes"
 }
 
 androidx {

@@ -66,7 +66,7 @@ fun HideWhenFullDemo() {
     Scaffold(positionIndicator = { PositionIndicator(scrollState = listState) }) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxHeight().wrapContentWidth().verticalScroll(listState)
+            modifier = Modifier.fillMaxHeight().wrapContentWidth().verticalScroll(listState),
         ) {
             repeat(if (smallList) 3 else 10) {
                 Chip(onClick = { smallList = !smallList }, label = { Text("Item #$it") })
@@ -123,7 +123,7 @@ fun ControllablePositionIndicator() {
             PositionIndicatorAlignment.End,
             PositionIndicatorAlignment.OppositeRsb,
             PositionIndicatorAlignment.Left,
-            PositionIndicatorAlignment.Right
+            PositionIndicatorAlignment.Right,
         )
     val alignmentNames = listOf("End", "!Rsb", "Left", "Right")
     CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
@@ -154,17 +154,17 @@ fun ControllablePositionIndicator() {
                         },
                     color = MaterialTheme.colors.secondary,
                     reverseDirection = reverseDirection,
-                    position = alignmentValues[alignment]
+                    position = alignmentValues[alignment],
                 )
             }
         ) {
             Box(
                 modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
                 ) {
                     Text("Position")
                     DefaultInlineSlider(
@@ -172,7 +172,7 @@ fun ControllablePositionIndicator() {
                         value = position.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { position.floatValue = it }
+                        onValueChange = { position.floatValue = it },
                     )
                     Text("Size")
                     DefaultInlineSlider(
@@ -180,7 +180,7 @@ fun ControllablePositionIndicator() {
                         value = size.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { size.floatValue = it }
+                        onValueChange = { size.floatValue = it },
                     )
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         Button(onClick = { alignment = (alignment + 1) % 3 }) {
@@ -188,13 +188,13 @@ fun ControllablePositionIndicator() {
                         }
                         ToggleButton(
                             checked = layoutDirection,
-                            onCheckedChange = { layoutDirection = !layoutDirection }
+                            onCheckedChange = { layoutDirection = !layoutDirection },
                         ) {
                             Text(if (layoutDirection) "Rtl" else "Ltr")
                         }
                         ToggleButton(
                             checked = reverseDirection,
-                            onCheckedChange = { reverseDirection = !reverseDirection }
+                            onCheckedChange = { reverseDirection = !reverseDirection },
                         ) {
                             Text(text = "Rev Dir", textAlign = TextAlign.Center)
                         }
@@ -223,19 +223,19 @@ fun ControllablePositionIndicator() {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         ToggleButton(
                             checked = showFadeInAnimation,
-                            onCheckedChange = { showFadeInAnimation = !showFadeInAnimation }
+                            onCheckedChange = { showFadeInAnimation = !showFadeInAnimation },
                         ) {
                             Text("Fade in")
                         }
                         ToggleButton(
                             checked = showFadeOutAnimation,
-                            onCheckedChange = { showFadeOutAnimation = !showFadeOutAnimation }
+                            onCheckedChange = { showFadeOutAnimation = !showFadeOutAnimation },
                         ) {
                             Text("Fade out")
                         }
                         ToggleButton(
                             checked = showPositionAnimation,
-                            onCheckedChange = { showPositionAnimation = !showPositionAnimation }
+                            onCheckedChange = { showPositionAnimation = !showPositionAnimation },
                         ) {
                             Text("Position")
                         }
@@ -256,7 +256,7 @@ fun SharedPositionIndicator() {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier =
-                        Modifier.fillMaxHeight().width(80.dp).verticalScroll(listStates[listIndex])
+                        Modifier.fillMaxHeight().width(80.dp).verticalScroll(listStates[listIndex]),
                 ) {
                     repeat(10) {
                         Chip(onClick = { selected.intValue = listIndex }, label = { Text("#$it") })
@@ -270,7 +270,7 @@ fun SharedPositionIndicator() {
 internal class CustomPositionIndicatorState(
     private val position: State<Float>,
     private val size: State<Float>,
-    private val visibility: State<PositionIndicatorVisibility>
+    private val visibility: State<PositionIndicatorVisibility>,
 ) : PositionIndicatorState {
     override val positionFraction
         get() = position.value

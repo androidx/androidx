@@ -1,0 +1,20 @@
+{
+  "projectPath": ":core:haptics:haptics",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":media:media"
+      },
+      "fromConfiguration": "implementation"
+    }
+  ]
+}

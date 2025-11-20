@@ -73,7 +73,7 @@ class ProduceStateDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                Stubs.SnapshotState
+                Stubs.SnapshotState,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -141,7 +141,7 @@ src/androidx/compose/runtime/foo/test.kt:21: Error: produceState calls should as
             """
                 ),
                 Stubs.Composable,
-                Stubs.SnapshotState
+                Stubs.SnapshotState,
             )
             .run()
             .expectClean()

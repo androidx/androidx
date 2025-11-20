@@ -38,7 +38,6 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.core.util.Consumer
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
 /** Instrumentation tests for [SurfaceProcessorImpl]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class SurfaceProcessorImplDeviceTest {
 
     companion object {
@@ -97,7 +95,7 @@ class SurfaceProcessorImplDeviceTest {
                 Surface.ROTATION_90,
                 true,
                 TRANSFORM,
-                true
+                true,
             )
         surfaceRequest = SurfaceRequest(size, FakeCamera()) {}
         surfaceRequest.updateTransformationInfo(transformationInfo)
@@ -389,7 +387,7 @@ class SurfaceProcessorImplDeviceTest {
 
         override fun getSurface(
             executor: Executor,
-            listener: Consumer<SurfaceOutput.Event>
+            listener: Consumer<SurfaceOutput.Event>,
         ): Surface {
             return surface
         }

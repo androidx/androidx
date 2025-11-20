@@ -21,7 +21,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
 
 /**
- * Request object to read aggregations for given [AggregateMetric]s in Android Health Platform.
+ * Request object to read aggregations for given [AggregateMetric]s in Health Connect.
  *
  * @param metrics Set of [AggregateMetric]s to aggregate.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.

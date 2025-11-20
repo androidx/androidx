@@ -35,7 +35,7 @@ public object DeviceQuirks {
     private const val TAG = "DeviceQuirks"
 
     /** Returns all device specific quirks loaded on the current device. */
-    @Volatile public lateinit var all: Quirks
+    @Volatile @JvmStatic public lateinit var all: Quirks
 
     init {
         // Direct executor will initialize quirks immediately, guaranteeing it's never null.

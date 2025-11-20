@@ -20,7 +20,6 @@ import androidx.benchmark.Arguments
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Test
@@ -34,7 +33,6 @@ import org.junit.runner.RunWith
  * exception, as it's validating runtime conditions (esp in CI)
  */
 @MediumTest
-@SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class VerifyBenchmarkCompiledTest {
     @Test
@@ -46,11 +44,11 @@ class VerifyBenchmarkCompiledTest {
             )
         assertTrue(
             "expected exactly one instance of compilation status, output = $stdout",
-            stdout.indexOf("[status=") == stdout.lastIndexOf("[status=")
+            stdout.indexOf("[status=") == stdout.lastIndexOf("[status="),
         )
         assertTrue(
             "expected dexopt to show speed compilation, output = $stdout",
-            stdout.contains("[status=speed]")
+            stdout.contains("[status=speed]"),
         )
     }
 }

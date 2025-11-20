@@ -81,7 +81,7 @@ fun SuspendDoubleTapToLikeDemo() {
             "Like",
             Modifier.align(Alignment.Center)
                 .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
-            tint = Color.Red
+            tint = Color.Red,
         )
     }
 }

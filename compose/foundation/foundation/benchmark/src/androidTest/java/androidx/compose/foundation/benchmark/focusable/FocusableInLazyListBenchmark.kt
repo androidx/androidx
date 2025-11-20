@@ -96,7 +96,7 @@ class FocusableInLazyListBenchmark {
 
     private class LazyListTestCase(
         val count: Int,
-        val content: @Composable (LazyListState) -> Unit
+        val content: @Composable (LazyListState) -> Unit,
     ) : ToggleableTestCase, ComposeTestCase {
         lateinit var state: LazyListState
         lateinit var scope: CoroutineScope

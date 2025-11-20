@@ -24,16 +24,17 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.internal.utils.AudioManagerUtil.Companion.getAvailableAudioDevices
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getEndpointsFromAudioDeviceInfo
+import kotlinx.coroutines.channels.SendChannel
 
 /**
  * This class is responsible for getting [AudioDeviceInfo]s from the [AudioManager] pre-call and
- * emitting them to the [PreCallEndpointsUpdater] as [androidx.core.telecom.CallEndpointCompat]s
+ * emitting them to the [EndpointStateHandler] as [androidx.core.telecom.CallEndpointCompat]s
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal class AudioDeviceListener(
     val mContext: Context,
-    val mPreCallEndpoints: PreCallEndpointsUpdater,
-    private val mUuidSessionId: Int
+    private val mActionChannel: SendChannel<EndpointAction>,
+    private val mUuidSessionId: Int,
 ) : AutoCloseable, AudioDeviceCallback() {
     val mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -47,7 +48,7 @@ internal class AudioDeviceListener(
         // Send the initial list of pre-call [CallEndpointCompat]s out to the client. They
         // will be emitted and cached in the Flow & only consumed once the client has
         // collected it.
-        mPreCallEndpoints.endpointsAddedUpdate(initialEndpoints)
+        mActionChannel.trySend(EndpointAction.Add(initialEndpoints))
     }
 
     override fun close() {
@@ -56,17 +57,17 @@ internal class AudioDeviceListener(
 
     override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
         if (addedDevices != null) {
-            mPreCallEndpoints.endpointsAddedUpdate(
+            val endpoints =
                 getEndpointsFromAudioDeviceInfo(mContext, mUuidSessionId, addedDevices.toList())
-            )
+            mActionChannel.trySend(EndpointAction.Add(endpoints.filterNotNull()))
         }
     }
 
     override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
         if (removedDevices != null) {
-            mPreCallEndpoints.endpointsRemovedUpdate(
+            val endpoints =
                 getEndpointsFromAudioDeviceInfo(mContext, mUuidSessionId, removedDevices.toList())
-            )
+            mActionChannel.trySend(EndpointAction.Remove(endpoints.filterNotNull()))
         }
     }
 }

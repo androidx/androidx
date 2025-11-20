@@ -1,0 +1,260 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.material3
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@MediumTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+class ProgressIndicatorScreenshotTest {
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+
+    private val wrap = Modifier.wrapContentSize(Alignment.TopStart)
+    private val wrapperTestTag = "progressIndicatorWrapper"
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator(progress = { 0.5f }) }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                LinearProgressIndicator(progress = { 0.5f }, gapSize = 0.dp)
+            }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate_no_gap")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate_no_stop() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                LinearProgressIndicator(progress = { 0.5f }, drawStopIndicator = {})
+            }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate_no_stop")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate_stop_offset() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                LinearProgressIndicator(
+                    modifier = Modifier.size(240.dp, 16.dp),
+                    progress = { 0.5f },
+                )
+            }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate_stop_offset")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_indeterminate() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(LinearAnimationDuration / 2L)
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_indeterminate_start() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(0)
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate_start")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_indeterminate_no_gap() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator(gapSize = 0.dp) }
+        }
+        rule.mainClock.advanceTimeBy(LinearAnimationDuration / 2L)
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate_no_gap")
+    }
+
+    @Test
+    fun linearProgressIndicator_darkTheme_determinate() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator(progress = { 0.5f }) }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_darkTheme_determinate")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate_customCap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                LinearProgressIndicator(progress = { 0.5f }, strokeCap = StrokeCap.Butt)
+            }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate_customCap")
+    }
+
+    @Test
+    fun linearProgressIndicator_lightTheme_determinate_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator(progress = { 0.5f }) }
+            }
+        }
+        assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_determinate_rtl")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_determinate() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator(progress = { 0.5f }) }
+        }
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_determinate")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_determinate_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(progress = { 0.5f }, gapSize = 0.dp)
+            }
+        }
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_determinate_no_gap")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_determinate_size() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(modifier = Modifier.size(88.dp), progress = { 0.5f })
+            }
+        }
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_determinate_size")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(CircularAnimationProgressDuration / 3L * 4L)
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_with_track() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(trackColor = MaterialTheme.colorScheme.secondaryContainer)
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularProgressIndicator_lightTheme_indeterminate_with_track"
+        )
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_with_track_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(
+                    trackColor = MaterialTheme.colorScheme.secondaryContainer,
+                    gapSize = 0.dp,
+                )
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularProgressIndicator_lightTheme_indeterminate_with_track_no_gap"
+        )
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_start() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator() }
+        }
+        rule.mainClock.advanceTimeBy(0)
+        // Expecting about 10% of a circle, as defined by the CircularIndeterminateMinProgress.
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate_start")
+    }
+
+    @Test
+    fun circularProgressIndicator_darkTheme_determinate() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator(progress = { 0.5f }) }
+        }
+        assertIndicatorAgainstGolden("circularProgressIndicator_darkTheme_determinate")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_determinate_customCapAndTrack() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(
+                    progress = { 0.5f },
+                    trackColor = Color.Gray,
+                    strokeCap = StrokeCap.Butt,
+                )
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularProgressIndicator_lightTheme_determinate_customCapAndTrack"
+        )
+    }
+
+    private fun assertIndicatorAgainstGolden(goldenName: String) {
+        rule
+            .onNodeWithTag(wrapperTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, goldenName)
+    }
+}

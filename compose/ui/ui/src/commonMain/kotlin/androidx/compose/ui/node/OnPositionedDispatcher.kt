@@ -29,8 +29,10 @@ internal class OnPositionedDispatcher {
     fun isNotEmpty() = layoutNodes.isNotEmpty()
 
     fun onNodePositioned(node: LayoutNode) {
-        layoutNodes += node
-        node.needsOnPositionedDispatch = true
+        if (node.globallyPositionedObservers > 0) {
+            layoutNodes += node
+            node.needsOnGloballyPositionedDispatch = true
+        }
     }
 
     fun remove(node: LayoutNode) {
@@ -38,9 +40,11 @@ internal class OnPositionedDispatcher {
     }
 
     fun onRootNodePositioned(rootNode: LayoutNode) {
-        layoutNodes.clear()
-        layoutNodes += rootNode
-        rootNode.needsOnPositionedDispatch = true
+        if (rootNode.globallyPositionedObservers > 0) {
+            layoutNodes.clear()
+            layoutNodes += rootNode
+            rootNode.needsOnGloballyPositionedDispatch = true
+        }
     }
 
     fun dispatch() {
@@ -63,9 +67,10 @@ internal class OnPositionedDispatcher {
         layoutNodes.clear()
         for (i in size - 1 downTo 0) {
             val layoutNode = cache[i]!!
-            if (layoutNode.needsOnPositionedDispatch) {
+            if (layoutNode.needsOnGloballyPositionedDispatch) {
                 dispatchHierarchy(layoutNode)
             }
+            cache[i] = null
         }
         this.cachedNodes = cache
     }
@@ -73,10 +78,12 @@ internal class OnPositionedDispatcher {
     private fun dispatchHierarchy(layoutNode: LayoutNode) {
         // TODO(lmr): investigate a non-recursive version of this that leverages
         //  node traversal
-        layoutNode.dispatchOnPositionedCallbacks()
-        layoutNode.needsOnPositionedDispatch = false
+        if (layoutNode.globallyPositionedObservers > 0) {
+            layoutNode.dispatchOnPositionedCallbacks()
+            layoutNode.needsOnGloballyPositionedDispatch = false
 
-        layoutNode.forEachChild { child -> dispatchHierarchy(child) }
+            layoutNode.forEachChild { child -> dispatchHierarchy(child) }
+        }
     }
 
     internal companion object {

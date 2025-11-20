@@ -20,33 +20,33 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":camera:camera-core"))
+    api(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("androidx.arch.core:core-common:2.2.0")
 
     annotationProcessor(libs.autoValue)
 
-    // TODO(leohuang): We need this for assertThrows. Point back to the AndroidX shared version if
-    //  it is ever upgraded.
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation("androidx.core:core-ktx:1.1.0")
-    testImplementation(project(":camera:camera-testing"), {
-        exclude group: "androidx.camera", module: "camera-core"
-    })
+    testImplementation(project(":camera:camera-testing"))
+    testImplementation(libs.guavaAndroid)
 
     androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(libs.testExtJunit)
@@ -56,33 +56,32 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation(libs.autoValueAnnotations)
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation(libs.atomicFu)
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation libs.mockitoKotlin, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestAnnotationProcessor(libs.autoValue)
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.3.1")
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(libs.testMonitor)
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
 
     lint {
         enable.add("CameraXQuirksClassDetector")
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.video"
 }
 
@@ -93,4 +92,6 @@ androidx {
     description = "Video components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
+    enableRobolectric()
+    samples(project(":camera:camera-video:camera-video-samples"))
 }

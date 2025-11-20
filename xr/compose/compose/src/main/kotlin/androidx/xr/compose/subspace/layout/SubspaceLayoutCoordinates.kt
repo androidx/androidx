@@ -18,8 +18,6 @@ package androidx.xr.compose.subspace.layout
 
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 
 /**
  * A holder of the measured bounds.
@@ -31,71 +29,48 @@ public interface SubspaceLayoutCoordinates {
     public val pose: Pose
 
     /**
-     * The pose of this layout relative to the root entity of the Compose hierarchy, with
-     * translation in pixels.
-     */
-    public val poseInRoot: Pose
-
-    /**
      * The pose of this layout relative to its parent entity in the Compose hierarchy, with
      * translation in pixels.
      */
     public val poseInParentEntity: Pose
 
-    /** The position of the pose. */
-    @Deprecated("Use pose.position instead", ReplaceWith("pose.position"))
-    public val position: Vector3
-        get() = pose.translation
+    /**
+     * The pose of this layout relative to the root entity of the Compose for XR's hierarchy with
+     * translation values in pixels.
+     */
+    public val poseInRoot: Pose
 
     /**
-     * The position of this layout relative to the root entity of the Compose hierarchy.
+     * The coordinates of the immediate parent in the layout hierarchy.
      *
-     * For testing only.
+     * For a layout, this is its parent layout. For a modifier, this is the modifier that preceded
+     * it, or the layout it is attached to if it is the first in the chain.
+     *
+     * Returns `null` only for the root of the hierarchy.
      */
-    @Deprecated("Use poseInRoot.position instead", ReplaceWith("poseInRoot.position"))
-    public val positionInRoot: Vector3
-        get() = poseInRoot.translation
-
-    /** The position of this layout relative to its parent entity in the Compose hierarchy. */
-    @Deprecated(
-        "Use poseInParentEntity.position instead",
-        ReplaceWith("poseInParentEntity.position")
-    )
-    public val positionInParentEntity: Vector3
-        get() = poseInParentEntity.translation
-
-    /** The rotation of the pose. */
-    @Deprecated("Use pose.rotation instead", ReplaceWith("pose.rotation"))
-    public val rotation: Quaternion
-        get() = pose.rotation
+    public val parentCoordinates: SubspaceLayoutCoordinates?
 
     /**
-     * The rotation of this layout relative to the root entity of the Compose hierarchy.
+     * The coordinates of the nearest parent layout, skipping any intermediate modifiers.
      *
-     * For testing only.
+     * This is useful for positioning relative to the containing layout composable, irrespective of
+     * any modifiers applied to it.
+     *
+     * Returns `null` only for the root of the hierarchy.
      */
-    @Deprecated("Use poseInRoot.rotation instead", ReplaceWith("poseInRoot.rotation"))
-    public val rotationInRoot: Quaternion
-        get() = poseInRoot.rotation
-
-    /** The rotation of this layout relative to its parent entity in the Compose hierarchy. */
-    @Deprecated(
-        "Use poseInParentEntity.rotation instead",
-        ReplaceWith("poseInParentEntity.rotation")
-    )
-    public val rotationInParentEntity: Quaternion
-        get() = poseInParentEntity.rotation
+    public val parentLayoutCoordinates: SubspaceLayoutCoordinates?
 
     /**
      * The size of this layout in the local coordinates space.
      *
-     * This is also useful for providing the size of the node to the [OnGloballyPositionedModifier].
+     * This is also useful for providing the size of the node to the
+     * [OnGloballyPositionedModifier][androidx.xr.compose.subspace.layout.OnGloballyPositionedNode].
      */
     public val size: IntVolumeSize
 }
 
 /** Returns information on pose, position and size. */
-public fun SubspaceLayoutCoordinates.toDebugString(): String = buildString {
+internal fun SubspaceLayoutCoordinates.toDebugString(): String = buildString {
     appendLine("pose: $pose")
     appendLine("poseInParentEntity: $poseInParentEntity")
     appendLine("size: $size")

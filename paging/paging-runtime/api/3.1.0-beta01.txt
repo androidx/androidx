@@ -2,8 +2,8 @@
 package androidx.paging {
 
   @Deprecated public class AsyncPagedListDiffer<T> {
-    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method @Deprecated public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method @Deprecated public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
     method @Deprecated public final void addPagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
@@ -15,8 +15,8 @@ package androidx.paging {
     method @Deprecated public final void removePagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>,? super androidx.paging.PagedList<T>,kotlin.Unit> callback);
     method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList);
     method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
-    property public androidx.paging.PagedList<T>? currentList;
-    property public int itemCount;
+    property @Deprecated public androidx.paging.PagedList<T>? currentList;
+    property @Deprecated public int itemCount;
   }
 
   @Deprecated public static interface AsyncPagedListDiffer.PagedListListener<T> {
@@ -24,9 +24,9 @@ package androidx.paging {
   }
 
   public final class AsyncPagingDataDiffer<T> {
-    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher, optional kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
-    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
     ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
+    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    ctor public AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher, optional kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public void addOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public T? getItem(@IntRange(from=0) int index);
@@ -39,8 +39,8 @@ package androidx.paging {
     method public void removeOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method public void retry();
     method public androidx.paging.ItemSnapshotList<T> snapshot();
-    method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
+    method public suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     property public final int itemCount;
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
     property public final kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
@@ -72,10 +72,10 @@ package androidx.paging {
     method public final int getItemViewType(int position);
     method public final androidx.paging.LoadState getLoadState();
     method public int getStateViewType(androidx.paging.LoadState loadState);
-    method public final void onBindViewHolder(VH holder, int position);
     method public abstract void onBindViewHolder(VH holder, androidx.paging.LoadState loadState);
-    method public final VH onCreateViewHolder(android.view.ViewGroup parent, int viewType);
+    method public final void onBindViewHolder(VH holder, int position);
     method public abstract VH onCreateViewHolder(android.view.ViewGroup parent, androidx.paging.LoadState loadState);
+    method public final VH onCreateViewHolder(android.view.ViewGroup parent, int viewType);
     method public final void setLoadState(androidx.paging.LoadState loadState);
     property public final androidx.paging.LoadState loadState;
   }
@@ -84,8 +84,8 @@ package androidx.paging {
   }
 
   @Deprecated public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    ctor @Deprecated protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method @Deprecated public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method @Deprecated public androidx.paging.PagedList<T>? getCurrentList();
     method @Deprecated protected T? getItem(int position);
@@ -98,13 +98,13 @@ package androidx.paging {
     method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);
     method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<?> header);
     method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<?> header, androidx.paging.LoadStateAdapter<?> footer);
-    property public androidx.paging.PagedList<T>? currentList;
+    property @Deprecated public androidx.paging.PagedList<T>? currentList;
   }
 
   public abstract class PagingDataAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher, optional kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
-    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
     ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher);
+    ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, optional kotlinx.coroutines.CoroutineDispatcher mainDispatcher, optional kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
     method public final void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final void addOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);
     method protected final T? getItem(@IntRange(from=0) int position);
@@ -119,8 +119,8 @@ package androidx.paging {
     method public final void retry();
     method public final void setHasStableIds(boolean hasStableIds);
     method public final androidx.paging.ItemSnapshotList<T> snapshot();
-    method public final suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
+    method public final suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<?> header);
     method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<?> header, androidx.paging.LoadStateAdapter<?> footer);

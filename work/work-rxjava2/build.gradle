@@ -21,12 +21,14 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -36,17 +38,16 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(libs.truth)
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "WorkManager RxJava2"
     type = SoftwareType.PUBLISHED_LIBRARY
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

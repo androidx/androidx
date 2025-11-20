@@ -38,7 +38,7 @@ public class PassiveMonitoringUpdate(
         proto: DataProto.PassiveMonitoringUpdate
     ) : this(
         DataPointContainer(proto.dataPointsList.map { DataPoint.fromProto(it) }),
-        proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) }
+        proto.userActivityInfoUpdatesList.map { UserActivityInfo(it) },
     )
 
     internal val proto: PassiveMonitoringUpdateProto =

@@ -108,9 +108,9 @@ internal class ChipTestCase(private val type: ChipType) : LayeredComposeTestCase
                         Icon(
                             Icons.Filled.Settings,
                             contentDescription = "Localized description",
-                            Modifier.size(AssistChipDefaults.IconSize)
+                            Modifier.size(AssistChipDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             ChipType.ElevatedAssist ->
                 ElevatedAssistChip(
@@ -120,9 +120,9 @@ internal class ChipTestCase(private val type: ChipType) : LayeredComposeTestCase
                         Icon(
                             Icons.Filled.Settings,
                             contentDescription = "Localized description",
-                            Modifier.size(AssistChipDefaults.IconSize)
+                            Modifier.size(AssistChipDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             ChipType.Filter ->
                 FilterChip(
@@ -135,12 +135,12 @@ internal class ChipTestCase(private val type: ChipType) : LayeredComposeTestCase
                                 Icon(
                                     imageVector = Icons.Filled.Done,
                                     contentDescription = "Localized Description",
-                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    modifier = Modifier.size(FilterChipDefaults.IconSize),
                                 )
                             }
                         } else {
                             null
-                        }
+                        },
                 )
             ChipType.Input ->
                 InputChip(
@@ -156,9 +156,9 @@ internal class ChipTestCase(private val type: ChipType) : LayeredComposeTestCase
                         Icon(
                             Icons.Filled.Settings,
                             contentDescription = "Localized description",
-                            Modifier.size(AssistChipDefaults.IconSize)
+                            Modifier.size(AssistChipDefaults.IconSize),
                         )
-                    }
+                    },
                 )
         }
     }

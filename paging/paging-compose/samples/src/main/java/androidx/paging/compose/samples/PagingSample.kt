@@ -47,7 +47,7 @@ fun PagingBackendSample() {
             PagingConfig(
                 pageSize = myBackend.DataBatchSize,
                 enablePlaceholders = true,
-                maxSize = 200
+                maxSize = 200,
             )
         ) {
             myBackend.getAllData()
@@ -62,7 +62,7 @@ fun PagingBackendSample() {
                 Text(
                     text = "Waiting for items to load from the backend",
                     modifier =
-                        Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally)
+                        Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally),
                 )
             }
         }

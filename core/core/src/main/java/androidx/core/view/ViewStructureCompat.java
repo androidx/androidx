@@ -16,11 +16,7 @@
 
 package androidx.core.view;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 import android.view.ViewStructure;
-
-import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
 
@@ -32,19 +28,14 @@ import org.jspecify.annotations.NonNull;
  */
 public class ViewStructureCompat {
 
-    // Only guaranteed to be non-null on SDK_INT >= 23.
-    private final Object mWrappedObj;
+    private final ViewStructure mWrappedObj;
 
     /**
      * Provides a backward-compatible wrapper for {@link ViewStructure}.
-     * <p>
-     * This method is not supported on devices running SDK < 23 since the platform
-     * class will not be available.
      *
      * @param contentCaptureSession platform class to wrap
      * @return wrapped class
      */
-    @RequiresApi(23)
     public static @NonNull ViewStructureCompat toViewStructureCompat(
             @NonNull ViewStructure contentCaptureSession) {
         return new ViewStructureCompat(contentCaptureSession);
@@ -52,16 +43,12 @@ public class ViewStructureCompat {
 
     /**
      * Provides the {@link ViewStructure} represented by this object.
-     * <p>
-     * This method is not supported on devices running SDK < 23 since the platform
-     * class will not be available.
      *
      * @return platform class object
      * @see ViewStructureCompat#toViewStructureCompat(ViewStructure)
      */
-    @RequiresApi(23)
     public @NonNull ViewStructure toViewStructure() {
-        return (ViewStructure) mWrappedObj;
+        return mWrappedObj;
     }
 
     private ViewStructureCompat(@NonNull ViewStructure viewStructure) {
@@ -72,49 +59,25 @@ public class ViewStructureCompat {
      * Set the text that is associated with this view.  There is no selection
      * associated with the text.  The text may have style spans to supply additional
      * display and semantic information.
-     *
-     * Compatibility behavior:
-     * <ul>
-     * <li>SDK 23 and above, this method matches platform behavior.
-     * <li>SDK 22 and below, this method does nothing.
-     * </ul>
      */
     public void setText(@NonNull CharSequence charSequence) {
-        if (SDK_INT >= 23) {
-            Api23Impl.setText((ViewStructure) mWrappedObj, charSequence);
-        }
+        mWrappedObj.setText(charSequence);
     }
 
     /**
      * Set the class name of the view, as per
      * {@link android.view.View#getAccessibilityClassName View.getAccessibilityClassName()}.
-     *
-     * Compatibility behavior:
-     * <ul>
-     * <li>SDK 23 and above, this method matches platform behavior.
-     * <li>SDK 22 and below, this method does nothing.
-     * </ul>
      */
     public void setClassName(@NonNull String string) {
-        if (SDK_INT >= 23) {
-            Api23Impl.setClassName((ViewStructure) mWrappedObj, string);
-        }
+        mWrappedObj.setClassName(string);
     }
 
     /**
      * Set the content description of the view, as per
      * {@link android.view.View#getContentDescription View.getContentDescription()}.
-     *
-     * Compatibility behavior:
-     * <ul>
-     * <li>SDK 23 and above, this method matches platform behavior.
-     * <li>SDK 22 and below, this method does nothing.
-     * </ul>
      */
     public void setContentDescription(@NonNull CharSequence charSequence) {
-        if (SDK_INT >= 23) {
-            Api23Impl.setContentDescription((ViewStructure) mWrappedObj, charSequence);
-        }
+        mWrappedObj.setContentDescription(charSequence);
     }
 
     /**
@@ -128,41 +91,8 @@ public class ViewStructureCompat {
      * not the total data width of a scrollable view.
      * @param height The view's visible height, in pixels.  This is the height visible on
      * screen, not the total data height of a scrollable view.
-     *
-     * Compatibility behavior:
-     * <ul>
-     * <li>SDK 23 and above, this method matches platform behavior.
-     * <li>SDK 22 and below, this method does nothing.
-     * </ul>
      */
     public void setDimens(int left, int top, int scrollX, int scrollY, int width, int height) {
-        if (SDK_INT >= 23) {
-            Api23Impl.setDimens(
-                    (ViewStructure) mWrappedObj, left, top, scrollX, scrollY, width, height);
-        }
-    }
-
-    @RequiresApi(23)
-    private static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setDimens(ViewStructure viewStructure, int left, int top, int scrollX,
-                int scrollY, int width, int height) {
-            viewStructure.setDimens(left, top, scrollX, scrollY, width, height);
-        }
-
-        static void setText(ViewStructure viewStructure, CharSequence charSequence) {
-            viewStructure.setText(charSequence);
-        }
-
-        static void setClassName(ViewStructure viewStructure, String string) {
-            viewStructure.setClassName(string);
-        }
-
-        static void setContentDescription(ViewStructure viewStructure, CharSequence charSequence) {
-            viewStructure.setContentDescription(charSequence);
-        }
+        mWrappedObj.setDimens(left, top, scrollX, scrollY, width, height);
     }
 }

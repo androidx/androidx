@@ -50,8 +50,8 @@ private val lineBreakOptions =
             LineBreak(
                 strategy = LineBreak.Strategy.Balanced,
                 strictness = LineBreak.Strictness.Strict,
-                wordBreak = LineBreak.WordBreak.Default
-            )
+                wordBreak = LineBreak.WordBreak.Default,
+            ),
     )
 
 private val demoText = "This is an example text\n今日は自由が丘で焼き鳥を食べます。"
@@ -66,7 +66,7 @@ fun TextLineBreakDemo() {
         Slider(
             value = selectedFontSize,
             onValueChange = { value -> selectedFontSize = value },
-            valueRange = 8f..48f
+            valueRange = 8f..48f,
         )
 
         Row(Modifier.fillMaxWidth()) {
@@ -84,7 +84,7 @@ fun TextLineBreakDemo() {
                             append(demoText)
                         },
                     style = TextStyle(lineBreak = preset, fontSize = selectedFontSize.sp),
-                    modifier = textModifier.weight(1f)
+                    modifier = textModifier.weight(1f),
                 )
             }
         }

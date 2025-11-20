@@ -16,7 +16,6 @@
 
 package androidx.camera.testing
 
-import android.os.Build
 import androidx.camera.core.impl.utils.Exif.createFromInputStream
 import androidx.camera.testing.impl.ExifUtil.updateExif
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
@@ -31,7 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /** Unit tests for [ExifUtil] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class ExifUtilTest {
 
     companion object {

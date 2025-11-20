@@ -21,6 +21,19 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- Required for PaymentRequest API. -->
+    <queries>
+        <intent>
+            <action android:name="org.chromium.intent.action.PAY"/>
+        </intent>
+        <intent>
+            <action android:name="org.chromium.intent.action.IS_READY_TO_PAY"/>
+        </intent>
+        <intent>
+            <action android:name="org.chromium.intent.action.UPDATE_PAYMENT_DETAILS"/>
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         android:hardwareAccelerated="true"
@@ -138,9 +151,6 @@
             android:name=".DirectoryBasePathsActivity"
             android:process=":directoryBasePathActivity"
             android:exported="true" />
-        <activity
-            android:name=".RequestedWithHeaderActivity"
-            android:exported="true" />
         <activity android:name=".CookieManagerActivity"
             android:exported="true" />
         <activity
@@ -170,6 +180,17 @@
             android:exported="true" />
         <activity
             android:name=".WebStorageCompatActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PaymentRequestActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true" />
+        <activity
+            android:name=".UiThreadStartupModeActivity"
+            android:process=":uiThreadStartupModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CustomHeaderActivity"
             android:exported="true" />
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"

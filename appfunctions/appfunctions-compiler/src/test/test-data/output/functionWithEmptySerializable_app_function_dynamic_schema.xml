@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.FunctionWithEmptySerializable#simpleFunctionWithEmptySerializable</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <dataTypeReference>com.testdata.Empty</dataTypeReference>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>11</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>empty</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.FunctionWithEmptySerializable#simpleFunctionWithEmptySerializable</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <dataTypes>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>true</isNullable>
+                <objectQualifiedName>com.testdata.Empty</objectQualifiedName>
+                <type>3</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <name>com.testdata.Empty</name>
+        </dataTypes>
+        <id>unused</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

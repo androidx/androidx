@@ -39,7 +39,6 @@ import androidx.core.test.R;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Rule;
@@ -158,7 +157,6 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void testOnSharedElementsReady() {
         AtomicInteger counter = new AtomicInteger();
@@ -168,7 +166,7 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
                 counter::incrementAndGet;
 
         // Ensure that the method wrapper works as intended.
-        ActivityCompat.Api23Impl.onSharedElementsReady(listener);
+        listener.onSharedElementsReady();
         assertEquals(1, counter.get());
 
         // Ensure that the callback wrapper calls the method wrapper.

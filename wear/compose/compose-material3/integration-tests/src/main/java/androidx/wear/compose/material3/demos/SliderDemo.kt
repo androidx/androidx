@@ -81,7 +81,7 @@ fun SliderDemo(segmented: Boolean = false) {
             verticalArrangement =
                 Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
             modifier = Modifier.fillMaxSize(),
-            autoCentering = AutoCenteringParams(itemIndex = 0)
+            autoCentering = AutoCenteringParams(itemIndex = 0),
         ) {
             item { Text("Enabled Slider, value = $enabledValue") }
             item {
@@ -91,7 +91,7 @@ fun SliderDemo(segmented: Boolean = false) {
                     valueRange = 1f..9f,
                     steps = 7,
                     segmented = segmented,
-                    onValueChange = { enabledValue = it }
+                    onValueChange = { enabledValue = it },
                 )
             }
             item { Text("Disabled Slider, value = $disabledValue") }
@@ -102,7 +102,7 @@ fun SliderDemo(segmented: Boolean = false) {
                     onValueChange = { disabledValue = it },
                     valueRange = 1f..9f,
                     segmented = segmented,
-                    steps = 7
+                    steps = 7,
                 )
             }
         }
@@ -121,7 +121,7 @@ fun SliderWithIntegersDemo() {
             verticalArrangement =
                 Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
             modifier = Modifier.fillMaxSize(),
-            autoCentering = AutoCenteringParams(itemIndex = 0)
+            autoCentering = AutoCenteringParams(itemIndex = 0),
         ) {
             item { Text("No segments, value = $valueWithoutSegments") }
             item {
@@ -129,7 +129,7 @@ fun SliderWithIntegersDemo() {
                     value = valueWithoutSegments,
                     valueProgression = IntProgression.fromClosedRange(0, 15, 3),
                     segmented = false,
-                    onValueChange = { valueWithoutSegments = it }
+                    onValueChange = { valueWithoutSegments = it },
                 )
             }
             item { Text("With segments, value = $valueWithSegments") }
@@ -138,7 +138,7 @@ fun SliderWithIntegersDemo() {
                     value = valueWithSegments,
                     onValueChange = { valueWithSegments = it },
                     valueProgression = IntProgression.fromClosedRange(0, 15, 3),
-                    segmented = true
+                    segmented = true,
                 )
             }
         }
@@ -198,7 +198,7 @@ fun DefaultSlider(
         modifier = modifier,
         enabled = enabled,
         colors = colors,
-        steps = steps
+        steps = steps,
     )
 }
 

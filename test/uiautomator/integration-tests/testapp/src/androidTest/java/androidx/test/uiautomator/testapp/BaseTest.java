@@ -16,12 +16,15 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static android.content.pm.PackageManager.FEATURE_FREEFORM_WINDOW_MANAGEMENT;
+
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -36,6 +39,7 @@ import androidx.test.uiautomator.Until;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.function.ThrowingRunnable;
@@ -75,6 +79,13 @@ public abstract class BaseTest {
         mDevice.setOrientationNatural();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        // b/417797317: Ensure rotation setting is deleted, rather than just reset to "0".
+        mDevice.executeShellCommand(
+                "settings delete system hide_rotation_lock_toggle_for_accessibility");
+    }
+
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {
         launchTestActivity(activity, new Intent().setFlags(DEFAULT_FLAGS), null);
     }
@@ -98,5 +109,13 @@ public abstract class BaseTest {
         } finally {
             configurator.setWaitForSelectorTimeout(timeout);
         }
+    }
+
+    protected static boolean isDesktopWindowing() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && InstrumentationRegistry.getInstrumentation()
+                .getContext()
+                .getPackageManager()
+                .hasSystemFeature(FEATURE_FREEFORM_WINDOW_MANAGEMENT);
     }
 }

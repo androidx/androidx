@@ -24,8 +24,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 
 /**
- * <a href="https://material.io/design/material-theming/overview.html" class="external"
- * target="_blank">Material Theming</a>.
+ * [Material Theming](https://material.io/design/material-theming/overview.html)
  *
  * Material Theming refers to the customization of your Material Design app to better reflect your
  * product’s brand.
@@ -60,7 +59,7 @@ fun MaterialTheme(
     colors: Colors = MaterialTheme.colors,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val rememberedColors =
         remember {
@@ -77,7 +76,7 @@ fun MaterialTheme(
         LocalIndication provides rippleIndication,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
-        LocalTypography provides typography
+        LocalTypography provides typography,
     ) {
         ProvideTextStyle(value = typography.body1) { PlatformMaterialTheme(content) }
     }

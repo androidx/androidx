@@ -73,7 +73,7 @@ class TrivialPowerBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             Thread.sleep(DURATION_MS.toLong())
         }
@@ -110,7 +110,7 @@ class TrivialPowerBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             var done = false
             val threads = emptyList<Thread>()
@@ -151,7 +151,7 @@ class TrivialPowerBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             Thread.sleep(DURATION_MS.toLong())
         }
@@ -184,7 +184,7 @@ class TrivialPowerBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             var done = false
             val threads = emptyList<Thread>()

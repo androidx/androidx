@@ -27,11 +27,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation("androidx.appcompat:appcompat:1.6.1")
 
@@ -57,7 +56,7 @@ android {
         release {
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
     namespace = "androidx.tv.integration.playground"

@@ -72,12 +72,12 @@ constructor(private val projectLayout: ProjectLayout) : DefaultTask() {
                             navigationXml = file,
                             outputDir = out,
                             useAndroidX = useAndroidX.get(),
-                            generateKotlin = generateKotlin.get()
+                            generateKotlin = generateKotlin.get(),
                         )
                         .generate()
                 Mapping(
                     file.relativeTo(projectLayout.projectDirectory.asFile).path,
-                    output.fileNames
+                    output.fileNames,
                 ) to output.errors
             }
             .unzip()

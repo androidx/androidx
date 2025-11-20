@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.avsync
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -107,7 +106,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("NullAnnotationGroup")
     @OptIn(ExperimentalCameraProviderConfiguration::class)
     private fun configureCameraProvider(cameraImplementation: CameraImplementation) {
         val config =

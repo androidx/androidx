@@ -72,7 +72,7 @@ fun ScrollIndicatorWithLCSample() {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            state = scrollState
+            state = scrollState,
         ) {
             items(100) { Text(text = "Item $it") }
         }
@@ -88,7 +88,7 @@ fun ScrollIndicatorWithColumnSample() {
     Box {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             repeat(100) { Text(text = "Item $it") }
         }

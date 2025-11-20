@@ -55,7 +55,7 @@ class Glow(val elevationColor: Color, val elevation: Dp) {
     fun copy(glowColor: Color? = null, glowElevation: Dp? = null): Glow =
         Glow(
             elevationColor = glowColor ?: this.elevationColor,
-            elevation = glowElevation ?: this.elevation
+            elevation = glowElevation ?: this.elevation,
         )
 
     companion object {

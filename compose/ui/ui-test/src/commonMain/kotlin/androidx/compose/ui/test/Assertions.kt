@@ -31,7 +31,9 @@ import androidx.compose.ui.semantics.SemanticsProperties
  */
 fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     if (!isDisplayed()) {
-        throw AssertionError("Assert failed: The component is not displayed!")
+        throw AssertionError(
+            "Assert failed: The component with ${selector.description} is not displayed!"
+        )
     }
     return this
 }
@@ -43,7 +45,9 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
  */
 fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     if (!isNotDisplayed()) {
-        throw AssertionError("Assert failed: The component is displayed!")
+        throw AssertionError(
+            "Assert failed: The component with ${selector.description} is displayed!"
+        )
     }
     return this
 }
@@ -154,7 +158,7 @@ fun SemanticsNodeInteraction.assertContentDescriptionEquals(
 fun SemanticsNodeInteraction.assertContentDescriptionContains(
     value: String,
     substring: Boolean = false,
-    ignoreCase: Boolean = false
+    ignoreCase: Boolean = false,
 ): SemanticsNodeInteraction =
     assert(hasContentDescription(value, substring = substring, ignoreCase = ignoreCase))
 
@@ -176,14 +180,14 @@ fun SemanticsNodeInteraction.assertContentDescriptionContains(
  */
 fun SemanticsNodeInteraction.assertTextEquals(
     vararg values: String,
-    includeEditableText: Boolean = true
+    includeEditableText: Boolean = true,
 ): SemanticsNodeInteraction =
     assert(hasTextExactly(*values, includeEditableText = includeEditableText))
 
 /**
  * Asserts that the node's text contains the given [value].
  *
- * This will also search in [SemanticsProperties.EditableText].
+ * This will also search in [SemanticsProperties.EditableText] and [SemanticsProperties.InputText].
  *
  * Note that in merged semantics tree there can be a list of text items that got merged from the
  * child nodes. Typically an accessibility tooling will decide based on its heuristics which ones to
@@ -200,7 +204,7 @@ fun SemanticsNodeInteraction.assertTextEquals(
 fun SemanticsNodeInteraction.assertTextContains(
     value: String,
     substring: Boolean = false,
-    ignoreCase: Boolean = false
+    ignoreCase: Boolean = false,
 ): SemanticsNodeInteraction = assert(hasText(value, substring = substring, ignoreCase = ignoreCase))
 
 /**
@@ -249,7 +253,7 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
  */
 fun SemanticsNodeInteraction.assert(
     matcher: SemanticsMatcher,
-    messagePrefixOnError: (() -> String)? = null
+    messagePrefixOnError: (() -> String)? = null,
 ): SemanticsNodeInteraction {
     var errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
     if (messagePrefixOnError != null) {
@@ -280,7 +284,7 @@ fun SemanticsNodeInteractionCollection.assertCountEquals(
                 errorMessage = errorOnFail,
                 selector = selector,
                 foundNodes = matchedNodes,
-                expectedCount = expectedSize
+                expectedCount = expectedSize,
             )
         )
     }

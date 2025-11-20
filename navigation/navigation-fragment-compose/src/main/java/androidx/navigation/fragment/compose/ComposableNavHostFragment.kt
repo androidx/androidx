@@ -49,7 +49,7 @@ public open class ComposableNavHostFragment : NavHostFragment() {
         @JvmOverloads
         public fun create(
             @NavigationRes graphResId: Int,
-            startDestinationArgs: Bundle? = null
+            startDestinationArgs: Bundle? = null,
         ): ComposableNavHostFragment {
             return ComposableNavHostFragment().apply {
                 arguments =

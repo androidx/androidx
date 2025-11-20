@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(WearInputTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class WearableRemoteInputExtenderTest {
     @Test
     fun testDisallowEmoji() {
@@ -43,7 +44,7 @@ class WearableRemoteInputExtenderTest {
         // Test that input action type is not set.
         assertEquals(
             -1,
-            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1),
         )
     }
 
@@ -56,7 +57,7 @@ class WearableRemoteInputExtenderTest {
         // Test that input action type is not set.
         assertEquals(
             -1,
-            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1),
         )
     }
 
@@ -73,7 +74,7 @@ class WearableRemoteInputExtenderTest {
         // Test that input action type is not set.
         assertEquals(
             -1,
-            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1),
         )
     }
 
@@ -110,7 +111,7 @@ class WearableRemoteInputExtenderTest {
         assertTrue(remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI))
         assertEquals(
             INPUT_ACTION_TYPE_GO,
-            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE)
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE),
         )
     }
 
@@ -121,7 +122,7 @@ class WearableRemoteInputExtenderTest {
                 IME_ACTION_SEARCH to INPUT_ACTION_TYPE_SEARCH,
                 IME_ACTION_DONE to INPUT_ACTION_TYPE_DONE,
                 IME_ACTION_GO to INPUT_ACTION_TYPE_GO,
-                IME_ACTION_NEXT to INPUT_ACTION_TYPE_SEND // other value
+                IME_ACTION_NEXT to INPUT_ACTION_TYPE_SEND, // other value
             )
     }
 }

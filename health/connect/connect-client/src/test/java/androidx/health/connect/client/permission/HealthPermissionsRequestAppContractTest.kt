@@ -47,7 +47,7 @@ class HealthPermissionsRequestAppContractTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE)
+                setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE),
             )
 
         Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -71,7 +71,7 @@ class HealthPermissionsRequestAppContractTest {
                         PermissionProto.Permission.newBuilder()
                             .setPermission(HealthPermission.WRITE_DISTANCE)
                             .build()
-                    )
+                    ),
                 )
             )
     }
@@ -119,8 +119,8 @@ class HealthPermissionsRequestAppContractTest {
                     PermissionProto.Permission.newBuilder()
                         .setPermission(HealthPermission.WRITE_DISTANCE)
                         .build()
-                )
-            )
+                ),
+            ),
         )
         val result = requestPermissionContract.parseResult(0, intent)
 
@@ -134,7 +134,7 @@ class HealthPermissionsRequestAppContractTest {
         val result =
             requestPermissionContract.getSynchronousResult(
                 context,
-                setOf(HealthPermission.READ_STEPS)
+                setOf(HealthPermission.READ_STEPS),
             )
 
         Truth.assertThat(result).isNull()

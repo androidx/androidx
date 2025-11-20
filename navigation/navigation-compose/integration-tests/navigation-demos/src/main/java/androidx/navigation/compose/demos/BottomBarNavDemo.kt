@@ -49,7 +49,7 @@ fun BottomBarNavDemo() {
         listOf(
             stringResource(R.string.profile) to Profile,
             stringResource(R.string.dashboard) to Dashboard(),
-            stringResource(R.string.scrollable) to Scrollable
+            stringResource(R.string.scrollable) to Scrollable,
         )
 
     Scaffold(
@@ -73,7 +73,7 @@ fun BottomBarNavDemo() {
                                     saveState = true
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }

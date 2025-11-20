@@ -16,7 +16,7 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Exception thrown when evaluation is terminated due the {@link JavaScriptSandbox} being dead.

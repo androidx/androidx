@@ -53,7 +53,7 @@ class CardFragmentActivity : BaseCardActivity() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             val cardView = CardView(layoutInflater, container)
             cardView.bind(Card.fromBundle(requireArguments()))

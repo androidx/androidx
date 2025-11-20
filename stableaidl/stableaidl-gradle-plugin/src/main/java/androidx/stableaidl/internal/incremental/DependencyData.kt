@@ -16,10 +16,10 @@
 package androidx.stableaidl.internal.incremental
 
 import com.google.common.annotations.VisibleForTesting
-import com.google.common.base.Charsets
 import com.google.common.collect.Lists
 import java.io.File
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 /**
@@ -54,7 +54,7 @@ class DependencyData internal constructor() {
         OUTPUT,
         MAIN,
         SECONDARY,
-        DONE
+        DONE,
     }
 
     override fun toString(): String {
@@ -81,7 +81,7 @@ class DependencyData internal constructor() {
             if (!dependencyFile.isFile()) {
                 return null
             }
-            Files.lines(dependencyFile.toPath(), Charsets.UTF_8).use { lines ->
+            Files.lines(dependencyFile.toPath(), StandardCharsets.UTF_8).use { lines ->
                 return processDependencyData(Iterable { lines.iterator() })
             }
         }

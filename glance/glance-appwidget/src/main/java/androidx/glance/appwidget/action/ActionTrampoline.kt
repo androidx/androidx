@@ -32,7 +32,7 @@ internal enum class ActionTrampolineType {
     BROADCAST,
     SERVICE,
     FOREGROUND_SERVICE,
-    CALLBACK
+    CALLBACK,
 }
 
 private const val ActionTrampolineScheme = "glance-action"
@@ -80,11 +80,11 @@ internal fun createUniqueUri(
             if (translationContext.isLazyCollectionDescendant) {
                 appendQueryParameter(
                     "lazyCollection",
-                    translationContext.layoutCollectionViewId.toString()
+                    translationContext.layoutCollectionViewId.toString(),
                 )
                 appendQueryParameter(
                     "lazeViewItem",
-                    translationContext.layoutCollectionItemId.toString()
+                    translationContext.layoutCollectionItemId.toString(),
                 )
             }
         }
@@ -104,7 +104,7 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
     if (intent.hasExtra(RemoteViews.EXTRA_CHECKED)) {
         actionIntent.putExtra(
             RemoteViews.EXTRA_CHECKED,
-            intent.getBooleanExtra(RemoteViews.EXTRA_CHECKED, false)
+            intent.getBooleanExtra(RemoteViews.EXTRA_CHECKED, false),
         )
     }
     val type =
@@ -122,7 +122,7 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     ListAdapterTrampolineApi26Impl.startForegroundService(
                         context = this,
-                        intent = actionIntent
+                        intent = actionIntent,
                     )
                 } else {
                     startService(actionIntent)

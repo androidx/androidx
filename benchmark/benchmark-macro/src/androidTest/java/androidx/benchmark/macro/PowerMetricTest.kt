@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import androidx.benchmark.macro.Metric.Measurement
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.traceprocessor.TraceProcessor
-import androidx.benchmark.traceprocessor.runSingleSessionServer
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
@@ -33,7 +32,7 @@ class PowerMetricTest {
             31,
             "androidx.benchmark.integration.macrobenchmark.target",
             "androidx.benchmark.macro",
-            StartupMode.COLD
+            StartupMode.COLD,
         )
 
     @Test
@@ -68,10 +67,10 @@ class PowerMetricTest {
                     Measurement("energyComponentRadioFrontendUws", 0.0),
                     Measurement("energyComponentWifiBtUws", 493868.0),
                     Measurement("energyComponentSystemFabricUws", 122766.0),
-                    Measurement("energyTotalUws", 2589658.0)
+                    Measurement("energyTotalUws", 2589658.0),
                 ),
             observed = actualMetrics,
-            threshold = 0.1
+            threshold = 0.1,
         )
     }
 
@@ -100,7 +99,7 @@ class PowerMetricTest {
                     Measurement("powerTotalUw", 536.9392494298155),
                 ),
             observed = actualMetrics,
-            threshold = 0.00001
+            threshold = 0.00001,
         )
     }
 
@@ -115,7 +114,7 @@ class PowerMetricTest {
                 PowerCategory.MEMORY to PowerCategoryDisplayLevel.TOTAL,
                 PowerCategory.CPU to PowerCategoryDisplayLevel.TOTAL,
                 PowerCategory.NETWORK to PowerCategoryDisplayLevel.TOTAL,
-                PowerCategory.UNCATEGORIZED to PowerCategoryDisplayLevel.BREAKDOWN
+                PowerCategory.UNCATEGORIZED to PowerCategoryDisplayLevel.BREAKDOWN,
             )
 
         val actualMetrics =
@@ -132,10 +131,10 @@ class PowerMetricTest {
                     Measurement("powerCategoryNetworkUw", 123.74248393116318),
                     Measurement("powerComponentSystemFabricUw", 25.454281567489115),
                     Measurement("powerUnselectedUw", 24.327182251710553),
-                    Measurement("powerTotalUw", 536.9392494298155)
+                    Measurement("powerTotalUw", 536.9392494298155),
                 ),
             observed = actualMetrics,
-            threshold = 0.00001
+            threshold = 0.00001,
         )
     }
 
@@ -172,10 +171,10 @@ class PowerMetricTest {
                 listOf(
                     Measurement("batteryStartMah", 1020.0),
                     Measurement("batteryEndMah", 1007.0),
-                    Measurement("batteryDiffMah", 13.0)
+                    Measurement("batteryDiffMah", 13.0),
                 ),
             observed = actualMetrics,
-            threshold = 0.1
+            threshold = 0.1,
         )
     }
 
@@ -183,7 +182,7 @@ class PowerMetricTest {
     fun deviceSupportsPowerEnergy() {
         assertEquals(
             PowerRail.hasMetrics(throwOnMissingMetrics = false),
-            PowerMetric.deviceSupportsHighPrecisionTracking()
+            PowerMetric.deviceSupportsHighPrecisionTracking(),
         )
     }
 
@@ -191,7 +190,7 @@ class PowerMetricTest {
     fun deviceBatteryHasMinimumCharge() {
         assertEquals(
             BatteryCharge.hasMinimumCharge(throwOnMissingMetrics = false),
-            PowerMetric.deviceBatteryHasMinimumCharge()
+            PowerMetric.deviceBatteryHasMinimumCharge(),
         )
     }
 }

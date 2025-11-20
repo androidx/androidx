@@ -68,7 +68,7 @@ class SecurityStateManagerCompatTest {
                 if (value!!.isNotEmpty()) {
                     assertTrue(
                         "WebView version format incorrect for $key: $value",
-                        value.matches(versionRegexWebView.toRegex())
+                        value.matches(versionRegexWebView.toRegex()),
                     )
                     break
                 }
@@ -102,7 +102,7 @@ class SecurityStateManagerCompatTest {
         assertFalse(containsModuleMetadataPackage(bundle))
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M, maxSdkVersion = Build.VERSION_CODES.N_MR1)
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     @Test
     fun testGetGlobalSecurityState_sdkAbove22Below26_doesNotContainModuleMetadataOrWebView() {
         val bundle = securityStateManagerCompat.getGlobalSecurityState()
@@ -112,21 +112,6 @@ class SecurityStateManagerCompatTest {
         assertFalse(containsWebViewPackage(bundle))
     }
 
-    @SdkSuppress(
-        minSdkVersion = Build.VERSION_CODES.LOLLIPOP,
-        maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1
-    )
-    @Test
-    fun testGetGlobalSecurityState_sdkBelow23_containsOnlyKernel() {
-        val bundle = securityStateManagerCompat.getGlobalSecurityState()
-        assertTrue(matchesKernelFormat(bundle.getString("kernel_version")!!))
-        assertFalse(bundle.containsKey("system_spl"))
-        assertFalse(bundle.containsKey("vendor_spl"))
-        assertFalse(containsModuleMetadataPackage(bundle))
-        assertFalse(containsWebViewPackage(bundle))
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testGetGlobalSecurityState_whenVendorIsEnabled_containsVendorSpl() {
         SecurityPatchState.Companion.USE_VENDOR_SPL = true
@@ -134,7 +119,6 @@ class SecurityStateManagerCompatTest {
         assertTrue(bundle.containsKey("vendor_spl"))
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testGetGlobalSecurityState_whenVendorIsDisabled_doesNotContainVendorSpl() {
         SecurityPatchState.Companion.USE_VENDOR_SPL = false

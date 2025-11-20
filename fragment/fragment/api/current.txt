@@ -196,6 +196,7 @@ package androidx.fragment.app {
     ctor public FragmentContainerView(android.content.Context context);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs);
     ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor @BytecodeOnly public FragmentContainerView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public <F extends androidx.fragment.app.Fragment> F getFragment();
   }
 
@@ -470,14 +471,14 @@ package androidx.fragment.app {
 package androidx.fragment.app.strictmode {
 
   public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
-    method public String getPreviousFragmentId();
+    method @InaccessibleFromKotlin public String getPreviousFragmentId();
     property public String previousFragmentId;
   }
 
   public final class FragmentStrictMode {
-    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method @InaccessibleFromKotlin public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
     method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
-    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
+    method @InaccessibleFromKotlin public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy);
     property public androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
     field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
   }
@@ -508,7 +509,7 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
-    method public android.view.ViewGroup? getParentContainer();
+    method @InaccessibleFromKotlin public android.view.ViewGroup? getParentContainer();
     property public android.view.ViewGroup? parentContainer;
   }
 
@@ -528,14 +529,14 @@ package androidx.fragment.app.strictmode {
   }
 
   public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
-    method public int getRequestCode();
-    method public androidx.fragment.app.Fragment getTargetFragment();
+    method @InaccessibleFromKotlin public int getRequestCode();
+    method @InaccessibleFromKotlin public androidx.fragment.app.Fragment getTargetFragment();
     property public int requestCode;
     property public androidx.fragment.app.Fragment targetFragment;
   }
 
   public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
-    method public boolean isVisibleToUser();
+    method @InaccessibleFromKotlin public boolean isVisibleToUser();
     property public boolean isVisibleToUser;
   }
 
@@ -543,18 +544,18 @@ package androidx.fragment.app.strictmode {
   }
 
   public abstract class Violation extends java.lang.RuntimeException {
-    method public final androidx.fragment.app.Fragment getFragment();
+    method @InaccessibleFromKotlin public final androidx.fragment.app.Fragment getFragment();
     property public final androidx.fragment.app.Fragment fragment;
   }
 
   public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
-    method public android.view.ViewGroup getContainer();
+    method @InaccessibleFromKotlin public android.view.ViewGroup getContainer();
     property public android.view.ViewGroup container;
   }
 
   public final class WrongNestedHierarchyViolation extends androidx.fragment.app.strictmode.Violation {
-    method public int getContainerId();
-    method public androidx.fragment.app.Fragment getExpectedParentFragment();
+    method @InaccessibleFromKotlin public int getContainerId();
+    method @InaccessibleFromKotlin public androidx.fragment.app.Fragment getExpectedParentFragment();
     property public int containerId;
     property public androidx.fragment.app.Fragment expectedParentFragment;
   }

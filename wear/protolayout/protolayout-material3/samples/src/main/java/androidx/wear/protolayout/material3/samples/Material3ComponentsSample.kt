@@ -27,8 +27,13 @@ import androidx.wear.protolayout.LayoutElementBuilders.Box
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.ProtoLayoutScope
+import androidx.wear.protolayout.ResourceBuilders.LottieProperty.colorForSlot
+import androidx.wear.protolayout.TriggerBuilders.createOnVisibleTrigger
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
+import androidx.wear.protolayout.layout.imageResource
+import androidx.wear.protolayout.layout.lottieResource
 import androidx.wear.protolayout.material3.AppCardStyle
 import androidx.wear.protolayout.material3.CardDefaults.filledTonalCardColors
 import androidx.wear.protolayout.material3.CardDefaults.filledVariantCardColors
@@ -58,6 +63,7 @@ import androidx.wear.protolayout.material3.iconDataCard
 import androidx.wear.protolayout.material3.iconEdgeButton
 import androidx.wear.protolayout.material3.imageButton
 import androidx.wear.protolayout.material3.materialScope
+import androidx.wear.protolayout.material3.materialScopeWithResources
 import androidx.wear.protolayout.material3.primaryLayout
 import androidx.wear.protolayout.material3.segmentedCircularProgressIndicator
 import androidx.wear.protolayout.material3.text
@@ -66,9 +72,11 @@ import androidx.wear.protolayout.material3.textDataCard
 import androidx.wear.protolayout.material3.textEdgeButton
 import androidx.wear.protolayout.material3.titleCard
 import androidx.wear.protolayout.modifiers.LayoutModifier
-import androidx.wear.protolayout.modifiers.backgroundColor
+import androidx.wear.protolayout.modifiers.background
+import androidx.wear.protolayout.modifiers.clearSemantics
 import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.contentDescription
+import androidx.wear.protolayout.modifiers.fadeInOnVisibleModifier
 import androidx.wear.protolayout.types.LayoutString
 import androidx.wear.protolayout.types.asLayoutConstraint
 import androidx.wear.protolayout.types.layoutString
@@ -80,11 +88,22 @@ fun helloWorldTextDefault(context: Context, deviceConfiguration: DeviceParameter
         text(text = "Hello Material3".layoutString, typography = Typography.DISPLAY_LARGE)
     }
 
+/** Builds Material3 text element with default options. */
+@Sampled
+fun helloWorldTextAutosize(context: Context, deviceConfiguration: DeviceParameters): LayoutElement =
+    materialScope(context, deviceConfiguration) {
+        text(
+            text = "Hello Material3".layoutString,
+            typography = Typography.DISPLAY_LARGE,
+            incrementsForTypographySize = listOf(-4f, -2f, 2f),
+        )
+    }
+
 /** Builds Material3 text element with some of the overridden defaults. */
 @Sampled
 fun helloWorldTextDynamicCustom(
     context: Context,
-    deviceConfiguration: DeviceParameters
+    deviceConfiguration: DeviceParameters,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         this.text(
@@ -92,12 +111,12 @@ fun helloWorldTextDynamicCustom(
                 LayoutString(
                     "Static",
                     DynamicString.constant("Dynamic"),
-                    "LongestConstraint".asLayoutConstraint()
+                    "LongestConstraint".asLayoutConstraint(),
                 ),
             typography = Typography.DISPLAY_LARGE,
             color = colorScheme.tertiary,
             underline = true,
-            maxLines = 5
+            maxLines = 5,
         )
     }
 
@@ -105,12 +124,12 @@ fun helloWorldTextDynamicCustom(
 fun edgeButtonSampleIcon(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         iconEdgeButton(
             onClick = clickable,
-            modifier = LayoutModifier.contentDescription("Description of a button")
+            modifier = LayoutModifier.contentDescription("Description of a button"),
         ) {
             icon(protoLayoutResourceId = "id")
         }
@@ -120,12 +139,12 @@ fun edgeButtonSampleIcon(
 fun edgeButtonSampleText(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         textEdgeButton(
             onClick = clickable,
-            modifier = LayoutModifier.contentDescription("Description of a button")
+            modifier = LayoutModifier.contentDescription("Description of a button"),
         ) {
             text("Hello".layoutString)
         }
@@ -135,7 +154,7 @@ fun edgeButtonSampleText(
 fun topLevelLayout(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -163,11 +182,11 @@ fun topLevelLayout(
             bottomSlot = {
                 iconEdgeButton(
                     onClick = clickable,
-                    modifier = LayoutModifier.contentDescription("Description")
+                    modifier = LayoutModifier.contentDescription("Description"),
                 ) {
                     icon("id")
                 }
-            }
+            },
         )
     }
 
@@ -175,7 +194,7 @@ fun topLevelLayout(
 fun cardSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -187,7 +206,7 @@ fun cardSample(
                             .clickable(id = "card"),
                     width = expand(),
                     height = expand(),
-                    backgroundContent = { backgroundImage(protoLayoutResourceId = "id") }
+                    backgroundContent = { backgroundImage(protoLayoutResourceId = "id") },
                 ) {
                     text("Content of the Card!".layoutString)
                 }
@@ -199,7 +218,7 @@ fun cardSample(
 fun titleCardSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -212,7 +231,7 @@ fun titleCardSample(
                     style = largeTitleCardStyle(),
                     title = { text("This is title of the title card".layoutString) },
                     time = { text("NOW".layoutString) },
-                    content = { text("Content of the Card!".layoutString) }
+                    content = { text("Content of the Card!".layoutString) },
                 )
             }
         )
@@ -222,7 +241,7 @@ fun titleCardSample(
 fun appCardSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -246,7 +265,7 @@ fun appCardSample(
 fun dataCardSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -262,7 +281,7 @@ fun dataCardSample(
                             style = extraLargeDataCardStyle(),
                             title = { this.text("1km".layoutString) },
                             content = { this.text("Run".layoutString) },
-                            secondaryText = { this.text("Nice!".layoutString) }
+                            secondaryText = { this.text("Nice!".layoutString) },
                         )
                     }
                     buttonGroupItem {
@@ -302,7 +321,7 @@ fun dataCardSample(
 fun graphicDataCardSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -331,7 +350,7 @@ fun graphicDataCardSample(
 fun customButtonSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -341,13 +360,13 @@ fun customButtonSample(
                     onClick = clickable,
                     modifier =
                         LayoutModifier.contentDescription("Big button with image background")
-                            .backgroundColor(colorScheme.primary),
+                            .background(colorScheme.primary),
                     width = expand(),
                     height = expand(),
                     labelContent = {
                         // This can be further built.
                         Box.Builder().build()
-                    }
+                    },
                 )
             }
         )
@@ -357,7 +376,7 @@ fun customButtonSample(
 fun oneSlotButtonsSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -372,7 +391,7 @@ fun oneSlotButtonsSample(
                                 ),
                             width = expand(),
                             height = expand(),
-                            iconContent = { icon("id1") }
+                            iconContent = { icon("id1") },
                         )
                     }
                     buttonGroupItem {
@@ -385,7 +404,7 @@ fun oneSlotButtonsSample(
                             width = expand(),
                             height = expand(),
                             shape = shapes.large,
-                            iconContent = { icon("id2") }
+                            iconContent = { icon("id2") },
                         )
                     }
                     buttonGroupItem {
@@ -398,7 +417,7 @@ fun oneSlotButtonsSample(
                             width = expand(),
                             height = expand(),
                             shape = shapes.large,
-                            labelContent = { text("Dec".layoutString) }
+                            labelContent = { text("Dec".layoutString) },
                         )
                     }
                 }
@@ -410,7 +429,7 @@ fun oneSlotButtonsSample(
 fun imageButtonSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -421,7 +440,7 @@ fun imageButtonSample(
                         LayoutModifier.contentDescription("Big button with image background"),
                     width = expand(),
                     height = expand(),
-                    backgroundContent = { backgroundImage(protoLayoutResourceId = "id") }
+                    backgroundContent = { backgroundImage(protoLayoutResourceId = "id") },
                 )
             }
         )
@@ -438,12 +457,12 @@ fun singleSegmentCircularProgressIndicator(
                 DynamicFloat.animate(
                     0.0F,
                     1.1F,
-                    CircularProgressIndicatorDefaults.recommendedAnimationSpec
+                    CircularProgressIndicatorDefaults.recommendedAnimationSpec,
                 ),
             startAngleDegrees = 200F,
             endAngleDegrees = 520F,
             colors = filledVariantProgressIndicatorColors(),
-            size = dp(85F)
+            size = dp(85F),
         )
     }
 
@@ -451,7 +470,7 @@ fun singleSegmentCircularProgressIndicator(
 fun pillShapeButtonsSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -463,7 +482,7 @@ fun pillShapeButtonsSample(
                     height = expand(),
                     labelContent = { text("First label".layoutString) },
                     secondaryLabelContent = { text("Second label".layoutString) },
-                    iconContent = { icon("id") }
+                    iconContent = { icon("id") },
                 )
             }
         )
@@ -483,7 +502,7 @@ fun MaterialScope.avatarButtonSample() =
 fun compactButtonsSample(
     context: Context,
     deviceConfiguration: DeviceParameters,
-    clickable: Clickable
+    clickable: Clickable,
 ): LayoutElement =
     materialScope(context, deviceConfiguration) {
         primaryLayout(
@@ -493,7 +512,7 @@ fun compactButtonsSample(
                     modifier = LayoutModifier.contentDescription("Compact button"),
                     width = expand(),
                     labelContent = { text("Action".layoutString) },
-                    iconContent = { icon("id") }
+                    iconContent = { icon("id") },
                 )
             }
         )
@@ -511,11 +530,62 @@ fun multipleSegmentsCircularProgressIndicator(
                 DynamicFloat.animate(
                     0.0F,
                     1.1F,
-                    CircularProgressIndicatorDefaults.recommendedAnimationSpec
+                    CircularProgressIndicatorDefaults.recommendedAnimationSpec,
                 ),
             startAngleDegrees = 200F,
             endAngleDegrees = 520F,
             colors = filledVariantProgressIndicatorColors(),
-            size = dp(85F)
+            size = dp(85F),
+        )
+    }
+
+@Sampled
+fun primaryLayoutWithTextNotImportantForAccessibility(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+): LayoutElement =
+    materialScope(context, deviceConfiguration) {
+        primaryLayout(
+            titleSlot = {
+                text("App title".layoutString, modifier = LayoutModifier.clearSemantics())
+            },
+            mainSlot = { text("Main content".layoutString) },
+            bottomSlot = {
+                text("Bottom slot".layoutString, modifier = LayoutModifier.clearSemantics())
+            },
+            labelForBottomSlot = {
+                text("Bottom label".layoutString, modifier = LayoutModifier.clearSemantics())
+            },
+        )
+    }
+
+@Suppress("ResourceType") // Just a sample, not a real resource.
+@Sampled
+fun lottieWithFadeIn(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    scope: ProtoLayoutScope,
+) =
+    materialScopeWithResources(
+        context = context,
+        protoLayoutScope = scope,
+        deviceConfiguration = deviceConfiguration,
+    ) {
+        primaryLayout(
+            mainSlot = {
+                backgroundImage(
+                    resource =
+                        imageResource(
+                            lottie =
+                                lottieResource(
+                                    rawResourceId = 1234, // Lottie Raw Resource ID,
+                                    startTrigger = createOnVisibleTrigger(),
+                                    properties =
+                                        listOf(colorForSlot("slotID", colorScheme.tertiary.prop)),
+                                )
+                        ),
+                    modifier = LayoutModifier.fadeInOnVisibleModifier(),
+                )
+            }
         )
     }

@@ -37,7 +37,7 @@ class WeightedLinearLayoutTestCase(private val subLayouts: Int, private val numb
         mainLayout.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
 
         repeat(subLayouts) {
@@ -47,7 +47,7 @@ class WeightedLinearLayoutTestCase(private val subLayouts: Int, private val numb
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    1 / subLayouts.toFloat()
+                    1 / subLayouts.toFloat(),
                 )
 
             repeat(numberOfBoxes) {
@@ -57,7 +57,7 @@ class WeightedLinearLayoutTestCase(private val subLayouts: Int, private val numb
                     LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,
-                        1 / numberOfBoxes.toFloat()
+                        1 / numberOfBoxes.toFloat(),
                     )
                 row.addView(box)
             }

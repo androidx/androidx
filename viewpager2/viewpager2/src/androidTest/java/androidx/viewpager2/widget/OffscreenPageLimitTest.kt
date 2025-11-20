@@ -51,7 +51,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         @ViewPager2.Orientation val orientation: Int,
         val rtl: Boolean,
         val adapterProvider: AdapterProviderForItems,
-        val offscreenPageLimit: Int
+        val offscreenPageLimit: Int,
     )
 
     companion object {
@@ -92,7 +92,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                 Pair(4, true),
                 Pair(1, false),
                 Pair(6, true),
-                Pair(0, false)
+                Pair(0, false),
             )
             .forEach { target ->
                 test.viewPager.setCurrentItemSync(target.first, target.second, 2, SECONDS)
@@ -128,14 +128,14 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                         "There should be ${upper - lower + 1} pages laid out at event $i. " +
                             "Events: ${recorder.dumpEvents()}",
                         onscreen.size,
-                        equalTo(upper - lower + 1)
+                        equalTo(upper - lower + 1),
                     )
                     (lower..upper).forEach { laidOutPage ->
                         assertThat(
                             "Page $laidOutPage should be laid out at event $i. " +
                                 "Events: ${recorder.dumpEvents()}",
                             onscreen,
-                            hasItem(laidOutPage)
+                            hasItem(laidOutPage),
                         )
                     }
                 }
@@ -152,13 +152,13 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
             "The last OnChildViewAdded should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
             recorder.lastAddedIx,
-            lessThan(recorder.lastScrolledIx)
+            lessThan(recorder.lastScrolledIx),
         )
         assertThat(
             "The last OnChildViewRemoved should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
             recorder.lastRemovedIx,
-            lessThan(recorder.lastScrolledIx)
+            lessThan(recorder.lastScrolledIx),
         )
     }
 
@@ -173,7 +173,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -211,7 +211,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }

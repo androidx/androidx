@@ -23,6 +23,9 @@ import androidx.sqlite.SQLiteStatement
 // Restricted instead of internal due to KT-37316
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public expect class BundledSQLiteConnection : SQLiteConnection {
+
+    public override fun inTransaction(): Boolean
+
     public override fun prepare(sql: String): SQLiteStatement
 
     public override fun close()

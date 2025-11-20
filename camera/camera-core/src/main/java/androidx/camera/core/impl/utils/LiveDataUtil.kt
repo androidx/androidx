@@ -71,7 +71,7 @@ public class RedirectableLiveData<T>(private val initialValue: T) :
  */
 public open class MappingRedirectableLiveData<I, O>(
     private val initialValue: O,
-    private val mapFunction: Function<I, O>
+    private val mapFunction: Function<I, O>,
 ) : MediatorLiveData<O>() {
     private var liveDataSource: LiveData<I>? = null
 
@@ -84,12 +84,12 @@ public open class MappingRedirectableLiveData<I, O>(
      * @param liveDataSource The source `LiveData`.
      */
     public fun redirectTo(liveDataSource: LiveData<I>) {
-        if (this.liveDataSource != null) {
-            super.removeSource(this.liveDataSource!!)
-        }
+        val oldSource = this.liveDataSource
         this.liveDataSource = liveDataSource
         runOnMain {
-            // addSource should be invoked in main thread.
+            if (oldSource != null) {
+                super.removeSource(oldSource)
+            }
             super.addSource(liveDataSource) { value: I -> this.value = mapFunction.apply(value) }
         }
     }

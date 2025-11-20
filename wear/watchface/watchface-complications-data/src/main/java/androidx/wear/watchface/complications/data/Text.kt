@@ -26,6 +26,7 @@ import android.support.wearable.complications.ComplicationText.TimeDifferenceBui
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireComplicationTextTimeFormatBuilder
 import android.support.wearable.complications.TimeDependentText as WireTimeDependentText
 import android.support.wearable.complications.TimeDifferenceText
+import android.support.wearable.complications.TimeFormatText
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
 import android.text.style.StrikethroughSpan
@@ -37,6 +38,12 @@ import android.text.style.UnderlineSpan
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
+import com.google.wear.expression.ProtoLayoutDynamicString as WearSdkDynamicString
+import com.google.wear.services.complications.ComplicationText as WearSdkComplicationText
+import com.google.wear.services.complications.DynamicComplicationText as WearSdkDynamicComplicationText
+import com.google.wear.services.complications.PlainComplicationText as WearSdkPlainComplicationText
+import com.google.wear.services.complications.TimeDifferenceComplicationText as WearSdkTimeDifferenceComplicationText
+import com.google.wear.services.complications.TimeFormatComplicationText as WearSdkTimeFormatComplicationText
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
@@ -238,7 +245,7 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
      * into the seven character limit then a shorter form will be used instead, e.g. `1356d` instead
      * of `1356 days`.
      */
-    SHORT_WORDS_SINGLE_UNIT(WireComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT)
+    SHORT_WORDS_SINGLE_UNIT(WireComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT),
 }
 
 /** A [ComplicationText] that represents a time difference. */
@@ -298,7 +305,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
     private constructor(
         private val style: TimeDifferenceStyle,
         private val startInstant: Instant?,
-        private val endInstant: Instant?
+        private val endInstant: Instant?,
     ) {
         private var text: CharSequence? = null
         private var displayAsNow: Boolean? = null
@@ -313,7 +320,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
          */
         public constructor(
             style: TimeDifferenceStyle,
-            countUpTimeReference: CountUpTimeReference
+            countUpTimeReference: CountUpTimeReference,
         ) : this(style, null, countUpTimeReference.instant)
 
         /**
@@ -325,7 +332,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
          */
         public constructor(
             style: TimeDifferenceStyle,
-            countDownTimeReference: CountDownTimeReference
+            countDownTimeReference: CountDownTimeReference,
         ) : this(style, countDownTimeReference.instant, null)
 
         /**
@@ -396,7 +403,7 @@ public class TimeDifferenceComplicationText internal constructor(delegate: WireC
 public enum class TimeFormatStyle(internal val wireStyle: Int) {
     DEFAULT(WireComplicationText.FORMAT_STYLE_DEFAULT),
     UPPER_CASE(WireComplicationText.FORMAT_STYLE_UPPER_CASE),
-    LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE)
+    LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE),
 }
 
 /** A [ComplicationText] that shows a formatted time. */
@@ -558,6 +565,8 @@ internal fun WireComplicationText.toApiComplicationText(
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
 internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone = java.util.TimeZone.getTimeZone(this.id)
 
+internal fun java.util.TimeZone.asIcuTimeZone(): TimeZone = TimeZone.getTimeZone(this.id)
+
 /** [ComplicationText] implementation that delegates to a [WireTimeDependentText] instance. */
 private class DelegatingTimeDependentText(private val delegate: WireTimeDependentText) :
     ComplicationText {
@@ -601,6 +610,49 @@ private class DelegatingTimeDependentText(private val delegate: WireTimeDependen
     override fun hashCode() = delegate.hashCode()
 
     override fun toString() = delegate.toString()
+}
+
+internal fun ComplicationText.asWearSdkComplicationText(): WearSdkComplicationText {
+    val wireFormat = this.toWireComplicationText()
+    val input = this
+    return when (input) {
+        is PlainComplicationText -> WearSdkPlainComplicationText(wireFormat.surroundingText ?: "")
+        is DynamicComplicationText ->
+            WearSdkDynamicComplicationText(
+                WearSdkDynamicString.fromBytes(
+                    wireFormat.dynamicValue?.toDynamicStringByteArray() ?: ByteArray(0)
+                )
+            )
+        is TimeDifferenceComplicationText ->
+            WearSdkTimeDifferenceComplicationText.Builder()
+                .apply {
+                    setSurroundingText(wireFormat.surroundingText)
+                    setStyle((wireFormat.timeDependentText as TimeDifferenceText).style)
+                    setReferencePeriodStartMillis(
+                        (wireFormat.timeDependentText as TimeDifferenceText).referencePeriodStart
+                    )
+                    setReferencePeriodEndMillis(
+                        (wireFormat.timeDependentText as TimeDifferenceText).referencePeriodEnd
+                    )
+                    setMinimumUnit((wireFormat.timeDependentText as TimeDifferenceText).minimumUnit)
+                    setShowNowText(
+                        (wireFormat.timeDependentText as TimeDifferenceText).shouldShowNowText()
+                    )
+                }
+                .build()
+        is TimeFormatComplicationText ->
+            WearSdkTimeFormatComplicationText.Builder()
+                .apply {
+                    setSurroundingText(wireFormat.surroundingText)
+                    setStyle((wireFormat.timeDependentText as TimeFormatText).style)
+                    setFormat((wireFormat.timeDependentText as TimeFormatText).formatString)
+                    setTimeZone(
+                        (wireFormat.timeDependentText as TimeFormatText).timeZone?.asIcuTimeZone()
+                    )
+                }
+                .build()
+        else -> WearSdkPlainComplicationText("")
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

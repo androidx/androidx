@@ -24,4 +24,4 @@ package androidx.compose.runtime
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.TYPE)
-annotation class DisallowComposableCalls
+public annotation class DisallowComposableCalls

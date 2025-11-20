@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.activity.result
 
 import android.app.Activity
@@ -45,7 +48,7 @@ interface ActivityResultCaller {
      */
     fun <I, O> registerForActivityResult(
         contract: ActivityResultContract<I, O>,
-        callback: ActivityResultCallback<O>
+        callback: ActivityResultCallback<O>,
     ): ActivityResultLauncher<I>
 
     /**
@@ -69,7 +72,7 @@ interface ActivityResultCaller {
     fun <I, O> registerForActivityResult(
         contract: ActivityResultContract<I, O>,
         registry: ActivityResultRegistry,
-        callback: ActivityResultCallback<O>
+        callback: ActivityResultCallback<O>,
     ): ActivityResultLauncher<I>
 }
 
@@ -83,7 +86,7 @@ fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     registry: ActivityResultRegistry,
-    callback: (@JvmSuppressWildcards O) -> Unit
+    callback: (@JvmSuppressWildcards O) -> Unit,
 ): ActivityResultLauncher<Unit> {
     val resultLauncher = registerForActivityResult(contract, registry) { callback(it) }
     return ActivityResultCallerLauncher(resultLauncher, contract, input)
@@ -98,7 +101,7 @@ fun <I, O> ActivityResultCaller.registerForActivityResult(
 fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
-    callback: (@JvmSuppressWildcards O) -> Unit
+    callback: (@JvmSuppressWildcards O) -> Unit,
 ): ActivityResultLauncher<Unit> {
     val resultLauncher = registerForActivityResult(contract) { callback(it) }
     return ActivityResultCallerLauncher(resultLauncher, contract, input)
@@ -107,7 +110,7 @@ fun <I, O> ActivityResultCaller.registerForActivityResult(
 internal class ActivityResultCallerLauncher<I, O>(
     private val launcher: ActivityResultLauncher<I>,
     val callerContract: ActivityResultContract<I, O>,
-    val callerInput: I
+    val callerInput: I,
 ) : ActivityResultLauncher<Unit>() {
     private val resultContract: ActivityResultContract<Unit, O> by lazy {
         object : ActivityResultContract<Unit, O>() {

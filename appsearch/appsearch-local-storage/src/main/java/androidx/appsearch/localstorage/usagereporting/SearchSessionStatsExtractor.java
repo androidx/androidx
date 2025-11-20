@@ -83,7 +83,8 @@ public final class SearchSessionStatsExtractor {
      * @param currSearchAction the current search action {@link SearchActionGenericDocument}.
      * @param prevSearchAction the previous search action {@link SearchActionGenericDocument}.
      */
-    public static @SearchIntentStats.QueryCorrectionType int getQueryCorrectionType(
+    @SearchIntentStats.QueryCorrectionType
+    public static int getQueryCorrectionType(
             @NonNull SearchActionGenericDocument currSearchAction,
             @Nullable SearchActionGenericDocument prevSearchAction) {
         Objects.requireNonNull(currSearchAction);
@@ -106,6 +107,9 @@ public final class SearchSessionStatsExtractor {
         // strings.
         String prevQuery = prevSearchAction.getQuery();
         String currQuery = currSearchAction.getQuery();
+        if (prevQuery == null || currQuery == null) {
+            return SearchIntentStats.QUERY_CORRECTION_TYPE_UNKNOWN;
+        }
         int commonPrefixLength = getCommonPrefixLength(prevQuery, currQuery);
         // If the user hits backspace >= QUERY_ABANDONMENT_BACKSPACE_COUNT times, then it is query
         // abandonment. Otherwise, it is query refinement.
@@ -130,11 +134,13 @@ public final class SearchSessionStatsExtractor {
      * @param packageName The package name of the caller.
      * @param database The database name of the caller.
      * @param genericDocuments a list of taken actions in generic document form.
+     * @param isVMEnabled whether the pVM is enabled in AppSearch.
      */
     public @NonNull List<SearchSessionStats> extract(
             @NonNull String packageName,
             @Nullable String database,
-            @NonNull List<GenericDocument> genericDocuments) {
+            @NonNull List<GenericDocument> genericDocuments,
+            boolean isVMEnabled) {
         Objects.requireNonNull(genericDocuments);
 
         // Convert GenericDocument list to TakenActionGenericDocument list and sort them by document
@@ -225,7 +231,8 @@ public final class SearchSessionStatsExtractor {
             // session.
             if (searchSessionStatsBuilder == null) {
                 searchSessionStatsBuilder =
-                        new SearchSessionStats.Builder(packageName).setDatabase(database);
+                        new SearchSessionStats.Builder(packageName).setDatabase(database)
+                                .setLaunchVMEnabled(isVMEnabled);
             }
             searchSessionStatsBuilder.addSearchIntentsStats(
                     createSearchIntentStats(
@@ -233,7 +240,8 @@ public final class SearchSessionStatsExtractor {
                             database,
                             currSearchAction,
                             clickActions,
-                            prevSearchAction));
+                            prevSearchAction,
+                            isVMEnabled));
             prevSearchAction = currSearchAction;
         }
         if (searchSessionStatsBuilder != null) {
@@ -251,18 +259,20 @@ public final class SearchSessionStatsExtractor {
             @Nullable String database,
             @NonNull SearchActionGenericDocument currSearchAction,
             @NonNull List<ClickActionGenericDocument> clickActions,
-            @Nullable SearchActionGenericDocument prevSearchAction) {
+            @Nullable SearchActionGenericDocument prevSearchAction,
+            boolean isVMEnabled) {
         SearchIntentStats.Builder builder = new SearchIntentStats.Builder(packageName)
                 .setDatabase(database)
                 .setTimestampMillis(currSearchAction.getCreationTimestampMillis())
                 .setCurrQuery(currSearchAction.getQuery())
                 .setNumResultsFetched(currSearchAction.getFetchedResultCount())
-                .setQueryCorrectionType(getQueryCorrectionType(currSearchAction, prevSearchAction));
+                .setQueryCorrectionType(getQueryCorrectionType(currSearchAction, prevSearchAction))
+                .setLaunchVMEnabled(isVMEnabled);
         if (prevSearchAction != null) {
             builder.setPrevQuery(prevSearchAction.getQuery());
         }
         for (int i = 0; i < clickActions.size(); ++i) {
-            builder.addClicksStats(createClickStats(clickActions.get(i)));
+            builder.addClicksStats(createClickStats(clickActions.get(i), isVMEnabled));
         }
         return builder.build();
     }
@@ -270,7 +280,8 @@ public final class SearchSessionStatsExtractor {
     /**
      * Creates a {@link ClickStats} object from the given click action (in generic document form).
      */
-    private ClickStats createClickStats(ClickActionGenericDocument clickAction) {
+    private ClickStats createClickStats(
+            ClickActionGenericDocument clickAction, boolean isVMEnabled) {
         // A click is considered good if:
         // - The user spent decent amount of time on the clicked document.
         // - OR the client didn't provide timeStayOnResultMillis. In this case, the value will be 0.
@@ -284,6 +295,7 @@ public final class SearchSessionStatsExtractor {
                 .setResultRankGlobal(clickAction.getResultRankGlobal())
                 .setTimeStayOnResultMillis(clickAction.getTimeStayOnResultMillis())
                 .setIsGoodClick(isGoodClick)
+                .setLaunchVMEnabled(isVMEnabled)
                 .build();
     }
 

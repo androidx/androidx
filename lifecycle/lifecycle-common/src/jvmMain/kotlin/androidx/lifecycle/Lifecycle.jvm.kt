@@ -15,13 +15,25 @@
  */
 package androidx.lifecycle
 
+import androidx.annotation.RestrictTo
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-public actual typealias AtomicReference<V> = AtomicReference<V>
+// TODO(b/320544977): Switch back to typealias when RestrictTo supports it. For now, we use an
+//  actual class implementation that delegates to the Java class, ensuring that the signatures of
+//  the members match the ones expected by the expect declaration
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public actual class AtomicReference<V> actual constructor(initialValue: V) {
+
+    private val base = AtomicReference<V>(initialValue)
+
+    public actual fun get(): V = base.get()
+
+    public actual fun compareAndSet(expectedValue: V, newValue: V): Boolean =
+        base.compareAndSet(expectedValue, newValue)
+}
 
 /**
  * [CoroutineScope] tied to a [Lifecycle] and

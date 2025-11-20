@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 val dataSourceError = AtomicBoolean(false)
 
 /** Sample position-based PagingSource with artificial data. */
+@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class ItemDataSource : PagingSource<Int, Item>() {
     class RetryableItemError : Exception()
 
@@ -38,7 +39,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
             is LoadParams.Refresh ->
                 loadInternal(
                     position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
-                    loadSize = params.loadSize
+                    loadSize = params.loadSize,
                 )
             is LoadParams.Prepend -> {
                 val loadSize = minOf(params.key, params.loadSize)
@@ -61,7 +62,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
                 prevKey = position,
                 nextKey = endExclusive,
                 itemsBefore = position,
-                itemsAfter = COUNT - endExclusive
+                itemsAfter = COUNT - endExclusive,
             )
         }
     }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="projected_continue_button" msgid="5174264446308284863">"ਜਾਰੀ ਰੱਖੋ"</string>
+    <string name="projected_cancel_button" msgid="6228792819175860740">"ਰੱਦ ਕਰੋ"</string>
+    <string name="go_to_host_projected_activity_text" msgid="3196940006467730617">"ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਹੋਸਟ ਡੀਵਾਈਸ \'ਤੇ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਬੇਨਤੀ ਦੀ ਸਮੀਖਿਆ ਕਰੋ"</string>
+    <string name="request_permission_on_host_activity_label" msgid="5230501762635229968">"ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਬੇਨਤੀ"</string>
+</resources>

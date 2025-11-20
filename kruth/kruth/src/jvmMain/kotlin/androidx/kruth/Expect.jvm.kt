@@ -67,10 +67,8 @@ import org.junit.runners.model.Statement
  * For more on this class, see [the documentation page](https://truth.dev/expect).
  */
 // TODO(dustinlam): This class needs to be made thread-safe as Truth's version is synchronized.
-class Expect
-private constructor(
-    private val gatherer: ExpectationGatherer,
-) : StandardSubjectBuilder(FailureMetadata(failureStrategy = gatherer)), TestRule {
+class Expect private constructor(private val gatherer: ExpectationGatherer) :
+    StandardSubjectBuilder(FailureMetadata(failureStrategy = gatherer)), TestRule {
 
     companion object {
         /** Creates a new instance. */
@@ -162,7 +160,7 @@ private class ExpectationGatherer : FailureStrategy {
                 } else {
                     appendIndented(
                         countLength,
-                        printSubsequentFailure(failures[0].getStackTrace(), failure)
+                        printSubsequentFailure(failures[0].getStackTrace(), failure),
                     )
                 }
                 append("\n")
@@ -173,7 +171,7 @@ private class ExpectationGatherer : FailureStrategy {
 
     private fun printSubsequentFailure(
         baseTraceFrames: Array<StackTraceElement>,
-        toPrint: AssertionError
+        toPrint: AssertionError,
     ): String {
         val e = RuntimeException("__EXCEPTION_MARKER__", toPrint)
         e.setStackTrace(baseTraceFrames)
@@ -187,7 +185,7 @@ private class ExpectationGatherer : FailureStrategy {
             BEFORE ->
                 throw IllegalStateException(
                     "assertion made on Expect instance, but it's not enabled as a @Rule.",
-                    failure
+                    failure,
                 )
             DURING -> return
             AFTER ->
@@ -199,7 +197,7 @@ private class ExpectationGatherer : FailureStrategy {
                         "have been ignored. However, this exception might not cause any test to " +
                         "fail, or it might cause some subsequent test to fail rather than the test " +
                         "that caused the problem.",
-                    failure
+                    failure,
                 )
         }
     }
@@ -237,7 +235,7 @@ private class ExpectationGatherer : FailureStrategy {
 private enum class TestPhase {
     BEFORE,
     DURING,
-    AFTER
+    AFTER,
 }
 
 private fun StringBuilder.appendIndented(countLength: Int, toAppend: String) {

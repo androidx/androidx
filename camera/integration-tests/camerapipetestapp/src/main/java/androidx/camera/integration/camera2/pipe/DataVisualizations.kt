@@ -57,7 +57,7 @@ class DataVisualizations(activity: Activity) {
                 dataManager,
                 DataTransformationsKeyValue,
                 DataTransformations1D,
-                beginTimeNanos
+                beginTimeNanos,
             )
 
         // Initialize the data generator and start generating data, noting the begin timestamp
@@ -87,7 +87,7 @@ class DataVisualizations(activity: Activity) {
 
     private fun setUpKeyValueVisualizations(
         keyValeDataHolders: Map<CameraMetadataKey, KeyValueDataHolder>,
-        graphDataHolders: Map<CameraMetadataKey, GraphDataHolder>
+        graphDataHolders: Map<CameraMetadataKey, GraphDataHolder>,
     ) {
         val heightPixels = 30
 
@@ -112,7 +112,7 @@ class DataVisualizations(activity: Activity) {
     /** Sets up the graph visualizations specifically */
     private fun setUpGraphVisualizations(
         keyValeDataHolders: Map<CameraMetadataKey, KeyValueDataHolder>,
-        graphDataHolders: Map<CameraMetadataKey, GraphDataHolder>
+        graphDataHolders: Map<CameraMetadataKey, GraphDataHolder>,
     ) {
         val heightPixels = 110
 
@@ -128,7 +128,7 @@ class DataVisualizations(activity: Activity) {
                             context,
                             dataGenerator.beginTimeNanos,
                             dataHolder,
-                            paints = paints
+                            paints = paints,
                         )
                     else ->
                         throw Exception(
@@ -152,7 +152,7 @@ class DataVisualizations(activity: Activity) {
             val graphLayoutParams =
                 RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
             graphLayoutParams.setMargins(0, 0, 0, 20)
             graphLayout.layoutParams = graphLayoutParams

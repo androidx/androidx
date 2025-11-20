@@ -37,6 +37,8 @@ import android.graphics.Color;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.LayoutElementBuilders.DashedArcLine;
 import androidx.wear.protolayout.LayoutElementBuilders.DashedLinePattern;
+import androidx.wear.protolayout.LayoutElementBuilders.Image;
+import androidx.wear.protolayout.ResourceBuilders.ImageResource;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ColorProto;
@@ -50,6 +52,7 @@ import org.junit.runner.RunWith;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
@@ -89,6 +92,7 @@ public class LayoutElementBuildersTest {
             new TypeBuilders.StringLayoutConstraint.Builder("pattern")
                     .setAlignment(LayoutElementBuilders.TEXT_ALIGN_END)
                     .build();
+    private static final ImageResource IMAGE_RESOURCE = new ImageResource.Builder().build();
 
     @Test
     public void testArcLineSetLength() {
@@ -138,10 +142,13 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void arcLineSetLength_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new LayoutElementBuilders.ArcLine.Builder().setLength(DEGREES_PROP).build());
+    public void arcLine_withoutLayoutConstraint_setsLength() {
+        LayoutElementBuilders.ArcLine arcLine =
+                new LayoutElementBuilders.ArcLine.Builder().setLength(DEGREES_PROP).build();
+
+        DimensionProto.DegreesProp lengthProto = arcLine.toProto().getLength();
+
+        assertThat(lengthProto.getValue()).isEqualTo(DEGREES_PROP.getValue());
     }
 
     @Test
@@ -176,10 +183,13 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void spacerSetWidth_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new LayoutElementBuilders.Spacer.Builder().setWidth(DP_PROP).build());
+    public void spacer_withoutLayoutConstraint_setsWidth() {
+        LayoutElementBuilders.Spacer spacer =
+                new LayoutElementBuilders.Spacer.Builder().setWidth(DP_PROP).build();
+
+        DimensionProto.DpProp spacerWidth = spacer.toProto().getWidth().getLinearDimension();
+
+        assertThat(spacerWidth.getValue()).isEqualTo(DP_PROP.getValue());
     }
 
     @Test
@@ -202,10 +212,13 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void spacerSetHeight_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new LayoutElementBuilders.Spacer.Builder().setHeight(DP_PROP).build());
+    public void spacer_withoutLayoutConstraint_setsHeight() {
+        LayoutElementBuilders.Spacer spacer =
+                new LayoutElementBuilders.Spacer.Builder().setHeight(DP_PROP).build();
+
+        DimensionProto.DpProp spacerHeight = spacer.toProto().getHeight().getLinearDimension();
+
+        assertThat(spacerHeight.getValue()).isEqualTo(DP_PROP.getValue());
     }
 
     @Test
@@ -412,8 +425,7 @@ public class LayoutElementBuildersTest {
 
     @Test
     public void testFontStyleSetSize_tooManySizes_throws() {
-        int[] sizes =
-                new int[LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
+        int[] sizes = new int[LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(sizes).build());
@@ -423,27 +435,24 @@ public class LayoutElementBuildersTest {
     public void testFontStyleSetSize_atLeastOneNegative_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        new LayoutElementBuilders.FontStyle.Builder()
-                                .setSizes(-1, 5, 1)
-                                .build());
+                () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(-1, 5, 1).build());
     }
 
     @Test
     public void testFontStyleSetSize_atLeastOneZero_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        new LayoutElementBuilders.FontStyle.Builder()
-                                .setSizes(1, 2, 0)
-                                .build());
+                () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(1, 2, 0).build());
     }
 
     @Test
-    public void textSetText_useDynamicValue_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new LayoutElementBuilders.Text.Builder().setText(STRING_PROP).build());
+    public void text_useDynamicValueWithoutLayoutConstraint_setsText() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder().setText(STRING_PROP).build();
+
+        TypesProto.StringProp textProto = text.toProto().getText();
+
+        assertThat(textProto.getValue()).isEqualTo(STRING_PROP.getValue());
     }
 
     @Test
@@ -476,26 +485,29 @@ public class LayoutElementBuildersTest {
         int arcTextDirection = LayoutElementBuilders.ARC_DIRECTION_NORMAL;
         int arcDirection = LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE;
 
-        LayoutElementBuilders.Arc arc = new LayoutElementBuilders.Arc.Builder()
-                .setArcDirection(arcDirection)
-                .addContent(
-                        new LayoutElementBuilders.ArcLine.Builder()
-                                .setArcDirection(arcLineDirection)
-                                .build())
-                .addContent(
-                        new LayoutElementBuilders.ArcText.Builder()
-                                .setArcDirection(arcTextDirection)
-                                .build())
-                .build();
+        LayoutElementBuilders.Arc arc =
+                new LayoutElementBuilders.Arc.Builder()
+                        .setArcDirection(arcDirection)
+                        .addContent(
+                                new LayoutElementBuilders.ArcLine.Builder()
+                                        .setArcDirection(arcLineDirection)
+                                        .build())
+                        .addContent(
+                                new LayoutElementBuilders.ArcText.Builder()
+                                        .setArcDirection(arcTextDirection)
+                                        .build())
+                        .build();
 
         assertThat(arc.getArcDirection().getValue()).isEqualTo(arcDirection);
         assertThat(
-                ((LayoutElementBuilders.ArcLine) arc.getContents().get(0))
-                        .getArcDirection().getValue())
+                        ((LayoutElementBuilders.ArcLine) arc.getContents().get(0))
+                                .getArcDirection()
+                                .getValue())
                 .isEqualTo(arcLineDirection);
         assertThat(
-                ((LayoutElementBuilders.ArcText) arc.getContents().get(1))
-                        .getArcDirection().getValue())
+                        ((LayoutElementBuilders.ArcText) arc.getContents().get(1))
+                                .getArcDirection()
+                                .getValue())
                 .isEqualTo(arcTextDirection);
     }
 
@@ -737,22 +749,20 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void dashedArcLine_length_withoutLayoutConstraint_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new DashedArcLine.Builder().setLength(DEGREES_PROP).build());
+    public void dashedArcLine_withoutLayoutConstraint_setsLength() {
+        DashedArcLine dashedArcLine = new DashedArcLine.Builder().setLength(DEGREES_PROP).build();
+
+        DimensionProto.DegreesProp lengthProto = dashedArcLine.toProto().getLength();
+
+        assertThat(lengthProto.getValue()).isEqualTo(DEGREES_PROP.getValue());
     }
 
     @Test
     public void dashedArcLine_thickness() {
         float thickness = 5F;
-        DashedArcLine dashedArcLine =
-                new DashedArcLine.Builder()
-                        .setThickness(thickness)
-                        .build();
+        DashedArcLine dashedArcLine = new DashedArcLine.Builder().setThickness(thickness).build();
 
-        assertThat(dashedArcLine.toProto().getThickness().getValue())
-                .isEqualTo(thickness);
+        assertThat(dashedArcLine.toProto().getThickness().getValue()).isEqualTo(thickness);
     }
 
     @Test
@@ -760,13 +770,10 @@ public class LayoutElementBuildersTest {
         String stateKey = "color-key";
         ColorBuilders.ColorProp color =
                 new ColorBuilders.ColorProp.Builder(Color.BLUE)
-                        .setDynamicValue(DynamicBuilders.DynamicColor.from(
-                                new AppDataKey<>(stateKey)
-                        )).build();
-        DashedArcLine dashedArcLine =
-                new DashedArcLine.Builder()
-                        .setColor(color)
+                        .setDynamicValue(
+                                DynamicBuilders.DynamicColor.from(new AppDataKey<>(stateKey)))
                         .build();
+        DashedArcLine dashedArcLine = new DashedArcLine.Builder().setColor(color).build();
 
         ColorProto.ColorProp colorProto = dashedArcLine.toProto().getColor();
         assertThat(colorProto.getArgb()).isEqualTo(Color.BLUE);
@@ -776,8 +783,7 @@ public class LayoutElementBuildersTest {
 
     @Test
     public void dashedArcLine_arcDirection() {
-        DashedArcLine dashedArcLine1 =
-                new DashedArcLine.Builder().build();
+        DashedArcLine dashedArcLine1 = new DashedArcLine.Builder().build();
         DashedArcLine dashedArcLine2 =
                 new DashedArcLine.Builder()
                         .setArcDirection(ARC_DIRECTION_COUNTER_CLOCKWISE)
@@ -802,7 +808,7 @@ public class LayoutElementBuildersTest {
 
         LayoutElementProto.DashedLinePattern brush = dashedArcLine.getLinePattern().toProto();
         assertThat(brush.getGapSize().getValue()).isEqualTo(4.5F);
-        List<DimensionProto.DegreesProp> gapLocations =brush.getGapLocationsList();
+        List<DimensionProto.DegreesProp> gapLocations = brush.getGapLocationsList();
         assertThat(gapLocations.get(0).getValue()).isEqualTo(0F);
         assertThat(gapLocations.get(1).getValue()).isEqualTo(111F);
         assertThat(gapLocations.get(2).getValue()).isEqualTo(222F);
@@ -816,15 +822,70 @@ public class LayoutElementBuildersTest {
                         .setLinePattern(
                                 new DashedLinePattern.Builder()
                                         .setGapSize(4.5F)
-                                        .setGapLocations(66F, 111F, 321F, 212F).build())
+                                        .setGapLocations(66F, 111F, 321F, 212F)
+                                        .build())
                         .build();
 
         LayoutElementProto.DashedLinePattern brush = dashedArcLine.getLinePattern().toProto();
         assertThat(brush.getGapSize().getValue()).isEqualTo(4.5F);
-        List<DimensionProto.DegreesProp> gapLocations =brush.getGapLocationsList();
+        List<DimensionProto.DegreesProp> gapLocations = brush.getGapLocationsList();
         assertThat(gapLocations.get(0).getValue()).isEqualTo(66F);
         assertThat(gapLocations.get(1).getValue()).isEqualTo(111F);
         assertThat(gapLocations.get(2).getValue()).isEqualTo(321F);
         assertThat(gapLocations.get(3).getValue()).isEqualTo(212F);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
+    public void image_withImageRes_withoutScope_throws() {
+        Image.Builder builder = new Image.Builder();
+
+        assertThrows(IllegalStateException.class, () -> builder.setImageResource(IMAGE_RESOURCE));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
+    public void image_withImageRes_withResId_throws() {
+        Image.Builder builder =
+                new Image.Builder(new ProtoLayoutScope()).setImageResource(IMAGE_RESOURCE);
+
+        assertThrows(IllegalStateException.class, () -> builder.setResourceId("id"));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
+    public void image_withResId_andScope_throws() {
+        Image.Builder builder = new Image.Builder(new ProtoLayoutScope());
+
+        assertThrows(IllegalStateException.class, () -> builder.setResourceId("id"));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
+    public void image_withResId_andImageRes_throws() {
+        Image.Builder builder = new Image.Builder().setResourceId("id");
+
+        assertThrows(IllegalStateException.class, () -> builder.setImageResource(IMAGE_RESOURCE));
+    }
+
+    @Test
+    public void image_withImageRes_withoutId_registersRes_withDefault() {
+        ProtoLayoutScope scope = new ProtoLayoutScope();
+        Image unused = new Image.Builder(scope).setImageResource(IMAGE_RESOURCE).build();
+
+        Map<String, ImageResource> resources = scope.collectResources().getIdToImageMapping();
+
+        assertThat(resources).containsExactly("" + IMAGE_RESOURCE.hashCode(), IMAGE_RESOURCE);
+    }
+
+    @Test
+    public void image_withImageRes_withId_registersRes() {
+        ProtoLayoutScope scope = new ProtoLayoutScope();
+        String id = "id";
+        Image unused = new Image.Builder(scope).setImageResource(IMAGE_RESOURCE, id).build();
+
+        Map<String, ImageResource> resources = scope.collectResources().getIdToImageMapping();
+
+        assertThat(resources).containsExactly(id, IMAGE_RESOURCE);
     }
 }

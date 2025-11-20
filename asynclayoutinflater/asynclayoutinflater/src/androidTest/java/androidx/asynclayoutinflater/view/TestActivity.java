@@ -17,9 +17,9 @@ package androidx.asynclayoutinflater.view;
 
 import android.os.Bundle;
 
+import androidx.appcompat.R;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.asynclayoutinflater.appcompat.AsyncAppCompatFactory;
-import androidx.asynclayoutinflater.test.R;
 
 public class TestActivity extends AppCompatActivity {
 

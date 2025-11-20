@@ -35,6 +35,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class StartServiceActionTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -75,7 +76,7 @@ class StartServiceActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestService"
+                "androidx.glance.appwidget.action.TestService",
             )
         val modifiers = GlanceModifier.clickable(actionStartService(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())

@@ -80,6 +80,8 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 // fall through
+            case Features.SCHEMA_GET_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // fall through
             case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
@@ -90,7 +92,7 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
                 // fall through
-            case Features.BLOB_STORAGE:
+            case Features.SCHEMA_BLOB_HANDLE:
                 // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS:
                 // fall through
@@ -98,6 +100,17 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SEARCH_RESULT_PARENT_TYPES:
                 // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
+                // fall through
+            case Features.SEARCH_EMBEDDING_MATCH_INFO:
+                // fall through
+            case Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES:
+                // fall through
+            case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
                 return true;
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // The Apps Indexer is only available on platform storage and some versions of
@@ -105,9 +118,11 @@ public class FeaturesImpl implements Features {
                 // does not have a service component or any background jobs. It would also
                 // duplicate documents already indexed and available in PlatformStorage.
                 return false;
-            case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
-                // TODO(b/384947619): enable this feature once it is ready.
+            case Features.ISOLATED_STORAGE:
+                // Isolated storage is only supported for platform storage.
                 return false;
+            case Features.SET_SCHEMA_REQUEST_SCHEMA_TYPE_DISPLAYED_BY_SYSTEM:
+                // READ_GLOBAL_APP_SEARCH_DATA permission is only supported in platform storage.
             default:
                 return false;
         }

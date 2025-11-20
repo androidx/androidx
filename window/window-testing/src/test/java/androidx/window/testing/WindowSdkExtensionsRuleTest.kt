@@ -32,7 +32,7 @@ class WindowSdkExtensionsRuleTest {
         assertEquals(
             "The WindowSdkExtensions.extensionVersion is 0 in unit test",
             0,
-            WindowSdkExtensions.getInstance().extensionVersion
+            WindowSdkExtensions.getInstance().extensionVersion,
         )
 
         rule.overrideExtensionVersion(3)

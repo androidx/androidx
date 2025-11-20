@@ -47,9 +47,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.media"
 }
 

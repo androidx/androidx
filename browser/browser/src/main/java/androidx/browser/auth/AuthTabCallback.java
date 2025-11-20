@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
  * implementation, all callbacks are sent to the {@link Executor} provided by the client to
  * {@link CustomTabsClient#newAuthTabSession} or its UI thread if one is not provided.
  */
-@ExperimentalAuthTab
 public interface AuthTabCallback {
     /**
      * To be called when a navigation event happens.

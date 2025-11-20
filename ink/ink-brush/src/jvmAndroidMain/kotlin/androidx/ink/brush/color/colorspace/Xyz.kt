@@ -54,7 +54,7 @@ internal class Xyz(name: String, id: Int) : ColorSpace(name, ColorModel.Xyz, id)
         y: Float,
         z: Float,
         a: Float,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Color {
         return Color(clamp(x), clamp(y), clamp(z), a, colorSpace)
     }

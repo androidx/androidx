@@ -124,7 +124,7 @@ public class PublicKeyCredentialEntryJavaTest {
         PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry.Builder(mContext, USERNAME,
                 mPendingIntent, mBeginOption).build();
         assertThat(TestUtilsKt.equals(entry.getIcon(),
-                Icon.createWithResource(mContext, R.drawable.ic_passkey))).isTrue();
+                Icon.createWithResource(mContext, R.drawable.adx_ic_passkey))).isTrue();
     }
     @Test
     public void build_nullTypeDisplayName_defaultDisplayNameSet() {

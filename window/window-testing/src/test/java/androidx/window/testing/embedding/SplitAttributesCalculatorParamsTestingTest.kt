@@ -38,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 
 /** Test class to verify [TestSplitAttributesCalculatorParams]. */
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SplitAttributesCalculatorParamsTestingTest {
 
     /** Verifies if the default values of [TestSplitAttributesCalculatorParams] are as expected. */
@@ -63,7 +64,7 @@ class SplitAttributesCalculatorParamsTestingTest {
         val params =
             TestSplitAttributesCalculatorParams(
                 parentWindowMetrics = TEST_METRICS,
-                parentWindowLayoutInfo = parentWindowLayoutInfo
+                parentWindowLayoutInfo = parentWindowLayoutInfo,
             )
 
         assertEquals(TEST_METRICS, params.parentWindowMetrics)

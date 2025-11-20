@@ -50,14 +50,14 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
         ReadRecordsRequest(
             BloodPressureRecord::class,
             aggregateRequest.timeRangeFilter,
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByDurationAggregator(
             createTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             BloodPressureAggregationProcessor(aggregateRequest.metrics)
-        }
+        },
     )
 }
 
@@ -68,14 +68,14 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
         ReadRecordsRequest(
             BloodPressureRecord::class,
             aggregateRequest.timeRangeFilter,
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultGroupedByPeriodAggregator(
             createLocalTimeRange(aggregateRequest.timeRangeFilter),
-            aggregateRequest.timeRangeSlicer
+            aggregateRequest.timeRangeSlicer,
         ) {
             BloodPressureAggregationProcessor(aggregateRequest.metrics)
-        }
+        },
     )
 }
 
@@ -86,12 +86,12 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
         ReadRecordsRequest(
             BloodPressureRecord::class,
             aggregateRequest.timeRangeFilter,
-            aggregateRequest.dataOriginFilter
+            aggregateRequest.dataOriginFilter,
         ),
         ResultAggregator(
             createTimeRange(aggregateRequest.timeRangeFilter),
-            BloodPressureAggregationProcessor(aggregateRequest.metrics)
-        )
+            BloodPressureAggregationProcessor(aggregateRequest.metrics),
+        ),
     )
 }
 

@@ -50,6 +50,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.integration.view.util.CaptureUtilsKt;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.Recording;
@@ -468,6 +469,16 @@ public class CameraControllerFragment extends Fragment {
         mVideoEnabledToggle.setChecked(mCameraController.isVideoCaptureEnabled());
         mPinchToZoomToggle.setChecked(mCameraController.isPinchToZoomEnabled());
         mTapToFocusToggle.setChecked(mCameraController.isTapToFocusEnabled());
+    }
+
+    @VisibleForTesting
+    void toggleCamera() {
+        mCameraToggle.setChecked(!mCameraToggle.isChecked());
+    }
+
+    @VisibleForTesting
+    void setPreviewResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
+        mCameraController.setPreviewResolutionSelector(resolutionSelector);
     }
 
     private int getFlashModeTextResId() {

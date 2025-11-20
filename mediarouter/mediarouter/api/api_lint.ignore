@@ -98,17 +98,17 @@ InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_
 
 
 InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyDown(int, android.view.KeyEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `onKeyDown`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.KeyEvent in parameter `event` in method `onKeyDown`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#onKeyUp(int, android.view.KeyEvent) parameter #1:
-    Invalid nullability on parameter `event` in method `onKeyUp`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.view.KeyEvent in parameter `event` in method `onKeyUp`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#attachBaseContext(android.content.Context) parameter #0:
-    Invalid nullability on parameter `context` in method `attachBaseContext`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `attachBaseContext`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#onBind(android.content.Intent) parameter #0:
-    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Intent in parameter `intent` in method `onBind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaTransferReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
-    Invalid nullability on parameter `context` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Context in parameter `context` in method `onReceive`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaTransferReceiver#onReceive(android.content.Context, android.content.Intent) parameter #1:
-    Invalid nullability on parameter `intent` in method `onReceive`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type android.content.Intent in parameter `intent` in method `onReceive`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector):
@@ -140,22 +140,22 @@ NotCloseable: androidx.mediarouter.media.RemotePlaybackClient:
 
 
 NullableCollection: androidx.mediarouter.media.MediaItemStatus#getExtras():
-    Return type of method androidx.mediarouter.media.MediaItemStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.mediarouter.media.MediaItemStatus.getExtras() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.MediaRouteDescriptor#getExtras():
-    Return type of method androidx.mediarouter.media.MediaRouteDescriptor.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.mediarouter.media.MediaRouteDescriptor.getExtras() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onError(String, android.os.Bundle) parameter #1:
-    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onError(String error, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onError(String error, android.os.Bundle data) uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.MediaRouter.ControlRequestCallback#onResult(android.os.Bundle) parameter #0:
-    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onResult(android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter data in androidx.mediarouter.media.MediaRouter.ControlRequestCallback.onResult(android.os.Bundle data) uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.MediaRouter.RouteInfo#getExtras():
-    Return type of method androidx.mediarouter.media.MediaRouter.RouteInfo.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.mediarouter.media.MediaRouter.RouteInfo.getExtras() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.MediaSessionStatus#getExtras():
-    Return type of method androidx.mediarouter.media.MediaSessionStatus.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.mediarouter.media.MediaSessionStatus.getExtras() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.ActionCallback#onError(String, int, android.os.Bundle) parameter #2:
-    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.ActionCallback.onError(String error, int code, android.os.Bundle data) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.ActionCallback.onError(String error, int code, android.os.Bundle data) uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener#onMessageReceived(String, android.os.Bundle) parameter #1:
-    Type of parameter message in androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener.onMessageReceived(String sessionId, android.os.Bundle message) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter message in androidx.mediarouter.media.RemotePlaybackClient.OnMessageReceivedListener.onMessageReceived(String sessionId, android.os.Bundle message) uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onItemStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus, String, androidx.mediarouter.media.MediaItemStatus) parameter #0:
-    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onItemStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus, String itemId, androidx.mediarouter.media.MediaItemStatus itemStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onItemStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus, String itemId, androidx.mediarouter.media.MediaItemStatus itemStatus) uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onSessionStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus) parameter #0:
-    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onSessionStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+    Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onSessionStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus) uses a nullable collection (`android.os.Bundle`); must be non-null

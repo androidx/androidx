@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.datastore.rxjava2
 
 import android.content.Context
@@ -62,14 +64,14 @@ public fun <T : Any> rxDataStore(
     serializer: Serializer<T>,
     corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
     produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
-    scheduler: Scheduler = Schedulers.io()
+    scheduler: Scheduler = Schedulers.io(),
 ): ReadOnlyProperty<Context, RxDataStore<T>> {
     return RxDataStoreSingletonDelegate(
         fileName,
         serializer,
         corruptionHandler,
         produceMigrations,
-        scheduler
+        scheduler,
     )
 }
 
@@ -80,7 +82,7 @@ internal constructor(
     private val serializer: Serializer<T>,
     private val corruptionHandler: ReplaceFileCorruptionHandler<T>?,
     private val produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
-    private val scheduler: Scheduler
+    private val scheduler: Scheduler,
 ) : ReadOnlyProperty<Context, RxDataStore<T>> {
 
     private val lock = Any()

@@ -33,7 +33,7 @@ import kotlinx.coroutines.awaitAll
  */
 @VisibleForTesting
 public class CameraTaskTrackingExecutor : Executor {
-    private val lock = Object()
+    private val lock = Any()
     private val cameraTasks = mutableListOf<CompletableDeferred<Unit>>()
     private val cameraExecutor = CameraExecutor()
 

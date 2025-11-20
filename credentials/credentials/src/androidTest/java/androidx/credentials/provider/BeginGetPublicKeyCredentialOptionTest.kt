@@ -39,7 +39,7 @@ class BeginGetPublicKeyCredentialOptionTest {
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             BeginGetPublicKeyCredentialOption(Bundle(), "", "")
         }
@@ -49,7 +49,7 @@ class BeginGetPublicKeyCredentialOptionTest {
     fun constructor_invalidJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected invalid Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             BeginGetPublicKeyCredentialOption(Bundle(), "", "invalid")
         }
@@ -61,7 +61,7 @@ class BeginGetPublicKeyCredentialOptionTest {
             Bundle(),
             BUNDLE_ID,
             "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-            "client_data_hash".toByteArray()
+            "client_data_hash".toByteArray(),
         )
     }
 
@@ -74,7 +74,7 @@ class BeginGetPublicKeyCredentialOptionTest {
                 Bundle(),
                 BUNDLE_ID,
                 "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}",
-                testClientDataHashExpected
+                testClientDataHashExpected,
             )
 
         val testClientDataHashActual = beginGetPublicKeyCredentialOpt.clientDataHash
@@ -99,15 +99,15 @@ class BeginGetPublicKeyCredentialOptionTest {
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION,
         )
         expectedData.putString(
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
-            requestJsonExpected
+            requestJsonExpected,
         )
         expectedData.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash
+            clientDataHash,
         )
 
         val option = BeginGetPublicKeyCredentialOption(expectedData, BUNDLE_ID, requestJsonExpected)
@@ -124,12 +124,12 @@ class BeginGetPublicKeyCredentialOptionTest {
         val bundle = Bundle()
         bundle.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION,
         )
         bundle.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON, requestJsonExpected)
         bundle.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash
+            clientDataHash,
         )
 
         val option = BeginGetPublicKeyCredentialOption.createFrom(bundle, "id")
@@ -143,12 +143,12 @@ class BeginGetPublicKeyCredentialOptionTest {
         val bundle = Bundle()
         bundle.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
-            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
+            GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION,
         )
         bundle.putString(GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON, requestJsonExpected)
         bundle.putByteArray(
             GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash
+            clientDataHash,
         )
 
         val option = BeginGetPublicKeyCredentialOption.createFromEntrySlice(bundle, "id")

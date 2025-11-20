@@ -24,6 +24,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class LocationDataTest {
 
     @Test
@@ -43,11 +44,7 @@ class LocationDataTest {
     @Test
     fun protoRoundTripWithDefaultAltitudeAndBearing() {
         val valueProtoBuilder = DataProto.Value.newBuilder()
-        LocationData(
-                latitude = 1.4,
-                longitude = 2.3,
-            )
-            .addToValueProtoBuilder(valueProtoBuilder)
+        LocationData(latitude = 1.4, longitude = 2.3).addToValueProtoBuilder(valueProtoBuilder)
 
         val location = LocationData.fromDataProtoValue(valueProtoBuilder.build())
 

@@ -18,9 +18,9 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.Camera2Logger
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.UseCase
@@ -33,8 +33,6 @@ import androidx.camera.core.impl.SessionProcessor
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -50,16 +48,17 @@ constructor(
     private val cameraInfo: CameraInfoInternal,
     private val cameraController: CameraControlInternal,
     private val threads: UseCaseThreads,
-    private val cameraStateAdapter: CameraStateAdapter
+    private val cameraStateAdapter: CameraStateAdapter,
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
         CameraConfigs.defaultConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
     private var sessionProcessor: SessionProcessor? = null
+    private val isRemoved = atomic(false)
 
     init {
-        debug { "Created $this for $cameraId" }
+        Camera2Logger.debug { "Created $this for $cameraId" }
         // TODO: Consider preloading the list of camera ids and metadata.
     }
 
@@ -76,11 +75,11 @@ constructor(
 
     // Load / unload methods
     override fun open() {
-        debug { "$this#open" }
+        Camera2Logger.debug { "$this#open" }
     }
 
     override fun close() {
-        debug { "$this#close" }
+        Camera2Logger.debug { "$this#close" }
     }
 
     override fun setPrimary(isPrimary: Boolean) {
@@ -93,9 +92,11 @@ constructor(
 
     override fun release(): ListenableFuture<Void> {
         return threads.scope
-            .launch { useCaseManager.close() }
+            .launch {
+                useCaseManager.close()
+                threads.scope.cancel()
+            }
             .asListenableFuture()
-            .apply { addListener({ threads.scope.cancel() }, Dispatchers.Default.asExecutor()) }
     }
 
     override fun getCameraInfoInternal(): CameraInfoInternal = cameraInfo
@@ -139,6 +140,31 @@ constructor(
         coreCameraConfig = cameraConfig ?: CameraConfigs.defaultConfig()
         sessionProcessor = cameraConfig?.getSessionProcessor(null)
         useCaseManager.sessionProcessor = sessionProcessor
+    }
+
+    /**
+     * Handles the camera being physically removed.
+     *
+     * This method immediately updates the public camera state to CLOSED with a ERROR_CAMERA_REMOVED
+     * error, and then asynchronously triggers the cleanup of all internal resources, such as the
+     * CameraGraph.
+     */
+    override fun onRemoved() {
+        Camera2Logger.debug { "$this received removed signal. Cleaning up." }
+        if (isRemoved.compareAndSet(expect = false, update = true)) {
+            threads.scope.launch {
+                // 1. Immediately update the public state via the state adapter.
+                cameraStateAdapter.onRemoved()
+
+                // 2. Asynchronously clean up all resources by closing the UseCaseManager,
+                // which in turn closes the CameraGraph.
+                useCaseManager.close()
+            }
+        }
+    }
+
+    override fun isRemoved(): Boolean {
+        return isRemoved.value
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId($debugId)>"

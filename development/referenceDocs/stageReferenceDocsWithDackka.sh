@@ -62,10 +62,10 @@ if [ "$FLAGS_sourceDir" == "" ]; then
 
   if (( FLAGS_useToT )); then
     printf "Downloading docs-tip-of-tree zip files \n"
-    androidxDackkaZip="docs-tip-of-tree-${FLAGS_buildId}.zip"
+    androidxDackkaZip="docs-tip-of-tree.zip"
   else
     printf "Downloading docs-public zip files \n"
-    androidxDackkaZip="docs-public-${FLAGS_buildId}.zip"
+    androidxDackkaZip="docs-public.zip"
   fi
 
   if (( "${FLAGS_buildId::1}" == "P" )); then

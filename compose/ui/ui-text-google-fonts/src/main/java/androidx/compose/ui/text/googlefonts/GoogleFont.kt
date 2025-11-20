@@ -63,14 +63,14 @@ fun Font(
     googleFont: GoogleFont,
     fontProvider: GoogleFont.Provider,
     weight: FontWeight = FontWeight.W400,
-    style: FontStyle = FontStyle.Normal
+    style: FontStyle = FontStyle.Normal,
 ): Font {
     return GoogleFontImpl(
         name = googleFont.name,
         fontProvider = fontProvider,
         weight = weight,
         style = style,
-        bestEffort = googleFont.bestEffort
+        bestEffort = googleFont.bestEffort,
     )
 }
 
@@ -108,7 +108,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
         internal val providerAuthority: String,
         internal val providerPackage: String,
         internal val certificates: List<List<ByteArray>>?,
-        @ArrayRes internal val certificatesRes: Int
+        @ArrayRes internal val certificatesRes: Int,
     ) {
 
         /**
@@ -133,7 +133,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
         constructor(
             providerAuthority: String,
             providerPackage: String,
-            certificates: List<List<ByteArray>>
+            certificates: List<List<ByteArray>>,
         ) : this(providerAuthority, providerPackage, certificates, 0)
 
         /**
@@ -158,7 +158,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
         constructor(
             providerAuthority: String,
             providerPackage: String,
-            @ArrayRes certificates: Int
+            @ArrayRes certificates: Int,
         ) : this(providerAuthority, providerPackage, null, certificates)
 
         override fun equals(other: Any?): Boolean {
@@ -195,7 +195,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
  */
 @WorkerThread
 fun GoogleFont.Provider.isAvailableOnDevice(
-    @Suppress("ContextFirst") context: Context, // extension function
+    @Suppress("ContextFirst") context: Context // extension function
 ): Boolean = checkAvailable(context.packageManager, context.resources)
 
 internal data class GoogleFontImpl
@@ -204,7 +204,7 @@ constructor(
     private val fontProvider: GoogleFont.Provider,
     override val weight: FontWeight,
     override val style: FontStyle,
-    val bestEffort: Boolean
+    val bestEffort: Boolean,
 ) : AndroidFont(FontLoadingStrategy.Async, GoogleFontTypefaceLoader, FontVariation.Settings()) {
     fun toFontRequest(): FontRequest {
         // note: name is not encoded or quoted per spec
@@ -220,7 +220,7 @@ constructor(
                 fontProvider.providerAuthority,
                 fontProvider.providerPackage,
                 query,
-                fontProvider.certificatesRes
+                fontProvider.certificatesRes,
             )
         }
     }
@@ -282,7 +282,7 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
     internal suspend fun awaitLoad(
         context: Context,
         font: AndroidFont,
-        loader: FontsContractCompatLoader
+        loader: FontsContractCompatLoader,
     ): Typeface? {
         require(font is GoogleFontImpl) { "Only GoogleFontImpl supported (actual $font)" }
         val fontRequest = font.toFontRequest()
@@ -312,7 +312,7 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
                 fontRequest = fontRequest,
                 typefaceStyle = typefaceStyle,
                 handler = asyncHandlerForCurrentThreadOrMainIfNoLooper(),
-                callback = callback
+                callback = callback,
             )
         }
     }
@@ -330,7 +330,7 @@ internal interface FontsContractCompatLoader {
         fontRequest: FontRequest,
         typefaceStyle: Int,
         handler: Handler,
-        callback: FontRequestCallback
+        callback: FontRequestCallback,
     )
 }
 
@@ -341,7 +341,7 @@ private object DefaultFontsContractCompatLoader : FontsContractCompatLoader {
         fontRequest: FontRequest,
         typefaceStyle: Int,
         handler: Handler,
-        callback: FontRequestCallback
+        callback: FontRequestCallback,
     ) {
         FontsContractCompat.requestFont(
             context,
@@ -350,7 +350,7 @@ private object DefaultFontsContractCompatLoader : FontsContractCompatLoader {
             false, /* isBlockingFetch*/
             0, /* timeout - not used when isBlockingFetch=false */
             handler,
-            callback
+            callback,
         )
     }
 }

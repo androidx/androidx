@@ -28,7 +28,7 @@ object Stubs {
                 package androidx.appcompat.app
                 import android.app.Activity
                 open class AppCompatActivity: Activity()
-            """
+            """,
             )
             .indented()
             .within("src")
@@ -48,7 +48,7 @@ object Stubs {
                         }
                     }
                 }
-            """
+            """,
             )
             .indented()
             .within("src")
@@ -64,7 +64,7 @@ object Stubs {
                         throw new Exception();
                     }
                 }
-            """
+            """,
             )
             .indented()
             .within("src")
@@ -81,7 +81,7 @@ object Stubs {
           android:state_enabled="false"/>
     <item android:color="#FF0000"/>
 </selector>
-        """
+        """,
             )
             .indented()
             .within("res")

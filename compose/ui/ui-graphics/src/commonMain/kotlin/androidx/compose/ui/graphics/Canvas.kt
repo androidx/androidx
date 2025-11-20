@@ -296,7 +296,7 @@ interface Canvas {
         top: Float,
         right: Float,
         bottom: Float,
-        clipOp: ClipOp = ClipOp.Intersect
+        clipOp: ClipOp = ClipOp.Intersect,
     )
 
     /** Reduces the clip region to the intersection of the current clip and the given [Path]. */
@@ -320,7 +320,7 @@ interface Canvas {
             top = rect.top,
             right = rect.right,
             bottom = rect.bottom,
-            paint = paint
+            paint = paint,
         )
 
     /**
@@ -346,7 +346,7 @@ interface Canvas {
         bottom: Float,
         radiusX: Float,
         radiusY: Float,
-        paint: Paint
+        paint: Paint,
     )
 
     /**
@@ -359,7 +359,7 @@ interface Canvas {
             top = rect.top,
             right = rect.right,
             bottom = rect.bottom,
-            paint = paint
+            paint = paint,
         )
 
     /**
@@ -396,7 +396,7 @@ interface Canvas {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) =
         drawArc(
             left = rect.left,
@@ -406,7 +406,7 @@ interface Canvas {
             startAngle = startAngle,
             sweepAngle = sweepAngle,
             useCenter = useCenter,
-            paint = paint
+            paint = paint,
         )
 
     /**
@@ -437,7 +437,7 @@ interface Canvas {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     )
 
     /**
@@ -455,7 +455,7 @@ interface Canvas {
         startAngleRad: Float,
         sweepAngleRad: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         drawArc(rect, degrees(startAngleRad), degrees(sweepAngleRad), useCenter, paint)
     }
@@ -494,7 +494,7 @@ interface Canvas {
         srcSize: IntSize = IntSize(image.width, image.height),
         dstOffset: IntOffset = IntOffset.Zero,
         dstSize: IntSize = srcSize,
-        paint: Paint
+        paint: Paint,
     )
 
     /**

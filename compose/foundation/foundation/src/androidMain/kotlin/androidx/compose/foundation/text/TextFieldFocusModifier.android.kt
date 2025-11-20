@@ -46,7 +46,7 @@ import androidx.compose.ui.input.key.type
  */
 internal actual fun Modifier.interceptDPadAndMoveFocus(
     state: LegacyTextFieldState,
-    focusManager: FocusManager
+    focusManager: FocusManager,
 ): Modifier {
     return this.onPreviewKeyEvent { keyEvent ->
         val device = keyEvent.nativeKeyEvent.device
@@ -57,7 +57,7 @@ internal actual fun Modifier.interceptDPadAndMoveFocus(
             !device.supportsSource(SOURCE_DPAD) -> false
 
             // Ignore key events from virtual keyboards
-            device.isVirtual -> false
+            device.isVirtual && keyEvent.nativeKeyEvent.source != InputDevice.SOURCE_HDMI -> false
 
             // Ignore key release events
             keyEvent.type != KeyDown -> false

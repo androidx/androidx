@@ -29,7 +29,7 @@ object Stubs {
         package androidx.work
 
         open class WorkerFactory
-    """
+    """,
             )
             .indented()
             .within("src")
@@ -53,7 +53,7 @@ object Stubs {
                         Configuration getWorkManagerConfiguration();
                     }
                  }
-            """
+            """,
             )
             .indented()
             .within("src")
@@ -68,7 +68,7 @@ object Stubs {
 
                   }
                 }
-            """
+            """,
             )
             .indented()
             .within("src")
@@ -80,7 +80,7 @@ object Stubs {
             package androidx.work
 
             open class ListenableWorker
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -100,7 +100,7 @@ object Stubs {
 
                 }
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -112,7 +112,7 @@ object Stubs {
             package androidx.work
 
             open class WorkRequest
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -124,7 +124,7 @@ object Stubs {
             package androidx.work
 
             class OneTimeWorkRequest: WorkRequest()
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -166,7 +166,7 @@ object Stubs {
                     )
                 }
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -187,7 +187,7 @@ object Stubs {
                 }
             }
         }
-    """
+    """,
             )
             .indented()
             .within("src")
@@ -200,7 +200,7 @@ object Stubs {
 
             class Notification {
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -214,7 +214,7 @@ object Stubs {
             open class JobService {
 
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -233,7 +233,7 @@ object Stubs {
                     Notification notification,
                     int foregroundServiceType) { }
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -249,7 +249,7 @@ object Stubs {
                     fun enqueue(requests: List<WorkRequest>)
                     fun enqueueUniqueWork(name: String, request: PeriodicWorkRequest)
                  }
-            """
+            """,
             )
             .indented()
             .within("src")

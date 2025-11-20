@@ -75,9 +75,9 @@ class DeepLinkInActivityDestinationDetector : ResourceXmlDetector() {
                 implementation =
                     Implementation(
                         DeepLinkInActivityDestinationDetector::class.java,
-                        Scope.RESOURCE_FILE_SCOPE
+                        Scope.RESOURCE_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 }

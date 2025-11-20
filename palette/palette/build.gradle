@@ -13,6 +13,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.4.2")
 
@@ -28,8 +29,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2014"
     description = "Android Support Palette"
-    // TODO: b/326456246
-    optOutJSpecify = true
 }
 
 android {

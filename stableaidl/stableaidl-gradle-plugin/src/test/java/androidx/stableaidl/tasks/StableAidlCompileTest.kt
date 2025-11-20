@@ -50,9 +50,9 @@ class StableAidlCompileTest {
                     listOf(
                         FakeInjectableService(
                             FakeNoOpWorkAction::execOperations.getter.javaMethod!!,
-                            execOperations
+                            execOperations,
                         )
-                    )
+                    ),
                 )
         }
     }
@@ -80,7 +80,7 @@ class StableAidlCompileTest {
             listOf("-x"),
             listOf(sourceFolder),
             listOf(),
-            listOf()
+            listOf(),
         )
 
         // Check that executable only runs for aidl files, and properly locates the framework
@@ -94,7 +94,7 @@ class StableAidlCompileTest {
                     // TODO: Remove when the framework has been fully annotated.
                     // "-p" + fakeFramework.canonicalPath,
                     "-o" + outputDir.absolutePath,
-                    "-x"
+                    "-x",
                 )
 
             Truth.assertThat(processInfo.args)

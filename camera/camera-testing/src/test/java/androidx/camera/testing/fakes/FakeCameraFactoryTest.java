@@ -23,8 +23,6 @@ import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 
 import org.junit.Test;
@@ -37,7 +35,7 @@ import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = {Config.ALL_SDKS})
 public class FakeCameraFactoryTest {
 
     private static final String CAMERA_ID_0 = "0";

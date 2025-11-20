@@ -36,11 +36,20 @@ import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
-import kotlin.coroutines.resume
-import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeoutOrNull
 
 // TODO(b/246180670): Replace all duration usage in CameraPipe with kotlin.time.Duration
@@ -59,7 +68,7 @@ private val activeResumeCameraRetryThresholds =
     )
 
 internal interface CameraOpener {
-    fun openCamera(cameraId: CameraId, stateCallback: StateCallback)
+    suspend fun openCamera(cameraId: CameraId, stateCallback: StateCallback)
 }
 
 internal interface CameraAvailabilityMonitor {
@@ -77,6 +86,8 @@ internal interface RetryingCameraStateOpener {
         cameraId: CameraId,
         camera2DeviceCloser: Camera2DeviceCloser,
     ): AwaitOpenCameraResult
+
+    fun cancelOpen()
 }
 
 internal interface DevicePolicyManagerWrapper {
@@ -89,9 +100,9 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
     CameraOpener {
 
     @SuppressLint(
-        "MissingPermission", // Permissions are checked by calling methods.
+        "MissingPermission" // Permissions are checked by calling methods.
     )
-    override fun openCamera(cameraId: CameraId, stateCallback: StateCallback) {
+    override suspend fun openCamera(cameraId: CameraId, stateCallback: StateCallback) {
         val instance = cameraManager.get()
         Debug.trace("$cameraId#openCamera") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -99,7 +110,7 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
                     instance,
                     cameraId.value,
                     threads.camera2Executor,
-                    stateCallback
+                    stateCallback,
                 )
             } else {
                 instance.openCamera(cameraId.value, stateCallback, threads.camera2Handler)
@@ -117,43 +128,39 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
         withTimeoutOrNull(timeoutMillis) { awaitAvailableCamera(cameraId) } == true
 
     private suspend fun awaitAvailableCamera(cameraId: CameraId) =
-        suspendCancellableCoroutine { continuation ->
-            val availabilityCallback =
-                object : CameraManager.AvailabilityCallback() {
-                    private val awaitComplete = atomic(false)
-
-                    override fun onCameraAvailable(cameraIdString: String) {
-                        if (cameraIdString == cameraId.value) {
-                            Log.debug { "$cameraId is now available." }
-                            if (awaitComplete.compareAndSet(expect = false, update = true)) {
-                                continuation.resume(true)
+        callbackFlow {
+                val availabilityCallback =
+                    object : CameraManager.AvailabilityCallback() {
+                        override fun onCameraAvailable(cameraIdString: String) {
+                            if (cameraIdString == cameraId.value) {
+                                Log.debug { "$cameraId is now available." }
+                                trySendBlocking(true)
                             }
                         }
-                    }
 
-                    override fun onCameraAccessPrioritiesChanged() {
-                        Log.debug { "Access priorities changed." }
-                        if (awaitComplete.compareAndSet(expect = false, update = true)) {
-                            continuation.resume(true)
+                        override fun onCameraAccessPrioritiesChanged() {
+                            Log.debug { "Access priorities changed." }
+                            trySendBlocking(true)
                         }
                     }
+
+                val manager = cameraManager.get()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    Api28Compat.registerAvailabilityCallback(
+                        manager,
+                        threads.camera2Executor,
+                        availabilityCallback,
+                    )
+                } else {
+                    manager.registerAvailabilityCallback(
+                        availabilityCallback,
+                        threads.camera2Handler,
+                    )
                 }
 
-            val manager = cameraManager.get()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                Api28Compat.registerAvailabilityCallback(
-                    manager,
-                    threads.camera2Executor,
-                    availabilityCallback
-                )
-            } else {
-                manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
+                awaitClose { manager.unregisterAvailabilityCallback(availabilityCallback) }
             }
-
-            continuation.invokeOnCancellation {
-                manager.unregisterAvailabilityCallback(availabilityCallback)
-            }
-        }
+            .first()
 }
 
 internal class AndroidDevicePolicyManagerWrapper
@@ -185,14 +192,16 @@ constructor(
     private val camera2Quirks: Camera2Quirks,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?,
-    private val threads: Threads
+    private val threads: Threads,
 ) {
+    private var cameraOpenCancelled = CompletableDeferred<Unit>()
+
     internal suspend fun tryOpenCamera(
         cameraId: CameraId,
         attempts: Int,
         requestTimestamp: TimestampNs,
         camera2DeviceCloser: Camera2DeviceCloser,
-        audioRestrictionController: AudioRestrictionController
+        audioRestrictionController: AudioRestrictionController,
     ): OpenCameraResult {
         val metadata = camera2MetadataProvider.getCameraMetadata(cameraId)
         val cameraState =
@@ -208,36 +217,150 @@ constructor(
                 threads,
                 audioRestrictionController,
                 cameraInteropConfig?.cameraDeviceStateCallback,
-                cameraInteropConfig?.cameraSessionStateCallback,
-                /** interopExtensionSessionStateCallback= */
-                null
+                cameraInteropConfig?.cameraCaptureSessionListener,
             )
 
-        try {
-            cameraOpener.openCamera(cameraId, cameraState)
+        // When opening cameras, there are a number of important factors to consider:
+        //
+        // 1. The openCamera() call can block indefinitely on buggy platforms. When this happens,
+        //    this halts all camera opening and closing operations, and blocks shutdown.
+        // 2. Even when openCamera() succeeds, the state callbacks may also not come back.
+        // 2. There are important, unskippable camera handling routines following the call.
+        // 3. The camera opening process can take an unexpectedly long amount of time, for example,
+        //    on slow systems, or when opening remote proxy cameras.
+        //
+        // ---
+        //
+        // Given the factors, we deal with these issues by compartmentalizing the camera opening
+        // process into 4 jobs:
+        //
+        // 1. Launch a job for the openCamera() call.
+        // 2. Launch a job to collect state callback results from the framework.
+        // 3. Launch a job for timeout and to intervene when openCamera() times out.
+        // 4. Launch a job to force cancel camera opening with a timeout when shutdown is issued.
+        //
+        // The following utilizes select expressions to sequentially handle these events. When an
+        // OpenCameraResult is received through select (from either job 1 or 2), consider the camera
+        // opening process complete. When null is received, wait for further events .
+        return supervisorScope {
 
-            // Suspend until we are no longer in a "starting" state.
-            val result = cameraState.state.first { it !is CameraStateUnopened }
-            when (result) {
-                is CameraStateOpen -> return OpenCameraResult(cameraState = cameraState)
-                is CameraStateClosing -> {
-                    cameraState.close()
-                    return OpenCameraResult(errorCode = result.cameraErrorCode)
+            // Asynchronously invoke openCamera(), which can block.
+            var cameraOpenDeferred: Deferred<OpenCameraResult?>? = async {
+                try {
+                    cameraOpener.openCamera(cameraId, cameraState)
+                } catch (exception: Exception) {
+                    Log.warn(exception) { "Failed to open $cameraId" }
+                    cameraState.closeWith(exception)
+                    OpenCameraResult(errorCode = CameraError.from(exception))
                 }
-                is CameraStateClosed -> {
-                    cameraState.close()
-                    return OpenCameraResult(errorCode = result.cameraErrorCode)
-                }
-                is CameraStateUnopened -> {
-                    cameraState.close()
-                    throw IllegalStateException("Unexpected CameraState: $result")
+                null
+            }
+
+            // Deferred job to collect results from the AndroidCameraState.
+            var resultDeferred: Deferred<OpenCameraResult>? = async {
+                val result = cameraState.state.first { it !is CameraStateUnopened }
+                when (result) {
+                    is CameraStateOpen -> OpenCameraResult(cameraState = cameraState)
+                    is CameraStateClosing -> {
+                        cameraState.close()
+                        OpenCameraResult(errorCode = result.cameraErrorCode)
+                    }
+
+                    is CameraStateClosed -> {
+                        cameraState.close()
+                        OpenCameraResult(errorCode = result.cameraErrorCode)
+                    }
+
+                    is CameraStateUnopened -> {
+                        cameraState.close()
+                        throw IllegalStateException("Unexpected CameraState: $result")
+                    }
                 }
             }
-        } catch (exception: Throwable) {
-            Log.warn(exception) { "Failed to open $cameraId" }
-            cameraState.closeWith(exception)
-            return OpenCameraResult(errorCode = CameraError.from(exception))
+
+            // Timeout job to monitor and cancel camera opening when it times out.
+            var timeoutJob: Job? = launch { delay(CAMERA_OPEN_TIMEOUT_MS) }
+
+            // Cancellation job to await on the camera open cancellation signal and start a
+            // timeout before cancelling camera opening with a timeout error.
+            var cameraOpenCancelJob: Job? = launch {
+                cameraOpenCancelled.await()
+                delay(CAMERA_OPEN_CANCEL_TIMEOUT_MS)
+            }
+
+            while (isActive) {
+                try {
+                    val result =
+                        select<OpenCameraResult?> {
+                            cameraOpenDeferred?.onAwait {
+                                Log.debug { "tryOpenCamera: openCamera() for $cameraId returned" }
+                                cameraOpenDeferred = null
+                                it
+                            }
+
+                            resultDeferred?.onAwait {
+                                Log.debug { "tryOpenCamera: $cameraId opened" }
+                                resultDeferred = null
+                                it
+                            }
+
+                            timeoutJob?.onJoin {
+                                Log.debug { "tryOpenCamera: ${CAMERA_OPEN_TIMEOUT_MS}ms elapsed" }
+                                timeoutJob = null
+                                if (cameraOpenDeferred != null) {
+                                    Log.error { "tryOpenCamera: openCamera() timed out" }
+                                    cameraState.close()
+                                    OpenCameraResult(
+                                        errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT
+                                    )
+                                } else {
+                                    null
+                                }
+                            }
+
+                            cameraOpenCancelJob?.onJoin {
+                                Log.debug { "tryOpenCamera: Camera open cancelled" }
+                                cameraOpenCancelJob = null
+                                OpenCameraResult(errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
+                            }
+                        }
+                    if (result != null) {
+                        Log.info { "Camera open completed: $result" }
+
+                        cameraOpenDeferred?.cancel()
+                        resultDeferred?.cancel()
+                        timeoutJob?.cancel()
+                        cameraOpenCancelJob?.cancel()
+
+                        return@supervisorScope result
+                    }
+                } catch (throwable: Throwable) {
+                    Log.error(throwable) { "Unexpected throwable during camera opening!" }
+                    throw throwable
+                }
+            }
+
+            // This shouldn't happen - we don't cancel scopes until camera is closed. Return
+            // an error result to make compiler happy.
+            return@supervisorScope OpenCameraResult(errorCode = CameraError.ERROR_CAMERA_OPENER)
         }
+    }
+
+    internal fun cancelOpen() {
+        cameraOpenCancelled.complete(Unit)
+    }
+
+    private companion object {
+        // The timeout for the CameraManager.openCamera call itself. Note that this is the timeout
+        // for making the call and waiting for the call to return, rather than waiting for the
+        // whole camera opening process
+        const val CAMERA_OPEN_TIMEOUT_MS = 3_000L
+
+        // The timeout for waiting for the camera open result to come back after camera open
+        // cancellation is issued. This is needed because during shutdown, we need to abandon
+        // camera opening attempts in a timely manner, and unfortunately state callbacks don't come
+        // sometimes.
+        const val CAMERA_OPEN_CANCEL_TIMEOUT_MS = 2_000L
     }
 }
 
@@ -271,7 +394,7 @@ constructor(
                     attempts,
                     requestTimestamp,
                     camera2DeviceCloser,
-                    audioRestrictionController
+                    audioRestrictionController,
                 )
             val elapsed = Timestamps.now(timeSource) - requestTimestamp
             with(result) {
@@ -299,7 +422,7 @@ constructor(
                         elapsed,
                         devicePolicyManager.camerasDisabled,
                         isForeground,
-                        cameraInteropConfig?.cameraOpenRetryMaxTimeoutNs
+                        cameraInteropConfig?.cameraOpenRetryMaxTimeoutNs,
                     )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
@@ -324,8 +447,8 @@ constructor(
                         timeoutMillis =
                             getRetryDelayMs(
                                 elapsed,
-                                shouldActivateActiveResume(isForeground, errorCode)
-                            )
+                                shouldActivateActiveResume(isForeground, errorCode),
+                            ),
                     )
                 ) {
                     Log.debug { "Timeout expired, retrying camera open for camera $cameraId" }
@@ -357,6 +480,10 @@ constructor(
         }
     }
 
+    override fun cancelOpen() {
+        cameraStateOpener.cancelOpen()
+    }
+
     companion object {
         internal fun shouldRetry(
             errorCode: CameraError,
@@ -364,7 +491,7 @@ constructor(
             elapsedNs: DurationNs,
             camerasDisabledByDevicePolicy: Boolean,
             isForeground: Boolean = true,
-            cameraOpenRetryMaxTimeoutNs: DurationNs? = null
+            cameraOpenRetryMaxTimeoutNs: DurationNs? = null,
         ): Boolean {
             val shouldActiveResume = shouldActivateActiveResume(isForeground, errorCode)
             if (shouldActiveResume) Log.debug { "shouldRetry: Active resume mode is activated" }
@@ -456,7 +583,7 @@ constructor(
 
         internal fun shouldActivateActiveResume(
             isForeground: Boolean,
-            errorCode: CameraError
+            errorCode: CameraError,
         ): Boolean =
             isForeground &&
                 Build.VERSION.SDK_INT in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2) &&
@@ -466,7 +593,7 @@ constructor(
 
         internal fun getRetryTimeoutNs(
             activeResumeActivated: Boolean,
-            cameraOpenRetryMaxTimeoutNs: DurationNs? = null
+            cameraOpenRetryMaxTimeoutNs: DurationNs? = null,
         ) =
             if (!activeResumeActivated) {
                 min(defaultCameraRetryTimeoutNs, cameraOpenRetryMaxTimeoutNs)

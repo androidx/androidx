@@ -31,7 +31,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.util.fastForEachIndexed
 
 /**
@@ -236,7 +235,7 @@ private class MultiSelectionLayout(
                     selection,
                     firstInfo,
                     minAnchor.offset,
-                    firstInfo.textLength
+                    firstInfo.textLength,
                 )
 
                 forEachMiddleInfo { info ->
@@ -251,7 +250,7 @@ private class MultiSelectionLayout(
         selection: Selection,
         info: SelectableInfo,
         minOffset: Int,
-        maxOffset: Int
+        maxOffset: Int,
     ) {
         val subSelection =
             if (selection.handlesCrossed) {
@@ -301,7 +300,7 @@ private class MultiSelectionLayout(
                     CrossStatus.COLLAPSED -> true
                     CrossStatus.NOT_CROSSED -> isStartSlot
                     CrossStatus.CROSSED -> !isStartSlot
-                }
+                },
         )
 
     private fun slotToIndex(slot: Int, isMinimumSlot: Boolean): Int {
@@ -430,15 +429,15 @@ internal fun getTextFieldSelectionLayout(
                         Selection.AnchorInfo(
                             layoutResult.getTextDirectionForOffset(previousSelectionRange.start),
                             previousSelectionRange.start,
-                            SingleSelectionLayout.DEFAULT_SELECTABLE_ID
+                            SingleSelectionLayout.DEFAULT_SELECTABLE_ID,
                         ),
                     end =
                         Selection.AnchorInfo(
                             layoutResult.getTextDirectionForOffset(previousSelectionRange.end),
                             previousSelectionRange.end,
-                            SingleSelectionLayout.DEFAULT_SELECTABLE_ID
+                            SingleSelectionLayout.DEFAULT_SELECTABLE_ID,
                         ),
-                    handlesCrossed = previousSelectionRange.reversed
+                    handlesCrossed = previousSelectionRange.reversed,
                 ),
         info =
             SelectableInfo(
@@ -447,7 +446,7 @@ internal fun getTextFieldSelectionLayout(
                 rawStartHandleOffset = rawStartHandleOffset,
                 rawEndHandleOffset = rawEndHandleOffset,
                 textLayoutResult = layoutResult,
-                rawPreviousHandleOffset = rawPreviousHandleOffset
+                rawPreviousHandleOffset = rawPreviousHandleOffset,
             ),
     )
 
@@ -460,7 +459,7 @@ internal enum class CrossStatus {
     NOT_CROSSED,
 
     /** The start is the same as the end. */
-    COLLAPSED
+    COLLAPSED,
 }
 
 /** Slot has not been assigned yet */
@@ -483,7 +482,7 @@ internal class SelectionLayoutBuilder(
     val containerCoordinates: LayoutCoordinates,
     val isStartHandle: Boolean,
     val previousSelection: Selection?,
-    val selectableIdOrderingComparator: Comparator<Long>
+    val selectableIdOrderingComparator: Comparator<Long>,
 ) {
     private val selectableIdToInfoListIndex: MutableLongIntMap = mutableLongIntMapOf()
     private val infoList: MutableList<SelectableInfo> = mutableListOf()
@@ -607,7 +606,7 @@ internal enum class Direction {
     ON,
 
     /** The cursor/press is after the selectable */
-    AFTER
+    AFTER,
 }
 
 /**
@@ -676,7 +675,7 @@ internal class SelectableInfo(
         Selection.AnchorInfo(
             direction = textLayoutResult.getTextDirectionForOffset(offset),
             offset = offset,
-            selectableId = selectableId
+            selectableId = selectableId,
         )
 
     /**
@@ -687,7 +686,7 @@ internal class SelectableInfo(
         Selection(
             start = anchorForOffset(start),
             end = anchorForOffset(end),
-            handlesCrossed = start > end
+            handlesCrossed = start > end,
         )
 
     override fun toString(): String =
@@ -695,28 +694,6 @@ internal class SelectableInfo(
             "range=($rawStartHandleOffset-$startRunDirection,$rawEndHandleOffset-$endRunDirection), " +
             "prevOffset=$rawPreviousHandleOffset)"
 }
-
-/**
- * Get the text direction for a given offset.
- *
- * This simply calls [TextLayoutResult.getBidiRunDirection] with one exception, if the offset is an
- * empty line, then we defer to [TextLayoutResult.multiParagraph] and
- * [androidx.compose.ui.text.MultiParagraph.getParagraphDirection]. This is because an empty line
- * always resolves to LTR, even if the paragraph is RTL.
- */
-// TODO(b/295197585)
-//   Can this logic be moved to a new method in `androidx.compose.ui.text.Paragraph`?
-private fun TextLayoutResult.getTextDirectionForOffset(offset: Int): ResolvedTextDirection =
-    if (isOffsetAnEmptyLine(offset)) getParagraphDirection(offset) else getBidiRunDirection(offset)
-
-private fun TextLayoutResult.isOffsetAnEmptyLine(offset: Int): Boolean =
-    layoutInput.text.isEmpty() ||
-        getLineForOffset(offset).let { currentLine ->
-            // verify the previous and next offsets either don't exist because they're at a boundary
-            // or that they are different lines than the current line.
-            (offset == 0 || currentLine != getLineForOffset(offset - 1)) &&
-                (offset == layoutInput.text.length || currentLine != getLineForOffset(offset + 1))
-        }
 
 /**
  * Verify that the selection is truly collapsed.

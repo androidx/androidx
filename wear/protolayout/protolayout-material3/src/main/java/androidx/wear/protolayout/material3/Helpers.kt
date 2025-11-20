@@ -22,12 +22,12 @@ import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.DP
 import androidx.annotation.Dimension.Companion.SP
 import androidx.annotation.FloatRange
+import androidx.core.graphics.ColorUtils
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.DimensionBuilders.ContainerDimension
 import androidx.wear.protolayout.DimensionBuilders.DpProp
 import androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp
-import androidx.wear.protolayout.DimensionBuilders.dp
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.DimensionBuilders.weight
 import androidx.wear.protolayout.DimensionBuilders.wrap
@@ -51,6 +51,7 @@ import androidx.wear.protolayout.material3.PrimaryLayoutDefaults.percentageWidth
 import androidx.wear.protolayout.material3.Versions.hasExpandWithWeightSupport
 import androidx.wear.protolayout.materialcore.fontscaling.FontScaleConverterFactory
 import androidx.wear.protolayout.modifiers.LayoutModifier
+import androidx.wear.protolayout.modifiers.background
 import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.padding
 import androidx.wear.protolayout.modifiers.semanticsRole
@@ -103,9 +104,23 @@ internal fun Float.dpToSp(fontScale: Float): Float {
 
 internal fun Int.toDp() = this.toFloat().dp
 
-/** Builds a horizontal Spacer, with width set to expand and height set to the given value. */
-internal fun horizontalSpacer(@Dimension(unit = DP) heightDp: Int): Spacer =
-    Spacer.Builder().setWidth(expand()).setHeight(heightDp.toDp()).build()
+/**
+ * Builds a horizontal Spacer, with width set to expand and height set to the given value and
+ * optional background color.
+ */
+internal fun horizontalSpacer(
+    @Dimension(unit = DP) heightDp: Int,
+    overrideColor: LayoutColor? = null,
+): Spacer =
+    Spacer.Builder()
+        .setWidth(expand())
+        .setHeight(heightDp.toDp())
+        .apply {
+            overrideColor?.let {
+                setModifiers(LayoutModifier.background(it).toProtoLayoutModifiers())
+            }
+        }
+        .build()
 
 /** Builds a vertical Spacer, with height set to expand and width set to the given value. */
 internal fun verticalSpacer(@Dimension(unit = DP) widthDp: Int): Spacer =
@@ -129,13 +144,10 @@ internal fun wrapWithMinTapTargetDimension(): WrappedDimensionProp =
  * ignored.
  */
 internal fun LayoutColor.withOpacity(@FloatRange(from = 0.0, to = 1.0) ratio: Float): LayoutColor {
-    // From androidx.core.graphics.ColorUtils
     require(ratio in 0.0..1.0) { "withOpacity ratio must be between 0 and 1." }
     val fullyOpaque = 255
-    val alphaMask = 0x00ffffff
     val alpha = (ratio * fullyOpaque).toInt()
-    val alphaPosition = 24
-    return ((this.staticArgb and alphaMask) or (alpha shl alphaPosition)).argb
+    return ColorUtils.setAlphaComponent(this.staticArgb, alpha).argb
 }
 
 /** Returns corresponding text alignment based on the given horizontal alignment. */
@@ -168,9 +180,11 @@ internal fun MaterialScope.componentContainer(
     width: ContainerDimension,
     height: ContainerDimension,
     backgroundContent: (MaterialScope.() -> LayoutElement)?,
+    useOverlayOnBackground: Boolean = true,
     contentPadding: Padding,
     metadataTag: String?,
     content: (MaterialScope.() -> LayoutElement)?,
+    horizontalAlignment: Int = HORIZONTAL_ALIGN_CENTER,
 ): LayoutElement {
     val mod =
         LayoutModifier.semanticsRole(SEMANTICS_ROLE_BUTTON) then
@@ -181,9 +195,11 @@ internal fun MaterialScope.componentContainer(
             }
 
     val container =
-        Box.Builder().setHeight(height).setWidth(width).apply {
-            content?.let { addContent(content()) }
-        }
+        Box.Builder()
+            .setHeight(height)
+            .setHorizontalAlignment(horizontalAlignment)
+            .setWidth(width)
+            .apply { content?.let { addContent(content()) } }
 
     if (backgroundContent == null) {
         container.setModifiers(mod.padding(contentPadding).toProtoLayoutModifiers())
@@ -195,18 +211,27 @@ internal fun MaterialScope.componentContainer(
         .setModifiers(protoLayoutModifiers)
         .addContent(
             withStyle(
-                    defaultBackgroundImageStyle =
-                        BackgroundImageStyle(
-                            width = expand(),
-                            height = expand(),
-                            overlayColor = colorScheme.primary.withOpacity(0.6f),
-                            overlayWidth = width,
-                            overlayHeight = height,
-                            shape = protoLayoutModifiers.background?.corner ?: shapes.large,
-                            contentScaleMode = LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS,
-                        )
-                )
-                .backgroundContent()
+                defaultBackgroundImageStyle =
+                    BackgroundImageStyle(
+                        width = expand(),
+                        height = expand(),
+                        overlayColor =
+                            if (useOverlayOnBackground) {
+                                colorScheme.background.withOpacity(0.6f)
+                            } else {
+                                null
+                            },
+                        shape = protoLayoutModifiers.background?.corner ?: shapes.large,
+                        contentScaleMode =
+                            if (useOverlayOnBackground) {
+                                LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+                            } else {
+                                LayoutElementBuilders.CONTENT_SCALE_MODE_CROP
+                            },
+                    )
+            ) {
+                backgroundContent()
+            }
         )
         .setWidth(width)
         .setHeight(height)

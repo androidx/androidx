@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 // to ensure the change is available on all versions of the map.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+@Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD")
 class DoubleListTest {
     private val list: MutableDoubleList = mutableDoubleListOf(1.0, 2.0, 3.0, 4.0, 5.0)
 
@@ -96,15 +97,15 @@ class DoubleListTest {
     fun joinToString() {
         assertEquals("${1.0}, ${2.0}, ${3.0}, ${4.0}, ${5.0}", list.joinToString())
         assertEquals(
-            "x${1.0}, ${2.0}, ${3.0}...",
-            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+            "x${1.0}, ${2.0}, ${3.0}, ...y",
+            list.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${1.0}-${2.0}-${3.0}-${4.0}-${5.0}<",
-            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+            list.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         assertEquals(
-            "one, two, three...",
+            "one, two, three, ...",
             list.joinToString(limit = 3) {
                 when (it.toInt()) {
                     1 -> "one"
@@ -112,7 +113,7 @@ class DoubleListTest {
                     3 -> "three"
                     else -> "whoops"
                 }
-            }
+            },
         )
     }
 
@@ -163,21 +164,21 @@ class DoubleListTest {
             list.elementAtOrElse(0) {
                 assertEquals(0, it)
                 0.0
-            }
+            },
         )
         assertEquals(
             0.0,
             list.elementAtOrElse(-1) {
                 assertEquals(-1, it)
                 0.0
-            }
+            },
         )
         assertEquals(
             0.0,
             list.elementAtOrElse(5) {
                 assertEquals(5, it)
                 0.0
-            }
+            },
         )
     }
 
@@ -366,7 +367,7 @@ class DoubleListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" }
+            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" },
         )
     }
 
@@ -379,7 +380,7 @@ class DoubleListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" }
+            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" },
         )
     }
 

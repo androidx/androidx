@@ -26,7 +26,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
@@ -41,18 +41,16 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
     implementation(project(":wear:protolayout:protolayout-proto"))
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
     testImplementation(libs.truth)
     testImplementation("androidx.core:core-ktx:1.13.1")
+    testImplementation("org.robolectric:shadowapi:4.15")
 }
 
 androidx {
@@ -61,4 +59,5 @@ androidx {
     inceptionYear = "2023"
     description = "Material Core components library for ProtoLayout. This library contains" +
             "themeless components that are shared with ProtoLayout Material libraries."
+    enableRobolectric()
 }

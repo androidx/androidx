@@ -34,7 +34,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -54,7 +54,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MILLISECONDS)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -84,7 +84,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -105,7 +105,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MINUTES)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -128,7 +128,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -148,7 +148,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, ofNanos(10L))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -179,7 +179,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             import androidx.work.ListenableWorker
 
             class TestWorker: ListenableWorker()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -199,7 +199,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, Duration.ofSeconds(10L))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -232,7 +232,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             class TestWorker: ListenableWorker() {
 
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -253,7 +253,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(worker, Duration.ofMinutes(15))
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -278,7 +278,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             class TestWorker: ListenableWorker() {
 
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -299,7 +299,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                     val builder = PeriodicWorkRequest.Builder(worker, interval, TimeUnit.MINUTES)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

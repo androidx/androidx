@@ -1,0 +1,101 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilderKt#activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit>):
+    Binary breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilderKt.activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt#includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String, String, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>):
+    Binary breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt.includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,String,String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt#includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String, String, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit>):
+    Binary breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt.includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,String,String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt#navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, Object, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>):
+    Binary breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt.navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,Object,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt#navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, kotlin.reflect.KClass<?>, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>):
+    Binary breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt.navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.reflect.KClass<?>,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>) has been removed from bytecode
+
+
+RemovedFromJava: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilderKt#activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit>):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilderKt.activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit>) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt#includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String, String, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt.includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,String,String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt#includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String, String, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit>):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilderKt.includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,String,String,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit>) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt#navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, Object, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt.navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,Object,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt#navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, kotlin.reflect.KClass<?>, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilderKt.navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.reflect.KClass<?>,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit>) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getAction():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getActivityClassName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getActivityClassName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getData():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getDataPattern():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getDataPattern() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#getTargetPackage():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.getTargetPackage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setAction(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setAction(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setActivityClassName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setActivityClassName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setData(android.net.Uri):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setData(android.net.Uri) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setDataPattern(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setDataPattern(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder#setTargetPackage(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder.setTargetPackage(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicExtras#getDestinationExtras():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicExtras.getDestinationExtras() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicExtras#getInstallMonitor():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicExtras.getInstallMonitor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#getProgressDestination():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.getProgressDestination() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph#setProgressDestination(int):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph.setProgressDestination(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#getGraphPackage():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.getGraphPackage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#getGraphResourceName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.getGraphResourceName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setGraphPackage(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setGraphPackage(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setGraphResourceName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setGraphResourceName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder#getGraphPackage():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder.getGraphPackage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder#setGraphPackage(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder.setGraphPackage(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicInstallMonitor#getException():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicInstallMonitor.getException() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicInstallMonitor#getSessionId():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicInstallMonitor.getSessionId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicInstallMonitor#getStatus():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicInstallMonitor.getStatus() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicInstallMonitor#isInstallRequired():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicInstallMonitor.isInstallRequired() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#getModuleName():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.getModuleName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#getProgressDestination():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.getProgressDestination() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#getProgressDestinationRoute():
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.getProgressDestinationRoute() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setModuleName(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setModuleName(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setProgressDestination(int):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setProgressDestination(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder#setProgressDestinationRoute(String):
+    Source breaking change: method androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder.setProgressDestinationRoute(String) can no longer be resolved from Kotlin source

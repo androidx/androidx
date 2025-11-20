@@ -52,14 +52,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.samples.RadioButtonSample
 import androidx.wear.compose.material3.samples.SplitRadioButtonSample
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class RadioButtonTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun radio_button_supports_testtag() {
@@ -236,7 +238,7 @@ class RadioButtonTest {
                 selected = selectedIndex == 1,
                 onSelected = { onIndexSelected(1) },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -251,7 +253,7 @@ class RadioButtonTest {
                 selected = selectedIndex == 1,
                 onSelected = { onIndexSelected(1) },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -274,13 +276,13 @@ class RadioButtonTest {
                     selected = selectedIndex == 0,
                     onSelected = { onIndexSelected(0) },
                     enabled = true,
-                    modifier = Modifier.testTag(buttonA)
+                    modifier = Modifier.testTag(buttonA),
                 )
                 RadioButtonWithDefaults(
                     selected = selectedIndex == 1,
                     onSelected = { onIndexSelected(1) },
                     enabled = true,
-                    modifier = Modifier.testTag(buttonB)
+                    modifier = Modifier.testTag(buttonB),
                 )
             }
         }
@@ -303,13 +305,13 @@ class RadioButtonTest {
                     selected = selectedIndex == 0,
                     onSelected = { onIndexSelected(0) },
                     enabled = true,
-                    modifier = Modifier.testTag(buttonA)
+                    modifier = Modifier.testTag(buttonA),
                 )
                 SplitRadioButtonWithDefaults(
                     selected = selectedIndex == 1,
                     onSelected = { onIndexSelected(1) },
                     enabled = true,
-                    modifier = Modifier.testTag(buttonB)
+                    modifier = Modifier.testTag(buttonB),
                 )
             }
         }
@@ -329,7 +331,7 @@ class RadioButtonTest {
                 selected = selectedIndex == 1,
                 onSelected = { onIndexSelected(1) },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -344,7 +346,7 @@ class RadioButtonTest {
                 selected = selectedIndex == 1,
                 onSelected = { onIndexSelected(1) },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -391,7 +393,7 @@ class RadioButtonTest {
             RadioButtonWithDefaults(
                 selected = true,
                 onSelected = {},
-                label = { Text(text = textContent) }
+                label = { Text(text = textContent) },
             )
         }
 
@@ -406,7 +408,7 @@ class RadioButtonTest {
             SplitRadioButtonWithDefaults(
                 selected = true,
                 onSelected = {},
-                label = { Text(text = textContent) }
+                label = { Text(text = textContent) },
             )
         }
 
@@ -428,7 +430,7 @@ class RadioButtonTest {
                                     " for the RadioButton."
                         )
                     },
-                    secondaryLabel = { Text(text = "Secondary label with text.") }
+                    secondaryLabel = { Text(text = "Secondary label with text.") },
                 )
             }
             .assertHeightIsAtLeast(minHeight)
@@ -449,7 +451,7 @@ class RadioButtonTest {
                                     "to test height is adjustable. This should exceed the minimum height" +
                                     " for the SplitRadioButton."
                         )
-                    }
+                    },
                 )
             }
             .assertHeightIsAtLeast(minHeight)
@@ -585,47 +587,47 @@ class RadioButtonTest {
         Assert.assertEquals(2, secondaryLabelMaxLines)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radio_button_allows_checked_background_color_override() =
         verifyRadioButtonBackgroundColor(
             selected = true,
             enabled = true,
-            expectedColor = SELECTED_COLOR
+            expectedColor = SELECTED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radio_button_allows_unchecked_background_color_override() =
         verifyRadioButtonBackgroundColor(
             selected = false,
             enabled = true,
-            expectedColor = UNSELECTED_COLOR
+            expectedColor = UNSELECTED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_radio_button_allows_checked_background_color_override() =
         verifySplitRadioButtonBackgroundColor(
             selected = true,
             enabled = true,
-            expectedColor = SELECTED_COLOR
+            expectedColor = SELECTED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_radio_button_allows_unchecked_background_color_override() =
         verifySplitRadioButtonBackgroundColor(
             selected = false,
             enabled = true,
-            expectedColor = UNSELECTED_COLOR
+            expectedColor = UNSELECTED_COLOR,
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun verifyRadioButtonBackgroundColor(
         selected: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContentWithTheme {
             RadioButtonWithDefaults(
@@ -633,7 +635,7 @@ class RadioButtonTest {
                 colors =
                     RadioButtonDefaults.radioButtonColors(
                         selectedContainerColor = SELECTED_COLOR,
-                        unselectedContainerColor = UNSELECTED_COLOR
+                        unselectedContainerColor = UNSELECTED_COLOR,
                     ),
                 onSelected = {},
                 enabled = enabled,
@@ -648,7 +650,7 @@ class RadioButtonTest {
     private fun verifySplitRadioButtonBackgroundColor(
         selected: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContentWithTheme {
             SplitRadioButtonWithDefaults(
@@ -656,7 +658,7 @@ class RadioButtonTest {
                 colors =
                     RadioButtonDefaults.splitRadioButtonColors(
                         selectedContainerColor = SELECTED_COLOR,
-                        unselectedContainerColor = UNSELECTED_COLOR
+                        unselectedContainerColor = UNSELECTED_COLOR,
                     ),
                 onSelected = {},
                 enabled = enabled,

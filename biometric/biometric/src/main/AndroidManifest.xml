@@ -20,4 +20,13 @@
     <!--suppress DeprecatedClassUsageInspection -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
+    <application>
+        <activity
+            android:name="androidx.biometric.internal.ui.FingerprintDialogActivity"
+            android:label="@string/fingerprint_dialog_activity_label"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Dialog.Alert"
+            />
+    </application>
+
 </manifest>

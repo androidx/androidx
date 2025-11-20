@@ -59,7 +59,7 @@ private val colors =
         Color(0xFFffe9d6.toInt()),
         Color(0xFFfffbd0.toInt()),
         Color(0xFFe3ffd9.toInt()),
-        Color(0xFFd0fff8.toInt())
+        Color(0xFFd0fff8.toInt()),
     )
 
 @Sampled
@@ -75,7 +75,7 @@ fun BottomSheetScaffoldSample() {
             }
             Column(
                 Modifier.fillMaxWidth().padding(64.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text("Sheet content")
                 Spacer(Modifier.height(20.dp))
@@ -100,7 +100,7 @@ fun BottomSheetScaffoldSample() {
             }
         },
         floatingActionButtonPosition = FabPosition.End,
-        sheetPeekHeight = 128.dp
+        sheetPeekHeight = 128.dp,
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             items(100) {
@@ -121,7 +121,7 @@ fun BottomSheetScaffoldWithDrawerSample() {
         drawerContent = {
             Column(
                 Modifier.fillMaxWidth().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text("Drawer content")
                 Spacer(Modifier.height(20.dp))
@@ -129,7 +129,7 @@ fun BottomSheetScaffoldWithDrawerSample() {
                     Text("Click to close drawer")
                 }
             }
-        }
+        },
     ) {
         BottomSheetScaffold(
             sheetContent = {
@@ -138,7 +138,7 @@ fun BottomSheetScaffoldWithDrawerSample() {
                 }
                 Column(
                     Modifier.fillMaxWidth().padding(64.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("Sheet content")
                     Spacer(Modifier.height(20.dp))
@@ -157,7 +157,7 @@ fun BottomSheetScaffoldWithDrawerSample() {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, contentDescription = "Localized description")
                         }
-                    }
+                    },
                 )
             },
             floatingActionButton = {
@@ -176,7 +176,7 @@ fun BottomSheetScaffoldWithDrawerSample() {
                 }
             },
             floatingActionButtonPosition = FabPosition.End,
-            sheetPeekHeight = 128.dp
+            sheetPeekHeight = 128.dp,
         ) { innerPadding ->
             LazyColumn(contentPadding = innerPadding) {
                 items(100) {

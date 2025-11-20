@@ -42,7 +42,7 @@ class UpsertDataRequestTest {
                                 .setInstantTimeMillis(1245L)
                                 .putValues(
                                     "bpm",
-                                    DataProto.Value.newBuilder().setLongVal(120).build()
+                                    DataProto.Value.newBuilder().setLongVal(120).build(),
                                 )
                                 .build()
                         )
@@ -54,7 +54,7 @@ class UpsertDataRequestTest {
                                 .setInstantTimeMillis(1245L)
                                 .putValues(
                                     "bpm",
-                                    DataProto.Value.newBuilder().setLongVal(120).build()
+                                    DataProto.Value.newBuilder().setLongVal(120).build(),
                                 )
                                 .build()
                         )
@@ -63,7 +63,7 @@ class UpsertDataRequestTest {
                                 .setInstantTimeMillis(1247L)
                                 .putValues(
                                     "bpm",
-                                    DataProto.Value.newBuilder().setLongVal(120).build()
+                                    DataProto.Value.newBuilder().setLongVal(120).build(),
                                 )
                                 .build()
                         )

@@ -1,0 +1,52 @@
+// Signature format: 4.0
+package androidx.work.testing {
+
+  public class SynchronousExecutor implements java.util.concurrent.Executor {
+    ctor public SynchronousExecutor();
+    method public void execute(Runnable);
+  }
+
+  public interface TestDriver {
+    method public void setAllConstraintsMet(java.util.UUID);
+    method public void setInitialDelayMet(java.util.UUID);
+    method public void setPeriodDelayMet(java.util.UUID);
+  }
+
+  public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
+    method public W build();
+    method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker!> from(android.content.Context, androidx.work.WorkRequest);
+    method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setForegroundUpdater(androidx.work.ForegroundUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setId(java.util.UUID);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setInputData(androidx.work.Data);
+    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder<W!> setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setProgressUpdater(androidx.work.ProgressUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setRunAttemptCount(int);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setTags(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentUris(java.util.List<android.net.Uri!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setWorkerFactory(androidx.work.WorkerFactory);
+  }
+
+  public final class TestListenableWorkerBuilderKt {
+    method @KotlinOnly public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
+  }
+
+  public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W!> {
+    method public static androidx.work.testing.TestWorkerBuilder<? extends androidx.work.Worker!> from(android.content.Context, androidx.work.WorkRequest, java.util.concurrent.Executor);
+    method public static <W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W!> from(android.content.Context, Class<W!>, java.util.concurrent.Executor);
+  }
+
+  public final class TestWorkerBuilderKt {
+    method @KotlinOnly public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
+  }
+
+  public final class WorkManagerTestInitHelper {
+    method @Deprecated public static androidx.work.testing.TestDriver? getTestDriver();
+    method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
+    method public static void initializeTestWorkManager(android.content.Context);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
+  }
+
+}
+

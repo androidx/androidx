@@ -1,0 +1,12 @@
+// Klib ABI Dump
+// Targets: [macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.tracing:tracing>
+final object androidx.tracing/Trace { // androidx.tracing/Trace|null[0]
+    final fun beginSection(kotlin/String) // androidx.tracing/Trace.beginSection|beginSection(kotlin.String){}[0]
+    final fun endSection() // androidx.tracing/Trace.endSection|endSection(){}[0]
+}

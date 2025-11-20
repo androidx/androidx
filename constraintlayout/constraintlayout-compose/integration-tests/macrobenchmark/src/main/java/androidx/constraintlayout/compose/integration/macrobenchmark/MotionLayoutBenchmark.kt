@@ -115,7 +115,7 @@ class MotionLayoutBenchmark {
     private fun MacrobenchmarkRule.motionBenchmark(
         composableName: String,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
-        measureBlock: MacrobenchmarkScope.() -> Unit
+        measureBlock: MacrobenchmarkScope.() -> Unit,
     ) {
         measureRepeated(
             packageName = PACKAGE_NAME,
@@ -134,7 +134,7 @@ class MotionLayoutBenchmark {
                 device.waitForComposeIdle()
                 setupBlock()
             },
-            measureBlock = measureBlock
+            measureBlock = measureBlock,
         )
     }
 
@@ -158,7 +158,7 @@ class MotionLayoutBenchmark {
     internal enum class NewMessageMode(val composableName: String) {
         Json("NewMessageJson"),
         Dsl("NewMessageDsl"),
-        OptimizedDsl("OptimizedNewMessageDsl")
+        OptimizedDsl("OptimizedNewMessageDsl"),
     }
 
     private fun UiDevice.waitForComposeIdle(timeoutMs: Long = 3000) {

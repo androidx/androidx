@@ -21,6 +21,7 @@ package androidx.compose.ui.platform
 import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -32,6 +33,7 @@ import androidx.core.view.ViewCompat.TYPE_TOUCH
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 /**
  * Adapts nested scroll from View to Compose. This class is used by [ComposeView] to bridge nested
@@ -42,7 +44,11 @@ import kotlin.math.floor
  * 2) [NestedScrollingChildHelper] by implementing this interface it should be able to receive
  *    deltas from dispatching children on the Compose side.
  */
-internal class NestedScrollInteropConnection(private val view: View) : NestedScrollConnection {
+@OptIn(ExperimentalComposeUiApi::class)
+internal class NestedScrollInteropConnection(
+    private val view: View,
+    private val minFlingVelocity: Float,
+) : NestedScrollConnection {
 
     private val nestedScrollChildHelper =
         NestedScrollingChildHelper(view).apply { isNestedScrollingEnabled = true }
@@ -61,15 +67,17 @@ internal class NestedScrollInteropConnection(private val view: View) : NestedScr
             // reuse
             consumedScrollCache.fill(0)
 
+            val dx = composeToViewOffset(available.x)
+            val dy = composeToViewOffset(available.y)
             nestedScrollChildHelper.dispatchNestedPreScroll(
-                composeToViewOffset(available.x),
-                composeToViewOffset(available.y),
+                dx,
+                dy,
                 consumedScrollCache,
                 null,
-                source.toViewType()
+                source.toViewType(),
             )
 
-            return toOffset(consumedScrollCache, available)
+            return toOffset(dx, dy, consumedScrollCache, available)
         }
 
         return Offset.Zero
@@ -78,67 +86,66 @@ internal class NestedScrollInteropConnection(private val view: View) : NestedScr
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset {
         // Using the return of startNestedScroll to determine if nested scrolling will happen.
         if (nestedScrollChildHelper.startNestedScroll(available.scrollAxes, source.toViewType())) {
             consumedScrollCache.fill(0)
+            val dx = composeToViewOffset(available.x)
+            val dy = composeToViewOffset(available.y)
 
             nestedScrollChildHelper.dispatchNestedScroll(
                 composeToViewOffset(consumed.x),
                 composeToViewOffset(consumed.y),
-                composeToViewOffset(available.x),
-                composeToViewOffset(available.y),
+                dx,
+                dy,
                 null,
                 source.toViewType(),
                 consumedScrollCache,
             )
 
-            return toOffset(consumedScrollCache, available)
+            return toOffset(dx, dy, consumedScrollCache, available)
         }
 
         return Offset.Zero
     }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
-
         val result =
             if (
-                nestedScrollChildHelper.dispatchNestedPreFling(
+                !nestedScrollChildHelper.dispatchNestedPreFling(
                     available.x.toViewVelocity(),
                     available.y.toViewVelocity(),
                 )
             ) {
-                available
+                val consumed =
+                    nestedScrollChildHelper.dispatchNestedFling(
+                        available.x.toViewVelocity(),
+                        available.y.toViewVelocity(),
+                        true,
+                    )
+                // Someone consume during onNestedFling
+                if (consumed) available else Velocity.Zero
             } else {
-                Velocity.Zero
+                available // someone above consumed during onNestedPreFling
             }
-
-        interruptOngoingScrolls()
 
         return result
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        val result =
-            if (
-                nestedScrollChildHelper.dispatchNestedFling(
-                    available.x.toViewVelocity(),
-                    available.y.toViewVelocity(),
-                    true
-                )
-            ) {
-                available
-            } else {
-                Velocity.Zero
-            }
+        // All nested fling methods in the view world happen during the PreFling phase of Compose.
+        // Some examples of this are in ScrollView and RecyclerView.
+        // When a fling happens in a child, the child will call dispatchNestedPreFling and if
+        // nothing consumes it will immediately call dispatchNestedFling. Only then the child
+        // will fling itself with any remaining velocity.
 
-        interruptOngoingScrolls()
-
-        return result
+        // finalize fling process by declaring the end of nested scrolling.
+        stopNestedScrolls()
+        return Velocity.Zero
     }
 
-    private fun interruptOngoingScrolls() {
+    private fun stopNestedScrolls() {
         if (nestedScrollChildHelper.hasNestedScrollingParent(TYPE_TOUCH)) {
             nestedScrollChildHelper.stopNestedScroll(TYPE_TOUCH)
         }
@@ -153,8 +160,15 @@ internal class NestedScrollInteropConnection(private val view: View) : NestedScr
 // issues.
 private fun Float.ceilAwayFromZero(): Float = if (this >= 0) ceil(this) else floor(this)
 
+/**
+ * Views deal with integer pixels and Compose uses floating point pixels. We will use a similar
+ * approach that RecyclerView uses to avoid rounding issues.
+ */
+private fun Float.extractIntegerPixels(): Int = this.roundToInt()
+
 // Compose coordinate system is the opposite of view's system
-internal fun composeToViewOffset(offset: Float): Int = offset.ceilAwayFromZero().toInt() * -1
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun composeToViewOffset(offset: Float): Int = offset.extractIntegerPixels() * -1
 
 // Compose scrolling sign system is the opposite of view's system
 private fun Int.reverseAxis(): Float = this * -1f
@@ -166,19 +180,39 @@ private fun Float.toViewVelocity(): Float = this * -1f
  * available [Offset] in order to account for rounding errors produced by the Int to Float
  * conversions.
  */
-private fun toOffset(consumed: IntArray, available: Offset): Offset {
+@OptIn(ExperimentalComposeUiApi::class)
+private fun toOffset(dx: Int, dy: Int, consumed: IntArray, available: Offset): Offset {
+    /**
+     * Since our conversion from Float to Int may result in overflow not being reported correctly we
+     * need to re-add the overflow when passing the consumption data back to compose. We will assume
+     * that the overflow was also consumed if something else was consumed.
+     */
+    val overflowX =
+        if (consumed[0].absoluteValue == 0) {
+            0f
+        } else {
+            available.x - dx.reverseAxis()
+        }
+
+    val overflowY =
+        if (consumed[1].absoluteValue == 0) {
+            0f
+        } else {
+            available.y - dy.reverseAxis()
+        }
+
     val offsetX =
         if (available.x >= 0) {
-            consumed[0].reverseAxis().coerceAtMost(available.x)
+            (consumed[0].reverseAxis() + overflowX).coerceAtMost(available.x)
         } else {
-            consumed[0].reverseAxis().coerceAtLeast(available.x)
+            (consumed[0].reverseAxis() + overflowX).coerceAtLeast(available.x)
         }
 
     val offsetY =
         if (available.y >= 0) {
-            consumed[1].reverseAxis().coerceAtMost(available.y)
+            (consumed[1].reverseAxis() + overflowY).coerceAtMost(available.y)
         } else {
-            consumed[1].reverseAxis().coerceAtLeast(available.y)
+            (consumed[1].reverseAxis() + overflowY).coerceAtLeast(available.y)
         }
 
     return Offset(offsetX, offsetY)
@@ -209,6 +243,18 @@ private val Offset.scrollAxes: Int
         return axes
     }
 
+/** Make an assumption that the scrolling axes is determined by a min fling velocity */
+private fun Velocity.scrollAxes(minFlingVelocity: Float): Int {
+    var axes = ViewCompat.SCROLL_AXIS_NONE
+    if (x.absoluteValue >= minFlingVelocity) {
+        axes = axes or ViewCompat.SCROLL_AXIS_HORIZONTAL
+    }
+    if (y.absoluteValue >= minFlingVelocity) {
+        axes = axes or ViewCompat.SCROLL_AXIS_VERTICAL
+    }
+    return axes
+}
+
 /**
  * Create and [remember] the [NestedScrollConnection] that enables Nested Scroll Interop between a
  * View parent that implements [androidx.core.view.NestedScrollingParent3] and a Compose child. This
@@ -226,7 +272,13 @@ private val Offset.scrollAxes: Int
  *
  * @sample androidx.compose.ui.samples.ComposeInCooperatingViewNestedScrollInteropSample
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun rememberNestedScrollInteropConnection(
     hostView: View = LocalView.current
-): NestedScrollConnection = remember(hostView) { NestedScrollInteropConnection(hostView) }
+): NestedScrollConnection {
+    val viewConfiguration = LocalViewConfiguration.current
+    return remember(hostView, viewConfiguration) {
+        NestedScrollInteropConnection(hostView, viewConfiguration.minimumFlingVelocity)
+    }
+}

@@ -93,7 +93,7 @@ class IconToggleButtonBenchmark(private val type: IconToggleButtonType) {
     fun toggle_recomposeMeasureLayout() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = iconToggleButtonTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -118,14 +118,14 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
             IconToggleButtonType.FilledTonalIconToggleButton ->
                 FilledTonalIconToggleButton(
                     checked = state,
-                    onCheckedChange = { /* Do something! */ }
+                    onCheckedChange = { /* Do something! */ },
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
             IconToggleButtonType.OutlinedIconToggleButton ->
                 OutlinedIconToggleButton(
                     checked = state,
-                    onCheckedChange = { /* Do something! */ }
+                    onCheckedChange = { /* Do something! */ },
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -133,7 +133,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 IconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes = IconButtonDefaults.toggleableShapes()
+                    shapes = IconButtonDefaults.toggleableShapes(),
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -141,7 +141,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 FilledIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes = IconButtonDefaults.toggleableShapes()
+                    shapes = IconButtonDefaults.toggleableShapes(),
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -149,7 +149,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 FilledTonalIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes = IconButtonDefaults.toggleableShapes()
+                    shapes = IconButtonDefaults.toggleableShapes(),
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -157,7 +157,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 OutlinedIconToggleButton(
                     checked = state,
                     onCheckedChange = { /* Do something! */ },
-                    shapes = IconButtonDefaults.toggleableShapes()
+                    shapes = IconButtonDefaults.toggleableShapes(),
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
@@ -182,5 +182,5 @@ enum class IconToggleButtonType {
     IconToggleButtonExpressive,
     FilledIconToggleButtonExpressive,
     FilledTonalIconToggleButtonExpressive,
-    OutlinedIconToggleButtonExpressive
+    OutlinedIconToggleButtonExpressive,
 }

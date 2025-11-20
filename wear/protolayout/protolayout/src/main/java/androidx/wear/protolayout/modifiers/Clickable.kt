@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.wear.protolayout.modifiers
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.util.Log
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.DP
 import androidx.wear.protolayout.ActionBuilders.Action
 import androidx.wear.protolayout.ActionBuilders.LoadAction
 import androidx.wear.protolayout.ActionBuilders.actionFromProto
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.ProtoLayoutScope
+import androidx.wear.protolayout.ProtoLayoutScope.RendererCapability
 import androidx.wear.protolayout.StateBuilders.State
 import androidx.wear.protolayout.expression.DynamicDataMap
 import androidx.wear.protolayout.expression.RequiresSchemaVersion
@@ -65,7 +71,7 @@ fun clickable(
     minClickableWidth: Float = Float.NaN,
     @RequiresSchemaVersion(major = 1, minor = 300)
     @Dimension(DP)
-    minClickableHeight: Float = Float.NaN
+    minClickableHeight: Float = Float.NaN,
 ): Clickable =
     Clickable.Builder()
         .setOnClick(action)
@@ -75,6 +81,60 @@ fun clickable(
             if (!minClickableHeight.isNaN()) setMinimumClickableHeight(minClickableHeight.dp)
         }
         .build()
+
+/**
+ * Creates a [Clickable] that allows the modified element to have a [PendingIntent] associated with
+ * it, which will be sent when the element is tapped.
+ *
+ * This clickable requires to be created in a [ProtoLayoutScope] receiver scope which handles
+ * internal details of ProtoLayout layout and tiles. In Tiles cases, this scope object can be
+ * obtained via `androidx.wear.tiles.RequestBuilders#TileRequest.getScope`.
+ *
+ * @param pendingIntent is sent when the element is tapped.
+ * @param id is the associated identifier for this clickable. This will be used to the identify the
+ *   pendingIntent to send in the renderer. Within the same tile, this id must be unique among all
+ *   pendingIntent clickables.
+ * @param fallbackAction The Action to use as a fallback when PendingIntent isn't supported by the
+ *   ProtoLayout Renderer.
+ * @param minClickableWidth of the clickable area. The default value is 48dp, following the Material
+ *   design accessibility guideline. Note that this value does not affect the layout, so the minimum
+ *   clickable width is not guaranteed unless there is enough space around the element within its
+ *   parent bounds.
+ * @param minClickableHeight of the clickable area. The default value is 48dp, following the
+ *   Material design accessibility guideline. Note that this value does not affect the layout, so
+ *   the minimum clickable height is not guaranteed unless there is enough space around the element
+ *   within its parent bounds.
+ */
+@SuppressLint("ProtoLayoutMinSchema")
+@JvmOverloads
+fun ProtoLayoutScope.clickable(
+    pendingIntent: PendingIntent,
+    id: String,
+    fallbackAction: Action? = null,
+    @Dimension(DP) minClickableWidth: Float = Float.NaN,
+    @Dimension(DP) minClickableHeight: Float = Float.NaN,
+): Clickable {
+    if (hasCapability(RendererCapability.PENDING_INTENT_ACTION)) {
+        return Clickable.Builder(this, id)
+            .setOnClick(pendingIntent)
+            .apply {
+                if (!minClickableWidth.isNaN()) setMinimumClickableWidth(minClickableWidth.dp)
+                if (!minClickableHeight.isNaN()) setMinimumClickableHeight(minClickableHeight.dp)
+            }
+            .build()
+    }
+
+    fallbackAction?.let {
+        return clickable(it, id, minClickableWidth, minClickableHeight)
+    }
+
+    Log.e(
+        "ProtoLayoutScope",
+        "Renderer lacks PendingIntent support. No explicit fallbackAction specified for" +
+            "ID: $id. Returning empty Clickable.",
+    )
+    return Clickable.Builder().build()
+}
 
 /**
  * Adds the clickable property of the modified element. It allows the modified element to have
@@ -89,7 +149,7 @@ fun LayoutModifier.clickable(clickable: Clickable): LayoutModifier =
                 },
             id = clickable.id,
             minClickableWidth = clickable.minimumClickableWidth.value,
-            minClickableHeight = clickable.minimumClickableHeight.value
+            minClickableHeight = clickable.minimumClickableHeight.value,
         )
 
 /**
@@ -117,7 +177,7 @@ fun loadAction(
 @RequiresSchemaVersion(major = 1, minor = 300)
 fun LayoutModifier.minimumTouchTargetSize(
     @Dimension(DP) minWidth: Float,
-    @Dimension(DP) minHeight: Float
+    @Dimension(DP) minHeight: Float,
 ): LayoutModifier =
     this then BaseClickableElement(minClickableWidth = minWidth, minClickableHeight = minHeight)
 
@@ -126,10 +186,10 @@ internal class BaseClickableElement(
     val id: String? = null,
     @Dimension(DP) val minClickableWidth: Float = Float.NaN,
     @Dimension(DP) val minClickableHeight: Float = Float.NaN,
-) : LayoutModifier.Element {
+) : BaseProtoLayoutModifiersElement<Clickable.Builder> {
     @SuppressLint("ProtoLayoutMinSchema")
-    fun mergeTo(initial: Clickable.Builder?): Clickable.Builder =
-        (initial ?: Clickable.Builder()).apply {
+    override fun mergeTo(initialBuilder: Clickable.Builder?): Clickable.Builder =
+        (initialBuilder ?: Clickable.Builder()).apply {
             if (!id.isNullOrEmpty()) setId(id)
             action?.let { setOnClick(it) }
             if (!minClickableWidth.isNaN()) setMinimumClickableWidth(minClickableWidth.dp)

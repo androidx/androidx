@@ -93,7 +93,7 @@ public class ParcelableWorkContinuationImplTest {
                         override fun getSerialTaskExecutor(): SerialExecutor {
                             return serialExecutor
                         }
-                    }
+                    },
                 )
             )
         `when`<List<Scheduler>>(workManager.schedulers).thenReturn(listOf(scheduler))
@@ -167,7 +167,7 @@ public class ParcelableWorkContinuationImplTest {
         val continuation2 = parcelable.info.toWorkContinuationImpl(workManager)
         equal(
             ParcelableWorkContinuationImpl(continuation).info,
-            ParcelableWorkContinuationImpl(continuation2).info
+            ParcelableWorkContinuationImpl(continuation2).info,
         )
     }
 
@@ -203,7 +203,7 @@ public class ParcelableWorkContinuationImplTest {
 
     private fun equal(
         first: ParcelableWorkContinuationImpl.WorkContinuationImplInfo,
-        second: ParcelableWorkContinuationImpl.WorkContinuationImplInfo
+        second: ParcelableWorkContinuationImpl.WorkContinuationImplInfo,
     ) {
         assertEquals(first.name, second.name)
         assertEquals(first.existingWorkPolicy, second.existingWorkPolicy)

@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_action_finish" msgid="7621130025103996211">"ઍપ્લિકેશન બંધ કરો"</string>
-    <string name="error_action_update_host" msgid="4802951804749609593">"અપડેટ ચેક કરો"</string>
+    <string name="error_action_update_host" msgid="4802951804749609593">"અપડેટ માટે ચેક કરો"</string>
     <string name="error_action_retry" msgid="985347670495166517">"ફરી પ્રયાસ કરો"</string>
     <string name="error_message_client_side_error" msgid="3323186720368387787">"ઍપ્લિકેશનમાં ભૂલ. કૃપા કરીને ઍપ ડેવલપરને આ ભૂલની જાણ કરો"</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"સિસ્ટમમાં ભૂલ"</string>

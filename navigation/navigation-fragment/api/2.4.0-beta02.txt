@@ -102,8 +102,8 @@ package androidx.navigation.fragment {
 
   public class NavHostFragment extends androidx.fragment.app.Fragment implements androidx.navigation.NavHost {
     ctor public NavHostFragment();
-    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
+    method public static final androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
     method public static final androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
     method public final androidx.navigation.NavController getNavController();
@@ -114,8 +114,8 @@ package androidx.navigation.fragment {
   }
 
   public static final class NavHostFragment.Companion {
-    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId);
+    method public androidx.navigation.fragment.NavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method public androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment fragment);
   }
 

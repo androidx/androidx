@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
@@ -24,7 +23,7 @@ import android.widget.TextView;
 
 import org.jspecify.annotations.Nullable;
 
-public class FlingTestActivity extends Activity {
+public class FlingTestActivity extends TestActivity {
 
     private TextView mFlingRegion;
     private int mMinFlingVelocity;

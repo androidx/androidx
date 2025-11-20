@@ -40,9 +40,7 @@ class InsertDataResponse(val dataPointUids: List<String>) :
                 fromProto(proto)
             }
 
-        internal fun fromProto(
-            proto: ResponseProto.InsertDataResponse,
-        ): InsertDataResponse {
+        internal fun fromProto(proto: ResponseProto.InsertDataResponse): InsertDataResponse {
             return InsertDataResponse(proto.dataPointUidList)
         }
     }

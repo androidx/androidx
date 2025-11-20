@@ -19,8 +19,7 @@ package androidx.recyclerview.widget;
 import static androidx.recyclerview.widget.LayoutState.LAYOUT_END;
 import static androidx.recyclerview.widget.LayoutState.LAYOUT_START;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
-import static androidx.recyclerview.widget.StaggeredGridLayoutManager
-        .GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
+import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE;
 import static androidx.recyclerview.widget.StaggeredGridLayoutManager.HORIZONTAL;
 

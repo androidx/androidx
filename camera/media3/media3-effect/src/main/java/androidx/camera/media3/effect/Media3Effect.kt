@@ -57,12 +57,8 @@ public class Media3Effect(
     CameraEffect(
         targets,
         mainThreadExecutor(),
-        Media3SurfaceProcessor(
-            context,
-            executor,
-            errorListener,
-        ),
-        {}
+        Media3SurfaceProcessor(context, executor, errorListener),
+        {},
     ),
     AutoCloseable {
 

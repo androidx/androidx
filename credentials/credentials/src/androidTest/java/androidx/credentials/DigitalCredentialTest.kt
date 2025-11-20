@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @OptIn(ExperimentalDigitalCredentialApi::class)
+@Suppress("DEPRECATION")
 class DigitalCredentialTest {
     @Test
     fun typeConstant() {
@@ -67,6 +68,32 @@ class DigitalCredentialTest {
         assertThat(convertedSubclassCredential.credentialJson).isEqualTo(credential.credentialJson)
         assertThat(convertedCredential.data.getCharSequence(customDataKey))
             .isEqualTo(customDataValue)
+        // Make sure the bundle has a string for the json
+        assertThat(convertedCredential.data.get(DigitalCredential.BUNDLE_KEY_REQUEST_JSON))
+            .isInstanceOf(String::class.java)
+    }
+
+    @Test
+    fun frameworkConversion_largeJson_success() {
+        val largeJson = "{\"key\":\"${"a".repeat(300000)}\"}"
+        val credential = DigitalCredential(largeJson)
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = credential.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
+
+        val convertedCredential = createFrom(credential.type, data)
+
+        assertThat(convertedCredential).isInstanceOf(DigitalCredential::class.java)
+        val convertedSubclassCredential = convertedCredential as DigitalCredential
+        assertThat(convertedSubclassCredential.credentialJson).isEqualTo(credential.credentialJson)
+        assertThat(convertedCredential.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
+        // Make sure the bundle has a byte array for the json
+        assertThat(convertedCredential.data.get(DigitalCredential.BUNDLE_KEY_REQUEST_JSON))
+            .isInstanceOf(ByteArray::class.java)
     }
 
     companion object {

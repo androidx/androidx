@@ -49,7 +49,7 @@ class ActivityResultLaunchDetector : Detector(), SourceCodeScanner {
                 LaunchDuringComposition,
                 node,
                 context.getNameLocation(node),
-                "Calls to `launch` should happen inside of a SideEffect and not during composition"
+                "Calls to `launch` should happen inside of a SideEffect and not during composition",
             )
         }
     }
@@ -68,8 +68,8 @@ class ActivityResultLaunchDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ActivityResultLaunchDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

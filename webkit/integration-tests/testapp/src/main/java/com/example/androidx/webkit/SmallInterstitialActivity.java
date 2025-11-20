@@ -41,6 +41,7 @@ public class SmallInterstitialActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_small_interstitial);
+        WebkitHelpers.enableEdgeToEdge(this);
         setTitle(R.string.small_interstitial_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
         WebView webview = findViewById(R.id.small_webview);

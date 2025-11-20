@@ -43,7 +43,7 @@ object SurfaceDefaults {
     @Composable
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
-        contentColor: Color = contentColorFor(containerColor)
+        contentColor: Color = contentColorFor(containerColor),
     ) = SurfaceColors(containerColor = containerColor, contentColor = contentColor)
 
     /** Represents the default border used by a non-interactive [Surface] */
@@ -72,14 +72,14 @@ object ClickableSurfaceDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ClickableSurfaceShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -106,7 +106,7 @@ object ClickableSurfaceDefaults {
         pressedContentColor: Color = contentColorFor(pressedContainerColor),
         disabledContainerColor: Color =
             MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledContainerAlpha),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface
+        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,
     ) =
         ClickableSurfaceColors(
             containerColor = containerColor,
@@ -116,7 +116,7 @@ object ClickableSurfaceDefaults {
             pressedContainerColor = pressedContainerColor,
             pressedContentColor = pressedContentColor,
             disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     /**
@@ -136,14 +136,14 @@ object ClickableSurfaceDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ClickableSurfaceScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -168,15 +168,15 @@ object ClickableSurfaceDefaults {
             Border(
                 border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border),
                 inset = 0.dp,
-                shape = ShapeDefaults.Small
-            )
+                shape = ShapeDefaults.Small,
+            ),
     ) =
         ClickableSurfaceBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**
@@ -220,7 +220,7 @@ object SelectableSurfaceDefaults {
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
-        focusedSelectedDisabledShape: Shape = disabledShape
+        focusedSelectedDisabledShape: Shape = disabledShape,
     ) =
         SelectableSurfaceShape(
             shape = shape,
@@ -232,7 +232,7 @@ object SelectableSurfaceDefaults {
             focusedDisabledShape = focusedDisabledShape,
             pressedSelectedShape = pressedSelectedShape,
             selectedDisabledShape = selectedDisabledShape,
-            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape,
         )
 
     /**
@@ -282,7 +282,7 @@ object SelectableSurfaceDefaults {
             MaterialTheme.colorScheme.inverseSurface.copy(alpha = SelectedContainerAlpha),
         focusedSelectedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedSelectedContainerColor: Color = focusedSelectedContainerColor,
-        pressedSelectedContentColor: Color = focusedSelectedContentColor
+        pressedSelectedContentColor: Color = focusedSelectedContentColor,
     ) =
         SelectableSurfaceColors(
             containerColor = containerColor,
@@ -298,7 +298,7 @@ object SelectableSurfaceDefaults {
             focusedSelectedContainerColor = focusedSelectedContainerColor,
             focusedSelectedContentColor = focusedSelectedContentColor,
             pressedSelectedContainerColor = pressedSelectedContainerColor,
-            pressedSelectedContentColor = pressedSelectedContentColor
+            pressedSelectedContentColor = pressedSelectedContentColor,
         )
 
     /**
@@ -329,7 +329,7 @@ object SelectableSurfaceDefaults {
         focusedDisabledScale: Float = disabledScale,
         pressedSelectedScale: Float = scale,
         selectedDisabledScale: Float = disabledScale,
-        focusedSelectedDisabledScale: Float = disabledScale
+        focusedSelectedDisabledScale: Float = disabledScale,
     ) =
         SelectableSurfaceScale(
             scale = scale,
@@ -341,7 +341,7 @@ object SelectableSurfaceDefaults {
             focusedDisabledScale = focusedDisabledScale,
             pressedSelectedScale = pressedSelectedScale,
             selectedDisabledScale = selectedDisabledScale,
-            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale,
         )
 
     /**
@@ -372,7 +372,7 @@ object SelectableSurfaceDefaults {
         focusedDisabledBorder: Border = disabledBorder,
         pressedSelectedBorder: Border = border,
         selectedDisabledBorder: Border = disabledBorder,
-        focusedSelectedDisabledBorder: Border = disabledBorder
+        focusedSelectedDisabledBorder: Border = disabledBorder,
     ) =
         SelectableSurfaceBorder(
             border = border,
@@ -384,7 +384,7 @@ object SelectableSurfaceDefaults {
             focusedDisabledBorder = focusedDisabledBorder,
             pressedSelectedBorder = pressedSelectedBorder,
             selectedDisabledBorder = selectedDisabledBorder,
-            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder
+            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
         )
 
     /**
@@ -404,7 +404,7 @@ object SelectableSurfaceDefaults {
         pressedGlow: Glow = glow,
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
-        pressedSelectedGlow: Glow = glow
+        pressedSelectedGlow: Glow = glow,
     ) =
         SelectableSurfaceGlow(
             glow = glow,
@@ -412,7 +412,7 @@ object SelectableSurfaceDefaults {
             pressedGlow = pressedGlow,
             selectedGlow = selectedGlow,
             focusedSelectedGlow = focusedSelectedGlow,
-            pressedSelectedGlow = pressedSelectedGlow
+            pressedSelectedGlow = pressedSelectedGlow,
         )
 }
 

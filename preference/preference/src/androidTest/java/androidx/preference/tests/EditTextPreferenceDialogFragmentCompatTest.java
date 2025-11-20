@@ -100,7 +100,7 @@ public class EditTextPreferenceDialogFragmentCompatTest {
                         PreferenceScreen screen = mTargetPreference.getPreferenceScreen();
                         mEditTextPreference = screen.findPreference(PREFERENCE);
                         mEditTextPreference.setDialogLayoutResource(
-                                androidx.preference.test.R.layout.preference_dialog_edittext);
+                                androidx.preference.R.layout.preference_dialog_edittext);
                         mFragment = EditTextPreferenceDialogFragmentCompat.newInstance(
                                 mEditTextPreference.getKey());
                         mFragment.setTargetFragment(mTargetPreference, 0);
@@ -125,8 +125,8 @@ public class EditTextPreferenceDialogFragmentCompatTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24) // b/452703671
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     public void testImeVisibilityAfterPressedPreference() throws Throwable {
         // Make sure EditTextPreferenceDialogFragment is showing a dialog, and clicking
         // EditText to make sure the editor is displayed and focused.

@@ -127,7 +127,7 @@ class AnimatedStateListDrawableCompatTest {
             AnimatedStateListDrawableCompat.create(
                 mContext!!,
                 R.drawable.animated_state_list_density,
-                mContext!!.theme
+                mContext!!.theme,
             )
         Assert.assertNotNull(asld)
         Assert.assertTrue(asld!!.isVisible)
@@ -144,7 +144,7 @@ class AnimatedStateListDrawableCompatTest {
             AnimatedStateListDrawableCompat.create(
                 mContext!!,
                 R.drawable.asl_heart,
-                mContext!!.theme
+                mContext!!.theme,
             )
         // Check that 4 drawables were parsed
         Assert.assertNotNull(asld)
@@ -157,7 +157,7 @@ class AnimatedStateListDrawableCompatTest {
             AnimatedStateListDrawableCompat.create(
                 mContext!!,
                 R.drawable.animated_state_list_with_avd,
-                mContext!!.theme
+                mContext!!.theme,
             )
         // Check that 6 drawables were parsed
         Assert.assertNotNull(asld)
@@ -170,7 +170,7 @@ class AnimatedStateListDrawableCompatTest {
             AnimatedStateListDrawableCompat.create(
                 mContext!!,
                 R.drawable.asl_heart_embedded,
-                mContext!!.theme
+                mContext!!.theme,
             )
         // Check that 4 drawables were parsed
         Assert.assertNotNull(asld)

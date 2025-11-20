@@ -50,6 +50,7 @@ import java.util.TimeZone;
 
 /** Tests for {@link TestNavigationManager}. */
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
 public class TestNavigationManagerTest {
     private TestCarContext mCarContext;

@@ -32,7 +32,7 @@ import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 internal object WindowAreaAdapterApi3 {
     fun translate(
         status: @WindowAreaComponent.WindowAreaStatus Int,
-        sessionActive: Boolean
+        sessionActive: Boolean,
     ): WindowAreaCapability.Status {
         return when (status) {
             STATUS_UNSUPPORTED -> WINDOW_AREA_STATUS_UNSUPPORTED

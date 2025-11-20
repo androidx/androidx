@@ -16,6 +16,7 @@
 
 package com.example.androidx.widget.util;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -42,6 +43,7 @@ public class ConfigViewHolder extends RecyclerView.ViewHolder
     }
 
     @Override
+    @SuppressLint("UnknownNullness")
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (mConfigToggle != null) {
             mConfigToggle.onChange(isChecked);

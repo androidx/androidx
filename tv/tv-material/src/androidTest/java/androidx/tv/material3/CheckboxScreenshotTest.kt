@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +41,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,11 +49,11 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @OptIn(ExperimentalTestApi::class, ExperimentalTvMaterial3Api::class)
 class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
@@ -104,7 +104,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TriStateCheckbox(
                     state = ToggleableState.Indeterminate,
                     modifier = wrap,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -139,7 +139,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     state = ToggleableState.Indeterminate,
                     enabled = false,
                     modifier = wrap,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -154,7 +154,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
-                    onCheckedChange = { isChecked.value = it }
+                    onCheckedChange = { isChecked.value = it },
                 )
             }
         }
@@ -178,7 +178,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
-                    onCheckedChange = { isChecked.value = it }
+                    onCheckedChange = { isChecked.value = it },
                 )
             }
         }
@@ -220,7 +220,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap.focusRequester(focusRequester),
                     checked = true,
-                    onCheckedChange = {}
+                    onCheckedChange = {},
                 )
             }
         }

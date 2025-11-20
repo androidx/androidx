@@ -42,6 +42,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Rule
@@ -53,7 +54,7 @@ import org.junit.runner.RunWith
 internal class SheetContentHostTest {
     private val bodyContentTag = "testBodyContent"
 
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testOnSheetDismissedCalled_ManualDismiss() = runTest {
@@ -67,7 +68,7 @@ internal class SheetContentHostTest {
             mutableStateOf(backStackEntry),
             sheetState,
             onSheetShown = {},
-            onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
+            onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) },
         )
 
         assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded).isTrue()
@@ -93,7 +94,7 @@ internal class SheetContentHostTest {
             mutableStateOf(backStackEntry),
             sheetState,
             onSheetShown = {},
-            onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
+            onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) },
         )
 
         assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded).isTrue()
@@ -117,7 +118,7 @@ internal class SheetContentHostTest {
             backStackEntry = backStackEntryState,
             sheetState = sheetState,
             onSheetShown = { entry -> shownBackStackEntries.add(entry) },
-            onSheetDismissed = {}
+            onSheetDismissed = {},
         )
 
         val backStackEntry = createBackStackEntry(sheetState) { Box(Modifier.height(50.dp)) }
@@ -142,7 +143,7 @@ internal class SheetContentHostTest {
             backStackEntry = backStackEntryState,
             sheetState = sheetState,
             onSheetShown = { entry -> shownBackStackEntries.add(entry) },
-            onSheetDismissed = {}
+            onSheetDismissed = {},
         )
 
         val backStackEntry = createBackStackEntry(sheetState) { Box(Modifier.fillMaxSize()) }
@@ -160,7 +161,7 @@ internal class SheetContentHostTest {
         backStackEntry: State<NavBackStackEntry?>,
         sheetState: ModalBottomSheetState,
         onSheetShown: (NavBackStackEntry) -> Unit,
-        onSheetDismissed: (NavBackStackEntry) -> Unit
+        onSheetDismissed: (NavBackStackEntry) -> Unit,
     ) {
         setContent {
             val saveableStateHolder = rememberSaveableStateHolder()
@@ -174,11 +175,11 @@ internal class SheetContentHostTest {
                         sheetState = sheetState,
                         saveableStateHolder = saveableStateHolder,
                         onSheetShown = onSheetShown,
-                        onSheetDismissed = onSheetDismissed
+                        onSheetDismissed = onSheetDismissed,
                     )
                 },
                 sheetState = sheetState,
-                content = { Box(Modifier.fillMaxSize().testTag(bodyContentTag)) }
+                content = { Box(Modifier.fillMaxSize().testTag(bodyContentTag)) },
             )
         }
     }
@@ -187,7 +188,7 @@ internal class SheetContentHostTest {
         sheetState: ModalBottomSheetState,
         sheetContent: @Composable ColumnScope.(NavBackStackEntry) -> Unit = {
             Text("Fake Sheet Content")
-        }
+        },
     ): NavBackStackEntry {
         val navigatorState = TestNavigatorState()
         val navigator = BottomSheetNavigator(sheetState)

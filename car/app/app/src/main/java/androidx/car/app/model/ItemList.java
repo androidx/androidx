@@ -70,7 +70,7 @@ public final class ItemList {
          *
          * <p>The start index is inclusive, and the end index is exclusive. For example, if only the
          * first item in a list is visible, the start and end indices would be 0 and 1,
-         * respectively. If no items are visible, the indices will be set to -1.
+         * respectively.
          *
          * @param startIndex the index of the first item that is visible
          * @param endIndex   the index of the first item that is not visible after the visible

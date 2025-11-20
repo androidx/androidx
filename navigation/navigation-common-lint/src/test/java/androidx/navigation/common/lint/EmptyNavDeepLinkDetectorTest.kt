@@ -54,7 +54,7 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                navDeepLinkStub
+                navDeepLinkStub,
             )
             .run()
             .expectClean()
@@ -76,7 +76,7 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                navDeepLinkStub
+                navDeepLinkStub,
             )
             .run()
             .expect(
@@ -105,7 +105,7 @@ src/com/example/test.kt:6: Error: Creation of empty NavDeepLink [EmptyNavDeepLin
                 """
                     )
                     .indented(),
-                navDeepLinkStub
+                navDeepLinkStub,
             )
             .run()
             .expect(

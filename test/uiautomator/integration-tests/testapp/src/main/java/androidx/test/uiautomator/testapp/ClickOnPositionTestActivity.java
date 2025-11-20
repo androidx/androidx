@@ -16,14 +16,13 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
 import org.jspecify.annotations.Nullable;
 
-public class ClickOnPositionTestActivity extends Activity {
+public class ClickOnPositionTestActivity extends TestActivity {
     private String mTouchMessage = "";
 
     @Override

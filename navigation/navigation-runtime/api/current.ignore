@@ -1,0 +1,89 @@
+// Baseline format: 1.0
+DefaultValueChange: androidx.navigation.NavController#popBackStack(boolean, boolean) parameter #1:
+    Source breaking change: Attempted to remove default value from parameter saveState in androidx.navigation.NavController.popBackStack
+
+
+RemovedFromBytecode: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Binary breaking change: method androidx.navigation.ActivityNavArgsLazyKt.navArgs(android.app.Activity) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.ActivityNavigatorDestinationBuilderKt#activity(androidx.navigation.NavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit>):
+    Binary breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilderKt.activity(androidx.navigation.NavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.NavController#clearBackStack():
+    Binary breaking change: method androidx.navigation.NavController.clearBackStack() has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.NavController#getBackStackEntry():
+    Binary breaking change: method androidx.navigation.NavController.getBackStackEntry() has been removed from bytecode
+RemovedFromBytecode: androidx.navigation.NavController#popBackStack(boolean, boolean):
+    Binary breaking change: method androidx.navigation.NavController.popBackStack(boolean,boolean) has been removed from bytecode
+
+
+RemovedFromJava: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Source breaking change: method androidx.navigation.ActivityNavArgsLazyKt.navArgs(android.app.Activity) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.ActivityNavigatorDestinationBuilderKt#activity(androidx.navigation.NavGraphBuilder, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit>):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilderKt.activity(androidx.navigation.NavGraphBuilder,java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>>,kotlin.jvm.functions.Function1<androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit>) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.NavController#clearBackStack():
+    Source breaking change: method androidx.navigation.NavController.clearBackStack() can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.NavController#getBackStackEntry():
+    Source breaking change: method androidx.navigation.NavController.getBackStackEntry() can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.NavController#popBackStack(boolean):
+    Source breaking change: method androidx.navigation.NavController.popBackStack(boolean) can no longer be resolved from Java source
+RemovedFromJava: androidx.navigation.NavController#popBackStack(boolean, boolean):
+    Source breaking change: method androidx.navigation.NavController.popBackStack(boolean,boolean) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getAction():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getComponent():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getComponent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getData():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getDataPattern():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getDataPattern() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getIntent():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getIntent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Destination#getTargetPackage():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Destination.getTargetPackage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Extras#getActivityOptions():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Extras.getActivityOptions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigator.Extras#getFlags():
+    Source breaking change: method androidx.navigation.ActivityNavigator.Extras.getFlags() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#getAction():
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.getAction() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#getActivityClass():
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.getActivityClass() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#getData():
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#getDataPattern():
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.getDataPattern() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#getTargetPackage():
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.getTargetPackage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#setAction(String):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.setAction(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#setData(android.net.Uri):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.setData(android.net.Uri) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#setDataPattern(String):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.setDataPattern(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.ActivityNavigatorDestinationBuilder#setTargetPackage(String):
+    Source breaking change: method androidx.navigation.ActivityNavigatorDestinationBuilder.setTargetPackage(String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getCurrentBackStackEntry():
+    Source breaking change: method androidx.navigation.NavController.getCurrentBackStackEntry() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getCurrentBackStackEntryFlow():
+    Source breaking change: method androidx.navigation.NavController.getCurrentBackStackEntryFlow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getCurrentDestination():
+    Source breaking change: method androidx.navigation.NavController.getCurrentDestination() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getGraph():
+    Source breaking change: method androidx.navigation.NavController.getGraph() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getNavInflater():
+    Source breaking change: method androidx.navigation.NavController.getNavInflater() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getNavigatorProvider():
+    Source breaking change: method androidx.navigation.NavController.getNavigatorProvider() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getPreviousBackStackEntry():
+    Source breaking change: method androidx.navigation.NavController.getPreviousBackStackEntry() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#getVisibleEntries():
+    Source breaking change: method androidx.navigation.NavController.getVisibleEntries() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#popBackStack(boolean):
+    Source breaking change: method androidx.navigation.NavController.popBackStack(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavController#setGraph(androidx.navigation.NavGraph):
+    Source breaking change: method androidx.navigation.NavController.setGraph(androidx.navigation.NavGraph) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.navigation.NavHost#getNavController():
+    Source breaking change: method androidx.navigation.NavHost.getNavController() can no longer be resolved from Kotlin source

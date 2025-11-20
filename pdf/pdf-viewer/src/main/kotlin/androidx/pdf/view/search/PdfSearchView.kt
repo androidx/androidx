@@ -86,7 +86,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         // Set measurements
         setMeasuredDimension(
             child.measuredWidth + paddingLeft + paddingRight,
-            child.measuredHeight + paddingTop + paddingBottom
+            child.measuredHeight + paddingTop + paddingBottom,
         )
     }
 
@@ -97,7 +97,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 paddingLeft,
                 paddingTop,
                 right - left - paddingRight,
-                bottom - top - paddingBottom
+                bottom - top - paddingBottom,
             )
         }
     }

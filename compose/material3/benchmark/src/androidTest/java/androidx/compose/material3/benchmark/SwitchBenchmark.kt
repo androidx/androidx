@@ -79,7 +79,7 @@ class SwitchBenchmark {
     fun toggle_recomposeMeasureLayout() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = SwitchTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }

@@ -28,7 +28,7 @@ import androidx.compose.ui.node.nearestAncestor
 
 internal fun <T> FocusTargetNode.searchBeyondBounds(
     direction: FocusDirection,
-    block: BeyondBoundsScope.() -> T?
+    block: BeyondBoundsScope.() -> T?,
 ): T? {
 
     // We only want the focus target of the LazyList to perform a beyond bounds search, and want to
@@ -53,6 +53,6 @@ internal fun <T> FocusTargetNode.searchBeyondBounds(
                 FocusDirection.Previous -> Before
                 else -> error("Unsupported direction for beyond bounds layout")
             },
-        block = block
+        block = block,
     )
 }

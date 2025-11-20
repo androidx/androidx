@@ -48,8 +48,8 @@ class InitializerConstructorDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         InitializerConstructorDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 

@@ -28,7 +28,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +43,6 @@ import androidx.recyclerview.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.Test;
@@ -58,7 +56,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInstrumentationTest {
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void dontDispatchChangeDuringLayout() throws Throwable {
         LayoutAllLayoutManager lm = new LayoutAllLayoutManager();
@@ -112,7 +109,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
     }
 
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     public void processAllViewHolders() {
         RecyclerView rv = new RecyclerView(getActivity());

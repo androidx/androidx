@@ -16,12 +16,11 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.TorchControl.TorchMode
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
@@ -93,9 +92,11 @@ constructor(
 
     public fun setFlashAsync(
         @ImageCapture.FlashMode flashMode: Int,
-        cancelPreviousTask: Boolean = true
+        cancelPreviousTask: Boolean = true,
     ): Deferred<Unit> {
-        debug { "setFlashAsync: flashMode = $flashMode, requestControl = $requestControl" }
+        Camera2Logger.debug {
+            "setFlashAsync: flashMode = $flashMode, requestControl = $requestControl"
+        }
         val signal = CompletableDeferred<Unit>()
 
         requestControl?.let {
@@ -171,22 +172,24 @@ constructor(
         withContext(Dispatchers.Main) {
             val expirationTimeMillis = System.currentTimeMillis() + timeoutMillis
             screenFlash?.apply(expirationTimeMillis, screenFlashListener)
-            debug {
+            Camera2Logger.debug {
                 "applyScreenFlash: ScreenFlash.apply() invoked" +
                     ", expirationTimeMillis = $expirationTimeMillis"
             }
         }
 
         return threads.scope.async {
-            debug { "applyScreenFlash: Waiting for ScreenFlashListener to be completed" }
+            Camera2Logger.debug {
+                "applyScreenFlash: Waiting for ScreenFlashListener to be completed"
+            }
 
             // Wait for ScreenFlashListener#onCompleted to be invoked,
             // it's ok to give a little more time than expirationTimeMillis in ScreenFlash#apply
 
             if (onApplyCompletedSignal.awaitUntil(timeoutMillis)) {
-                debug { "applyScreenFlash: ScreenFlashListener completed" }
+                Camera2Logger.debug { "applyScreenFlash: ScreenFlashListener completed" }
             } else {
-                warn {
+                Camera2Logger.warn {
                     "applyScreenFlash: ScreenFlashListener completion timed out" +
                         " after $timeoutMillis ms"
                 }
@@ -202,7 +205,7 @@ constructor(
     private fun setExternalFlashAeModeAsync(): Deferred<Unit>? {
         val isExternalFlashAeModeSupported =
             cameraProperties.metadata.isExternalFlashAeModeSupported()
-        debug {
+        Camera2Logger.debug {
             "setExternalFlashAeModeAsync: isExternalFlashAeModeSupported = " +
                 "$isExternalFlashAeModeSupported"
         }
@@ -213,9 +216,13 @@ constructor(
 
         state3AControl.tryExternalFlashAeMode = true
         return state3AControl.updateSignal?.also {
-            debug { "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal" }
+            Camera2Logger.debug {
+                "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal"
+            }
             it.invokeOnCompletion {
-                debug { "setExternalFlashAeModeAsync: state3AControl.updateSignal completed" }
+                Camera2Logger.debug {
+                    "setExternalFlashAeModeAsync: state3AControl.updateSignal completed"
+                }
             }
         }
     }
@@ -231,22 +238,30 @@ constructor(
      */
     private fun setTorchForScreenFlash(): Deferred<Unit>? {
         val shouldUseFlashModeTorch = useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()
-        debug { "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch" }
+        Camera2Logger.debug {
+            "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch"
+        }
 
         if (!shouldUseFlashModeTorch) {
             return null
         }
 
-        return torchControl.setTorchAsync(torch = true, ignoreFlashUnitAvailability = true).also {
-            debug { "setTorchIfRequired: need to wait for torch control to be completed" }
-            it.invokeOnCompletion { debug { "setTorchIfRequired: torch control completed" } }
-        }
+        return torchControl
+            .setTorchAsync(mode = TorchMode.USED_AS_FLASH, ignoreFlashUnitAvailability = true)
+            .also {
+                Camera2Logger.debug {
+                    "setTorchIfRequired: need to wait for torch control to be completed"
+                }
+                it.invokeOnCompletion {
+                    Camera2Logger.debug { "setTorchIfRequired: torch control completed" }
+                }
+            }
     }
 
     public suspend fun stopScreenFlashCaptureTasks() {
         withContext(Dispatchers.Main) {
             screenFlash?.clear()
-            debug { "screenFlashPostCapture: ScreenFlash.clear() invoked" }
+            Camera2Logger.debug { "screenFlashPostCapture: ScreenFlash.clear() invoked" }
         }
 
         if (cameraProperties.metadata.isExternalFlashAeModeSupported()) {
@@ -255,7 +270,7 @@ constructor(
         }
 
         if (useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-            torchControl.setTorchAsync(torch = false, ignoreFlashUnitAvailability = true)
+            torchControl.setTorchAsync(mode = TorchMode.OFF, ignoreFlashUnitAvailability = true)
         }
     }
 
@@ -264,12 +279,12 @@ constructor(
      * i.e. the value for which the waiting was started.
      */
     public suspend fun awaitFlashModeUpdate(): Int {
-        debug { "FlashControl: Waiting for any ongoing update to be completed" }
+        Camera2Logger.debug { "FlashControl: Waiting for any ongoing update to be completed" }
         // The flash mode may change while waiting for it to be updated, snapshotting it to ensure
         // the initial flash mode value (for which waiting started) is returned afterwards.
         val initialFlashMode = flashMode
         updateSignal.join()
-        debug { "awaitFlashModeUpdate: initialFlashMode = $initialFlashMode" }
+        Camera2Logger.debug { "awaitFlashModeUpdate: initialFlashMode = $initialFlashMode" }
         return initialFlashMode
     }
 

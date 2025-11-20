@@ -16,21 +16,30 @@
 
 package androidx.pdf.view
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
-import android.graphics.Rect
+import android.graphics.RectF
+import android.os.DeadObjectException
 import android.util.Size
 import androidx.annotation.AnyThread
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.toRect
 import androidx.pdf.PdfDocument
+import androidx.pdf.exceptions.RequestFailedException
+import androidx.pdf.exceptions.RequestMetadata
+import androidx.pdf.util.PAGE_BITMAP_REQUEST_NAME
+import androidx.pdf.util.PAGE_BITMAP_TILE_REQUEST_NAME
+import androidx.pdf.util.PAGE_RELEASE_REQUEST_NAME
 import androidx.pdf.util.RectUtils
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -52,7 +61,7 @@ import kotlinx.coroutines.launch
  */
 @MainThread
 internal class BitmapFetcher(
-    pageNum: Int,
+    private val pageNum: Int,
     private val pageSize: Point,
     pdfDocument: PdfDocument,
     private val backgroundScope: CoroutineScope,
@@ -62,6 +71,8 @@ internal class BitmapFetcher(
      */
     private val maxBitmapSizePx: Point,
     private val onPageUpdate: () -> Unit,
+    /** Error flow for propagating error occurred while processing to [PdfView]. */
+    private val errorFlow: MutableSharedFlow<Throwable>,
 ) : AutoCloseable {
 
     /**
@@ -90,16 +101,22 @@ internal class BitmapFetcher(
     /** The [BitmapRequestHandle] for any ongoing fetch */
     @VisibleForTesting var fetchingWorkHandle: BitmapRequestHandle? = null
 
-    /** Update the view area and scale for which we should be fetching bitmaps */
-    fun maybeFetchNewBitmaps(scale: Float, viewArea: Rect) {
-        // Scale the provided viewArea, and clip it to the scaled bounds of the page
-        // Carefully avoid mutating the provided Rect
-        val scaledViewArea = Rect(viewArea)
-        RectUtils.scale(scaledViewArea, scale)
-        scaledViewArea.intersect(0, 0, (pageSize.x * scale).toInt(), (pageSize.y * scale).toInt())
-        if (shouldFetchNewContents(scale)) {
+    /**
+     * Update the view area and scale for which we should be fetching bitmaps
+     *
+     * @param scale the current scale
+     * @param viewArea represents the portion of the page that's invalidated when
+     *   hasFormStateChanged is true, otherwise it represents the portion of the page that's
+     *   visible, in content coordinates
+     * @param hasFormStateChanged denotes whether the form state has changed.
+     */
+    fun maybeFetchNewBitmaps(scale: Float, viewArea: RectF, hasFormStateChanged: Boolean = false) {
+        val scaledViewArea = scaleViewArea(scale, viewArea)
+        if (shouldFetchNewContents(scale) || (hasFormStateChanged && !needsTiling(scale))) {
             // Scale has changed, fetch entirely new PageContents
             fetchNewContents(scale, scaledViewArea)
+        } else if (hasFormStateChanged) {
+            invalidateTiles(scale, scaledViewArea)
         } else {
             // View area has changed, fetch new tiles and discard obsolete ones IFF we're tiling
             maybeUpdateTiling(scale, scaledViewArea)
@@ -112,7 +129,7 @@ internal class BitmapFetcher(
         fetchingWorkHandle?.cancel()
     }
 
-    private fun maybeUpdateTiling(scale: Float, scaledViewArea: Rect) {
+    private fun maybeUpdateTiling(scale: Float, scaledViewArea: RectF) {
         // Exit early if we're not tiling
         val currentTileBoard = pageBitmaps as? TileBoard ?: return
         val currentTilingWork = fetchingWorkHandle as? TileBoardRequestHandle
@@ -125,7 +142,7 @@ internal class BitmapFetcher(
                     scaledViewArea.left,
                     scaledViewArea.top,
                     scaledViewArea.right,
-                    scaledViewArea.bottom
+                    scaledViewArea.bottom,
                 )
             ) {
                 // Tile is visible, make sure we have, or have requested, a Bitmap for it
@@ -150,11 +167,54 @@ internal class BitmapFetcher(
         }
     }
 
+    private fun invalidateTiles(scale: Float, invalidatedArea: RectF) {
+        val currentTileBoard = pageBitmaps as? TileBoard ?: return
+        val currentTilingWork = fetchingWorkHandle as? TileBoardRequestHandle
+        val tileRequests = mutableMapOf<Int, SingleBitmapRequestHandle>()
+        var tileJob: Job? = null
+
+        for (tile in currentTileBoard.tiles) {
+            val ongoingRequest = currentTilingWork?.tileRequestHandles?.get(tile.index)
+            if (
+                tile.rectPx.intersects(
+                    invalidatedArea.left,
+                    invalidatedArea.top,
+                    invalidatedArea.right,
+                    invalidatedArea.bottom,
+                )
+            ) {
+                // Tile intersects the scaled area, request the latest bitmap for the tile.
+                if (ongoingRequest?.isActive == true) {
+                    // Cancel any ongoing request for this tile
+                    ongoingRequest.cancel()
+                }
+                // Make a new request for this tile.
+                tileJob = fetchBitmap(tile, scale, tileJob)
+                tileRequests[tile.index] = SingleBitmapRequestHandle(tileJob)
+            }
+        }
+
+        // Reload the background as well.
+        // Before creating a new request, cancel any ongoing request.
+        currentTilingWork?.backgroundRequestHandle?.cancel()
+        val backgroundRequest =
+            SingleBitmapRequestHandle(
+                fetchFullPageBitmap(limitBitmapSize(scale, maxTileBackgroundSizePx)) {
+                    currentTileBoard.fullPageBitmap = it
+                }
+            )
+
+        if (tileRequests.isNotEmpty()) {
+            fetchingWorkHandle = TileBoardRequestHandle(tileRequests, backgroundRequest)
+            currentFetchingScale = scale
+        }
+    }
+
     /**
      * Notify this fetcher that the zoom level / scale factor of the UI has changed, and that it
      * ought to fetch new bitmaps
      */
-    private fun fetchNewContents(scale: Float, scaledViewArea: Rect) {
+    private fun fetchNewContents(scale: Float, scaledViewArea: RectF) {
         fetchingWorkHandle?.cancel()
         fetchingWorkHandle =
             if (needsTiling(scale)) {
@@ -186,7 +246,22 @@ internal class BitmapFetcher(
         pageBitmaps = null
         fetchingWorkHandle?.cancel()
         fetchingWorkHandle = null
-        bitmapSource.close()
+        try {
+            bitmapSource.close()
+        } catch (e: DeadObjectException) {
+            val exception =
+                RequestFailedException(
+                    requestMetadata =
+                        RequestMetadata(
+                            requestName = PAGE_RELEASE_REQUEST_NAME,
+                            pageRange = pageNum..pageNum,
+                        ),
+                    throwable = e,
+                    // Release page is a fire-and-forget request, no need to show error on UI
+                    showError = false,
+                )
+            errorFlow.tryEmit(exception)
+        }
     }
 
     /** Fetch a [FullPageBitmap] */
@@ -200,7 +275,7 @@ internal class BitmapFetcher(
     }
 
     /** Fetch a [TileBoard] */
-    private fun fetchTiles(scale: Float, scaledViewArea: Rect): TileBoardRequestHandle {
+    private fun fetchTiles(scale: Float, scaledViewArea: RectF): TileBoardRequestHandle {
         val pageSizePx = Point((pageSize.x * scale).roundToInt(), (pageSize.y * scale).roundToInt())
         val tileBoard = TileBoard(tileSizePx, pageSizePx, scale)
         // Re-use an existing low-res background if we have one to avoid displaying any blank space
@@ -226,7 +301,7 @@ internal class BitmapFetcher(
                     tileRect.left,
                     tileRect.top,
                     tileRect.right,
-                    tileRect.bottom
+                    tileRect.bottom,
                 )
             ) {
                 tileJob = fetchBitmap(tile, scale, tileJob)
@@ -240,9 +315,22 @@ internal class BitmapFetcher(
     private fun fetchFullPageBitmap(size: Size, onReady: (Bitmap) -> Unit): Job {
         return backgroundScope.launch {
             ensureActive()
-            val bitmap = bitmapSource.getBitmap(size)
-            ensureActive()
-            onReady(bitmap)
+            try {
+                val bitmap = bitmapSource.getBitmap(size)
+                ensureActive()
+                onReady(bitmap)
+            } catch (e: DeadObjectException) {
+                val exception =
+                    RequestFailedException(
+                        requestMetadata =
+                            RequestMetadata(
+                                requestName = PAGE_BITMAP_REQUEST_NAME,
+                                pageRange = pageNum..pageNum,
+                            ),
+                        throwable = e,
+                    )
+                errorFlow.emit(exception)
+            }
         }
     }
 
@@ -259,14 +347,32 @@ internal class BitmapFetcher(
             backgroundScope.launch {
                 prevJob?.join()
                 ensureActive()
-                val bitmap =
-                    bitmapSource.getBitmap(
-                        Size((pageSize.x * scale).roundToInt(), (pageSize.y * scale).roundToInt()),
-                        tile.rectPx
-                    )
-                ensureActive()
-                tile.bitmap = bitmap
-                onPageUpdate()
+                try {
+                    val bitmap =
+                        bitmapSource.getBitmap(
+                            Size(
+                                (pageSize.x * scale).roundToInt(),
+                                (pageSize.y * scale).roundToInt(),
+                            ),
+                            tile.rectPx.toRect(),
+                        )
+                    ensureActive()
+                    tile.bitmap = bitmap
+                    onPageUpdate()
+                } catch (e: DeadObjectException) {
+                    // Service was disconnected.
+                    val exception =
+                        RequestFailedException(
+                            requestMetadata =
+                                RequestMetadata(
+                                    requestName = PAGE_BITMAP_TILE_REQUEST_NAME,
+                                    pageRange = pageNum..pageNum,
+                                ),
+                            throwable = e,
+                        )
+                    errorFlow.emit(exception)
+                    return@launch
+                }
             }
         return job
     }
@@ -289,6 +395,44 @@ internal class BitmapFetcher(
             finalSize.y *= 0.9f
         }
         return Size(finalSize.x.roundToInt(), finalSize.y.roundToInt())
+    }
+
+    @SuppressLint("CheckResult")
+    private fun scaleViewArea(scale: Float, viewArea: RectF): RectF {
+        // Scale the provided viewArea, and clip it to the scaled bounds of the page
+        // Carefully avoid mutating the provided Rect
+        val scaledViewArea = RectF(viewArea)
+        RectUtils.scale(scaledViewArea, scale)
+        scaledViewArea.intersect(0f, 0f, (pageSize.x * scale), (pageSize.y * scale))
+        return scaledViewArea
+    }
+
+    internal fun isFullyRendered(zoom: Float, viewArea: RectF?): Boolean {
+        val pageBitmaps = this.pageBitmaps
+        if (viewArea == null || viewArea.isEmpty) {
+            return false
+        }
+
+        return when (pageBitmaps) {
+            is FullPageBitmap -> true
+            is TileBoard -> {
+                val scaledViewArea = scaleViewArea(zoom, viewArea)
+
+                // Checks if all tiles intersecting the scaledViewArea are loaded.
+                pageBitmaps.tiles
+                    .filter { tile ->
+                        tile.rectPx.intersects(
+                            scaledViewArea.left,
+                            scaledViewArea.top,
+                            scaledViewArea.right,
+                            scaledViewArea.bottom,
+                        )
+                    }
+                    .all { tile -> tile.bitmap != null }
+            }
+
+            else -> false
+        }
     }
 
     companion object {
@@ -327,7 +471,7 @@ internal class TileBoardRequestHandle(
      * [SingleBitmapRequestHandle] to fetch a low-res background for this tiling, or null if we
      * re-used the background from a previous tiling
      */
-    val backgroundRequestHandle: SingleBitmapRequestHandle? = null
+    val backgroundRequestHandle: SingleBitmapRequestHandle? = null,
 ) : BitmapRequestHandle {
     override val isActive: Boolean
         get() =
@@ -343,10 +487,18 @@ internal class TileBoardRequestHandle(
 /** Represents the [Bitmap] or [Bitmap]s used to render this page */
 internal sealed interface PageContents {
     val bitmapScale: Float
+
+    val needsWhiteBackground: Boolean
 }
 
 /** A singular [Bitmap] depicting the full page, when full page rendering is used */
-internal class FullPageBitmap(val bitmap: Bitmap, override val bitmapScale: Float) : PageContents
+internal class FullPageBitmap(val bitmap: Bitmap, override val bitmapScale: Float) : PageContents {
+    /**
+     * A [FullPageBitmap] never requires a white background, as we don't instantiate one without a
+     * [Bitmap] covering the whole page
+     */
+    override val needsWhiteBackground: Boolean = false
+}
 
 /**
  * A set of [Bitmap]s that depict the full page as a rectangular grid of individual bitmap tiles.
@@ -355,7 +507,7 @@ internal class FullPageBitmap(val bitmap: Bitmap, override val bitmapScale: Floa
 internal class TileBoard(
     val tileSizePx: Point,
     val pageSizePx: Point,
-    override val bitmapScale: Float
+    override val bitmapScale: Float,
 ) : PageContents {
 
     /** The low res background [Bitmap] for this [TileBoard] */
@@ -371,6 +523,13 @@ internal class TileBoard(
 
     /** The [Tile]s in this board */
     val tiles = Array(numRows * numCols) { index -> Tile(index) }
+
+    /**
+     * We need to draw a white background behind a [androidx.pdf.view.TileBoard] until we have a
+     * background [Bitmap] covering the full page
+     */
+    override val needsWhiteBackground: Boolean
+        get() = fullPageBitmap == null
 
     /** An individual [Tile] in this [TileBoard] */
     inner class Tile(val index: Int) {
@@ -395,7 +554,12 @@ internal class TileBoard(
 
         /** The exact pixel location of this tile in the scaled page */
         val rectPx =
-            Rect(offsetPx.x, offsetPx.y, offsetPx.x + exactSizePx.x, offsetPx.y + exactSizePx.y)
+            RectF(
+                offsetPx.x.toFloat(),
+                offsetPx.y.toFloat(),
+                (offsetPx.x + exactSizePx.x).toFloat(),
+                (offsetPx.y + exactSizePx.y).toFloat(),
+            )
 
         /** The high res [Bitmap] for this [Tile] */
         var bitmap: Bitmap? = null

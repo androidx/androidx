@@ -26,15 +26,15 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.runtime:runtime:1.2.1")
-    api("androidx.compose.ui:ui-graphics:1.1.1")
-    api("androidx.compose.ui:ui-unit:1.1.1")
+    api("androidx.compose.runtime:runtime:1.6.0")
+    api("androidx.compose.ui:ui-graphics:1.6.0")
+    api("androidx.compose.ui:ui-unit:1.6.0")
     api("androidx.datastore:datastore-core:1.0.0")
     api("androidx.datastore:datastore-preferences-core:1.0.0")
     api("androidx.datastore:datastore-preferences:1.0.0")
@@ -43,12 +43,10 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.compose.ui:ui-util:1.6.8")
-    implementation(libs.kotlinStdlib)
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -84,12 +82,8 @@ dependencies {
 }
 
 android {
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     resourcePrefix "glance_"
     namespace = "androidx.glance"
-    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
@@ -98,6 +92,5 @@ androidx {
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
+    enableRobolectric()
 }

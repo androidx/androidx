@@ -16,9 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
-
 import static androidx.core.content.res.TypedArrayUtils.obtainAttributes;
 
 import android.animation.ObjectAnimator;
@@ -36,7 +33,6 @@ import android.util.StateSet;
 import android.util.Xml;
 
 import androidx.annotation.DrawableRes;
-import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
 import androidx.collection.LongSparseArray;
@@ -442,9 +438,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
     private void updateStateFromTypedArray(TypedArray a) {
         final AnimatedStateListState state = mState;
         // Account for any configuration changes.
-        if (SDK_INT >= LOLLIPOP) {
-            state.mChangingConfigurations |= Compatibility.Api21Impl.getChangingConfigurations(a);
-        }
+        state.mChangingConfigurations |= a.getChangingConfigurations();
         // Extract the theme attributes, if any.
         state.setVariablePadding(
                 a.getBoolean(R.styleable.AnimatedStateListDrawableCompat_android_variablePadding,
@@ -532,10 +526,8 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             if (parser.getName().equals("animated-vector")) {
                 dr = AnimatedVectorDrawableCompat.createFromXmlInner(context, resources, parser,
                         attrs, theme);
-            } else if (SDK_INT >= LOLLIPOP) {
-                dr = Compatibility.Api21Impl.createFromXmlInner(resources, parser, attrs, theme);
             } else {
-                dr = Drawable.createFromXmlInner(resources, parser, attrs);
+                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);
             }
         }
         if (dr == null) {
@@ -583,10 +575,8 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             // Attempt to parse child VDs
             if (parser.getName().equals("vector")) {
                 dr = VectorDrawableCompat.createFromXmlInner(resources, parser, attrs, theme);
-            } else if (SDK_INT >= LOLLIPOP) {
-                dr = Compatibility.Api21Impl.createFromXmlInner(resources, parser, attrs, theme);
             } else {
-                dr = Drawable.createFromXmlInner(resources, parser, attrs);
+                dr = Drawable.createFromXmlInner(resources, parser, attrs, theme);
             }
         }
         if (dr == null) {

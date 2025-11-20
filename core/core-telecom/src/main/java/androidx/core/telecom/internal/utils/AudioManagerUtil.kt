@@ -22,14 +22,13 @@ import android.os.Build
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-@RequiresApi(23)
 internal class AudioManagerUtil {
     companion object {
         fun getAvailableAudioDevices(audioManager: AudioManager): List<AudioDeviceInfo> {
             return if (Build.VERSION.SDK_INT >= 31) {
                 AudioManager31PlusImpl.getDevices(audioManager)
             } else {
-                AudioManager23PlusImpl.getDevices(audioManager)
+                audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).toList()
             }
         }
     }
@@ -40,15 +39,6 @@ internal class AudioManagerUtil {
         @DoNotInline
         fun getDevices(audioManager: AudioManager): List<AudioDeviceInfo> {
             return audioManager.availableCommunicationDevices
-        }
-    }
-
-    @RequiresApi(23)
-    object AudioManager23PlusImpl {
-        @JvmStatic
-        @DoNotInline
-        fun getDevices(audioManager: AudioManager): List<AudioDeviceInfo> {
-            return audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).toList()
         }
     }
 }

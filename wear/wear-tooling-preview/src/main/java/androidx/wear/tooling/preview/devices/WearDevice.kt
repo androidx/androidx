@@ -41,13 +41,6 @@ object WearDevices {
 
 /** Annotation for defining the device to use. */
 @Retention(AnnotationRetention.SOURCE)
-@StringDef(
-    open = true,
-    value =
-        [
-            WearDevices.LARGE_ROUND,
-            WearDevices.SMALL_ROUND,
-        ]
-)
+@StringDef(open = true, value = [WearDevices.LARGE_ROUND, WearDevices.SMALL_ROUND])
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class WearDevice

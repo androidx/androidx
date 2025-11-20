@@ -27,23 +27,26 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-compose"))
     implementation(project(":camera:camera-core"))
     implementation("androidx.compose.foundation:foundation:1.6.8")
     implementation("androidx.compose.runtime:runtime:1.6.8")
     implementation("androidx.compose.ui:ui:1.6.8")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
+    implementation("androidx.compose.ui:ui-geometry:1.7.8")
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(project(":camera:viewfinder:viewfinder-compose"))
+    implementation(project(":camera:viewfinder:viewfinder-core"))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.camera.compose.samples"
 }
 

@@ -41,7 +41,7 @@ class PagedListSampleActivity : AppCompatActivity() {
         recyclerView.adapter =
             pagingAdapter.withLoadStateHeaderAndFooter(
                 header = StateItemAdapter { pagingAdapter.currentList?.retry() },
-                footer = StateItemAdapter { pagingAdapter.currentList?.retry() }
+                footer = StateItemAdapter { pagingAdapter.currentList?.retry() },
             )
 
         @Suppress("DEPRECATION")
@@ -55,7 +55,7 @@ class PagedListSampleActivity : AppCompatActivity() {
     private fun setupLoadStateButtons(
         viewModel: PagedListItemViewModel,
         @Suppress("DEPRECATION")
-        adapter: androidx.paging.PagedListAdapter<Item, RecyclerView.ViewHolder>
+        adapter: androidx.paging.PagedListAdapter<Item, RecyclerView.ViewHolder>,
     ) {
         val button = findViewById<Button>(R.id.button_refresh)
 

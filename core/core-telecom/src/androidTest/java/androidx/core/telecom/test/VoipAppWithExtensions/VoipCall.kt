@@ -41,7 +41,8 @@ import java.io.File
 class VoipCall(
     private val callsManager: CallsManager,
     private val callback: ITestAppControlCallback?,
-    private val capabilities: List<Capability>
+    private val capabilities: List<Capability>,
+    private val initLcsValue: Boolean,
 ) {
     companion object {
         private const val TAG = "VoipCall"
@@ -66,7 +67,7 @@ class VoipCall(
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        init: CallControlScope.() -> Unit
+        init: CallControlScope.() -> Unit,
     ) {
         Log.i(TAG, "addCall: capabilities=$capabilities")
         callsManager.addCallWithExtensions(
@@ -74,7 +75,7 @@ class VoipCall(
             onAnswer,
             onDisconnect,
             onSetActive,
-            onSetInactive
+            onSetInactive,
         ) {
             createExtensions()
             onCall {
@@ -93,7 +94,7 @@ class VoipCall(
                 }
                 Extensions.LOCAL_CALL_SILENCE -> {
                     localCallSilenceUpdater =
-                        addLocalCallSilenceExtension(false) {
+                        addLocalCallSilenceExtension(initLcsValue) {
                             Log.i(TAG, "addLocalSilenceExtension: callId=[$callId], it=[$it]")
                             callback?.setLocalCallSilenceState(callId, it)
                         }

@@ -59,7 +59,7 @@ fun CustomTouchSlopProvider(newTouchSlop: Float, content: @Composable () -> Unit
 
 class CustomTouchSlopAngle(
     private val customTouchSlop: Float,
-    currentConfiguration: ViewConfiguration
+    currentConfiguration: ViewConfiguration,
 ) : ViewConfiguration by currentConfiguration {
     override val touchSlop: Float
         get() = customTouchSlop

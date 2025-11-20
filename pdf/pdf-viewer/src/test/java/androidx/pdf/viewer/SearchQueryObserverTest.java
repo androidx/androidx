@@ -19,14 +19,13 @@ package androidx.pdf.viewer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = {Config.TARGET_SDK})
 public class SearchQueryObserverTest {
 
     private final PaginatedView mMockPaginatedView = mock(PaginatedView.class);

@@ -35,5 +35,5 @@ enum class LinkFormat {
      * [my
      * trace](uri://<outputRelativePath.perfetto-trace>?selectionParams=<base64encodedCompressedParams>)
      */
-    V3
+    V3,
 }

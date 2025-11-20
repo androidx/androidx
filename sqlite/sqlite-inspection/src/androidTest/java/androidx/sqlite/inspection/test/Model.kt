@@ -24,7 +24,7 @@ data class Table(
     val name: String,
     val columns: List<Column>,
     val isView: Boolean = false, // true for a view, false for a regular table
-    val viewQuery: String = "" // only relevant if isView = true
+    val viewQuery: String = "", // only relevant if isView = true
 ) {
     constructor(name: String, vararg columns: Column) : this(name, columns.toList())
 }
@@ -39,7 +39,7 @@ data class Column(
      */
     val primaryKey: Int = 0,
     val isNotNull: Boolean = false,
-    val isUnique: Boolean = false
+    val isUnique: Boolean = false,
 ) {
     val isPrimaryKey: Boolean
         get() = primaryKey > 0

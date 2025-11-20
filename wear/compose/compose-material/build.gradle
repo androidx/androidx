@@ -21,26 +21,27 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.7.4")
-    api("androidx.compose.ui:ui:1.7.4")
-    api("androidx.compose.ui:ui-text:1.7.4")
-    api("androidx.compose.runtime:runtime:1.7.4")
+    api("androidx.compose.foundation:foundation:1.9.0")
+    api("androidx.compose.ui:ui:1.9.0")
+    api("androidx.compose.ui:ui-text:1.9.0")
+    api("androidx.compose.runtime:runtime:1.9.0")
     api(project(":wear:compose:compose-foundation"))
 
-    implementation("androidx.compose.animation:animation:1.7.4")
-    implementation("androidx.compose.material:material-icons-core:1.7.4")
-    implementation("androidx.compose.material:material-ripple:1.7.4")
-    implementation("androidx.compose.ui:ui-util:1.7.4")
+    implementation("androidx.compose.animation:animation:1.9.0")
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
+    implementation("androidx.compose.material:material-ripple:1.7.7")
+    implementation("androidx.compose.ui:ui-util:1.9.0")
     implementation(project(":wear:compose:compose-material-core"))
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.lifecycle:lifecycle-common:2.7.0")
@@ -65,10 +66,6 @@ android {
 
     defaultConfig {
         minSdk = 25
-    }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
-    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace = "androidx.wear.compose.material"
@@ -82,7 +79,6 @@ androidx {
             "to write Jetpack Compose applications for Wearable devices that implement Wear " +
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
-    metalavaK2UastEnabled = false
     samples(project(":wear:compose:compose-material-samples"))
     addGoldenImageAssets()
 }

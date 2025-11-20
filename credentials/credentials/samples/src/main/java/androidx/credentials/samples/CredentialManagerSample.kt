@@ -102,7 +102,7 @@ fun processCreateCredentialResponse(
     response: CreateCredentialResponse,
     loginWithPasskey: (String) -> Unit,
     loginWithPassword: () -> Unit,
-    loginWithExampleCustomCredential: (CreateExampleCustomCredentialResponse) -> Unit
+    loginWithExampleCustomCredential: (CreateExampleCustomCredentialResponse) -> Unit,
 ) {
     when (response) {
         is CreatePasswordResponse ->
@@ -129,14 +129,14 @@ fun processCreateCredentialResponse(
                 Log.w(
                     TAG,
                     "Received unrecognized response type ${response.type}. " +
-                        "This shouldn't happen"
+                        "This shouldn't happen",
                 )
             }
         }
         else -> {
             Log.w(
                 TAG,
-                "Received unrecognized response type ${response.type}. This shouldn't happen"
+                "Received unrecognized response type ${response.type}. This shouldn't happen",
             )
         }
     }
@@ -182,14 +182,14 @@ fun processCredential(
                 Log.w(
                     TAG,
                     "Received unrecognized credential type ${credential.type}. " +
-                        "This shouldn't happen"
+                        "This shouldn't happen",
                 )
             }
         }
         else -> {
             Log.w(
                 TAG,
-                "Received unrecognized credential type ${credential.type}. This shouldn't happen"
+                "Received unrecognized credential type ${credential.type}. This shouldn't happen",
             )
         }
     }

@@ -17,13 +17,11 @@
 package androidx.transition;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -174,10 +172,8 @@ class GhostViewHolder extends FrameLayout {
 
         // From the implementation of ViewGroup.buildOrderedChildList() used by dispatchDraw:
         // The drawing order list is sorted by Z first.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (Api21Impl.getZ(view) != Api21Impl.getZ(comparedWith)) {
-                return Api21Impl.getZ(view) > Api21Impl.getZ(comparedWith);
-            }
+        if (view.getZ() != comparedWith.getZ()) {
+            return view.getZ() > comparedWith.getZ();
         }
 
         // This default value shouldn't be used because both view and comparedWith
@@ -197,16 +193,5 @@ class GhostViewHolder extends FrameLayout {
         }
 
         return isOnTop;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static float getZ(View view) {
-            return view.getZ();
-        }
     }
 }

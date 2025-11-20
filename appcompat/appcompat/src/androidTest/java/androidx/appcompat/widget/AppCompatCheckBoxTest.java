@@ -20,8 +20,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.res.ColorStateList;
@@ -40,7 +38,6 @@ import androidx.core.widget.CompoundButtonCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,22 +76,6 @@ public class AppCompatCheckBoxTest extends AppCompatBaseViewTest<AppCompatCheckB
         // Then this drawable should be an animated-selector
         assertTrue(button instanceof AnimatedStateListDrawableCompat
                 || button instanceof AnimatedStateListDrawable);
-    }
-
-    /* Max SDK as we use this test to verify the fallback behavior in situations where the ASLD
-       backport should not be used (e.g. building with AAPT1). */
-    @SdkSuppress(maxSdkVersion = 20)
-    @Test
-    public void testNullCompatButton() {
-        // Given an ACCB which specifies a null app:buttonCompat
-        final AppCompatCheckBox checkBox = mContainer.findViewById(
-                R.id.checkbox_null_button_compat);
-        final Drawable button = CompoundButtonCompat.getButtonDrawable(checkBox);
-        boolean isAnimated = button instanceof AnimatedStateListDrawableCompat;
-
-        // Then the drawable should be present but not animated
-        assertNotNull(button);
-        assertFalse(isAnimated);
     }
 
     @Test

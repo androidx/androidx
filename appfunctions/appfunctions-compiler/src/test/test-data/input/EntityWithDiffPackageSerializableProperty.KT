@@ -1,10 +1,10 @@
 package com.testdata
 
 import androidx.appfunctions.AppFunctionSerializable
-import com.testdata.differentPackage.DiffPackageInputSerializable
+import com.testdata.differentPackage.DiffPackageSerializable
 
 @AppFunctionSerializable
 class EntityWithDiffPackageSerializableProperty(
-    val inputSerializable: DiffPackageInputSerializable,
-    val serializableList: List<DiffPackageInputSerializable>
+    val inputSerializable: DiffPackageSerializable,
+    val serializableList: List<DiffPackageSerializable>
 )

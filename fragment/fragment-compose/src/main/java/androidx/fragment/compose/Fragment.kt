@@ -42,7 +42,7 @@ import androidx.fragment.app.Fragment
  * }
  * ```
  */
-fun Fragment.content(content: @Composable () -> Unit): ComposeView {
+public fun Fragment.content(content: @Composable () -> Unit): ComposeView {
     return ComposeView(requireContext()).apply {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent(content)

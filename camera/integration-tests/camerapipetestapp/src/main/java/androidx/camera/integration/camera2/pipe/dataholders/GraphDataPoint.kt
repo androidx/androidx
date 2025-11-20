@@ -27,7 +27,7 @@ data class GraphDataPoint(
     val timeArrivedNanos: Long,
 
     /** TODO("Make custom class to store value to eliminate the need for Number ext. functions") */
-    val value: Number
+    val value: Number,
 ) : Comparable<GraphDataPoint> {
 
     override fun compareTo(other: GraphDataPoint): Int =

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
@@ -28,7 +27,7 @@ import org.robolectric.annotation.Config
 
 /** Tests for [FrameCaptureQueue] */
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class FrameCaptureQueueTest {
     private val imageStreams = listOf(StreamId(1), StreamId(2), StreamId(3))
     private val captureQueue = FrameCaptureQueue()

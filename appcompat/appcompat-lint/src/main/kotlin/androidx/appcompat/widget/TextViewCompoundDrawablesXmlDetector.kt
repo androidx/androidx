@@ -39,7 +39,7 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
                 "drawableStart" to "drawableStartCompat",
                 "drawableEnd" to "drawableEndCompat",
                 "drawableTint" to "drawableTint",
-                "drawableTintMode" to "drawableTintMode"
+                "drawableTintMode" to "drawableTintMode",
             )
 
         internal val NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS: Issue =
@@ -52,8 +52,8 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
                 Severity.WARNING,
                 Implementation(
                     TextViewCompoundDrawablesXmlDetector::class.java,
-                    Scope.RESOURCE_FILE_SCOPE
-                )
+                    Scope.RESOURCE_FILE_SCOPE,
+                ),
             )
     }
 
@@ -81,11 +81,11 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
                             .set(
                                 SdkConstants.AUTO_URI,
                                 to,
-                                element.getAttributeNS(SdkConstants.ANDROID_URI, from)
+                                element.getAttributeNS(SdkConstants.ANDROID_URI, from),
                             )
                             .build(),
-                        LintFix.create().unset(SdkConstants.ANDROID_URI, from).build()
-                    )
+                        LintFix.create().unset(SdkConstants.ANDROID_URI, from).build(),
+                    ),
             )
         }
     }

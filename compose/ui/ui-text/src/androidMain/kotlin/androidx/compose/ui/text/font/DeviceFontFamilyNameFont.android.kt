@@ -58,7 +58,7 @@ fun Font(
     familyName: DeviceFontFamilyName,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings()
+    variationSettings: FontVariation.Settings = FontVariation.Settings(),
 ): Font {
     return DeviceFontFamilyNameFont(familyName, weight, style, variationSettings)
 }
@@ -84,7 +84,7 @@ constructor(
     private val familyName: DeviceFontFamilyName,
     override val weight: FontWeight,
     override val style: FontStyle,
-    variationSettings: FontVariation.Settings
+    variationSettings: FontVariation.Settings,
 ) : AndroidFont(FontLoadingStrategy.OptionalLocal, NamedFontLoader, variationSettings) {
     fun loadCached(context: Context): Typeface? {
         return PlatformTypefaces()
@@ -93,7 +93,7 @@ constructor(
                 weight,
                 style,
                 variationSettings,
-                context
+                context,
             )
     }
 

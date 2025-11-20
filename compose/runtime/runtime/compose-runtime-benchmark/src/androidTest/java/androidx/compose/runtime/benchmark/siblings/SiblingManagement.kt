@@ -65,7 +65,7 @@ data class Item(val id: Int)
 
 enum class IdentityType {
     Index,
-    Key
+    Key,
 }
 
 enum class ReorderType {
@@ -78,7 +78,7 @@ enum class ReorderType {
     AddStart,
     RemoveStart,
     AddMiddle,
-    RemoveMiddle
+    RemoveMiddle,
 }
 
 fun <T> List<T>.move(from: Int, to: Int): List<T> {

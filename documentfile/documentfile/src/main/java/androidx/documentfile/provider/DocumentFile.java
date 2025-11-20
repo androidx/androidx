@@ -20,7 +20,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.core.provider.DocumentsContractCompat;
 
@@ -129,25 +128,21 @@ public abstract class DocumentFile {
      */
     public static @Nullable DocumentFile fromTreeUri(@NonNull Context context,
             @NonNull Uri treeUri) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            String documentId = DocumentsContractCompat.getTreeDocumentId(treeUri);
-            if (DocumentsContractCompat.isDocumentUri(context, treeUri)) {
-                documentId = DocumentsContractCompat.getDocumentId(treeUri);
-            }
-            if (documentId == null) {
-                throw new IllegalArgumentException(
-                        "Could not get document ID from Uri: " + treeUri);
-            }
-            Uri treeDocumentUri =
-                    DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, documentId);
-            if (treeDocumentUri == null) {
-                throw new NullPointerException(
-                        "Failed to build documentUri from a tree: " + treeUri);
-            }
-            return new TreeDocumentFile(null, context, treeDocumentUri);
-        } else {
-            return null;
+        String documentId = DocumentsContractCompat.getTreeDocumentId(treeUri);
+        if (DocumentsContractCompat.isDocumentUri(context, treeUri)) {
+            documentId = DocumentsContractCompat.getDocumentId(treeUri);
         }
+        if (documentId == null) {
+            throw new IllegalArgumentException(
+                    "Could not get document ID from Uri: " + treeUri);
+        }
+        Uri treeDocumentUri =
+                DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, documentId);
+        if (treeDocumentUri == null) {
+            throw new NullPointerException(
+                    "Failed to build documentUri from a tree: " + treeUri);
+        }
+        return new TreeDocumentFile(null, context, treeDocumentUri);
     }
 
     /**

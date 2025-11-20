@@ -26,12 +26,12 @@ import androidx.fragment.testing.manifest.R
  * FragmentScenario.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmptyFragmentActivity : FragmentActivity() {
+public class EmptyFragmentActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(
             intent.getIntExtra(
                 THEME_EXTRAS_BUNDLE_KEY,
-                R.style.FragmentScenarioEmptyFragmentActivityTheme
+                R.style.FragmentScenarioEmptyFragmentActivityTheme,
             )
         )
 
@@ -47,8 +47,8 @@ class EmptyFragmentActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
     }
 
-    companion object {
-        const val THEME_EXTRAS_BUNDLE_KEY =
+    public companion object {
+        public const val THEME_EXTRAS_BUNDLE_KEY: String =
             "androidx.fragment.app.testing.FragmentScenario" +
                 ".EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY"
     }

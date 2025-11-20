@@ -28,7 +28,10 @@ internal class SystemPropertyResolver : StatusResolver {
 
     val aliases: Set<Int> by lazy { initAliases() }
 
-    override fun invoke(ki: KnownIssue): Status {
+    override fun getStatus(ki: KnownIssue): Status {
+        if (ki.alias == null) {
+            return Status.Unknown
+        }
         return if (aliases.contains(ki.alias)) {
             Status.Fixed
         } else {

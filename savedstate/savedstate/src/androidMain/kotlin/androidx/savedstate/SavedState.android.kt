@@ -34,6 +34,7 @@ public actual inline fun savedState(
         } else {
             initialState.map { (key, value) -> key to value }.toTypedArray()
         }
+    @Suppress("DEPRECATION") // Bridge Map<String, Any?> to Bundle; no safe alternative.
     return bundleOf(*pairs).apply { write(builderAction) }
 }
 

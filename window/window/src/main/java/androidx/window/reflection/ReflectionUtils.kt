@@ -90,10 +90,7 @@ internal object ReflectionUtils {
         return returnType.equals(clazz)
     }
 
-    internal fun validateImplementation(
-        implementation: Class<*>,
-        requirements: Class<*>,
-    ): Boolean {
+    internal fun validateImplementation(implementation: Class<*>, requirements: Class<*>): Boolean {
         return requirements.methods.all {
             validateReflection("${implementation.name}#${it.name} is not valid") {
                 val implementedMethod = implementation.getMethod(it.name, *it.parameterTypes)

@@ -28,10 +28,8 @@ import androidx.credentials.internal.RequestValidationHelper
  *   [this w3c link](https://w3c.github.io/webauthn/#dictdef-authenticationresponsejson)
  */
 class PublicKeyCredential
-private constructor(
-    val authenticationResponseJson: String,
-    data: Bundle,
-) : Credential(TYPE_PUBLIC_KEY_CREDENTIAL, data) {
+private constructor(val authenticationResponseJson: String, data: Bundle) :
+    Credential(TYPE_PUBLIC_KEY_CREDENTIAL, data) {
 
     /**
      * Constructs a [PublicKeyCredential].

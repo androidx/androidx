@@ -40,8 +40,8 @@ package androidx.car.app {
   public class CarContext extends android.content.ContextWrapper {
     method public void finishCarApp();
     method public int getCarAppApiLevel();
-    method public Object getCarService(String);
     method public <T> T getCarService(Class<T!>);
+    method public Object getCarService(String);
     method public String getCarServiceName(Class<?>);
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
@@ -238,8 +238,8 @@ package androidx.car.app.model {
   }
 
   public static final class CarIcon.Builder {
-    ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
     ctor public CarIcon.Builder(androidx.car.app.model.CarIcon);
+    ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
     method public androidx.car.app.model.CarIcon build();
     method public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor);
   }
@@ -255,8 +255,8 @@ package androidx.car.app.model {
   }
 
   public final class CarLocation {
-    method public static androidx.car.app.model.CarLocation create(double, double);
     method public static androidx.car.app.model.CarLocation create(android.location.Location);
+    method public static androidx.car.app.model.CarLocation create(double, double);
     method public double getLatitude();
     method public double getLongitude();
   }
@@ -274,9 +274,9 @@ package androidx.car.app.model {
   }
 
   public final class DateTimeWithZone {
+    method @RequiresApi(26) public static androidx.car.app.model.DateTimeWithZone create(java.time.ZonedDateTime);
     method public static androidx.car.app.model.DateTimeWithZone create(long, @IntRange(from=0xffff02e0, to=64800) int, String);
     method public static androidx.car.app.model.DateTimeWithZone create(long, java.util.TimeZone);
-    method @RequiresApi(26) public static androidx.car.app.model.DateTimeWithZone create(java.time.ZonedDateTime);
     method public long getTimeSinceEpochMillis();
     method public int getZoneOffsetSeconds();
     method public String? getZoneShortName();
@@ -301,8 +301,8 @@ package androidx.car.app.model {
   }
 
   public final class DurationSpan extends androidx.car.app.model.CarSpan {
-    method public static androidx.car.app.model.DurationSpan create(long);
     method @RequiresApi(26) public static androidx.car.app.model.DurationSpan create(java.time.Duration);
+    method public static androidx.car.app.model.DurationSpan create(long);
     method public long getDurationSeconds();
   }
 
@@ -413,8 +413,8 @@ package androidx.car.app.model {
     ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
-    method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
+    method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
     method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
@@ -960,8 +960,8 @@ package androidx.car.app.serialization {
   }
 
   public class BundlerException extends java.lang.Exception {
-    ctor public BundlerException(String?, Throwable);
     ctor public BundlerException(String?);
+    ctor public BundlerException(String?, Throwable);
   }
 
 }

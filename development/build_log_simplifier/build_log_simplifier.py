@@ -406,7 +406,7 @@ def suggest_missing_exemptions(messages, config_lines):
 
         # escape message
         escaped = re.escape(line)
-        escaped = escaped.replace("\ ", " ") # spaces don't need to be escaped
+        escaped = escaped.replace(r"\ ", " ") # spaces don't need to be escaped
         escaped = generalize_hashes(escaped)
         escaped = generalize_numbers(escaped)
         # confirm that we haven't already inserted this message

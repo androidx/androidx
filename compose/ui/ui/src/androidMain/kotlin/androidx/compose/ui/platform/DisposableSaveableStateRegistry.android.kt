@@ -38,7 +38,7 @@ import java.io.Serializable
 /** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
 internal fun DisposableSaveableStateRegistry(
     view: View,
-    owner: SavedStateRegistryOwner
+    owner: SavedStateRegistryOwner,
 ): DisposableSaveableStateRegistry {
     // The view id of AbstractComposeView is used as a key for SavedStateRegistryOwner. If there
     // are multiple AbstractComposeViews in the same Activity/Fragment with the same id(or with
@@ -64,9 +64,9 @@ internal fun DisposableSaveableStateRegistry(
  */
 internal fun DisposableSaveableStateRegistry(
     id: String,
-    savedStateRegistryOwner: SavedStateRegistryOwner
+    savedStateRegistryOwner: SavedStateRegistryOwner,
 ): DisposableSaveableStateRegistry {
-    val key = "${SaveableStateRegistry::class.java.simpleName}:$id"
+    val key = "SaveableStateRegistry:$id"
 
     val androidxRegistry = savedStateRegistryOwner.savedStateRegistry
     val bundle = androidxRegistry.consumeRestoredStateForKey(key)
@@ -74,17 +74,25 @@ internal fun DisposableSaveableStateRegistry(
 
     val saveableStateRegistry = SaveableStateRegistry(restored) { canBeSavedToBundle(it) }
     val registered =
-        try {
-            androidxRegistry.registerSavedStateProvider(key) {
-                saveableStateRegistry.performSave().toBundle()
-            }
-            true
-        } catch (ignore: IllegalArgumentException) {
-            // this means there are two AndroidComposeViews composed into different parents with the
-            // same view id. currently we will just not save/restore state for the second
-            // AndroidComposeView.
-            // TODO: we should verify our strategy for such cases and improve it. b/162397322
+        if (androidxRegistry.getSavedStateProvider(key) != null) {
+            // Another View already has the same key, so the provider can't be registered. If
+            // registerSavedStateProvider is called, it will throw IllegalArgumentException and
+            // that is slower than checking in advance.
             false
+        } else {
+            try {
+                androidxRegistry.registerSavedStateProvider(key) {
+                    saveableStateRegistry.performSave().toBundle()
+                }
+                true
+            } catch (_: IllegalArgumentException) {
+                // this means there are two AndroidComposeViews composed into different parents with
+                // the
+                // same view id. currently we will just not save/restore state for the second
+                // AndroidComposeView.
+                // TODO: we should verify our strategy for such cases and improve it. b/162397322
+                false
+            }
         }
     return DisposableSaveableStateRegistry(saveableStateRegistry) {
         if (registered) {
@@ -96,7 +104,7 @@ internal fun DisposableSaveableStateRegistry(
 /** [SaveableStateRegistry] which can be disposed using [dispose]. */
 internal class DisposableSaveableStateRegistry(
     saveableStateRegistry: SaveableStateRegistry,
-    private val onDispose: () -> Unit
+    private val onDispose: () -> Unit,
 ) : SaveableStateRegistry by saveableStateRegistry {
 
     fun dispose() {
@@ -156,7 +164,7 @@ private val AcceptableClasses =
         SparseArray::class.java,
         Binder::class.java,
         Size::class.java,
-        SizeF::class.java
+        SizeF::class.java,
     )
 
 @Suppress("DEPRECATION")

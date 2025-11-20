@@ -104,10 +104,7 @@ internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
                     BasicText(
                         text = "Item $it",
                         Modifier.background(Color.White).padding(2.dp),
-                        TextStyle(
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                        )
+                        TextStyle(color = Color.Black, fontSize = 16.sp),
                     )
                 }
             }

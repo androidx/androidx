@@ -38,7 +38,7 @@ import kotlin.math.sign
  */
 fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
-    snapPosition: SnapPosition = SnapPosition.Center
+    snapPosition: SnapPosition = SnapPosition.Center,
 ) =
     object : SnapLayoutInfoProvider {
         private val layoutInfo: LazyGridLayoutInfo
@@ -76,7 +76,7 @@ fun SnapLayoutInfoProvider(
                         itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
                         itemIndex = item.index,
                         snapPosition = snapPosition,
-                        itemCount = layoutInfo.totalItemsCount
+                        itemCount = layoutInfo.totalItemsCount,
                     )
 
                 // Find item that is closest to the center
@@ -93,7 +93,7 @@ fun SnapLayoutInfoProvider(
             return calculateFinalOffset(
                 with(lazyGridState.density) { calculateFinalSnappingItem(velocity) },
                 distanceFromItemBeforeTarget,
-                distanceFromItemAfterTarget
+                distanceFromItemAfterTarget,
             )
         }
     }
@@ -111,7 +111,7 @@ fun SnapLayoutInfoProvider(
 @Composable
 fun rememberSnapFlingBehavior(
     lazyGridState: LazyGridState,
-    snapPosition: SnapPosition = SnapPosition.Center
+    snapPosition: SnapPosition = SnapPosition.Center,
 ): FlingBehavior {
     val snappingLayout =
         remember(lazyGridState) { SnapLayoutInfoProvider(lazyGridState, snapPosition) }

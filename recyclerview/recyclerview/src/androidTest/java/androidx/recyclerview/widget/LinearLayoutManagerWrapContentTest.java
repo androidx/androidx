@@ -20,12 +20,10 @@ import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +45,6 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
         mConfig = config;
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     public void testUnspecifiedWithHint() throws Throwable {
         unspecifiedWithHintTest(mConfig.mOrientation == StaggeredGridLayoutManager.HORIZONTAL);

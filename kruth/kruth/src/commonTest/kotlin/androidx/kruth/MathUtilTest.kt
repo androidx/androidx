@@ -63,7 +63,7 @@ class MathUtilTest {
                 notEqualWithinTolerance(
                     0.0f,
                     1.0f + 2.0f - 3.0f,
-                    0.00000000000000000000000000000001f
+                    0.00000000000000000000000000000001f,
                 )
             )
             .isFalse()

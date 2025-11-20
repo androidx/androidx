@@ -97,7 +97,7 @@ fun PlatformTextInputAdapterDemo() {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Move selection:")
             IconButton(
@@ -105,7 +105,7 @@ fun PlatformTextInputAdapterDemo() {
                     val newCursor =
                         (textFieldState.selection.start - 1).coerceIn(
                             0,
-                            textFieldState.buffer.length
+                            textFieldState.buffer.length,
                         )
                     textFieldState.selection = TextRange(newCursor)
                 }
@@ -153,7 +153,7 @@ fun WackyTextField(state: WackyTextState, modifier: Modifier) {
                                     Color.Black,
                                     start = cursorRect.topCenter,
                                     end = cursorRect.bottomCenter,
-                                    strokeWidth = 1.dp.toPx()
+                                    strokeWidth = 1.dp.toPx(),
                                 )
                             } else {
                                 val selectionPath =
@@ -162,7 +162,7 @@ fun WackyTextField(state: WackyTextState, modifier: Modifier) {
                             }
                         }
                     }
-                }
+                },
     )
 }
 
@@ -240,7 +240,7 @@ private class WackyTextFieldModifierNode(private val state: WackyTextState) :
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         if (pass == PointerEventPass.Main && pointerEvent.changes.any { it.changedToUp() }) {
             if (isFocused) {
@@ -312,7 +312,7 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
             composition =
                 TextRange(
                     start.coerceIn(0, state.buffer.length),
-                    end.coerceIn(0, state.buffer.length)
+                    end.coerceIn(0, state.buffer.length),
                 )
         }
         return true
@@ -343,16 +343,16 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
     override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
         Log.d(
             TAG,
-            "deleting surrounding text: beforeLength=$beforeLength, afterLength=$afterLength"
+            "deleting surrounding text: beforeLength=$beforeLength, afterLength=$afterLength",
         )
         withBatch {
             state.buffer.delete(
                 state.selection.end.coerceIn(0, state.buffer.length),
-                (state.selection.end + afterLength).coerceIn(0, state.buffer.length)
+                (state.selection.end + afterLength).coerceIn(0, state.buffer.length),
             )
             state.buffer.delete(
                 (state.selection.start - beforeLength).coerceIn(0, state.buffer.length),
-                state.selection.start.coerceIn(0, state.buffer.length)
+                state.selection.start.coerceIn(0, state.buffer.length),
             )
         }
         return false
@@ -364,7 +364,7 @@ private class WackyInputConnection(private val state: WackyTextState, view: View
             state.selection =
                 TextRange(
                     start.coerceIn(0, state.buffer.length),
-                    end.coerceIn(0, state.buffer.length)
+                    end.coerceIn(0, state.buffer.length),
                 )
         }
         return true

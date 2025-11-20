@@ -39,13 +39,11 @@ data class Metrics(private val testsCount: IntTypedValue) {
     }
 }
 
-data class TestReference(
-    val id: StringTypedValue,
-)
+data class TestReference(val id: StringTypedValue)
 
 data class ActionResult(
     private val status: StringTypedValue,
-    @SerializedName("testsRef") private val testsReference: TestReference
+    @SerializedName("testsRef") private val testsReference: TestReference,
 ) {
     fun isSuccessful(): Boolean {
         return status.value == "succeeded"
@@ -98,7 +96,7 @@ data class ActionRunDestinationRecord(
 
 data class ActionRecord(
     val actionResult: ActionResult,
-    val runDestination: ActionRunDestinationRecord
+    val runDestination: ActionRunDestinationRecord,
 )
 
 data class Actions(@SerializedName("_values") val actionRecords: List<ActionRecord>) {
@@ -130,7 +128,7 @@ data class ActionTestSummaryGroup(
     val duration: DoubleTypedValue,
     val identifier: StringTypedValue,
     val name: StringTypedValue,
-    @SerializedName("subtests") val subTests: ActionsTestSummaryGroupOrMetaArray
+    @SerializedName("subtests") val subTests: ActionsTestSummaryGroupOrMetaArray,
 ) : ActionsTestSummaryGroupOrMeta {
     fun summaries(): List<ActionTestSummaryMeta> {
         return buildSummaries(mutableListOf(), this)
@@ -139,7 +137,7 @@ data class ActionTestSummaryGroup(
     companion object {
         internal fun buildSummaries(
             summaries: MutableList<ActionTestSummaryMeta>,
-            group: ActionTestSummaryGroup
+            group: ActionTestSummaryGroup,
         ): MutableList<ActionTestSummaryMeta> {
             for (subTest in group.subTests.values) {
                 when (subTest) {
@@ -157,7 +155,7 @@ data class ActionTestSummaryMeta(
     val identifier: StringTypedValue,
     val name: StringTypedValue,
     val summaryRef: ActionTestMetadataSummary,
-    val testStatus: StringTypedValue
+    val testStatus: StringTypedValue,
 ) : ActionsTestSummaryGroupOrMeta {
     fun isSuccessful(): Boolean {
         return testStatus.value == "Success"
@@ -172,7 +170,7 @@ class ActionTestSummaryDeserializer : JsonDeserializer<ActionsTestSummaryGroupOr
     override fun deserialize(
         jsonElement: JsonElement,
         typeOfT: Type,
-        context: JsonDeserializationContext
+        context: JsonDeserializationContext,
     ): ActionsTestSummaryGroupOrMeta {
         return if (checkType(jsonElement, ACTION_TEST_SUMMARY_GROUP)) {
             val adapter = GsonHelpers.gson().getAdapter(ActionTestSummaryGroup::class.java)
@@ -217,7 +215,7 @@ data class ActionTestableSummary(
     val name: StringTypedValue,
     val projectRelativePath: StringTypedValue,
     val targetName: StringTypedValue,
-    val tests: ActionTestSummaryGroupArray
+    val tests: ActionTestSummaryGroupArray,
 )
 
 data class ActionTestableSummaryArray(
@@ -270,7 +268,7 @@ data class ActionTestSummary(
     val activitySummaries: ActionTestActivitySummaryArray,
     val name: StringTypedValue,
     val testStatus: StringTypedValue,
-    val performanceMetrics: ActionTestPerformanceMetricSummaryArray
+    val performanceMetrics: ActionTestPerformanceMetricSummaryArray,
 ) {
     fun isSuccessful(): Boolean {
         return testStatus.value == "Success"

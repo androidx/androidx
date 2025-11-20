@@ -17,7 +17,6 @@ package androidx.coordinatorlayout.widget;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.pressKey;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -29,6 +28,10 @@ import android.view.KeyEvent;
 import androidx.coordinatorlayout.test.R;
 import androidx.coordinatorlayout.testutils.AppBarStateChangedListener;
 import androidx.coordinatorlayout.testutils.NestedScrollViewActions;
+import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -58,6 +61,14 @@ public class CoordinatorLayoutKeyEventTest {
     private AppBarStateChangedListener.State mAppBarState =
             AppBarStateChangedListener.State.UNKNOWN;
 
+    /**
+     * Copied from ViewActions.java. <p>
+     * The distance of a swipe's start position from the view's edge, in terms of the view's length.
+     * We do not start the swipe exactly on the view's edge, but somewhat more inward, since swiping
+     * from the exact edge may behave in an unexpected way (e. g. may open a navigation drawer).
+     */
+    private static final float EDGE_FUZZ_FACTOR = 0.083f;
+
     @Before
     public void setup() {
         mActivityScenarioRule.getScenario().onActivity(activity -> {
@@ -75,12 +86,29 @@ public class CoordinatorLayoutKeyEventTest {
     /*** Tests ***/
     @Test
     @LargeTest
-    public void isCollapsingToolbarExpanded_swipeDownMultipleKeysUp_isExpanded() {
+    public void isCollapsingToolbarExpanded_swipeUpMultipleKeysUp_isExpanded() {
 
         onView(withId(R.id.top_nested_text)).check(matches(isCompletelyDisplayed()));
 
-        // Scrolls down content and collapses the CollapsingToolbarLayout in the AppBarLayout.
-        onView(withId(R.id.top_nested_text)).perform(swipeUp());
+        // Compute the scroll distance required to collapse the CollapsingToolbarLayout on
+        // the top.
+        int[] textLocation = new int[2];
+        mActivityScenarioRule.getScenario().onActivity(activity -> {
+            activity.findViewById(R.id.top_nested_text).getLocationInWindow(textLocation);
+        });
+
+        // Scrolls up content and collapses the CollapsingToolbarLayout in the AppBarLayout.
+        onView(withId(R.id.top_nested_text)).perform(
+                new GeneralSwipeAction(
+                        Swipe.FAST,
+                        GeneralLocation.translate(
+                                GeneralLocation.BOTTOM_CENTER, 0, -EDGE_FUZZ_FACTOR
+                        ),
+                        GeneralLocation.translate(
+                                GeneralLocation.BOTTOM_CENTER, 0, -textLocation[1]
+                        ),
+                        Press.FINGER)
+        );
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         // Espresso doesn't properly support swipeUp() with a CoordinatorLayout,
@@ -103,7 +131,7 @@ public class CoordinatorLayoutKeyEventTest {
         });
 
         // Verifies the CollapsingToolbarLayout in the AppBarLayout is collapsed.
-        assertEquals(mAppBarState, AppBarStateChangedListener.State.COLLAPSED);
+        assertEquals(AppBarStateChangedListener.State.COLLAPSED, mAppBarState);
 
         // Scrolls up to the top element in the NestedScrollView.
         // NOTE: NestedScrollView requires a custom Action to work properly and the scroll does NOT
@@ -134,6 +162,6 @@ public class CoordinatorLayoutKeyEventTest {
         }
 
         // Checks CollapsingToolbarLayout (in the AppBarLayout) is fully expanded.
-        assertEquals(mAppBarState, AppBarStateChangedListener.State.EXPANDED);
+        assertEquals(AppBarStateChangedListener.State.EXPANDED, mAppBarState);
     }
 }

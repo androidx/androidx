@@ -56,7 +56,7 @@ object CircularProgressIndicatorBenchmark : MacrobenchmarkScreen {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(12.dp),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Slider(
                         value = progress.floatValue,
@@ -65,21 +65,21 @@ object CircularProgressIndicatorBenchmark : MacrobenchmarkScreen {
                         steps = 9,
                         colors =
                             SliderDefaults.sliderColors(
-                                containerColor = MaterialTheme.colorScheme.background,
+                                containerColor = MaterialTheme.colorScheme.background
                             ),
                         segmented = false,
                         decreaseIcon = {
                             Text(
                                 text = "-",
                                 modifier =
-                                    Modifier.semantics { contentDescription = DECREASE_BUTTON }
+                                    Modifier.semantics { contentDescription = DECREASE_BUTTON },
                             )
                         },
                         increaseIcon = {
                             Text(
                                 text = "+",
                                 modifier =
-                                    Modifier.semantics { contentDescription = INCREASE_BUTTON }
+                                    Modifier.semantics { contentDescription = INCREASE_BUTTON },
                             )
                         },
                     )

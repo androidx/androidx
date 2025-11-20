@@ -68,7 +68,7 @@ public class DataTypeCondition<T : Number, D : DataType<T, out DataPoint<T>>>(
             return DataTypeCondition(
                 dataType,
                 dataType.toValueFromProto(proto.threshold),
-                ComparisonType.fromProto(proto.comparisonType)
+                ComparisonType.fromProto(proto.comparisonType),
             )
         }
 
@@ -81,7 +81,7 @@ public class DataTypeCondition<T : Number, D : DataType<T, out DataPoint<T>>>(
             return DataTypeCondition(
                 dataType,
                 dataType.toValueFromProto(proto.threshold),
-                ComparisonType.fromProto(proto.comparisonType)
+                ComparisonType.fromProto(proto.comparisonType),
             )
         }
     }

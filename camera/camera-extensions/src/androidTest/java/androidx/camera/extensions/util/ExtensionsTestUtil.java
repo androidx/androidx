@@ -28,6 +28,7 @@ import static androidx.camera.extensions.impl.ExtensionsTestlibControl.Implement
 import android.content.Context;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.os.Build;
 
 import androidx.camera.camera2.Camera2Config;
@@ -57,6 +58,8 @@ import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
+import androidx.camera.extensions.internal.Camera2ExtensionsInfo;
+import androidx.camera.extensions.internal.Camera2ExtensionsVendorExtender;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
@@ -317,7 +320,34 @@ public class ExtensionsTestUtil {
         return ExtensionVersion.isAdvancedExtenderSupported();
     }
 
-    public static VendorExtender createVendorExtender(@ExtensionMode.Mode int mode) {
+    /**
+     * Creates the {@link VendorExtender} instance for testing.
+     *
+     * @param applicationContext the application context which will be used to retrieve the
+     *                           camera characteristics info.
+     * @param mode               the target extension mode.
+     * @param configImplType     the config impl type to run the test
+     * @return the corresponding {@link VendorExtender} instance.
+     */
+    public static @NonNull VendorExtender createVendorExtender(@NonNull Context applicationContext,
+            @ExtensionMode.Mode int mode,
+            @CameraXConfig.ImplType int configImplType) {
+        if (configImplType == CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_PIPE) {
+            // Returns Camera2ExtensionsVendorExtender only when API level is 33 or above and
+            // configImplType is PIPE.
+            // CameraExtensionCharacteristics#getAvailableCaptureRequestKeys(int) is supported
+            // since API level 33 that allows app to clearly know whether features like
+            // tap-to-focus or zoom ratio are supported or not.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                CameraManager cameraManager = applicationContext.getSystemService(
+                        CameraManager.class);
+                return new Camera2ExtensionsVendorExtender(mode,
+                        new Camera2ExtensionsInfo(cameraManager));
+            } else {
+                return new VendorExtender() {
+                };
+            }
+        }
         if (isAdvancedExtenderSupported()) {
             return new AdvancedVendorExtender(mode);
         }

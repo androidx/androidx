@@ -39,7 +39,7 @@ internal fun Modifier.tvSelectable(
             interactionSource = interactionSource,
             selected = selected,
             onClick = onClick,
-            onLongClick = onLongClick
+            onLongClick = onLongClick,
         )
         // We are not using "selectable" modifier here because if we set "enabled" to false
         // then the Surface won't be focusable as well. But, in TV use case, a disabled surface

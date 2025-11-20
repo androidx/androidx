@@ -32,7 +32,7 @@ class CumulativeDataPoint<T : Number>(
     /** The beginning of the time period this [DataPoint] represents. */
     val start: Instant,
     /** The end of the time period this [DataPoint] represents. */
-    val end: Instant
+    val end: Instant,
 ) : DataPoint<T>(dataType) {
 
     internal val proto: DataProto.AggregateDataPoint =
@@ -58,7 +58,7 @@ class CumulativeDataPoint<T : Number>(
                 dataType,
                 dataType.toValueFromProto(proto.total),
                 start = Instant.ofEpochMilli(proto.startTimeEpochMs),
-                end = Instant.ofEpochMilli(proto.endTimeEpochMs)
+                end = Instant.ofEpochMilli(proto.endTimeEpochMs),
             )
         }
     }

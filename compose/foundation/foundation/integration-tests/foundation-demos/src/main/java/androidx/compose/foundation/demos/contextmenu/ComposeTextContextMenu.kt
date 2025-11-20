@@ -99,7 +99,7 @@ internal fun TextContextMenusDemo() {
             LabeledItem("BTF1 Password") {
                 MyTextFieldOne(
                     initialText = "Basic Text Field One",
-                    visualTransformation = PasswordVisualTransformation()
+                    visualTransformation = PasswordVisualTransformation(),
                 )
             }
 
@@ -130,7 +130,7 @@ internal fun TextContextMenusDemo() {
                             enabled = true,
                             singleLine = false,
                             visualTransformation = VisualTransformation.None,
-                            interactionSource = interactionSource
+                            interactionSource = interactionSource,
                         )
                     },
                 )
@@ -211,7 +211,7 @@ private fun MyTextFieldOne(
                 enabled = enabled,
                 singleLine = false,
                 visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         },
     )
@@ -242,7 +242,7 @@ private fun MyTextFieldTwo(
                 enabled = enabled,
                 singleLine = false,
                 visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         },
     )

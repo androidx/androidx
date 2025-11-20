@@ -72,7 +72,7 @@ public class EncoderProfilesProviderFallback(
     public fun resolveProvider(
         cameraId: String,
         quirks: Quirks,
-        cameraDevices: CameraDevices
+        cameraDevices: CameraDevices,
     ): EncoderProfilesProvider {
         var provider: EncoderProfilesProvider? = null
         val defaultProvider = providerFactory.invoke(cameraId, quirks)
@@ -87,7 +87,7 @@ public class EncoderProfilesProviderFallback(
                 provider =
                     SizeFilteredEncoderProfilesProvider(
                         provider,
-                        cameraMetadata.getPrivateFormatSizes()
+                        cameraMetadata.getPrivateFormatSizes(),
                     )
             }
         }
@@ -111,7 +111,7 @@ public class EncoderProfilesProviderFallback(
      */
     private fun needFallback(
         cameraMetadata: CameraMetadata,
-        provider: EncoderProfilesProvider
+        provider: EncoderProfilesProvider,
     ): Boolean = cameraMetadata.isExternalCamera() && !provider.hasProfile(QUALITY_HIGH)
 
     /**
@@ -168,8 +168,8 @@ public class EncoderProfilesProviderFallback(
                 cameraMetadata,
                 StreamConfigurationMapCompat(
                     streamConfigurationMap,
-                    OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
-                )
+                    OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
+                ),
             )
             .quirks
     }

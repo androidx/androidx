@@ -32,7 +32,7 @@ import androidx.core.app.ActivityOptionsCompat
 @Suppress("FunctionName")
 public fun ActivityNavigatorExtras(
     activityOptions: ActivityOptionsCompat? = null,
-    flags: Int = 0
+    flags: Int = 0,
 ): ActivityNavigator.Extras =
     ActivityNavigator.Extras.Builder()
         .apply {

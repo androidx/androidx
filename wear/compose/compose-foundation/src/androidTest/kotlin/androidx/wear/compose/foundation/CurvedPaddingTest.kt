@@ -20,12 +20,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class CurvedPaddingTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
 
     @Test
     fun padding_all_works() =
@@ -38,7 +39,7 @@ class CurvedPaddingTest {
             innerPadding = 4.dp,
             beforePadding = 6.dp,
             afterPadding = 6.dp,
-            CurvedModifier.padding(radial = 4.dp, angular = 6.dp)
+            CurvedModifier.padding(radial = 4.dp, angular = 6.dp),
         )
 
     @Test
@@ -48,7 +49,7 @@ class CurvedPaddingTest {
             innerPadding = 4.dp,
             beforePadding = 5.dp,
             afterPadding = 6.dp,
-            CurvedModifier.padding(outer = 3.dp, inner = 4.dp, before = 5.dp, after = 6.dp)
+            CurvedModifier.padding(outer = 3.dp, inner = 4.dp, before = 5.dp, after = 6.dp),
         )
 
     @Test
@@ -58,7 +59,7 @@ class CurvedPaddingTest {
             14.dp,
             18.dp,
             25.dp,
-            CurvedModifier.padding(3.dp, 4.dp, 5.dp, 6.dp).padding(8.dp, 10.dp, 13.dp, 19.dp)
+            CurvedModifier.padding(3.dp, 4.dp, 5.dp, 6.dp).padding(8.dp, 10.dp, 13.dp, 19.dp),
         )
 
     private fun check_padding_result(
@@ -66,7 +67,7 @@ class CurvedPaddingTest {
         innerPadding: Dp,
         beforePadding: Dp,
         afterPadding: Dp,
-        modifier: CurvedModifier
+        modifier: CurvedModifier,
     ) {
 
         val paddedCapturedInfo = CapturedInfo()
@@ -97,7 +98,7 @@ class CurvedPaddingTest {
                             .spy(componentCapturedInfo)
                             .size(
                                 sweepDegrees = componentSweepDegrees,
-                                thickness = componentThickness
+                                thickness = componentThickness,
                             )
                 ) {}
             }
@@ -112,7 +113,7 @@ class CurvedPaddingTest {
             val paddingAsAngle = (beforePaddingAsAngle + afterPaddingAsAngle).toDegrees()
             paddedCapturedInfo.checkDimensions(
                 componentSweepDegrees + paddingAsAngle,
-                componentThicknessPx + outerPaddingPx + innerPaddingPx
+                componentThicknessPx + outerPaddingPx + innerPaddingPx,
             )
             componentCapturedInfo.checkDimensions(componentSweepDegrees, componentThicknessPx)
 

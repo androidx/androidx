@@ -19,11 +19,8 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.Nullable;
 
-@RequiresApi(21)
 class CardViewApi21Impl implements CardViewImpl {
 
     @Override

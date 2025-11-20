@@ -26,17 +26,18 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api(project(":pdf:pdf-viewer"))
     api(project(":pdf:pdf-document-service"))
     api("androidx.core:core:1.13.1")
 
     implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.window:window:1.3.0")
+    implementation("androidx.annotation:annotation-experimental:1.5.1")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -47,8 +48,11 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    androidTestImplementation("androidx.fragment:fragment-testing:1.7.1")
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 android {
@@ -56,8 +60,8 @@ android {
 
     defaultConfig {
         minSdk = 31
-        compileSdk = 35
-        targetSdk = 31
+        compileSdk = 36
+        compileSdkExtension = 19
     }
 }
 
@@ -66,4 +70,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "This library can be used in your Android application to embed a fragment that renders a PDF document and provides functionalities to interact with it."
+    addGoldenImageAssets()
+    enableRobolectric()
 }

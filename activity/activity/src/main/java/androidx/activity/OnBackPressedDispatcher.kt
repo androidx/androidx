@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.activity
 
 import android.os.Build
-import android.window.BackEvent
-import android.window.OnBackAnimationCallback
-import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.Event
+import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventInput
+import androidx.navigationevent.OnBackInvokedDefaultInput
+import androidx.navigationevent.OnBackInvokedOverlayInput
 
 /**
  * Dispatcher that can be used to register [OnBackPressedCallback] instances for handling the
@@ -59,17 +67,32 @@ import androidx.lifecycle.LifecycleOwner
 // fallbackOnBackPressed. To avoid silently breaking source compatibility the new
 // primary constructor has no optional parameters to avoid ambiguity/wrong overload resolution
 // when a single parameter is provided as a trailing lambda.
-class OnBackPressedDispatcher
-constructor(
-    private val fallbackOnBackPressed: Runnable?,
-    private val onHasEnabledCallbacksChanged: Consumer<Boolean>?
+class OnBackPressedDispatcher(
+    @Suppress("unused") private val fallbackOnBackPressed: Runnable?,
+    @Suppress("unused") private val onHasEnabledCallbacksChanged: Consumer<Boolean>?,
 ) {
-    private val onBackPressedCallbacks = ArrayDeque<OnBackPressedCallback>()
-    private var inProgressCallback: OnBackPressedCallback? = null
-    private var onBackInvokedCallback: OnBackInvokedCallback? = null
-    private var invokedDispatcher: OnBackInvokedDispatcher? = null
-    private var backInvokedCallbackRegistered = false
+
     private var hasEnabledCallbacks = false
+
+    /**
+     * This [OnBackPressedDispatcher] class will delegate all interactions to [eventDispatcher],
+     * which provides a KMP-compatible API while preserving behavior compatibility with existing
+     * callback mechanisms.
+     *
+     * @see [OnBackPressedCallback.eventHandlers]
+     */
+    internal val eventDispatcher = NavigationEventDispatcher { fallbackOnBackPressed?.run() }
+
+    /**
+     * Input source representing back events initiated by this dispatcher (for example, via a direct
+     * call to [onBackPressed]).
+     */
+    private val eventInput = OnBackPressedEventInput()
+
+    init {
+        // Connects this dispatcher's input to the event dispatcher.
+        eventDispatcher.addInput(eventInput)
+    }
 
     @JvmOverloads
     constructor(fallbackOnBackPressed: Runnable? = null) : this(fallbackOnBackPressed, null)
@@ -81,55 +104,14 @@ constructor(
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun setOnBackInvokedDispatcher(invoker: OnBackInvokedDispatcher) {
-        invokedDispatcher = invoker
-        updateBackInvokedCallbackState(hasEnabledCallbacks)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun updateBackInvokedCallbackState(shouldBeRegistered: Boolean) {
-        val dispatcher = invokedDispatcher
-        val onBackInvokedCallback = onBackInvokedCallback
-        if (dispatcher != null && onBackInvokedCallback != null) {
-            if (shouldBeRegistered && !backInvokedCallbackRegistered) {
-                Api33Impl.registerOnBackInvokedCallback(
-                    dispatcher,
-                    OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                    onBackInvokedCallback
-                )
-                backInvokedCallbackRegistered = true
-            } else if (!shouldBeRegistered && backInvokedCallbackRegistered) {
-                Api33Impl.unregisterOnBackInvokedCallback(dispatcher, onBackInvokedCallback)
-                backInvokedCallbackRegistered = false
-            }
-        }
-    }
-
-    private fun updateEnabledCallbacks() {
-        val hadEnabledCallbacks = hasEnabledCallbacks
-        val hasEnabledCallbacks = onBackPressedCallbacks.any { it.isEnabled }
-        this.hasEnabledCallbacks = hasEnabledCallbacks
-        if (hasEnabledCallbacks != hadEnabledCallbacks) {
-            onHasEnabledCallbacksChanged?.accept(hasEnabledCallbacks)
-            if (Build.VERSION.SDK_INT >= 33) {
-                updateBackInvokedCallbackState(hasEnabledCallbacks)
-            }
-        }
-    }
-
-    init {
-        if (Build.VERSION.SDK_INT >= 33) {
-            onBackInvokedCallback =
-                if (Build.VERSION.SDK_INT >= 34) {
-                    Api34Impl.createOnBackAnimationCallback(
-                        { backEvent -> onBackStarted(backEvent) },
-                        { backEvent -> onBackProgressed(backEvent) },
-                        { onBackPressed() },
-                        { onBackCancelled() }
-                    )
-                } else {
-                    Api33Impl.createOnBackInvokedCallback { onBackPressed() }
-                }
-        }
+        eventDispatcher.addInput(
+            OnBackInvokedDefaultInput(invoker),
+            NavigationEventDispatcher.PRIORITY_DEFAULT,
+        )
+        eventDispatcher.addInput(
+            OnBackInvokedOverlayInput(invoker),
+            NavigationEventDispatcher.PRIORITY_OVERLAY,
+        )
     }
 
     /**
@@ -146,60 +128,91 @@ constructor(
      */
     @MainThread
     fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
-        addCancellableCallback(onBackPressedCallback)
+        val info = OnBackPressedCallbackInfo(onBackPressedCallback)
+        val handler = onBackPressedCallback.createNavigationEventHandler(info)
+        eventDispatcher.addHandler(handler)
     }
 
     /**
-     * Internal implementation of [addCallback] that gives access to the [Cancellable] that
-     * specifically removes this callback from the dispatcher without relying on
-     * [OnBackPressedCallback.remove] which is what external developers should be using.
+     * Registers a new [OnBackPressedCallback] that follows the lifecycle of the given
+     * [LifecycleOwner].
      *
-     * @param onBackPressedCallback The callback to add
-     * @return a [Cancellable] which can be used to [cancel][Cancellable.cancel] the callback and
-     *   remove it from the set of OnBackPressedCallbacks.
-     */
-    @MainThread
-    internal fun addCancellableCallback(onBackPressedCallback: OnBackPressedCallback): Cancellable {
-        onBackPressedCallbacks.add(onBackPressedCallback)
-        val cancellable = OnBackPressedCancellable(onBackPressedCallback)
-        onBackPressedCallback.addCancellable(cancellable)
-        updateEnabledCallbacks()
-        onBackPressedCallback.enabledChangedCallback = ::updateEnabledCallbacks
-        return cancellable
-    }
-
-    /**
-     * Receive callbacks to a new [OnBackPressedCallback] when the given [LifecycleOwner] is at
-     * least [started][Lifecycle.State.STARTED].
+     * The callback is registered once and stays attached for the lifetime of the [LifecycleOwner].
+     * Its [OnBackPressedCallback.isEnabled] state automatically follows the lifecycle: it becomes
+     * enabled when the lifecycle is at least [Lifecycle.State.STARTED] and disabled otherwise.
      *
-     * This will automatically call [addCallback] and remove the callback as the lifecycle state
-     * changes. As a corollary, if your lifecycle is already at least
-     * [started][Lifecycle.State.STARTED], calling this method will result in an immediate call to
-     * [addCallback].
+     * When the [LifecycleOwner] is [Lifecycle.State.DESTROYED], the callback is removed and
+     * lifecycle tracking stops. If the lifecycle is already destroyed when this method is called,
+     * the callback is not added.
      *
-     * When the [LifecycleOwner] is [destroyed][Lifecycle.State.DESTROYED], it will automatically be
-     * removed from the list of callbacks. The only time you would need to manually call
-     * [OnBackPressedCallback.remove] is if you'd like to remove the callback prior to destruction
-     * of the associated lifecycle.
+     * ## Legacy Behavior
+     * To restore the legacy add/remove behavior, set
+     * [ActivityFlags.isOnBackPressedLifecycleOrderMaintained] to `false`. In legacy mode, the
+     * handler is added on [Lifecycle.Event.ON_START] and removed on [Lifecycle.Event.ON_STOP],
+     * which may change dispatch ordering across lifecycle transitions.
      *
-     * If the Lifecycle is already [destroyed][Lifecycle.State.DESTROYED] when this method is
-     * called, the callback will not be added.
-     *
-     * @param owner The LifecycleOwner which controls when the callback should be invoked
-     * @param onBackPressedCallback The callback to add
+     * @param owner The [LifecycleOwner] that controls when the callback should be active.
+     * @param onBackPressedCallback The callback to register.
      * @see onBackPressed
      */
     @MainThread
+    @OptIn(ExperimentalActivityApi::class)
     fun addCallback(owner: LifecycleOwner, onBackPressedCallback: OnBackPressedCallback) {
         val lifecycle = owner.lifecycle
-        if (lifecycle.currentState === Lifecycle.State.DESTROYED) {
-            return
+
+        if (lifecycle.currentState === State.DESTROYED) {
+            return // Do not add the callback if the lifecycle is already destroyed.
         }
-        onBackPressedCallback.addCancellable(
-            LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback)
-        )
-        updateEnabledCallbacks()
-        onBackPressedCallback.enabledChangedCallback = ::updateEnabledCallbacks
+
+        val info = OnBackPressedCallbackInfo(onBackPressedCallback, owner)
+        val eventHandler = onBackPressedCallback.createNavigationEventHandler(info)
+
+        if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
+            // Start disabled; will be enabled by lifecycle events.
+            eventHandler.isBackEnabled = false
+
+            // Add handler immediately to fix its position in the dispatch queue.
+            eventDispatcher.addHandler(eventHandler)
+        }
+
+        // This observer manages the callback's lifecycle-aware registration.
+        val lifecycleObserver =
+            object : LifecycleEventObserver, AutoCloseable {
+                override fun onStateChanged(source: LifecycleOwner, event: Event) {
+                    // Sync enabled state with the lifecycle.
+                    if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
+                        eventHandler.isBackEnabled =
+                            event.targetState.isAtLeast(State.STARTED) &&
+                                onBackPressedCallback.isEnabled
+                    } else {
+                        if (event == Event.ON_START) {
+                            // Register the INNER callback only when the lifecycle enters STARTED.
+                            // NOTE: This ADDS the callback to the top of the dispatching stack.
+                            eventDispatcher.addHandler(eventHandler)
+                        } else if (event == Event.ON_STOP) {
+                            // Removes the callback from the dispatching stack.
+                            eventHandler.remove()
+                        }
+                    }
+
+                    if (event == Event.ON_DESTROY) {
+                        // Removes the callback from the dispatching stack.
+                        eventHandler.remove()
+                        // Stop lifecycle tracking if destroyed.
+                        lifecycle.removeObserver(observer = this)
+                    }
+                }
+
+                override fun close() {
+                    // Stop lifecycle tracking when the callback is removed manually.
+                    lifecycle.removeObserver(observer = this)
+                }
+            }
+
+        // Ensures `LifecycleOwner` events are tracked by this observer.
+        lifecycle.addObserver(observer = lifecycleObserver)
+        // Ensures `OnBackPressedCallback.remove()` will stop lifecycle tracking.
+        onBackPressedCallback.addCloseable(closeable = lifecycleObserver)
     }
 
     /**
@@ -213,35 +226,13 @@ constructor(
     @VisibleForTesting
     @MainThread
     fun dispatchOnBackStarted(backEvent: BackEventCompat) {
-        onBackStarted(backEvent)
-    }
-
-    @MainThread
-    private fun onBackStarted(backEvent: BackEventCompat) {
-        val callback = onBackPressedCallbacks.lastOrNull { it.isEnabled }
-        if (inProgressCallback != null) {
-            onBackCancelled()
-        }
-        inProgressCallback = callback
-        if (callback != null) {
-            callback.handleOnBackStarted(backEvent)
-            return
-        }
+        eventInput.backStarted(backEvent.toNavigationEvent())
     }
 
     @VisibleForTesting
     @MainThread
     fun dispatchOnBackProgressed(backEvent: BackEventCompat) {
-        onBackProgressed(backEvent)
-    }
-
-    @MainThread
-    private fun onBackProgressed(backEvent: BackEventCompat) {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull { it.isEnabled }
-        if (callback != null) {
-            callback.handleOnBackProgressed(backEvent)
-            return
-        }
+        eventInput.backProgressed(backEvent.toNavigationEvent())
     }
 
     /**
@@ -254,137 +245,77 @@ constructor(
      */
     @MainThread
     fun onBackPressed() {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull { it.isEnabled }
-        inProgressCallback = null
-        if (callback != null) {
-            callback.handleOnBackPressed()
-            return
-        }
-        fallbackOnBackPressed?.run()
+        eventInput.backCompleted()
     }
 
     @VisibleForTesting
     @MainThread
     fun dispatchOnBackCancelled() {
-        onBackCancelled()
+        eventInput.backCancelled()
     }
 
-    @MainThread
-    private fun onBackCancelled() {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull { it.isEnabled }
-        inProgressCallback = null
-        if (callback != null) {
-            callback.handleOnBackCancelled()
-            return
-        }
-    }
+    /**
+     * Bridges [OnBackPressedDispatcher] to the underlying [NavigationEventDispatcher]:
+     * - Exposes the protected `dispatch*` methods from [NavigationEventInput] so the outer
+     *   [OnBackPressedDispatcher] can forward back events.
+     * - Keeps [hasEnabledCallbacks] in sync with the dispatcher to preserve the legacy
+     *   [hasEnabledCallbacks] method and [onHasEnabledCallbacksChanged] callback.
+     */
+    private inner class OnBackPressedEventInput : NavigationEventInput() {
 
-    private inner class OnBackPressedCancellable(
-        private val onBackPressedCallback: OnBackPressedCallback
-    ) : Cancellable {
-        override fun cancel() {
-            onBackPressedCallbacks.remove(onBackPressedCallback)
-            if (inProgressCallback == onBackPressedCallback) {
-                onBackPressedCallback.handleOnBackCancelled()
-                inProgressCallback = null
-            }
-            onBackPressedCallback.removeCancellable(this)
-            onBackPressedCallback.enabledChangedCallback?.invoke()
-            onBackPressedCallback.enabledChangedCallback = null
-        }
-    }
-
-    private inner class LifecycleOnBackPressedCancellable(
-        private val lifecycle: Lifecycle,
-        private val onBackPressedCallback: OnBackPressedCallback
-    ) : LifecycleEventObserver, Cancellable {
-        private var currentCancellable: Cancellable? = null
-
-        init {
-            lifecycle.addObserver(this)
+        /**
+         * Syncs the enabled-handler count back to [OnBackPressedDispatcher].
+         *
+         * This preserves the legacy [hasEnabledCallbacks] contract and triggers the external
+         * [onHasEnabledCallbacksChanged] consumer when present.
+         */
+        override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
+            hasEnabledCallbacks = hasEnabledHandlers
+            onHasEnabledCallbacksChanged?.accept(hasEnabledHandlers)
         }
 
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            if (event === Lifecycle.Event.ON_START) {
-                currentCancellable = addCancellableCallback(onBackPressedCallback)
-            } else if (event === Lifecycle.Event.ON_STOP) {
-                // Should always be non-null
-                currentCancellable?.cancel()
-            } else if (event === Lifecycle.Event.ON_DESTROY) {
-                cancel()
-            }
+        /** Forwards a "back started" gesture to the dispatcher. */
+        fun backStarted(event: NavigationEvent) {
+            dispatchOnBackStarted(event)
         }
 
-        override fun cancel() {
-            lifecycle.removeObserver(this)
-            onBackPressedCallback.removeCancellable(this)
-            currentCancellable?.cancel()
-            currentCancellable = null
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    internal object Api33Impl {
-        fun registerOnBackInvokedCallback(dispatcher: Any, priority: Int, callback: Any) {
-            val onBackInvokedDispatcher = dispatcher as OnBackInvokedDispatcher
-            val onBackInvokedCallback = callback as OnBackInvokedCallback
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(priority, onBackInvokedCallback)
+        /** Forwards intermediate progress for a back gesture. */
+        fun backProgressed(event: NavigationEvent) {
+            dispatchOnBackProgressed(event)
         }
 
-        fun unregisterOnBackInvokedCallback(dispatcher: Any, callback: Any) {
-            val onBackInvokedDispatcher = dispatcher as OnBackInvokedDispatcher
-            val onBackInvokedCallback = callback as OnBackInvokedCallback
-            onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
+        /** Forwards a cancellation of an in-progress back gesture. */
+        fun backCancelled() {
+            dispatchOnBackCancelled()
         }
 
-        fun createOnBackInvokedCallback(onBackInvoked: () -> Unit): OnBackInvokedCallback {
-            return OnBackInvokedCallback { onBackInvoked() }
-        }
-    }
-
-    @RequiresApi(34)
-    internal object Api34Impl {
-        fun createOnBackAnimationCallback(
-            onBackStarted: (backEvent: BackEventCompat) -> Unit,
-            onBackProgressed: (backEvent: BackEventCompat) -> Unit,
-            onBackInvoked: () -> Unit,
-            onBackCancelled: () -> Unit
-        ): OnBackInvokedCallback {
-            return object : OnBackAnimationCallback {
-                override fun onBackStarted(backEvent: BackEvent) {
-                    onBackStarted(BackEventCompat(backEvent))
-                }
-
-                override fun onBackProgressed(backEvent: BackEvent) {
-                    onBackProgressed(BackEventCompat(backEvent))
-                }
-
-                override fun onBackInvoked() {
-                    onBackInvoked()
-                }
-
-                override fun onBackCancelled() {
-                    onBackCancelled()
-                }
-            }
+        /** Forwards completion of a back gesture. */
+        fun backCompleted() {
+            dispatchOnBackCompleted()
         }
     }
 }
 
 /**
- * Create and add a new [OnBackPressedCallback] that calls [onBackPressed] in
- * [OnBackPressedCallback.handleOnBackPressed].
+ * Creates and registers a new [OnBackPressedCallback] that invokes [onBackPressed].
  *
- * If an [owner] is specified, the callback will only be added when the Lifecycle is
- * [androidx.lifecycle.Lifecycle.State.STARTED].
+ * If a [LifecycleOwner] is provided, the callback’s enabled state automatically follows the
+ * lifecycle: it is enabled while the lifecycle is at least [State.STARTED] and disabled otherwise.
+ * The callback stays registered until the [LifecycleOwner] is destroyed.
  *
  * A default [enabled] state can be supplied.
+ *
+ * ## Legacy Behavior
+ * To restore the legacy add/remove behavior, set
+ * [ActivityFlags.isOnBackPressedLifecycleOrderMaintained] to `false`. In legacy mode, the handler
+ * is added on [Lifecycle.Event.ON_START] and removed on [Lifecycle.Event.ON_STOP], which may change
+ * dispatch ordering across lifecycle transitions.
  */
 @Suppress("RegistrationName")
 fun OnBackPressedDispatcher.addCallback(
     owner: LifecycleOwner? = null,
     enabled: Boolean = true,
-    onBackPressed: OnBackPressedCallback.() -> Unit
+    onBackPressed: OnBackPressedCallback.() -> Unit,
 ): OnBackPressedCallback {
     val callback =
         object : OnBackPressedCallback(enabled) {
@@ -399,3 +330,8 @@ fun OnBackPressedDispatcher.addCallback(
     }
     return callback
 }
+
+private data class OnBackPressedCallbackInfo(
+    val callback: OnBackPressedCallback,
+    val owner: LifecycleOwner? = null,
+) : NavigationEventInfo()

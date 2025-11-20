@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 public class ComplicationTextTemplateTest {
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
 
@@ -45,7 +46,7 @@ public class ComplicationTextTemplateTest {
                 .build()
         Assert.assertEquals(
             "$TEST_TEXT1 $TEST_TEXT2 $TEST_TEXT3",
-            complicationTextTemplate.getTextAt(mResources, 132456789).toString()
+            complicationTextTemplate.getTextAt(mResources, 132456789).toString(),
         )
     }
 
@@ -63,7 +64,7 @@ public class ComplicationTextTemplateTest {
                 .build()
         Assert.assertEquals(
             "$TEST_TEXT1, $TEST_TEXT2 my $TEST_TEXT3.",
-            complicationTextTemplate.getTextAt(mResources, 132456789).toString()
+            complicationTextTemplate.getTextAt(mResources, 132456789).toString(),
         )
     }
 
@@ -79,7 +80,7 @@ public class ComplicationTextTemplateTest {
                 .build()
         Assert.assertEquals(
             "$TEST_TEXT1 ^2 $TEST_TEXT2",
-            complicationTextTemplate.getTextAt(mResources, 132456789).toString()
+            complicationTextTemplate.getTextAt(mResources, 132456789).toString(),
         )
     }
 
@@ -154,7 +155,7 @@ public class ComplicationTextTemplateTest {
 
         Assert.assertEquals(
             "$TEST_TEXT1 : $TEST_TEXT_LONG",
-            newText.getTextAt(mResources, 100000).toString()
+            newText.getTextAt(mResources, 100000).toString(),
         )
     }
 
@@ -180,11 +181,11 @@ public class ComplicationTextTemplateTest {
         val testTime = refTime + TimeUnit.HOURS.toMillis(2) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals(
             "hello 3h time : $TEST_TEXT_LONG",
-            newText.getTextAt(mResources, testTime).toString()
+            newText.getTextAt(mResources, testTime).toString(),
         )
         Assert.assertEquals(
             "hello 0m time : $TEST_TEXT_LONG",
-            newText.getTextAt(mResources, refTime).toString()
+            newText.getTextAt(mResources, refTime).toString(),
         )
     }
 

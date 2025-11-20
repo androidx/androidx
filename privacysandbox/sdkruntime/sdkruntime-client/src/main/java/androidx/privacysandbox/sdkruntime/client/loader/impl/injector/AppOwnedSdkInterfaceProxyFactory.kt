@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.privacysandbox.sdkruntime.client.loader.impl.injector
 
@@ -35,7 +36,7 @@ internal class AppOwnedSdkInterfaceProxyFactory(
         return appOwnedSdkSandboxInterfaceCompatConstructor.newInstance(
             /* parameter1 */ source.getName(),
             /* parameter2 */ source.getVersion(),
-            /* parameter3 */ source.getInterface()
+            /* parameter3 */ source.getInterface(),
         )
     }
 
@@ -45,13 +46,13 @@ internal class AppOwnedSdkInterfaceProxyFactory(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val appOwnedSdkSandboxInterfaceCompatConstructor =
                 appOwnedSdkSandboxInterfaceCompatClass.getConstructor(
                     /* name      */ String::class.java,
                     /* version   */ Long::class.java,
-                    /* interface */ IBinder::class.java
+                    /* interface */ IBinder::class.java,
                 )
             return AppOwnedSdkInterfaceProxyFactory(appOwnedSdkSandboxInterfaceCompatConstructor)
         }

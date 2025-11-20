@@ -30,7 +30,7 @@ import com.android.tools.lint.detector.api.Issue
 class TypeSafeDestinationMissingAnnotationDetector :
     BaseTypeSafeDestinationMissingAnnotationDetector(
         methodNames = listOf("activity"),
-        constructorNames = listOf("androidx.navigation.ActivityNavigatorDestinationBuilder")
+        constructorNames = listOf("androidx.navigation.ActivityNavigatorDestinationBuilder"),
     ) {
 
     companion object {

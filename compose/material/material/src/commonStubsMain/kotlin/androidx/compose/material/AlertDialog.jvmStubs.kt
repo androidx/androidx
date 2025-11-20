@@ -33,7 +33,7 @@ actual fun AlertDialog(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
@@ -46,5 +46,5 @@ actual fun AlertDialog(
     shape: Shape,
     backgroundColor: Color,
     contentColor: Color,
-    properties: DialogProperties
+    properties: DialogProperties,
 ): Unit = implementedInJetBrainsFork()

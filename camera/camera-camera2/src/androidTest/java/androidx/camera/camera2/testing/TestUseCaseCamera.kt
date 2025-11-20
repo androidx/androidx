@@ -1,0 +1,221 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.camera.camera2.testing
+
+import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
+import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
+import androidx.camera.camera2.adapter.CameraStateAdapter
+import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
+import androidx.camera.camera2.adapter.SessionConfigAdapter
+import androidx.camera.camera2.adapter.ZslControlNoOpImpl
+import androidx.camera.camera2.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.compat.quirk.CameraQuirks
+import androidx.camera.camera2.compat.workaround.NoOpInactiveSurfaceCloser
+import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
+import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.config.CameraConfig
+import androidx.camera.camera2.config.UseCaseCameraConfig
+import androidx.camera.camera2.config.UseCaseGraphConfig
+import androidx.camera.camera2.impl.CameraCallbackMap
+import androidx.camera.camera2.impl.CameraGraphConfigProvider
+import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.impl.CapturePipeline
+import androidx.camera.camera2.impl.ComboRequestListener
+import androidx.camera.camera2.impl.UseCaseCamera
+import androidx.camera.camera2.impl.UseCaseCameraRequestControl
+import androidx.camera.camera2.impl.UseCaseCameraRequestControlImpl
+import androidx.camera.camera2.impl.UseCaseCameraState
+import androidx.camera.camera2.impl.UseCaseSurfaceManager
+import androidx.camera.camera2.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.UseCase
+import androidx.camera.core.imagecapture.CameraCapturePipeline
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.Config
+import androidx.camera.testing.impl.FakeCameraCapturePipeline
+import java.util.concurrent.CancellationException
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
+/** Open a [CameraGraph] for the desired [cameraId] and [useCases] */
+class TestUseCaseCamera(
+    private val context: Context,
+    private val cameraId: String,
+    private val threads: UseCaseThreads,
+    private val useCases: List<UseCase>,
+    private val cameraConfig: CameraConfig = CameraConfig(CameraId(cameraId)),
+    val cameraPipe: CameraPipe = CameraPipe(CameraPipe.Config(context)),
+    val useCaseSurfaceManager: UseCaseSurfaceManager =
+        UseCaseSurfaceManager(
+            threads,
+            cameraPipe,
+            NoOpInactiveSurfaceCloser,
+            SessionConfigAdapter(useCases = useCases),
+        ),
+) : UseCaseCamera {
+    val cameraMetadata =
+        cameraPipe.cameras().awaitCameraMetadata(CameraId.fromCamera2Id(cameraId))!!
+    val streamConfigurationMap =
+        cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+    val cameraQuirks =
+        CameraQuirks(
+            cameraMetadata,
+            StreamConfigurationMapCompat(
+                streamConfigurationMap,
+                OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
+            ),
+        )
+    val sessionConfigAdapter = SessionConfigAdapter(useCases)
+    val useCaseCameraGraphConfig: UseCaseGraphConfig
+
+    init {
+        val callbackMap = CameraCallbackMap()
+        val requestListener = ComboRequestListener()
+        val configProvider =
+            CameraGraphConfigProvider(
+                callbackMap = callbackMap,
+                requestListener = requestListener,
+                cameraConfig = cameraConfig,
+                cameraQuirks = cameraQuirks,
+                zslControl = ZslControlNoOpImpl(),
+                templateParamsOverride = NoOpTemplateParamsOverride,
+                cameraMetadata = cameraMetadata,
+            )
+
+        val creationResult =
+            configProvider.create(
+                operatingMode =
+                    sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
+                        when (sessionConfig.sessionType) {
+                            SESSION_REGULAR -> OperatingMode.NORMAL
+                            SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
+                            else -> OperatingMode.custom(sessionConfig.sessionType)
+                        }
+                    } ?: OperatingMode.NORMAL,
+                sessionConfig = sessionConfigAdapter.getValidSessionConfigOrNull(),
+                surfaceToStreamUseCaseMap = sessionConfigAdapter.surfaceToStreamUseCaseMap,
+                surfaceToStreamUseHintMap = sessionConfigAdapter.surfaceToStreamUseHintMap,
+            )
+        val graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(CameraStateAdapter())
+
+        useCaseCameraGraphConfig =
+            UseCaseCameraConfig(
+                    useCases = useCases,
+                    sessionConfigAdapter = sessionConfigAdapter,
+                    cameraGraphConfig = creationResult.config,
+                    streamConfigMap = creationResult.streamConfigMap,
+                    graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
+                    cameraGraphFactory = { config -> cameraPipe.createCameraGraph(config) },
+                )
+                .provideUseCaseGraphConfig(
+                    useCaseSurfaceManager = useCaseSurfaceManager,
+                    cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository(),
+                )
+    }
+
+    override val requestControl: UseCaseCameraRequestControl =
+        UseCaseCameraRequestControlImpl(
+                capturePipeline =
+                    object : CapturePipeline {
+                        override var template: Int = CameraDevice.TEMPLATE_PREVIEW
+
+                        override suspend fun submitStillCaptures(
+                            configs: List<CaptureConfig>,
+                            requestTemplate: RequestTemplate,
+                            sessionConfigOptions: Config,
+                            @ImageCapture.CaptureMode captureMode: Int,
+                            @ImageCapture.FlashType flashType: Int,
+                            @ImageCapture.FlashMode flashMode: Int,
+                        ): List<Deferred<Void?>> {
+                            throw NotImplementedError("Not implemented")
+                        }
+
+                        override suspend fun getCameraCapturePipeline(
+                            captureMode: Int,
+                            flashMode: Int,
+                            flashType: Int,
+                        ): CameraCapturePipeline = FakeCameraCapturePipeline()
+                    },
+                state =
+                    UseCaseCameraState(
+                        useCaseCameraGraphConfig,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
+                    ),
+                useCaseGraphConfig = useCaseCameraGraphConfig,
+                useCaseSurfaceManager = useCaseSurfaceManager,
+                threads = threads,
+            )
+            .apply {
+                if (SessionConfigAdapter(useCases).isSessionConfigValid()) {
+                    updateRepeatingRequestAsync(isPrimary = true, runningUseCases = useCases)
+                }
+            }
+
+    override fun start(): Unit =
+        with(useCaseCameraGraphConfig) {
+            // Start the CameraGraph first before setting up Surfaces. Surfaces can be closed, and
+            // we will close the CameraGraph when that happens, and we cannot start a closed
+            // CameraGraph.
+            graph.start()
+
+            debug { "Setting up Surfaces with UseCaseSurfaceManager" }
+            if (sessionConfigAdapter.isSessionConfigValid()) {
+                useCaseSurfaceManager
+                    .setupAsync(graph, sessionConfigAdapter, surfaceToStreamMap)
+                    .invokeOnCompletion { throwable ->
+                        // Only show logs for error cases, ignore CancellationException since the
+                        // task could be cancelled by UseCaseSurfaceManager#stopAsync().
+                        if (throwable != null && throwable !is CancellationException) {
+                            Log.error(throwable) { "Surface setup error!" }
+                        }
+                    }
+            } else {
+                Log.error { "Unable to create capture session due to conflicting configurations" }
+            }
+        }
+
+    override suspend fun getCameraCapturePipeline(
+        captureMode: Int,
+        flashMode: Int,
+        flashType: Int,
+    ): CameraCapturePipeline = FakeCameraCapturePipeline()
+
+    override fun updateRepeatingRequestAsync(
+        isPrimary: Boolean,
+        runningUseCases: Collection<UseCase>,
+    ): Job {
+        throw UnsupportedOperationException("Not yet implemented.")
+    }
+
+    override fun close(): Job {
+        return threads.scope.launch {
+            useCaseCameraGraphConfig.graph.close()
+            useCaseSurfaceManager.stopAsync().await()
+        }
+    }
+}

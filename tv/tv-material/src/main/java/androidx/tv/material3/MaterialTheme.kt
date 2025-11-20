@@ -49,7 +49,7 @@ fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
     typography: Typography = MaterialTheme.typography,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val rememberedColorScheme =
         remember {
@@ -64,7 +64,7 @@ fun MaterialTheme(
         LocalColorScheme provides rememberedColorScheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
-        LocalTypography provides typography
+        LocalTypography provides typography,
     ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
@@ -98,7 +98,7 @@ internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectio
     return remember(primaryColor) {
         TextSelectionColors(
             handleColor = primaryColor,
-            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity)
+            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity),
         )
     }
 }

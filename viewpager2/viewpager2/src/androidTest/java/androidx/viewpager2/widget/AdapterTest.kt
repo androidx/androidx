@@ -62,7 +62,7 @@ class AdapterTest : BaseTest() {
                 expectedEventsForPage(0) // for setting the adapter
                     .plus(expectedEventsForPage(1)) // for going to page 1
                     .plus(expectedEventsForPage(0)) // for setting it again
-            )
+            ),
         )
     }
 
@@ -127,9 +127,9 @@ class AdapterTest : BaseTest() {
                 equalTo(
                     listOf(
                         OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
-                        OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
+                        OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event,
                     )
-                )
+                ),
             )
             test.viewPager.unregisterOnPageChangeCallback(recorder)
         }
@@ -147,7 +147,7 @@ class AdapterTest : BaseTest() {
             equalTo(
                 expectedEventsForPage(0) // for setting the adapter
                     .plus(expectedEventsForPage(0)) // for clearing it
-            )
+            ),
         )
     }
 
@@ -164,7 +164,7 @@ class AdapterTest : BaseTest() {
                 expectedEventsForPage(0) // for setting the adapter
                     .plus(expectedEventsForPage(1)) // for going to page 1
                     .plus(expectedEventsForPage(0)) // for clearing it
-            )
+            ),
         )
     }
 
@@ -179,7 +179,7 @@ class AdapterTest : BaseTest() {
             recorder.allEvents,
             equalTo(
                 expectedEventsForPage(0) // for populating the adapter
-            )
+            ),
         )
     }
 
@@ -200,7 +200,7 @@ class AdapterTest : BaseTest() {
                     .plus(expectedEventsForPage(0)) // for clearing it
                     .plus(expectedEventsForPage(0)) // for repopulating it
                     .plus(expectedEventsForPage(0)) // for clearing it again
-            )
+            ),
         )
     }
 
@@ -248,7 +248,7 @@ class AdapterTest : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -265,7 +265,7 @@ class AdapterTest : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             synchronized(events) {
                 events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))

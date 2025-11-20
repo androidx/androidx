@@ -34,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
@@ -62,10 +64,10 @@ fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
+                modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -83,11 +85,11 @@ fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled:
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+                modifier = Modifier.size(ButtonDefaults.LargeIconSize),
             )
         },
         contentPadding = ButtonDefaults.ButtonWithLargeIconContentPadding,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -95,7 +97,7 @@ fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled:
 @Composable
 fun ButtonExtraLargeIconSample(
     modifier: Modifier = Modifier.fillMaxWidth(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     // When customising the icon size, it is recommended to also specify
     // the associated content padding
@@ -108,11 +110,33 @@ fun ButtonExtraLargeIconSample(
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSize)
+                modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSize),
             )
         },
         contentPadding = ButtonDefaults.ButtonWithExtraLargeIconContentPadding,
-        modifier = modifier
+        modifier = modifier,
+    )
+}
+
+@Sampled
+@Composable
+fun ButtonWithImageSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {
+    Button(
+        onClick = { /* Do something */ },
+        containerPainter =
+            ButtonDefaults.containerPainter(
+                image = painterResource(id = R.drawable.backgroundimage)
+            ),
+        enabled = enabled,
+        label = { Text("Button") },
+        secondaryLabel = { Text("Secondary label") },
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_favorite_rounded),
+                contentDescription = "Favorite icon",
+            )
+        },
+        modifier = modifier,
     )
 }
 
@@ -137,7 +161,7 @@ fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
+                modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
         modifier = modifier,
@@ -167,10 +191,10 @@ fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
+                modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -195,7 +219,7 @@ fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
+                modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
         modifier = modifier,
@@ -225,10 +249,10 @@ fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
+                modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -241,7 +265,7 @@ fun CompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
+                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
             )
         },
         modifier = modifier,
@@ -255,14 +279,19 @@ fun CompactButtonSample(modifier: Modifier = Modifier) {
 fun CompactButtonWithOnLongClickSample(
     onClickHandler: () -> Unit,
     onLongClickHandler: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     CompactButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
         onLongClickLabel = "Long click",
         label = { Text("Long clickable") },
-        modifier = modifier,
+        modifier =
+            modifier.semantics {
+                // Also override the 'click label' to say 'Double tap to press' instead of
+                // the usual 'Double tap to activate'.
+                onClick("press") { false }
+            },
     )
 }
 
@@ -275,7 +304,7 @@ fun FilledTonalCompactButtonSample(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
+                modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
             )
         },
         colors = ButtonDefaults.filledTonalButtonColors(),
@@ -312,13 +341,13 @@ fun OutlinedCompactButtonSample(modifier: Modifier = Modifier) {
                 Icon(
                     Icons.Filled.KeyboardArrowUp,
                     contentDescription = "Collapse",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
+                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
                 )
             } else {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
                     contentDescription = "Expand",
-                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize)
+                    modifier = Modifier.size(ButtonDefaults.ExtraSmallIconSize),
                 )
             }
         }

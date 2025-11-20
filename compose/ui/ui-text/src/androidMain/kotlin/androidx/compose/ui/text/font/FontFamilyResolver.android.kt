@@ -38,7 +38,7 @@ import kotlin.coroutines.CoroutineContext
 fun createFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
-        AndroidFontResolveInterceptor(context)
+        AndroidFontResolveInterceptor(context),
     )
 }
 
@@ -67,13 +67,13 @@ fun createFontFamilyResolver(context: Context): FontFamily.Resolver {
  */
 fun createFontFamilyResolver(
     context: Context,
-    coroutineContext: CoroutineContext
+    coroutineContext: CoroutineContext,
 ): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
         AndroidFontResolveInterceptor(context),
         GlobalTypefaceRequestCache,
-        FontListFontFamilyTypefaceAdapter(GlobalAsyncTypefaceCache, coroutineContext)
+        FontListFontFamilyTypefaceAdapter(GlobalAsyncTypefaceCache, coroutineContext),
     )
 }
 
@@ -88,7 +88,7 @@ fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
         typefaceRequestCache = TypefaceRequestCache(),
-        fontListFontFamilyTypefaceAdapter = FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache())
+        fontListFontFamilyTypefaceAdapter = FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
     )
 }
 
@@ -110,7 +110,7 @@ fun FontFamily.Resolver.resolveAsTypeface(
     fontFamily: FontFamily? = null,
     fontWeight: FontWeight = FontWeight.Normal,
     fontStyle: FontStyle = FontStyle.Normal,
-    fontSynthesis: FontSynthesis = FontSynthesis.All
+    fontSynthesis: FontSynthesis = FontSynthesis.All,
 ): State<Typeface> {
     // this unchecked cast is done here to avoid callers having to do it at every call site
     @Suppress("UNCHECKED_CAST")

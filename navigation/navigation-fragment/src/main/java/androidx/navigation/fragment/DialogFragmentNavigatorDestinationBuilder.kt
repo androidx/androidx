@@ -34,7 +34,7 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your DialogFragmentDestination instead",
-    ReplaceWith("dialog<F>(route = id.toString())")
+    ReplaceWith("dialog<F>(route = id.toString())"),
 )
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(@IdRes id: Int): Unit =
     dialog<F>(id) {}
@@ -48,17 +48,17 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(@IdRes id:
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your DialogFragmentDestination instead",
-    ReplaceWith("dialog<F>(route = id.toString()) { builder.invoke() }")
+    ReplaceWith("dialog<F>(route = id.toString()) { builder.invoke() }"),
 )
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
-    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DialogFragmentNavigatorDestinationBuilder(
                 provider[DialogFragmentNavigator::class],
                 id,
-                F::class
+                F::class,
             )
             .apply(builder)
     )
@@ -79,13 +79,13 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(route: Str
  */
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     route: String,
-    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DialogFragmentNavigatorDestinationBuilder(
                 provider[DialogFragmentNavigator::class],
                 route,
-                F::class
+                F::class,
             )
             .apply(builder)
     )
@@ -98,7 +98,7 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
  *   [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
 ): Unit = dialog<F, T>(typeMap) {}
 
 /**
@@ -111,14 +111,14 @@ public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.
  */
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DialogFragmentNavigatorDestinationBuilder(
                 provider[DialogFragmentNavigator::class],
                 T::class,
                 typeMap,
-                F::class
+                F::class,
             )
             .apply(builder)
     )
@@ -144,12 +144,12 @@ public class DialogFragmentNavigatorDestinationBuilder :
         ReplaceWith(
             "DialogFragmentNavigatorDestinationBuilder(navigator, route = id.toString(), " +
                 "fragmentClass) "
-        )
+        ),
     )
     public constructor(
         navigator: DialogFragmentNavigator,
         @IdRes id: Int,
-        fragmentClass: KClass<out DialogFragment>
+        fragmentClass: KClass<out DialogFragment>,
     ) : super(navigator, id) {
         this.fragmentClass = fragmentClass
     }
@@ -166,7 +166,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
     public constructor(
         navigator: DialogFragmentNavigator,
         route: String,
-        fragmentClass: KClass<out DialogFragment>
+        fragmentClass: KClass<out DialogFragment>,
     ) : super(navigator, route) {
         this.fragmentClass = fragmentClass
     }
@@ -186,7 +186,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
         navigator: DialogFragmentNavigator,
         route: KClass<out Any>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
-        fragmentClass: KClass<out DialogFragment>
+        fragmentClass: KClass<out DialogFragment>,
     ) : super(navigator, route, typeMap) {
         this.fragmentClass = fragmentClass
     }

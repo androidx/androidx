@@ -11,13 +11,12 @@ public object InnerSdkValueConverter {
                 floatingPoint = parcelable.floatingPoint,
                 hugeNumber = parcelable.hugeNumber,
                 myInterface = MyInterfaceClientProxy(parcelable.myInterface),
-                myUiInterface = MyUiInterfaceClientProxy(parcelable.myUiInterface.binder,
-                        parcelable.myUiInterface.coreLibInfo),
+                myUiInterface = MyUiInterfaceClientProxy(parcelable.myUiInterface.binder, parcelable.myUiInterface.coreLibInfo),
+                mySharedUiInterface = MySharedUiInterfaceClientProxy(parcelable.mySharedUiInterface.binder, parcelable.mySharedUiInterface.coreLibInfo),
                 numbers = parcelable.numbers.toList(),
                 bundle = parcelable.bundle,
                 maybeNumber = parcelable.maybeNumber.firstOrNull(),
-                maybeInterface = parcelable.maybeInterface?.let { notNullValue ->
-                        MyInterfaceClientProxy(notNullValue) },
+                maybeInterface = parcelable.maybeInterface?.let { notNullValue -> MyInterfaceClientProxy(notNullValue) },
                 maybeBundle = parcelable.maybeBundle)
         return annotatedValue
     }
@@ -32,15 +31,12 @@ public object InnerSdkValueConverter {
         parcelable.floatingPoint = annotatedValue.floatingPoint
         parcelable.hugeNumber = annotatedValue.hugeNumber
         parcelable.myInterface = (annotatedValue.myInterface as MyInterfaceClientProxy).remote
-        parcelable.myUiInterface =
-                IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((annotatedValue.myUiInterface
-                as MyUiInterfaceClientProxy).coreLibInfo, annotatedValue.myUiInterface.remote)
+        parcelable.myUiInterface = IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((annotatedValue.myUiInterface as MyUiInterfaceClientProxy).coreLibInfo, annotatedValue.myUiInterface.remote)
+        parcelable.mySharedUiInterface = IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((annotatedValue.mySharedUiInterface as MySharedUiInterfaceClientProxy).coreLibInfo, annotatedValue.mySharedUiInterface.remote)
         parcelable.numbers = annotatedValue.numbers.toIntArray()
         parcelable.bundle = annotatedValue.bundle
-        parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else
-                intArrayOf(annotatedValue.maybeNumber)
-        parcelable.maybeInterface = annotatedValue.maybeInterface?.let { notNullValue ->
-                (notNullValue as MyInterfaceClientProxy).remote }
+        parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else intArrayOf(annotatedValue.maybeNumber)
+        parcelable.maybeInterface = annotatedValue.maybeInterface?.let { notNullValue -> (notNullValue as MyInterfaceClientProxy).remote }
         parcelable.maybeBundle = annotatedValue.maybeBundle
         return parcelable
     }

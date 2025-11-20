@@ -16,7 +16,6 @@
 
 package androidx.test.uiautomator.testapp;
 
-import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -25,7 +24,7 @@ import android.widget.RelativeLayout;
 
 import org.jspecify.annotations.Nullable;
 
-public class VerticalScrollTestActivity extends Activity {
+public class VerticalScrollTestActivity extends TestActivity {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

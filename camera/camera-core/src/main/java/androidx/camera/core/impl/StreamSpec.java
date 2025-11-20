@@ -72,6 +72,9 @@ public abstract class StreamSpec {
      */
     public abstract @NonNull DynamicRange getDynamicRange();
 
+    /** Returns the session type associated with this stream. */
+    public abstract int getSessionType();
+
     /**
      * Returns the expected frame rate range for the stream associated with this stream
      * specification.
@@ -96,6 +99,7 @@ public abstract class StreamSpec {
         return new AutoValue_StreamSpec.Builder()
                 .setResolution(resolution)
                 .setOriginalConfiguredResolution(resolution)
+                .setSessionType(SessionConfig.DEFAULT_SESSION_TYPE)
                 .setExpectedFrameRateRange(FRAME_RATE_RANGE_UNSPECIFIED)
                 .setDynamicRange(DynamicRange.SDR)
                 .setZslDisabled(false);
@@ -133,6 +137,12 @@ public abstract class StreamSpec {
          */
         public abstract @NonNull Builder setOriginalConfiguredResolution(@NonNull Size resolution);
 
+        /**
+         * Sets the session type.
+         *
+         * <p>If not set, the default session type is {@link SessionConfig#DEFAULT_SESSION_TYPE}.
+         */
+        public abstract @NonNull Builder setSessionType(int sessionType);
         /**
          * Sets the dynamic range.
          *

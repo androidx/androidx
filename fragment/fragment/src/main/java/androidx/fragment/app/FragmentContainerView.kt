@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.FrameLayout
-import androidx.annotation.RequiresApi
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -100,7 +99,7 @@ public class FragmentContainerView : FrameLayout {
     public constructor(
         context: Context,
         attrs: AttributeSet?,
-        defStyleAttr: Int = 0
+        defStyleAttr: Int = 0,
     ) : super(context, attrs, defStyleAttr) {
         if (attrs != null) {
             var name = attrs.classAttribute
@@ -123,7 +122,7 @@ public class FragmentContainerView : FrameLayout {
     internal constructor(
         context: Context,
         attrs: AttributeSet,
-        fm: FragmentManager
+        fm: FragmentManager,
     ) : super(context, attrs) {
         var name = attrs.classAttribute
         var tag: String? = null
@@ -183,7 +182,6 @@ public class FragmentContainerView : FrameLayout {
         applyWindowInsetsListener = listener
     }
 
-    @RequiresApi(20)
     public override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets = insets
 
     /**
@@ -191,13 +189,12 @@ public class FragmentContainerView : FrameLayout {
      *
      * The sys ui flags must be set to enable extending the layout into the window insets.
      */
-    @RequiresApi(20)
     public override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets)
         val dispatchInsets =
             if (applyWindowInsetsListener != null) {
                 WindowInsetsCompat.toWindowInsetsCompat(
-                    Api20Impl.onApplyWindowInsets(applyWindowInsetsListener!!, this, insets)
+                    applyWindowInsetsListener!!.onApplyWindowInsets(this, insets)
                 )
             } else {
                 ViewCompat.onApplyWindowInsets(this, insetsCompat)
@@ -327,13 +324,4 @@ public class FragmentContainerView : FrameLayout {
     // of F is wrong
     public fun <F : Fragment?> getFragment(): F =
         FragmentManager.findFragmentManager(this).findFragmentById(this.id) as F
-
-    @RequiresApi(20)
-    internal object Api20Impl {
-        fun onApplyWindowInsets(
-            onApplyWindowInsetsListener: OnApplyWindowInsetsListener,
-            v: View,
-            insets: WindowInsets
-        ): WindowInsets = onApplyWindowInsetsListener.onApplyWindowInsets(v, insets)
-    }
 }

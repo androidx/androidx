@@ -18,7 +18,6 @@ package androidx.pdf.view
 
 import android.graphics.Point
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -120,15 +119,15 @@ class PdfViewRenderingTest {
 /** Create, measure, and layout a [PdfView] at the specified [width] and [height] */
 private fun setupPdfView(width: Int, height: Int, fakePdfDocument: FakePdfDocument?) {
     PdfViewTestActivity.onCreateCallback = { activity ->
-        val container = FrameLayout(activity)
-        container.addView(
-            PdfView(activity).apply {
-                pdfDocument = fakePdfDocument
-                id = PDF_VIEW_ID
-            },
-            ViewGroup.LayoutParams(width, height)
-        )
-        activity.setContentView(container)
+        with(activity) {
+            container.addView(
+                PdfView(activity).apply {
+                    pdfDocument = fakePdfDocument
+                    id = PDF_VIEW_ID
+                },
+                ViewGroup.LayoutParams(width, height),
+            )
+        }
     }
 }
 

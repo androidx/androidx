@@ -35,7 +35,7 @@ class GetCustomCredentialOptionTest {
     fun constructor_emptyType_throws() {
         Assert.assertThrows(
             "Expected empty type to throw IAE",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             GetCustomCredentialOption("", Bundle(), Bundle(), false, false)
         }
@@ -66,7 +66,7 @@ class GetCustomCredentialOptionTest {
                 true,
                 false,
                 emptySet(),
-                expectedOverwrittenPriorityHint
+                expectedOverwrittenPriorityHint,
             )
 
         assertThat(customCredentialOption.typePriorityHint)
@@ -87,7 +87,7 @@ class GetCustomCredentialOptionTest {
         val expectedPriorityCategoryValue = EXPECTED_CUSTOM_DEFAULT_PRIORITY
         expectedBundle.putInt(
             CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-            expectedPriorityCategoryValue
+            expectedPriorityCategoryValue,
         )
 
         val option =
@@ -97,7 +97,7 @@ class GetCustomCredentialOptionTest {
                 expectedCandidateQueryDataBundle,
                 expectedSystemProvider,
                 expectedAutoSelectAllowed,
-                expectedAllowedProviders
+                expectedAllowedProviders,
             )
 
         assertThat(option.type).isEqualTo(expectedType)
@@ -129,7 +129,7 @@ class GetCustomCredentialOptionTest {
                 expectedSystemProvider,
                 expectedAutoSelectAllowed,
                 expectedAllowedProviders,
-                expectedPriorityHint
+                expectedPriorityHint,
             )
 
         val convertedOption =
@@ -138,7 +138,7 @@ class GetCustomCredentialOptionTest {
                 option.requestData,
                 option.candidateQueryData,
                 option.isSystemProviderRequired,
-                option.allowedProviders
+                option.allowedProviders,
             )
 
         assertThat(convertedOption).isInstanceOf(GetCustomCredentialOption::class.java)
@@ -175,7 +175,7 @@ class GetCustomCredentialOptionTest {
                 expectedSystemProvider,
                 expectedAutoSelectAllowed,
                 expectedAllowedProviders,
-                expectedPriorityHint
+                expectedPriorityHint,
             )
 
         val convertedOption =
@@ -183,7 +183,7 @@ class GetCustomCredentialOptionTest {
                 android.credentials.CredentialOption.Builder(
                         option.type,
                         option.requestData,
-                        option.candidateQueryData
+                        option.candidateQueryData,
                     )
                     .setAllowedProviders(option.allowedProviders)
                     .setIsSystemProviderRequired(option.isSystemProviderRequired)

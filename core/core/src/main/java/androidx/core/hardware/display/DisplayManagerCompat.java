@@ -147,7 +147,7 @@ public final class DisplayManagerCompat {
      */
     private static Display[] computeBuiltInDisplays(DisplayManager displayManager) {
         final Display[] allDisplays;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             allDisplays = displayManager
                     .getDisplays(DISPLAY_CATEGORY_ALL);
 

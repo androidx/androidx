@@ -26,7 +26,7 @@ import androidx.core.os.LocaleListCompat
 class LocalesActivityTestRule<T : AppCompatActivity>(
     activityClazz: Class<T>,
     initialTouchMode: Boolean = false,
-    launchActivity: Boolean = true
+    launchActivity: Boolean = true,
 ) : androidx.test.rule.ActivityTestRule<T>(activityClazz, initialTouchMode, launchActivity) {
     override fun beforeActivityLaunched() {
         initCustomLocaleList()

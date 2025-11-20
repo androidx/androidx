@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
-import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -36,13 +35,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class FrameCaptureTests {
     private val testScope = TestScope()
     private val testContext = ApplicationProvider.getApplicationContext() as Context
@@ -57,13 +57,13 @@ class FrameCaptureTests {
         CameraStream.Config.create(
             Size(640, 480),
             StreamFormat.YUV_420_888,
-            imageSourceConfig = ImageSourceConfig(capacity = 10)
+            imageSourceConfig = ImageSourceConfig(capacity = 10),
         )
 
     private val graphConfig =
         CameraGraph.Config(
             camera = cameraMetadata.camera,
-            streams = listOf(viewfinderStreamConfig, jpegStreamConfig)
+            streams = listOf(viewfinderStreamConfig, jpegStreamConfig),
         )
 
     private val cameraGraphSimulator = cameraPipeSimulator.createCameraGraphSimulator(graphConfig)
@@ -81,6 +81,11 @@ class FrameCaptureTests {
         cameraGraphSimulator.initializeSurfaces()
         cameraGraphSimulator.simulateCameraStarted() // Simulate the camera starting successfully
         assertThat(cameraGraph.graphState.value).isEqualTo(GraphStateStarted)
+    }
+
+    @After
+    fun tearDown() {
+        cameraPipeSimulator.close()
     }
 
     @Test
@@ -144,7 +149,7 @@ class FrameCaptureTests {
             // cameraGraph?
 
             advanceUntilIdle()
-            assertThat(frameCaptureJob.isCompleted) // Ensure verification is complete
+            assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete
             cameraGraphSimulator.close()
         }
 }

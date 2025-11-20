@@ -30,6 +30,7 @@ import androidx.appcompat.test.R;
 import androidx.test.espresso.UiController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
@@ -63,11 +64,13 @@ public class AppCompatSpinnerRotationTest {
         mActivity = mActivityTestRule.getActivity();
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     @Test
     public void testChangeOrientationDialogPopupPersists() {
         verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     @Test
     public void testChangeOrientationDropdownPopupPersists() {
         verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup);

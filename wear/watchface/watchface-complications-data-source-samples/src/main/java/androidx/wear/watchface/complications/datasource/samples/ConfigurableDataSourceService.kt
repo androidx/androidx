@@ -27,16 +27,16 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 class ConfigurableDataSourceService : ComplicationDataSourceService() {
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         val value =
             getSharedPreferences(ConfigActivity.SHARED_PREF_NAME, 0)
                 .getInt(
                     ConfigActivity.getKey(
                         request.complicationInstanceId,
-                        ConfigActivity.SHARED_PREF_KEY
+                        ConfigActivity.SHARED_PREF_KEY,
                     ),
-                    DEFAULT_VALUE
+                    DEFAULT_VALUE,
                 )
 
         listener.onComplicationData(makeComplicationData(value))
@@ -51,7 +51,7 @@ class ConfigurableDataSourceService : ComplicationDataSourceService() {
     private fun makeComplicationData(value: Int): ComplicationData {
         return ShortTextComplicationData.Builder(
                 plainText(value.toString()),
-                ComplicationText.EMPTY
+                ComplicationText.EMPTY,
             )
             .build()
     }

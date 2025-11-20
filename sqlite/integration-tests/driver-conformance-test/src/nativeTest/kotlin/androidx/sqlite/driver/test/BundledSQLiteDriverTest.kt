@@ -34,6 +34,8 @@ class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
         return BundledSQLiteDriver()
     }
 
+    override fun getTestExtensionPath(): String = getExtensionFileName()
+
     @BeforeTest
     fun before() {
         deleteDatabaseFile()

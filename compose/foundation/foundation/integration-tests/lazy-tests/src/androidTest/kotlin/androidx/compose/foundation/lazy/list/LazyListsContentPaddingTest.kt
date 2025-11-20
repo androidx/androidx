@@ -79,7 +79,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                 modifier = Modifier.requiredSize(containerSize).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
                 contentPadding =
-                    PaddingValues(mainAxis = largePaddingSize, crossAxis = smallPaddingSize)
+                    PaddingValues(mainAxis = largePaddingSize, crossAxis = smallPaddingSize),
             ) {
                 items(listOf(1)) {
                     Spacer(
@@ -113,7 +113,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             LazyColumnOrRow(
                 modifier = Modifier.requiredSize(itemSize * 2).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(mainAxis = itemSize)
+                contentPadding = PaddingValues(mainAxis = itemSize),
             ) {
                 items(listOf(1)) {
                     Spacer(
@@ -140,7 +140,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             LazyColumnOrRow(
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(mainAxis = padding)
+                contentPadding = PaddingValues(mainAxis = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -170,7 +170,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             LazyColumnOrRow(
                 modifier = Modifier.requiredSize(itemSize + padding * 2).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(mainAxis = padding)
+                contentPadding = PaddingValues(mainAxis = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -197,7 +197,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             LazyColumnOrRow(
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(mainAxis = padding)
+                contentPadding = PaddingValues(mainAxis = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -231,7 +231,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             LazyColumnOrRow(
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(mainAxis = padding)
+                contentPadding = PaddingValues(mainAxis = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -259,7 +259,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                             beforeContentCrossAxis = 2.dp,
                             beforeContent = 4.dp,
                             afterContentCrossAxis = 6.dp,
-                            afterContent = 8.dp
+                            afterContent = 8.dp,
                         )
                 ) {
                     items(listOf(1)) { Spacer(Modifier.requiredSize(itemSize).testTag(ItemTag)) }
@@ -292,7 +292,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                             beforeContentCrossAxis = 2.dp,
                             beforeContent = 4.dp,
                             afterContentCrossAxis = 6.dp,
-                            afterContent = 8.dp
+                            afterContent = 8.dp,
                         )
                 ) {}
             }
@@ -316,7 +316,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                             beforeContentCrossAxis = 2.dp,
                             beforeContent = 4.dp,
                             afterContentCrossAxis = 6.dp,
-                            afterContent = 8.dp
+                            afterContent = 8.dp,
                         )
                 ) {
                     items(0) {}
@@ -407,7 +407,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize + smallPaddingSize * 2)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = smallPaddingSize)
+                    contentPadding = PaddingValues(mainAxis = smallPaddingSize),
                 ) {
                     items(2) { Box(Modifier.testTag("$it").fillParentMaxSize()) }
                 }
@@ -452,7 +452,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize)
+                    contentPadding = PaddingValues(mainAxis = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -478,7 +478,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize)
+                    contentPadding = PaddingValues(mainAxis = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -507,7 +507,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize)
+                    contentPadding = PaddingValues(mainAxis = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -536,7 +536,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize)
+                    contentPadding = PaddingValues(mainAxis = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -566,7 +566,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize)
+                    contentPadding = PaddingValues(mainAxis = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -593,7 +593,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize * 2)
+                    contentPadding = PaddingValues(mainAxis = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -617,7 +617,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize * 2)
+                    contentPadding = PaddingValues(mainAxis = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -646,7 +646,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize * 2)
+                    contentPadding = PaddingValues(mainAxis = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -677,7 +677,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize * 2)
+                    contentPadding = PaddingValues(mainAxis = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -709,7 +709,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             Box(modifier = Modifier.testTag(ContainerTag).size(itemSize * 1.5f)) {
                 LazyColumnOrRow(
                     state = state,
-                    contentPadding = PaddingValues(mainAxis = itemSize * 2)
+                    contentPadding = PaddingValues(mainAxis = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -740,7 +740,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
                 LazyColumnOrRow(
                     modifier = Modifier.testTag("list").mainAxisSize(itemSize * 2),
                     state = state,
-                    contentPadding = padding
+                    contentPadding = padding,
                 ) {
                     items(4) {
                         Box(Modifier.testTag("$it").background(Color.Red).size(itemSize)) {

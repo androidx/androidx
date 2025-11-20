@@ -18,7 +18,6 @@ package androidx.camera.video.internal.audio
 
 import android.media.AudioFormat
 import android.media.MediaRecorder
-import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
@@ -35,7 +34,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(sdk = [Config.ALL_SDKS])
 class BufferedAudioStreamTest {
 
     companion object {
@@ -59,7 +58,8 @@ class BufferedAudioStreamTest {
         val audioSettings =
             AudioSettings.builder()
                 .setAudioSource(AUDIO_SOURCE)
-                .setSampleRate(SAMPLE_RATE)
+                .setCaptureSampleRate(SAMPLE_RATE)
+                .setEncodeSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)
                 .setAudioFormat(AUDIO_FORMAT)
                 .build()

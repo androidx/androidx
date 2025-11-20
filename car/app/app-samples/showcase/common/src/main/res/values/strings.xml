@@ -293,6 +293,25 @@
   <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
   <string name="short_msg_template_demo_title">Short Message Template Demo</string>
 
+    <!-- SectionedItemTemplateDemo -->
+    <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
+
+  <!-- SectionedItemAlphaJumpDemo -->
+  <string name="sectioned_item_alpha_jump_demo_title">Sectioned Item AlphaJump enabled Demo</string>
+  <string name="sectioned_item_template_radio_button_section_title">Radio Button Section</string>
+  <string name="sectioned_item_template_toggle_section_title">Toggle Section</string>
+  <string name="sectioned_item_template_lots_of_rows_section_title">Lots of Rows Section</string>
+  <string name="sectioned_item_template_grid_item_section_title">Grid Item Section</string>
+
+    <!--SectionedItemSimpleListDemoScreen -->
+    <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
+    <string name="sectioned_item_list_one_title">List 1</string>
+    <string name="sectioned_item_list_two_title">List 2</string>
+    <string name="sectioned_item_list_subtext">Subtext under each list</string>
+
+    <!--EndImageAndActionsDemo -->
+    <string name="end_image_and_action_demo_title">End Image and Actions Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 
@@ -412,13 +431,6 @@
   <string name="secondary_actions_decoration_test_subtitle">The row can also be selected</string>
   <string name="secondary_action_toast">Secondary Action is selected</string>
   <string name="row_primary_action_toast">Row primary action is selected</string>
-
-
-  <!--SectionedItemListDemoScreen -->
-  <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
-  <string name="sectioned_item_list_one_title">List 1</string>
-  <string name="sectioned_item_list_two_title">List 2</string>
-  <string name="sectioned_item_list_subtext">Subtext under each list</string>
 
   <!-- EmptyListDemoScreen -->
   <string name="empty_list_demo_title">Empty List Demo</string>

@@ -42,7 +42,7 @@ fun onCurrentPage(): ViewInteraction {
     return onView(
         allOf(
             withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
-            isDisplayingAtLeast(50)
+            isDisplayingAtLeast(50),
         )
     )
 }
@@ -55,7 +55,7 @@ fun onTab(withText: String): ViewInteraction {
     return onView(
         allOf(
             isDescendantOfA(isAssignableFrom(TabLayout::class.java)),
-            withChild(withText(withText))
+            withChild(withText(withText)),
         )
     )
 }

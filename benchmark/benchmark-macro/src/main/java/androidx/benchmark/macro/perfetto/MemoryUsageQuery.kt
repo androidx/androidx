@@ -46,7 +46,7 @@ internal object MemoryUsageQuery {
     fun getMemoryUsageKb(
         session: TraceProcessor.Session,
         targetPackageName: String,
-        mode: Mode
+        mode: Mode,
     ): Map<MemoryUsageMetric.SubMetric, Int>? {
         val queryResultIterator =
             session.query(query = getQuery(targetPackageName = targetPackageName, mode))

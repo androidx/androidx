@@ -31,8 +31,8 @@ class AssertionErrorMessagesTest {
                     buildErrorReasonForCountMismatch(
                         matcherDescription = "testTag = 'my-node'",
                         expectedCount = 0,
-                        actualCount = 1
-                    )
+                        actualCount = 1,
+                    ),
             )
 
         assertThat(resultMessage)
@@ -52,8 +52,8 @@ class AssertionErrorMessagesTest {
                     buildErrorReasonForCountMismatch(
                         matcherDescription = "testTag = 'my-node'",
                         expectedCount = 2,
-                        actualCount = 0
-                    )
+                        actualCount = 0,
+                    ),
             )
 
         assertThat(resultMessage)
@@ -71,7 +71,7 @@ class AssertionErrorMessagesTest {
         val resultMessage =
             buildGeneralErrorMessage(
                 errorMessage = "Failed to match the condition: (testTag = 'my-node')",
-                node = node
+                node = node,
             )
 
         assertThat(resultMessage)
@@ -89,7 +89,7 @@ class AssertionErrorMessagesTest {
         val resultMessage =
             buildGeneralErrorMessage(
                 errorMessage = "Failed to match the condition: (testTag = 'my-node')",
-                nodes = listOf(node1, node2)
+                nodes = listOf(node1, node2),
             )
 
         assertThat(resultMessage)

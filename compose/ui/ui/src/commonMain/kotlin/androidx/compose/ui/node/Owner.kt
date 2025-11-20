@@ -19,10 +19,10 @@ package androidx.compose.ui.node
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.draganddrop.DragAndDropManager
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.layout.Placeable
@@ -145,12 +144,26 @@ internal interface Owner : PositionCalculator {
     /** Provide information about the window that hosts this [Owner]. */
     val windowInfo: WindowInfo
 
+    /**
+     * Sets the [RetainedValuesStore] for the composition. On Android, this is a lifecycle-aware
+     * RetainedValuesStore that persists values across configuration changes and activity
+     * recreations. [androidx.compose.runtime.retain.ForgetfulRetainedValuesStore] is a reasonable
+     * default for platforms without window-level retain scenarios.
+     *
+     * This store is managed outside of the composition and does not receive the default calls to
+     * [RetainedValuesStore.onContentEnteredComposition] and
+     * [RetainedValuesStore.onContentExitComposition] because it is installed directly through
+     * [androidx.compose.runtime.retain.LocalRetainedValuesStore]. The Owner is responsible for
+     * tracking the content presence w.r.t. this store.
+     */
+    val retainedValuesStore: RetainedValuesStore
+
     /** Provides a queryable and observable index of nodes' bounding rectangles */
     val rectManager: RectManager
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
-        replaceWith = ReplaceWith("fontFamilyResolver")
+        replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("DEPRECATION")
     val fontLoader: Font.ResourceLoader
@@ -174,7 +187,7 @@ internal interface Owner : PositionCalculator {
         layoutNode: LayoutNode,
         affectsLookahead: Boolean = false,
         forceRequest: Boolean = false,
-        scheduleMeasureAndLayout: Boolean = true
+        scheduleMeasureAndLayout: Boolean = true,
     )
 
     /**
@@ -187,7 +200,7 @@ internal interface Owner : PositionCalculator {
     fun onRequestRelayout(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean = false,
-        forceRequest: Boolean = false
+        forceRequest: Boolean = false,
     )
 
     /**
@@ -230,13 +243,6 @@ internal interface Owner : PositionCalculator {
      */
     fun calculateLocalPosition(positionInWindow: Offset): Offset
 
-    /**
-     * Ask the system to provide focus to this owner.
-     *
-     * @return true if the system granted focus to this owner. False otherwise.
-     */
-    fun requestFocus(): Boolean
-
     /** Ask the system to request autofill values to this owner. */
     fun requestAutofill(node: LayoutNode)
 
@@ -269,7 +275,6 @@ internal interface Owner : PositionCalculator {
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer? = null,
-        forceUseOldLayers: Boolean = false
     ): OwnedLayer
 
     /**
@@ -303,9 +308,6 @@ internal interface Owner : PositionCalculator {
      * platform view hierarchy.
      */
     @InternalComposeUiApi fun onInteropViewLayoutChange(view: InteropView)
-
-    /** The [FocusDirection] represented by the specified keyEvent. */
-    fun getFocusDirection(keyEvent: KeyEvent): FocusDirection?
 
     val measureIteration: Long
 
@@ -369,6 +371,26 @@ internal interface Owner : PositionCalculator {
      * (username, password etc) to remote viewer during screen share.
      */
     fun decrementSensitiveComponentCount() {}
+
+    /** Increments count of modifiers requesting to stop the screen from going to sleep */
+    fun incrementKeepScreenOnCount() {}
+
+    /** Decrements count of modifiers requesting to stop the screen from going to sleep */
+    fun decrementKeepScreenOnCount() {}
+
+    /** On Android it is only available when the view is attached. */
+    val outOfFrameExecutor: OutOfFrameExecutor?
+        get() = null
+
+    /** This can be used to Vote for a preferred frame rate. */
+    fun voteFrameRate(frameRate: Float) {}
+
+    /**
+     * Dispatches a callback when something in this hierarchy scrolls.
+     *
+     * @param offset Delta scrolled.
+     */
+    fun dispatchOnScrollChanged(delta: Offset) {}
 
     companion object {
         /**

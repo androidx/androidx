@@ -67,7 +67,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 Category.CORRECTNESS,
                 6,
                 Severity.ERROR,
-                Implementation(UseRequireInsteadOfGet::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(UseRequireInsteadOfGet::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         private const val FRAGMENT_FQCN = "androidx.fragment.app.Fragment"
@@ -79,7 +79,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 "getFragmentManager",
                 "getHost",
                 "getParentFragment",
-                "getView"
+                "getView",
             )
         // Convert 'getArguments' to 'arguments'
         internal val REQUIRABLE_REFERENCES =
@@ -116,7 +116,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
             private fun checkReferenceExpression(
                 node: UExpression,
                 identifier: String,
-                resolveEnclosingClass: () -> PsiClass?
+                resolveEnclosingClass: () -> PsiClass?,
             ) {
                 if (identifier in REQUIRABLE_REFERENCES) {
                     // If this is a local variable do nothing
@@ -150,7 +150,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
             private fun checkForIssue(
                 node: UExpression,
                 targetMethodName: String,
-                targetExpression: String = targetMethodName
+                targetExpression: String = targetMethodName,
             ) {
                 // Note we go up potentially two parents - the first one may just be the qualified
                 // reference expression
@@ -163,7 +163,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         correctMethod(
                             parentSourceToReplace,
                             "$targetExpression!!",
-                            targetMethodName
+                            targetMethodName,
                         )
                     if (correctMethod == parentSourceToReplace.removeSingleParentheses()) {
                         correctMethod =
@@ -186,7 +186,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         val singleParameterSpecified =
                             isSingleParameterSpecified(
                                 enclosingMethodCall,
-                                nearestNonQualifiedReferenceParent
+                                nearestNonQualifiedReferenceParent,
                             )
 
                         if (singleParameterSpecified) {
@@ -204,7 +204,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                             report(
                                 nearestNonQualifiedReferenceParent,
                                 parentToReplace,
-                                correctMethod
+                                correctMethod,
                             )
                         }
                     }
@@ -213,7 +213,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
 
             private fun isSingleParameterSpecified(
                 enclosingMethodCall: PsiMethod,
-                nearestNonQualifiedRefParent: UCallExpression
+                nearestNonQualifiedRefParent: UCallExpression,
             ) =
                 enclosingMethodCall.parameterList.parametersCount == 1 ||
                     (isKotlin(nearestNonQualifiedRefParent.lang) &&
@@ -222,13 +222,13 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
             private fun correctMethod(
                 source: String,
                 targetExpression: String,
-                targetMethodName: String
+                targetMethodName: String,
             ): String {
                 return source
                     .removeSingleParentheses()
                     .replace(
                         targetExpression,
-                        "require${targetMethodName.removePrefix("get").capitalize(Locale.US)}()"
+                        "require${targetMethodName.removePrefix("get").capitalize(Locale.US)}()",
                     )
             }
 
@@ -236,7 +236,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
             private fun String.replaceFirstOccurrenceAfter(
                 oldValue: String,
                 newValue: String,
-                prefix: String
+                prefix: String,
             ): String = prefix + substringAfter(prefix).replaceFirst(oldValue, newValue)
 
             private fun report(node: UElement, targetExpression: String, correctMethod: String) {
@@ -250,7 +250,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         .text(targetExpression)
                         .with(correctMethod)
                         .autoFix()
-                        .build()
+                        .build(),
                 )
             }
         }

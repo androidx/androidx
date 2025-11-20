@@ -32,7 +32,6 @@ import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
-import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.benchmark.vmtrace.ArtTrace
 import java.io.File
 import java.io.FileOutputStream
@@ -57,13 +56,13 @@ sealed class Profiler() {
         val type: ProfilerOutput.Type,
         val outputRelativePath: String,
         val source: Profiler?,
-        val convertBeforeSync: (() -> Unit)? = null
+        val convertBeforeSync: (() -> Unit)? = null,
     ) {
 
         fun embedInPerfettoTrace(perfettoTracePath: String) {
             source?.embedInPerfettoTrace(
                 File(Outputs.outputDirectory, outputRelativePath),
-                File(perfettoTracePath)
+                File(perfettoTracePath),
             )
         }
 
@@ -73,7 +72,7 @@ sealed class Profiler() {
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
                     type = ProfilerOutput.Type.PerfettoTrace,
-                    source = null
+                    source = null,
                 )
 
             fun ofMethodTrace(label: String, absolutePath: String) =
@@ -81,7 +80,7 @@ sealed class Profiler() {
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
                     type = ProfilerOutput.Type.MethodTrace,
-                    source = null
+                    source = null,
                 )
 
             fun of(
@@ -89,14 +88,14 @@ sealed class Profiler() {
                 type: ProfilerOutput.Type,
                 outputRelativePath: String,
                 source: Profiler,
-                convertBeforeSync: (() -> Unit)? = null
+                convertBeforeSync: (() -> Unit)? = null,
             ) =
                 ResultFile(
                     label = label,
                     outputRelativePath = outputRelativePath,
                     type = type,
                     source = source,
-                    convertBeforeSync = convertBeforeSync
+                    convertBeforeSync = convertBeforeSync,
                 )
         }
     }
@@ -106,7 +105,7 @@ sealed class Profiler() {
     /** Start profiling only if expected trace duration is unlikely to trigger an ANR */
     fun startIfNotRiskingAnrDeadline(
         traceUniqueName: String,
-        estimatedDurationNs: Long
+        estimatedDurationNs: Long,
     ): ResultFile? {
         val estimatedMethodTraceDurNs =
             estimatedDurationNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
@@ -180,7 +179,7 @@ sealed class Profiler() {
                     "MethodSamplingSimpleperf" to StackSamplingSimpleperf,
                     "Method" to MethodTracing,
                     "Sampled" to StackSamplingLegacy,
-                    "ConnectedSampled" to ConnectedSampling
+                    "ConnectedSampled" to ConnectedSampling,
                 )
                 .mapKeys { it.key.lowercase() }[name.lowercase()]
 
@@ -212,7 +211,7 @@ internal fun startRuntimeMethodTracing(
                 outputRelativePath = traceFileName,
                 label = "Stack Sampling (legacy) Trace",
                 type = ProfilerOutput.Type.StackSamplingTrace,
-                source = profiler
+                source = profiler,
             )
             .also { Debug.startMethodTracingSampling(path, bufferSize, intervalUs) }
     } else {
@@ -220,7 +219,7 @@ internal fun startRuntimeMethodTracing(
                 outputRelativePath = traceFileName,
                 label = "Method Trace",
                 type = ProfilerOutput.Type.MethodTrace,
-                source = profiler
+                source = profiler,
             )
             .also {
                 // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version
@@ -246,7 +245,7 @@ internal object StackSamplingLegacy : Profiler() {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
             sampled = true,
-            profiler = this
+            profiler = this,
         )
     }
 
@@ -264,7 +263,7 @@ internal object MethodTracing : Profiler() {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "methodTracing"),
             sampled = false,
-            profiler = this
+            profiler = this,
         )
     }
 
@@ -277,41 +276,6 @@ internal object MethodTracing : Profiler() {
     override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
         ArtTrace(profilerTrace)
             .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append= */ true))
-    }
-
-    fun queryMetrics(session: TraceProcessor.Session): List<MetricResult> {
-        // NOTE: This query assumes that method trace only wraps a single measurement iteration
-        val row =
-            session
-                .query(
-                    """
-                    CREATE OR REPLACE PERFETTO FUNCTION is_unmeasured(slice_id INT)
-                        RETURNS INT AS
-                        SELECT MIN(1, COUNT(*))
-                        FROM ancestor_slice(${'$'}slice_id)
-                        WHERE
-                          NAME = '${ArtTrace.RUN_WITH_MEASUREMENT_DISABLED_FULLNAME}' OR
-                          NAME = 'java.lang.invoke.MethodType.makeImpl: (Ljava/lang/Class;[Ljava/lang/Class;Z)Ljava/lang/invoke/MethodType;';
-
-                    SELECT COUNT(*) as methodCount, is_unmeasured from (
-                      SELECT
-                        name,
-                        is_unmeasured(slice.id) AS is_unmeasured
-                      FROM slice
-                      WHERE track_id like (
-                        SELECT id FROM track WHERE name LIKE 'Instr:%(Method Trace)' OR name = 'main (Method Trace)'
-                      )
-                      AND is_unmeasured = false
-                    ) GROUP BY is_unmeasured
-                """
-                        .trimIndent()
-                )
-                .firstOrNull()
-        return if (row != null) {
-            listOf(MetricResult("methodCount", data = listOf(row.long("methodCount").toDouble())))
-        } else {
-            emptyList()
-        }
     }
 
     var hasBeenUsed: Boolean = false
@@ -402,7 +366,7 @@ internal object StackSamplingSimpleperf : Profiler() {
             outputRelativePath = outputRelativePath!!,
             type = ProfilerOutput.Type.StackSamplingTrace,
             source = this,
-            convertBeforeSync = this::convertBeforeSync
+            convertBeforeSync = this::convertBeforeSync,
         )
     }
 

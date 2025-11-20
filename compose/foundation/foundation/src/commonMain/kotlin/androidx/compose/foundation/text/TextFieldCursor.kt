@@ -40,7 +40,7 @@ internal fun Modifier.cursor(
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
     cursorBrush: Brush,
-    enabled: Boolean
+    enabled: Boolean,
 ) =
     if (enabled)
         composed {
@@ -89,7 +89,7 @@ internal fun Modifier.cursor(
                             start = Offset(cursorX, cursorRect.top),
                             end = Offset(cursorX, cursorRect.bottom),
                             alpha = cursorAlphaValue,
-                            strokeWidth = cursorWidth
+                            strokeWidth = cursorWidth,
                         )
                     }
                 }

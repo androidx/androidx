@@ -29,6 +29,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class LambdaActionTest {
     @Test
     fun siblingActionsHaveDifferentKeys() = runTest {

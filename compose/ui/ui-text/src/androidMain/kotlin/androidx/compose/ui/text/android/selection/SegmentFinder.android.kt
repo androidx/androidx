@@ -84,7 +84,7 @@ internal interface SegmentFinder {
  */
 internal class WordSegmentFinder(
     private val text: CharSequence,
-    private val wordIterator: WordIterator
+    private val wordIterator: WordIterator,
 ) : SegmentFinder {
     override fun previousStartBoundary(offset: Int): Int {
         var boundary = offset
@@ -195,7 +195,7 @@ internal class GraphemeClusterSegmentFinderUnderApi29(private val text: CharSequ
 @RequiresApi(29)
 internal class GraphemeClusterSegmentFinderApi29(
     private val text: CharSequence,
-    private val textPaint: TextPaint
+    private val textPaint: TextPaint,
 ) : GraphemeClusterSegmentFinder() {
     override fun previous(offset: Int): Int {
         // getTextRunCursor will return -1 or DONE when it can't find the previous cursor position.
@@ -210,7 +210,7 @@ internal class GraphemeClusterSegmentFinderApi29(
 
 internal fun createGraphemeClusterSegmentFinder(
     text: CharSequence,
-    textPaint: TextPaint
+    textPaint: TextPaint,
 ): SegmentFinder {
     return if (Build.VERSION.SDK_INT >= 29) {
         GraphemeClusterSegmentFinderApi29(text, textPaint)

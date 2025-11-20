@@ -52,16 +52,16 @@ class PrivacySandboxLibraryPluginTest {
             suffix =
                 """
                     android {
-                         namespace "test.privacysandboxlibrary"
-                         compileOptions {
+                        namespace "test.privacysandboxlibrary"
+                        compileOptions {
                             sourceCompatibility JavaVersion.VERSION_17
                             targetCompatibility JavaVersion.VERSION_17
-                         }
+                        }
                         kotlinOptions {
                             jvmTarget=17
                         }
                     }
-            """
+            """,
         )
 
         val myServiceSource =
@@ -83,7 +83,6 @@ class PrivacySandboxLibraryPluginTest {
                 """
             )
         }
-
         gradleRunner =
             GradleRunner.create().withProjectDir(projectSetup.rootDir).withPluginClasspath()
     }
@@ -93,8 +92,8 @@ class PrivacySandboxLibraryPluginTest {
      */
     @Test
     fun applyPlugin() {
-        val output = gradleRunner.withArguments("build", "--stacktrace").build()
-        assertEquals(output.task(":build")!!.outcome, TaskOutcome.SUCCESS)
+        val output = gradleRunner.withArguments("assemble", "--stacktrace").build()
+        assertEquals(output.task(":assemble")!!.outcome, TaskOutcome.SUCCESS)
         assertEquals(output.task(":kspDebugKotlin")!!.outcome, TaskOutcome.SUCCESS)
         val build = File(projectSetup.rootDir, "build")
         assertTrue(File(build, "generated/ksp/debug").exists())

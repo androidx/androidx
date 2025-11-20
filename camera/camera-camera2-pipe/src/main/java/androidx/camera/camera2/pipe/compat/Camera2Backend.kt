@@ -16,6 +16,12 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.content.Context
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.OutputConfiguration
+import android.os.Build
+import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -24,26 +30,41 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.ConfigQueryResult
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.config.Camera2ControllerComponent
 import androidx.camera.camera2.pipe.config.Camera2ControllerConfig
+import androidx.camera.camera2.pipe.config.CameraPipeContext
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import javax.inject.Inject
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 /** This is the default [CameraBackend] implementation for CameraPipe based on Camera2. */
 internal class Camera2Backend
 @Inject
 constructor(
+    private val threads: Threads,
     private val camera2DeviceCache: Camera2DeviceCache,
     private val camera2MetadataCache: Camera2MetadataCache,
     private val camera2DeviceManager: Camera2DeviceManager,
     private val camera2CameraControllerComponent: Camera2ControllerComponent.Builder,
-) : CameraBackend {
+    @CameraPipeContext private val cameraPipeContext: Context,
+) : CameraBackend, Camera2CameraController.ShutdownListener {
+    private val lock = Any()
+    @GuardedBy("lock") private val activeCameraControllers = mutableSetOf<CameraController>()
     override val id: CameraBackendId
         get() = CameraBackendId("CXCP-Camera2")
+
+    override val cameraIds: Flow<List<CameraId>>
+        get() = camera2DeviceCache.cameraIds
 
     override suspend fun getCameraIds(): List<CameraId> = camera2DeviceCache.getCameraIds()
 
@@ -70,12 +91,110 @@ constructor(
         camera2DeviceManager.closeAll()
     }
 
+    override fun prewarmIsConfigSupported(cameraId: CameraId) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return
+        }
+        threads.cameraPipeScope.launch {
+            camera2DeviceCache.getOrInitializeDeviceSetupCompat(cameraId)
+            camera2DeviceCache.getOrInitializeDeviceSetupWrapper(cameraId)
+        }
+    }
+
+    override suspend fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return ConfigQueryResult.UNKNOWN
+        }
+        // Lazily initialize and fetch the CameraDeviceSetupCompat for the camera. Can be slow if
+        // not already prewarmed.
+        val cameraDeviceSetupCompat =
+            camera2DeviceCache.getOrInitializeDeviceSetupCompat(graphConfig.camera)
+        val operatingMode =
+            when (graphConfig.sessionMode) {
+                CameraGraph.OperatingMode.NORMAL -> Camera2SessionTypes.SESSION_TYPE_REGULAR
+                CameraGraph.OperatingMode.HIGH_SPEED -> Camera2SessionTypes.SESSION_TYPE_HIGH_SPEED
+                CameraGraph.OperatingMode.EXTENSION -> {
+                    Log.info { "Unsupported session mode: ${graphConfig.sessionMode}" }
+                    return ConfigQueryResult.UNKNOWN
+                }
+                else -> graphConfig.sessionMode.mode
+            }
+        val sessionConfig =
+            Api35Compat.newSessionConfiguration(
+                operatingMode,
+                buildOutputConfiguration(graphConfig),
+            )
+
+        val cameraDeviceSetup: Camera2DeviceSetupWrapper? =
+            camera2DeviceCache.getOrInitializeDeviceSetupWrapper(graphConfig.camera)
+        val requestBuilder =
+            cameraDeviceSetup?.createCaptureRequest(graphConfig.sessionTemplate.value)
+
+        requestBuilder?.let {
+            for ((key, value) in graphConfig.sessionParameters) {
+                @Suppress("UNCHECKED_CAST")
+                (key as? CaptureRequest.Key<Any>)?.let { requestBuilder.set(it, value) }
+            }
+            Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
+        }
+        val configQueryResultValue =
+            cameraDeviceSetupCompat?.isSessionConfigurationSupported(sessionConfig)?.supported
+        if (configQueryResultValue != null) {
+            return ConfigQueryResult(configQueryResultValue)
+        }
+        return ConfigQueryResult.UNKNOWN
+    }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun buildOutputConfiguration(
+        graphConfig: CameraGraph.Config
+    ): List<OutputConfiguration> {
+        val outputConfigSet = mutableSetOf<OutputConfiguration>()
+        for (outputConfigs in graphConfig.streams) {
+            for (outputConfig in outputConfigs.outputs) {
+                AndroidOutputConfiguration.create(
+                        null,
+                        format = outputConfig.format.value,
+                        outputType = OutputStream.OutputType.SURFACE_DEFERRED_FOR_QUERY_ONLY,
+                        mirrorMode = outputConfig.mirrorMode,
+                        timestampBase = outputConfig.timestampBase,
+                        dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+                        streamUseCase = outputConfig.streamUseCase,
+                        sensorPixelModes = outputConfig.sensorPixelModes,
+                        size = outputConfig.size,
+                        physicalCameraId =
+                            if (outputConfig.camera != graphConfig.camera) {
+                                outputConfig.camera
+                            } else {
+                                null
+                            },
+                    )
+                    ?.unwrapAs(OutputConfiguration::class)
+                    ?.let { outputConfigSet.add(it) }
+            }
+        }
+        return outputConfigSet.toList()
+    }
+
     override fun disconnectAllAsync(): Deferred<Unit> {
         return camera2DeviceManager.closeAll()
     }
 
     override fun shutdownAsync(): Deferred<Unit> {
-        return camera2DeviceManager.closeAll()
+        Log.debug { "Camera2Backend#shutdownAsync" }
+        camera2DeviceCache.shutdown()
+        return threads.cameraPipeScope.async {
+            val controllers = synchronized(lock) { activeCameraControllers }
+            for (controller in controllers) {
+                Log.debug { "Camera2Backend#shutdownAsync: Awaiting closure from $controller" }
+                if (!controller.awaitClosed()) {
+                    Log.warn { "Failed to await closure from $controller!" }
+                }
+            }
+
+            Log.debug { "Camera2Backend#shutdownAsync: Closing all cameras (if any)" }
+            camera2DeviceManager.closeAll(forceCancelOpen = true).await()
+        }
     }
 
     override fun createCameraController(
@@ -97,15 +216,23 @@ constructor(
                         graphListener,
                         streamGraph as StreamGraphImpl,
                         surfaceTracker,
+                        this,
                     )
                 )
                 .build()
 
         // Create and return a Camera2 CameraController object.
-        return cameraControllerComponent.cameraController()
+        val cameraController = cameraControllerComponent.cameraController()
+        synchronized(lock) { activeCameraControllers.add(cameraController) }
+        return cameraController
     }
 
     override fun prewarm(cameraId: CameraId) {
         camera2DeviceManager.prewarm(cameraId)
+    }
+
+    override fun onControllerClosed(cameraController: CameraController) {
+        Log.debug { "$cameraController finalized" }
+        synchronized(lock) { activeCameraControllers.remove(cameraController) }
     }
 }

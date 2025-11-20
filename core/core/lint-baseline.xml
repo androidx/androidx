@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha08)" variant="all" version="8.8.0-alpha08">
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
 
     <issue
         id="NewApi"
-        message="`&lt;androidx.core.app.CoreComponentFactory>` requires API level 28 (current min is 21)"
+        message="`&lt;androidx.core.app.CoreComponentFactory>` requires API level 28 (current min is 23)"
         errorLine1="    &lt;application"
         errorLine2="    ^">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#of`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#of`"
         errorLine1="                return Optional.of(modeCompat);"
         errorLine2="                                ~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#empty`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#empty`"
         errorLine1="        return Optional.empty();"
         errorLine2="                        ~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#get`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#get`"
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
@@ -39,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#get`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#get`"
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, secondDisplay)).get();"
         errorLine2="                                                                                         ~~~">
         <location
@@ -48,7 +48,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#get`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#get`"
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
@@ -57,7 +57,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#get`"
+        message="Call requires API level 24, or core library desugaring (current min is 23): `java.util.Optional#get`"
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
@@ -66,7 +66,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getImportance`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getImportance`"
         errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
@@ -75,7 +75,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getImportance`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getImportance`"
         errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
         errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
@@ -84,7 +84,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#canBypassDnd`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#canBypassDnd`"
         errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
@@ -93,7 +93,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#canBypassDnd`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#canBypassDnd`"
         errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getLockscreenVisibility`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getLockscreenVisibility`"
         errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getLockscreenVisibility`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getLockscreenVisibility`"
         errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getLightColor`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getLightColor`"
         errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
@@ -129,7 +129,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getLightColor`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getLightColor`"
         errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
         errorLine2="                                                  ~~~~~~~~~~~~~">
         <location
@@ -138,7 +138,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getId`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getId`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
         errorLine2="                                          ~~~~~">
         <location
@@ -147,7 +147,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getId`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getId`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
         errorLine2="                                                       ~~~~~">
         <location
@@ -156,7 +156,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getName`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getName`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
         errorLine2="                                          ~~~~~~~">
         <location
@@ -165,7 +165,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getName`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getName`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
         errorLine2="                                                         ~~~~~~~">
         <location
@@ -174,7 +174,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getDescription`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getDescription`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
@@ -183,7 +183,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getDescription`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getDescription`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
         errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location
@@ -192,7 +192,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getSound`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getSound`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
         errorLine2="                                          ~~~~~~~~">
         <location
@@ -201,7 +201,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getSound`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getSound`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
         errorLine2="                                                          ~~~~~~~~">
         <location
@@ -210,7 +210,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getVibrationPattern`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getVibrationPattern`"
         errorLine1="                    &amp;&amp; Arrays.equals(nc1.getVibrationPattern(), nc2.getVibrationPattern())"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -219,7 +219,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getVibrationPattern`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getVibrationPattern`"
         errorLine1="                    &amp;&amp; Arrays.equals(nc1.getVibrationPattern(), nc2.getVibrationPattern())"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -228,7 +228,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getGroup`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getGroup`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
         errorLine2="                                          ~~~~~~~~">
         <location
@@ -237,7 +237,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getGroup`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getGroup`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getGroup(), nc2.getGroup())"
         errorLine2="                                                          ~~~~~~~~">
         <location
@@ -246,7 +246,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getAudioAttributes`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getAudioAttributes`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
@@ -255,7 +255,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getAudioAttributes`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getAudioAttributes`"
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getAudioAttributes(), nc2.getAudioAttributes());"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~">
         <location
@@ -264,7 +264,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getImportance`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getImportance`"
         errorLine1="            assertEquals(expected.getImportance(), actual.getImportance());"
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
@@ -273,7 +273,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getLightColor`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getLightColor`"
         errorLine1="            assertEquals(expected.getLightColor(), actual.getLightColor());"
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
@@ -282,7 +282,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getId`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getId`"
         errorLine1="            assertEquals(expected.getId(), actual.getId());"
         errorLine2="                                  ~~~~~">
         <location
@@ -291,7 +291,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getName`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getName`"
         errorLine1="            assertEquals(expected.getName(), actual.getName());"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -300,7 +300,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getDescription`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getDescription`"
         errorLine1="            assertEquals(expected.getDescription(), actual.getDescription());"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
@@ -309,7 +309,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getSound`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getSound`"
         errorLine1="            assertEquals(expected.getSound(), actual.getSound());"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -318,7 +318,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getVibrationPattern`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getVibrationPattern`"
         errorLine1="            assertArrayEquals(expected.getVibrationPattern(), actual.getVibrationPattern());"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -327,7 +327,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getGroup`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getGroup`"
         errorLine1="            assertEquals(expected.getGroup(), actual.getGroup());"
         errorLine2="                                  ~~~~~~~~">
         <location
@@ -336,7 +336,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannel#getAudioAttributes`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannel#getAudioAttributes`"
         errorLine1="            assertEquals(expected.getAudioAttributes(), actual.getAudioAttributes());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
@@ -345,7 +345,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannelGroup#getId`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannelGroup#getId`"
         errorLine1="            assertEquals(expected.getId(), actual.getId());"
         errorLine2="                                  ~~~~~">
         <location
@@ -354,7 +354,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.NotificationChannelGroup#getName`"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationChannelGroup#getName`"
         errorLine1="            assertEquals(expected.getName(), actual.getName());"
         errorLine2="                                  ~~~~~~~">
         <location
@@ -364,8 +364,8 @@
     <issue
         id="NewApi"
         message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
-        errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) firstBuiltIcon).getType());"
-        errorLine2="                                                                   ~~~~~~~">
+        errorLine1="        assertEquals(Icon.TYPE_BITMAP, ((Icon) firstBuiltIcon).getType());"
+        errorLine2="                                                               ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"/>
     </issue>
@@ -373,8 +373,8 @@
     <issue
         id="NewApi"
         message="Call requires API level 28 (current min is 23): `android.graphics.drawable.Icon#getType`"
-        errorLine1="            assertEquals(Icon.TYPE_BITMAP, ((Icon) rebuiltIcon).getType());"
-        errorLine2="                                                                ~~~~~~~">
+        errorLine1="        assertEquals(Icon.TYPE_BITMAP, ((Icon) rebuiltIcon).getType());"
+        errorLine2="                                                            ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"/>
     </issue>
@@ -399,7 +399,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 21): `Builder`"
+        message="Call requires API level 30 (current min is 23): `Builder`"
         errorLine1="                new NotificationCompat.BubbleMetadata.Builder(shortcutId)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -408,88 +408,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setBreakStrategy`"
-        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build());"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setBreakStrategy`"
-        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setHyphenationFrequency`"
-        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL).build());"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setBreakStrategy`"
-        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setHyphenationFrequency`"
-        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `getBreakStrategy`"
-        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build().getBreakStrategy());"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setBreakStrategy`"
-        errorLine1="                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE).build().getBreakStrategy());"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `setHyphenationFrequency`"
-        errorLine1="                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE).build()"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `getHyphenationFrequency`"
-        errorLine1="                .getHyphenationFrequency());"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/text/PrecomputedTextCompatTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 25 (current min is 21): `toShortcutInfo`"
+        message="Call requires API level 25 (current min is 23): `toShortcutInfo`"
         errorLine1="                .toShortcutInfo());"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -498,7 +417,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `toShortcutInfo`"
+        message="Call requires API level 25 (current min is 23): `toShortcutInfo`"
         errorLine1="                .toShortcutInfo());"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -507,7 +426,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `toShortcutInfo`"
+        message="Call requires API level 25 (current min is 23): `toShortcutInfo`"
         errorLine1="                .toShortcutInfo());"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -516,7 +435,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `toShortcutInfo`"
+        message="Call requires API level 25 (current min is 23): `toShortcutInfo`"
         errorLine1="                .toShortcutInfo());"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -525,7 +444,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 25 (current min is 21): `toShortcutInfo`"
+        message="Call requires API level 25 (current min is 23): `toShortcutInfo`"
         errorLine1="                .toShortcutInfo());"
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
@@ -534,7 +453,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
+        message="Call requires API level 24 (current min is 23): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
         errorLine1="                assertEquals(getDefaultSubscriptionId(), actual);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -543,7 +462,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
+        message="Call requires API level 24 (current min is 23): `android.telephony.SubscriptionManager#getDefaultSubscriptionId`"
         errorLine1="                assertEquals(expected, getDefaultSubscriptionId());"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -570,47 +489,20 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_MANIFEST = 1 &lt;&lt; 0;"
-        errorLine2="                                                  ~">
+        message="Must be one of: LineBreaker.BREAK_STRATEGY_SIMPLE, LineBreaker.BREAK_STRATEGY_HIGH_QUALITY, LineBreaker.BREAK_STRATEGY_BALANCED"
+        errorLine1="        textView.setBreakStrategy(params.getBreakStrategy());"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"/>
     </issue>
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_DYNAMIC = 1 &lt;&lt; 1;"
-        errorLine2="                                                 ~">
+        message="Must be one of: Layout.HYPHENATION_FREQUENCY_NORMAL, Layout.HYPHENATION_FREQUENCY_NORMAL_FAST, Layout.HYPHENATION_FREQUENCY_FULL, Layout.HYPHENATION_FREQUENCY_FULL_FAST, Layout.HYPHENATION_FREQUENCY_NONE"
+        errorLine1="        textView.setHyphenationFrequency(params.getHyphenationFrequency());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_DYNAMIC = 1 &lt;&lt; 1;"
-        errorLine2="                                                      ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_PINNED = 1 &lt;&lt; 2;"
-        errorLine2="                                                ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_PINNED = 1 &lt;&lt; 2;"
-        errorLine2="                                                     ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"/>
     </issue>
 
     <issue
@@ -620,6 +512,33 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: "
+        errorLine1="            mInsetsController.show(types &amp; ~WindowInsetsCompat.Type.IME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: "
+        errorLine1="            mInsetsController.hide(types &amp; ~WindowInsetsCompat.Type.IME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: "
+        errorLine1="            mInsetsController.controlWindowInsetsAnimation(types,"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"/>
     </issue>
 
     <issue
@@ -719,6 +638,24 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/ProcessCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke("
+        errorLine2="                                                                     ^">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                            getInstanceMethod.invoke(null, context));"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
     </issue>
 
     <issue
@@ -840,2507 +777,11 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 33)"
-        errorLine1="        } else if (SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityWindowInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/AlarmManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CheckedTextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CheckedTextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CheckedTextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CheckedTextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CheckedTextViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CompoundButtonCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CompoundButtonCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CompoundButtonCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CompoundButtonCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/CompoundButtonCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/ContextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/provider/DocumentsContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/EnvironmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/EnvironmentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/FileProvider.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/FileProvider.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="            } else if (Build.VERSION.SDK_INT > 23 &amp;&amp; context.getPackageManager()"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/FontResourcesParserCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/FontResourcesParserCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/HapticFeedbackConstantsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/ICUCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/ICUCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/ICUCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ImageViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ImageViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ImageViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ImageViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/ImageViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/LayoutInflaterCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                localeArray[i] = Build.VERSION.SDK_INT >= 21"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 33)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompatWrapper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompatWrapper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/LocaleManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/LocaleManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="@RequiresApi(VERSION_CODES.LOLLIPOP)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/util/LocalePreferences.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (VERSION.SDK_INT &lt;= 19) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/location/LocationManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `VERSION.SDK_INT == 19` is never true here"
-        errorLine1="                    if (VERSION.SDK_INT == 19) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/location/LocationManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is always >= 30"
         errorLine1="            if (VERSION.SDK_INT >= 30) { // Satisfy reflection lint check"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/LocationManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/NestedScrollView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/NestedScrollView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/NestedScrollView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/NestedScrollView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/NestedScrollView.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationChannelCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                    !(Build.VERSION.SDK_INT >= 21) &amp;&amp; mBuilder.mLargeIcon != null;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            final boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 28)"
-        errorLine1="                    } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 31)"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="            @RequiresApi(20)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="        @RequiresApi(20)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21 &amp;&amp; style != null) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 20` is never true here"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT > NotificationManagerCompat.MAX_SIDE_CHANNEL_SDK_VERSION) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatSideChannelService.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt;= MAX_SIDE_CHANNEL_SDK_VERSION) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt;= MAX_SIDE_CHANNEL_SDK_VERSION) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/animation/PathInterpolatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/animation/PathInterpolatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/animation/PathInterpolatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/animation/PathInterpolatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
-        errorLine1="            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/PrecomputedTextCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 26)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/ResourcesCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/ResourcesCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/ResourcesCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/RoundedBitmapDrawable21.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/RoundedBitmapDrawableFactory.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SizeFCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SizeFCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SizeFCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
-        errorLine1="        } else if (SDK_INT >= 20) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/SoftwareKeyboardControllerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/SoftwareKeyboardControllerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 26)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/TypefaceCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/TypefaceCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/TypefaceCompatApi21Impl.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 20) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewGroupCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewParentCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/WeightTypefaceApi21.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 30"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 30) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 28)"
-        errorLine1="        } else if (SDK_INT >= 21) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here"
-        errorLine1="        } else if (SDK_INT >= 20) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            } else if (SDK_INT >= 21 &amp;&amp; srcImpl instanceof Impl21) {"
-        errorLine2="                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="            } else if (SDK_INT >= 20 &amp;&amp; srcImpl instanceof Impl20) {"
-        errorLine2="                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 29)"
-        errorLine1="            } else if (SDK_INT >= 20) {"
-        errorLine2="                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 29)"
-        errorLine1="            } else if (SDK_INT >= 20) {"
-        errorLine2="                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(api = 20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
-        errorLine1="        } else if (SDK_INT >= 20) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsControllerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/WrappedDrawableApi21.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/WrappedDrawableState.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `drawable`.">
-        <location
-            file="src/main/res/drawable-v21"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    tools:targetApi=&quot;21&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_call_answer.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    tools:targetApi=&quot;21&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_call_answer_video.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    tools:targetApi=&quot;21&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_call_decline.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `layout`.">
-        <location
-            file="src/main/res/layout-v21"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v21"/>
     </issue>
 
     <issue
@@ -4087,33 +1528,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setLabeledBy(View label) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setLabeledBy(View root, int virtualDescendantId) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public AccessibilityNodeInfoCompat getLabeledBy() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public List&lt;AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4798,6 +2212,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
         errorLine2="               ~~~~~~~~~~~">
         <location
@@ -4845,15 +2268,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public CharSequence title;"
-        errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"/>
     </issue>
@@ -5212,8 +2626,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setIcon(IconCompat icon) {"
-        errorLine2="                               ~~~~~~~~~~">
+        errorLine1="        public @NonNull Builder setIcon(IconCompat icon) {"
+        errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"/>
     </issue>
@@ -5383,8 +2797,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Typeface createFromFamiliesWithDefault(Object family) {"
-        errorLine2="                                                     ~~~~~~">
+        errorLine1="    protected @Nullable Typeface createFromFamiliesWithDefault(Object family) {"
+        errorLine2="                                                               ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5392,8 +2806,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontFamilyFilesResourceEntry(Context context,"
-        errorLine2="                                                           ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontFamilyFilesResourceEntry(Context context,"
+        errorLine2="                                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5419,8 +2833,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontInfo(Context context,"
-        errorLine2="                                       ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontInfo(Context context,"
+        errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5653,8 +3067,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontInfo(Context context,"
-        errorLine2="                                       ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontInfo(Context context,"
+        errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"/>
     </issue>
@@ -5662,8 +3076,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontFamilyFilesResourceEntry(Context context,"
-        errorLine2="                                                           ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontFamilyFilesResourceEntry(Context context,"
+        errorLine2="                                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"/>
     </issue>

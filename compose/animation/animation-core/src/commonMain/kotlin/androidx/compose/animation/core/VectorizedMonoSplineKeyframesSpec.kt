@@ -96,7 +96,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V {
         val playTimeMillis = playTimeNanos / MillisToNanos
         val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
@@ -122,7 +122,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         monoSpline!!.getPos(
             index = index,
             time = getEasedTimeFromIndex(index, clampedPlayTime),
-            v = valueVector
+            v = valueVector,
         )
         return valueVector
     }
@@ -131,7 +131,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V {
         val playTimeMillis = playTimeNanos / MillisToNanos
         val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
@@ -146,7 +146,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
         monoSpline!!.getSlope(
             index = index,
             time = getEasedTimeFromIndex(index, clampedPlayTime),
-            v = velocityVector
+            v = velocityVector,
         )
         return velocityVector
     }

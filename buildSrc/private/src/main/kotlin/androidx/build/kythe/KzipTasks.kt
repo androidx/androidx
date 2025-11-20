@@ -39,15 +39,15 @@ fun Project.configureProjectForKzipTasks(config: ApiTaskConfig, extension: Andro
         project.path in
             listOf(
                 // Uses Java 9+ APIs, which are not part of any dependency in the classpath
-                ":room:room-compiler-processing",
-                ":room:room-compiler-processing-testing",
+                ":room3:room-compiler-processing",
+                ":room3:room-compiler-processing-testing",
                 // KSP generated folders not visible to AGP variant api (b/380363756)
                 ":privacysandbox:tools:integration-tests:testsdk",
-                ":room:room-runtime",
+                ":room3:room-runtime",
                 // Depends on the generated output of the proto project
                 // :wear:protolayout:protolayout-proto
                 // which we haven't captured for Java Kzip generation.
-                ":wear:tiles:tiles-proto"
+                ":wear:tiles:tiles-proto",
             )
     ) {
         return
@@ -64,7 +64,7 @@ fun Project.configureProjectForKzipTasks(config: ApiTaskConfig, extension: Andro
             compilationInputs,
             compiledSources,
             extension.kotlinTarget,
-            getDefaultTargetJavaVersion(extension.type, project.name)
+            getDefaultTargetJavaVersion(extension.type, project.name),
         )
 
         GenerateJavaKzipTask.setupProject(project, compilationInputs, compiledSources)

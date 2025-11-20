@@ -16,19 +16,23 @@
 
 package androidx.wear.protolayout.renderer.common;
 
+import android.view.View;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Artifacts resulted from the layout rendering. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface RenderingArtifact {
 
     /** Creates a {@link RenderingArtifact} instance. */
-    static @NonNull RenderingArtifact create(@NonNull InflaterStatsLogger inflaterStatsLogger) {
-        return new SuccessfulRenderingArtifact(inflaterStatsLogger);
+    static @NonNull RenderingArtifact create(
+            @NonNull InflaterStatsLogger inflaterStatsLogger, @Nullable View inflatedParent) {
+        return new SuccessfulRenderingArtifact(inflaterStatsLogger, inflatedParent);
     }
 
     /** Creates a {@link RenderingArtifact} instance for a skipped inflation. */
@@ -45,8 +49,12 @@ public interface RenderingArtifact {
     class SuccessfulRenderingArtifact implements RenderingArtifact {
         private final @NonNull InflaterStatsLogger mInflaterStatsLogger;
 
-        private SuccessfulRenderingArtifact(@NonNull InflaterStatsLogger inflaterStatsLogger) {
+        private final @Nullable View mInflatedParent;
+
+        private SuccessfulRenderingArtifact(
+                @NonNull InflaterStatsLogger inflaterStatsLogger, @Nullable View inflatedParent) {
             mInflaterStatsLogger = inflaterStatsLogger;
+            mInflatedParent = inflatedParent;
         }
 
         /**
@@ -55,6 +63,11 @@ public interface RenderingArtifact {
          */
         public @NonNull InflaterStatsLogger getInflaterStatsLogger() {
             return mInflaterStatsLogger;
+        }
+
+        /** Returns the inflated parent view. */
+        public @Nullable View getInflatedParent() {
+            return mInflatedParent;
         }
     }
 

@@ -24,7 +24,6 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.EmojiSpan
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +31,6 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
-@SdkSuppress(minSdkVersion = 23)
 class EmojiProcessBenchmark(private val size: Int, private val replaceAll: Boolean) {
 
     @get:Rule val benchmarkRule = BenchmarkRule()

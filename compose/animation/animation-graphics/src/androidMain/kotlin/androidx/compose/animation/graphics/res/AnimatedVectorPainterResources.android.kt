@@ -17,6 +17,7 @@
 package androidx.compose.animation.graphics.res
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.animation.graphics.vector.StateVectorConfig
@@ -41,7 +42,7 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 public fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
-    atEnd: Boolean
+    atEnd: Boolean,
 ): Painter {
     return rememberAnimatedVectorPainter(animatedImageVector, atEnd) { group, overrides ->
         RenderVectorGroup(group, overrides)
@@ -53,7 +54,7 @@ public fun rememberAnimatedVectorPainter(
 internal fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
     atEnd: Boolean,
-    render: @Composable @VectorComposable (VectorGroup, Map<String, VectorConfig>) -> Unit
+    render: @Composable @VectorComposable (VectorGroup, Map<String, VectorConfig>) -> Unit,
 ): Painter {
     return rememberVectorPainter(
         defaultWidth = animatedImageVector.imageVector.defaultWidth,
@@ -63,10 +64,10 @@ internal fun rememberAnimatedVectorPainter(
         name = animatedImageVector.imageVector.name,
         tintColor = animatedImageVector.imageVector.tintColor,
         tintBlendMode = animatedImageVector.imageVector.tintBlendMode,
-        autoMirror = true
+        autoMirror = true,
     ) { _, _ ->
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
-        val map = mutableMapOf<String, StateVectorConfig>()
+        val map = mutableScatterMapOf<String, StateVectorConfig>()
         animatedImageVector.targets.fastForEach { target ->
             val config =
                 target.animator.createVectorConfig(transition, animatedImageVector.totalDuration)
@@ -77,6 +78,6 @@ internal fun rememberAnimatedVectorPainter(
                 map[target.name] = config
             }
         }
-        render(animatedImageVector.imageVector.root, map)
+        @Suppress("AsCollectionCall") render(animatedImageVector.imageVector.root, map.asMap())
     }
 }

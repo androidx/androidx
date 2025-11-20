@@ -174,6 +174,36 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      */
     void detachUseCases(@NonNull Collection<UseCase> useCases);
 
+    /**
+     * Signals that the camera has been physically removed and is no longer available.
+     *
+     * <p>This method is invoked by core CameraX components, such as the {@link CameraRepository},
+     * when an availability event indicates the camera device has been removed from the system
+     * (e.g., a USB camera has been unplugged).
+     *
+     * <p>Upon receiving this signal, the implementation must:
+     * <ol>
+     * <li>Immediately update its public-facing {@link androidx.camera.core.CameraState} to
+     * {@link androidx.camera.core.CameraState.Type#CLOSED} with an error of
+     * {@link androidx.camera.core.CameraState#ERROR_CAMERA_REMOVED}.</li>
+     * <li>Begin asynchronous cleanup and release of all underlying resources, similar to
+     * {@link #release()}.</li>
+     * </ol>
+     *
+     * <p>After this method is called, the camera instance is considered to be in a terminal state
+     * and should not be used further.
+     */
+    default void onRemoved() {
+        // Default no-op for the interface to maintain backward compatibility.
+    }
+
+    /**
+     * Returns true if the camera has been removed and is no longer valid.
+     */
+    default boolean isRemoved() {
+        return false;
+    }
+
     /** Returns the global CameraControlInternal attached to this camera. */
     @NonNull CameraControlInternal getCameraControlInternal();
 

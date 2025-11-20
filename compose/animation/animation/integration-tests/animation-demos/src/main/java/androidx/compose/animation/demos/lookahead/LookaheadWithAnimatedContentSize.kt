@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.demos.gesture.pastelColors
@@ -36,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithAnimatedContentSize() {

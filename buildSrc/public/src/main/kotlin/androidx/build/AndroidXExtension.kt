@@ -16,7 +16,8 @@
 
 package androidx.build
 
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.HasAndroidTest
 import groovy.lang.Closure
 import java.io.File
 import javax.inject.Inject
@@ -79,7 +80,7 @@ abstract class AndroidXExtension(
         newProjectMap
     }
 
-    val name: Property<String?> = project.objects.property(String::class.java)
+    val name: Property<String> = project.objects.property(String::class.java)
 
     /** The name for this artifact to be used in .pom files. */
     fun setName(newName: String) {
@@ -137,7 +138,7 @@ abstract class AndroidXExtension(
     // gets the library group from the project path, including special cases
     private fun getLibraryGroupFromProjectPath(
         projectPath: String,
-        explanationBuilder: MutableList<String>? = null
+        explanationBuilder: MutableList<String>? = null,
     ): LibraryGroup? {
         val overridden = overrideLibraryGroupsByProjectPath[projectPath]
         explanationBuilder?.add(
@@ -160,7 +161,7 @@ abstract class AndroidXExtension(
     // simple function to get the library group from the project path, without special cases
     private fun getStandardLibraryGroupFromProjectPath(
         projectPath: String,
-        explanationBuilder: MutableList<String>?
+        explanationBuilder: MutableList<String>?,
     ): LibraryGroup? {
         // Get the text of the library group, something like "androidx.core"
         val parentPath = substringBeforeLastColon(projectPath)
@@ -217,13 +218,13 @@ abstract class AndroidXExtension(
                         ")"
                 )
             } else {
-                verifyVersionExtraFormat(mavenVersion)
+                verifyVersionFormat(mavenVersion)
                 version = mavenVersion
             }
         } else {
             projectDirectlySpecifiesMavenVersion = false
             if (groupVersion != null) {
-                verifyVersionExtraFormat(groupVersion)
+                verifyVersionFormat(groupVersion)
                 version = groupVersion
             } else {
                 return
@@ -232,36 +233,41 @@ abstract class AndroidXExtension(
         if (group != null) {
             project.group = group
         }
-        project.version = if (isSnapshotBuild()) version.copy(extra = "-SNAPSHOT") else version
+        project.version = if (isSnapshotBuild()) version.copy(preRelease = "SNAPSHOT") else version
         versionIsSet = true
     }
 
-    private fun verifyVersionExtraFormat(version: Version) {
-        val ALLOWED_EXTRA_PREFIXES = listOf("-alpha", "-beta", "-rc", "-dev", "-SNAPSHOT")
-        val extra = version.extra
-        if (extra != null) {
-            if (!version.isSnapshot()) {
-                if (ALLOWED_EXTRA_PREFIXES.any { extra.startsWith(it) }) {
-                    for (potentialPrefix in ALLOWED_EXTRA_PREFIXES) {
-                        if (extra.startsWith(potentialPrefix)) {
-                            val secondExtraPart = extra.removePrefix(potentialPrefix)
-                            if (secondExtraPart.toIntOrNull() == null) {
-                                throw IllegalArgumentException(
-                                    "Version $version is not" +
-                                        " a properly formatted version, please ensure that " +
-                                        "$potentialPrefix is followed by a number only"
-                                )
-                            }
-                        }
+    private fun verifyVersionFormat(version: Version) {
+        val ALLOWED_PRERELEASE_PREFIXES = listOf("alpha", "beta", "rc", "dev")
+        if (version.buildMetadata != null) {
+            throw IllegalArgumentException(
+                "Version $version is not a proper version, " +
+                    "explicitly specifying metadata is not allowed"
+            )
+        }
+        val preRelease = version.preRelease
+        if (preRelease == null || version.isSnapshot()) {
+            return
+        }
+        if (ALLOWED_PRERELEASE_PREFIXES.any { preRelease.startsWith(it) }) {
+            for (potentialPrefix in ALLOWED_PRERELEASE_PREFIXES) {
+                if (preRelease.startsWith(potentialPrefix)) {
+                    val secondExtraPart = preRelease.removePrefix(potentialPrefix)
+                    if (secondExtraPart.toIntOrNull() == null) {
+                        throw IllegalArgumentException(
+                            "Version $version is not" +
+                                " a properly formatted version, please ensure that " +
+                                "$potentialPrefix is followed by a number only"
+                        )
                     }
-                } else {
-                    throw IllegalArgumentException(
-                        "Version $version is not a proper " +
-                            "version, version suffixes following major.minor.patch should " +
-                            "be one of ${ALLOWED_EXTRA_PREFIXES.joinToString(", ")}"
-                    )
                 }
             }
+        } else {
+            throw IllegalArgumentException(
+                "Version $version is not a proper " +
+                    "version, version suffixes following major.minor.patch should " +
+                    "be one of ${ALLOWED_PRERELEASE_PREFIXES.joinToString(", ")}"
+            )
         }
     }
 
@@ -316,8 +322,11 @@ abstract class AndroidXExtension(
 
     var type: SoftwareType = SoftwareType.UNSET
 
+    val failOnDeprecationWarnings: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(true)
+
     /** Whether this project should fail on javac compilation warnings */
-    var failOnDeprecationWarnings = true
+    fun failOnDeprecationWarnings(enabled: Boolean) = failOnDeprecationWarnings.set(enabled)
 
     /**
      * Whether Kotlin Strict API mode is enabled, see
@@ -342,11 +351,14 @@ abstract class AndroidXExtension(
                 project.path.startsWith(":privacysandbox:ads:") ->
                     mutableListOf("privacysandbox", "privacysandbox_ads")
                 project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
-                project.path.startsWith(":wear:") -> mutableListOf("wear")
+                project.path.startsWith(":wear:watchface") -> mutableListOf("wear_optin")
                 else -> mutableListOf()
             }
         if (deviceTests.enableAlsoRunningOnPhysicalDevices) {
             tags.add("all_run_on_physical_device")
+        }
+        if (deviceTests.enableAlsoRunOn16KbPageSizeDevices) {
+            tags.add("all_run_on_16kb_page_size_device")
         }
         return@lazy tags
     }
@@ -411,16 +423,22 @@ abstract class AndroidXExtension(
 
     /** Adds golden image assets to Android test APKs to use for screenshot tests. */
     fun addGoldenImageAssets() {
-        project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.onVariants {
-            variant ->
+        project.extensions.findByType(AndroidComponentsExtension::class.java)?.onVariants { variant
+            ->
             val subdirectory = project.path.replace(":", "/")
-            variant.androidTest
+            (variant as? HasAndroidTest)
+                ?.androidTest
                 ?.sources
                 ?.assets
                 ?.addStaticSourceDirectory(
                     File(project.rootDir, "../../golden$subdirectory").absolutePath
                 )
         }
+    }
+
+    /** Enable Robolectric tests for Android Host Tests. */
+    fun enableRobolectric() {
+        configureRobolectric(project)
     }
 
     /** Locates a project by path. */
@@ -431,6 +449,21 @@ abstract class AndroidXExtension(
     // `androidx` block tries retrieves that project object and calls to look for :foo property
     // on it, then checking all the parents for it.
     fun project(name: String): Project = project.project(name)
+
+    /**
+     * Declare an optional project dependency on a project or its latest snapshot artifact. In AOSP
+     * builds this is a no-op and always returns a project reference
+     */
+    fun projectOrArtifact(name: String): Any {
+        return if (!ProjectLayoutType.isPlayground(project)) {
+            // In AndroidX build, this is always enforced to the project
+            project.project(name)
+        } else {
+            // In Playground builds, they are converted to the latest SNAPSHOT artifact if the
+            // project is not included in that playground.
+            playgroundProjectOrArtifact(project.rootProject, name)
+        }
+    }
 }
 
 class License {
@@ -459,4 +492,12 @@ abstract class DeviceTests {
      * when run in CI.
      */
     var enableAlsoRunningOnPhysicalDevices = false
+
+    /**
+     * Whether this project's Android on device tests should also run on an Android device that uses
+     * 16KB page size when run in CI.
+     */
+    var enableAlsoRunOn16KbPageSizeDevices = false
+
+    var minSdkForFtlOverride: Int? = null
 }

@@ -17,7 +17,9 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 
 /**
  * Returns the color used to indicate Autofill has been performed on fillable components.
@@ -26,7 +28,38 @@ import androidx.compose.ui.graphics.Color
  */
 internal expect fun autofillHighlightColor(): Color
 
+/** CompositionLocal used to change the highlight [Brush] used for autofilled components. */
+val LocalAutofillHighlightBrush =
+    compositionLocalOf<Brush> {
+        // The default is a solid color brush using the original color.
+        SolidColor(autofillHighlightColor())
+    }
+
 /**
  * CompositionLocal used to change the [autofillHighlightColor] used by components in the hierarchy.
  */
+@Deprecated(
+    message =
+        "Use LocalAutofillHighlightBrush instead. To provide a solid color, " +
+            "use SolidColor(yourColor).",
+    replaceWith =
+        ReplaceWith(
+            "LocalAutofillHighlightBrush",
+            "androidx.compose.foundation.text.LocalAutofillHighlightBrush",
+        ),
+    level = DeprecationLevel.WARNING,
+)
 val LocalAutofillHighlightColor = compositionLocalOf { autofillHighlightColor() }
+
+/**
+ * Resolves the highlight brush based on the provided brush and color, giving precedence to the
+ * color if it has been overridden.
+ */
+internal fun resolveAutofillHighlight(brush: Brush, color: Color, defaultColor: Color): Brush {
+    val isColorOverridden = color != defaultColor
+    return if (isColorOverridden) {
+        SolidColor(color)
+    } else {
+        brush
+    }
+}

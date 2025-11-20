@@ -57,7 +57,7 @@ class ScrollBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val list = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.

@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * [screen size][DeviceConfigurationOverride.Companion.ForcedSize] and
  * [layout direction][DeviceConfigurationOverride.Companion.LayoutDirection].
  *
+ * @param override the [DeviceConfigurationOverride] to apply
+ * @param content the content under test to apply the override to
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontScaleSample
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideForcedSizeSample
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
@@ -38,7 +41,7 @@ import androidx.compose.ui.unit.LayoutDirection
 fun DeviceConfigurationOverride(
     override: DeviceConfigurationOverride,
     content: @Composable () -> Unit,
-) = override.Override(content)
+): Unit = override.Override(content)
 
 /**
  * The specification for an override applied to some piece of content.
@@ -69,6 +72,9 @@ fun interface DeviceConfigurationOverride {
  * override as the outer override first, then the [other] override as an inner override, and then
  * the content.
  *
+ * @param other the [DeviceConfigurationOverride] to apply after this one
+ * @return a new [DeviceConfigurationOverride] that applies both this [DeviceConfigurationOverride]
+ *   and then the [other].
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideThenSample
  */
 infix fun DeviceConfigurationOverride.then(
@@ -83,6 +89,9 @@ infix fun DeviceConfigurationOverride.then(
  * This is only suitable for tests, since this will override [LocalDensity] to ensure that the
  * [size] is met (as opposed to `Modifier.requiredSize` which will result in clipping).
  *
+ * @param size the [DpSize] to force the contained content to render in, changing density if
+ *   necessary
+ * @return a [DeviceConfigurationOverride] that forces the content size.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideForcedSizeSample
  */
 expect fun DeviceConfigurationOverride.Companion.ForcedSize(
@@ -92,6 +101,8 @@ expect fun DeviceConfigurationOverride.Companion.ForcedSize(
 /**
  * A [DeviceConfigurationOverride] that overrides the font scale for the contained content.
  *
+ * @param fontScale the font scale to use for the content under test.
+ * @return a [DeviceConfigurationOverride] that specifies the font scale for the content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontScaleSample
  */
 expect fun DeviceConfigurationOverride.Companion.FontScale(
@@ -101,8 +112,29 @@ expect fun DeviceConfigurationOverride.Companion.FontScale(
 /**
  * A [DeviceConfigurationOverride] that overrides the layout direction for the contained content.
  *
+ * @param layoutDirection the [LayoutDirection] to use for the content under test.
+ * @return a [DeviceConfigurationOverride] that specifies the layout direction for the content under
+ *   test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
  */
 expect fun DeviceConfigurationOverride.Companion.LayoutDirection(
     layoutDirection: LayoutDirection
+): DeviceConfigurationOverride
+
+/**
+ * A [DeviceConfigurationOverride] that overrides the window size for the contained content.
+ *
+ * Like [ForcedSize], this is only suitable for tests, since this will override [LocalDensity] to
+ * ensure that the [size] is met (as opposed to `Modifier.requiredSize` which will result in
+ * clipping).
+ *
+ * Unlike [ForcedSize], this override will override [LocalWindowInfo] and `LocalConfiguration` on
+ * Android to reflect the requested size.
+ *
+ * @param size the [DpSize] to force the window size to appear as, changing density if necessary
+ * @return a [DeviceConfigurationOverride] that forces the window size.
+ * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideWindowSizeSample
+ */
+expect fun DeviceConfigurationOverride.Companion.WindowSize(
+    size: DpSize
 ): DeviceConfigurationOverride

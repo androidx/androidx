@@ -125,7 +125,7 @@ internal constructor(
      *
      * @return the Config of this PagedList
      */
-    public val config: Config
+    public val config: Config,
 ) : AbstractList<T>() {
     public companion object {
         /**
@@ -154,7 +154,7 @@ internal constructor(
             fetchDispatcher: CoroutineDispatcher,
             boundaryCallback: BoundaryCallback<T>?,
             config: Config,
-            key: K?
+            key: K?,
         ): PagedList<T> {
             val resolvedInitialPage =
                 when (initialPage) {
@@ -196,7 +196,7 @@ internal constructor(
                 boundaryCallback,
                 config,
                 resolvedInitialPage,
-                key
+                key,
             )
         }
 
@@ -209,7 +209,7 @@ internal constructor(
         internal fun dispatchNaiveUpdatesSinceSnapshot(
             currentSize: Int,
             snapshotSize: Int,
-            callback: Callback
+            callback: Callback,
         ) {
             if (snapshotSize < currentSize) {
                 if (snapshotSize > 0) {
@@ -251,7 +251,7 @@ internal constructor(
         message =
             "PagedList is deprecated and has been replaced by PagingData, which no " +
                 "longer supports constructing snapshots of loaded data manually.",
-        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager")
+        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager"),
     )
     public class Builder<Key : Any, Value : Any> {
         private val pagingSource: PagingSource<Key, Value>?
@@ -295,7 +295,7 @@ internal constructor(
          */
         public constructor(
             dataSource: DataSource<Key, Value>,
-            pageSize: Int
+            pageSize: Int,
         ) : this(dataSource = dataSource, config = Config(pageSize))
 
         /**
@@ -310,7 +310,7 @@ internal constructor(
         public constructor(
             pagingSource: PagingSource<Key, Value>,
             initialPage: PagingSource.LoadResult.Page<Key, Value>,
-            config: Config
+            config: Config,
         ) {
             this.pagingSource = pagingSource
             this.dataSource = null
@@ -339,7 +339,7 @@ internal constructor(
         public constructor(
             pagingSource: PagingSource<Key, Value>,
             initialPage: PagingSource.LoadResult.Page<Key, Value>,
-            pageSize: Int
+            pageSize: Int,
         ) : this(pagingSource = pagingSource, initialPage = initialPage, config = Config(pageSize))
 
         /**
@@ -372,8 +372,8 @@ internal constructor(
             replaceWith =
                 ReplaceWith(
                     "setNotifyDispatcher(fetchExecutor.asCoroutineDispatcher())",
-                    "kotlinx.coroutines.asCoroutineDispatcher"
-                )
+                    "kotlinx.coroutines.asCoroutineDispatcher",
+                ),
         )
         public fun setNotifyExecutor(notifyExecutor: Executor): Builder<Key, Value> = apply {
             this.notifyDispatcher = notifyExecutor.asCoroutineDispatcher()
@@ -408,8 +408,8 @@ internal constructor(
             replaceWith =
                 ReplaceWith(
                     "setFetchDispatcher(fetchExecutor.asCoroutineDispatcher())",
-                    "kotlinx.coroutines.asCoroutineDispatcher"
-                )
+                    "kotlinx.coroutines.asCoroutineDispatcher",
+                ),
         )
         public fun setFetchExecutor(fetchExecutor: Executor): Builder<Key, Value> = apply {
             this.fetchDispatcher = fetchExecutor.asCoroutineDispatcher()
@@ -499,7 +499,7 @@ internal constructor(
                 fetchDispatcher,
                 boundaryCallback,
                 config,
-                initialKey
+                initialKey,
             )
         }
     }
@@ -578,7 +578,7 @@ internal constructor(
          * @see PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
          * @see PagedList.Config.Builder.setMaxSize
          */
-        @JvmField public val maxSize: Int
+        @JvmField public val maxSize: Int,
     ) {
         /**
          * Builder class for [PagedList.Config].
@@ -752,7 +752,7 @@ internal constructor(
                     prefetchDistance,
                     enablePlaceholders,
                     initialLoadSizeHint,
-                    maxSize
+                    maxSize,
                 )
             }
 
@@ -1216,7 +1216,7 @@ public fun <Key : Any, Value : Any> PagedList(
     notifyExecutor: Executor,
     fetchExecutor: Executor,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    initialKey: Key? = null
+    initialKey: Key? = null,
 ): PagedList<Value> {
     return PagedList.Builder(dataSource, config)
         .setNotifyExecutor(notifyExecutor)
@@ -1231,8 +1231,4 @@ public fun <Key : Any, Value : Any> PagedList(
 public fun <Key : Any> PagedList.Config.toRefreshLoadParams(
     key: Key?
 ): PagingSource.LoadParams<Key> =
-    PagingSource.LoadParams.Refresh(
-        key,
-        initialLoadSizeHint,
-        enablePlaceholders,
-    )
+    PagingSource.LoadParams.Refresh(key, initialLoadSizeHint, enablePlaceholders)

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ExerciseLapSummaryTest {
 
     @Test
@@ -45,17 +46,17 @@ class ExerciseLapSummaryTest {
                                 DataPoints.caloriesTotal(
                                     kilocalories = 1000.0,
                                     startTime = startTime,
-                                    endTime = endTime
+                                    endTime = endTime,
                                 ),
                                 DataPoints.heartRateStats(
                                     minBpm = 50.0,
                                     maxBpm = 150.0,
                                     averageBpm = 100.0,
                                     startTime = startTime,
-                                    endTime = endTime
-                                )
+                                    endTime = endTime,
+                                ),
                             )
-                        )
+                        ),
                 )
                 .proto
 

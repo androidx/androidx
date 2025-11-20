@@ -54,7 +54,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
         supportedAgpPlugins =
             setOf(AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN, AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN),
         minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
-        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE,
     ) {
 
     private val ApplicationExtension.debugSigningConfig
@@ -140,10 +140,21 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
             if (supportsFeature(AgpFeature.APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER)) {
                 (variantBuilder as? HasUnitTestBuilder)?.enableUnitTest = false
             } else {
-                @Suppress("deprecation")
-                variantBuilder.enableUnitTest = false
-                @Suppress("deprecation")
-                variantBuilder.unitTestEnabled = false
+                try {
+                    variantBuilder::class
+                        .java
+                        .getMethod("setEnableUnitTest", Boolean::class.javaPrimitiveType)
+                        .invoke(variantBuilder, false)
+                    variantBuilder::class
+                        .java
+                        .getMethod("setUnitTestEnabled", Boolean::class.javaPrimitiveType)
+                        .invoke(variantBuilder, false)
+                } catch (e: ReflectiveOperationException) {
+                    throw Exception(
+                        "Could not disable unit tests for variant ${variantBuilder.name} " +
+                            "via reflection: ${e.message}"
+                    )
+                }
             }
         }
     }
@@ -158,7 +169,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
         listOf(
                 MappingAndPrefix(
                     baselineProfileOriginalToExtendedTypeMap,
-                    BUILD_TYPE_BASELINE_PROFILE_PREFIX
+                    BUILD_TYPE_BASELINE_PROFILE_PREFIX,
                 ),
                 MappingAndPrefix(benchmarkOriginalToExtendedTypeMap, BUILD_TYPE_BENCHMARK_PREFIX),
             )
@@ -186,13 +197,13 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
                 // Copy build type specific dependencies
                 dependencies.copy(
                     fromPrefix = originalBuildTypeName,
-                    toPrefix = extendedBuildTypeName
+                    toPrefix = extendedBuildTypeName,
                 )
 
                 // Copy variant specific dependencies
                 dependencies.copy(
                     fromPrefix = variant.name,
-                    toPrefix = camelCase(variant.flavorName ?: "", extendedBuildTypeName)
+                    toPrefix = camelCase(variant.flavorName ?: "", extendedBuildTypeName),
                 )
 
                 // Note that we don't need to copy flavor specific dependencies because they're
@@ -261,13 +272,13 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
                 ext.enableUnitTestCoverage = false
 
                 copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
-            }
+            },
         )
 
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
             extensionSourceSets = extension.sourceSets,
-            fromToMapping = baselineProfileExtendedToOriginalTypeMap
+            fromToMapping = baselineProfileExtendedToOriginalTypeMap,
         )
     }
 
@@ -326,7 +337,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
             extensionSourceSets = extension.sourceSets,
-            fromToMapping = baselineProfileExtendedToOriginalTypeMap
+            fromToMapping = baselineProfileExtendedToOriginalTypeMap,
         )
 
         // Creates benchmark build types extending the currently existing ones.
@@ -371,13 +382,13 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
                 ext.enableUnitTestCoverage = false
 
                 copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
-            }
+            },
         )
 
         // Copies the source sets for the newly created build types
         copyBuildTypeSources(
             extensionSourceSets = extension.sourceSets,
-            fromToMapping = benchmarkExtendedToOriginalTypeMap
+            fromToMapping = benchmarkExtendedToOriginalTypeMap,
         )
     }
 }

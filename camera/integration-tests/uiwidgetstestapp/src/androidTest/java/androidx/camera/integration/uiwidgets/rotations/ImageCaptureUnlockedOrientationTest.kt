@@ -39,7 +39,7 @@ class ImageCaptureUnlockedOrientationTest(
     private val captureMode: Int,
     private val cameraXConfig: String,
     private val rotation: RotationUnlocked,
-    private val testName: String
+    private val testName: String,
 ) : ImageCaptureBaseTest<UnlockedOrientationActivity>(cameraXConfig) {
 
     companion object {
@@ -72,7 +72,7 @@ class ImageCaptureUnlockedOrientationTest(
                                     mode,
                                     cameraXConfig,
                                     RotationUnlocked.Natural,
-                                    "$lensName - $captureModeName - Natural"
+                                    "$lensName - $captureModeName - Natural",
                                 )
                             )
                             add(
@@ -81,7 +81,7 @@ class ImageCaptureUnlockedOrientationTest(
                                     mode,
                                     cameraXConfig,
                                     RotationUnlocked.Left,
-                                    "$lensName - $captureModeName - Left"
+                                    "$lensName - $captureModeName - Left",
                                 )
                             )
                             add(
@@ -90,7 +90,7 @@ class ImageCaptureUnlockedOrientationTest(
                                     mode,
                                     cameraXConfig,
                                     RotationUnlocked.Right,
-                                    "$lensName - $captureModeName - Right"
+                                    "$lensName - $captureModeName - Right",
                                 )
                             )
                         }
@@ -125,7 +125,7 @@ class ImageCaptureUnlockedOrientationTest(
             Instrumentation.ActivityMonitor(
                 UnlockedOrientationActivity::class.java.name,
                 null,
-                false
+                false,
             )
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
 

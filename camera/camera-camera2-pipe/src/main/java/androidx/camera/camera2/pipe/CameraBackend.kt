@@ -17,7 +17,10 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /** This is used to uniquely identify a specific backend implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -40,6 +43,15 @@ public value class CameraBackendId(public val value: String)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraBackend {
     public val id: CameraBackendId
+
+    /**
+     * A flow of the list of currently openable [CameraId]s from this CameraBackend. It should
+     * continuously return a list of current cameras, and the list should be updated as camera
+     * availability changes, e.g., an external camera is plugged or unplugged. The flow should also
+     * replay the most recent value for each new subscriber.
+     */
+    public val cameraIds: Flow<List<CameraId>>
+        get() = flowOf(awaitCameraIds() ?: emptyList())
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report
@@ -123,6 +135,28 @@ public interface CameraBackend {
 
     /** Disconnects all active Cameras. */
     public fun disconnectAll()
+
+    /** Performs initialization for checking if a [CameraGraph.Config] is supported. */
+    public fun prewarmIsConfigSupported(cameraId: CameraId) {}
+
+    @Deprecated("Use prewarmIsConfigSupported instead")
+    public suspend fun prewarmGraphConfigQuery(cameraId: CameraId): CameraDeviceSetupCompat? {
+        return null
+    }
+
+    /**
+     * Checks if a [CameraGraph.Config] is supported by the device.
+     *
+     * On API 35 and above, this queries the underlying framework. On older API levels, this will
+     * return [ConfigQueryResult.UNKNOWN].
+     *
+     * @param graphConfig The camera graph configuration to validate.
+     * @return A [ConfigQueryResult] indicating whether the configuration is supported. The default
+     *   implementation returns UNKNOWN for backward compatibility.
+     */
+    public suspend fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult {
+        return ConfigQueryResult.UNKNOWN
+    }
 }
 
 /**

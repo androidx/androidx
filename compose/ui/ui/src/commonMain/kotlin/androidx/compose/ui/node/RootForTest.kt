@@ -18,8 +18,9 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.ExperimentalIndirectPointerApi
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.node.RootForTest.ExceptionHandler
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
@@ -43,6 +44,14 @@ interface RootForTest {
      * @return true if the event was consumed. False otherwise.
      */
     fun sendKeyEvent(keyEvent: KeyEvent): Boolean
+
+    /**
+     * Send this [IndirectPointerEvent] to the focused component in this [Owner].
+     *
+     * @return true if the event was consumed. False otherwise.
+     */
+    @ExperimentalIndirectPointerApi
+    fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean = false
 
     /**
      * Force accessibility to be enabled for testing.
@@ -74,26 +83,46 @@ interface RootForTest {
     fun measureAndLayoutForTest() {}
 
     /**
-     * Sets exception handler for measure / layout / draw passes. The exception handler observes
-     * exceptions in those passes and can prevent them from being thrown.
+     * Sets the [UncaughtExceptionHandler] callback to dispatch layout, measure, and draw exceptions
+     * from this Composition to. If this method is called multiple times, the previous callback is
+     * discarded.
+     *
+     * The default test runners that ship with the Compose UI test and associated JUnit variation
+     * use this API to reroute exceptions back to the test under execution. Custom test runners may
+     * need to associate their own exception handler to do the same. If the Compose UI Test runner's
+     * exception handler is overwritten, it may lead to unhandled exceptions crashing the
+     * instrumented process and terminating the entire test suite early.
      */
-    fun setExceptionHandler(exceptionHandler: ExceptionHandler?) {}
+    fun setUncaughtExceptionHandler(handler: UncaughtExceptionHandler?) {
+        // Not implemented.
+    }
 
     /**
-     * Called after exception was caught during UI operations. The callback is expected to return
-     * true if the exception is handled by the test or false otherwise.
+     * An optional error handler that can be set to catch exceptions thrown during the layout, draw,
+     * and teardown phases of the associated composition. If an exception is thrown to this
+     * callback, the composition is already in an unrecoverable state and must be abandoned. Tests
+     * may choose to catch exceptions to forward or process them differently. By default, no
+     * exception handler is present and exceptions are thrown on the composer's thread, which may
+     * cause the process to crash.
+     *
+     * This interface should generally not be used in production, and is intended for error routing
+     * or introspection rather than true error recovery.
      */
-    fun interface ExceptionHandler {
+    interface UncaughtExceptionHandler {
         /**
-         * Handle exception caught by the exception handler.
+         * Invoked for testing infrastructure to be able to redirect an exception [t] that occurred
+         * during the layout, measure, or draw phase of the underlying view. When this function is
+         * invoked, the associated composition is in an unrecoverable state. The original exception
+         * may be re-thrown to propagate it.
          *
-         * @param e Caught exception
-         * @return true if the exception is handled by the test or false otherwise
+         * If this callback swallows an exception to prevent a crash, you should expect other
+         * follow-up exceptions to be directed here as more operations are executed on the
+         * degenerate composition. The first exception passed to this callback is likely to be the
+         * only useful exception.
+         *
+         * @param t The exception thrown by the composition hierarchy during the layout, measure, or
+         *   draw phase of the associated view.
          */
-        fun handleException(e: Throwable): Boolean
+        fun onUncaughtException(t: Throwable)
     }
-}
-
-internal fun ExceptionHandler?.handleOrThrow(e: Throwable) {
-    if (this == null || !handleException(e)) throw e
 }

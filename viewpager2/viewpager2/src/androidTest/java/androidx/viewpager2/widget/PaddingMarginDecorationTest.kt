@@ -50,7 +50,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
         val vpPaddingPx: Int,
         val rvPaddingPx: Int,
         val itemMarginPx: Int,
-        val itemDecorationPx: Int
+        val itemDecorationPx: Int,
     )
 
     companion object {
@@ -140,7 +140,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                     { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
                 } else {
                     { items -> { ViewAdapter(items) } }
-                }
+                },
             )
         }
 
@@ -155,7 +155,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
             outRect: Rect,
             view: View,
             parent: RecyclerView,
-            state: RecyclerView.State
+            state: RecyclerView.State,
         ) {
             outRect.left = size * fLeft
             outRect.top = size * fTop
@@ -314,18 +314,18 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                     assertThat(
                         "Events should start with a state change to DRAGGING",
                         draggingIx,
-                        equalTo(0)
+                        equalTo(0),
                     )
                     assertThat(
                         "Last event should be a state change to IDLE",
                         idleIx,
-                        equalTo(lastIx)
+                        equalTo(lastIx),
                     )
                     assertThat(
                         "All events but the state changes to DRAGGING and IDLE" +
                             " should be scroll events",
                         scrollEventCount,
-                        equalTo(eventCount - 2)
+                        equalTo(eventCount - 2),
                     )
 
                     // dive into scroll events
@@ -333,17 +333,17 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                         assertThat(
                             "All scroll events should report page $targetPage",
                             it.position,
-                            equalTo(targetPage)
+                            equalTo(targetPage),
                         )
                         assertThat(
                             "All scroll events should report an offset of 0f",
                             it.positionOffset,
-                            equalTo(0f)
+                            equalTo(0f),
                         )
                         assertThat(
                             "All scroll events should report an offset of 0px",
                             it.positionOffsetPixels,
-                            equalTo(0)
+                            equalTo(0),
                         )
                     }
                 }
@@ -361,7 +361,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -404,7 +404,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -432,7 +432,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
     private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
-        pageSize: Int
+        pageSize: Int,
     ) = forEach {
         assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
@@ -459,7 +459,7 @@ private fun createTestSet(): List<TestConfig> {
                 TestConfig(orientation, rtl, 0, 0, 10, 0),
                 TestConfig(orientation, rtl, 0, 10, 0, 0),
                 TestConfig(orientation, rtl, 10, 0, 0, 0),
-                TestConfig(orientation, rtl, 1, 2, 3, 4)
+                TestConfig(orientation, rtl, 1, 2, 3, 4),
             )
         }
     }

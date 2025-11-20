@@ -112,7 +112,7 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
                 eglSpec.eglMakeCurrent(
                     EGL14.EGL_NO_CONTEXT,
                     EGL14.EGL_NO_SURFACE,
-                    EGL14.EGL_NO_SURFACE
+                    EGL14.EGL_NO_SURFACE,
                 )
                 mEglVersion = EGLVersion.Unknown
                 mEglContext = EGL14.EGL_NO_CONTEXT

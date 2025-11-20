@@ -272,7 +272,7 @@ internal class LayoutHelper(val layout: Layout) {
                 BidiRun(
                     start = lineStart + lineBidi.getRunStart(it),
                     end = lineStart + lineBidi.getRunLimit(it),
-                    isRtl = lineBidi.getRunLevel(it) % 2 == 1
+                    isRtl = lineBidi.getRunLevel(it) % 2 == 1,
                 )
             }
         val levels = ByteArray(lineBidi.runCount) { lineBidi.getRunLevel(it).toByte() }
@@ -414,7 +414,7 @@ internal class LayoutHelper(val layout: Layout) {
             BidiRun(
                 start = lineStart + lineBidi.getRunStart(it),
                 end = lineStart + lineBidi.getRunLimit(it),
-                isRtl = lineBidi.getRunLevel(it) % 2 == 1
+                isRtl = lineBidi.getRunLevel(it) % 2 == 1,
             )
         }
     }

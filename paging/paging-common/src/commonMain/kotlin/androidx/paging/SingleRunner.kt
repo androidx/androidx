@@ -72,7 +72,7 @@ internal class SingleRunner(cancelPreviousInEqualPriority: Boolean = true) {
 
     private class Holder(
         private val singleRunner: SingleRunner,
-        private val cancelPreviousInEqualPriority: Boolean
+        private val cancelPreviousInEqualPriority: Boolean,
     ) {
         private val mutex = Mutex()
         private var previous: Job? = null

@@ -16,44 +16,55 @@
 
 package androidx.tracing.driver
 
-/** Represents a Perfetto Counter track. */
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+
+/** [Track] representing a numerical value that can change over the duration of the trace. */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public open class CounterTrack(
     /** The name of the counter track */
-    private val name: String,
+    public val name: String,
     /** The parent track the counter belongs to. */
-    private val parent: Track,
-    hasPreamble: Boolean = true,
-) :
-    Track(
-        context = parent.context,
-        hasPreamble = hasPreamble,
-        uuid = monotonicId(),
-        parent = parent
-    ) {
-    override fun preamblePacket(): PooledTracePacket? {
-        val packet = pool.obtainTracePacket()
-        val track = pool.obtainTrackDescriptor()
-        val counter = pool.obtainCounterDescriptor()
-        packet.trackPoolableForOwnership(track)
-        packet.trackPoolableForOwnership(counter)
-        track.trackDescriptor.uuid = uuid
-        track.trackDescriptor.name = name
-        track.trackDescriptor.parent_uuid = parent.uuid
-        track.trackDescriptor.counter = counter.counterDescriptor
-        packet.tracePacket.timestamp = nanoTime()
-        packet.tracePacket.track_descriptor = track.trackDescriptor
-        return packet
-    }
+    public val parent: Track,
+) : Track(context = parent.context, uuid = monotonicId()) {
+    internal val packetLock = Any()
 
-    public fun emitLongCounterPacket(value: Long) {
-        if (context.isEnabled) {
-            emit(longCounterPacket(value))
+    init {
+        synchronized(packetLock) {
+            val event = obtainTraceEvent()
+            if (event != null) {
+                event.setPreamble(
+                    TrackDescriptor(
+                        name = name,
+                        uuid = uuid,
+                        parentUuid = parent.uuid,
+                        type = TRACK_DESCRIPTOR_TYPE_COUNTER,
+                        pid = DEFAULT_INT,
+                        tid = DEFAULT_INT,
+                    )
+                )
+                dispatchTraceEvent(event, immediateDispatch = true)
+            }
         }
     }
 
-    public fun emitDoubleCounterPacket(value: Double) {
+    public fun setCounter(value: Long) {
         if (context.isEnabled) {
-            emit(doubleCounterPacket(value))
+            synchronized(packetLock) {
+                val event = obtainTraceEvent()
+                event?.setCounterLong(trackUuid = uuid, value = value)
+                dispatchTraceEvent(event)
+            }
+        }
+    }
+
+    public fun setCounter(value: Double) {
+        if (context.isEnabled) {
+            synchronized(packetLock) {
+                val event = obtainTraceEvent()
+                event?.setCounterDouble(trackUuid = uuid, value = value)
+                dispatchTraceEvent(event)
+            }
         }
     }
 }
@@ -63,6 +74,4 @@ public open class CounterTrack(
 private const val EMPTY_COUNTER_NAME = "Empty Counter"
 
 internal class EmptyCounterTrack(process: EmptyProcessTrack) :
-    CounterTrack(name = EMPTY_COUNTER_NAME, parent = process, hasPreamble = false) {
-    override fun preamblePacket(): PooledTracePacket? = null
-}
+    CounterTrack(name = EMPTY_COUNTER_NAME, parent = process) {}

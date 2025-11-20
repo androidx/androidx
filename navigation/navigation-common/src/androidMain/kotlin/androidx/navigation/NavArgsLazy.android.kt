@@ -34,7 +34,7 @@ internal val methodMap = ArrayMap<KClass<out NavArgs>, Method>()
  */
 public class NavArgsLazy<Args : NavArgs>(
     private val navArgsClass: KClass<Args>,
-    private val argumentProducer: () -> SavedState
+    private val argumentProducer: () -> SavedState,
 ) : Lazy<Args> {
     private var cached: Args? = null
 

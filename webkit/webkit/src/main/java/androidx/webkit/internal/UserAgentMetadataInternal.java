@@ -30,6 +30,7 @@ import java.util.Map;
  * {@link androidx.webkit.UserAgentMetadata}.
  */
 public class UserAgentMetadataInternal {
+    private UserAgentMetadataInternal() {}
     /**
      * Predefined set of name for user-agent metadata key.
      * Key name for user-agent metadata mobile,
@@ -91,6 +92,12 @@ public class UserAgentMetadataInternal {
      */
     private static final String WOW64 = "WOW64";
     /**
+     * Predefined set of name for user-agent metadata key.
+     * Key name for user-agent metadata form factors,
+     * used to generate user-agent client hint {@code sec-ch-ua-form-factors}.
+     */
+    private static final String FORM_FACTORS = "FORM_FACTORS";
+    /**
      * each brand should contains brand, major version and full version.
      */
     private static final int BRAND_VERSION_LENGTH = 3;
@@ -112,6 +119,12 @@ public class UserAgentMetadataInternal {
         item.put(MOBILE, uaMetadata.isMobile());
         item.put(BITNESS, uaMetadata.getBitness());
         item.put(WOW64, uaMetadata.isWow64());
+
+        ApiFeature.NoFramework feature =
+                    WebViewFeatureInternal.USER_AGENT_METADATA_FORM_FACTORS;
+        if (feature.isSupportedByWebView()) {
+            item.put(FORM_FACTORS, getFormFactorsArray(uaMetadata.getFormFactors()));
+        }
         return item;
     }
 
@@ -130,6 +143,20 @@ public class UserAgentMetadataInternal {
             brandVersionArray[i][2] = brandVersionList.get(i).getFullVersion();
         }
         return brandVersionArray;
+    }
+
+    private static String[] getFormFactorsArray(List<String> formFactors) {
+        // If user's input of form factors list is empty, we consider to use system default value.
+        // This means passing null to chromium.
+        if (formFactors == null || formFactors.isEmpty()) {
+            return null;
+        }
+
+        String[] formFactorsArray = new String[formFactors.size()];
+        for (int i = 0; i < formFactors.size(); i++) {
+            formFactorsArray[i] = formFactors.get(i);
+        }
+        return formFactorsArray;
     }
 
     /**
@@ -195,6 +222,15 @@ public class UserAgentMetadataInternal {
         Boolean isWow64 = (Boolean) uaMetadataMap.get(WOW64);
         if (isWow64 != null) {
             builder.setWow64(isWow64);
+        }
+
+        String[] formFactors = (String[]) uaMetadataMap.get(FORM_FACTORS);
+        if (formFactors != null) {
+            List<String> formFactorsList = new ArrayList<>();
+            for (String formFactor : formFactors) {
+                formFactorsList.add(formFactor);
+            }
+            builder.setFormFactors(formFactorsList);
         }
 
         return builder.build();

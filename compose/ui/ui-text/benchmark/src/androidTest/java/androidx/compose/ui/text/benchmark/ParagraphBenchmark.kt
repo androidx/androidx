@@ -47,7 +47,7 @@ import org.junit.runners.Parameterized
 class ParagraphBenchmark(
     private val textLength: Int,
     private val textType: TextType,
-    alphabet: Alphabet
+    alphabet: Alphabet,
 ) {
     companion object {
         @JvmStatic
@@ -56,7 +56,7 @@ class ParagraphBenchmark(
             cartesian(
                 arrayOf(512),
                 arrayOf(TextType.PlainText),
-                arrayOf(Alphabet.Latin, Alphabet.Cjk)
+                arrayOf(Alphabet.Latin, Alphabet.Cjk),
             )
     }
 
@@ -76,7 +76,7 @@ class ParagraphBenchmark(
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 textBenchmarkRule.widthDp,
-                instrumentationContext.resources.displayMetrics
+                instrumentationContext.resources.displayMetrics,
             )
     }
 
@@ -94,12 +94,12 @@ class ParagraphBenchmark(
     private fun paragraph(
         text: String,
         spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-        width: Float
+        width: Float,
     ): Paragraph {
         return Paragraph(
             paragraphIntrinsics = paragraphIntrinsics(text, spanStyles),
             constraints = Constraints(maxWidth = ceil(width).toInt()),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -107,13 +107,13 @@ class ParagraphBenchmark(
         val annotatedString = text(textGenerator)
         return paragraphIntrinsics(
             text = annotatedString.text,
-            spanStyles = annotatedString.spanStyles
+            spanStyles = annotatedString.spanStyles,
         )
     }
 
     private fun paragraphIntrinsics(
         text: String,
-        spanStyles: List<AnnotatedString.Range<SpanStyle>>
+        spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
@@ -121,7 +121,7 @@ class ParagraphBenchmark(
             annotations = spanStyles,
             density = Density(density = instrumentationContext.resources.displayMetrics.density),
             fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
-            placeholders = listOf()
+            placeholders = listOf(),
         )
     }
 
@@ -160,7 +160,7 @@ class ParagraphBenchmark(
                 paragraph(
                     text = annotatedString.text,
                     spanStyles = annotatedString.spanStyles,
-                    width = width
+                    width = width,
                 )
             }
         }
@@ -180,7 +180,7 @@ class ParagraphBenchmark(
                             Canvas(
                                 ImageBitmap(
                                     paragraph.width.roundToInt(),
-                                    paragraph.height.roundToInt()
+                                    paragraph.height.roundToInt(),
                                 )
                             )
                         Pair(paragraph, canvas)
